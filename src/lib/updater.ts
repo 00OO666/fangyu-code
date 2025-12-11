@@ -55,7 +55,12 @@ function mapUpdateHandle(raw: Update): UpdateHandle {
           mapped.total = evt?.data?.contentLength ?? 0;
           mapped.downloaded = 0;
         } else if (evt?.event === "Progress") {
-          mapped.downloaded = evt?.data?.chunkLength ?? 0;
+          mapped.total = evt?.data?.contentLength ?? mapped.total;
+          mapped.downloaded =
+            evt?.data?.downloaded ?? evt?.data?.chunkLength ?? mapped.downloaded;
+        } else if (evt?.event === "Finished") {
+          mapped.total = evt?.data?.contentLength ?? mapped.total;
+          mapped.downloaded = mapped.total;
         }
         onProgress(mapped);
       });
@@ -124,6 +129,10 @@ export async function checkForUpdate(
         errorMessage = '网络连接超时，请检查网络连接';
       } else if (errorMessage.includes('signature') || errorMessage.includes('verify')) {
         errorMessage = '更新签名验证失败';
+        } else if (errorMessage.toLowerCase().includes('pubkey') || errorMessage.toLowerCase().includes('public key')) {
+          errorMessage = '更新公钥配置异常，请检查 tauri.conf.json 中的 pubkey';
+        } else if (errorMessage.toLowerCase().includes('permission') || errorMessage.toLowerCase().includes('not allowed')) {
+          errorMessage = '当前应用未授予更新权限，请确认 capabilities/default.json 启用了 updater 权限';
       } else if (errorMessage.includes('Failed to check for update')) {
          errorMessage = '检查更新服务失败，请稍后重试';
       }

@@ -50,6 +50,7 @@
     "fs:allow-read",
     "process:allow-restart",
     "process:allow-exit",
+    "updater:default",
     {
       "identifier": "http:default",
       "allow": [
