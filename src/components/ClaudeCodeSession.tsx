@@ -41,6 +41,7 @@ import { SessionMessages, type SessionMessagesRef } from "./session/SessionMessa
 import * as SessionHelpers from '@/lib/sessionHelpers';
 
 import type { ClaudeStreamMessage } from '@/types/claude';
+import type { CodexRateLimits } from '@/types/codex';
 
 interface ClaudeCodeSessionProps {
   /**
@@ -101,6 +102,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   const [isFirstPrompt, setIsFirstPrompt] = useState(!session); // Key state for session continuation
   const [extractedSessionInfo, setExtractedSessionInfo] = useState<{ sessionId: string; projectId: string; engine?: 'claude' | 'codex' | 'gemini' } | null>(null);
   const [claudeSessionId, setClaudeSessionId] = useState<string | null>(null);
+  const [codexRateLimits, setCodexRateLimits] = useState<CodexRateLimits | null>(null);
 
   // Plan Mode state - 使用 Context（方案 B-1）
   const {
@@ -292,6 +294,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
     setMessages,
     setRawJsonlOutput,
     setClaudeSessionId,
+    setCodexRateLimits,
     initializeProgressiveTranslation,
     processMessageWithTranslation
   });
@@ -333,6 +336,15 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
     return null;
   }, [session, extractedSessionInfo, projectPath]);
 
+  useEffect(() => {
+    if (executionEngineConfig.engine !== 'codex') {
+      setCodexRateLimits(null);
+      return;
+    }
+
+    setCodexRateLimits(null);
+  }, [executionEngineConfig.engine, effectiveSession?.id]);
+
   // ✅ Refactored: Use custom Hook for prompt execution (AFTER all other Hooks)
   const { handleSendPrompt } = usePromptExecution({
     projectPath,
@@ -363,6 +375,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
     setRawJsonlOutput,
     setExtractedSessionInfo,
     setIsFirstPrompt,
+    setCodexRateLimits,
     processMessageWithTranslation
   });
 
@@ -1115,6 +1128,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
             sessionStats={costStats}
             hasMessages={messages.length > 0}
             session={effectiveSession || undefined}  // 🆕 传递完整会话信息用于导出
+            codexRateLimits={codexRateLimits}
             executionEngineConfig={executionEngineConfig}              // 🆕 Codex 集成
             onExecutionEngineConfigChange={setExecutionEngineConfig}   // 🆕 Codex 集成
           />
@@ -1174,3 +1188,4 @@ export const ClaudeCodeSession: React.FC<ClaudeCodeSessionProps> = (props) => {
     </MessagesProvider>
   );
 };
+

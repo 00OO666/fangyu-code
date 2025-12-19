@@ -41,6 +41,7 @@ interface ControlBarProps {
   setShowCostPopover: (show: boolean) => void;
   messages?: any[];
   session?: any;
+  codexRateLimits?: CodexRateLimits | null;
   isEnhancing: boolean;
   projectPath?: string;
   enableProjectContext: boolean;
@@ -74,6 +75,7 @@ export const ControlBar: React.FC<ControlBarProps> = ({
   setShowCostPopover,
   messages,
   session,
+  codexRateLimits: providedCodexRateLimits,
   isEnhancing,
   projectPath,
   enableProjectContext,
@@ -96,7 +98,15 @@ export const ControlBar: React.FC<ControlBarProps> = ({
 
   // Extract latest Codex rate limits from messages
   const codexRateLimits = useMemo<CodexRateLimits | null>(() => {
-    if (executionEngineConfig.engine !== 'codex' || !messages || messages.length === 0) {
+    if (executionEngineConfig.engine !== 'codex') {
+      return null;
+    }
+
+    if (providedCodexRateLimits) {
+      return providedCodexRateLimits;
+    }
+
+    if (!messages || messages.length === 0) {
       return null;
     }
 
@@ -110,7 +120,7 @@ export const ControlBar: React.FC<ControlBarProps> = ({
     }
 
     return null;
-  }, [executionEngineConfig.engine, messages]);
+  }, [executionEngineConfig.engine, messages, providedCodexRateLimits]);
   
   return (
     <div className="flex items-center gap-2 flex-wrap">

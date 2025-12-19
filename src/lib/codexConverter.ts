@@ -15,6 +15,8 @@ import type {
   CodexWebSearchItem,
   CodexTodoListItem,
   CodexMessageMetadata,
+  CodexRateLimit,
+  CodexRateLimits,
 } from '@/types/codex';
 import type { ClaudeStreamMessage } from '@/types/claude';
 
@@ -65,6 +67,109 @@ const CODEX_TOOL_NAME_MAP: Record<string, string> = {
 function mapCodexToolName(codexName: string): string {
   const lowerName = codexName.toLowerCase();
   return CODEX_TOOL_NAME_MAP[lowerName] || codexName;
+}
+
+function parseCodexRateLimitEntry(raw: any, fallbackWindowMinutes: number): CodexRateLimit | undefined {
+  if (!raw || typeof raw !== 'object') {
+    return undefined;
+  }
+
+  const usedPercentValue = raw.used_percent
+    ?? raw.usedPercent
+    ?? raw.used_percentage
+    ?? raw.usedPercentage
+    ?? raw.percent_used
+    ?? raw.percent
+    ?? raw.percentage;
+  const usedPercent = Number(usedPercentValue);
+
+  const windowMinutesValue = raw.window_minutes
+    ?? raw.windowMinutes
+    ?? raw.window_min
+    ?? raw.window
+    ?? raw.windowMinutes;
+  const windowMinutes = Number(windowMinutesValue);
+
+  const resetsAtValue = raw.resets_at ?? raw.resetsAt ?? raw.reset_at ?? raw.resetAt;
+  const resetsInSecondsValue = raw.resets_in_seconds
+    ?? raw.resetsInSeconds
+    ?? raw.reset_in_seconds
+    ?? raw.resetInSeconds
+    ?? raw.reset_seconds
+    ?? raw.resetSeconds;
+
+  return {
+    usedPercent: Number.isFinite(usedPercent) ? usedPercent : 0,
+    windowMinutes: Number.isFinite(windowMinutes) && windowMinutes > 0 ? windowMinutes : fallbackWindowMinutes,
+    resetsAt: resetsAtValue !== undefined ? Number(resetsAtValue) : undefined,
+    resetsInSeconds: resetsInSecondsValue !== undefined ? Number(resetsInSecondsValue) : undefined,
+  };
+}
+
+export function parseCodexRateLimits(raw: any, updatedAt: string): CodexRateLimits | null {
+  if (!raw || typeof raw !== 'object') {
+    return null;
+  }
+
+  const primaryCandidate = raw.primary
+    ?? raw.primary_limit
+    ?? raw.five_hour
+    ?? raw.fiveHour
+    ?? raw['5h'];
+  const secondaryCandidate = raw.secondary
+    ?? raw.secondary_limit
+    ?? raw.weekly
+    ?? raw.week
+    ?? raw['1w']
+    ?? raw['7d'];
+  const hasPrimary = Boolean(primaryCandidate);
+  const hasSecondary = Boolean(secondaryCandidate);
+
+  const primary = parseCodexRateLimitEntry(hasPrimary ? primaryCandidate : (!hasSecondary ? raw : null), 299);
+  const secondary = parseCodexRateLimitEntry(secondaryCandidate, 10079);
+
+  if (!primary && !secondary) {
+    return null;
+  }
+
+  const rateLimits: CodexRateLimits = { updatedAt };
+  if (primary) {
+    rateLimits.primary = primary;
+  }
+  if (secondary) {
+    rateLimits.secondary = secondary;
+  }
+
+  return rateLimits;
+}
+
+export function extractCodexRateLimitsFromEvent(event: any): CodexRateLimits | null {
+  if (!event || typeof event !== 'object') {
+    return null;
+  }
+
+  const ts = typeof event.timestamp === 'string' && event.timestamp
+    ? event.timestamp
+    : new Date().toISOString();
+  const candidates = [
+    event.rate_limits,
+    event.rateLimits,
+    event.payload?.rate_limits,
+    event.payload?.rateLimits,
+    event.payload?.info?.rate_limits,
+    event.payload?.info?.rateLimits,
+    event.usage?.rate_limits,
+    event.usage?.rateLimits,
+  ];
+
+  for (const candidate of candidates) {
+    const parsed = parseCodexRateLimits(candidate, ts);
+    if (parsed) {
+      return parsed;
+    }
+  }
+
+  return null;
 }
 
 /**
@@ -166,12 +271,24 @@ export class CodexEventConverter {
 
         case 'turn.completed':
           this.currentTurnUsage = event.usage;
-          return this.createUsageMessage(event.usage, event.timestamp);
+          {
+            const rateLimits = extractCodexRateLimitsFromEvent(event);
+            if (rateLimits) {
+              this.latestRateLimits = rateLimits;
+            }
+            return this.createUsageMessage(event.usage, event.timestamp, rateLimits);
+          }
 
         case 'thread_token_usage_updated':
           // 累计 token 使用量更新事件 - 这是关键的累计追踪事件
           // 参考: https://hexdocs.pm/codex_sdk/05-api-reference.html
-          return this.createCumulativeUsageMessage(event, event.timestamp);
+          {
+            const rateLimits = extractCodexRateLimitsFromEvent(event);
+            if (rateLimits) {
+              this.latestRateLimits = rateLimits;
+            }
+            return this.createCumulativeUsageMessage(event, event.timestamp, rateLimits);
+          }
 
         case 'turn.failed':
           return this.createErrorMessage(event.error.message, event.timestamp);
@@ -320,36 +437,8 @@ export class CodexEventConverter {
       ? info.model_context_window
       : undefined;
 
-    // Parse rate_limits from payload (5h limit and weekly limit)
-    const rateLimitsRaw = payload?.rate_limits;
-    let rateLimits: import('@/types/codex').CodexRateLimits | undefined;
-
-    if (rateLimitsRaw && typeof rateLimitsRaw === 'object') {
-      rateLimits = { updatedAt: ts };
-
-      // Parse primary (5-hour) limit
-      const primary = rateLimitsRaw.primary;
-      if (primary && typeof primary === 'object') {
-        rateLimits.primary = {
-          usedPercent: Number(primary.used_percent) || 0,
-          windowMinutes: Number(primary.window_minutes) || 299, // ~5 hours
-          resetsAt: primary.resets_at !== undefined ? Number(primary.resets_at) : undefined,
-          resetsInSeconds: primary.resets_in_seconds !== undefined ? Number(primary.resets_in_seconds) : undefined,
-        };
-      }
-
-      // Parse secondary (weekly) limit
-      const secondary = rateLimitsRaw.secondary;
-      if (secondary && typeof secondary === 'object') {
-        rateLimits.secondary = {
-          usedPercent: Number(secondary.used_percent) || 0,
-          windowMinutes: Number(secondary.window_minutes) || 10079, // ~1 week
-          resetsAt: secondary.resets_at !== undefined ? Number(secondary.resets_at) : undefined,
-          resetsInSeconds: secondary.resets_in_seconds !== undefined ? Number(secondary.resets_in_seconds) : undefined,
-        };
-      }
-
-      // Store latest rate limits for external access
+    const rateLimits = extractCodexRateLimitsFromEvent(event);
+    if (rateLimits) {
       this.latestRateLimits = rateLimits;
     }
 
@@ -1097,14 +1186,20 @@ export class CodexEventConverter {
   /**
    * Creates a usage statistics message
    */
-  private createUsageMessage(usage: {
-    input_tokens: number;
-    cached_input_tokens?: number;
-    output_tokens: number;
-  }, eventTimestamp?: string): ClaudeStreamMessage {
+  private createUsageMessage(
+    usage: {
+      input_tokens: number;
+      cached_input_tokens?: number;
+      output_tokens: number;
+    },
+    eventTimestamp?: string,
+    rateLimits?: CodexRateLimits | null
+  ): ClaudeStreamMessage {
     const ts = eventTimestamp || new Date().toISOString();
     const totalTokens = usage.input_tokens + usage.output_tokens;
     const cacheInfo = usage.cached_input_tokens ? ` (${usage.cached_input_tokens} cached)` : '';
+    const resolvedRateLimits = rateLimits || this.latestRateLimits || undefined;
+    const codexItemId = `turn_completed_${Date.now()}`;
 
     return {
       type: 'system',
@@ -1115,6 +1210,13 @@ export class CodexEventConverter {
       engine: 'codex' as const,
       model: this.activeModel || undefined,
       usage,
+      codexMetadata: {
+        codexItemType: 'turn.completed',
+        codexItemId,
+        threadId: this.threadId || undefined,
+        usage,
+        rateLimits: resolvedRateLimits,
+      } as CodexMessageMetadata,
     };
   }
 
@@ -1123,9 +1225,14 @@ export class CodexEventConverter {
    * This event provides CUMULATIVE token counts for the entire session
    * Reference: https://hexdocs.pm/codex_sdk/05-api-reference.html
    */
-  private createCumulativeUsageMessage(event: any, eventTimestamp?: string): ClaudeStreamMessage {
+  private createCumulativeUsageMessage(
+    event: any,
+    eventTimestamp?: string,
+    rateLimits?: CodexRateLimits | null
+  ): ClaudeStreamMessage {
     const ts = eventTimestamp || new Date().toISOString();
     const usage = event.usage || {};
+    const resolvedRateLimits = rateLimits || this.latestRateLimits || undefined;
 
     // 标准化 usage 数据
     const normalizedUsage = {
@@ -1152,6 +1259,7 @@ export class CodexEventConverter {
         codexItemId: `usage_${Date.now()}`,
         threadId: event.thread_id,
         usage: normalizedUsage,
+        rateLimits: resolvedRateLimits,
       },
     };
   }

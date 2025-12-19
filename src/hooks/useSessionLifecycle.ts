@@ -3,6 +3,7 @@ import { listen, type UnlistenFn } from '@tauri-apps/api/event';
 import { api, type Session } from '@/lib/api';
 import { normalizeUsageData } from '@/lib/utils';
 import type { ClaudeStreamMessage } from '@/types/claude';
+import type { CodexRateLimits } from '@/types/codex';
 import { codexConverter } from '@/lib/codexConverter';
 import { convertGeminiSessionDetailToClaudeMessages } from '@/lib/geminiConverter';
 
@@ -31,6 +32,7 @@ interface UseSessionLifecycleConfig {
   setMessages: React.Dispatch<React.SetStateAction<ClaudeStreamMessage[]>>;
   setRawJsonlOutput: React.Dispatch<React.SetStateAction<string[]>>;
   setClaudeSessionId: (sessionId: string) => void;
+  setCodexRateLimits?: React.Dispatch<React.SetStateAction<CodexRateLimits | null>>;
   initializeProgressiveTranslation: (messages: ClaudeStreamMessage[]) => Promise<void>;
   processMessageWithTranslation: (message: ClaudeStreamMessage, payload: string) => Promise<void>;
 }
@@ -53,6 +55,7 @@ export function useSessionLifecycle(config: UseSessionLifecycleConfig): UseSessi
     setMessages,
     setRawJsonlOutput,
     setClaudeSessionId,
+    setCodexRateLimits,
     initializeProgressiveTranslation,
     processMessageWithTranslation
   } = config;
@@ -109,6 +112,9 @@ export function useSessionLifecycle(config: UseSessionLifecycleConfig): UseSessi
               }
           }
           history = convertedMessages;
+          if (setCodexRateLimits) {
+            setCodexRateLimits(codexConverter.getRateLimits());
+          }
         }
       }
 
@@ -236,7 +242,7 @@ export function useSessionLifecycle(config: UseSessionLifecycleConfig): UseSessi
       setError("加载会话历史记录失败");
       setIsLoading(false);
     }
-  }, [session, isMountedRef, setIsLoading, setError, setMessages, setRawJsonlOutput, initializeProgressiveTranslation]);
+  }, [session, isMountedRef, setIsLoading, setError, setMessages, setRawJsonlOutput, setCodexRateLimits, initializeProgressiveTranslation]);
 
   /**
    * 检查会话是否仍在活跃状态

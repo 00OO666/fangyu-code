@@ -48,6 +48,7 @@ const FloatingPromptInputInner = (
     sessionStats,
     hasMessages = false,
     session,
+    codexRateLimits,
     executionEngineConfig: externalEngineConfig,
     onExecutionEngineConfigChange,
   }: FloatingPromptInputProps,
@@ -664,6 +665,7 @@ const FloatingPromptInputInner = (
             setShowCostPopover={(show) => dispatch({ type: "SET_SHOW_COST_POPOVER", payload: show })}
             messages={messages}
             session={session}
+            codexRateLimits={codexRateLimits}
             isEnhancing={isEnhancing}
             projectPath={projectPath}
             enableProjectContext={state.enableProjectContext}

@@ -19,8 +19,8 @@ import { translationMiddleware, isSlashCommand, type TranslationResult } from '@
 import type { ClaudeStreamMessage } from '@/types/claude';
 import type { ModelType } from '@/components/FloatingPromptInput/types';
 // 🔧 FIX: 导入 CodexEventConverter 类，在每个会话中创建独立实例避免全局单例污染
-import { CodexEventConverter } from '@/lib/codexConverter';
-import type { CodexExecutionMode } from '@/types/codex';
+import { CodexEventConverter, extractCodexRateLimitsFromEvent } from '@/lib/codexConverter';
+import type { CodexExecutionMode, CodexRateLimits } from '@/types/codex';
 
 // ============================================================================
 // Global Type Declarations
@@ -92,6 +92,7 @@ interface UsePromptExecutionConfig {
   setRawJsonlOutput: React.Dispatch<React.SetStateAction<string[]>>;
   setExtractedSessionInfo: React.Dispatch<React.SetStateAction<{ sessionId: string; projectId: string; engine?: 'claude' | 'codex' | 'gemini' } | null>>;
   setIsFirstPrompt: (isFirst: boolean) => void;
+  setCodexRateLimits?: React.Dispatch<React.SetStateAction<CodexRateLimits | null>>;
 
   // External Hook Functions
   processMessageWithTranslation: (message: ClaudeStreamMessage, payload: string, currentTranslationResult?: TranslationResult) => Promise<void>;
@@ -134,6 +135,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
     setRawJsonlOutput,
     setExtractedSessionInfo,
     setIsFirstPrompt,
+    setCodexRateLimits,
     processMessageWithTranslation
   } = config;
 
@@ -145,6 +147,72 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
   useEffect(() => {
     isPlanModeRef.current = isPlanMode;
   }, [isPlanMode]);
+
+  const codexThreadIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (executionEngine !== 'codex') {
+      return;
+    }
+
+    const sessionId = extractedSessionInfo?.sessionId || effectiveSession?.id;
+    if (sessionId) {
+      codexThreadIdRef.current = sessionId;
+    }
+  }, [executionEngine, extractedSessionInfo?.sessionId, effectiveSession?.id]);
+
+  const updateCodexRateLimits = useCallback((incoming?: CodexRateLimits | null) => {
+    if (!incoming || !setCodexRateLimits) {
+      return;
+    }
+
+    setCodexRateLimits((prev) => {
+      if (!prev) {
+        return incoming;
+      }
+
+      if (!incoming.updatedAt) {
+        return prev.updatedAt ? prev : incoming;
+      }
+
+      if (!prev.updatedAt) {
+        return incoming;
+      }
+
+      const prevTime = Date.parse(prev.updatedAt);
+      const nextTime = Date.parse(incoming.updatedAt);
+
+      if (Number.isFinite(prevTime) && Number.isFinite(nextTime) && nextTime < prevTime) {
+        return prev;
+      }
+
+      return incoming;
+    });
+  }, [setCodexRateLimits]);
+
+  const refreshCodexRateLimitsFromHistory = useCallback(async () => {
+    if (!setCodexRateLimits) {
+      return;
+    }
+
+    const sessionId = codexThreadIdRef.current || extractedSessionInfo?.sessionId || effectiveSession?.id;
+    if (!sessionId) {
+      return;
+    }
+
+    try {
+      const history = await api.loadCodexSessionHistory(sessionId);
+      for (let i = history.length - 1; i >= 0; i -= 1) {
+        const rateLimits = extractCodexRateLimitsFromEvent(history[i]);
+        if (rateLimits) {
+          updateCodexRateLimits(rateLimits);
+          break;
+        }
+      }
+    } catch (err) {
+      console.warn('[usePromptExecution] Failed to refresh Codex rate limits:', err);
+    }
+  }, [effectiveSession?.id, extractedSessionInfo?.sessionId, setCodexRateLimits, updateCodexRateLimits]);
 
   // ============================================================================
   // Main Prompt Execution Function
@@ -323,6 +391,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
               // Here we only save the thread_id for session resuming purposes (different from channel ID)
               if (message.type === 'system' && message.subtype === 'init' && (message as any).session_id) {
                 const codexThreadId = (message as any).session_id;  // This is the Codex thread_id
+                codexThreadIdRef.current = codexThreadId;
                 // 🔧 FIX: Don't override claudeSessionId here - it's already set to backend channel ID
                 // setClaudeSessionId(codexThreadId);  // REMOVED - would break event channel subscription
 
@@ -362,6 +431,10 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
 
             // 🔧 CRITICAL FIX: Auto-complete session when turn.completed is received
             // Don't wait for codex-complete event from backend, as it may be delayed or not sent
+            const converterRateLimits = sessionCodexConverter.getRateLimits();
+            const messageRateLimits = (message as any)?.codexMetadata?.rateLimits;
+            updateCodexRateLimits(messageRateLimits || converterRateLimits);
+
             if (isTurnCompleted) {
               // Use setTimeout to ensure message state is updated first
               setTimeout(() => {
@@ -401,6 +474,8 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
               // Clear the pending prompt
               delete window.__codexPendingPrompt;
             }
+
+            await refreshCodexRateLimitsFromHistory();
 
             // Process queued prompts
             if (queuedPromptsRef.current.length > 0) {
@@ -1480,7 +1555,9 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
     setRawJsonlOutput,
     setExtractedSessionInfo,
     setIsFirstPrompt,
-    processMessageWithTranslation
+    processMessageWithTranslation,
+    refreshCodexRateLimitsFromHistory,
+    updateCodexRateLimits
   ]);
 
   // ============================================================================

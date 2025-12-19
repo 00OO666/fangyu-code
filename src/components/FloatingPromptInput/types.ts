@@ -133,6 +133,10 @@ export interface FloatingPromptInputProps {
    */
   session?: import("@/lib/api").Session;
   /**
+   * ?? Codex rate limits (for live badge updates)
+   */
+  codexRateLimits?: import("@/types/codex").CodexRateLimits | null;
+  /**
    * 🆕 Execution engine configuration (optional, for Codex integration)
    */
   executionEngineConfig?: ExecutionEngineConfig;
