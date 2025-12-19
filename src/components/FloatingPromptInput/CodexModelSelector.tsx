@@ -21,6 +21,13 @@ export interface CodexModelConfig {
  */
 export const CODEX_MODELS: CodexModelConfig[] = [
   {
+    id: 'gpt-5.2-codex',
+    name: 'GPT-5.2 Codex',
+    description: '最新代码模型（2025年12月18日发布）',
+    icon: <Rocket className="h-4 w-4 text-emerald-500" />,
+    isDefault: true,
+  },
+  {
     id: 'gpt-5.2-pro',
     name: 'GPT-5.2 Pro',
     description: '最强推理模型，适合复杂任务',
@@ -32,7 +39,7 @@ export const CODEX_MODELS: CodexModelConfig[] = [
     name: 'GPT-5.2',
     description: '最新旗舰模型（2025年12月）',
     icon: <Star className="h-4 w-4 text-yellow-500" />,
-    isDefault: true,
+    isDefault: false,
   },
   {
     id: 'gpt-5.1-codex-max',

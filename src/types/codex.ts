@@ -209,6 +209,33 @@ export interface CodexSession {
 // ============================================================================
 
 /**
+ * Codex rate limit information (5h / weekly limits)
+ * Source: Codex CLI token_count events in session files
+ */
+export interface CodexRateLimit {
+  /** Usage percentage (0-100) */
+  usedPercent: number;
+  /** Window duration in minutes */
+  windowMinutes: number;
+  /** Unix timestamp when limit resets */
+  resetsAt?: number;
+  /** Seconds until reset */
+  resetsInSeconds?: number;
+}
+
+/**
+ * Codex rate limits structure
+ */
+export interface CodexRateLimits {
+  /** Primary (5-hour) limit */
+  primary?: CodexRateLimit;
+  /** Secondary (weekly) limit */
+  secondary?: CodexRateLimit;
+  /** Timestamp when rate limits were last updated */
+  updatedAt?: string;
+}
+
+/**
  * Codex item to message conversion metadata
  */
 export interface CodexMessageMetadata {
@@ -227,4 +254,10 @@ export interface CodexMessageMetadata {
     cached_input_tokens?: number;
     output_tokens: number;
   };
+
+  /** Rate limits (if available from token_count events) */
+  rateLimits?: CodexRateLimits;
+
+  /** Model context window size */
+  modelContextWindow?: number;
 }

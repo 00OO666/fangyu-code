@@ -32,7 +32,7 @@ export const initialState: InputState = {
   executionEngineConfig: {
     engine: "claude",
     codexMode: "read-only",
-    codexModel: "gpt-5.2",
+    codexModel: "gpt-5.2-codex",
     geminiModel: "gemini-3-flash",
   },
   enableProjectContext: false,

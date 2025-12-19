@@ -118,6 +118,7 @@ export const CODEX_CONTEXT_WINDOWS = {
   // GPT-5.2 系列 - 最新模型
   // 272K context, 128K max output
   'gpt-5.2': 272000,
+  'gpt-5.2-codex': 272000,  // 🆕 GPT-5.2-Codex（2025年12月18日发布）
   'gpt-5.2-instant': 272000,
   'gpt-5.2-thinking': 272000,
   'gpt-5.2-pro': 272000,
@@ -198,7 +199,11 @@ export function getContextWindowSize(model?: string, engine?: string): number {
       return CODEX_CONTEXT_WINDOWS['gpt-5.1-codex'];
     }
 
-    // GPT-5.2 系列 (Instant, Thinking, Pro variants)
+    // GPT-5.2 系列 (Codex, Instant, Thinking, Pro variants)
+    // GPT-5.2-Codex 优先匹配（最新代码模型）
+    if (lowerModel.includes('5.2-codex') || lowerModel.includes('5_2_codex')) {
+      return CODEX_CONTEXT_WINDOWS['gpt-5.2-codex'];
+    }
     if (lowerModel.includes('5.2-pro') || lowerModel.includes('5_2_pro')) {
       return CODEX_CONTEXT_WINDOWS['gpt-5.2-pro'];
     }

@@ -101,6 +101,14 @@ export const MODEL_PRICING: Record<string, ModelPricing> = {
     cacheWrite: 2.1875,
     cacheRead: 0.175   // 官方: $0.175 cached input
   },
+  // GPT-5.2-Codex - 最新代码模型（2025年12月18日发布）
+  // Source: https://openai.com/index/introducing-gpt-5-2-codex/
+  'gpt-5.2-codex': {
+    input: 1.75,      // $1.75 / 1M input tokens (same as GPT-5.2)
+    output: 14.00,    // $14.00 / 1M output tokens
+    cacheWrite: 2.1875,
+    cacheRead: 0.175
+  },
   // GPT-5.2 variants (Instant, Thinking, Pro) - 同定价
   'gpt-5.2-instant': {
     input: 1.75,
@@ -263,7 +271,11 @@ export function getPricingForModel(model?: string, engine?: string): ModelPricin
     return MODEL_PRICING['gpt-5.1-codex'];
   }
 
-  // GPT-5.2 系列 (Instant, Thinking, Pro variants)
+  // GPT-5.2 系列 (Codex, Instant, Thinking, Pro variants)
+  // GPT-5.2-Codex 优先匹配（最新代码模型）
+  if (normalized.includes('5.2-codex') || normalized.includes('5_2_codex')) {
+    return MODEL_PRICING['gpt-5.2-codex'];
+  }
   if (normalized.includes('5.2-pro') || normalized.includes('5_2_pro')) {
     return MODEL_PRICING['gpt-5.2-pro'];
   }

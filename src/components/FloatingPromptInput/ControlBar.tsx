@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,12 +11,14 @@ import { formatDuration } from "@/lib/pricing";
 import { ExecutionEngineSelector, type ExecutionEngineConfig } from "@/components/ExecutionEngineSelector";
 import { ModelSelector } from "./ModelSelector";
 import { CodexModelSelector } from "./CodexModelSelector";
+import { CodexRateLimitBadge } from "./CodexRateLimitBadge";
 import { GeminiModelSelector } from "./GeminiModelSelector";
 import { ThinkingModeToggle } from "./ThinkingModeToggle";
 import { PlanModeToggle } from "./PlanModeToggle";
 import { SessionToolbar } from "@/components/SessionToolbar";
 import { ContextWindowIndicator } from "@/components/widgets/ContextWindowIndicator";
 import { ModelType, ModelConfig } from "./types";
+import type { CodexRateLimits } from "@/types/codex";
 
 interface ControlBarProps {
   disabled?: boolean;
@@ -91,6 +93,24 @@ export const ControlBar: React.FC<ControlBarProps> = ({
       : executionEngineConfig.engine === 'gemini'
         ? (executionEngineConfig.geminiModel || session?.model)
         : selectedModel;
+
+  // Extract latest Codex rate limits from messages
+  const codexRateLimits = useMemo<CodexRateLimits | null>(() => {
+    if (executionEngineConfig.engine !== 'codex' || !messages || messages.length === 0) {
+      return null;
+    }
+
+    // Find the latest message with rate limits in codexMetadata
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const msg = messages[i];
+      const rateLimits = (msg as any)?.codexMetadata?.rateLimits;
+      if (rateLimits && (rateLimits.primary || rateLimits.secondary)) {
+        return rateLimits;
+      }
+    }
+
+    return null;
+  }, [executionEngineConfig.engine, messages]);
   
   return (
     <div className="flex items-center gap-2 flex-wrap">
@@ -128,14 +148,20 @@ export const ControlBar: React.FC<ControlBarProps> = ({
 
       {/* Codex-specific controls */}
       {executionEngineConfig.engine === 'codex' && (
-        <CodexModelSelector
-          selectedModel={executionEngineConfig.codexModel}
-          onModelChange={(model) => setExecutionEngineConfig({
-            ...executionEngineConfig,
-            codexModel: model,
-          })}
-          disabled={disabled}
-        />
+        <>
+          <CodexModelSelector
+            selectedModel={executionEngineConfig.codexModel}
+            onModelChange={(model) => setExecutionEngineConfig({
+              ...executionEngineConfig,
+              codexModel: model,
+            })}
+            disabled={disabled}
+          />
+          {/* Codex Rate Limit Badge */}
+          {codexRateLimits && (
+            <CodexRateLimitBadge rateLimits={codexRateLimits} />
+          )}
+        </>
       )}
 
       {/* Gemini-specific controls */}

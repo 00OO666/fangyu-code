@@ -80,6 +80,8 @@ export class CodexEventConverter {
   private itemMap: Map<string, CodexItem> = new Map();
   /** Stores tool results by call_id for later matching with tool_use */
   private toolResults: Map<string, { content: string; is_error: boolean }> = new Map();
+  /** Stores the latest rate limits from token_count events */
+  private latestRateLimits: import('@/types/codex').CodexRateLimits | null = null;
 
   constructor(options?: { defaultModel?: string | null }) {
     if (options?.defaultModel && options.defaultModel.trim() !== '') {
@@ -113,6 +115,14 @@ export class CodexEventConverter {
    */
   getAllToolResults(): Map<string, { content: string; is_error: boolean }> {
     return new Map(this.toolResults);
+  }
+
+  /**
+   * Gets the latest rate limits from token_count events
+   * Returns null if no rate limits have been received
+   */
+  getRateLimits(): import('@/types/codex').CodexRateLimits | null {
+    return this.latestRateLimits;
   }
 
   /**
@@ -310,6 +320,39 @@ export class CodexEventConverter {
       ? info.model_context_window
       : undefined;
 
+    // Parse rate_limits from payload (5h limit and weekly limit)
+    const rateLimitsRaw = payload?.rate_limits;
+    let rateLimits: import('@/types/codex').CodexRateLimits | undefined;
+
+    if (rateLimitsRaw && typeof rateLimitsRaw === 'object') {
+      rateLimits = { updatedAt: ts };
+
+      // Parse primary (5-hour) limit
+      const primary = rateLimitsRaw.primary;
+      if (primary && typeof primary === 'object') {
+        rateLimits.primary = {
+          usedPercent: Number(primary.used_percent) || 0,
+          windowMinutes: Number(primary.window_minutes) || 299, // ~5 hours
+          resetsAt: primary.resets_at !== undefined ? Number(primary.resets_at) : undefined,
+          resetsInSeconds: primary.resets_in_seconds !== undefined ? Number(primary.resets_in_seconds) : undefined,
+        };
+      }
+
+      // Parse secondary (weekly) limit
+      const secondary = rateLimitsRaw.secondary;
+      if (secondary && typeof secondary === 'object') {
+        rateLimits.secondary = {
+          usedPercent: Number(secondary.used_percent) || 0,
+          windowMinutes: Number(secondary.window_minutes) || 10079, // ~1 week
+          resetsAt: secondary.resets_at !== undefined ? Number(secondary.resets_at) : undefined,
+          resetsInSeconds: secondary.resets_in_seconds !== undefined ? Number(secondary.resets_in_seconds) : undefined,
+        };
+      }
+
+      // Store latest rate limits for external access
+      this.latestRateLimits = rateLimits;
+    }
+
     const codexItemId = `token_count_${++this.tokenCountSeq}`;
 
     return {
@@ -328,6 +371,7 @@ export class CodexEventConverter {
         codexItemId,
         threadId: this.threadId || undefined,
         usage: totalUsage || deltaUsage,
+        rateLimits,
         modelContextWindow,
       } as any,
     };
@@ -1137,6 +1181,7 @@ export class CodexEventConverter {
     this.activeModel = null;
     this.itemMap.clear();
     this.toolResults.clear();
+    this.latestRateLimits = null;
   }
 }
 
