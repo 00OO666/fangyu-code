@@ -60,72 +60,74 @@ export const MODEL_PRICING: Record<string, ModelPricing> = {
 
   // GPT-5.1-Codex 系列 - Codex CLI 主要使用的模型
   // Context: 400K tokens
+  // Note: OpenAI API cache write 免费，只有 cache read 收费
   'gpt-5.1-codex': {
     input: 1.25,      // $1.25 / 1M input tokens (Standard tier)
     output: 10.00,    // $10.00 / 1M output tokens
-    cacheWrite: 1.5625, // input * 1.25 (estimated)
-    cacheRead: 0.125   // 官方: $0.125 cached input
+    cacheWrite: 0,    // OpenAI cache write 免费
+    cacheRead: 0.125  // 官方: $0.125 cached input
   },
   'gpt-5.1-codex-mini': {
     input: 0.25,      // $0.25 / 1M input tokens
     output: 2.00,     // $2.00 / 1M output tokens
-    cacheWrite: 0.3125,
-    cacheRead: 0.025   // 官方: $0.025 cached input
+    cacheWrite: 0,    // OpenAI cache write 免费
+    cacheRead: 0.025  // 官方: $0.025 cached input
   },
   'gpt-5.1-codex-max': {
     input: 1.25,      // $1.25 / 1M input tokens (same as base)
     output: 10.00,    // $10.00 / 1M output tokens
-    cacheWrite: 1.5625,
+    cacheWrite: 0,    // OpenAI cache write 免费
     cacheRead: 0.125
   },
   // codex-mini-latest - 默认 Codex CLI 模型
   'codex-mini-latest': {
     input: 1.50,      // $1.50 / 1M input tokens (官方定价)
     output: 6.00,     // $6.00 / 1M output tokens
-    cacheWrite: 1.875,
-    cacheRead: 0.375   // 官方: $0.375 cached input
+    cacheWrite: 0,    // OpenAI cache write 免费
+    cacheRead: 0.375  // 官方: $0.375 cached input
   },
   // gpt-5-codex 别名
   'gpt-5-codex': {
     input: 1.25,
     output: 10.00,
-    cacheWrite: 1.5625,
+    cacheWrite: 0,    // OpenAI cache write 免费
     cacheRead: 0.125
   },
 
   // GPT-5.2 系列 - 最新模型
   // Context: 400K tokens, Max Output: 128K tokens
+  // Note: OpenAI API cache write 免费，只有 cache read 收费
   'gpt-5.2': {
     input: 1.75,      // $1.75 / 1M input tokens (Standard tier)
     output: 14.00,    // $14.00 / 1M output tokens
-    cacheWrite: 2.1875,
-    cacheRead: 0.175   // 官方: $0.175 cached input
+    cacheWrite: 0,    // OpenAI cache write 免费
+    cacheRead: 0.175  // 官方: $0.175 cached input
   },
   // GPT-5.2-Codex - 最新代码模型（2025年12月18日发布）
   // Source: https://openai.com/index/introducing-gpt-5-2-codex/
   'gpt-5.2-codex': {
     input: 1.75,      // $1.75 / 1M input tokens (same as GPT-5.2)
     output: 14.00,    // $14.00 / 1M output tokens
-    cacheWrite: 2.1875,
+    cacheWrite: 0,    // OpenAI cache write 免费
     cacheRead: 0.175
   },
   // GPT-5.2 variants (Instant, Thinking, Pro) - 同定价
   'gpt-5.2-instant': {
     input: 1.75,
     output: 14.00,
-    cacheWrite: 2.1875,
+    cacheWrite: 0,    // OpenAI cache write 免费
     cacheRead: 0.175
   },
   'gpt-5.2-thinking': {
     input: 1.75,
     output: 14.00,
-    cacheWrite: 2.1875,
+    cacheWrite: 0,    // OpenAI cache write 免费
     cacheRead: 0.175
   },
   'gpt-5.2-pro': {
     input: 1.75,
     output: 14.00,
-    cacheWrite: 2.1875,
+    cacheWrite: 0,    // OpenAI cache write 免费
     cacheRead: 0.175
   },
 
@@ -134,8 +136,8 @@ export const MODEL_PRICING: Record<string, ModelPricing> = {
   'o4-mini': {
     input: 1.10,      // $1.10 / 1M input tokens (Standard tier)
     output: 4.40,     // $4.40 / 1M output tokens
-    cacheWrite: 1.375,
-    cacheRead: 0.275   // 官方: $0.275 cached input
+    cacheWrite: 0,    // OpenAI cache write 免费
+    cacheRead: 0.275  // 官方: $0.275 cached input
   },
 
   // ============================================================================
