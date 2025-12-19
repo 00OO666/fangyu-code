@@ -1,4 +1,5 @@
 // Claude stream message types
+import type { CodexMessageMetadata } from './codex';
 
 export interface ClaudeStreamMessage {
   type: "system" | "assistant" | "user" | "result" | "summary" | "queue-operation" | "thinking" | "tool_use";
@@ -20,16 +21,7 @@ export interface ClaudeStreamMessage {
     cache_read_tokens?: number;
   };
   // OpenAI Codex metadata (when converted from Codex events)
-  codexMetadata?: {
-    codexItemType: string;
-    codexItemId: string;
-    threadId?: string;
-    usage?: {
-      input_tokens: number;
-      cached_input_tokens?: number;
-      output_tokens: number;
-    };
-  };
+  codexMetadata?: CodexMessageMetadata;
   // Google Gemini metadata (when converted from Gemini events)
   geminiMetadata?: {
     provider: 'gemini';
