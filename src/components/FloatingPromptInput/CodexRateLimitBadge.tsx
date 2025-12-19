@@ -11,25 +11,39 @@ interface CodexRateLimitBadgeProps {
 }
 
 /**
- * Formats seconds into a human-readable duration string
+ * Formats reset timestamp into human-readable time string
+ * For same day: "14:49"
+ * For different day: "12月24日 11:21"
  */
-function formatDuration(seconds: number): string {
-  if (seconds <= 0) return "已重置";
+function formatResetTime(resetsAt?: number, resetsInSeconds?: number): string {
+  let resetDate: Date;
 
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-
-  if (hours > 24) {
-    const days = Math.floor(hours / 24);
-    const remainingHours = hours % 24;
-    return remainingHours > 0 ? `${days}天 ${remainingHours}时` : `${days}天`;
+  if (resetsAt !== undefined) {
+    resetDate = new Date(resetsAt * 1000);
+  } else if (resetsInSeconds !== undefined) {
+    if (resetsInSeconds <= 0) return "已重置";
+    resetDate = new Date(Date.now() + resetsInSeconds * 1000);
+  } else {
+    return "未知";
   }
 
-  if (hours > 0) {
-    return minutes > 0 ? `${hours}时 ${minutes}分` : `${hours}时`;
+  const now = new Date();
+  const isToday = resetDate.toDateString() === now.toDateString();
+
+  const timeStr = resetDate.toLocaleTimeString('zh-CN', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  });
+
+  if (isToday) {
+    return timeStr;
   }
 
-  return `${minutes}分`;
+  // Show date for non-today resets
+  const month = resetDate.getMonth() + 1;
+  const day = resetDate.getDate();
+  return `${month}月${day}日 ${timeStr}`;
 }
 
 /**
@@ -72,11 +86,7 @@ const RateLimitProgress: React.FC<{
   icon: React.ReactNode;
 }> = ({ label, limit, icon }) => {
   const variant = getVariant(limit.usedPercent);
-  const resetTime = limit.resetsInSeconds !== undefined
-    ? formatDuration(limit.resetsInSeconds)
-    : limit.resetsAt !== undefined
-      ? formatDuration((limit.resetsAt - Date.now() / 1000))
-      : "未知";
+  const resetTime = formatResetTime(limit.resetsAt, limit.resetsInSeconds);
 
   return (
     <div className="space-y-1.5">
@@ -97,7 +107,7 @@ const RateLimitProgress: React.FC<{
       <ColoredProgressBar value={limit.usedPercent} variant={variant} />
       <div className="flex items-center justify-between text-[10px] text-muted-foreground">
         <span>已用 {limit.usedPercent.toFixed(1)}%</span>
-        <span>重置于: {resetTime}</span>
+        <span>重置: {resetTime}</span>
       </div>
     </div>
   );
