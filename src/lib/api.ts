@@ -24,6 +24,9 @@ import * as UsageModule from './api/usage';
 // Import storage module utilities
 import * as StorageModule from './api/storage';
 
+// Import translation module utilities
+import * as TranslationModule from './api/translation';
+
 // Re-export types for backward compatibility
 export type {
   ProcessType,
@@ -1142,118 +1145,33 @@ export const api = {
     }
   },
 
-  // Translation API methods
+  // ============================================================================
+  // TRANSLATION API (delegated to TranslationModule)
+  // ============================================================================
 
-  /**
-   * Translates text using the translation service
-   * @param text - The text to translate
-   * @param targetLang - Optional target language (defaults to auto-detection)
-   * @returns Promise resolving to translated text
-   */
-  async translateText(text: string, targetLang?: string): Promise<string> {
-    try {
-      return await invoke<string>("translate", { text, targetLang });
-    } catch (error) {
-      console.error("Failed to translate text:", error);
-      throw error;
-    }
-  },
+  /** Translates text using the translation service */
+  translateText: TranslationModule.translateText,
 
-  /**
-   * Translates multiple texts in batch
-   * @param texts - Array of texts to translate
-   * @param targetLang - Optional target language
-   * @returns Promise resolving to array of translated texts
-   */
-  async translateBatch(texts: string[], targetLang?: string): Promise<string[]> {
-    try {
-      return await invoke<string[]>("translate_batch", { texts, targetLang });
-    } catch (error) {
-      console.error("Failed to batch translate texts:", error);
-      throw error;
-    }
-  },
+  /** Translates multiple texts in batch */
+  translateBatch: TranslationModule.translateBatch,
 
-  /**
-   * Gets the current translation configuration
-   * @returns Promise resolving to translation configuration
-   */
-  async getTranslationConfig(): Promise<TranslationConfig> {
-    try {
-      return await invoke<TranslationConfig>("get_translation_config");
-    } catch (error) {
-      console.error("Failed to get translation config:", error);
-      throw error;
-    }
-  },
+  /** Gets the current translation configuration */
+  getTranslationConfig: TranslationModule.getTranslationConfig,
 
-  /**
-   * Updates the translation configuration
-   * @param config - New translation configuration
-   * @returns Promise resolving to success message
-   */
-  async updateTranslationConfig(config: TranslationConfig): Promise<string> {
-    try {
-      return await invoke<string>("update_translation_config", { config });
-    } catch (error) {
-      console.error("Failed to update translation config:", error);
-      throw error;
-    }
-  },
+  /** Updates the translation configuration */
+  updateTranslationConfig: TranslationModule.updateTranslationConfig,
 
-  /**
-   * Clears the translation cache
-   * @returns Promise resolving to success message
-   */
-  async clearTranslationCache(): Promise<string> {
-    try {
-      return await invoke<string>("clear_translation_cache");
-    } catch (error) {
-      console.error("Failed to clear translation cache:", error);
-      throw error;
-    }
-  },
+  /** Clears the translation cache */
+  clearTranslationCache: TranslationModule.clearTranslationCache,
 
-  /**
-   * Gets translation cache statistics
-   * @returns Promise resolving to cache statistics
-   */
-  async getTranslationCacheStats(): Promise<TranslationCacheStats> {
-    try {
-      return await invoke<TranslationCacheStats>("get_translation_cache_stats");
-    } catch (error) {
-      console.error("Failed to get translation cache stats:", error);
-      throw error;
-    }
-  },
+  /** Gets translation cache statistics */
+  getTranslationCacheStats: TranslationModule.getTranslationCacheStats,
 
-  /**
-   * Detects the language of the given text
-   * @param text - The text to analyze
-   * @returns Promise resolving to detected language code
-   */
-  async detectTextLanguage(text: string): Promise<string> {
-    try {
-      return await invoke<string>("detect_text_language", { text });
-    } catch (error) {
-      console.error("Failed to detect text language:", error);
-      throw error;
-    }
-  },
+  /** Detects the language of the given text */
+  detectTextLanguage: TranslationModule.detectTextLanguage,
 
-  /**
-   * Initializes the translation service
-   * @param config - Optional translation configuration
-   * @returns Promise resolving to success message
-   */
-  async initTranslationService(config?: TranslationConfig): Promise<string> {
-    try {
-      return await invoke<string>("init_translation_service_command", { config });
-    } catch (error) {
-      console.error("Failed to initialize translation service:", error);
-      throw error;
-    }
-  },
+  /** Initializes the translation service */
+  initTranslationService: TranslationModule.initTranslationService,
 
   // Auto-Compact Context Management API methods
 
