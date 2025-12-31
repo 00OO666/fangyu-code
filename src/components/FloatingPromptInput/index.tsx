@@ -125,42 +125,6 @@ const FloatingPromptInputInner = (
   const [showQueuePanel, setShowQueuePanel] = useState(false);
   const pendingCount = promptQueue.items.filter(i => i.status === 'pending').length;
 
-  // 🆕 队列自动处理：使用 ref 避免依赖项问题
-  const queueProcessingRef = useRef({
-    isProcessing: false,
-    promptQueue,
-    onSend,
-    prevIsLoading: isLoading,
-  });
-
-  // 同步更新 ref 中的值
-  queueProcessingRef.current.promptQueue = promptQueue;
-  queueProcessingRef.current.onSend = onSend;
-
-  // 🆕 监听 isLoading 变化，自动处理队列
-  useEffect(() => {
-    const ref = queueProcessingRef.current;
-    const wasLoading = ref.prevIsLoading;
-    ref.prevIsLoading = isLoading;
-
-    // 检测 AI 完成：isLoading 从 true 变为 false
-    if (wasLoading && !isLoading && !ref.isProcessing) {
-      const nextItem = ref.promptQueue.getNextSequential();
-      if (nextItem) {
-        ref.isProcessing = true;
-        // 延迟发送，确保状态已完全更新
-        const timer = setTimeout(() => {
-          ref.promptQueue.dequeue(nextItem.id);
-          ref.onSend(nextItem.prompt, nextItem.model, undefined, false);
-          ref.isProcessing = false;
-        }, 500);
-        return () => {
-          clearTimeout(timer);
-          ref.isProcessing = false;
-        };
-      }
-    }
-  }, [isLoading]);
 
   // 草稿持久化 Hook - 确保输入内容在页面切换后不丢失
   const { saveDraft, clearDraft } = useDraftPersistence({
