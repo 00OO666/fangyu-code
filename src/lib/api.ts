@@ -18,6 +18,9 @@ import * as ProvidersModule from './api/providers';
 // Import MCP module utilities
 import * as McpModule from './api/mcp';
 
+// Import usage module utilities
+import * as UsageModule from './api/usage';
+
 // Re-export types for backward compatibility
 export type {
   ProcessType,
@@ -531,125 +534,27 @@ export const api = {
     return invoke("search_files", { basePath, query });
   },
 
-  /**
-   * Gets overall usage statistics
-   * @returns Promise resolving to usage statistics
-   */
-  async getUsageStats(): Promise<UsageStats> {
-    try {
-      return await invoke<UsageStats>("get_usage_stats");
-    } catch (error) {
-      console.error("Failed to get usage stats:", error);
-      throw error;
-    }
-  },
-
-
-  /**
-   * Gets usage statistics filtered by date range
-   * @param startDate - Start date (ISO format)
-   * @param endDate - End date (ISO format)
-   * @returns Promise resolving to usage statistics
-   */
-  async getUsageByDateRange(startDate: string, endDate: string): Promise<UsageStats> {
-    try {
-      return await invoke<UsageStats>("get_usage_by_date_range", { startDate, endDate });
-    } catch (error) {
-      console.error("Failed to get usage by date range:", error);
-      throw error;
-    }
-  },
-
-  /**
-   * Gets usage statistics grouped by session
-   * @param since - Optional start date (YYYYMMDD)
-   * @param until - Optional end date (YYYYMMDD)
-   * @param order - Optional sort order ('asc' or 'desc')
-   * @returns Promise resolving to an array of session usage data
-   */
-  async getSessionStats(
-    since?: string,
-    until?: string,
-    order?: "asc" | "desc"
-  ): Promise<ProjectUsage[]> {
-    try {
-      return await invoke<ProjectUsage[]>("get_session_stats", {
-        since,
-        until,
-        order,
-      });
-    } catch (error) {
-      console.error("Failed to get session stats:", error);
-      throw error;
-    }
-  },
-
-
-
-
-  /**
-   * Gets cache tokens for a specific session
-   * @param sessionId - The session ID to get cache tokens for
-   * @returns Promise resolving to session cache tokens
-   */
-  async getSessionCacheTokens(sessionId: string): Promise<SessionCacheTokens> {
-    try {
-      return await invoke<SessionCacheTokens>("get_session_cache_tokens", { sessionId });
-    } catch (error) {
-      console.error("Failed to get session cache tokens:", error);
-      throw error;
-    }
-  },
-
   // ============================================================================
-  // CODEX USAGE STATISTICS
+  // USAGE STATISTICS (delegated to UsageModule)
   // ============================================================================
 
-  /**
-   * Gets Codex usage statistics
-   * @param startDate - Optional start date (YYYY-MM-DD)
-   * @param endDate - Optional end date (YYYY-MM-DD)
-   * @returns Promise resolving to Codex usage statistics
-   */
-  async getCodexUsageStats(
-    startDate?: string,
-    endDate?: string
-  ): Promise<import('@/types/usage').CodexUsageStats> {
-    try {
-      return await invoke<import('@/types/usage').CodexUsageStats>("get_codex_usage_stats", {
-        startDate,
-        endDate,
-      });
-    } catch (error) {
-      console.error("Failed to get Codex usage stats:", error);
-      throw error;
-    }
-  },
+  /** Gets overall usage statistics */
+  getUsageStats: UsageModule.getUsageStats,
 
-  // ============================================================================
-  // GEMINI USAGE STATISTICS
-  // ============================================================================
+  /** Gets usage statistics filtered by date range */
+  getUsageByDateRange: UsageModule.getUsageByDateRange,
 
-  /**
-   * Gets Gemini usage statistics
-   * @param startDate - Optional start date (YYYY-MM-DD)
-   * @param endDate - Optional end date (YYYY-MM-DD)
-   * @returns Promise resolving to Gemini usage statistics
-   */
-  async getGeminiUsageStats(
-    startDate?: string,
-    endDate?: string
-  ): Promise<import('@/types/usage').GeminiUsageStats> {
-    try {
-      return await invoke<import('@/types/usage').GeminiUsageStats>("get_gemini_usage_stats", {
-        startDate,
-        endDate,
-      });
-    } catch (error) {
-      console.error("Failed to get Gemini usage stats:", error);
-      throw error;
-    }
-  },
+  /** Gets usage statistics grouped by session */
+  getSessionStats: UsageModule.getSessionStats,
+
+  /** Gets cache tokens for a specific session */
+  getSessionCacheTokens: UsageModule.getSessionCacheTokens,
+
+  /** Gets Codex usage statistics */
+  getCodexUsageStats: UsageModule.getCodexUsageStats,
+
+  /** Gets Gemini usage statistics */
+  getGeminiUsageStats: UsageModule.getGeminiUsageStats,
 
   // ============================================================================
   // MCP SERVER OPERATIONS (delegated to McpModule)
