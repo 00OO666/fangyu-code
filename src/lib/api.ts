@@ -12,6 +12,9 @@ import {
 // Import session module utilities
 import * as SessionModule from './api/session';
 
+// Import providers module utilities
+import * as ProvidersModule from './api/providers';
+
 // Re-export types for backward compatibility
 export type {
   ProcessType,
@@ -1500,157 +1503,37 @@ export const api = {
     }
   },
 
-  // Provider Management API methods
+  // Provider Management API methods (delegated to ProvidersModule)
 
-  /**
-   * Gets the list of preset provider configurations
-   * @returns Promise resolving to array of provider configurations
-   */
-  async getProviderPresets(): Promise<ProviderConfig[]> {
-    try {
-      return await invoke<ProviderConfig[]>("get_provider_presets");
-    } catch (error) {
-      console.error("Failed to get provider presets:", error);
-      throw error;
-    }
-  },
+  /** Gets the list of preset provider configurations */
+  getProviderPresets: ProvidersModule.getProviderPresets,
 
-  /**
-   * Gets the current provider configuration from environment variables
-   * @returns Promise resolving to current configuration
-   */
-  async getCurrentProviderConfig(): Promise<CurrentProviderConfig> {
-    try {
-      return await invoke<CurrentProviderConfig>("get_current_provider_config");
-    } catch (error) {
-      console.error("Failed to get current provider config:", error);
-      throw error;
-    }
-  },
+  /** Gets the current provider configuration from environment variables */
+  getCurrentProviderConfig: ProvidersModule.getCurrentProviderConfig,
 
-  /**
-   * Switches to a new provider configuration
-   * @param config - The provider configuration to switch to
-   * @returns Promise resolving to success message
-   */
-  async switchProviderConfig(config: ProviderConfig): Promise<string> {
-    try {
-      return await invoke<string>("switch_provider_config", { config });
-    } catch (error) {
-      console.error("Failed to switch provider config:", error);
-      throw error;
-    }
-  },
+  /** Switches to a new provider configuration */
+  switchProviderConfig: ProvidersModule.switchProviderConfig,
 
-  /**
-   * Clears all provider-related environment variables
-   * @returns Promise resolving to success message
-   */
-  async clearProviderConfig(): Promise<string> {
-    try {
-      return await invoke<string>("clear_provider_config");
-    } catch (error) {
-      console.error("Failed to clear provider config:", error);
-      throw error;
-    }
-  },
+  /** Clears all provider-related environment variables */
+  clearProviderConfig: ProvidersModule.clearProviderConfig,
 
-  /**
-   * Tests connection to a provider endpoint
-   * @param baseUrl - The base URL to test
-   * @returns Promise resolving to test result message
-   */
-  async testProviderConnection(baseUrl: string): Promise<string> {
-    try {
-      return await invoke<string>("test_provider_connection", { baseUrl });
-    } catch (error) {
-      console.error("Failed to test provider connection:", error);
-      throw error;
-    }
-  },
+  /** Tests connection to a provider endpoint */
+  testProviderConnection: ProvidersModule.testProviderConnection,
 
-  /**
-   * Adds a new provider configuration
-   * @param config - The provider configuration to add
-   * @returns Promise resolving to success message
-   */
-  async addProviderConfig(config: Omit<ProviderConfig, 'id'>): Promise<string> {
-    // Generate ID from name
-    const id = config.name
-      .toLowerCase()
-      .replace(/[^a-z0-9]/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
+  /** Adds a new provider configuration */
+  addProviderConfig: ProvidersModule.addProviderConfig,
 
-    const fullConfig: ProviderConfig = {
-      ...config,
-      id
-    };
+  /** Updates an existing provider configuration */
+  updateProviderConfig: ProvidersModule.updateProviderConfig,
 
-    try {
-      return await invoke<string>("add_provider_config", { config: fullConfig });
-    } catch (error) {
-      console.error("Failed to add provider config:", error);
-      throw error;
-    }
-  },
+  /** Deletes a provider configuration by ID */
+  deleteProviderConfig: ProvidersModule.deleteProviderConfig,
 
-  /**
-   * Updates an existing provider configuration
-   * @param config - The provider configuration to update (with id)
-   * @returns Promise resolving to success message
-   */
-  async updateProviderConfig(config: ProviderConfig): Promise<string> {
-    try {
-      return await invoke<string>("update_provider_config", { config });
-    } catch (error) {
-      console.error("Failed to update provider config:", error);
-      throw error;
-    }
-  },
+  /** Gets a single provider configuration by ID */
+  getProviderConfig: ProvidersModule.getProviderConfig,
 
-  /**
-   * Deletes a provider configuration by ID
-   * @param id - The ID of the provider configuration to delete
-   * @returns Promise resolving to success message
-   */
-  async deleteProviderConfig(id: string): Promise<string> {
-    try {
-      return await invoke<string>("delete_provider_config", { id });
-    } catch (error) {
-      console.error("Failed to delete provider config:", error);
-      throw error;
-    }
-  },
-
-  /**
-   * Gets a single provider configuration by ID
-   * @param id - The ID of the provider configuration to get
-   * @returns Promise resolving to provider configuration
-   */
-  async getProviderConfig(id: string): Promise<ProviderConfig> {
-    try {
-      return await invoke<ProviderConfig>("get_provider_config", { id });
-    } catch (error) {
-      console.error("Failed to get provider config:", error);
-      throw error;
-    }
-  },
-
-  /**
-   * Queries API Key usage/balance from the provider
-   * @param baseUrl - The base URL of the provider API
-   * @param apiKey - The API key to query usage for
-   * @returns Promise resolving to API key usage information
-   */
-  async queryProviderUsage(baseUrl: string, apiKey: string): Promise<ApiKeyUsage> {
-    try {
-      return await invoke<ApiKeyUsage>("query_provider_usage", { baseUrl, apiKey });
-    } catch (error) {
-      console.error("Failed to query provider usage:", error);
-      throw error;
-    }
-  },
+  /** Queries API Key usage/balance from the provider */
+  queryProviderUsage: ProvidersModule.queryProviderUsage,
 
 
   // ============================================================================
