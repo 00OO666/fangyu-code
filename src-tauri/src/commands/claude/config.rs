@@ -1,0 +1,1119 @@
+use std::fs;
+use std::path::PathBuf;
+use std::time::SystemTime;
+
+use dirs;
+use regex::Regex;
+use rusqlite;
+use tauri::{AppHandle, Manager};
+use tauri_plugin_shell::ShellExt;
+
+use serde::Serialize;
+use tokio::sync::OnceCell;
+
+use super::super::wsl_utils;
+use super::paths::{get_claude_dir, get_codex_dir};
+use super::platform;
+use super::{ClaudeMdFile, ClaudeSettings, ClaudeVersionStatus};
+use crate::commands::permission_config::{
+    ClaudeExecutionConfig, ClaudePermissionConfig, PermissionMode, ALL_TOOLS, DEVELOPMENT_TOOLS,
+    SAFE_TOOLS,
+};
+
+#[tauri::command]
+pub async fn get_claude_settings() -> Result<ClaudeSettings, String> {
+    log::info!("Reading Claude settings");
+
+    let claude_dir = get_claude_dir().map_err(|e| e.to_string())?;
+    let settings_path = claude_dir.join("settings.json");
+
+    if !settings_path.exists() {
+        log::warn!("Settings file not found, returning empty settings");
+        return Ok(ClaudeSettings {
+            data: serde_json::json!({}),
+        });
+    }
+
+    let content = fs::read_to_string(&settings_path)
+        .map_err(|e| format!("Failed to read settings file: {}", e))?;
+
+    let data: serde_json::Value = serde_json::from_str(&content)
+        .map_err(|e| format!("Failed to parse settings JSON: {}", e))?;
+
+    Ok(ClaudeSettings { data })
+}
+
+/// Opens a new Claude Code session by executing the claude command
+#[tauri::command]
+pub async fn open_new_session(app: AppHandle, path: Option<String>) -> Result<String, String> {
+    log::info!("Opening new Claude Code session at path: {:?}", path);
+
+    #[cfg(not(debug_assertions))]
+    let _claude_path = crate::claude_binary::find_claude_binary(&app)?;
+
+    #[cfg(debug_assertions)]
+    let claude_path = crate::claude_binary::find_claude_binary(&app)?;
+
+    // In production, we can't use std::process::Command directly
+    // The user should launch Claude Code through other means or use the execute_claude_code command
+    #[cfg(not(debug_assertions))]
+    {
+        log::error!("Cannot spawn processes directly in production builds");
+        return Err("Direct process spawning is not available in production builds. Please use Claude Code directly or use the integrated execution commands.".to_string());
+    }
+
+    #[cfg(debug_assertions)]
+    {
+        let mut cmd = std::process::Command::new(claude_path);
+
+        // If a path is provided, use it; otherwise use current directory
+        if let Some(project_path) = path {
+            cmd.current_dir(&project_path);
+        }
+
+        // 🔥 Fix: Apply platform-specific no-window configuration to hide console
+        #[cfg(target_os = "windows")]
+        {
+            use std::os::windows::process::CommandExt;
+            cmd.creation_flags(0x08000000); // CREATE_NO_WINDOW
+        }
+
+        // Execute the command
+        match cmd.spawn() {
+            Ok(_) => {
+                log::info!("Successfully launched Claude Code");
+                Ok("Claude Code session started".to_string())
+            }
+            Err(e) => {
+                log::error!("Failed to launch Claude Code: {}", e);
+                Err(format!("Failed to launch Claude Code: {}", e))
+            }
+        }
+    }
+}
+
+/// Reads the CLAUDE.md system prompt file
+#[tauri::command]
+pub async fn get_system_prompt() -> Result<String, String> {
+    log::info!("Reading CLAUDE.md system prompt");
+
+    let claude_dir = get_claude_dir().map_err(|e| e.to_string())?;
+    let claude_md_path = claude_dir.join("CLAUDE.md");
+
+    if !claude_md_path.exists() {
+        log::warn!("CLAUDE.md not found");
+        return Ok(String::new());
+    }
+
+    fs::read_to_string(&claude_md_path).map_err(|e| format!("Failed to read CLAUDE.md: {}", e))
+}
+
+/// Checks if Claude Code is installed and gets its version
+#[tauri::command]
+pub async fn check_claude_version(app: AppHandle) -> Result<ClaudeVersionStatus, String> {
+    log::info!("Checking Claude Code version");
+
+    let claude_path = match crate::claude_binary::find_claude_binary(&app) {
+        Ok(path) => path,
+        Err(e) => {
+            return Ok(ClaudeVersionStatus {
+                is_installed: false,
+                version: None,
+                output: e,
+            });
+        }
+    };
+
+    // If the selected path is the special sidecar identifier, execute it to get version
+    if claude_path == "claude-code" {
+        use tauri_plugin_shell::process::CommandEvent;
+
+        // Create a temporary directory for the sidecar to run in
+        let temp_dir = std::env::temp_dir();
+
+        // Create sidecar command with --version flag
+        let sidecar_cmd = match app.shell().sidecar("claude-code") {
+            Ok(cmd) => cmd.args(["--version"]).current_dir(&temp_dir),
+            Err(e) => {
+                log::error!("Failed to create sidecar command: {}", e);
+                return Ok(ClaudeVersionStatus {
+                    is_installed: true, // We know it exists, just couldn't create command
+                    version: None,
+                    output: format!(
+                        "Using bundled Claude Code sidecar (command creation failed: {})",
+                        e
+                    ),
+                });
+            }
+        };
+
+        // Spawn the sidecar and collect output
+        match sidecar_cmd.spawn() {
+            Ok((mut rx, _child)) => {
+                let mut stdout_output = String::new();
+                let mut stderr_output = String::new();
+                let mut exit_success = false;
+
+                // Collect output from the sidecar
+                while let Some(event) = rx.recv().await {
+                    match event {
+                        CommandEvent::Stdout(data) => {
+                            let line = String::from_utf8_lossy(&data);
+                            stdout_output.push_str(&line);
+                        }
+                        CommandEvent::Stderr(data) => {
+                            let line = String::from_utf8_lossy(&data);
+                            stderr_output.push_str(&line);
+                        }
+                        CommandEvent::Terminated(payload) => {
+                            exit_success = payload.code.unwrap_or(-1) == 0;
+                            break;
+                        }
+                        _ => {}
+                    }
+                }
+
+                // Use regex to directly extract version pattern (e.g., "1.0.41")
+                let version_regex =
+                    Regex::new(r"(\d+\.\d+\.\d+(?:-[a-zA-Z0-9.-]+)?(?:\+[a-zA-Z0-9.-]+)?)").ok();
+
+                let version = if let Some(regex) = version_regex {
+                    regex
+                        .captures(&stdout_output)
+                        .and_then(|captures| captures.get(1))
+                        .map(|m| m.as_str().to_string())
+                } else {
+                    None
+                };
+
+                let full_output = if stderr_output.is_empty() {
+                    stdout_output.clone()
+                } else {
+                    format!("{}\n{}", stdout_output, stderr_output)
+                };
+
+                // Check if the output matches the expected format
+                let is_valid = stdout_output.contains("(Claude Code)")
+                    || stdout_output.contains("Claude Code")
+                    || version.is_some();
+
+                return Ok(ClaudeVersionStatus {
+                    is_installed: is_valid && exit_success,
+                    version,
+                    output: full_output.trim().to_string(),
+                });
+            }
+            Err(e) => {
+                log::error!("Failed to execute sidecar: {}", e);
+                return Ok(ClaudeVersionStatus {
+                    is_installed: true, // We know it exists, just couldn't get version
+                    version: None,
+                    output: format!(
+                        "Using bundled Claude Code sidecar (version check failed: {})",
+                        e
+                    ),
+                });
+            }
+        }
+    }
+
+    use log::debug;
+    debug!("Claude path: {}", claude_path);
+
+    // For system installations, try to check version
+    let mut cmd = std::process::Command::new(&claude_path);
+    cmd.arg("--version");
+
+    // On Windows, ensure the command runs without creating a console window
+    #[cfg(target_os = "windows")]
+    {
+        platform::apply_no_window(&mut cmd);
+    }
+
+    let output = cmd.output();
+
+    match output {
+        Ok(output) => {
+            let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+            let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+
+            // Use regex to directly extract version pattern (e.g., "1.0.41")
+            let version_regex =
+                Regex::new(r"(\d+\.\d+\.\d+(?:-[a-zA-Z0-9.-]+)?(?:\+[a-zA-Z0-9.-]+)?)").ok();
+
+            let version = if let Some(regex) = version_regex {
+                regex
+                    .captures(&stdout)
+                    .and_then(|captures| captures.get(1))
+                    .map(|m| m.as_str().to_string())
+            } else {
+                None
+            };
+            let full_output = if stderr.is_empty() {
+                stdout.clone()
+            } else {
+                format!("{}\n{}", stdout, stderr)
+            };
+
+            // Check if the output matches the expected format
+            // Expected format: "1.0.17 (Claude Code)" or similar
+            let is_valid = stdout.contains("(Claude Code)") || stdout.contains("Claude Code");
+
+            Ok(ClaudeVersionStatus {
+                is_installed: is_valid && output.status.success(),
+                version,
+                output: full_output.trim().to_string(),
+            })
+        }
+        Err(e) => {
+            log::error!("Failed to run claude command: {}", e);
+            Ok(ClaudeVersionStatus {
+                is_installed: false,
+                version: None,
+                output: format!("Command not found: {}", e),
+            })
+        }
+    }
+}
+
+/// Saves the CLAUDE.md system prompt file
+#[tauri::command]
+pub async fn save_system_prompt(content: String) -> Result<String, String> {
+    log::info!("Saving CLAUDE.md system prompt");
+
+    let claude_dir = get_claude_dir().map_err(|e| e.to_string())?;
+    let claude_md_path = claude_dir.join("CLAUDE.md");
+
+    fs::write(&claude_md_path, content).map_err(|e| format!("Failed to write CLAUDE.md: {}", e))?;
+
+    Ok("System prompt saved successfully".to_string())
+}
+
+/// Saves the Claude settings file
+#[tauri::command]
+pub async fn save_claude_settings(settings: serde_json::Value) -> Result<String, String> {
+    log::info!(
+        "Saving Claude settings - received data: {}",
+        settings.to_string()
+    );
+
+    let claude_dir = get_claude_dir().map_err(|e| {
+        let error_msg = format!("Failed to get claude dir: {}", e);
+        log::error!("{}", error_msg);
+        error_msg
+    })?;
+    log::info!("Claude directory: {:?}", claude_dir);
+
+    let settings_path = claude_dir.join("settings.json");
+    log::info!("Settings path: {:?}", settings_path);
+
+    // Read existing settings to preserve unknown fields
+    let mut existing_settings = if settings_path.exists() {
+        let content = fs::read_to_string(&settings_path).ok();
+        if let Some(content) = content {
+            serde_json::from_str::<serde_json::Value>(&content).ok()
+        } else {
+            None
+        }
+    } else {
+        None
+    }
+    .unwrap_or(serde_json::json!({}));
+
+    log::info!("Existing settings: {}", existing_settings);
+
+    // Use settings directly - no wrapper expected from frontend
+    let actual_settings = &settings;
+    log::info!("Using settings directly: {}", actual_settings);
+
+    // Merge the new settings with existing settings
+    // This preserves unknown fields that the app doesn't manage
+    if let (Some(existing_obj), Some(new_obj)) = (
+        existing_settings.as_object_mut(),
+        actual_settings.as_object(),
+    ) {
+        for (key, value) in new_obj {
+            existing_obj.insert(key.clone(), value.clone());
+        }
+        log::info!("Merged settings: {}", existing_settings);
+    } else {
+        // If either is not an object, just use the new settings
+        existing_settings = actual_settings.clone();
+    }
+
+    // Pretty print the JSON with 2-space indentation
+    let json_string = serde_json::to_string_pretty(&existing_settings).map_err(|e| {
+        let error_msg = format!("Failed to serialize settings: {}", e);
+        log::error!("{}", error_msg);
+        error_msg
+    })?;
+
+    log::info!("Serialized JSON length: {} characters", json_string.len());
+
+    fs::write(&settings_path, &json_string).map_err(|e| {
+        let error_msg = format!("Failed to write settings file: {}", e);
+        log::error!("{}", error_msg);
+        error_msg
+    })?;
+
+    log::info!("Settings saved successfully to: {:?}", settings_path);
+    Ok("Settings saved successfully".to_string())
+}
+
+/// Updates the thinking mode in settings.json by modifying the MAX_THINKING_TOKENS env variable
+#[tauri::command]
+pub async fn update_thinking_mode(enabled: bool, tokens: Option<u32>) -> Result<String, String> {
+    log::info!(
+        "Updating thinking mode: enabled={}, tokens={:?}",
+        enabled,
+        tokens
+    );
+
+    let claude_dir = get_claude_dir().map_err(|e| e.to_string())?;
+    let settings_path = claude_dir.join("settings.json");
+
+    // Read existing settings
+    let mut settings = if settings_path.exists() {
+        let content = fs::read_to_string(&settings_path)
+            .map_err(|e| format!("Failed to read settings: {}", e))?;
+        serde_json::from_str::<serde_json::Value>(&content)
+            .map_err(|e| format!("Failed to parse settings: {}", e))?
+    } else {
+        serde_json::json!({})
+    };
+
+    // Ensure env object exists
+    if !settings.is_object() {
+        settings = serde_json::json!({});
+    }
+
+    let settings_obj = settings.as_object_mut().unwrap();
+    if !settings_obj.contains_key("env") {
+        settings_obj.insert("env".to_string(), serde_json::json!({}));
+    }
+
+    let env_obj = settings_obj
+        .get_mut("env")
+        .unwrap()
+        .as_object_mut()
+        .ok_or("env is not an object")?;
+
+    // Update MAX_THINKING_TOKENS
+    if enabled {
+        let token_value = tokens.unwrap_or(31999);
+        env_obj.insert(
+            "MAX_THINKING_TOKENS".to_string(),
+            serde_json::json!(token_value.to_string()),
+        );
+        log::info!("Set MAX_THINKING_TOKENS to {}", token_value);
+    } else {
+        env_obj.remove("MAX_THINKING_TOKENS");
+        log::info!("Removed MAX_THINKING_TOKENS from env");
+    }
+
+    // Also remove the old alwaysThinkingEnabled field if it exists
+    // This field conflicts with the standard MAX_THINKING_TOKENS approach
+    if settings_obj.contains_key("alwaysThinkingEnabled") {
+        settings_obj.remove("alwaysThinkingEnabled");
+        log::info!("Removed deprecated alwaysThinkingEnabled field");
+    }
+
+    // Write back to file
+    let json_string = serde_json::to_string_pretty(&settings)
+        .map_err(|e| format!("Failed to serialize settings: {}", e))?;
+
+    fs::write(&settings_path, &json_string)
+        .map_err(|e| format!("Failed to write settings: {}", e))?;
+
+    log::info!("Thinking mode updated successfully");
+    Ok(format!(
+        "Thinking mode {} successfully",
+        if enabled { "enabled" } else { "disabled" }
+    ))
+}
+
+/// Recursively finds all CLAUDE.md files in a project directory
+#[tauri::command]
+pub async fn find_claude_md_files(project_path: String) -> Result<Vec<ClaudeMdFile>, String> {
+    log::info!("Finding CLAUDE.md files in project: {}", project_path);
+
+    let path = PathBuf::from(&project_path);
+    if !path.exists() {
+        return Err(format!("Project path does not exist: {}", project_path));
+    }
+
+    let mut claude_files = Vec::new();
+    find_claude_md_recursive(&path, &path, &mut claude_files)?;
+
+    // Sort by relative path
+    claude_files.sort_by(|a, b| a.relative_path.cmp(&b.relative_path));
+
+    log::info!("Found {} CLAUDE.md files", claude_files.len());
+    Ok(claude_files)
+}
+
+/// Helper function to recursively find CLAUDE.md files
+fn find_claude_md_recursive(
+    current_path: &PathBuf,
+    project_root: &PathBuf,
+    claude_files: &mut Vec<ClaudeMdFile>,
+) -> Result<(), String> {
+    let entries = fs::read_dir(current_path)
+        .map_err(|e| format!("Failed to read directory {:?}: {}", current_path, e))?;
+
+    for entry in entries {
+        let entry = entry.map_err(|e| format!("Failed to read directory entry: {}", e))?;
+        let path = entry.path();
+
+        // Skip hidden files/directories
+        if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
+            if name.starts_with('.') {
+                continue;
+            }
+        }
+
+        if path.is_dir() {
+            // Skip common directories that shouldn't be searched
+            if let Some(dir_name) = path.file_name().and_then(|n| n.to_str()) {
+                if matches!(
+                    dir_name,
+                    "node_modules" | "target" | ".git" | "dist" | "build" | ".next" | "__pycache__"
+                ) {
+                    continue;
+                }
+            }
+
+            find_claude_md_recursive(&path, project_root, claude_files)?;
+        } else if path.is_file() {
+            // Check if it's a CLAUDE.md file (case insensitive)
+            if let Some(file_name) = path.file_name().and_then(|n| n.to_str()) {
+                if file_name.eq_ignore_ascii_case("CLAUDE.md") {
+                    let metadata = fs::metadata(&path)
+                        .map_err(|e| format!("Failed to read file metadata: {}", e))?;
+
+                    let relative_path = path
+                        .strip_prefix(project_root)
+                        .map_err(|e| format!("Failed to get relative path: {}", e))?
+                        .to_string_lossy()
+                        .to_string();
+
+                    let modified = metadata
+                        .modified()
+                        .unwrap_or(SystemTime::UNIX_EPOCH)
+                        .duration_since(SystemTime::UNIX_EPOCH)
+                        .unwrap_or_default()
+                        .as_secs();
+
+                    claude_files.push(ClaudeMdFile {
+                        relative_path,
+                        absolute_path: path.to_string_lossy().to_string(),
+                        size: metadata.len(),
+                        modified,
+                    });
+                }
+            }
+        }
+    }
+
+    Ok(())
+}
+
+/// Reads a specific CLAUDE.md file by its absolute path
+#[tauri::command]
+pub async fn read_claude_md_file(file_path: String) -> Result<String, String> {
+    log::info!("Reading CLAUDE.md file: {}", file_path);
+
+    let path = PathBuf::from(&file_path);
+    if !path.exists() {
+        return Err(format!("File does not exist: {}", file_path));
+    }
+
+    fs::read_to_string(&path).map_err(|e| format!("Failed to read file: {}", e))
+}
+
+/// Saves a specific CLAUDE.md file by its absolute path
+#[tauri::command]
+pub async fn save_claude_md_file(file_path: String, content: String) -> Result<String, String> {
+    log::info!("Saving CLAUDE.md file: {}", file_path);
+
+    let path = PathBuf::from(&file_path);
+
+    // Ensure the parent directory exists
+    if let Some(parent) = path.parent() {
+        fs::create_dir_all(parent)
+            .map_err(|e| format!("Failed to create parent directory: {}", e))?;
+    }
+
+    fs::write(&path, content).map_err(|e| format!("Failed to write file: {}", e))?;
+
+    Ok("File saved successfully".to_string())
+}
+#[tauri::command]
+pub async fn set_custom_claude_path(app: AppHandle, custom_path: String) -> Result<(), String> {
+    log::info!("Setting custom Claude CLI path: {}", custom_path);
+
+    let expanded_path = expand_user_path(&custom_path)?;
+
+    // Validate the path exists and is executable
+    if !expanded_path.exists() {
+        return Err("File does not exist".to_string());
+    }
+
+    if !expanded_path.is_file() {
+        return Err("Path is not a file".to_string());
+    }
+
+    let path_str = expanded_path
+        .to_str()
+        .ok_or_else(|| "Invalid path encoding".to_string())?
+        .to_string();
+
+    // Test if it's actually Claude CLI by running --version
+    let mut cmd = std::process::Command::new(&path_str);
+    cmd.arg("--version");
+
+    #[cfg(target_os = "windows")]
+    {
+        platform::apply_no_window(&mut cmd);
+    }
+
+    match cmd.output() {
+        Ok(output) => {
+            if !output.status.success() {
+                return Err("File is not a valid Claude CLI executable".to_string());
+            }
+        }
+        Err(e) => {
+            return Err(format!("Failed to test Claude CLI: {}", e));
+        }
+    }
+
+    // Store the custom path in database
+    if let Ok(app_data_dir) = app.path().app_data_dir() {
+        if let Err(e) = std::fs::create_dir_all(&app_data_dir) {
+            return Err(format!("Failed to create app data directory: {}", e));
+        }
+
+        let db_path = app_data_dir.join("agents.db");
+        match rusqlite::Connection::open(&db_path) {
+            Ok(conn) => {
+                if let Err(e) = conn.execute(
+                    "CREATE TABLE IF NOT EXISTS app_settings (
+                        key TEXT PRIMARY KEY,
+                        value TEXT NOT NULL
+                    )",
+                    [],
+                ) {
+                    return Err(format!("Failed to create settings table: {}", e));
+                }
+
+                if let Err(e) = conn.execute(
+                    "INSERT OR REPLACE INTO app_settings (key, value) VALUES (?1, ?2)",
+                    rusqlite::params!["claude_binary_path", path_str],
+                ) {
+                    return Err(format!("Failed to store custom Claude path: {}", e));
+                }
+
+                log::info!("Successfully stored custom Claude CLI path: {}", path_str);
+            }
+            Err(e) => return Err(format!("Failed to open database: {}", e)),
+        }
+    } else {
+        return Err("Failed to get app data directory".to_string());
+    }
+
+    // 记录到 binaries.json 供跨平台检测复用
+    if let Err(e) = update_binary_override("claude", &path_str) {
+        log::warn!("Failed to update binaries.json: {}", e);
+    }
+
+    Ok(())
+}
+
+/// Get current Claude CLI path (custom or auto-detected)
+#[tauri::command]
+pub async fn get_claude_path(app: AppHandle) -> Result<String, String> {
+    log::info!("Getting current Claude CLI path");
+
+    // Try to get from database first
+    if let Ok(app_data_dir) = app.path().app_data_dir() {
+        let db_path = app_data_dir.join("agents.db");
+        if db_path.exists() {
+            if let Ok(conn) = rusqlite::Connection::open(&db_path) {
+                if let Ok(stored_path) = conn.query_row(
+                    "SELECT value FROM app_settings WHERE key = 'claude_binary_path'",
+                    [],
+                    |row| row.get::<_, String>(0),
+                ) {
+                    log::info!("Found stored Claude path: {}", stored_path);
+                    return Ok(stored_path);
+                }
+            }
+        }
+    }
+
+    // Fall back to auto-detection
+    match crate::claude_binary::find_claude_binary(&app) {
+        Ok(path) => {
+            log::info!("Auto-detected Claude path: {}", path);
+            Ok(path)
+        }
+        Err(e) => Err(e),
+    }
+}
+
+/// Clear custom Claude CLI path and revert to auto-detection
+#[tauri::command]
+pub async fn clear_custom_claude_path(app: AppHandle) -> Result<(), String> {
+    log::info!("Clearing custom Claude CLI path");
+
+    if let Ok(app_data_dir) = app.path().app_data_dir() {
+        let db_path = app_data_dir.join("agents.db");
+        if db_path.exists() {
+            if let Ok(conn) = rusqlite::Connection::open(&db_path) {
+                if let Err(e) = conn.execute(
+                    "DELETE FROM app_settings WHERE key = 'claude_binary_path'",
+                    [],
+                ) {
+                    return Err(format!("Failed to clear custom Claude path: {}", e));
+                }
+            }
+        }
+
+        // 清理 binaries.json 覆盖记录（忽略错误）
+        if let Err(e) = clear_binary_override("claude") {
+            log::warn!("Failed to clear binaries.json override: {}", e);
+        }
+
+        log::info!("Successfully cleared custom Claude CLI path");
+        return Ok(());
+    }
+
+    Err("Failed to get app data directory".to_string())
+}
+
+fn expand_user_path(input: &str) -> Result<PathBuf, String> {
+    if input.trim().is_empty() {
+        return Err("Path is empty".to_string());
+    }
+
+    let path = if input == "~" || input.starts_with("~/") {
+        let home = dirs::home_dir().ok_or("Cannot find home directory".to_string())?;
+        if input == "~" {
+            home
+        } else {
+            home.join(input.trim_start_matches("~/"))
+        }
+    } else {
+        PathBuf::from(input)
+    };
+
+    let path = if path.is_relative() {
+        std::env::current_dir()
+            .map_err(|e| format!("Failed to get current dir: {}", e))?
+            .join(path)
+    } else {
+        path
+    };
+
+    Ok(path)
+}
+
+fn update_binary_override(tool: &str, override_path: &str) -> Result<(), String> {
+    let home = dirs::home_dir().ok_or("Cannot find home directory".to_string())?;
+    let config_path = home.join(".claude").join("binaries.json");
+
+    // Ensure parent dir exists
+    if let Some(parent) = config_path.parent() {
+        std::fs::create_dir_all(parent)
+            .map_err(|e| format!("Failed to create config directory: {}", e))?;
+    }
+
+    let mut json: serde_json::Value = if config_path.exists() {
+        let content = std::fs::read_to_string(&config_path)
+            .map_err(|e| format!("Failed to read binaries.json: {}", e))?;
+        serde_json::from_str(&content).unwrap_or_else(|_| serde_json::json!({}))
+    } else {
+        serde_json::json!({})
+    };
+
+    let section = json
+        .as_object_mut()
+        .ok_or("Invalid binaries.json format (not an object)".to_string())?;
+
+    let entry = section
+        .entry(tool.to_string())
+        .or_insert_with(|| serde_json::json!({}));
+
+    if let Some(obj) = entry.as_object_mut() {
+        obj.insert(
+            "override_path".to_string(),
+            serde_json::Value::String(override_path.to_string()),
+        );
+    }
+
+    let serialized = serde_json::to_string_pretty(&json)
+        .map_err(|e| format!("Failed to serialize binaries.json: {}", e))?;
+    std::fs::write(&config_path, serialized)
+        .map_err(|e| format!("Failed to write binaries.json: {}", e))?;
+
+    Ok(())
+}
+
+fn clear_binary_override(tool: &str) -> Result<(), String> {
+    let home = dirs::home_dir().ok_or("Cannot find home directory".to_string())?;
+    let config_path = home.join(".claude").join("binaries.json");
+    if !config_path.exists() {
+        return Ok(());
+    }
+
+    let content = std::fs::read_to_string(&config_path)
+        .map_err(|e| format!("Failed to read binaries.json: {}", e))?;
+    let mut json: serde_json::Value =
+        serde_json::from_str(&content).unwrap_or_else(|_| serde_json::json!({}));
+
+    if let Some(section) = json.as_object_mut() {
+        if let Some(entry) = section.get_mut(tool) {
+            if let Some(obj) = entry.as_object_mut() {
+                obj.remove("override_path");
+            }
+        }
+    }
+
+    let serialized = serde_json::to_string_pretty(&json)
+        .map_err(|e| format!("Failed to serialize binaries.json: {}", e))?;
+    std::fs::write(&config_path, serialized)
+        .map_err(|e| format!("Failed to write binaries.json: {}", e))?;
+
+    Ok(())
+}
+/// 获取当前Claude执行配置
+#[tauri::command]
+pub async fn get_claude_execution_config(_app: AppHandle) -> Result<ClaudeExecutionConfig, String> {
+    let claude_dir =
+        get_claude_dir().map_err(|e| format!("Failed to get Claude directory: {}", e))?;
+    let config_file = claude_dir.join("execution_config.json");
+
+    // 使用通用配置加载工具
+    crate::utils::config_utils::load_json_config(&config_file)
+}
+
+/// 更新Claude执行配置
+#[tauri::command]
+pub async fn update_claude_execution_config(
+    _app: AppHandle,
+    config: ClaudeExecutionConfig,
+) -> Result<(), String> {
+    let claude_dir =
+        get_claude_dir().map_err(|e| format!("Failed to get Claude directory: {}", e))?;
+    let config_file = claude_dir.join("execution_config.json");
+
+    // 使用通用配置保存工具
+    crate::utils::config_utils::save_json_config(&config, &config_file)?;
+
+    log::info!("Updated Claude execution config");
+    Ok(())
+}
+
+/// 重置Claude执行配置为默认值
+#[tauri::command]
+pub async fn reset_claude_execution_config(app: AppHandle) -> Result<(), String> {
+    let config = ClaudeExecutionConfig::default();
+    update_claude_execution_config(app, config).await
+}
+
+/// 获取当前权限配置
+#[tauri::command]
+pub async fn get_claude_permission_config(
+    app: AppHandle,
+) -> Result<ClaudePermissionConfig, String> {
+    let execution_config = get_claude_execution_config(app).await?;
+    Ok(execution_config.permissions)
+}
+
+/// 更新权限配置
+#[tauri::command]
+pub async fn update_claude_permission_config(
+    app: AppHandle,
+    permission_config: ClaudePermissionConfig,
+) -> Result<(), String> {
+    let mut execution_config = get_claude_execution_config(app.clone()).await?;
+    execution_config.permissions = permission_config;
+    update_claude_execution_config(app, execution_config).await
+}
+
+/// 获取预设权限配置选项
+#[tauri::command]
+pub async fn get_permission_presets() -> Result<serde_json::Value, String> {
+    let presets = serde_json::json!({
+        "development": {
+            "name": "开发模式",
+            "description": "允许所有开发工具，自动接受编辑",
+            "config": ClaudePermissionConfig::development_mode()
+        },
+        "safe": {
+            "name": "安全模式",
+            "description": "只允许读取操作，禁用危险工具",
+            "config": ClaudePermissionConfig::safe_mode()
+        },
+        "interactive": {
+            "name": "交互模式",
+            "description": "平衡的权限设置，需要确认编辑",
+            "config": ClaudePermissionConfig::interactive_mode()
+        },
+        "legacy": {
+            "name": "向后兼容",
+            "description": "保持原有的权限跳过行为",
+            "config": ClaudePermissionConfig::legacy_mode()
+        }
+    });
+
+    Ok(presets)
+}
+
+/// 获取可用工具列表
+#[tauri::command]
+pub async fn get_available_tools() -> Result<serde_json::Value, String> {
+    let tools = serde_json::json!({
+        "development_tools": DEVELOPMENT_TOOLS,
+        "safe_tools": SAFE_TOOLS,
+        "all_tools": ALL_TOOLS
+    });
+
+    Ok(tools)
+}
+
+/// 验证权限配置
+#[tauri::command]
+pub async fn validate_permission_config(
+    config: ClaudePermissionConfig,
+) -> Result<serde_json::Value, String> {
+    let mut validation_result = serde_json::json!({
+        "valid": true,
+        "warnings": [],
+        "errors": []
+    });
+
+    // 检查工具列表冲突
+    let allowed_set: std::collections::HashSet<_> = config.allowed_tools.iter().collect();
+    let disallowed_set: std::collections::HashSet<_> = config.disallowed_tools.iter().collect();
+
+    let conflicts: Vec<_> = allowed_set.intersection(&disallowed_set).collect();
+    if !conflicts.is_empty() {
+        validation_result["valid"] = serde_json::Value::Bool(false);
+        validation_result["errors"]
+            .as_array_mut()
+            .unwrap()
+            .push(serde_json::json!(format!(
+                "工具冲突: {} 同时在允许和禁止列表中",
+                conflicts
+                    .iter()
+                    .map(|s| s.as_str())
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            )));
+    }
+
+    // 检查是否启用了危险跳过模式
+    if config.enable_dangerous_skip {
+        validation_result["warnings"]
+            .as_array_mut()
+            .unwrap()
+            .push(serde_json::json!(
+                "已启用危险权限跳过模式，这会绕过所有安全检查"
+            ));
+    }
+
+    // 检查读写权限组合
+    if config.permission_mode == PermissionMode::ReadOnly
+        && (config.allowed_tools.contains(&"Write".to_string())
+            || config.allowed_tools.contains(&"Edit".to_string()))
+    {
+        validation_result["warnings"]
+            .as_array_mut()
+            .unwrap()
+            .push(serde_json::json!("只读模式下允许写入工具可能导致冲突"));
+    }
+
+    Ok(validation_result)
+}
+
+/// Reads the AGENTS.md system prompt file from Codex directory
+#[tauri::command]
+pub async fn get_codex_system_prompt() -> Result<String, String> {
+    log::info!("Reading AGENTS.md system prompt from Codex directory");
+
+    let codex_dir = get_codex_dir().map_err(|e| {
+        log::error!("Failed to get Codex directory: {}", e);
+        format!("无法访问 Codex 目录: {}。请确保已安装 Codex CLI。", e)
+    })?;
+
+    let agents_md_path = codex_dir.join("AGENTS.md");
+
+    if !agents_md_path.exists() {
+        log::warn!("AGENTS.md not found at {:?}", agents_md_path);
+        return Ok(String::new());
+    }
+
+    fs::read_to_string(&agents_md_path).map_err(|e| {
+        log::error!("Failed to read AGENTS.md: {}", e);
+        format!("读取 AGENTS.md 失败: {}", e)
+    })
+}
+
+/// Saves the AGENTS.md system prompt file to Codex directory
+#[tauri::command]
+pub async fn save_codex_system_prompt(content: String) -> Result<String, String> {
+    log::info!("Saving AGENTS.md system prompt to Codex directory");
+
+    let codex_dir = get_codex_dir().map_err(|e| {
+        log::error!("Failed to get Codex directory: {}", e);
+        format!("无法访问 Codex 目录: {}。请确保已安装 Codex CLI。", e)
+    })?;
+
+    let agents_md_path = codex_dir.join("AGENTS.md");
+
+    fs::write(&agents_md_path, content).map_err(|e| {
+        log::error!("Failed to write AGENTS.md: {}", e);
+        format!("保存 AGENTS.md 失败: {}", e)
+    })?;
+
+    log::info!("Successfully saved AGENTS.md to {:?}", agents_md_path);
+    Ok("Codex 系统提示词保存成功".to_string())
+}
+
+// ============================================================================
+// Claude WSL Mode Configuration
+// ============================================================================
+
+/// 全局 Claude WSL 模式配置缓存
+static CLAUDE_WSL_MODE_CONFIG_CACHE: OnceCell<ClaudeWslModeInfo> = OnceCell::const_new();
+
+/// Claude WSL mode information for frontend
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ClaudeWslModeInfo {
+    /// Current mode: "auto", "native", or "wsl"
+    pub mode: String,
+    /// Configured WSL distro (if any)
+    pub wsl_distro: Option<String>,
+    /// Is WSL available on this system
+    pub wsl_available: bool,
+    /// Available WSL distros
+    pub available_distros: Vec<String>,
+    /// Is WSL mode currently active
+    pub wsl_enabled: bool,
+    /// Claude path in WSL (if detected)
+    pub wsl_claude_path: Option<String>,
+    /// Claude version in WSL (if detected)
+    pub wsl_claude_version: Option<String>,
+    /// Is native Claude available
+    pub native_available: bool,
+    /// Actual mode being used (detection result)
+    pub actual_mode: String,
+    /// Whether the current platform is Windows (WSL options are only relevant on Windows)
+    pub is_windows: bool,
+}
+
+/// Get Claude WSL mode configuration
+/// 使用全局缓存避免重复检测，减少 WSL 进程创建
+#[tauri::command]
+pub async fn get_claude_wsl_mode_config() -> Result<ClaudeWslModeInfo, String> {
+    // 使用缓存避免重复检测
+    let result = CLAUDE_WSL_MODE_CONFIG_CACHE
+        .get_or_init(|| async {
+            log::info!("[Claude] Getting WSL mode configuration (first time)...");
+            do_get_claude_wsl_mode_config()
+        })
+        .await;
+
+    log::debug!("[Claude] Returning cached WSL mode config: {:?}", result);
+    Ok(result.clone())
+}
+
+/// 实际执行 Claude WSL 模式配置获取（内部函数）
+fn do_get_claude_wsl_mode_config() -> ClaudeWslModeInfo {
+    let config = wsl_utils::get_claude_wsl_config();
+    let runtime = wsl_utils::get_claude_wsl_runtime();
+
+    let mode_str = match config.mode {
+        wsl_utils::ClaudeMode::Auto => "auto",
+        wsl_utils::ClaudeMode::Native => "native",
+        wsl_utils::ClaudeMode::Wsl => "wsl",
+    };
+
+    #[cfg(target_os = "windows")]
+    let (wsl_available, available_distros, native_available, is_windows) = {
+        let wsl = wsl_utils::is_wsl_available();
+        let distros = wsl_utils::get_wsl_distros();
+        let native = wsl_utils::is_native_claude_available();
+        (wsl, distros, native, true)
+    };
+
+    #[cfg(not(target_os = "windows"))]
+    let (wsl_available, available_distros, native_available, is_windows) = (false, vec![], true, false);
+
+    let wsl_claude_version = if runtime.enabled {
+        wsl_utils::get_wsl_claude_version(runtime.distro.as_deref())
+    } else {
+        None
+    };
+
+    let actual_mode = if runtime.enabled { "wsl" } else { "native" };
+
+    ClaudeWslModeInfo {
+        mode: mode_str.to_string(),
+        wsl_distro: config.wsl_distro.clone(),
+        wsl_available,
+        available_distros,
+        wsl_enabled: runtime.enabled,
+        wsl_claude_path: runtime.claude_path_in_wsl.clone(),
+        wsl_claude_version,
+        native_available,
+        actual_mode: actual_mode.to_string(),
+        is_windows,
+    }
+}
+
+/// Set Claude WSL mode configuration
+#[tauri::command]
+pub async fn set_claude_wsl_mode_config(
+    mode: String,
+    wsl_distro: Option<String>,
+) -> Result<String, String> {
+    log::info!(
+        "[Claude] Setting WSL mode configuration: mode={}, wsl_distro={:?}",
+        mode,
+        wsl_distro
+    );
+
+    let claude_mode = match mode.to_lowercase().as_str() {
+        "auto" => wsl_utils::ClaudeMode::Auto,
+        "native" => wsl_utils::ClaudeMode::Native,
+        "wsl" => wsl_utils::ClaudeMode::Wsl,
+        _ => {
+            return Err(format!(
+                "Invalid mode: {}. Use 'auto', 'native', or 'wsl'",
+                mode
+            ))
+        }
+    };
+
+    let config = wsl_utils::ClaudeWslConfig {
+        mode: claude_mode,
+        wsl_distro,
+    };
+
+    wsl_utils::save_claude_wsl_config(&config)?;
+
+    log::info!(
+        "[Claude WSL] Configuration saved: mode={}, distro={:?}",
+        mode,
+        config.wsl_distro
+    );
+
+    Ok(
+        "Configuration saved. Please restart the app for changes to take effect."
+            .to_string(),
+    )
+}

@@ -1,0 +1,92 @@
+# Tauri Ignore File
+# Files and directories listed here will not be included in the final Tauri bundle
+
+# Development dependencies and build tools
+node_modules/
+.vscode/
+.idea/
+.git/
+.github/
+
+# Source maps and development files
+*.map
+*.ts
+*.tsx
+!src-tauri/**/*.ts
+src/**/*.spec.ts
+src/**/*.test.ts
+src/**/*.spec.tsx
+src/**/*.test.tsx
+
+# Documentation
+README.md
+CHANGELOG.md
+LICENSE
+*.md
+!src-tauri/README.md
+
+# Development configuration
+.eslintrc*
+.prettierrc*
+tsconfig.json
+vite.config.ts
+tailwind.config.*
+
+# Build artifacts (already built into the binary)
+src-tauri/target/
+dist/
+dist-ssr/
+
+# Temporary files
+temp_lib/
+*.log
+*.bak
+*.tmp
+*.old
+nul
+
+# Test files
+coverage/
+test-results/
+playwright-report/
+playwright/.cache/
+*.spec.*
+*.test.*
+__tests__/
+
+# Environment and secrets
+.env
+.env.*
+providers.json
+hidden_projects.json
+.tauri-signing-key
+*.key
+*.key.pub
+
+# Editor files
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Claude project files
+.claude/
+AGENTS.md
+*_TASK.md
+
+# Scripts and development tools
+scripts/
+.husky/
+.github/
+
+# Package manager files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Unnecessary assets (keep only what's needed in production)
+public/*.svg
+!public/icon.svg
+!public/icon.png

@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+/* 
+ * 🎨 MODERN DESIGN SYSTEM - Material 3 Inspired
+ * 
+ * This file now serves as the main entry point for styles,
+ * importing modularized CSS files for better maintainability.
+ */
+
+@import "./styles/theme.css";
+@import "./styles/typography.css";
+@import "./styles/animations.css";
+@import "./styles/components.css";
+
+/* ========================================
+   🍎 macOS 兼容性修复
+   ======================================== */
+
+/* ⚠️ 已移除 macOS 特殊字体覆盖，使用统一的相对单位
+ * 原因：提升跨平台一致性，避免不同操作系统字体大小差异
+ * 如需调整字体大小，请使用浏览器设置或系统缩放
+ */
+
+/* Ensure container is centered on all platforms */
+.container {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  width: 100%;
+  max-width: 1280px; /* 确保有最大宽度 */
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+/* macOS specific fixes for WebKit */
+@supports (-webkit-backdrop-filter: blur(1px)) {
+  /*
+   * ⚠️ Removed legacy flexbox hacks that were causing layout issues on modern macOS/WebKit.
+   * Modern browsers (including Safari) support standard flexbox properties perfectly.
+   * Forcing -webkit-box (2009 syntax) was conflicting with modern layouts.
+   */
+}

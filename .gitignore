@@ -1,0 +1,80 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+*.bun-build
+
+# Tauri binaries (built executables)
+src-tauri/binaries/*.exe
+src-tauri/binaries/*.dll
+src-tauri/binaries/*.so
+src-tauri/binaries/*.dylib
+# Allow source files like .cjs for Node.js sidecar
+!src-tauri/binaries/*.cjs
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+temp_lib/
+
+.cursor/
+AGENTS.md
+*_TASK.md
+
+# Claude project-specific files
+.claude/
+
+# Provider configurations (contains sensitive API keys)
+providers.json
+hidden_projects.json
+
+# Build artifacts
+src-tauri/target/
+src-tauri/Cargo.lock
+
+# Temporary files
+nul
+*.bak
+*.tmp
+*.old
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Tauri signing keys (sensitive!)
+.tauri-signing-key
+*.key
+*.key.pub
+
+# Bundle outputs
+*.msi
+*.exe
+*.dmg
+*.pkg
+*.deb
+*.rpm
+*.appimage
+
+# Test and coverage
+coverage/
+test-results/
+playwright-report/
+playwright/.cache/

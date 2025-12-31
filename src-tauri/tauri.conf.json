@@ -1,0 +1,76 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Fangyu Code",
+  "version": "1.2.9",
+  "identifier": "com.fangyu.code",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
+    "devUrl": "http://localhost:1420",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Fangyu Code",
+        "width": 1200,
+        "height": 800,
+        "minWidth": 800,
+        "minHeight": 600,
+        "resizable": true,
+        "maximizable": true,
+        "minimizable": true,
+        "visible": true,
+        "devtools": true
+      }
+    ],
+    "withGlobalTauri": true,
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' asset: https://asset.localhost http://asset.localhost tauri: blob: data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval'; connect-src 'self' ipc: https://ipc.localhost https://* http://*",
+      "assetProtocol": {
+        "enable": true,
+        "scope": [
+          "**"
+        ]
+      },
+      "capabilities": [
+        "default"
+      ]
+    }
+  },
+  "plugins": {
+    "updater": {
+      "active": false,
+      "pubkey": ""
+    },
+    "shell": {
+      "open": true
+    }
+  },
+  "bundle": {
+      "active": true,
+      "createUpdaterArtifacts": false,
+      "targets": ["nsis"],
+      "icon": [
+        "icons/32x32.png",
+        "icons/128x128.png",
+        "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico",
+      "icons/icon.png"
+    ],
+    "resources": [],
+    "copyright": "© 2025 Fangyu",
+    "category": "DeveloperTool",
+    "shortDescription": "Fangyu 专属 AI 开发工具",
+    "longDescription": "Fangyu Code 是专为 Fangyu 定制的 AI 开发工具，基于 Claude Code CLI 打造。提供直观的界面用于 AI 驱动的开发工作流、项目管理和高级 AI 交互。",
+    "windows": {
+      "nsis": {
+        "installerIcon": "icons/icon.ico",
+        "installMode": "perMachine",
+        "languages": ["SimpChinese", "English"],
+        "displayLanguageSelector": true
+      }
+    }
+  }
+}
