@@ -79,10 +79,10 @@ export const OFFICIAL_MCP_DEFAULTS: Record<string, {
       command: 'npx',
       args: ['-y', '@modelcontextprotocol/server-github'],
       env: {
-        GITHUB_TOKEN: '',  // 需要用户填写
+        GITHUB_PERSONAL_ACCESS_TOKEN: '',  // 用户需要填写自己的 GitHub Token
       },
     },
-    description: 'GitHub 仓库操作',
+    description: 'GitHub 仓库操作（搜索仓库、管理 PR/Issue、读取代码）',
   },
   'postgres': {
     name: 'PostgreSQL',

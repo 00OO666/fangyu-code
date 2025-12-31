@@ -59,6 +59,15 @@ function getEngineType(message: ClaudeStreamMessage): string {
 export function aggregateSessionCost(messages: ClaudeStreamMessage[]): SessionCostAggregation {
   const eventMap = new Map<string, MutableBillingEvent>();
 
+  // 🔧 FIX: 从 system:init 消息中提取会话级别的默认模型
+  let sessionDefaultModel: string | undefined;
+  for (const msg of messages) {
+    if ((msg as any).type === 'system' && (msg as any).subtype === 'init') {
+      sessionDefaultModel = (msg as any).model;
+      if (sessionDefaultModel) break;
+    }
+  }
+
   messages.forEach((message, index) => {
     const engine = getEngineType(message);
 
@@ -95,8 +104,15 @@ export function aggregateSessionCost(messages: ClaudeStreamMessage[]): SessionCo
 
     const key = getBillingKey(message, index);
     const { timestamp, timestampMs } = extractTimestamp(message);
-    const model = getModelName(message, engine);
-    const cost = calculateMessageCost(tokens, model, engine);
+    // 🔧 FIX: 使用会话默认模型作为回退
+    const model = getModelName(message, engine, sessionDefaultModel);
+
+    // 🔧 FIX: 优先使用 Claude CLI 返回的 cost_usd（包含完整 Extended Thinking tokens 计费）
+    // 只有在没有 cost_usd 时才自行计算（回退方案）
+    const actualCostUsd = (message as any).cost_usd ?? (message as any).total_cost_usd;
+    const cost = typeof actualCostUsd === 'number' && actualCostUsd > 0
+      ? actualCostUsd
+      : calculateMessageCost(tokens, model, engine);
 
     const existing = eventMap.get(key);
     if (
@@ -226,7 +242,7 @@ function extractTimestamp(message: ClaudeStreamMessage): { timestamp?: string; t
   return {};
 }
 
-function getModelName(message: ClaudeStreamMessage, engine?: string): string {
+function getModelName(message: ClaudeStreamMessage, engine?: string, sessionDefaultModel?: string): string {
   const candidates = [
     (message as any).model,
     (message as any)?.message?.model,
@@ -237,6 +253,11 @@ function getModelName(message: ClaudeStreamMessage, engine?: string): string {
     if (typeof candidate === 'string' && candidate.trim() !== '') {
       return candidate;
     }
+  }
+
+  // 🔧 FIX: 优先使用会话默认模型
+  if (sessionDefaultModel) {
+    return sessionDefaultModel;
   }
 
   // 根据引擎返回对应的默认模型

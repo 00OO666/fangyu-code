@@ -455,6 +455,11 @@ const FloatingPromptInputInner = (
     // Allow sending if there's text content OR image attachments
     if ((state.prompt.trim() || imageAttachments.length > 0) && !disabled) {
       let finalPrompt = state.prompt.trim();
+      // 保存原始输入，发送失败时可恢复
+      const savedPrompt = finalPrompt;
+      const savedAttachments = [...imageAttachments];
+      const savedEmbedded = [...embeddedImages];
+
       if (imageAttachments.length > 0) {
         // Codex CLI doesn't recognize @ prefix syntax, use direct paths instead
         // Claude Code CLI uses @ prefix to reference files
@@ -492,16 +497,24 @@ const FloatingPromptInputInner = (
         }
       }
 
-      onSend(finalPrompt, modelToSend, undefined);
+      // 🔧 FIX: 先立即清空输入框（用户即时反馈），然后异步执行 onSend，失败时恢复
       dispatch({ type: "RESET_INPUT" });
       setImageAttachments([]);
       setEmbeddedImages([]);
-      // 发送成功后清除草稿
       clearDraft();
       setTimeout(() => {
         const textarea = state.isExpanded ? expandedTextareaRef.current : textareaRef.current;
         if (textarea) textarea.style.height = 'auto';
       }, 0);
+
+      // 异步执行 onSend，失败时恢复输入框
+      Promise.resolve(onSend(finalPrompt, modelToSend, undefined)).catch((error) => {
+        console.error('[FloatingPromptInput] 发送失败，恢复输入框:', error);
+        dispatch({ type: "SET_PROMPT", payload: savedPrompt });
+        setImageAttachments(savedAttachments);
+        setEmbeddedImages(savedEmbedded);
+        saveDraft(savedPrompt);
+      });
     }
   };
 

@@ -572,7 +572,8 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
         } else {
           console.error('[ClaudeCodeSession] Smart session upgrade returned null');
           setError("智能会话升级失败：无法创建项目文件夹");
-          return;
+          // 🔧 FIX: 抛出错误，让 FloatingPromptInput 捕获并恢复输入框
+          throw new Error("智能会话升级失败：无法创建项目文件夹");
         }
       } catch (err) {
         console.error('[ClaudeCodeSession] Smart session upgrade failed with error:', err);
@@ -581,8 +582,10 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
           name: err instanceof Error ? err.name : 'Unknown',
           message: err instanceof Error ? err.message : String(err)
         });
-        setError(`智能会话升级失败: ${err instanceof Error ? err.message : String(err)}`);
-        return;
+        const errorMsg = `智能会话升级失败: ${err instanceof Error ? err.message : String(err)}`;
+        setError(errorMsg);
+        // 🔧 FIX: 抛出错误，让 FloatingPromptInput 捕获并恢复输入框
+        throw new Error(errorMsg);
       }
     }
 

@@ -54,9 +54,9 @@ function cleanText(text: string): string {
 }
 
 /**
- * 快速命名：取第一条用户消息的前 N 个字符
+ * 快速命名：智能提取核心主题（ChatGPT 风格）
  */
-function generateQuickTitle(messages: ClaudeStreamMessage[], maxLength: number = 20): string | null {
+function generateQuickTitle(messages: ClaudeStreamMessage[], maxLength: number = 25): string | null {
   const userMessage = messages.find(m => m.type === 'user');
   if (!userMessage) return null;
 
@@ -64,11 +64,32 @@ function generateQuickTitle(messages: ClaudeStreamMessage[], maxLength: number =
   if (!text) return null;
 
   const cleaned = cleanText(text);
-  if (cleaned.length > maxLength) {
-    return cleaned.substring(0, maxLength) + '...';
+
+  // 移除常见问句前缀和冗余词（多次应用直到稳定）
+  let result = cleaned;
+  const prefixPatterns = [
+    /^(请|帮我|帮忙|能不能|可以|可否|怎么|如何|为什么|测试一下|试试|你现在|根据|能否|是否)\s*/,
+    /^(我想|我要|我需要|给我|告诉我|看看|检查一下)\s*/,
+    /^(please|help me|can you|could you|how to|why|test|i want to|i need)\s*/i,
+  ];
+
+  for (let i = 0; i < 3; i++) {
+    for (const pattern of prefixPatterns) {
+      result = result.replace(pattern, '').trim();
+    }
   }
 
-  return cleaned;
+  // 提取第一句话或第一个短语
+  const firstPart = result.split(/[。？！，,?!：:]/)[0].trim();
+  const final = firstPart || result;
+
+  // 按字符截断，支持中文
+  const chars = [...final];
+  if (chars.length > maxLength) {
+    return chars.slice(0, maxLength).join('') + '...';
+  }
+
+  return final;
 }
 
 /**
@@ -78,14 +99,19 @@ function generateQuickTitle(messages: ClaudeStreamMessage[], maxLength: number =
  * 1. 查找常见动作词：创建、修复、优化、添加、删除、实现等
  * 2. 提取技术关键词：文件名、函数名、组件名等
  * 3. 组合成简洁标题
+ *
+ * 🔧 优化：只分析最近 3 条用户消息，避免历史任务摘要干扰
  */
 function generateSmartTitle(messages: ClaudeStreamMessage[]): string | null {
   // 收集所有用户消息
   const userMessages = messages.filter(m => m.type === 'user');
   if (userMessages.length === 0) return null;
 
-  // 合并所有用户消息的文本
-  const allText = userMessages
+  // 🔧 FIX: 只取最近 3 条用户消息，避免第一条粘贴的历史摘要干扰
+  const recentUserMessages = userMessages.slice(-3);
+
+  // 合并最近用户消息的文本
+  const allText = recentUserMessages
     .map(m => extractUserMessageText(m))
     .join(' ');
 
@@ -174,16 +200,16 @@ export function useSmartTabTitle({
     const currentUserRounds = countUserRounds(messages);
     const hasReply = hasAssistantReply(messages);
 
-    // 🔧 优化：阶段 1 - 等 AI 回复后再快速命名
-    // 避免首条消息被截断用作标题，用户需要重新输入的问题
+    // 🔧 优化：阶段 1 - 等 AI 回复后立即智能命名（ChatGPT 风格）
+    // 第一轮对话后就提取关键词，不再使用简单截断
     if (currentUserRounds === 1 && hasReply && userRoundsRef.current !== 1) {
       userRoundsRef.current = 1;
 
-      const quickTitle = generateQuickTitle(messages);
-      if (quickTitle && quickTitle !== lastAppliedTitleRef.current) {
-        console.log('[useSmartTabTitle] Phase 1 - Quick naming (after AI reply):', quickTitle);
-        onTitleUpdate(quickTitle);
-        lastAppliedTitleRef.current = quickTitle;
+      const smartTitle = generateSmartTitle(messages);
+      if (smartTitle && smartTitle !== lastAppliedTitleRef.current) {
+        console.log('[useSmartTabTitle] Phase 1 - Smart naming (ChatGPT style):', smartTitle);
+        onTitleUpdate(smartTitle);
+        lastAppliedTitleRef.current = smartTitle;
       }
     }
 

@@ -54,8 +54,9 @@ export type ExecutionEngineConfig = import('@/components/ExecutionEngineSelector
 export interface FloatingPromptInputProps {
   /**
    * Callback when prompt is sent - includes maxThinkingTokens separately
+   * 🔧 FIX: 支持异步回调，等待完成后再清空输入框，防止消息丢失
    */
-  onSend: (prompt: string, model: ModelType, maxThinkingTokens?: number) => void;
+  onSend: (prompt: string, model: ModelType, maxThinkingTokens?: number) => void | Promise<void>;
   /**
    * Whether the input is loading
    */

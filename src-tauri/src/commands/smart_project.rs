@@ -66,11 +66,12 @@ fn generate_title_from_message(message: &str) -> String {
         }
     }
 
-    // Otherwise take first 50 characters
-    if cleaned.len() <= 50 {
+    // Otherwise take first 50 characters (按字符截断，支持中文)
+    let char_count = cleaned.chars().count();
+    if char_count <= 50 {
         cleaned.to_string()
     } else {
-        format!("{}...", &cleaned[..50])
+        format!("{}...", cleaned.chars().take(50).collect::<String>())
     }
 }
 

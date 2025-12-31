@@ -304,6 +304,22 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
     }
 
     try {
+      // 🔧 CRITICAL FIX: 在发送新请求前强制清理所有旧监听器
+      // 问题：开发模式 HMR 时，旧监听器可能未完全清理，导致接收重复消息
+      // 解决：每次发送新请求时，强制清理并重置状态
+      console.log('[usePromptExecution] 🧹 清理旧监听器，准备发送新请求');
+      unlistenRefs.current.forEach(unlisten => {
+        try {
+          if (unlisten && typeof unlisten === 'function') {
+            unlisten();
+          }
+        } catch (err) {
+          console.warn('[usePromptExecution] Failed to unlisten:', err);
+        }
+      });
+      unlistenRefs.current = [];
+      isListeningRef.current = false;
+
       setIsLoading(true);
       setError(null);
       hasActiveSessionRef.current = true;
@@ -413,6 +429,8 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
           const processedCodexMessages = new Set<string>();
           // 🔧 FIX: Track pending prompt recording Promise to avoid race condition
           let pendingPromptRecordingPromise: Promise<void> | null = null;
+          // 🔧 FIX: 记录当前请求的 tabId，用于 HMR 后的消息过滤
+          const codexRequestTabId = tabIdRef.current;
 
           // Helper function to generate message ID for deduplication
           const getCodexMessageId = (payload: string): string => {
@@ -429,6 +447,12 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
           // Helper function to process Codex output
           const processCodexOutput = async (payload: string) => {
             if (!isMountedRef.current) return;
+
+            // 🔧 CRITICAL FIX: 检查 tabId 是否变化（HMR 导致）
+            if (tabIdRef.current !== codexRequestTabId) {
+              console.log('[usePromptExecution/Codex] ⚠️ tabId 已变化，忽略旧请求的消息');
+              return;
+            }
 
             // 🔧 FIX: Deduplicate messages
             const messageId = getCodexMessageId(payload);
@@ -737,6 +761,8 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
           const processedGeminiMessages = new Set<string>();
           // 🔧 FIX: Track pending prompt recording Promise to avoid race condition
           let pendingGeminiPromptRecordingPromise: Promise<void> | null = null;
+          // 🔧 FIX: 记录当前请求的 tabId，用于 HMR 后的消息过滤
+          const geminiRequestTabId = tabIdRef.current;
 
           // Helper function to generate message ID for deduplication
           const getGeminiMessageId = (payload: string): string => {
@@ -845,6 +871,12 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
           // Helper function to process Gemini output
           const processGeminiOutput = (payload: string) => {
             if (!isMountedRef.current) return;
+
+            // 🔧 CRITICAL FIX: 检查 tabId 是否变化（HMR 导致）
+            if (tabIdRef.current !== geminiRequestTabId) {
+              console.log('[usePromptExecution/Gemini] ⚠️ tabId 已变化，忽略旧请求的消息');
+              return;
+            }
 
             // 🔧 FIX: Deduplicate messages
             const messageId = getGeminiMessageId(payload);
@@ -1262,10 +1294,20 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
         // ====================================================================
         // Helper: Process Stream Message
         // ====================================================================
+        // 🔧 FIX: 记录当前请求的 tabId，用于严格会话隔离（HMR 后检测 tabId 变化）
+        const currentRequestTabId = tabIdRef.current;
+
         async function handleStreamMessage(payload: string, currentTranslationResult?: TranslationResult) {
           try {
             // Don't process if component unmounted
             if (!isMountedRef.current) return;
+
+            // 🔧 CRITICAL FIX: 检查 tabId 是否变化（HMR 导致）
+            // 如果 tabIdRef 已经变化，说明组件已被 HMR 重新加载，忽略旧消息
+            if (tabIdRef.current !== currentRequestTabId) {
+              console.log('[usePromptExecution] ⚠️ tabId 已变化，忽略旧请求的消息');
+              return;
+            }
 
             // 🔧 FIX: Deduplicate messages to prevent duplicate processing
             // This can happen when both global and session-specific listeners receive the same message

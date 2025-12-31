@@ -17,7 +17,7 @@ import { useState, useEffect } from 'react';
 import { getVersion } from '@tauri-apps/api/app';
 
 const STORAGE_KEY = 'fangyu-code-last-seen-version';
-const FALLBACK_VERSION = '1.3.0'; // 🔧 Fallback 版本（获取失败时使用）
+const FALLBACK_VERSION = '1.3.1'; // 🔧 Fallback 版本（获取失败时使用）
 
 // 🔧 DEBUG: 全局变量用于强制显示更新日志（调试用）
 declare global {
@@ -29,6 +29,21 @@ declare global {
 
 // 版本更新日志（从新到旧）
 export const CHANGELOGS = {
+  '1.3.1': {
+    title: 'v1.3.1 - 🔧 费用计算修复 + HMR Bug 修复',
+    date: '2025-12-31',
+    bugFixes: [
+      'Extended Thinking 费用计算修复 - 显示费用从 $7.83 修正为实际 $20.17（约 2.5x 差异）',
+      '根本原因：Claude Extended Thinking 按完整思考 tokens 计费，不是摘要后的 tokens',
+      '修复方案：优先使用 Claude CLI 返回的 cost_usd 字段（包含准确计费）',
+      'HMR 重复流式传输修复 - 开发模式下不再重复输出上一次回复',
+      '修复方案：发送前强制清理监听器 + 为三引擎添加 tabId 验证',
+    ],
+    improvements: [
+      '费用计算现在与实际 Claude 账单完全一致',
+      '开发模式体验改善 - HMR 热更新后消息流正常隔离',
+    ],
+  },
   '1.3.0': {
     title: 'v1.3.0 - 🎉 应用内自动更新 + MCP 智能配置',
     date: '2025-12-31',

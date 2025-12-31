@@ -163,6 +163,23 @@ export const PromptNavigator: React.FC<PromptNavigatorProps> = ({
     let promptIndex = 0;
     const items: PromptItem[] = [];
 
+    // 🔧 DEBUG: 诊断费用差异
+    console.log('[PromptNavigator] 💰 开始费用诊断...');
+    console.log(`[PromptNavigator] 总消息数: ${messages.length}`);
+
+    // 🔧 FIX: 从 system:init 消息中提取会话级别的默认模型
+    // 这样即使单条消息没有模型信息，也能使用正确的定价
+    let sessionDefaultModel: string | undefined;
+    for (const msg of messages) {
+      if ((msg as any).type === 'system' && (msg as any).subtype === 'init') {
+        sessionDefaultModel = (msg as any).model;
+        if (sessionDefaultModel) {
+          console.log(`[PromptNavigator] 📌 从 system:init 检测到会话模型: ${sessionDefaultModel}`);
+          break;
+        }
+      }
+    }
+
     for (let i = 0; i < messages.length; i++) {
       const message = messages[i];
       const messageType = (message as any).type || (message.message as any)?.role;
@@ -186,36 +203,59 @@ export const PromptNavigator: React.FC<PromptNavigatorProps> = ({
           let thinkingCount = 0;
           let thinkingTokens = 0;
 
-          // 新增：引擎和模型（使用第一个 assistant 消息的信息）
-          let engine: string | undefined;
-          let model: string | undefined;
+          // 新增：引擎和模型（用于显示，取第一个消息的值）
+          let displayEngine: string | undefined;
+          let displayModel: string | undefined;
+          // 🔧 FIX: 记录所有使用的模型（用于诊断多模型场景）
+          const modelsUsed = new Set<string>();
+
+          // 🔧 FIX: 使用 Map 去重，避免流式传输过程中重复计费
+          // 注意：每条消息使用自己的模型计费，而不是统一模型！
+          // 🔧 FIX: 添加 actualCost 字段以存储 Claude CLI 返回的准确费用
+          const messageMap = new Map<string, { tokens: any; engine: string; model: string | undefined; actualCost: number | undefined }>();
 
           // 向后查找该指令对应的所有 assistant/system 消息，直到遇到下一个 user 消息
+          let messagesProcessedForThisPrompt = 0;
           for (let j = i + 1; j < messages.length; j++) {
             const nextMessage = messages[j];
             const nextType = (nextMessage as any).type || (nextMessage.message as any)?.role;
 
             // 遇到下一个用户消息，停止统计
-            if (nextType === 'user') break;
+            if (nextType === 'user') {
+              console.log(`[PromptNavigator] Prompt #${promptIndex + 1}: 处理了 ${messagesProcessedForThisPrompt} 条消息 (终止原因: 遇到下一个 user 消息)`);
+              break;
+            }
 
             // 只处理 assistant 和 system 消息（与 aggregateSessionCost 逻辑一致）
             if (nextType === 'assistant' || nextType === 'system') {
+              messagesProcessedForThisPrompt++;
+
+              // 🔧 FIX: 生成去重 key（与 sessionCost.ts 逻辑一致）
+              const messageId = (nextMessage as any)?.message?.id || (nextMessage as any).id || (nextMessage as any).uuid;
+              const key = messageId || `index:${j}`;
+
               // 使用 tokenExtractor 提取完整的 token 信息（包括缓存 token）
               const extractedTokens = tokenExtractor.extract(nextMessage);
-
-              totalInput += extractedTokens.input_tokens;
-              totalOutput += extractedTokens.output_tokens;
-              totalCacheRead += extractedTokens.cache_read_tokens;
-              totalCacheWrite += extractedTokens.cache_creation_tokens;
-
-              // 累加费用（使用与会话统计相同的计算方法）
               const msgEngine = (nextMessage as any).engine || 'claude';
-              const msgModel = (nextMessage as any).model || (nextMessage as any)?.message?.model;
-              cost += calculateMessageCost(extractedTokens, msgModel, msgEngine);
+              // 🔧 FIX: 使用会话默认模型作为回退（优先级：消息模型 > 会话模型 > undefined）
+              const msgModel = (nextMessage as any).model || (nextMessage as any)?.message?.model || sessionDefaultModel;
+              // 🔧 FIX: 提取 Claude CLI 返回的准确费用（包含完整 Extended Thinking tokens 计费）
+              const msgCostUsd = (nextMessage as any).cost_usd ?? (nextMessage as any).total_cost_usd;
 
-              // 记录引擎和模型（使用第一个消息的信息）
-              if (!engine) engine = msgEngine;
-              if (!model) model = msgModel;
+              // 🔧 FIX: 只保留最新版本（相同 key 的消息，保留 token 更多的版本）
+              const existing = messageMap.get(key);
+              const totalTokenCount = extractedTokens.input_tokens + extractedTokens.output_tokens + extractedTokens.cache_read_tokens + extractedTokens.cache_creation_tokens;
+              const existingTokenCount = existing ? (existing.tokens.input_tokens + existing.tokens.output_tokens + existing.tokens.cache_read_tokens + existing.tokens.cache_creation_tokens) : 0;
+
+              if (!existing || totalTokenCount > existingTokenCount) {
+                messageMap.set(key, { tokens: extractedTokens, engine: msgEngine, model: msgModel, actualCost: msgCostUsd });
+              }
+
+              // 记录引擎和模型（使用第一个消息的信息，用于 UI 显示）
+              if (!displayEngine) displayEngine = msgEngine;
+              if (!displayModel) displayModel = msgModel;
+              // 🔧 FIX: 记录所有使用的模型（用于诊断）
+              if (msgModel) modelsUsed.add(msgModel);
 
               // 提取工具调用信息
               if (nextMessage.message?.content) {
@@ -241,6 +281,22 @@ export const PromptNavigator: React.FC<PromptNavigatorProps> = ({
             }
           }
 
+          // 🔧 FIX: 从去重后的 messageMap 计算总费用和 token
+          // 优先使用 Claude CLI 返回的 cost_usd（包含完整 Extended Thinking tokens 计费）
+          for (const entry of messageMap.values()) {
+            totalInput += entry.tokens.input_tokens;
+            totalOutput += entry.tokens.output_tokens;
+            totalCacheRead += entry.tokens.cache_read_tokens;
+            totalCacheWrite += entry.tokens.cache_creation_tokens;
+            // 优先使用 cost_usd，回退到自行计算
+            const actualCostUsd = entry.actualCost;
+            if (typeof actualCostUsd === 'number' && actualCostUsd > 0) {
+              cost += actualCostUsd;
+            } else {
+              cost += calculateMessageCost(entry.tokens, entry.model, entry.engine);
+            }
+          }
+
           const totalTokens = totalInput + totalOutput + totalCacheRead + totalCacheWrite;
           if (totalTokens > 0) {
             tokens = {
@@ -257,6 +313,15 @@ export const PromptNavigator: React.FC<PromptNavigatorProps> = ({
             ? Math.round((totalCacheRead / totalInput) * 100)
             : undefined;
 
+          // 🔧 DEBUG: 记录每个 prompt 的详细信息（包括多模型诊断）
+          const modelsInfo = modelsUsed.size > 0 ? Array.from(modelsUsed).join(', ') : 'unknown (default pricing used!)';
+          console.log(`[PromptNavigator] Prompt #${promptIndex + 1}: 💰 $${cost.toFixed(4)}, 🎯 models=[${modelsInfo}], 📊 消息数=${messagesProcessedForThisPrompt}, tokens=${totalTokens}`);
+          if (modelsUsed.size === 0) {
+            console.warn(`[PromptNavigator] ⚠️ Prompt #${promptIndex + 1}: 所有消息都没有模型信息，使用了默认 Sonnet 定价！`);
+          } else if (modelsUsed.size > 1) {
+            console.log(`[PromptNavigator] 📊 Prompt #${promptIndex + 1}: 检测到多模型场景 (${modelsUsed.size} 个不同模型)`);
+          }
+
           items.push({
             promptIndex,
             content: text,
@@ -266,13 +331,20 @@ export const PromptNavigator: React.FC<PromptNavigatorProps> = ({
             toolCalls: totalToolCalls > 0 ? { total: totalToolCalls, byType: toolCallsMap } : undefined,
             thinking: thinkingCount > 0 ? { count: thinkingCount, tokens: thinkingTokens } : undefined,
             cacheHitRate,
-            engine,
-            model
+            engine: displayEngine,
+            model: displayModel
           });
           promptIndex++;
         }
       }
     }
+
+    // 🔧 DEBUG: 打印总费用统计
+    const navigatorTotalCost = items.reduce((sum, item) => sum + (item.cost || 0), 0);
+    console.log(`[PromptNavigator] 📊 统计汇总:`);
+    console.log(`  - 总 prompt 数: ${items.length}`);
+    console.log(`  - PromptNavigator 计算总费用: $${navigatorTotalCost.toFixed(4)}`);
+    console.log(`  - 提示：如果与 SessionCost 差异大，可能是模型识别错误或遗漏消息`);
 
     // 倒序排列：最新的指令排在最上方
     return items.reverse();
