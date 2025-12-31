@@ -308,13 +308,13 @@ const QueueItem: React.FC<{
                 size="icon"
                 className="h-6 w-6 text-blue-500 hover:text-blue-400 hover:bg-blue-500/10"
                 onClick={onSendImmediate}
-                disabled={!canOperate || !isLoading}
+                disabled={!canOperate}
               >
-                <Zap className="w-3.5 h-3.5" />
+                {isLoading ? <Zap className="w-3.5 h-3.5" /> : <Send className="w-3.5 h-3.5" />}
               </Button>
             </TooltipTrigger>
             <TooltipContent side="left">
-              {isLoading ? '插队发送（作为指导）' : '当前无任务，直接发送'}
+              {isLoading ? '插队发送（作为指导）' : '立即发送'}
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

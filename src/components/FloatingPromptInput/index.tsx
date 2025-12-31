@@ -125,6 +125,43 @@ const FloatingPromptInputInner = (
   const [showQueuePanel, setShowQueuePanel] = useState(false);
   const pendingCount = promptQueue.items.filter(i => i.status === 'pending').length;
 
+  // 🆕 队列自动处理：使用 ref 避免依赖项问题
+  const queueProcessingRef = useRef({
+    isProcessing: false,
+    promptQueue,
+    onSend,
+    prevIsLoading: isLoading,
+  });
+
+  // 同步更新 ref 中的值
+  queueProcessingRef.current.promptQueue = promptQueue;
+  queueProcessingRef.current.onSend = onSend;
+
+  // 🆕 监听 isLoading 变化，自动处理队列
+  useEffect(() => {
+    const ref = queueProcessingRef.current;
+    const wasLoading = ref.prevIsLoading;
+    ref.prevIsLoading = isLoading;
+
+    // 检测 AI 完成：isLoading 从 true 变为 false
+    if (wasLoading && !isLoading && !ref.isProcessing) {
+      const nextItem = ref.promptQueue.getNextSequential();
+      if (nextItem) {
+        ref.isProcessing = true;
+        // 延迟发送，确保状态已完全更新
+        const timer = setTimeout(() => {
+          ref.promptQueue.dequeue(nextItem.id);
+          ref.onSend(nextItem.prompt, nextItem.model, undefined, false);
+          ref.isProcessing = false;
+        }, 500);
+        return () => {
+          clearTimeout(timer);
+          ref.isProcessing = false;
+        };
+      }
+    }
+  }, [isLoading]);
+
   // 草稿持久化 Hook - 确保输入内容在页面切换后不丢失
   const { saveDraft, clearDraft } = useDraftPersistence({
     sessionId,
@@ -588,13 +625,16 @@ const FloatingPromptInputInner = (
   const handleSendImmediate = useCallback((itemId: string) => {
     const item = promptQueue.items.find(i => i.id === itemId);
     if (item) {
-      // 从队列移除
       promptQueue.dequeue(itemId);
-      // 立即发送（插队模式，forceImmediate=true）
-      const promptToSend = `【即时指导】${item.prompt}`;
-      onSend(promptToSend, item.model, undefined, true);
+      if (isLoading) {
+        // 插队模式：添加前缀
+        onSend(`【即时指导】${item.prompt}`, item.model, undefined, true);
+      } else {
+        // 直接发送：不添加前缀
+        onSend(item.prompt, item.model, undefined, false);
+      }
     }
-  }, [promptQueue, onSend]);
+  }, [promptQueue, onSend, isLoading]);
 
   const handleSendMerged = useCallback(() => {
     const mergedPrompt = promptQueue.getMergedPrompt();
