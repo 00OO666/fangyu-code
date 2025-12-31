@@ -20,7 +20,7 @@ export const OFFICIAL_MCP_DEFAULTS: Record<string, {
     spec: {
       type: 'stdio',
       command: 'npx',
-      args: ['-y', '@anthropic-ai/mcp-server-filesystem', '.'],
+      args: ['-y', '@modelcontextprotocol/server-filesystem', '.'],
     },
     description: '读取和写入本地文件系统',
   },
@@ -29,7 +29,7 @@ export const OFFICIAL_MCP_DEFAULTS: Record<string, {
     spec: {
       type: 'stdio',
       command: 'npx',
-      args: ['-y', '@anthropic-ai/mcp-server-fetch'],
+      args: ['-y', '@modelcontextprotocol/server-fetch'],
     },
     description: '发送 HTTP 请求获取网页内容',
   },
@@ -38,7 +38,7 @@ export const OFFICIAL_MCP_DEFAULTS: Record<string, {
     spec: {
       type: 'stdio',
       command: 'npx',
-      args: ['-y', '@anthropic-ai/mcp-server-sequential-thinking'],
+      args: ['-y', '@modelcontextprotocol/server-sequentialthinking'],
     },
     description: '复杂逻辑的分步推理',
   },
@@ -47,7 +47,7 @@ export const OFFICIAL_MCP_DEFAULTS: Record<string, {
     spec: {
       type: 'stdio',
       command: 'npx',
-      args: ['-y', '@anthropic-ai/mcp-server-memory'],
+      args: ['-y', '@modelcontextprotocol/server-memory'],
     },
     description: '持久化记忆存储',
   },
@@ -56,7 +56,7 @@ export const OFFICIAL_MCP_DEFAULTS: Record<string, {
     spec: {
       type: 'stdio',
       command: 'npx',
-      args: ['-y', '@anthropic-ai/mcp-server-puppeteer'],
+      args: ['-y', '@modelcontextprotocol/server-puppeteer'],
     },
     description: '浏览器自动化和网页截图',
   },
@@ -65,7 +65,7 @@ export const OFFICIAL_MCP_DEFAULTS: Record<string, {
     spec: {
       type: 'stdio',
       command: 'npx',
-      args: ['-y', '@anthropic-ai/mcp-server-brave-search'],
+      args: ['-y', '@modelcontextprotocol/server-brave-search'],
       env: {
         BRAVE_API_KEY: '',  // 需要用户填写
       },
@@ -77,7 +77,7 @@ export const OFFICIAL_MCP_DEFAULTS: Record<string, {
     spec: {
       type: 'stdio',
       command: 'npx',
-      args: ['-y', '@anthropic-ai/mcp-server-github'],
+      args: ['-y', '@modelcontextprotocol/server-github'],
       env: {
         GITHUB_TOKEN: '',  // 需要用户填写
       },
@@ -89,7 +89,7 @@ export const OFFICIAL_MCP_DEFAULTS: Record<string, {
     spec: {
       type: 'stdio',
       command: 'npx',
-      args: ['-y', '@anthropic-ai/mcp-server-postgres'],
+      args: ['-y', '@modelcontextprotocol/server-postgres'],
       env: {
         DATABASE_URL: '',  // 需要用户填写
       },
@@ -101,7 +101,7 @@ export const OFFICIAL_MCP_DEFAULTS: Record<string, {
     spec: {
       type: 'stdio',
       command: 'npx',
-      args: ['-y', '@anthropic-ai/mcp-server-sqlite', '--db-path', './data.db'],
+      args: ['-y', '@modelcontextprotocol/server-sqlite', '--db-path', './data.db'],
     },
     description: 'SQLite 数据库操作',
   },
