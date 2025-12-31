@@ -38,7 +38,8 @@ import { getMCPDescription, getCategoryLabel, getCategoryColor } from '@/lib/mcp
 import { useProjectMCPConfig, type MCPConfigScope } from '@/hooks/useProjectMCPConfig';
 import { getMCPRecommendations, type ProjectType, type MCPRecommendation } from '@/config/mcpRecommendations';
 import { ClaudeIcon } from './icons/ClaudeIcon';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, ExternalLink } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface ProjectMCPQuickConfigProps {
   /**
@@ -68,6 +69,7 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
   projectPath,
   engine = 'claude',
 }) => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'recommend' | 'project' | 'global'>('recommend');
   const [globalServers, setGlobalServers] = useState<McpServerWithStatus[]>([]);
   const [loadingGlobal, setLoadingGlobal] = useState(false);
@@ -124,6 +126,7 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
     try {
       setLoadingGlobal(true);
       const servers = await api.mcpGetEngineServersWithStatus(engine);
+      console.log(`[ProjectMCPQuickConfig] 加载了 ${servers.length} 个全局服务器:`, servers.map(s => ({ id: s.id, enabled: s.enabled })));
       setGlobalServers(servers);
     } catch (error) {
       console.error('[ProjectMCPQuickConfig] Failed to load global servers:', error);
@@ -197,16 +200,32 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
         mcpServers: { ...(projectConfig?.mcpServers || {}) },
       };
 
+      let addedCount = 0;
       for (const rec of toAdd) {
-        // 找到全局服务器中匹配的 spec
-        const globalServer = globalServers.find(s => s.id === rec.serverId);
+        // 找到全局服务器中匹配的 spec（模糊匹配 ID，支持 @anthropic/filesystem 匹配 filesystem）
+        const globalServer = globalServers.find(s =>
+          s.id === rec.serverId ||
+          s.id.endsWith(`/${rec.serverId}`) ||
+          s.id.toLowerCase().includes(rec.serverId.toLowerCase())
+        );
+
         if (globalServer && globalServer.enabled) {
-          newConfig.mcpServers[rec.serverId] = globalServer.spec;
+          // 使用全局服务器的真实 ID，而不是推荐的 serverId
+          newConfig.mcpServers[globalServer.id] = globalServer.spec;
+          addedCount++;
+          console.log(`[ProjectMCPQuickConfig] Added ${rec.name} (${globalServer.id})`);
+        } else {
+          console.warn(`[ProjectMCPQuickConfig] 未找到全局服务器: ${rec.serverId}`, {
+            available: globalServers.map(s => s.id),
+            enabled: globalServers.filter(s => s.enabled).map(s => s.id),
+          });
         }
       }
 
       await api.mcpSaveProjectConfig(projectPath, newConfig);
       await reloadProjectConfig();
+
+      console.log(`[ProjectMCPQuickConfig] 成功添加 ${addedCount}/${toAdd.length} 个推荐服务器`);
     } catch (error) {
       console.error('[ProjectMCPQuickConfig] Add recommendations failed:', error);
     } finally {
@@ -324,10 +343,36 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
     );
   };
 
+  // 查找匹配的全局服务器（模糊匹配）
+  const findMatchingGlobalServer = useCallback((serverId: string) => {
+    return globalServers.find(s =>
+      s.id === serverId ||
+      s.id.endsWith(`/${serverId}`) ||
+      s.id.toLowerCase().includes(serverId.toLowerCase())
+    );
+  }, [globalServers]);
+
+  // 检查服务器是否在项目配置中（模糊匹配）
+  const isServerInProject = useCallback((serverId: string) => {
+    if (!projectConfig?.mcpServers) return false;
+    const keys = Object.keys(projectConfig.mcpServers);
+    return keys.some(key =>
+      key === serverId ||
+      key.endsWith(`/${serverId}`) ||
+      key.toLowerCase().includes(serverId.toLowerCase())
+    );
+  }, [projectConfig]);
+
+  // 跳转到设置页面配置 MCP
+  const handleGoToSettings = useCallback(() => {
+    onClose(); // 先关闭对话框
+    navigate('/settings'); // 导航到设置页面
+  }, [navigate, onClose]);
+
   // 渲染单个推荐项
   const renderRecommendationItem = (rec: MCPRecommendation) => {
-    const globalServer = globalServers.find(s => s.id === rec.serverId);
-    const isInProject = isServerEnabledInProject(rec.serverId);
+    const globalServer = findMatchingGlobalServer(rec.serverId);
+    const isInProject = isServerInProject(rec.serverId) || (globalServer && isServerEnabledInProject(globalServer.id));
     const isAvailable = globalServer && globalServer.enabled;
 
     return (
@@ -341,9 +386,13 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
         )}
       >
         <div className="flex items-center gap-3 flex-1 min-w-0">
-          {globalServer && (
+          {globalServer ? (
             <div className="p-1.5 bg-primary/10 rounded">
               {getTransportIcon(globalServer.spec)}
+            </div>
+          ) : (
+            <div className="p-1.5 bg-gray-100 dark:bg-gray-800 rounded">
+              <Terminal className="h-4 w-4 text-gray-400" />
             </div>
           )}
           <div className="flex-1 min-w-0">
@@ -367,16 +416,16 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
         <div className="flex items-center gap-2 ml-2">
           {isAvailable ? (
             <Switch
-              checked={isInProject}
-              disabled={savingId === rec.serverId}
-              onCheckedChange={() => globalServer && handleToggleServer(rec.serverId, globalServer.spec, isInProject)}
+              checked={!!isInProject}
+              disabled={savingId === rec.serverId || savingId === globalServer?.id}
+              onCheckedChange={() => globalServer && handleToggleServer(globalServer.id, globalServer.spec, !!isInProject)}
             />
           ) : (
             <Button
               variant="ghost"
               size="sm"
               className="text-xs text-orange-500 hover:text-orange-600"
-              onClick={() => window.open('/settings', '_blank')}
+              onClick={handleGoToSettings}
             >
               去配置
             </Button>
