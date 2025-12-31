@@ -688,6 +688,9 @@ fn main() {
             run_diagnostics,
             fix_all_issues,
             fix_issue,
+            // Memory Import System (智能记忆导入系统)
+            detect_memory_keywords,
+            import_memories,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
