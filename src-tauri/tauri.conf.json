@@ -40,8 +40,11 @@
   },
   "plugins": {
     "updater": {
-      "active": false,
-      "pubkey": ""
+      "active": true,
+      "endpoints": [
+        "https://github.com/00OO666/fangyu-code/releases/latest/download/latest.json"
+      ],
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDE0Q0ZGMTI4Q0EwOTc1NkUKUldSdWRRbktLUEhQRkpDRzRLWHZHZ0JNenU4OXVkR2VLa2VIYmJyejR5Tm40clVrVVlIMjVGMmgK"
     },
     "shell": {
       "open": true
@@ -49,7 +52,7 @@
   },
   "bundle": {
       "active": true,
-      "createUpdaterArtifacts": false,
+      "createUpdaterArtifacts": "v2compatible",
       "targets": ["nsis"],
       "icon": [
         "icons/32x32.png",

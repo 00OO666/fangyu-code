@@ -9,6 +9,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { ViewRouter } from "@/components/layout/ViewRouter";
 import { useFirstLaunchChangelog } from "@/hooks/useFirstLaunchChangelog";
 import { FirstLaunchChangelogDialog } from "@/components/FirstLaunchChangelogDialog";
+import { TauriAutoUpdateDialog } from "@/components/TauriAutoUpdateDialog";
 import { useDataMigration } from "@/hooks/useDataMigration";
 import { api } from "@/lib/api";
 
@@ -53,6 +54,8 @@ function App() {
                 onClose={hideChangelog}
                 changelog={changelog}
               />
+              {/* Tauri 自动更新对话框 */}
+              <TauriAutoUpdateDialog />
             </TabProvider>
           </ProjectProvider>
         </NavigationProvider>
