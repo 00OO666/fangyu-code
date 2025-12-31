@@ -43,7 +43,7 @@ interface DiagnosticReport {
     settingsExists: boolean;
     claudeJsonExists: boolean;
     mcpSynced: boolean;
-    hooksSync ed: boolean;
+    hooksSynced: boolean;
     claudeMdLines: number;
   };
 }
