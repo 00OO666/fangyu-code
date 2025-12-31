@@ -4,6 +4,123 @@
  * 根据项目类型和特征自动推荐合适的 MCP 服务器
  */
 
+import type { MCPServerSpec } from '@/lib/api';
+
+/**
+ * 官方 MCP 服务器默认配置
+ * 用于一键自动配置推荐的 MCP 服务器
+ */
+export const OFFICIAL_MCP_DEFAULTS: Record<string, {
+  name: string;
+  spec: MCPServerSpec;
+  description: string;
+}> = {
+  'filesystem': {
+    name: 'Filesystem',
+    spec: {
+      type: 'stdio',
+      command: 'npx',
+      args: ['-y', '@anthropic-ai/mcp-server-filesystem', '.'],
+    },
+    description: '读取和写入本地文件系统',
+  },
+  'fetch': {
+    name: 'Fetch',
+    spec: {
+      type: 'stdio',
+      command: 'npx',
+      args: ['-y', '@anthropic-ai/mcp-server-fetch'],
+    },
+    description: '发送 HTTP 请求获取网页内容',
+  },
+  'sequential-thinking': {
+    name: 'Sequential Thinking',
+    spec: {
+      type: 'stdio',
+      command: 'npx',
+      args: ['-y', '@anthropic-ai/mcp-server-sequential-thinking'],
+    },
+    description: '复杂逻辑的分步推理',
+  },
+  'memory': {
+    name: 'Memory',
+    spec: {
+      type: 'stdio',
+      command: 'npx',
+      args: ['-y', '@anthropic-ai/mcp-server-memory'],
+    },
+    description: '持久化记忆存储',
+  },
+  'puppeteer': {
+    name: 'Puppeteer',
+    spec: {
+      type: 'stdio',
+      command: 'npx',
+      args: ['-y', '@anthropic-ai/mcp-server-puppeteer'],
+    },
+    description: '浏览器自动化和网页截图',
+  },
+  'brave-search': {
+    name: 'Brave Search',
+    spec: {
+      type: 'stdio',
+      command: 'npx',
+      args: ['-y', '@anthropic-ai/mcp-server-brave-search'],
+      env: {
+        BRAVE_API_KEY: '',  // 需要用户填写
+      },
+    },
+    description: '使用 Brave 搜索引擎搜索网页',
+  },
+  'github': {
+    name: 'GitHub',
+    spec: {
+      type: 'stdio',
+      command: 'npx',
+      args: ['-y', '@anthropic-ai/mcp-server-github'],
+      env: {
+        GITHUB_TOKEN: '',  // 需要用户填写
+      },
+    },
+    description: 'GitHub 仓库操作',
+  },
+  'postgres': {
+    name: 'PostgreSQL',
+    spec: {
+      type: 'stdio',
+      command: 'npx',
+      args: ['-y', '@anthropic-ai/mcp-server-postgres'],
+      env: {
+        DATABASE_URL: '',  // 需要用户填写
+      },
+    },
+    description: 'PostgreSQL 数据库操作',
+  },
+  'sqlite': {
+    name: 'SQLite',
+    spec: {
+      type: 'stdio',
+      command: 'npx',
+      args: ['-y', '@anthropic-ai/mcp-server-sqlite', '--db-path', './data.db'],
+    },
+    description: 'SQLite 数据库操作',
+  },
+};
+
+/**
+ * 检查 MCP 是否是官方服务器（可以自动配置）
+ */
+export function isOfficialMCP(serverId: string): boolean {
+  return serverId in OFFICIAL_MCP_DEFAULTS;
+}
+
+/**
+ * 获取官方 MCP 的默认配置
+ */
+export function getOfficialMCPDefault(serverId: string): typeof OFFICIAL_MCP_DEFAULTS[string] | null {
+  return OFFICIAL_MCP_DEFAULTS[serverId] || null;
+}
+
 /**
  * 项目类型定义
  */

@@ -36,9 +36,9 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { api, type MCPServerSpec, type McpServerWithStatus, type MCPProjectConfig } from '@/lib/api';
 import { getMCPDescription, getCategoryLabel, getCategoryColor } from '@/lib/mcpDescriptions';
 import { useProjectMCPConfig, type MCPConfigScope } from '@/hooks/useProjectMCPConfig';
-import { getMCPRecommendations, type ProjectType, type MCPRecommendation } from '@/config/mcpRecommendations';
+import { getMCPRecommendations, type ProjectType, type MCPRecommendation, isOfficialMCP, getOfficialMCPDefault } from '@/config/mcpRecommendations';
 import { ClaudeIcon } from './icons/ClaudeIcon';
-import { Sparkles, ExternalLink } from 'lucide-react';
+import { Sparkles, ExternalLink, Wand2 } from 'lucide-react';
 import { useNavigation } from '@/contexts/NavigationContext';
 
 interface ProjectMCPQuickConfigProps {
@@ -76,6 +76,7 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
   const [savingId, setSavingId] = useState<string | null>(null);
   const [copyingToProject, setCopyingToProject] = useState(false);
   const [addingRecommended, setAddingRecommended] = useState(false);
+  const [autoConfiguringId, setAutoConfiguringId] = useState<string | null>(null);
 
   // 智能检测项目类型（简化版：根据项目路径名推断）
   const detectedProjectType = useMemo((): ProjectType => {
@@ -363,7 +364,41 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
     );
   }, [projectConfig]);
 
-  // 跳转到设置页面配置 MCP
+  // 一键自动配置官方 MCP
+  const handleAutoConfigureMCP = useCallback(async (serverId: string, spec: MCPServerSpec) => {
+    try {
+      setAutoConfiguringId(serverId);
+      console.log(`[ProjectMCPQuickConfig] 开始自动配置: ${serverId}`);
+
+      // 1. 添加到全局 Claude 配置
+      await api.mcpUpsertEngineServer(engine, serverId, spec);
+      console.log(`[ProjectMCPQuickConfig] 已添加到全局 ${engine} 配置`);
+
+      // 2. 重新加载全局服务器列表
+      await loadGlobalServers();
+
+      // 3. 自动添加到当前项目配置
+      const newConfig: MCPProjectConfig = {
+        mcpServers: {
+          ...(projectConfig?.mcpServers || {}),
+          [serverId]: spec,
+        },
+      };
+      await api.mcpSaveProjectConfig(projectPath, newConfig);
+      await reloadProjectConfig();
+
+      console.log(`[ProjectMCPQuickConfig] ✅ ${serverId} 配置成功！`);
+    } catch (error) {
+      console.error(`[ProjectMCPQuickConfig] 自动配置失败:`, error);
+      // 如果失败，跳转到设置页面让用户手动配置
+      onClose();
+      navigateTo('settings');
+    } finally {
+      setAutoConfiguringId(null);
+    }
+  }, [engine, loadGlobalServers, projectConfig, projectPath, reloadProjectConfig, onClose, navigateTo]);
+
+  // 跳转到设置页面配置 MCP（非官方 MCP 或自动配置失败时使用）
   const handleGoToSettings = useCallback(() => {
     onClose(); // 先关闭对话框
     navigateTo('settings'); // 导航到设置页面
@@ -374,6 +409,8 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
     const globalServer = findMatchingGlobalServer(rec.serverId);
     const isInProject = isServerInProject(rec.serverId) || (globalServer && isServerEnabledInProject(globalServer.id));
     const isAvailable = globalServer && globalServer.enabled;
+    const officialDefault = getOfficialMCPDefault(rec.serverId);
+    const isConfiguring = autoConfiguringId === rec.serverId;
 
     return (
       <motion.div
@@ -404,7 +441,12 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
                   已添加
                 </Badge>
               )}
-              {!isAvailable && (
+              {!isAvailable && officialDefault && (
+                <Badge variant="outline" className="text-[10px] h-5 text-blue-500 border-blue-500">
+                  官方
+                </Badge>
+              )}
+              {!isAvailable && !officialDefault && (
                 <Badge variant="outline" className="text-[10px] h-5 text-orange-500">
                   未配置
                 </Badge>
@@ -420,7 +462,24 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
               disabled={savingId === rec.serverId || savingId === globalServer?.id}
               onCheckedChange={() => globalServer && handleToggleServer(globalServer.id, globalServer.spec, !!isInProject)}
             />
+          ) : officialDefault ? (
+            // 官方 MCP - 显示一键配置按钮
+            <Button
+              variant="default"
+              size="sm"
+              className="text-xs gap-1 bg-blue-600 hover:bg-blue-700"
+              disabled={isConfiguring}
+              onClick={() => handleAutoConfigureMCP(rec.serverId, officialDefault.spec)}
+            >
+              {isConfiguring ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                <Wand2 className="h-3 w-3" />
+              )}
+              {isConfiguring ? '配置中...' : '一键配置'}
+            </Button>
           ) : (
+            // 非官方 MCP - 跳转设置页面
             <Button
               variant="ghost"
               size="sm"
