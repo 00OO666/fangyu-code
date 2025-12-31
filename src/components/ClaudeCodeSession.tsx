@@ -29,6 +29,7 @@ import { usePromptExecution } from '@/hooks/usePromptExecution';
 import { useHourlyUsageTracker } from '@/hooks/useHourlyUsageTracker';
 import { useSmartTabTitle } from '@/hooks/useSmartTabTitle';
 import { useBackgroundCompact } from '@/hooks/useBackgroundCompact';
+import { useSmartSessionContinue } from '@/hooks/useSmartSessionContinue';
 import { useContextWindowUsage } from '@/hooks/useContextWindowUsage';
 import { MessagesProvider, useMessagesContext } from '@/contexts/MessagesContext';
 import { SessionProvider } from '@/contexts/SessionContext';
@@ -47,6 +48,8 @@ import { UsageDashboard } from "@/components/UsageDashboard";
 import { ProjectMCPQuickConfig } from "@/components/ProjectMCPQuickConfig";
 import { useCanvasExtractor } from "@/hooks/useCanvasExtractor";
 import { useAutoMCPCallTracker } from "@/hooks/useAutoMCPCallTracker";
+import { useAutoResume } from "@/hooks/useAutoResume";
+import { AutoResumeIndicator } from "./AutoResumeIndicator";
 
 import * as SessionHelpers from '@/lib/sessionHelpers';
 
@@ -490,7 +493,36 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
     executionEngineConfig.engine
   );
 
+  // 🆕 智能会话续接（替代压缩功能 - 新窗口注入摘要）
+  const {
+    status: sessionContinueStatus,
+    shouldContinue,
+    summary: sessionSummary,
+    newSessionId: continuedSessionId,
+    continueTo, // TODO: 用于手动触发会话续接
+    cancel: cancelSessionContinue, // TODO: 用于取消会话续接
+    generateSummary, // TODO: 用于手动生成摘要
+    isProcessing: isGeneratingSummary,
+    error: sessionContinueError, // TODO: 用于显示错误提示
+  } = useSmartSessionContinue({
+    sessionId: effectiveSession?.id,
+    projectPath,
+    threshold: 0.75,
+    autoSwitch: true,
+    recentMessagesCount: 10,
+    keepOldSession: true,
+    summaryVerbosity: 'detailed',
+    contextUsage: contextUsage.hasData ? contextUsage.percentage / 100 : 0,
+  });
+
+  // 暂时抑制未使用变量警告（这些将在未来功能中使用）
+  void continueTo;
+  void cancelSessionContinue;
+  void generateSummary;
+  void sessionContinueError;
+
   // 🆕 后台无缝压缩（Invisible UX - 75% 阈值自动触发）
+  // ⚠️ 已被智能会话续接替代，保留以供降级使用
   const {
     status: compactStatus,
     isCompacting,
@@ -503,13 +535,55 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
     sessionId: effectiveSession?.id,
     projectPath,
     compactThreshold: 0.75,
-    autoCompact: executionEngineConfig.engine === 'claude',
+    autoCompact: false, // 禁用自动压缩，优先使用会话续接
     contextUsage: contextUsage.hasData ? contextUsage.percentage / 100 : 0,
     maxTokens: contextUsage.contextWindowSize,
     currentTokens: contextUsage.currentTokens,
   });
 
-  // 🆕 当后台压缩完成时，自动切换到新会话
+  // 🆕 自动继续任务（Cost-Effective UX - 自动发送"继续"，节省 token 费用）
+  const {
+    shouldResume,
+    countdown: autoResumeCountdown,
+    cancel: cancelAutoResume,
+    resume: manualResume,
+    isCancelled: isAutoResumeCancelled,
+    remainingAttempts,
+  } = useAutoResume({
+    sessionId: effectiveSession?.id,
+    messages,
+    isLoading,
+    isStreaming,
+    delay: 5000,        // 5 秒延迟
+    maxAttempts: 5,     // 最多自动继续 5 次
+    minInterval: 30000, // 每次间隔至少 30 秒
+    inactiveTimeout: 60 * 60 * 1000, // 1 小时超时
+  });
+
+  // 🆕 智能会话续接：当达到阈值时，自动创建新会话并切换
+  useEffect(() => {
+    if (shouldContinue && continuedSessionId) {
+      console.log('[ClaudeCodeSession] 🎉 Smart session continue - switching to:', continuedSessionId);
+      console.log('[ClaudeCodeSession] 📝 Summary:', sessionSummary?.summaryText.slice(0, 200) + '...');
+
+      // TODO: 打开新窗口并加载新会话
+      // 目前先更新当前会话ID
+      setClaudeSessionId(continuedSessionId);
+      loadSessionHistory();
+
+      // 通知父组件会话已切换
+      if (onSessionInfoChange && projectPath) {
+        onSessionInfoChange({
+          sessionId: continuedSessionId,
+          projectId: effectiveSession?.project_id || '',
+          projectPath,
+          engine: executionEngineConfig.engine as 'claude' | 'codex' | 'gemini',
+        });
+      }
+    }
+  }, [shouldContinue, continuedSessionId, sessionSummary, loadSessionHistory, onSessionInfoChange, projectPath, effectiveSession?.project_id, executionEngineConfig.engine]);
+
+  // 🆕 当后台压缩完成时，自动切换到新会话（降级方案）
   useEffect(() => {
     if (shouldSwitchSession && newSessionId) {
       console.log('[ClaudeCodeSession] 🔄 Seamless session switch to:', newSessionId);
@@ -655,6 +729,14 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
       setSendPromptCallback(null);
     };
   }, [handleSendPromptWithScroll, setSendPromptCallback]);
+
+  // 🆕 自动继续任务：当 shouldResume 为 true 时，自动发送"继续"
+  useEffect(() => {
+    if (shouldResume && !isLoading && !isStreaming) {
+      console.log('[ClaudeCodeSession] 🚀 Auto-resume triggered - sending "继续"');
+      handleSendPromptWithScroll('继续', 'sonnet');
+    }
+  }, [shouldResume, isLoading, isStreaming, handleSendPromptWithScroll]);
 
   // 🆕 设置 UserQuestion 的发送消息回调，用于答案提交后自动发送
   useEffect(() => {
@@ -1528,13 +1610,24 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
             deltaMessagesCount={deltaMessagesCount}                    // 🆕 增量消息数量
           />
 
-          {/* 🆕 后台压缩状态指示器 - 仅在压缩时显示（Invisible UX） */}
+          {/* 🆕 状态指示器 - 后台压缩/会话续接（Invisible UX） */}
           <CompactStatusIndicator
             status={compactStatus}
             progress={compactProgress}
             deltaMessagesCount={deltaMessagesCount}
             isCompacting={isCompacting}
+            sessionContinueStatus={sessionContinueStatus}
+            isGeneratingSummary={isGeneratingSummary}
             className="absolute bottom-24 left-1/2 -translate-x-1/2 z-50"
+          />
+
+          {/* 🆕 自动继续指示器 - 智能检测未完成任务（Cost-Effective UX） */}
+          <AutoResumeIndicator
+            show={!isAutoResumeCancelled && autoResumeCountdown > 0}
+            countdown={autoResumeCountdown}
+            remainingAttempts={remainingAttempts}
+            onCancel={cancelAutoResume}
+            onResume={manualResume}
           />
 
         </ErrorBoundary>

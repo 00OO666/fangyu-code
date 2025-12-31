@@ -220,7 +220,15 @@ pub fn detect_memory_keywords(text: String) -> Vec<MemoryMatch> {
         return Vec::new();
     }
 
-    let index = MEMORY_INDEX.read().expect("Lock poisoned");
+    // 🔧 修复：安全地处理锁，避免 panic 导致应用崩溃
+    let index = match MEMORY_INDEX.read() {
+        Ok(guard) => guard,
+        Err(e) => {
+            log::error!("[detect_memory_keywords] Failed to acquire read lock: {}", e);
+            return Vec::new();
+        }
+    };
+
     let matches = index.search(&text);
 
     log::debug!(
@@ -298,8 +306,14 @@ pub async fn import_memories(
 }
 
 fn remove_yaml_frontmatter(content: &str) -> String {
-    let yaml_regex = Regex::new(r"(?s)^---\n.*?\n---\n").unwrap();
-    yaml_regex.replace(content, "").to_string()
+    // 🔧 修复：安全地处理正则表达式，避免 panic
+    match Regex::new(r"(?s)^---\n.*?\n---\n") {
+        Ok(yaml_regex) => yaml_regex.replace(content, "").to_string(),
+        Err(e) => {
+            log::error!("[remove_yaml_frontmatter] Regex error: {}", e);
+            content.to_string()
+        }
+    }
 }
 
 #[cfg(test)]

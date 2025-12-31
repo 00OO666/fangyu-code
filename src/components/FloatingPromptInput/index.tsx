@@ -113,8 +113,9 @@ const FloatingPromptInputInner = (
   });
 
   // 🆕 智能记忆检测（必须在 state 初始化之后）
+  // ⚠️ 临时禁用：调试崩溃问题
   const { matches: memoryMatches, hasMatches } = useMemoryDetection(state.prompt, {
-    enabled: true,
+    enabled: false, // TODO: 修复后恢复为 true
     debounceMs: 500,
     minLength: 3,
   });
@@ -124,6 +125,35 @@ const FloatingPromptInputInner = (
   const promptQueue = usePromptQueue();
   const [showQueuePanel, setShowQueuePanel] = useState(false);
   const pendingCount = promptQueue.items.filter(i => i.status === 'pending').length;
+
+  // 🆕 自动队列处理：使用 ref 存储最新值，避免 useEffect 依赖导致的频繁执行
+  const latestRefs = useRef({ promptQueue, onSend });
+
+  // 🆕 在 useEffect 中更新 refs（不会触发重新渲染）
+  useEffect(() => {
+    latestRefs.current = { promptQueue, onSend };
+  }, [promptQueue, onSend]);
+
+  // 🆕 追踪 isLoading 变化，AI 完成后自动处理队列（只依赖 isLoading）
+  const prevIsLoadingRef = useRef(isLoading);
+  useEffect(() => {
+    const wasLoading = prevIsLoadingRef.current;
+    prevIsLoadingRef.current = isLoading;
+
+    // AI 刚完成任务，自动处理下一个队列项
+    if (wasLoading && !isLoading) {
+      const timer = setTimeout(() => {
+        const { promptQueue: queue, onSend: send } = latestRefs.current;
+        const nextItem = queue.getNextSequential();
+        if (nextItem) {
+          console.log('[FloatingPromptInput] Auto-processing next queue item:', nextItem.id);
+          queue.dequeue(nextItem.id);
+          send(nextItem.prompt, nextItem.model, undefined, false);
+        }
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading]); // 只依赖 isLoading，避免无限循环
 
 
   // 草稿持久化 Hook - 确保输入内容在页面切换后不丢失
@@ -480,7 +510,8 @@ const FloatingPromptInputInner = (
   }, [disabled, handleToggleThinkingMode, suggestion]);
 
   // Event handlers
-  const handleSend = (sendMode: PromptSendMode = 'sequential') => {
+  // 🆕 默认改为 interrupt 模式（插队指导/纠正）
+  const handleSend = (sendMode: PromptSendMode = 'interrupt') => {
     // Allow sending if there's text content OR image attachments
     if ((state.prompt.trim() || imageAttachments.length > 0) && !disabled) {
       let finalPrompt = state.prompt.trim();
@@ -624,6 +655,43 @@ const FloatingPromptInputInner = (
   const handleUpdateQueueItemMode = useCallback((itemId: string, mode: PromptSendMode) => {
     promptQueue.updateItemMode(itemId, mode);
   }, [promptQueue]);
+
+  // 🆕 更新队列项提示词
+  const handleUpdateQueueItemPrompt = useCallback((itemId: string, prompt: string) => {
+    promptQueue.updateItemPrompt(itemId, prompt);
+  }, [promptQueue]);
+
+  // 🆕 队列输入框提交（sequential 模式，等待执行）
+  const handleQueueSubmit = useCallback((prompt: string, mode: PromptSendMode) => {
+    if (prompt.trim()) {
+      promptQueue.enqueue(prompt.trim(), state.selectedModel, mode);
+      console.log('[FloatingPromptInput] 加入队列:', { mode, promptPreview: prompt.substring(0, 50) });
+    }
+  }, [promptQueue, state.selectedModel]);
+
+  // 🆕 优化提示词（调用 prompt enhancement API）
+  const handleOptimizePrompt = useCallback(async (itemId: string, originalPrompt: string): Promise<string | null> => {
+    try {
+      console.log('[FloatingPromptInput] 优化提示词:', originalPrompt.substring(0, 50));
+      // 调用 handleEnhancePromptWithAPI（需要临时设置 prompt）
+      const savedPrompt = state.prompt;
+      dispatch({ type: "SET_PROMPT", payload: originalPrompt });
+
+      // 等待优化完成（这里需要 handleEnhancePromptWithAPI 支持返回优化后的文本）
+      await handleEnhancePromptWithAPI();
+
+      // 获取优化后的文本
+      const optimizedPrompt = state.prompt;
+
+      // 恢复原来的 prompt
+      dispatch({ type: "SET_PROMPT", payload: savedPrompt });
+
+      return optimizedPrompt !== originalPrompt ? optimizedPrompt : null;
+    } catch (error) {
+      console.error('[FloatingPromptInput] 优化失败:', error);
+      return null;
+    }
+  }, [state.prompt, handleEnhancePromptWithAPI]);
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
@@ -817,6 +885,7 @@ const FloatingPromptInputInner = (
             deltaMessagesCount={deltaMessagesCount}
             // 🆕 队列相关
             pendingQueueCount={pendingCount}
+            queueItems={promptQueue.items}
             showQueuePanel={showQueuePanel}
             onToggleQueuePanel={() => setShowQueuePanel(!showQueuePanel)}
           />
@@ -847,11 +916,14 @@ const FloatingPromptInputInner = (
             onDelete={handleDeleteQueueItem}
             onReorder={handleReorderQueueItem}
             onUpdateMode={handleUpdateQueueItemMode}
+            onUpdatePrompt={handleUpdateQueueItemPrompt}
             onSendMerged={handleSendMerged}
             onClearQueue={promptQueue.clearQueue}
             onSetAutoMerge={promptQueue.setAutoMerge}
             onClose={() => setShowQueuePanel(false)}
             isLoading={isLoading}
+            onQueueSubmit={handleQueueSubmit}
+            onOptimizePrompt={handleOptimizePrompt}
           />
         )}
       </AnimatePresence>

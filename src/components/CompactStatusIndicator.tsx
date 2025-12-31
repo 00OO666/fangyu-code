@@ -1,18 +1,19 @@
 /**
- * 压缩状态指示器 - 微妙的 UI 提示
+ * 压缩/会话续接状态指示器 - 微妙的 UI 提示
  *
  * 设计原则（Invisible UX）：
- * 1. 平时完全不显示，只在压缩时显示微妙的指示器
+ * 1. 平时完全不显示，只在压缩/生成摘要时显示微妙的指示器
  * 2. 不打断用户操作，用户可以继续输入
- * 3. 压缩完成后自动淡出，无需用户操作
+ * 3. 完成后自动淡出，无需用户操作
  */
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, Check, AlertCircle } from 'lucide-react';
+import { Loader2, Check, AlertCircle, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import type { CompactStatus } from '@/hooks/useBackgroundCompact';
+import type { SessionContinueStatus } from '@/types/session-continue';
 
 interface CompactStatusIndicatorProps {
   /** 当前压缩状态 */
@@ -23,6 +24,10 @@ interface CompactStatusIndicatorProps {
   deltaMessagesCount: number;
   /** 是否正在压缩 */
   isCompacting: boolean;
+  /** 🆕 会话续接状态 */
+  sessionContinueStatus?: SessionContinueStatus;
+  /** 🆕 是否正在生成摘要 */
+  isGeneratingSummary?: boolean;
   /** 类名 */
   className?: string;
 }
@@ -32,13 +37,71 @@ export const CompactStatusIndicator: React.FC<CompactStatusIndicatorProps> = ({
   progress,
   deltaMessagesCount,
   isCompacting,
+  sessionContinueStatus,
+  isGeneratingSummary,
   className,
 }) => {
-  // 只在压缩时或切换时显示
-  const shouldShow = isCompacting || status === 'switching';
+  // 只在压缩时、切换时或会话续接时显示
+  const shouldShow = isCompacting || status === 'switching' || isGeneratingSummary || sessionContinueStatus === 'switching';
 
-  // 状态配置
-  const getStatusConfig = () => {
+  // 🆕 智能会话续接状态配置
+  const getSessionContinueConfig = () => {
+    switch (sessionContinueStatus) {
+      case 'generating':
+        return {
+          icon: FileText,
+          text: '生成摘要',
+          color: 'text-cyan-600 dark:text-cyan-400',
+          bgColor: 'bg-cyan-500/10',
+          borderColor: 'border-cyan-500/30',
+        };
+      case 'creating':
+        return {
+          icon: Loader2,
+          text: '创建会话',
+          color: 'text-indigo-600 dark:text-indigo-400',
+          bgColor: 'bg-indigo-500/10',
+          borderColor: 'border-indigo-500/30',
+        };
+      case 'ready':
+        return {
+          icon: Check,
+          text: '准备切换',
+          color: 'text-emerald-600 dark:text-emerald-400',
+          bgColor: 'bg-emerald-500/10',
+          borderColor: 'border-emerald-500/30',
+        };
+      case 'switching':
+        return {
+          icon: Check,
+          text: '切换会话',
+          color: 'text-green-600 dark:text-green-400',
+          bgColor: 'bg-green-500/10',
+          borderColor: 'border-green-500/30',
+        };
+      case 'completed':
+        return {
+          icon: Check,
+          text: '续接完成',
+          color: 'text-green-600 dark:text-green-400',
+          bgColor: 'bg-green-500/10',
+          borderColor: 'border-green-500/30',
+        };
+      case 'error':
+        return {
+          icon: AlertCircle,
+          text: '续接失败',
+          color: 'text-red-600 dark:text-red-400',
+          bgColor: 'bg-red-500/10',
+          borderColor: 'border-red-500/30',
+        };
+      default:
+        return null;
+    }
+  };
+
+  // 状态配置（压缩）
+  const getCompactStatusConfig = () => {
     switch (status) {
       case 'preparing':
         return {
@@ -91,6 +154,15 @@ export const CompactStatusIndicator: React.FC<CompactStatusIndicatorProps> = ({
     }
   };
 
+  // 优先使用会话续接状态
+  const getStatusConfig = () => {
+    const continueConfig = getSessionContinueConfig();
+    if (continueConfig && isGeneratingSummary) {
+      return continueConfig;
+    }
+    return getCompactStatusConfig();
+  };
+
   const config = getStatusConfig();
   const Icon = config.icon;
 
@@ -116,7 +188,8 @@ export const CompactStatusIndicator: React.FC<CompactStatusIndicatorProps> = ({
             <Icon
               className={cn(
                 'h-3 w-3',
-                (status === 'preparing' || status === 'compacting' || status === 'merging') &&
+                (status === 'preparing' || status === 'compacting' || status === 'merging' ||
+                 sessionContinueStatus === 'generating' || sessionContinueStatus === 'creating') &&
                   'animate-spin'
               )}
             />

@@ -86,6 +86,8 @@ export interface PromptQueueActions {
   reorderItem: (itemId: string, newIndex: number) => void;
   /** 更新队列项模式 */
   updateItemMode: (itemId: string, mode: PromptSendMode) => void;
+  /** 🆕 更新队列项提示词 */
+  updateItemPrompt: (itemId: string, prompt: string) => void;
   /** 设置自动打包 */
   setAutoMerge: (enabled: boolean) => void;
   /** 获取队列统计 */
@@ -287,6 +289,14 @@ export const PromptQueueProvider: React.FC<PromptQueueProviderProps> = ({ childr
     console.log('[PromptQueue] 更新模式:', { itemId, mode });
   }, []);
 
+  // 🆕 更新队列项提示词
+  const updateItemPrompt = useCallback((itemId: string, prompt: string) => {
+    setItems(prev => prev.map(item =>
+      item.id === itemId ? { ...item, prompt, estimatedTokens: estimateTokens(prompt) } : item
+    ));
+    console.log('[PromptQueue] 更新提示词:', { itemId, promptPreview: prompt.substring(0, 50) });
+  }, []);
+
   // 获取队列统计
   const getStats = useCallback(() => {
     const stats = {
@@ -317,6 +327,7 @@ export const PromptQueueProvider: React.FC<PromptQueueProviderProps> = ({ childr
     getMergedPrompt,
     reorderItem,
     updateItemMode,
+    updateItemPrompt,
     setAutoMerge,
     getStats,
   };

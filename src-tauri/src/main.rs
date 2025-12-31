@@ -691,6 +691,8 @@ fn main() {
             // Memory Import System (智能记忆导入系统)
             detect_memory_keywords,
             import_memories,
+            // Smart Session Continue (智能会话续接系统)
+            commands::session_continue::create_continued_session,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -111,9 +111,10 @@ export const TauriAutoUpdateDialog: React.FC = () => {
             <AlertDialogDescription className="space-y-4">
               {downloading && (
                 <>
-                  <Progress value={downloadProgress} className="h-2" />
-                  <div className="text-center text-sm text-muted-foreground">
-                    {downloadProgress}%
+                  <Progress value={downloadProgress} className="h-3" />
+                  <div className="flex justify-between text-sm text-muted-foreground mt-2">
+                    <span>下载进度</span>
+                    <span className="font-mono font-medium text-blue-600">{downloadProgress || 0}%</span>
                   </div>
                 </>
               )}

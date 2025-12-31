@@ -101,12 +101,31 @@ export function useTauriAutoUpdate(options: {
       await pendingUpdate.downloadAndInstall((event) => {
         switch (event.event) {
           case 'Started':
-            console.log('[Auto Update] Download started');
+            console.log('[Auto Update] Download started, contentLength:', event.data.contentLength);
             setDownloadProgress(0);
             break;
           case 'Progress':
-            const progress = Math.round((event.data.downloaded / event.data.contentLength!) * 100);
-            console.log(`[Auto Update] Download progress: ${progress}%`);
+            // 🔧 FIX: 安全计算进度，避免 NaN 和 Infinity
+            const downloaded = event.data.downloaded ?? 0;
+            const total = event.data.contentLength ?? 0;
+            let progress = 0;
+
+            if (total > 0) {
+              progress = Math.round((downloaded / total) * 100);
+              // 确保进度在 0-100 范围内
+              progress = Math.max(0, Math.min(100, progress));
+            } else if (downloaded > 0) {
+              // 如果无法获取总大小，显示已下载大小（MB）
+              progress = Math.min(99, Math.floor(downloaded / 1024 / 1024)); // 每 MB 加 1%
+            }
+
+            // 确保不是 NaN
+            if (isNaN(progress)) {
+              progress = 0;
+              console.warn('[Auto Update] Progress calculation resulted in NaN');
+            }
+
+            console.log(`[Auto Update] Download progress: ${progress}% (${downloaded}/${total} bytes)`);
             setDownloadProgress(progress);
             break;
           case 'Finished':

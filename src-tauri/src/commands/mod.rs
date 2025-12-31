@@ -20,6 +20,7 @@ pub mod mcp;
 pub mod permission_config;
 pub mod prompt_tracker;
 pub mod provider;
+pub mod session_continue; // 智能会话续接 - 自动创建新会话并注入摘要
 pub mod simple_git;
 pub mod smart_project; // 智能项目管理 - 自动创建/命名项目
 pub mod storage;

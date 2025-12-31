@@ -17,7 +17,7 @@ import { useState, useEffect } from 'react';
 import { getVersion } from '@tauri-apps/api/app';
 
 const STORAGE_KEY = 'fangyu-code-last-seen-version';
-const FALLBACK_VERSION = '1.4.0'; // 🔧 Fallback 版本（获取失败时使用）
+const FALLBACK_VERSION = '1.5.0'; // 🔧 Fallback 版本（获取失败时使用）
 
 // 🔧 DEBUG: 全局变量用于强制显示更新日志（调试用）
 declare global {
@@ -29,6 +29,31 @@ declare global {
 
 // 版本更新日志（从新到旧）
 export const CHANGELOGS = {
+  '1.5.0': {
+    title: 'v1.5.0 - 🎯 队列功能全面升级 + 智能优化 + Bug 修复',
+    date: '2026-01-01',
+    features: [
+      '🎯 队列输入框 - "待发送" 面板内置输入框，直接加入队列等待执行',
+      '✨ 一键优化提示词 - 队列中的指令支持 AI 优化，点击紫色魔法棒即可优化',
+      '⚡ 默认插队模式 - 主输入框改为插队模式，即时指导/纠正当前任务',
+      '🔄 模式选择器 - 队列输入框支持选择排队/打包/插队三种模式',
+      '🔧 自动继续修复 - 修复应用重启后自动继续任务不生效的问题',
+      '📊 更新进度修复 - 修复更新进度条显示 NaN 的问题',
+    ],
+    improvements: [
+      '队列功能重新设计 - 主输入框插队指导，队列输入框排队等待',
+      '队列项完整管理 - 支持优化/插队/上下移动/删除/模式切换',
+      '消息内容提取增强 - 支持多种 ClaudeStreamMessage 格式',
+      '安全进度计算 - 避免 NaN 和 Infinity，提供后备计算方案',
+      '输入框自动调整高度 - 队列输入框支持多行输入，自动调整高度',
+    ],
+    bugFixes: [
+      '修复自动继续不触发 - 历史消息无 timestamp 时跳过超时检查',
+      '修复消息内容提取错误 - extractMessageContent 支持对象/数组/嵌套格式',
+      '修复更新进度 NaN - contentLength 未定义时使用 fallback 计算',
+      '修复队列按钮无响应 - 添加 preventDefault 和 stopPropagation',
+    ],
+  },
   '1.4.0': {
     title: 'v1.4.0 - 🚀 提示词队列系统 + 智能指导模式',
     date: '2026-01-01',

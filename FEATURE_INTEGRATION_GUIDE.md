@@ -598,3 +598,195 @@ localStorage.setItem('claude_api_base_url', 'https://hongmacode.com/api');
 这些功能让 Fangyu-Code 成为一个功能强大的 AI 驱动开发工具！
 
 如有任何问题，请参考各组件的源代码注释或提交 issue。
+
+---
+
+## 🆕 v1.5.0 新增功能
+
+### 8. **智能会话续接**（替代压缩功能）
+
+**组件位置:**
+- `src/hooks/useSmartSessionContinue.ts` - 核心 Hook
+- `src/lib/sessionSummarizer.ts` - 摘要生成器
+- `src/types/session-continue.ts` - 类型定义
+- `src-tauri/src/commands/session_continue.rs` - Rust 后端
+
+**功能:**
+- 当上下文窗口使用率达到 75% 时自动触发
+- 智能提取 TodoList、修改文件、关键决策
+- 生成详细摘要注入新会话
+- 无需用户手动压缩，体验更流畅
+
+**详细文档:** `SMART_SESSION_CONTINUE_GUIDE.md`
+
+---
+
+### 9. **自动继续任务**（Cost-Effective UX）
+
+**组件位置:**
+- `src/hooks/useAutoResume.ts` - 核心 Hook
+- `src/components/AutoResumeIndicator.tsx` - UI 指示器
+
+**功能:**
+- 智能检测未完成任务（基于 TodoList + 消息分析）
+- 5 秒倒计时后自动发送"继续"命令
+- 节省用户重复说"继续"的 token 费用
+
+**安全机制:**
+
+| 机制 | 设置 | 说明 |
+|------|------|------|
+| 防抖延迟 | 5 秒 | 避免快速切换触发 |
+| 最大连续次数 | 5 次 | 防止死循环 |
+| 间隔限制 | 30 秒 | 冷却时间 |
+| 会话超时 | 1 小时 | 长时间不活跃不触发 |
+
+**v1.5.0 Bug 修复:**
+- 修复历史消息无 timestamp 导致自动继续不触发的问题
+- 添加 `extractMessageContent()` 辅助函数，支持多种消息格式
+
+**使用示例:**
+
+```tsx
+import { useAutoResume } from '@/hooks/useAutoResume';
+import { AutoResumeIndicator } from '@/components/AutoResumeIndicator';
+
+function SessionView({ messages, isLoading, isStreaming }) {
+  const {
+    shouldResume,
+    countdown,
+    cancel,
+    resume,
+    remainingAttempts,
+  } = useAutoResume({
+    sessionId: 'session-123',
+    messages,
+    isLoading,
+    isStreaming,
+    delay: 5000,
+    maxAttempts: 5,
+  });
+
+  // 当 shouldResume 为 true 时，自动发送"继续"
+  useEffect(() => {
+    if (shouldResume) {
+      sendMessage('继续');
+    }
+  }, [shouldResume]);
+
+  return (
+    <AutoResumeIndicator
+      show={countdown > 0}
+      countdown={countdown}
+      remainingAttempts={remainingAttempts}
+      onCancel={cancel}
+      onResume={resume}
+    />
+  );
+}
+```
+
+---
+
+### 10. **应用内更新**（v1.3.0+）
+
+**功能:**
+- 检测新版本并显示更新弹窗
+- 下载进度条实时显示
+- 下载完成后自动安装并重启
+- 支持后台下载和取消
+
+**v1.5.0 Bug 修复:**
+- 修复进度条显示 NaN 的问题
+- 安全进度计算，避免 NaN 和 Infinity
+
+**详细文档:** 见 `src/components/TauriAutoUpdateDialog.tsx`
+
+---
+
+### 11. **队列功能全面升级**（v1.5.0）
+
+**组件位置:**
+- `src/hooks/usePromptQueue.tsx` - 队列管理 Hook
+- `src/components/FloatingPromptInput/PromptQueuePanel.tsx` - 队列面板
+- `src/components/FloatingPromptInput/ControlBar.tsx` - 控制栏
+
+**功能:**
+
+| 功能 | 描述 |
+|------|------|
+| 🎯 队列输入框 | "待发送" 面板内置输入框，直接加入队列 |
+| ✨ 一键优化 | 队列中的指令支持 AI 优化（紫色魔法棒） |
+| ⚡ 默认插队 | 主输入框改为 interrupt 模式，即时指导 |
+| 🔄 模式选择 | 支持排队/打包/插队三种模式 |
+| ↕️ 队列管理 | 上下移动、删除、撤回到输入框 |
+| 📦 合并发送 | 多条指令打包成一条消息 |
+
+**三种发送模式:**
+
+```typescript
+type PromptSendMode = 'sequential' | 'interrupt' | 'merge';
+```
+
+| 模式 | 描述 | 使用场景 |
+|------|------|---------|
+| `sequential` | 排队等待 | 默认队列模式，等待当前任务完成 |
+| `interrupt` | 即时插队 | 主输入框默认模式，指导/纠正当前任务 |
+| `merge` | 打包合并 | 多条相关指令合并发送 |
+
+**使用示例:**
+
+```tsx
+import { usePromptQueue } from '@/hooks/usePromptQueue';
+import { PromptQueuePanel } from '@/components/FloatingPromptInput/PromptQueuePanel';
+
+function ChatInput() {
+  const promptQueue = usePromptQueue();
+
+  // 加入队列
+  const addToQueue = (prompt: string) => {
+    promptQueue.enqueue(prompt, 'sonnet', 'sequential');
+  };
+
+  // 即时发送（插队）
+  const sendImmediate = (prompt: string) => {
+    onSend(`【即时指导】${prompt}`, model, undefined, true);
+  };
+
+  return (
+    <PromptQueuePanel
+      items={promptQueue.items}
+      onQueueSubmit={addToQueue}
+      onSendImmediate={sendImmediate}
+      onOptimizePrompt={handleOptimize}
+      // ... 其他 props
+    />
+  );
+}
+```
+
+**队列项数据结构:**
+
+```typescript
+interface PromptQueueItem {
+  id: string;
+  prompt: string;
+  model: ModelType;
+  createdAt: number;
+  mode: PromptSendMode;
+  status: 'pending' | 'sending' | 'sent' | 'revoked' | 'failed';
+  estimatedTokens?: number;
+  errorMessage?: string;
+}
+```
+
+---
+
+## 📝 版本历史
+
+| 版本 | 日期 | 主要更新 |
+|------|------|---------|
+| v1.5.0 | 2026-01-01 | 队列功能全面升级 + Bug 修复 |
+| v1.4.0 | 2026-01-01 | 提示词队列系统 + 智能指导模式 |
+| v1.3.0 | 2025-12-31 | 应用内自动更新 + MCP 智能配置 |
+| v1.2.x | 2025-12-28~30 | Canvas 预览 + 使用统计 + 费用追踪 |

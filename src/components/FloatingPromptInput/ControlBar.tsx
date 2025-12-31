@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Popover } from "@/components/ui/popover";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Switch } from "@/components/ui/switch";
 import { Wand2, ChevronDown, DollarSign, Info, Settings, Code2, Zap, Sparkles, Hash, Webhook, Cpu, BarChart3, Network, ListOrdered } from "lucide-react";
@@ -72,6 +73,7 @@ interface ControlBarProps {
   deltaMessagesCount?: number;
   // 🆕 队列相关
   pendingQueueCount?: number;
+  queueItems?: any[];  // 队列项列表（用于悬停预览）
   showQueuePanel?: boolean;
   onToggleQueuePanel?: () => void;
 }
@@ -119,6 +121,7 @@ export const ControlBar: React.FC<ControlBarProps> = ({
   compactProgress,
   deltaMessagesCount,
   pendingQueueCount = 0,
+  queueItems = [],
   showQueuePanel,
   onToggleQueuePanel,
 }) => {
@@ -652,41 +655,86 @@ export const ControlBar: React.FC<ControlBarProps> = ({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {/* 🆕 队列指示器按钮 - AI 工作时显示 */}
+      {/* 🆕 待发送队列按钮 - 有队列或正在工作时显示 */}
       {onToggleQueuePanel && (isLoading || pendingQueueCount > 0) && (
-        <Button
-          variant={showQueuePanel ? "default" : "outline"}
-          size="default"
-          onClick={onToggleQueuePanel}
-          className={cn(
-            "gap-1.5 h-8 transition-all relative",
-            showQueuePanel
-              ? "bg-amber-600 hover:bg-amber-700 text-white"
-              : pendingQueueCount > 0
-                ? "border-amber-500/50 bg-amber-500/10 hover:bg-amber-500/20"
-                : "border-border/50 bg-background/50 hover:bg-accent/50"
-          )}
-          title={pendingQueueCount > 0 ? `${pendingQueueCount} 条指令待发送` : "指令队列"}
-        >
-          <ListOrdered className={cn(
-            "h-3.5 w-3.5",
-            showQueuePanel ? "text-white" : pendingQueueCount > 0 ? "text-amber-500" : "text-muted-foreground"
-          )} />
-          <span className="text-xs">队列</span>
-          {pendingQueueCount > 0 && (
-            <Badge
-              variant="secondary"
-              className={cn(
-                "h-4 min-w-4 px-1 text-[10px] font-bold",
-                showQueuePanel
-                  ? "bg-white/20 text-white"
-                  : "bg-amber-500 text-white"
+        <TooltipProvider delayDuration={300}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant={showQueuePanel ? "default" : "outline"}
+                size="default"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('[ControlBar] 队列按钮点击', { showQueuePanel, pendingQueueCount });
+                  onToggleQueuePanel();
+                }}
+                className={cn(
+                  "gap-1.5 h-8 transition-all relative",
+                  showQueuePanel
+                    ? "bg-amber-600 hover:bg-amber-700 text-white shadow-md"
+                    : pendingQueueCount > 0
+                      ? "border-amber-500/50 bg-amber-500/10 hover:bg-amber-500/20"
+                      : "border-border/50 bg-background/50 hover:bg-accent/50"
+                )}
+              >
+                <ListOrdered className={cn(
+                  "h-3.5 w-3.5",
+                  showQueuePanel ? "text-white" : pendingQueueCount > 0 ? "text-amber-500" : "text-muted-foreground"
+                )} />
+                <span className="text-xs font-medium">待发送</span>
+                {pendingQueueCount > 0 && (
+                  <Badge
+                    variant="secondary"
+                    className={cn(
+                      "h-4 min-w-4 px-1 text-[10px] font-bold",
+                      showQueuePanel
+                        ? "bg-white/20 text-white"
+                        : "bg-amber-500 text-white"
+                    )}
+                  >
+                    {pendingQueueCount}
+                  </Badge>
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="max-w-xs p-3">
+              {pendingQueueCount > 0 ? (
+                <div className="space-y-2">
+                  <div className="font-medium text-sm">待发送队列 ({pendingQueueCount})</div>
+                  <div className="space-y-1.5 max-h-32 overflow-y-auto">
+                    {queueItems
+                      .filter((item: any) => item.status === 'pending')
+                      .slice(0, 5)
+                      .map((item: any, idx: number) => (
+                        <div key={item.id} className="flex items-start gap-2 text-xs">
+                          <span className="text-muted-foreground font-mono w-4">{idx + 1}.</span>
+                          <span className="line-clamp-2 text-foreground/80">
+                            {item.prompt.length > 50 ? item.prompt.slice(0, 50) + '...' : item.prompt}
+                          </span>
+                        </div>
+                      ))}
+                    {pendingQueueCount > 5 && (
+                      <div className="text-xs text-muted-foreground text-center pt-1">
+                        +{pendingQueueCount - 5} 条更多...
+                      </div>
+                    )}
+                  </div>
+                  <div className="text-xs text-muted-foreground pt-1 border-t">
+                    点击打开管理面板
+                  </div>
+                </div>
+              ) : (
+                <div className="text-sm">
+                  <div className="font-medium">待发送队列</div>
+                  <div className="text-muted-foreground text-xs mt-1">
+                    AI 正在工作，新发送的消息会加入队列
+                  </div>
+                </div>
               )}
-            >
-              {pendingQueueCount}
-            </Badge>
-          )}
-        </Button>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       )}
 
       {/* Send/Cancel Button */}
