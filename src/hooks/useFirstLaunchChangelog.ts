@@ -17,7 +17,7 @@ import { useState, useEffect } from 'react';
 import { getVersion } from '@tauri-apps/api/app';
 
 const STORAGE_KEY = 'fangyu-code-last-seen-version';
-const FALLBACK_VERSION = '1.2.9'; // 🔧 Fallback 版本（获取失败时使用）
+const FALLBACK_VERSION = '1.3.0'; // 🔧 Fallback 版本（获取失败时使用）
 
 // 🔧 DEBUG: 全局变量用于强制显示更新日志（调试用）
 declare global {
@@ -29,8 +29,36 @@ declare global {
 
 // 版本更新日志（从新到旧）
 export const CHANGELOGS = {
+  '1.3.0': {
+    title: 'v1.3.0 - 🎉 应用内自动更新 + MCP 智能配置',
+    date: '2025-12-31',
+    features: [
+      '🔄 应用内自动更新 - 像 VSCode/微信一样，打开应用自动检测新版本，一键更新、自动重启',
+      '📦 GitHub Releases 托管 - 所有更新包托管在 GitHub，签名验证确保安全性',
+      '🔒 签名验证 - minisign 加密签名，防止恶意篡改更新包',
+      '项目级 MCP 配置 - 会话输入框新增 MCP 按钮，无需重启即可开关项目专属 MCP 服务器',
+      'MCP 智能推荐 - 自动识别项目类型（Tauri/PHP/Frontend 等），一键添加必须/推荐 MCP',
+      '智能标题生成 - 重新启用会话自动命名，第 1 轮快速命名，第 3 轮提取关键词',
+      '会话秒开优化 - 30 天 localStorage 缓存，加载速度从 3-5s 降至 0.3s（微信级体验）',
+      '新项目模板更新 - CLAUDE.md 包含 MCP 配置建议和一键配置命令',
+    ],
+    improvements: [
+      '自动更新对话框 - 显示版本号、发布日期、更新内容，下载进度实时显示',
+      'GitHub Actions 自动构建 - 打标签自动触发构建、签名、发布',
+      'Tab 切换优化 - 修复切换会话时覆盖流式消息的 Bug',
+      '视觉优化 - 修复 filterConfig 异步加载闪烁问题',
+      '缓存持久化 - 会话列表缓存跨页面刷新保持，刷新后也能瞬间加载',
+      'MCP 配置文件 - 保存到 .mcp.json，优先级高于全局配置',
+    ],
+    bugFixes: [
+      '修复 Tab 切换覆盖流式消息 - 只在 messages.length === 0 时重载历史',
+      '修复 filterConfig 闪烁 - 初始状态与最终状态一致，消除视觉抖动',
+      '修复 ProjectMCPQuickConfig 崩溃 - 添加缺失的 cn() 导入',
+      '修复 diagnostics.rs 编译错误 - GitHub Actions CI 环境严格类型检查',
+    ],
+  },
   '1.2.9': {
-    title: 'v1.2.9 - MCP 智能配置 + 性能优化 + 智能标题',
+    title: 'v1.2.9 - MCP 智能配置 + 性能优化 + 智能标题（已合并到 v1.3.0）',
     date: '2025-12-31',
     features: [
       '项目级 MCP 配置 - 会话输入框新增 MCP 按钮，无需重启即可开关项目专属 MCP 服务器',

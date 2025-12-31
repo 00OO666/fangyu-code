@@ -1,0 +1,15 @@
+{
+  "version": "1.2.9",
+  "notes": "## 🎉 Fangyu Code v1.2.9\n\n### 安装方式\n\n1. **首次安装**：下载 `.nsis.exe` 安装包并运行\n2. **自动更新**：已安装用户会自动收到更新提示\n\n### 更新内容\n\n详见 [CHANGELOG.md](https://github.com/00OO666/fangyu-code/blob/main/CHANGELOG.md)\n\n---\n\n**下载说明**：\n- `Fangyu-Code_*_x64-setup.nsis.exe` - 完整安装包\n- `*.nsis.zip` / `*.nsis.zip.sig` - 自动更新包（无需手动下载）",
+  "pub_date": "2025-12-31T05:36:43.998Z",
+  "platforms": {
+    "windows-x86_64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSdWRRbktLUEhQRkJwR0VJN050eTlsL25kYzBDcjNrSHpvL0ZXRnoxN2dyM2Z6YVJtQmFMMGM1RVUzb21UOVdaSi8rVFNpM2lKMjF6MEhFOWJqVUVFMldlWDFzY3N5YVFzPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzY3MTU5NDAwCWZpbGU6RmFuZ3l1IENvZGVfMS4yLjlfeDY0LXNldHVwLmV4ZQp4aUpUWHZxT2RhZER1Y2IxblpJc3JPT3VLQ1ViU3M1cjFUY0Fod2FiSkxHeDJHOFgwam5lS1FVWm9KNFJ3Z2JBNFY5dStYd1VacnBJeURXOFlHSVdCdz09Cg==",
+      "url": "https://github.com/00OO666/fangyu-code/releases/download/v1.2.9/Fangyu.Code_1.2.9_x64-setup.exe"
+    },
+    "windows-x86_64-nsis": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSdWRRbktLUEhQRkJwR0VJN050eTlsL25kYzBDcjNrSHpvL0ZXRnoxN2dyM2Z6YVJtQmFMMGM1RVUzb21UOVdaSi8rVFNpM2lKMjF6MEhFOWJqVUVFMldlWDFzY3N5YVFzPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzY3MTU5NDAwCWZpbGU6RmFuZ3l1IENvZGVfMS4yLjlfeDY0LXNldHVwLmV4ZQp4aUpUWHZxT2RhZER1Y2IxblpJc3JPT3VLQ1ViU3M1cjFUY0Fod2FiSkxHeDJHOFgwam5lS1FVWm9KNFJ3Z2JBNFY5dStYd1VacnBJeURXOFlHSVdCdz09Cg==",
+      "url": "https://github.com/00OO666/fangyu-code/releases/download/v1.2.9/Fangyu.Code_1.2.9_x64-setup.exe"
+    }
+  }
+}
