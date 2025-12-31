@@ -103,10 +103,15 @@ impl MemoryIndex {
 
         log::info!("Building memory index from: {:?}", memory_dir);
 
-        for entry in fs::read_dir(&memory_dir).unwrap_or_else(|_| {
-            log::warn!("Failed to read memory directory");
-            fs::read_dir(".").unwrap()
-        }) {
+        let dir_iter = match fs::read_dir(&memory_dir) {
+            Ok(iter) => iter,
+            Err(e) => {
+                log::warn!("Failed to read memory directory: {}", e);
+                return;
+            }
+        };
+
+        for entry in dir_iter {
             if let Ok(entry) = entry {
                 let path = entry.path();
                 if path.extension().map_or(false, |ext| ext == "md") {
