@@ -5,6 +5,7 @@ import { TabProvider } from "@/hooks/useTabs";
 import { UpdateProvider } from "@/contexts/UpdateContext";
 import { OutputCacheProvider } from "@/lib/outputCache";
 import { GlobalTaskStateProvider } from "@/hooks/useGlobalTaskState";
+import { PromptQueueProvider } from "@/hooks/usePromptQueue";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ViewRouter } from "@/components/layout/ViewRouter";
 import { useFirstLaunchChangelog } from "@/hooks/useFirstLaunchChangelog";
@@ -45,17 +46,19 @@ function App() {
           <NavigationProvider>
           <ProjectProvider>
             <TabProvider>
-              <AppLayout>
-                <ViewRouter />
-              </AppLayout>
-              {/* 版本更新提醒对话框 */}
-              <FirstLaunchChangelogDialog
-                open={showChangelog}
-                onClose={hideChangelog}
-                changelog={changelog}
-              />
-              {/* Tauri 自动更新对话框 */}
-              <TauriAutoUpdateDialog />
+              <PromptQueueProvider>
+                <AppLayout>
+                  <ViewRouter />
+                </AppLayout>
+                {/* 版本更新提醒对话框 */}
+                <FirstLaunchChangelogDialog
+                  open={showChangelog}
+                  onClose={hideChangelog}
+                  changelog={changelog}
+                />
+                {/* Tauri 自动更新对话框 */}
+                <TauriAutoUpdateDialog />
+              </PromptQueueProvider>
             </TabProvider>
           </ProjectProvider>
         </NavigationProvider>

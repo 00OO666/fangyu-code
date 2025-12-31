@@ -16,6 +16,14 @@ import { getEnabledProviders } from "@/lib/promptEnhancementService";
 import { inputReducer, initialState } from "./reducer";
 import { getDefaultModel } from "./defaultModelStorage";
 
+// Memory Import功能
+import { useMemoryDetection } from "@/hooks/useMemoryDetection";
+import { MemoryImportSuggestion } from "@/components/MemoryImportSuggestion";
+
+// 🆕 Prompt Queue 功能
+import { usePromptQueue, type PromptSendMode } from "@/hooks/usePromptQueue";
+import { PromptQueuePanel } from "./PromptQueuePanel";
+
 // Import sub-components
 import { InputArea } from "./InputArea";
 import { AttachmentPreview } from "./AttachmentPreview";
@@ -57,6 +65,10 @@ const FloatingPromptInputInner = (
     onToggleUsageDashboard,
     showUsageDashboard,
     onToggleMCPConfig,
+    compactStatus,
+    isCompacting,
+    compactProgress,
+    deltaMessagesCount,
   }: FloatingPromptInputProps,
   ref: React.Ref<FloatingPromptInputRef>,
 ) => {
@@ -79,14 +91,17 @@ const FloatingPromptInputInner = (
     // If this is a historical session with saved model, use it
     const parsedSessionModel = parseSessionModel(sessionModel);
     if (parsedSessionModel) {
+      console.log('[FloatingPromptInput] 历史会话，使用保存的模型:', parsedSessionModel, '| sessionModel:', sessionModel);
       return parsedSessionModel;
     }
     // For new sessions, use user's default model setting
     const userDefaultModel = getDefaultModel();
     if (userDefaultModel) {
+      console.log('[FloatingPromptInput] 新会话，使用用户默认模型:', userDefaultModel);
       return userDefaultModel;
     }
     // Fall back to prop default or "sonnet"
+    console.log('[FloatingPromptInput] 未设置默认模型，回退到:', defaultModel);
     return defaultModel;
   };
 
@@ -96,6 +111,19 @@ const FloatingPromptInputInner = (
     selectedModel: getInitialModel(),
     executionEngineConfig: externalEngineConfig || initialState.executionEngineConfig,
   });
+
+  // 🆕 智能记忆检测（必须在 state 初始化之后）
+  const { matches: memoryMatches, hasMatches } = useMemoryDetection(state.prompt, {
+    enabled: true,
+    debounceMs: 500,
+    minLength: 3,
+  });
+  const [showMemoryPanel, setShowMemoryPanel] = useState(true);
+
+  // 🆕 提示词队列管理
+  const promptQueue = usePromptQueue();
+  const [showQueuePanel, setShowQueuePanel] = useState(false);
+  const pendingCount = promptQueue.items.filter(i => i.status === 'pending').length;
 
   // 草稿持久化 Hook - 确保输入内容在页面切换后不丢失
   const { saveDraft, clearDraft } = useDraftPersistence({
@@ -451,7 +479,7 @@ const FloatingPromptInputInner = (
   }, [disabled, handleToggleThinkingMode, suggestion]);
 
   // Event handlers
-  const handleSend = () => {
+  const handleSend = (sendMode: PromptSendMode = 'sequential') => {
     // Allow sending if there's text content OR image attachments
     if ((state.prompt.trim() || imageAttachments.length > 0) && !disabled) {
       let finalPrompt = state.prompt.trim();
@@ -497,6 +525,23 @@ const FloatingPromptInputInner = (
         }
       }
 
+      // 🆕 队列逻辑：如果 AI 正在工作且不是插队模式，加入队列
+      if (isLoading && sendMode !== 'interrupt') {
+        promptQueue.enqueue(finalPrompt, modelToSend, sendMode);
+        console.log('[FloatingPromptInput] AI 正在工作，已加入队列:', { mode: sendMode, promptPreview: finalPrompt.substring(0, 50) });
+
+        // 清空输入框
+        dispatch({ type: "RESET_INPUT" });
+        setImageAttachments([]);
+        setEmbeddedImages([]);
+        clearDraft();
+        setTimeout(() => {
+          const textarea = state.isExpanded ? expandedTextareaRef.current : textareaRef.current;
+          if (textarea) textarea.style.height = 'auto';
+        }, 0);
+        return;
+      }
+
       // 🔧 FIX: 先立即清空输入框（用户即时反馈），然后异步执行 onSend，失败时恢复
       dispatch({ type: "RESET_INPUT" });
       setImageAttachments([]);
@@ -507,8 +552,16 @@ const FloatingPromptInputInner = (
         if (textarea) textarea.style.height = 'auto';
       }, 0);
 
+      // 🆕 插队模式：添加特殊标记让 AI 知道这是即时指导
+      const promptToSend = sendMode === 'interrupt'
+        ? `【即时指导】${finalPrompt}`
+        : finalPrompt;
+
+      // 🆕 插队模式需要 forceImmediate=true 绕过 usePromptExecution 的队列检查
+      const forceImmediate = sendMode === 'interrupt';
+
       // 异步执行 onSend，失败时恢复输入框
-      Promise.resolve(onSend(finalPrompt, modelToSend, undefined)).catch((error) => {
+      Promise.resolve(onSend(promptToSend, modelToSend, undefined, forceImmediate)).catch((error) => {
         console.error('[FloatingPromptInput] 发送失败，恢复输入框:', error);
         dispatch({ type: "SET_PROMPT", payload: savedPrompt });
         setImageAttachments(savedAttachments);
@@ -517,6 +570,56 @@ const FloatingPromptInputInner = (
       });
     }
   };
+
+  // 🆕 队列操作回调
+  const handleRevokeToInput = useCallback((itemId: string) => {
+    const revokedPrompt = promptQueue.revokeToInput(itemId);
+    if (revokedPrompt) {
+      dispatch({ type: "SET_PROMPT", payload: revokedPrompt });
+      saveDraft(revokedPrompt);
+      // 聚焦输入框
+      setTimeout(() => {
+        const textarea = state.isExpanded ? expandedTextareaRef.current : textareaRef.current;
+        if (textarea) textarea.focus();
+      }, 0);
+    }
+  }, [promptQueue, state.isExpanded, saveDraft]);
+
+  const handleSendImmediate = useCallback((itemId: string) => {
+    const item = promptQueue.items.find(i => i.id === itemId);
+    if (item) {
+      // 从队列移除
+      promptQueue.dequeue(itemId);
+      // 立即发送（插队模式，forceImmediate=true）
+      const promptToSend = `【即时指导】${item.prompt}`;
+      onSend(promptToSend, item.model, undefined, true);
+    }
+  }, [promptQueue, onSend]);
+
+  const handleSendMerged = useCallback(() => {
+    const mergedPrompt = promptQueue.getMergedPrompt();
+    if (mergedPrompt) {
+      const mergeItems = promptQueue.getMergeItems();
+      // 标记所有 merge 项为已发送
+      mergeItems.forEach(item => {
+        promptQueue.markSent(item.id);
+      });
+      // 发送打包的提示词（forceImmediate=false，正常排队）
+      onSend(mergedPrompt, state.selectedModel, undefined, false);
+    }
+  }, [promptQueue, onSend, state.selectedModel]);
+
+  const handleDeleteQueueItem = useCallback((itemId: string) => {
+    promptQueue.dequeue(itemId);
+  }, [promptQueue]);
+
+  const handleReorderQueueItem = useCallback((itemId: string, newIndex: number) => {
+    promptQueue.reorderItem(itemId, newIndex);
+  }, [promptQueue]);
+
+  const handleUpdateQueueItemMode = useCallback((itemId: string, mode: PromptSendMode) => {
+    promptQueue.updateItemMode(itemId, mode);
+  }, [promptQueue]);
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
@@ -704,9 +807,50 @@ const FloatingPromptInputInner = (
             onToggleUsageDashboard={onToggleUsageDashboard}
             showUsageDashboard={showUsageDashboard}
             onToggleMCPConfig={onToggleMCPConfig}
+            compactStatus={compactStatus}
+            isCompacting={isCompacting}
+            compactProgress={compactProgress}
+            deltaMessagesCount={deltaMessagesCount}
+            // 🆕 队列相关
+            pendingQueueCount={pendingCount}
+            showQueuePanel={showQueuePanel}
+            onToggleQueuePanel={() => setShowQueuePanel(!showQueuePanel)}
           />
         </div>
       </div>
+      {/* 🆕 智能记忆导入建议 */}
+      {hasMatches && showMemoryPanel && projectPath && (
+        <MemoryImportSuggestion
+          matches={memoryMatches}
+          projectPath={projectPath}
+          onImportComplete={() => {
+            console.log('[FloatingPromptInput] Memory imported successfully');
+          }}
+          onClose={() => setShowMemoryPanel(false)}
+        />
+      )}
+
+      {/* 🆕 提示词队列面板 */}
+      <AnimatePresence>
+        {showQueuePanel && (
+          <PromptQueuePanel
+            items={promptQueue.items}
+            isProcessing={promptQueue.isProcessing}
+            currentItemId={promptQueue.currentItemId}
+            autoMerge={promptQueue.autoMerge}
+            onRevokeToInput={handleRevokeToInput}
+            onSendImmediate={handleSendImmediate}
+            onDelete={handleDeleteQueueItem}
+            onReorder={handleReorderQueueItem}
+            onUpdateMode={handleUpdateQueueItemMode}
+            onSendMerged={handleSendMerged}
+            onClearQueue={promptQueue.clearQueue}
+            onSetAutoMerge={promptQueue.setAutoMerge}
+            onClose={() => setShowQueuePanel(false)}
+            isLoading={isLoading}
+          />
+        )}
+      </AnimatePresence>
     </>
   );
 };

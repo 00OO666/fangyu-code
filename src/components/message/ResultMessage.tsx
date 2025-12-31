@@ -104,7 +104,8 @@ export const ResultMessage: React.FC<ResultMessageProps> = ({ message, className
       `)`;
   }, [message.usage]);
 
-  const cost = (message as any).cost_usd ?? (message as any).total_cost_usd;
+  // 注意：Claude CLI 使用驼峰命名 costUSD/totalCostUSD
+  const cost = (message as any).costUSD ?? (message as any).totalCostUSD ?? (message as any).cost_usd ?? (message as any).total_cost_usd;
   const durationMs = (message as any).duration_ms;
   const numTurns = (message as any).num_turns;
 

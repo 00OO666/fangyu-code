@@ -240,7 +240,8 @@ export const PromptNavigator: React.FC<PromptNavigatorProps> = ({
               // 🔧 FIX: 使用会话默认模型作为回退（优先级：消息模型 > 会话模型 > undefined）
               const msgModel = (nextMessage as any).model || (nextMessage as any)?.message?.model || sessionDefaultModel;
               // 🔧 FIX: 提取 Claude CLI 返回的准确费用（包含完整 Extended Thinking tokens 计费）
-              const msgCostUsd = (nextMessage as any).cost_usd ?? (nextMessage as any).total_cost_usd;
+              // 注意：Claude CLI 使用驼峰命名 costUSD/totalCostUSD
+              const msgCostUsd = (nextMessage as any).costUSD ?? (nextMessage as any).totalCostUSD ?? (nextMessage as any).cost_usd ?? (nextMessage as any).total_cost_usd;
 
               // 🔧 FIX: 只保留最新版本（相同 key 的消息，保留 token 更多的版本）
               const existing = messageMap.get(key);

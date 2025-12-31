@@ -109,7 +109,8 @@ export function aggregateSessionCost(messages: ClaudeStreamMessage[]): SessionCo
 
     // 🔧 FIX: 优先使用 Claude CLI 返回的 cost_usd（包含完整 Extended Thinking tokens 计费）
     // 只有在没有 cost_usd 时才自行计算（回退方案）
-    const actualCostUsd = (message as any).cost_usd ?? (message as any).total_cost_usd;
+    // 注意：Claude CLI 使用驼峰命名 costUSD/totalCostUSD
+    const actualCostUsd = (message as any).costUSD ?? (message as any).totalCostUSD ?? (message as any).cost_usd ?? (message as any).total_cost_usd;
     const cost = typeof actualCostUsd === 'number' && actualCostUsd > 0
       ? actualCostUsd
       : calculateMessageCost(tokens, model, engine);

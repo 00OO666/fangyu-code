@@ -5,10 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Popover } from "@/components/ui/popover";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Switch } from "@/components/ui/switch";
-import { Wand2, ChevronDown, DollarSign, Info, Settings, Code2, Zap, Sparkles, Hash, Webhook, TrendingUp, TrendingDown, Cpu, BarChart3, Network } from "lucide-react";
+import { Wand2, ChevronDown, DollarSign, Info, Settings, Code2, Zap, Sparkles, Hash, Webhook, Cpu, BarChart3, Network, ListOrdered } from "lucide-react";
 import { useCostDelta } from "@/hooks/useCostDelta";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { formatDuration, formatTokensK } from "@/lib/pricing";
 import { ExecutionEngineSelector, type ExecutionEngineConfig } from "@/components/ExecutionEngineSelector";
 import { ModelSelector } from "./ModelSelector";
@@ -25,6 +25,8 @@ import type { CodexRateLimits } from "@/types/codex";
 import { useHooksCount } from "@/hooks/useHooksCount";
 import { loadSiliconFlowConfig } from "@/config/siliconflowConfig";
 import { TodayUsagePopover } from "@/components/TodayUsagePopover";
+import { ApiHealthPanel } from "@/components/ApiHealthPanel";
+import { useApiHealthCheck } from "@/hooks/useApiHealthCheck";
 
 interface ControlBarProps {
   disabled?: boolean;
@@ -64,6 +66,14 @@ interface ControlBarProps {
   onToggleUsageDashboard?: () => void;  // 切换 Usage Dashboard
   showUsageDashboard?: boolean;  // Usage Dashboard 显示状态
   onToggleMCPConfig?: () => void;  // 切换项目级 MCP 配置对话框
+  compactStatus?: import("@/hooks/useBackgroundCompact").CompactStatus;
+  isCompacting?: boolean;
+  compactProgress?: number;
+  deltaMessagesCount?: number;
+  // 🆕 队列相关
+  pendingQueueCount?: number;
+  showQueuePanel?: boolean;
+  onToggleQueuePanel?: () => void;
 }
 
 export const ControlBar: React.FC<ControlBarProps> = ({
@@ -103,12 +113,25 @@ export const ControlBar: React.FC<ControlBarProps> = ({
   codeSource,
   onToggleUsageDashboard,
   showUsageDashboard,
-  onToggleMCPConfig
+  onToggleMCPConfig,
+  compactStatus,
+  isCompacting,
+  compactProgress,
+  deltaMessagesCount,
+  pendingQueueCount = 0,
+  showQueuePanel,
+  onToggleQueuePanel,
 }) => {
   const { t } = useTranslation();
   const { count: hooksCount } = useHooksCount();
   const [siliconFlowDialogOpen, setSiliconFlowDialogOpen] = useState(false);
   const siliconFlowConfig = loadSiliconFlowConfig();
+
+  // 🆕 API 健康检查
+  const { status: apiStatus, consecutiveFailures } = useApiHealthCheck({
+    sessionId: session?.id,
+    engine: executionEngineConfig.engine as 'claude' | 'codex' | 'gemini',
+  });
 
   // 费用变动追踪
   const currentCostValue = useMemo(() => {
@@ -120,11 +143,7 @@ export const ControlBar: React.FC<ControlBarProps> = ({
 
   const sessionIdForCost = session?.id || session?.sessionId || '';
   const {
-    sessionDelta,        // 🆕 会话总增量
-    commandDelta,        // 🆕 当前指令增量
-    lastCommandCost,     // 🆕 最新指令的总消耗
-    resetSessionBaseline, // 🆕 重置会话基准
-    resetCommandBaseline, // 🆕 重置指令基准
+    commandDelta,        // 🆕 当前指令增量（用于动画）
   } = useCostDelta(sessionIdForCost, currentCostValue, messages);
 
   // 🆕 动画状态：控制是否显示变动额（橙色闪烁）
@@ -153,7 +172,7 @@ export const ControlBar: React.FC<ControlBarProps> = ({
       animationTimerRef.current = setTimeout(() => {
         setShowDeltaAnimation(false);
         wasLoadingRef.current = false;
-      }, 2500);
+      }, 1500); // 1.5 秒后切回显示总费用
     }
 
     return () => {
@@ -171,15 +190,6 @@ export const ControlBar: React.FC<ControlBarProps> = ({
       return `${sign}${(delta * 100).toFixed(2)}¢`;
     }
     return `${sign}$${delta.toFixed(4)}`;
-  };
-
-  // 🆕 格式化费用（无符号）
-  const formatCost = (cost: number): string => {
-    if (cost === 0) return '';
-    if (cost < 0.01 && cost > 0) {
-      return `${(cost * 100).toFixed(2)}¢`;
-    }
-    return `$${cost.toFixed(4)}`;
   };
 
   const contextWindowModel =
@@ -301,7 +311,7 @@ export const ControlBar: React.FC<ControlBarProps> = ({
         </motion.div>
       )}
 
-      {/* Session Cost with Details */}
+      {/* Session Cost with Details - 包含内联的费用增量动画 */}
       {hasMessages && sessionCost && sessionStats && (
         <>
           <motion.div
@@ -315,9 +325,50 @@ export const ControlBar: React.FC<ControlBarProps> = ({
               open={showCostPopover}
               onOpenChange={setShowCostPopover}
               trigger={
-                <Badge variant="outline" className="flex items-center gap-1 px-2 py-1 h-8 cursor-default hover:bg-accent transition-colors border-border/50">
-                  <DollarSign className="h-3 w-3 text-green-600 dark:text-green-400" />
-                  <span className="font-mono text-xs">{sessionCost}</span>
+                <Badge
+                  variant="outline"
+                  className={cn(
+                    "flex items-center gap-1 px-2 py-1 h-8 cursor-default transition-all duration-500 ease-out relative overflow-hidden",
+                    showDeltaAnimation && commandDelta > 0
+                      ? "border-orange-500/50 bg-orange-500/10 hover:bg-orange-500/15"
+                      : "border-border/50 hover:bg-accent"
+                  )}
+                >
+                  <DollarSign className={cn(
+                    "h-3 w-3 transition-colors duration-500",
+                    showDeltaAnimation && commandDelta > 0
+                      ? "text-orange-600 dark:text-orange-400"
+                      : "text-green-600 dark:text-green-400"
+                  )} />
+
+                  {/* 滚轮数字动画 - 类似苹果闹钟滚动效果，始终向上滚动 */}
+                  <div className="relative h-4 w-16 overflow-hidden">
+                    <AnimatePresence initial={false} mode="popLayout">
+                      <motion.span
+                        key={showDeltaAnimation && commandDelta > 0 ? 'delta' : 'total'}
+                        initial={{ y: 16 }}
+                        animate={{ y: 0 }}
+                        exit={{ y: -16 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 500,
+                          damping: 35,
+                          mass: 0.5,
+                        }}
+                        className={cn(
+                          "absolute inset-0 flex items-center justify-start font-mono text-xs",
+                          showDeltaAnimation && commandDelta > 0
+                            ? "font-bold text-orange-600 dark:text-orange-400"
+                            : ""
+                        )}
+                      >
+                        {showDeltaAnimation && commandDelta > 0
+                          ? formatCostDelta(commandDelta)
+                          : sessionCost}
+                      </motion.span>
+                    </AnimatePresence>
+                  </div>
+
                   <Info className="h-3 w-3 text-muted-foreground ml-1" />
                 </Badge>
               }
@@ -359,54 +410,6 @@ export const ControlBar: React.FC<ControlBarProps> = ({
             />
           </motion.div>
 
-          {/* 🆕 指令费用显示 - 动画切换效果 */}
-          {/* 执行中：橙色闪烁显示累积变动额 (+$0.05 → +$0.09 → +$0.17) */}
-          {/* 完成后2.5秒：切换为蓝色显示指令总消耗 ($0.17) */}
-          {commandDelta > 0 && (
-            <motion.div
-              key={showDeltaAnimation ? 'delta' : 'total'}
-              initial={{ opacity: 0, scale: 0.9, y: -5 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 5 }}
-              transition={{ duration: 0.3 }}
-            >
-              {showDeltaAnimation ? (
-                /* 橙色变动额 - 执行中实时累加 */
-                <Badge
-                  variant="outline"
-                  className={cn(
-                    "flex items-center gap-1.5 px-2.5 py-1 h-8 cursor-default transition-all",
-                    "border-orange-500/50 bg-orange-500/10",
-                    "text-orange-600 dark:text-orange-400",
-                    isLoading && "animate-pulse"
-                  )}
-                  title="当前指令累计消耗（执行中...）"
-                >
-                  <TrendingUp className="h-3.5 w-3.5" />
-                  <span className="font-mono text-xs font-semibold">
-                    {formatCostDelta(commandDelta)}
-                  </span>
-                </Badge>
-              ) : (
-                /* 蓝色指令总消耗 - 执行完成后显示 */
-                <Badge
-                  variant="outline"
-                  className={cn(
-                    "flex items-center gap-1.5 px-2.5 py-1 h-8 cursor-pointer transition-all hover:bg-accent",
-                    "border-blue-500/50 bg-blue-500/5",
-                    "text-blue-600 dark:text-blue-400"
-                  )}
-                  onClick={resetCommandBaseline}
-                  title="最新指令总消耗\n点击重置基准"
-                >
-                  <Zap className="h-3.5 w-3.5" />
-                  <span className="font-mono text-xs font-medium">
-                    {formatCost(lastCommandCost)}
-                  </span>
-                </Badge>
-              )}
-            </motion.div>
-          )}
         </>
       )}
 
@@ -440,6 +443,15 @@ export const ControlBar: React.FC<ControlBarProps> = ({
 
       {/* Today Usage Popover - 今日消耗 */}
       <TodayUsagePopover hasMessages={hasMessages} />
+
+      {/* 🆕 API 健康状态指示器 - 仅在有问题时显示 */}
+      {(apiStatus === 'disconnected' || apiStatus === 'reconnecting' || consecutiveFailures > 0) && (
+        <ApiHealthPanel
+          sessionId={session?.id}
+          engine={executionEngineConfig.engine as 'claude' | 'codex' | 'gemini'}
+          compact={true}
+        />
+      )}
 
       {/* Usage Dashboard Toggle - Token 消耗图表 */}
       {onToggleUsageDashboard && hasMessages && (
@@ -639,6 +651,43 @@ export const ControlBar: React.FC<ControlBarProps> = ({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      {/* 🆕 队列指示器按钮 - AI 工作时显示 */}
+      {onToggleQueuePanel && (isLoading || pendingQueueCount > 0) && (
+        <Button
+          variant={showQueuePanel ? "default" : "outline"}
+          size="default"
+          onClick={onToggleQueuePanel}
+          className={cn(
+            "gap-1.5 h-8 transition-all relative",
+            showQueuePanel
+              ? "bg-amber-600 hover:bg-amber-700 text-white"
+              : pendingQueueCount > 0
+                ? "border-amber-500/50 bg-amber-500/10 hover:bg-amber-500/20"
+                : "border-border/50 bg-background/50 hover:bg-accent/50"
+          )}
+          title={pendingQueueCount > 0 ? `${pendingQueueCount} 条指令待发送` : "指令队列"}
+        >
+          <ListOrdered className={cn(
+            "h-3.5 w-3.5",
+            showQueuePanel ? "text-white" : pendingQueueCount > 0 ? "text-amber-500" : "text-muted-foreground"
+          )} />
+          <span className="text-xs">队列</span>
+          {pendingQueueCount > 0 && (
+            <Badge
+              variant="secondary"
+              className={cn(
+                "h-4 min-w-4 px-1 text-[10px] font-bold",
+                showQueuePanel
+                  ? "bg-white/20 text-white"
+                  : "bg-amber-500 text-white"
+              )}
+            >
+              {pendingQueueCount}
+            </Badge>
+          )}
+        </Button>
+      )}
 
       {/* Send/Cancel Button */}
       {isLoading ? (

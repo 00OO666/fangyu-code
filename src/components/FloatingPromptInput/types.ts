@@ -55,8 +55,9 @@ export interface FloatingPromptInputProps {
   /**
    * Callback when prompt is sent - includes maxThinkingTokens separately
    * 🔧 FIX: 支持异步回调，等待完成后再清空输入框，防止消息丢失
+   * 🆕 forceImmediate: 强制立即发送（插队模式），绕过队列检查
    */
-  onSend: (prompt: string, model: ModelType, maxThinkingTokens?: number) => void | Promise<void>;
+  onSend: (prompt: string, model: ModelType, maxThinkingTokens?: number, forceImmediate?: boolean) => void | Promise<void>;
   /**
    * Whether the input is loading
    */
@@ -169,6 +170,22 @@ export interface FloatingPromptInputProps {
    * 🆕 Callback when MCP Quick Config button is clicked
    */
   onToggleMCPConfig?: () => void;
+  /**
+   * 🆕 后台压缩状态（Invisible UX）
+   */
+  compactStatus?: import('@/hooks/useBackgroundCompact').CompactStatus;
+  /**
+   * 🆕 是否正在后台压缩
+   */
+  isCompacting?: boolean;
+  /**
+   * 🆕 压缩进度（0-100）
+   */
+  compactProgress?: number;
+  /**
+   * 🆕 增量消息数量（压缩期间捕获的新消息）
+   */
+  deltaMessagesCount?: number;
 }
 
 /**

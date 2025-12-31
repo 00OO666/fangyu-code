@@ -106,7 +106,14 @@ interface UsePromptExecutionConfig {
 }
 
 interface UsePromptExecutionReturn {
-  handleSendPrompt: (prompt: string, model: ModelType, maxThinkingTokens?: number) => Promise<void>;
+  /**
+   * 发送提示词
+   * @param prompt - 提示词内容
+   * @param model - 使用的模型
+   * @param maxThinkingTokens - 思考模式 token 数量
+   * @param forceImmediate - 强制立即发送（插队模式），绕过队列检查
+   */
+  handleSendPrompt: (prompt: string, model: ModelType, maxThinkingTokens?: number, forceImmediate?: boolean) => Promise<void>;
 }
 
 type ClaudeGlobalEventPayload<T> = { tab_id?: string | null; payload: T } | T;
@@ -278,7 +285,8 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
   const handleSendPrompt = useCallback(async (
     prompt: string,
     model: ModelType,
-    maxThinkingTokens?: number
+    maxThinkingTokens?: number,
+    forceImmediate: boolean = false
   ) => {
     // ========================================================================
     // 1️⃣ Validation & Queueing
@@ -292,8 +300,8 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
     // Check if this is a slash command
     const isSlashCommandInput = isSlashCommand(prompt);
 
-    // If already loading, queue the prompt
-    if (isLoading) {
+    // 🆕 If already loading and not force immediate (interrupt mode), queue the prompt
+    if (isLoading && !forceImmediate) {
       const newPrompt: QueuedPrompt = {
         id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         prompt,

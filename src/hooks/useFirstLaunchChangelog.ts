@@ -17,7 +17,7 @@ import { useState, useEffect } from 'react';
 import { getVersion } from '@tauri-apps/api/app';
 
 const STORAGE_KEY = 'fangyu-code-last-seen-version';
-const FALLBACK_VERSION = '1.3.1'; // 🔧 Fallback 版本（获取失败时使用）
+const FALLBACK_VERSION = '1.4.0'; // 🔧 Fallback 版本（获取失败时使用）
 
 // 🔧 DEBUG: 全局变量用于强制显示更新日志（调试用）
 declare global {
@@ -29,6 +29,28 @@ declare global {
 
 // 版本更新日志（从新到旧）
 export const CHANGELOGS = {
+  '1.4.0': {
+    title: 'v1.4.0 - 🚀 提示词队列系统 + 智能指导模式',
+    date: '2026-01-01',
+    features: [
+      '📋 提示词队列系统 - AI 工作时可继续输入指令，自动排队等待执行',
+      '⚡ 插队模式 - 即时发送指导/纠正，不中断当前任务（AI 能实时看到）',
+      '📦 打包模式 - 多条指令合并成一条消息发送，减少上下文切换',
+      '🔄 撤回编辑 - 队列中的指令可撤回到输入框重新编辑',
+      '↕️ 调整顺序 - 拖拽或按钮调整队列执行顺序',
+      '⭐ 默认模型改进 - 点击星标设置默认模型时同步切换当前会话',
+    ],
+    improvements: [
+      '队列可视化面板 - 显示所有待发送指令，支持模式切换、删除、重排序',
+      '智能队列按钮 - AI 工作时自动显示，显示待发送数量徽章',
+      '打包合并格式 - 自动添加任务编号和分隔符，AI 更容易理解',
+      '队列状态追踪 - pending/sending/sent/failed 完整状态管理',
+    ],
+    bugFixes: [
+      '修复 usePromptQueue JSX 编译错误 - .ts 改为 .tsx 支持 JSX 语法',
+      '修复 React 导入缺失 - 添加 React 默认导入支持 React.FC',
+    ],
+  },
   '1.3.1': {
     title: 'v1.3.1 - 🔧 费用计算修复 + HMR Bug 修复',
     date: '2025-12-31',

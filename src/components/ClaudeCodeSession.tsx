@@ -28,6 +28,8 @@ import { useSessionStream } from '@/hooks/useSessionStream';
 import { usePromptExecution } from '@/hooks/usePromptExecution';
 import { useHourlyUsageTracker } from '@/hooks/useHourlyUsageTracker';
 import { useSmartTabTitle } from '@/hooks/useSmartTabTitle';
+import { useBackgroundCompact } from '@/hooks/useBackgroundCompact';
+import { useContextWindowUsage } from '@/hooks/useContextWindowUsage';
 import { MessagesProvider, useMessagesContext } from '@/contexts/MessagesContext';
 import { SessionProvider } from '@/contexts/SessionContext';
 import { PlanModeProvider, usePlanMode } from '@/contexts/PlanModeContext';
@@ -40,6 +42,7 @@ import { convertGeminiSessionDetailToClaudeMessages } from '@/lib/geminiConverte
 import { SessionHeader } from "./session/SessionHeader";
 import { SessionMessages, type SessionMessagesRef } from "./session/SessionMessages";
 import { CanvasFloatingWindow } from "@/components/canvas/CanvasFloatingWindow";
+import { CompactStatusIndicator } from './CompactStatusIndicator';
 import { UsageDashboard } from "@/components/UsageDashboard";
 import { ProjectMCPQuickConfig } from "@/components/ProjectMCPQuickConfig";
 import { useCanvasExtractor } from "@/hooks/useCanvasExtractor";
@@ -480,6 +483,42 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
     return null;
   }, [session, extractedSessionInfo, projectPath, sessionNotFound]);
 
+  // 🆕 上下文窗口使用率（用于触发后台压缩）
+  const contextUsage = useContextWindowUsage(
+    messages,
+    executionEngineConfig.codexModel || 'sonnet',
+    executionEngineConfig.engine
+  );
+
+  // 🆕 后台无缝压缩（Invisible UX - 75% 阈值自动触发）
+  const {
+    status: compactStatus,
+    isCompacting,
+    progress: compactProgress,
+    deltaMessagesCount,
+    shouldSwitchSession,
+    newSessionId,
+    confirmSwitch,
+  } = useBackgroundCompact({
+    sessionId: effectiveSession?.id,
+    projectPath,
+    compactThreshold: 0.75,
+    autoCompact: executionEngineConfig.engine === 'claude',
+    contextUsage: contextUsage.hasData ? contextUsage.percentage / 100 : 0,
+    maxTokens: contextUsage.contextWindowSize,
+    currentTokens: contextUsage.currentTokens,
+  });
+
+  // 🆕 当后台压缩完成时，自动切换到新会话
+  useEffect(() => {
+    if (shouldSwitchSession && newSessionId) {
+      console.log('[ClaudeCodeSession] 🔄 Seamless session switch to:', newSessionId);
+      setClaudeSessionId(newSessionId);
+      loadSessionHistory();
+      confirmSwitch();
+    }
+  }, [shouldSwitchSession, newSessionId, confirmSwitch, loadSessionHistory]);
+
   useEffect(() => {
     if (executionEngineConfig.engine !== 'codex') {
       setCodexRateLimits(null);
@@ -537,7 +576,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
       // 延迟发送，确保 React 状态完全更新
       setTimeout(() => {
         sessionMessagesRef.current?.scrollToBottom();
-        handleSendPrompt(prompt, model, maxThinkingTokens);
+        handleSendPrompt(prompt, model, maxThinkingTokens, undefined);
       }, 100);
     }
   }, [projectPath, handleSendPrompt, setUserScrolled, setShouldAutoScroll]);
@@ -546,7 +585,8 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   // 解决问题：当用户滚动查看历史消息后发送新消息，页面不会自动滚动到底部
   // 🔧 修复：消息数量过多时使用虚拟列表的 scrollToIndex 确保滚动到真正的底部
   // 🆕 智能会话：在发送第一条消息时自动创建项目文件夹
-  const handleSendPromptWithScroll = useCallback(async (prompt: string, model: ModelType, maxThinkingTokens?: number) => {
+  // 🆕 插队模式：支持 forceImmediate 参数，绕过 usePromptExecution 的队列检查
+  const handleSendPromptWithScroll = useCallback(async (prompt: string, model: ModelType, maxThinkingTokens?: number, forceImmediate?: boolean) => {
     console.log('[ClaudeCodeSession] handleSendPromptWithScroll called', {
       hasProjectPath: !!projectPath,
       hasUpgradeCallback: !!onSmartSessionUpgrade,
@@ -599,7 +639,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
       sessionMessagesRef.current?.scrollToBottom();
     }, 50);
 
-    await handleSendPrompt(prompt, model, maxThinkingTokens);
+    await handleSendPrompt(prompt, model, maxThinkingTokens, forceImmediate);
   }, [projectPath, onSmartSessionUpgrade, isFirstPrompt, handleSendPrompt, setUserScrolled, setShouldAutoScroll, onProjectPathChange]);
 
   // 🆕 方案 B-1: 设置发送提示词回调，用于计划批准后自动执行
@@ -1482,6 +1522,19 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
             onToggleUsageDashboard={() => setShowUsageDashboard(prev => !prev)} // 🆕 Token 消耗图表
             showUsageDashboard={showUsageDashboard}                    // 🆕 图表显示状态
             onToggleMCPConfig={() => setShowMCPConfig(prev => !prev)}  // 🆕 项目级 MCP 配置
+            compactStatus={compactStatus}                              // 🆕 后台压缩状态
+            isCompacting={isCompacting}                                // 🆕 是否正在压缩
+            compactProgress={compactProgress}                          // 🆕 压缩进度
+            deltaMessagesCount={deltaMessagesCount}                    // 🆕 增量消息数量
+          />
+
+          {/* 🆕 后台压缩状态指示器 - 仅在压缩时显示（Invisible UX） */}
+          <CompactStatusIndicator
+            status={compactStatus}
+            progress={compactProgress}
+            deltaMessagesCount={deltaMessagesCount}
+            isCompacting={isCompacting}
+            className="absolute bottom-24 left-1/2 -translate-x-1/2 z-50"
           />
 
         </ErrorBoundary>

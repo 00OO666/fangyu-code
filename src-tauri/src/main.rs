@@ -6,6 +6,7 @@ mod claude_binary;
 mod commands;
 mod process;
 mod utils; // 新增：通用工具模块
+mod memory_index; // 智能记忆导入功能
 
 // MCP 多应用支持模块
 mod mcp;
@@ -86,6 +87,8 @@ use commands::window::{
     broadcast_to_session_windows, close_session_window, create_session_window, emit_to_window,
     focus_session_window, list_session_windows, set_titlebar_theme,
 };
+
+use memory_index::{detect_memory_keywords, import_memories};
 
 use commands::codex::{
     add_codex_provider_config,

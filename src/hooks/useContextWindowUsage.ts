@@ -56,12 +56,14 @@ function getUsageCandidate(message: any, engine?: string): any | null {
   }
 
   // Claude: 过滤掉会话结束时的累计统计消息
-  // 这类 result 消息包含 total_cost_usd/duration_ms/num_turns 等字段，
+  // 这类 result 消息包含 totalCostUSD/costUSD/duration_ms/num_turns 等字段（驼峰或下划线）
   // 其 usage 是"会话累计"口径，不能用作 Context Window 快照
   if (engine === 'claude' && message?.type === 'result') {
     const hasCumulativeStats =
       typeof message.total_cost_usd === 'number' ||
+      typeof message.totalCostUSD === 'number' ||
       typeof message.cost_usd === 'number' ||
+      typeof message.costUSD === 'number' ||
       typeof message.duration_ms === 'number' ||
       typeof message.num_turns === 'number';
     if (hasCumulativeStats) {

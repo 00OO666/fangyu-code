@@ -32,6 +32,9 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
     e.stopPropagation();
     setDefaultModel(modelId);
     setCurrentDefaultModel(modelId);
+    // 🆕 同时切换当前会话的模型（更直观的用户体验）
+    onModelChange(modelId);
+    console.log('[ModelSelector] 默认模型已设置:', modelId, '| 当前会话已切换');
   };
 
   return (
