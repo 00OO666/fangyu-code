@@ -464,6 +464,12 @@ pub async fn fix_all_issues() -> Result<FixResult, String> {
 
     let config_dir = get_config_dir();
 
+    // 读取 settings.json
+    let settings_path = config_dir.join("settings.json");
+    let settings: Option<Value> = fs::read_to_string(&settings_path)
+        .ok()
+        .and_then(|s| serde_json::from_str(&s).ok());
+
     // ========== 修复 1: 同步 MCP 配置 ==========
     // 使用统一的配置同步 API，以 .claude.json（实际生效的配置）为准
     match crate::commands::claude::sync_claude_json_to_settings().await {
@@ -519,31 +525,29 @@ pub async fn fix_all_issues() -> Result<FixResult, String> {
             if let Some(hooks) = obj.get_mut("hooks") {
                 if let Some(hooks_obj) = hooks.as_object_mut() {
                     // 检查配置的 Hook 脚本是否存在
-                    let hooks_to_remove: Vec<String> = hooks_obj
-                        .iter()
-                        .filter_map(|(event, arr)| {
-                            if let Some(arr) = arr.as_array() {
-                                for hook in arr {
-                                    if let Some(cmd) = hook.get("command").and_then(|c| c.as_str()) {
-                                        // 检查脚本文件是否存在
-                                        if cmd.contains(".ps1") || cmd.contains(".sh") {
-                                            let script_path = cmd
-                                                .split('"')
-                                                .find(|s| s.ends_with(".ps1") || s.ends_with(".sh"));
+                    let mut hooks_to_remove: Vec<String> = Vec::new();
+                    for (event, arr) in hooks_obj.iter() {
+                        if let Some(arr) = arr.as_array() {
+                            for hook in arr {
+                                if let Some(cmd) = hook.get("command").and_then(|c| c.as_str()) {
+                                    // 检查脚本文件是否存在
+                                    if cmd.contains(".ps1") || cmd.contains(".sh") {
+                                        let script_path = cmd
+                                            .split('"')
+                                            .find(|s| s.ends_with(".ps1") || s.ends_with(".sh"));
 
-                                            if let Some(path) = script_path {
-                                                let path = PathBuf::from(path.replace("C:/", "C:\\"));
-                                                if !path.exists() {
-                                                    return Some(event.clone());
-                                                }
+                                        if let Some(path) = script_path {
+                                            let path = PathBuf::from(path.replace("C:/", "C:\\"));
+                                            if !path.exists() {
+                                                hooks_to_remove.push(event.clone());
+                                                break; // 找到一个无效脚本即可标记此事件
                                             }
                                         }
                                     }
                                 }
                             }
-                            None
-                        })
-                        .collect();
+                        }
+                    }
 
                     for event in hooks_to_remove {
                         hooks_obj.remove(&event);
