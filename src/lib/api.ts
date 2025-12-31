@@ -9,6 +9,9 @@ import {
   isCacheValid,
 } from './api/cache';
 
+// Import session module utilities
+import * as SessionModule from './api/session';
+
 // Re-export types for backward compatibility
 export type {
   ProcessType,
@@ -126,14 +129,7 @@ export const api = {
    * Lists all projects in the ~/.claude/projects directory
    * @returns Promise resolving to an array of projects
    */
-  async listProjects(): Promise<Project[]> {
-    try {
-      return await invoke<Project[]>("list_projects");
-    } catch (error) {
-      console.error("Failed to list projects:", error);
-      throw error;
-    }
-  },
+  listProjects: SessionModule.listProjects,
 
   /**
    * Retrieves sessions for a specific project (both Claude and Codex)
@@ -194,14 +190,7 @@ export const api = {
    * @param projectId - The project ID this session belongs to
    * @returns Promise resolving to success message
    */
-  async deleteSession(sessionId: string, projectId: string): Promise<string> {
-    try {
-      return await invoke<string>('delete_session', { sessionId, projectId });
-    } catch (error) {
-      console.error("Failed to delete session:", error);
-      throw error;
-    }
-  },
+  deleteSession: SessionModule.deleteSession,
 
   /**
    * Deletes multiple sessions in batch
@@ -209,69 +198,34 @@ export const api = {
    * @param projectId - The project ID these sessions belong to
    * @returns Promise resolving to success message
    */
-  async deleteSessionsBatch(sessionIds: string[], projectId: string): Promise<string> {
-    try {
-      return await invoke<string>('delete_sessions_batch', { sessionIds, projectId });
-    } catch (error) {
-      console.error("Failed to batch delete sessions:", error);
-      throw error;
-    }
-  },
+  deleteSessionsBatch: SessionModule.deleteSessionsBatch,
 
   /**
    * Removes a project from the project list (without deleting files)
    * @param projectId - The ID of the project to remove from list
    * @returns Promise resolving to success message
    */
-  async deleteProject(projectId: string): Promise<string> {
-    try {
-      return await invoke<string>('delete_project', { projectId });
-    } catch (error) {
-      console.error("Failed to remove project from list:", error);
-      throw error;
-    }
-  },
+  deleteProject: SessionModule.deleteProject,
 
   /**
    * Restores a hidden project back to the project list
    * @param projectId - The ID of the project to restore
    * @returns Promise resolving to success message
    */
-  async restoreProject(projectId: string): Promise<string> {
-    try {
-      return await invoke<string>('restore_project', { projectId });
-    } catch (error) {
-      console.error("Failed to restore project:", error);
-      throw error;
-    }
-  },
+  restoreProject: SessionModule.restoreProject,
 
   /**
    * Lists all hidden projects
    * @returns Promise resolving to array of hidden project IDs
    */
-  async listHiddenProjects(): Promise<string[]> {
-    try {
-      return await invoke<string[]>('list_hidden_projects');
-    } catch (error) {
-      console.error("Failed to list hidden projects:", error);
-      throw error;
-    }
-  },
+  listHiddenProjects: SessionModule.listHiddenProjects,
 
   /**
    * Permanently delete a project and all its files
    * @param projectId - The project ID to permanently delete
    * @returns Promise resolving to success message
    */
-  async deleteProjectPermanently(projectId: string): Promise<string> {
-    try {
-      return await invoke<string>('delete_project_permanently', { projectId });
-    } catch (error) {
-      console.error("Failed to permanently delete project:", error);
-      throw error;
-    }
-  },
+  deleteProjectPermanently: SessionModule.deleteProjectPermanently,
 
   /**
    * Reads the Claude settings file
@@ -498,26 +452,12 @@ export const api = {
   /**
    * Loads the JSONL history for a specific session (Claude or Codex)
    */
-  async loadSessionHistory(sessionId: string, projectId: string, engine?: 'claude' | 'codex'): Promise<any[]> {
-    // For Codex sessions, read directly from .codex/sessions
-    if (engine === 'codex') {
-      return this.loadCodexSessionHistory(sessionId);
-    }
-    // For Claude sessions, use existing backend
-    return invoke("load_session_history", { sessionId, projectId });
-  },
+  loadSessionHistory: SessionModule.loadSessionHistory,
 
   /**
    * 🆕 Loads Codex session history from JSONL file
    */
-  async loadCodexSessionHistory(sessionId: string): Promise<any[]> {
-    try {
-      return await invoke("load_codex_session_history", { sessionId });
-    } catch (error) {
-      console.error("Failed to load Codex session history:", error);
-      throw error;
-    }
-  },
+  loadCodexSessionHistory: SessionModule.loadCodexSessionHistory,
 
   /**
    * Executes a new interactive Claude Code session with streaming output
