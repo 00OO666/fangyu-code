@@ -98,8 +98,8 @@ jobs:
         shell: pwsh
         run: |
           $version = "${{ github.ref_name }}".TrimStart('v')
-          $exePath = "src-tauri/target/release/any-code.exe"
-          $portableName = "Any_Code_${version}_x64-portable.exe"
+          $exePath = "src-tauri/target/release/fangyu-code.exe"
+          $portableName = "Fangyu_Code_${version}_x64-portable.exe"
           $portablePath = "src-tauri/target/release/bundle/$portableName"
           New-Item -ItemType Directory -Force -Path "src-tauri/target/release/bundle"
           Copy-Item $exePath $portablePath
@@ -310,9 +310,9 @@ jobs:
           draft: false
           prerelease: false
           fail_on_unmatched_files: false
-          name: Any Code ${{ github.ref_name }}
+          name: Fangyu Code ${{ github.ref_name }}
           body: |
-            ## Any Code ${{ github.ref_name }}
+            ## Fangyu Code ${{ github.ref_name }}
 
             ### Downloads
             Choose the appropriate installer for your platform:
