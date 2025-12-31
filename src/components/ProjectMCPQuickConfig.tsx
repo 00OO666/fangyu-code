@@ -39,7 +39,7 @@ import { useProjectMCPConfig, type MCPConfigScope } from '@/hooks/useProjectMCPC
 import { getMCPRecommendations, type ProjectType, type MCPRecommendation } from '@/config/mcpRecommendations';
 import { ClaudeIcon } from './icons/ClaudeIcon';
 import { Sparkles, ExternalLink } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigation } from '@/contexts/NavigationContext';
 
 interface ProjectMCPQuickConfigProps {
   /**
@@ -69,7 +69,7 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
   projectPath,
   engine = 'claude',
 }) => {
-  const navigate = useNavigate();
+  const { navigateTo } = useNavigation();
   const [activeTab, setActiveTab] = useState<'recommend' | 'project' | 'global'>('recommend');
   const [globalServers, setGlobalServers] = useState<McpServerWithStatus[]>([]);
   const [loadingGlobal, setLoadingGlobal] = useState(false);
@@ -366,8 +366,8 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
   // 跳转到设置页面配置 MCP
   const handleGoToSettings = useCallback(() => {
     onClose(); // 先关闭对话框
-    navigate('/settings'); // 导航到设置页面
-  }, [navigate, onClose]);
+    navigateTo('settings'); // 导航到设置页面
+  }, [navigateTo, onClose]);
 
   // 渲染单个推荐项
   const renderRecommendationItem = (rec: MCPRecommendation) => {
