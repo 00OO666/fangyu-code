@@ -27,6 +27,9 @@ import * as StorageModule from './api/storage';
 // Import translation module utilities
 import * as TranslationModule from './api/translation';
 
+// Import git module utilities
+import * as GitModule from './api/git';
+
 // Re-export types for backward compatibility
 export type {
   ProcessType,
@@ -1443,47 +1446,11 @@ export const api = {
 
   // ==================== Prompt Revert System ====================
 
-  /**
-   * Check and initialize Git repository
-   */
-  async checkAndInitGit(projectPath: string): Promise<boolean> {
-    try {
-      return await invoke<boolean>("check_and_init_git", { projectPath });
-    } catch (error) {
-      console.error("Failed to check/init Git:", error);
-      return false;
-    }
-  },
+  /** Check and initialize Git repository */
+  checkAndInitGit: GitModule.checkAndInitGit,
 
-  /**
-   * Check if a git reset operation is safe
-   * This prevents accidentally reverting to a much older version when
-   * multiple engines or user manual commits are involved
-   */
-  async checkResetSafety(
-    projectPath: string,
-    targetCommit: string,
-    currentEngine: string
-  ): Promise<ResetSafetyInfo> {
-    try {
-      return await invoke<ResetSafetyInfo>("check_reset_safety", {
-        projectPath,
-        targetCommit,
-        currentEngine,
-      });
-    } catch (error) {
-      console.error("Failed to check reset safety:", error);
-      // Return a safe default that allows proceeding
-      return {
-        commitsToLose: 0,
-        hasOtherEngineCommits: false,
-        hasUserCommits: false,
-        commitsSummary: [],
-        safeToProceed: true,
-        warning: null,
-      };
-    }
-  },
+  /** Check if a git reset operation is safe */
+  checkResetSafety: GitModule.checkResetSafety,
 
   /**
    * Record a prompt being sent
@@ -1809,90 +1776,24 @@ export const api = {
     }
   },
 
-  // ==================== Git Statistics ====================
+  // ============================================================================
+  // GIT STATISTICS (delegated to GitModule)
+  // ============================================================================
 
-  /**
-   * Get Git diff statistics between commits
-   */
-  async getGitDiffStats(
-    projectPath: string,
-    fromCommit: string,
-    toCommit?: string
-  ): Promise<{ linesAdded: number; linesRemoved: number; filesChanged: number }> {
-    try {
-      return await invoke("get_git_diff_stats", { projectPath, fromCommit, toCommit });
-    } catch (error) {
-      console.error("Failed to get git diff stats:", error);
-      throw error;
-    }
-  },
+  /** Get Git diff statistics between commits */
+  getGitDiffStats: GitModule.getGitDiffStats,
 
-  /**
-   * Get code changes for current session
-   */
-  async getSessionCodeChanges(
-    projectPath: string,
-    sessionStartCommit: string
-  ): Promise<{ linesAdded: number; linesRemoved: number; filesChanged: number }> {
-    try {
-      return await invoke("get_session_code_changes", { projectPath, sessionStartCommit });
-    } catch (error) {
-      console.error("Failed to get session code changes:", error);
-      throw error;
-    }
-  },
+  /** Get code changes for current session */
+  getSessionCodeChanges: GitModule.getSessionCodeChanges,
 
-  /**
-   * Get list of changed files between two commits
-   * Used for code rollback preview
-   */
-  async getGitChangedFiles(
-    projectPath: string,
-    fromCommit: string,
-    toCommit?: string
-  ): Promise<GitFileChange[]> {
-    try {
-      return await invoke("get_git_changed_files", { projectPath, fromCommit, toCommit });
-    } catch (error) {
-      console.error("Failed to get git changed files:", error);
-      throw error;
-    }
-  },
+  /** Get list of changed files between two commits */
+  getGitChangedFiles: GitModule.getGitChangedFiles,
 
-  /**
-   * Get unified diff content for a specific file
-   * Used for Monaco Editor diff preview
-   */
-  async getGitFileDiff(
-    projectPath: string,
-    fromCommit: string,
-    toCommit: string | undefined,
-    filePath: string
-  ): Promise<string> {
-    try {
-      return await invoke("get_git_file_diff", { projectPath, fromCommit, toCommit, filePath });
-    } catch (error) {
-      console.error("Failed to get git file diff:", error);
-      throw error;
-    }
-  },
+  /** Get unified diff content for a specific file */
+  getGitFileDiff: GitModule.getGitFileDiff,
 
-  /**
-   * Get file content at a specific commit
-   * Used for side-by-side comparison in Monaco Editor
-   */
-  async getGitFileAtCommit(
-    projectPath: string,
-    commit: string,
-    filePath: string
-  ): Promise<string> {
-    try {
-      return await invoke("get_git_file_at_commit", { projectPath, commit, filePath });
-    } catch (error) {
-      console.error("Failed to get git file at commit:", error);
-      throw error;
-    }
-  },
+  /** Get file content at a specific commit */
+  getGitFileAtCommit: GitModule.getGitFileAtCommit,
 
   // ==================== OpenAI Codex Integration ====================
 
