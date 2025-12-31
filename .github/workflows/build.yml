@@ -18,18 +18,18 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-          - name: macOS-ARM
-            os: macos-latest
-            rust-target: aarch64-apple-darwin
-            tauri-args: --target aarch64-apple-darwin
-          - name: macOS-Intel
-            os: macos-latest
-            rust-target: x86_64-apple-darwin
-            tauri-args: --target x86_64-apple-darwin
-          - name: Linux
-            os: ubuntu-22.04
-            rust-target: x86_64-unknown-linux-gnu
-            tauri-args: ''
+          # - name: macOS-ARM
+          #   os: macos-latest
+          #   rust-target: aarch64-apple-darwin
+          #   tauri-args: --target aarch64-apple-darwin
+          # - name: macOS-Intel
+          #   os: macos-latest
+          #   rust-target: x86_64-apple-darwin
+          #   tauri-args: --target x86_64-apple-darwin
+          # - name: Linux
+          #   os: ubuntu-22.04
+          #   rust-target: x86_64-unknown-linux-gnu
+          #   tauri-args: ''
           - name: Windows
             os: windows-latest
             rust-target: x86_64-pc-windows-msvc
@@ -142,68 +142,25 @@ jobs:
           pattern: build-*
           merge-multiple: true
 
-      - name: Rename updater files for consistent naming
+      - name: Rename Windows updater files
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
 
-          # Find and rename macOS aarch64 updater files
-          AARCH64_TAR=$(find artifacts -path "*aarch64*" -name "*.app.tar.gz" ! -name "*.sig" -type f | head -n 1)
-          AARCH64_SIG=$(find artifacts -path "*aarch64*" -name "*.app.tar.gz.sig" -type f | head -n 1)
-          if [ -n "$AARCH64_TAR" ]; then
-            AARCH64_DIR=$(dirname "$AARCH64_TAR")
-            mv "$AARCH64_TAR" "$AARCH64_DIR/any-code_${VERSION}_aarch64.app.tar.gz"
-            echo "Renamed: $AARCH64_TAR -> $AARCH64_DIR/any-code_${VERSION}_aarch64.app.tar.gz"
-          fi
-          if [ -n "$AARCH64_SIG" ]; then
-            AARCH64_DIR=$(dirname "$AARCH64_SIG")
-            mv "$AARCH64_SIG" "$AARCH64_DIR/any-code_${VERSION}_aarch64.app.tar.gz.sig"
-            echo "Renamed: $AARCH64_SIG -> $AARCH64_DIR/any-code_${VERSION}_aarch64.app.tar.gz.sig"
-          fi
-
-          # Find and rename macOS x86_64 updater files
-          X64_TAR=$(find artifacts -path "*x86_64*" -name "*.app.tar.gz" ! -name "*.sig" -type f | head -n 1)
-          X64_SIG=$(find artifacts -path "*x86_64*" -name "*.app.tar.gz.sig" -type f | head -n 1)
-          if [ -n "$X64_TAR" ]; then
-            X64_DIR=$(dirname "$X64_TAR")
-            mv "$X64_TAR" "$X64_DIR/any-code_${VERSION}_x64.app.tar.gz"
-            echo "Renamed: $X64_TAR -> $X64_DIR/any-code_${VERSION}_x64.app.tar.gz"
-          fi
-          if [ -n "$X64_SIG" ]; then
-            X64_DIR=$(dirname "$X64_SIG")
-            mv "$X64_SIG" "$X64_DIR/any-code_${VERSION}_x64.app.tar.gz.sig"
-            echo "Renamed: $X64_SIG -> $X64_DIR/any-code_${VERSION}_x64.app.tar.gz.sig"
-          fi
-
-          # Find and rename Windows NSIS updater files (Any.Code_* -> any-code_*)
+          # Find and rename Windows NSIS updater files
           WIN_NSIS=$(find artifacts -name "*-setup.exe" ! -name "*.sig" -type f | head -n 1)
           WIN_NSIS_SIG=$(find artifacts -name "*-setup.exe.sig" -type f | head -n 1)
           if [ -n "$WIN_NSIS" ]; then
             WIN_DIR=$(dirname "$WIN_NSIS")
-            mv "$WIN_NSIS" "$WIN_DIR/any-code_${VERSION}_x64-setup.exe"
-            echo "Renamed: $WIN_NSIS -> $WIN_DIR/any-code_${VERSION}_x64-setup.exe"
+            mv "$WIN_NSIS" "$WIN_DIR/Fangyu_Code_${VERSION}_x64-setup.exe"
+            echo "Renamed: $WIN_NSIS -> Fangyu_Code_${VERSION}_x64-setup.exe"
           fi
           if [ -n "$WIN_NSIS_SIG" ]; then
             WIN_DIR=$(dirname "$WIN_NSIS_SIG")
-            mv "$WIN_NSIS_SIG" "$WIN_DIR/any-code_${VERSION}_x64-setup.exe.sig"
-            echo "Renamed: $WIN_NSIS_SIG -> $WIN_DIR/any-code_${VERSION}_x64-setup.exe.sig"
+            mv "$WIN_NSIS_SIG" "$WIN_DIR/Fangyu_Code_${VERSION}_x64-setup.exe.sig"
+            echo "Renamed: $WIN_NSIS_SIG -> Fangyu_Code_${VERSION}_x64-setup.exe.sig"
           fi
 
-          # Find and rename Linux AppImage updater files (Any.Code_* -> any-code_*)
-          LINUX_APPIMAGE=$(find artifacts -name "*.AppImage" ! -name "*.sig" -type f | head -n 1)
-          LINUX_APPIMAGE_SIG=$(find artifacts -name "*.AppImage.sig" -type f | head -n 1)
-          if [ -n "$LINUX_APPIMAGE" ]; then
-            LINUX_DIR=$(dirname "$LINUX_APPIMAGE")
-            mv "$LINUX_APPIMAGE" "$LINUX_DIR/any-code_${VERSION}_amd64.AppImage"
-            echo "Renamed: $LINUX_APPIMAGE -> $LINUX_DIR/any-code_${VERSION}_amd64.AppImage"
-          fi
-          if [ -n "$LINUX_APPIMAGE_SIG" ]; then
-            LINUX_DIR=$(dirname "$LINUX_APPIMAGE_SIG")
-            mv "$LINUX_APPIMAGE_SIG" "$LINUX_DIR/any-code_${VERSION}_amd64.AppImage.sig"
-            echo "Renamed: $LINUX_APPIMAGE_SIG -> $LINUX_DIR/any-code_${VERSION}_amd64.AppImage.sig"
-          fi
-
-          echo "All updater files renamed successfully"
-          echo "Signature files:"
+          echo "Windows updater files renamed"
           find artifacts -name "*.sig" -type f
 
       - name: Generate latest.json for updater
@@ -214,64 +171,35 @@ jobs:
           # Get current date in RFC 3339 format
           PUB_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-          # Find signature files (after renaming)
-          DARWIN_AARCH64_SIG=$(find artifacts -name "*_aarch64.app.tar.gz.sig" -type f | head -n 1)
-          DARWIN_X64_SIG=$(find artifacts -name "*_x64.app.tar.gz.sig" -type f | head -n 1)
-          LINUX_SIG=$(find artifacts -name "*.AppImage.sig" -type f | head -n 1)
-          WINDOWS_MSI_SIG=$(find artifacts -name "*.msi.sig" -type f | head -n 1)
+          # Find Windows NSIS signature file
           WINDOWS_NSIS_SIG=$(find artifacts -name "*-setup.exe.sig" -type f | head -n 1)
 
-          # Fail fast if any required signature file is missing.
-          missing=0
-          if [ -z "$DARWIN_AARCH64_SIG" ]; then echo "::error::Missing signature file for darwin-aarch64 (*.app.tar.gz.sig)"; missing=1; fi
-          if [ -z "$DARWIN_X64_SIG" ]; then echo "::error::Missing signature file for darwin-x86_64 (*.app.tar.gz.sig)"; missing=1; fi
-          if [ -z "$LINUX_SIG" ]; then echo "::error::Missing signature file for linux-x86_64 (*.AppImage.sig)"; missing=1; fi
-          if [ -z "$WINDOWS_NSIS_SIG" ]; then echo "::error::Missing signature file for windows-x86_64 (*-setup.exe.sig)"; missing=1; fi
-          if [ "$missing" -ne 0 ]; then
-            echo "Updater signatures are required. Ensure bundle.createUpdaterArtifacts=true and TAURI_SIGNING_PRIVATE_KEY is set during build."
+          # Check if Windows signature exists
+          if [ -z "$WINDOWS_NSIS_SIG" ]; then
+            echo "::error::Missing signature file for windows-x86_64 (*-setup.exe.sig)"
+            echo "Updater signature is required. Ensure bundle.createUpdaterArtifacts=true and TAURI_SIGNING_PRIVATE_KEY is set during build."
             exit 1
           fi
 
-          # Read signatures
-          DARWIN_AARCH64_SIGNATURE=$(cat "$DARWIN_AARCH64_SIG")
-          DARWIN_X64_SIGNATURE=$(cat "$DARWIN_X64_SIG")
-          LINUX_SIGNATURE=$(cat "$LINUX_SIG")
-          WINDOWS_MSI_SIGNATURE=$(cat "$WINDOWS_MSI_SIG" 2>/dev/null || echo "")
+          # Read Windows signature
           WINDOWS_NSIS_SIGNATURE=$(cat "$WINDOWS_NSIS_SIG")
 
-          # Fail fast if any required signature content is empty.
-          empty=0
-          if [ -z "$DARWIN_AARCH64_SIGNATURE" ]; then echo "::error::Empty signature content for darwin-aarch64"; empty=1; fi
-          if [ -z "$DARWIN_X64_SIGNATURE" ]; then echo "::error::Empty signature content for darwin-x86_64"; empty=1; fi
-          if [ -z "$LINUX_SIGNATURE" ]; then echo "::error::Empty signature content for linux-x86_64"; empty=1; fi
-          if [ -z "$WINDOWS_NSIS_SIGNATURE" ]; then echo "::error::Empty signature content for windows-x86_64"; empty=1; fi
-          if [ "$empty" -ne 0 ]; then
-            echo "Refusing to publish an updater manifest with empty signatures."
+          # Check if signature content is empty
+          if [ -z "$WINDOWS_NSIS_SIGNATURE" ]; then
+            echo "::error::Empty signature content for windows-x86_64"
             exit 1
           fi
 
-          # Generate latest.json
+          # Generate latest.json (Windows only)
           cat > latest.json << EOF
           {
             "version": "$VERSION",
             "pub_date": "$PUB_DATE",
             "notes": "See the full changelog at https://github.com/${{ github.repository }}/releases/tag/$GITHUB_REF_NAME",
             "platforms": {
-              "darwin-aarch64": {
-                "signature": "$DARWIN_AARCH64_SIGNATURE",
-                "url": "https://github.com/${{ github.repository }}/releases/download/$GITHUB_REF_NAME/any-code_${VERSION}_aarch64.app.tar.gz"
-              },
-              "darwin-x86_64": {
-                "signature": "$DARWIN_X64_SIGNATURE",
-                "url": "https://github.com/${{ github.repository }}/releases/download/$GITHUB_REF_NAME/any-code_${VERSION}_x64.app.tar.gz"
-              },
-              "linux-x86_64": {
-                "signature": "$LINUX_SIGNATURE",
-                "url": "https://github.com/${{ github.repository }}/releases/download/$GITHUB_REF_NAME/any-code_${VERSION}_amd64.AppImage"
-              },
               "windows-x86_64": {
                 "signature": "$WINDOWS_NSIS_SIGNATURE",
-                "url": "https://github.com/${{ github.repository }}/releases/download/$GITHUB_REF_NAME/any-code_${VERSION}_x64-setup.exe"
+                "url": "https://github.com/${{ github.repository }}/releases/download/$GITHUB_REF_NAME/Fangyu_Code_${VERSION}_x64-setup.exe"
               }
             }
           }
@@ -294,11 +222,9 @@ jobs:
       - name: Upload assets to existing release
         if: steps.check_release.outputs.exists == 'true'
         run: |
-          # Upload all artifacts to existing release
-          find artifacts -type f \( -name "*.dmg" -o -name "*.app.tar.gz" -o -name "*.app.tar.gz.sig" \
-            -o -name "*.msi" -o -name "*.msi.sig" -o -name "*-setup.exe" -o -name "*-setup.exe.sig" \
-            -o -name "*-portable.exe" -o -name "*.AppImage" -o -name "*.AppImage.sig" \
-            -o -name "*.deb" -o -name "*.rpm" \) -exec gh release upload ${{ github.ref_name }} {} --clobber \;
+          # Upload Windows artifacts to existing release
+          find artifacts -type f \( -name "*-setup.exe" -o -name "*-setup.exe.sig" \
+            -o -name "*-portable.exe" \) -exec gh release upload ${{ github.ref_name }} {} --clobber \;
           gh release upload ${{ github.ref_name }} latest.json --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -314,34 +240,20 @@ jobs:
           body: |
             ## Fangyu Code ${{ github.ref_name }}
 
-            ### Downloads
-            Choose the appropriate installer for your platform:
+            ### 下载 Downloads
 
-            - **macOS (Apple Silicon)**: `*-aarch64.dmg` or `*-aarch64.app.tar.gz`
-            - **macOS (Intel)**: `*-x64.dmg` or `*-x64.app.tar.gz`
-            - **Windows (安装版)**: `*-setup.exe` (NSIS) or `*.msi` - **支持自动更新**
-            - **Windows (免安装版)**: `*.exe` (Portable) - 需手动更新
-            - **Linux**: `*.AppImage` or `*.deb`
+            - **Windows (安装版)**: `*-setup.exe` - **支持自动更新**
+            - **Windows (免安装版)**: `*-portable.exe` - 需手动更新
 
-            ### Auto-Update Support
-            **安装版本**（NSIS/MSI）支持自动更新，应用会自动检查并提示更新。
-            **免安装版本**（Portable）不支持自动更新，需要手动下载新版本。
+            ### 自动更新 Auto-Update
+            安装版本支持自动更新，应用会自动检查并提示更新。
 
-            ### What's Changed
-            See the full changelog at https://github.com/${{ github.repository }}/commits/${{ github.ref_name }}
+            ### 更新日志 Changelog
+            详见: https://github.com/${{ github.repository }}/commits/${{ github.ref_name }}
           files: |
-            artifacts/**/*.dmg
-            artifacts/**/*.app.tar.gz
-            artifacts/**/*.app.tar.gz.sig
-            artifacts/**/*.msi
-            artifacts/**/*.msi.sig
             artifacts/**/*-setup.exe
             artifacts/**/*-setup.exe.sig
             artifacts/**/*-portable.exe
-            artifacts/**/*.AppImage
-            artifacts/**/*.AppImage.sig
-            artifacts/**/*.deb
-            artifacts/**/*.rpm
             latest.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
