@@ -129,6 +129,7 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
   // Internal refs
   const messageQueueRef = useRef<AsyncQueue<ClaudeStreamMessage> | null>(null);
   const loadingSessionIdRef = useRef<string | null>(null);
+  const reconnectToSessionRef = useRef<((sessionId: string) => Promise<void>) | null>(null);
 
   /**
    * 获取引擎类型
@@ -354,7 +355,9 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
       if (activeSession) {
         console.log('[useSessionStream] ✅ Found active session, reconnecting...', activeSession);
         setClaudeSessionId(session.id);
-        await reconnectToSession(session.id);
+        if (reconnectToSessionRef.current) {
+          await reconnectToSessionRef.current(session.id);
+        }
         console.log('[useSessionStream] ✅ Reconnected successfully');
       } else {
         console.log('[useSessionStream] ℹ️ No active session found for', session.id);
@@ -459,10 +462,15 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
   useEffect(() => {
     return () => {
       messageQueueRef.current?.done();
-      // 不在这里清理监听器，由组件自己清理
+      // 不在这里清理监听器,由组件自己清理
       // 因为 unlistenRefs 是外部传入的
     };
   }, []);
+
+  // 更新 reconnectToSession ref
+  useEffect(() => {
+    reconnectToSessionRef.current = reconnectToSession;
+  }, [reconnectToSession]);
 
   return {
     loadSessionHistory,

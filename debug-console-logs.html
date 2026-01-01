@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fangyu Code Console Log Collector</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1e1e1e;
+            color: #d4d4d4;
+        }
+        h1 {
+            color: #4ec9b0;
+        }
+        #logs {
+            background: #252526;
+            padding: 15px;
+            border-radius: 5px;
+            max-height: 600px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-left: 3px solid #007acc;
+        }
+        .log-error {
+            border-left-color: #f48771;
+            color: #f48771;
+        }
+        .log-warn {
+            border-left-color: #dcdcaa;
+            color: #dcdcaa;
+        }
+        .log-info {
+            border-left-color: #4ec9b0;
+            color: #4ec9b0;
+        }
+        button {
+            background: #0e639c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px 5px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        button:hover {
+            background: #1177bb;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Fangyu Code 控制台日志收集器</h1>
+    <p>这个页面会帮助你收集 Fangyu Code 的控制台日志。</p>
+
+    <h2>使用说明：</h2>
+    <ol>
+        <li>在 Fangyu Code 中打开开发者工具（F12）</li>
+        <li>在 Console 标签中，粘贴以下代码并按 Enter：</li>
+    </ol>
+
+    <div style="background: #252526; padding: 15px; border-radius: 5px; margin: 20px 0;">
+        <code id="script" style="color: #ce9178;">
+// 收集所有 useSessionStream 相关的日志
+const logs = [];
+const originalLog = console.log;
+const originalError = console.error;
+const originalWarn = console.warn;
+
+console.log = function(...args) {
+    const message = args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ');
+    if (message.includes('[useSessionStream]') || message.includes('checkForActiveSession')) {
+        logs.push({ type: 'log', message, timestamp: new Date().toISOString() });
+    }
+    originalLog.apply(console, args);
+};
+
+console.error = function(...args) {
+    const message = args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ');
+    if (message.includes('[useSessionStream]') || message.includes('checkForActiveSession')) {
+        logs.push({ type: 'error', message, timestamp: new Date().toISOString() });
+    }
+    originalError.apply(console, args);
+};
+
+console.warn = function(...args) {
+    const message = args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ');
+    if (message.includes('[useSessionStream]') || message.includes('checkForActiveSession')) {
+        logs.push({ type: 'warn', message, timestamp: new Date().toISOString() });
+    }
+    originalWarn.apply(console, args);
+};
+
+console.log('✅ 日志收集器已启动！现在重新打开会话，然后运行 window.showLogs() 查看收集到的日志');
+
+window.showLogs = function() {
+    console.log('=== 收集到的日志 ===');
+    logs.forEach(log => {
+        console.log(`[${log.timestamp}] [${log.type}] ${log.message}`);
+    });
+    console.log('=== 日志结束 ===');
+    return logs;
+};
+
+window.clearLogs = function() {
+    logs.length = 0;
+    console.log('✅ 日志已清除');
+};
+        </code>
+    </div>
+
+    <button onclick="copyScript()">📋 复制脚本到剪贴板</button>
+
+    <h2>步骤：</h2>
+    <ol>
+        <li>复制上面的脚本</li>
+        <li>在 Fangyu Code 的控制台中粘贴并运行</li>
+        <li>重新打开一个会话（或刷新页面）</li>
+        <li>在控制台中运行 <code>window.showLogs()</code> 查看日志</li>
+        <li>将日志复制给我分析</li>
+    </ol>
+
+    <h2>快速过滤方法：</h2>
+    <p>或者，你也可以直接在控制台的 Filter 输入框中输入：</p>
+    <div style="background: #252526; padding: 10px; border-radius: 5px; margin: 10px 0;">
+        <code style="color: #ce9178;">useSessionStream</code>
+    </div>
+    <p>这样只会显示包含 "useSessionStream" 的日志。</p>
+
+    <script>
+        function copyScript() {
+            const script = document.getElementById('script').textContent;
+            navigator.clipboard.writeText(script).then(() => {
+                alert('✅ 脚本已复制到剪贴板！\n\n现在：\n1. 打开 Fangyu Code 的开发者工具（F12）\n2. 切换到 Console 标签\n3. 粘贴脚本并按 Enter\n4. 重新打开会话\n5. 运行 window.showLogs() 查看日志');
+            });
+        }
+    </script>
+</body>
+</html>
