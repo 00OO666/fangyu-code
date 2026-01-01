@@ -730,13 +730,13 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
     };
   }, [handleSendPromptWithScroll, setSendPromptCallback]);
 
-  // 🆕 自动继续任务：当 shouldResume 为 true 时，自动发送"继续"
-  useEffect(() => {
-    if (shouldResume && !isLoading && !isStreaming) {
-      console.log('[ClaudeCodeSession] 🚀 Auto-resume triggered - sending "继续"');
-      handleSendPromptWithScroll('继续', 'sonnet');
-    }
-  }, [shouldResume, isLoading, isStreaming, handleSendPromptWithScroll]);
+  // 🆕 自动继续任务：已禁用发送"继续"消息的逻辑（改用 checkForActiveSession 恢复执行，不消耗 token）
+  //   useEffect(() => {
+  //     if (shouldResume && !isLoading && !isStreaming) {
+  //       console.log('[ClaudeCodeSession] 🚀 Auto-resume triggered - sending "继续"');
+  //       handleSendPromptWithScroll('继续', 'sonnet');
+  //     }
+  //   }, [shouldResume, isLoading, isStreaming, handleSendPromptWithScroll]);
 
   // 🆕 设置 UserQuestion 的发送消息回调，用于答案提交后自动发送
   useEffect(() => {
@@ -1622,13 +1622,15 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
           />
 
           {/* 🆕 自动继续指示器 - 智能检测未完成任务（Cost-Effective UX） */}
-          <AutoResumeIndicator
+          {/* AutoResumeIndicator 已禁用 - 现在使用 checkForActiveSession 自动恢复，不需要倒计时 */}
+          {/* <AutoResumeIndicator
             show={!isAutoResumeCancelled && autoResumeCountdown > 0}
             countdown={autoResumeCountdown}
             remainingAttempts={remainingAttempts}
             onCancel={cancelAutoResume}
             onResume={manualResume}
-          />
+          /> */}
+
 
         </ErrorBoundary>
 
