@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Plus, MoreHorizontal, MessageSquare, ArrowLeft, ExternalLink, Zap, Bot, Sparkles, Loader2 } from 'lucide-react';
+import { X, Plus, MoreHorizontal, MessageSquare, ArrowLeft, ExternalLink, Zap, Bot, Sparkles, Loader2, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import {
@@ -29,6 +29,9 @@ import { TabSessionWrapper } from './TabSessionWrapper';
 import { useTabs } from '@/hooks/useTabs';
 import { useSessionSync } from '@/hooks/useSessionSync'; // 🔧 NEW: 会话状态同步
 import { useGlobalTaskState } from '@/hooks/useGlobalTaskState'; // 🆕 全局任务状态
+// ⚠️ useGlobalKeyboardShortcuts 已在 ViewRouter 中调用，不要在这里重复
+import { UnifiedSearchPanel } from '@/components/UnifiedSearchPanel'; // 🆕 统一搜索面板（下拉式）
+import { GlobalNotification } from '@/components/notifications/GlobalNotification'; // 🆕 全局通知组件
 import { selectProjectPath } from '@/lib/sessionHelpers';
 import type { Session } from '@/lib/api';
 
@@ -74,6 +77,17 @@ export const TabManager: React.FC<TabManagerProps> = ({
 
   // 🆕 获取全局任务状态
   const { state: globalTaskState } = useGlobalTaskState();
+
+  // 🆕 统一搜索框状态（由 ViewRouter 通过事件或 Context 控制）
+  const [showUnifiedSearch, setShowUnifiedSearch] = useState(false);
+  const searchTriggerRef = useRef<HTMLButtonElement>(null); // 搜索按钮引用，用于定位搜索面板
+
+  // 监听全局搜索事件（由 ViewRouter 的 useGlobalKeyboardShortcuts 触发）
+  useEffect(() => {
+    const handleOpenUnifiedSearch = () => setShowUnifiedSearch(true);
+    window.addEventListener('open-unified-search', handleOpenUnifiedSearch);
+    return () => window.removeEventListener('open-unified-search', handleOpenUnifiedSearch);
+  }, []);
 
   const [draggedTab, setDraggedTab] = useState<string | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null); // 🔧 NEW: 拖拽悬停的位置
@@ -261,25 +275,25 @@ export const TabManager: React.FC<TabManagerProps> = ({
       <div className={cn("h-full flex flex-col bg-background", className)}>
         {/* 🎨 极简标签页栏 */}
         <div className="flex-shrink-0 border-b border-border bg-background">
-          <div className="flex items-center h-12 px-4 gap-2">
+          <div className="flex items-center h-12 px-2 sm:px-4 gap-1 sm:gap-2">
             {/* 返回按钮 */}
             <Button
               variant="default"
               size="sm"
               onClick={onBack}
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-sm transition-all duration-200 hover:shadow-md border-0"
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-sm transition-all duration-200 hover:shadow-md border-0 flex-shrink-0"
             >
-              <ArrowLeft className="h-4 w-4 mr-1.5" />
-              <span>{t('tabs.back')}</span>
+              <ArrowLeft className="h-4 w-4 sm:mr-1.5" />
+              <span className="hidden sm:inline">{t('tabs.back')}</span>
             </Button>
 
             {/* 分隔线 */}
-            <div className="h-4 w-px bg-border" />
+            <div className="hidden sm:block h-4 w-px bg-border" />
 
             {/* 标签页容器 */}
             <div
               ref={tabsContainerRef}
-              className="flex-1 flex items-center gap-2 overflow-x-auto scrollbar-thin"
+              className="flex-1 flex items-center gap-1 sm:gap-2 overflow-x-auto scrollbar-thin min-w-0"
             >
               <AnimatePresence mode="popLayout">
                 {tabs.map((tab, index) => {
@@ -301,7 +315,7 @@ export const TabManager: React.FC<TabManagerProps> = ({
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.15 }}
                         className={cn(
-                          "group relative flex items-center gap-2 px-3 py-1.5 rounded-lg min-w-[100px] max-w-[200px] flex-shrink-0 cursor-pointer",
+                          "group relative flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 rounded-lg min-w-[80px] sm:min-w-[100px] max-w-[150px] sm:max-w-[200px] flex-shrink-0 cursor-pointer",
                           "transition-colors",
                           tab.isActive
                             ? "bg-muted border border-border text-foreground"
@@ -484,7 +498,47 @@ export const TabManager: React.FC<TabManagerProps> = ({
             </div>
 
             {/* 分隔线 */}
-            <div className="h-4 w-px bg-border" />
+            <div className="hidden sm:block h-4 w-px bg-border" />
+
+            {/* 🆕 搜索框 */}
+            <div className="flex-shrink-0">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    ref={searchTriggerRef}
+                    className="h-8 px-2 md:px-3 rounded-md flex items-center gap-2 hover:bg-muted transition-colors border border-border"
+                    onClick={() => setShowUnifiedSearch(true)}
+                  >
+                    <Search className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                    <span className="hidden md:inline text-sm text-muted-foreground truncate max-w-[120px] lg:max-w-none">搜索 MCP/Skill...</span>
+                    <kbd className="hidden lg:inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+                      <span className="text-xs">⌘</span>⇧P
+                    </kbd>
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <div className="text-xs">
+                    <div className="font-medium mb-1">统一搜索</div>
+                    <div className="text-muted-foreground">快捷键: Ctrl+Shift+P</div>
+                    <div className="text-muted-foreground">搜索 MCP、Skill、插件和 Hooks</div>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+
+            {/* 搜索面板（Portal 渲染） */}
+            <UnifiedSearchPanel
+              open={showUnifiedSearch}
+              onOpenChange={setShowUnifiedSearch}
+              projectPath={tabs.find(t => t.isActive)?.projectPath || tabs.find(t => t.isActive)?.session?.project_path}
+              triggerRef={searchTriggerRef}
+            />
+
+            {/* 🆕 全局通知 - 显示设置更改提示 */}
+            <GlobalNotification className="flex-shrink-0" maxVisible={2} />
+
+            {/* 分隔线 */}
+            <div className="hidden sm:block h-4 w-px bg-border" />
 
             {/* 标签页菜单 */}
             <DropdownMenu>

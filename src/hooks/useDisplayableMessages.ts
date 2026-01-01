@@ -90,6 +90,31 @@ function isWarmupMessage(message: ClaudeStreamMessage): boolean {
 }
 
 /**
+ * 检查消息是否为自动继续消息
+ *
+ * 自动继续消息由系统自动发送，用于在检测到未完成任务时继续执行
+ * 这些消息对用户是透明的，应该在 UI 中隐藏
+ */
+function isAutoContinueMessage(message: ClaudeStreamMessage): boolean {
+  if (message.type !== 'user') return false;
+
+  const content = message.message?.content;
+  let text = '';
+
+  if (typeof content === 'string') {
+    text = content;
+  } else if (Array.isArray(content)) {
+    text = content
+      .filter((item: any) => item.type === 'text')
+      .map((item: any) => item.text || '')
+      .join('');
+  }
+
+  // 检查是否包含自动继续标记
+  return text.includes('__AUTO_CONTINUE__');
+}
+
+/**
  * 过滤出可显示的消息
  *
  * 过滤规则：
@@ -118,6 +143,8 @@ export function useDisplayableMessages(
   return useMemo(() => {
     // 如果需要隐藏 Warmup，先找到所有 Warmup 消息的索引
     const warmupIndices = new Set<number>();
+    // 🆕 找到所有自动继续消息的索引
+    const autoContinueIndices = new Set<number>();
 
     if (hideWarmupMessages) {
       messages.forEach((msg, idx) => {
@@ -129,10 +156,30 @@ export function useDisplayableMessages(
           }
         }
       });
-      
+
     }
 
+    // 🆕 隐藏自动继续消息及其回复（始终隐藏，与 hideWarmupMessages 无关）
+    messages.forEach((msg, idx) => {
+      if (isAutoContinueMessage(msg)) {
+        console.log('[useDisplayableMessages] Found auto-continue message at index', idx);
+        autoContinueIndices.add(idx);
+        // 找到紧跟其后的所有消息，直到下一条用户消息（这些都是自动继续的响应）
+        for (let i = idx + 1; i < messages.length; i++) {
+          if (messages[i].type === 'user') {
+            // 遇到下一条用户消息，停止
+            break;
+          }
+          autoContinueIndices.add(i);
+        }
+      }
+    });
+
     return messages.filter((message, index) => {
+      // 🆕 规则 -1：隐藏自动继续消息及其所有回复（最高优先级）
+      if (autoContinueIndices.has(index)) {
+        return false;
+      }
       // 规则 0：隐藏 Warmup 消息及其回复
       if (hideWarmupMessages && warmupIndices.has(index)) {
         return false;

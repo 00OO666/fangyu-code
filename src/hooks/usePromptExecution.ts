@@ -402,6 +402,13 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
       let processedPrompt = prompt;
       let userInputTranslation: TranslationResult | null = null;
 
+      // 🆕 自动继续标记处理：移除 __AUTO_CONTINUE__ 前缀，后端不需要看到这个标记
+      const isAutoContinue = prompt.startsWith('__AUTO_CONTINUE__');
+      if (isAutoContinue) {
+        processedPrompt = prompt.replace('__AUTO_CONTINUE__', '');
+        console.log('[usePromptExecution] 🔄 Auto-continue detected, sending:', processedPrompt);
+      }
+
       // For resuming sessions, ensure we have the session ID
       if (effectiveSession && !claudeSessionId) {
         setClaudeSessionId(effectiveSession.id);

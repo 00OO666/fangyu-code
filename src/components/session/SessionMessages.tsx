@@ -218,12 +218,14 @@ export const SessionMessages = forwardRef<SessionMessagesRef, SessionMessagesPro
       console.log(`[Prompt Navigation] Scrolling to prompt #${promptIndex} at group index ${targetGroupIndex}`);
 
       // 2. 🚀 强制虚拟列表立即跳转到目标索引（确保元素渲染）
+      // 🔧 FIX: 使用 'center' 对齐，确保目标出现在可视区域中央而非底部
       rowVirtualizer.scrollToIndex(targetGroupIndex, {
-        align: 'start',
+        align: 'center',
         behavior: 'auto',
       });
 
-      // 3. 🚀 等待虚拟列表渲染完成，再通过 DOM 元素精准定位
+      // 3. 🚀 等待虚拟列表渲染完成，再通过 DOM 元素精准定位到顶部
+      // 🔧 FIX: 增加延迟到 150ms，确保虚拟列表完全渲染
       setTimeout(() => {
         if (!parentRef.current) return;
 
@@ -231,19 +233,19 @@ export const SessionMessages = forwardRef<SessionMessagesRef, SessionMessagesPro
         const promptElement = document.querySelector(`[data-prompt-index="${promptIndex}"]`);
 
         if (promptElement) {
-          // 方案 A：使用 scrollIntoView（最精准）
+          // 🔧 FIX: 使用 scrollIntoView 并强制定位到顶部
           promptElement.scrollIntoView({
-            behavior: 'auto',
+            behavior: 'smooth',
             block: 'start',
             inline: 'nearest'
           });
 
-          // 微调：向上偏移 20px，确保标题和时间戳完全可见
+          // 🔧 FIX: 增加偏移量到 60px，确保标题、时间戳和上方留白完全可见
           setTimeout(() => {
             if (parentRef.current) {
-              parentRef.current.scrollTop = Math.max(0, parentRef.current.scrollTop - 20);
+              parentRef.current.scrollTop = Math.max(0, parentRef.current.scrollTop - 60);
             }
-          }, 10);
+          }, 50);
         } else {
           // 方案 B：虚拟列表元素可能还没渲染，使用计算位置
           console.warn(`[Prompt Navigation] DOM element not found, using virtualizer offset`);
@@ -253,10 +255,11 @@ export const SessionMessages = forwardRef<SessionMessagesRef, SessionMessagesPro
           const targetItem = items.find(item => item.index === targetGroupIndex);
 
           if (targetItem && parentRef.current) {
-            parentRef.current.scrollTop = Math.max(0, targetItem.start - 20);
+            // 🔧 FIX: 增加偏移量
+            parentRef.current.scrollTop = Math.max(0, targetItem.start - 60);
           }
         }
-      }, 100);
+      }, 150);
     }
   }));
 

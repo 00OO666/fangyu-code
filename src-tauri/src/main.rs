@@ -56,6 +56,11 @@ use commands::mcp::{
     mcp_toggle_engine_server, mcp_get_engine_servers_with_status,
 };
 use commands::storage::{init_database, AgentDb};
+use commands::chat_history::{
+    delete_chat_session, get_chat_history_stats, get_recent_sessions,
+    get_session_messages, init_chat_history_db, save_chat_message, search_chat_history,
+    update_session_title, ChatHistoryDb,
+};
 
 use commands::clipboard::{read_from_clipboard, save_clipboard_image, write_to_clipboard};
 use commands::config_manager::{
@@ -230,6 +235,10 @@ fn main() {
             // Initialize database for storage operations
             let conn = init_database(&app.handle()).expect("Failed to initialize database");
             app.manage(AgentDb(Mutex::new(conn)));
+
+            // Initialize chat history database for semantic search
+            let history_conn = init_chat_history_db(&app.handle()).expect("Failed to initialize chat history database");
+            app.manage(ChatHistoryDb(Mutex::new(history_conn)));
 
             // Initialize process registry
             app.manage(ProcessRegistryState::default());
@@ -691,6 +700,14 @@ fn main() {
             // Memory Import System (智能记忆导入系统)
             detect_memory_keywords,
             import_memories,
+            // Chat History Retrieval (聊天历史回溯 - 语义搜索)
+            save_chat_message,
+            search_chat_history,
+            get_session_messages,
+            get_recent_sessions,
+            update_session_title,
+            delete_chat_session,
+            get_chat_history_stats,
             // Smart Session Continue (智能会话续接系统)
             commands::session_continue::create_continued_session,
         ])

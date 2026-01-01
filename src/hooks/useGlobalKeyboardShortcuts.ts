@@ -6,6 +6,8 @@ export interface GlobalKeyboardShortcutsConfig {
   onOpenSearch?: () => void;
   /** 🆕 打开提示历史搜索 (Ctrl+R) */
   onOpenPromptHistory?: () => void;
+  /** 🆕 打开统一搜索框 (Ctrl+Shift+P) - MCP/SKILL/插件/Hooks */
+  onOpenUnifiedSearch?: () => void;
   enabled?: boolean;
 }
 
@@ -14,6 +16,7 @@ export function useGlobalKeyboardShortcuts(config: GlobalKeyboardShortcutsConfig
     onOpenSettings,
     onOpenSearch,
     onOpenPromptHistory,
+    onOpenUnifiedSearch,
     enabled = true,
   } = config;
 
@@ -84,6 +87,18 @@ export function useGlobalKeyboardShortcuts(config: GlobalKeyboardShortcutsConfig
         }
         return;
       }
+
+      // Ctrl+Shift+P: 打开统一搜索框 (MCP/SKILL/插件/Hooks)
+      if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key.toLowerCase() === 'p') {
+        event.preventDefault();
+        if (onOpenUnifiedSearch) {
+          onOpenUnifiedSearch();
+        } else {
+          // Fallback: 触发全局事件，让 TabManager 监听
+          window.dispatchEvent(new CustomEvent('open-unified-search'));
+        }
+        return;
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown, { capture: true });
@@ -91,5 +106,5 @@ export function useGlobalKeyboardShortcuts(config: GlobalKeyboardShortcutsConfig
     return () => {
       window.removeEventListener('keydown', handleKeyDown, { capture: true });
     };
-  }, [enabled, onOpenSettings, onOpenSearch, onOpenPromptHistory, switchToTab, tabs]);
+  }, [enabled, onOpenSettings, onOpenSearch, onOpenPromptHistory, onOpenUnifiedSearch, switchToTab, tabs]);
 }

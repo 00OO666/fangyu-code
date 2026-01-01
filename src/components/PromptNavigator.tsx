@@ -675,10 +675,10 @@ export const PromptNavigator: React.FC<PromptNavigatorProps> = ({
                             {prompt.timestamp && (
                               <div className="text-xs text-muted-foreground flex-shrink-0">
                                 {new Date(prompt.timestamp).toLocaleString('zh-CN', {
-                                  month: '2-digit',
-                                  day: '2-digit',
                                   hour: '2-digit',
-                                  minute: '2-digit'
+                                  minute: '2-digit',
+                                  second: '2-digit',
+                                  hour12: false
                                 })}
                               </div>
                             )}

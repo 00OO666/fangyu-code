@@ -160,6 +160,9 @@ export const MCPEnginePanel: React.FC<MCPEnginePanelProps> = ({
     try {
       await api.mcpToggleEngineServer(engine, server.id, server.spec, newEnabled);
 
+      // 🔧 修复：不需要调用 syncSettingsToClaudeJson()，因为 mcpToggleEngineServer 已经直接更新了 ~/.claude.json
+      // 避免从 settings.json 读取旧配置覆盖刚才的更改
+
       // 启用时更新调用时间（视为一次"调用"）
       if (newEnabled) {
         updateCallTime(server.id);

@@ -98,21 +98,71 @@ fn parse_description_from_content(content: &str) -> Option<String> {
 
     // Check for YAML frontmatter
     if lines.len() > 2 && lines[0] == "---" {
-        for line in lines.iter().skip(1) {
+        let mut in_description = false;
+        let mut description_lines: Vec<String> = Vec::new();
+        let mut description_indent = 0;
+
+        for (i, line) in lines.iter().skip(1).enumerate() {
             if *line == "---" {
                 // Found end of frontmatter
                 break;
             }
+
             if line.starts_with("description:") {
-                return Some(line.trim_start_matches("description:").trim().to_string());
+                let value = line.trim_start_matches("description:").trim();
+                if value == "|" || value == ">" {
+                    // Multi-line YAML syntax
+                    in_description = true;
+                    description_indent = 0;
+                } else if !value.is_empty() {
+                    // Single-line description
+                    return Some(value.to_string());
+                }
+            } else if in_description {
+                let trimmed = line.trim();
+
+                // Check if we've hit another key (line starts without indentation and has a colon)
+                if !line.starts_with(' ') && !line.starts_with('\t') && line.contains(':') {
+                    break;
+                }
+
+                // Track indentation
+                if description_indent == 0 && !trimmed.is_empty() {
+                    description_indent = line.len() - line.trim_start().len();
+                }
+
+                // Collect description lines
+                if !trimmed.is_empty() {
+                    description_lines.push(trimmed.to_string());
+                }
             }
+        }
+
+        // Return collected multi-line description
+        if !description_lines.is_empty() {
+            // Take only the first sentence or first 150 characters for brevity
+            let full_desc = description_lines.join(" ");
+            let first_sentence = full_desc
+                .split('。')
+                .next()
+                .or_else(|| full_desc.split('.').next())
+                .unwrap_or(&full_desc);
+
+            // Limit length
+            let desc = if first_sentence.len() > 100 {
+                format!("{}...", &first_sentence.chars().take(100).collect::<String>())
+            } else {
+                first_sentence.to_string()
+            };
+
+            return Some(desc);
         }
     }
 
-    // Fallback: use first non-empty line as description
+    // Fallback: use first non-empty, non-heading line as description
     lines
         .iter()
-        .find(|line| !line.trim().is_empty() && !line.starts_with('#'))
+        .find(|line| !line.trim().is_empty() && !line.starts_with('#') && !line.starts_with("---"))
         .map(|line| line.trim().to_string())
 }
 

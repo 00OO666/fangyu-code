@@ -1,6 +1,7 @@
 pub mod acemcp;
 pub mod auto_update; // 自动更新系统
 pub mod background_task_manager; // 后台任务系统 - Cursor/Windsurf风格
+pub mod chat_history; // 聊天历史回溯 - 语义搜索历史对话
 pub mod checkpoint_manager; // Checkpoint 检查点系统
 pub mod config_manager; // 配置管理中心 - 全局管控配置
 pub mod devtools; // 开发者工具 - F12 打开控制台

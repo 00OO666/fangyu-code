@@ -118,13 +118,68 @@ function extractMessageContent(msg: ClaudeStreamMessage): string {
 }
 
 /**
- * 检测是否有未完成的任务
+ * 从消息中提取最新的 TodoList
  */
-function detectIncompleteTasks(messages: ClaudeStreamMessage[]): boolean {
-  if (!messages || messages.length === 0) return false;
+function extractLatestTodoList(messages: ClaudeStreamMessage[]): any[] | null {
+  // 倒序查找包含 TodoWrite 的消息
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const msg = messages[i];
 
-  console.log('[useAutoResume] 🔍 Checking', messages.length, 'messages for incomplete tasks');
+    // 检查是否是工具调用消息
+    if (msg.type === 'result' || msg.type === 'assistant') {
+      // 尝试从不同的可能字段提取 todos
+      const todos = (msg as any).todos ||
+                   (msg as any).result?.todos ||
+                   (msg as any).message?.content?.todos ||
+                   (msg as any).tool_use?.parameters?.todos;
 
+      if (todos && Array.isArray(todos)) {
+        console.log('[useAutoResume] 📋 Found TodoList with', todos.length, 'items');
+        return todos;
+      }
+    }
+  }
+
+  console.log('[useAutoResume] ℹ️ No TodoList found in messages');
+  return null;
+}
+
+/**
+ * 检测 TodoList 中是否有未完成的任务
+ */
+function detectIncompleteTasksFromTodo(todos: any[]): boolean {
+  const hasInProgress = todos.some(todo =>
+    todo.status === 'in_progress' || todo.status === 'pending'
+  );
+
+  if (hasInProgress) {
+    const inProgressTasks = todos.filter(t => t.status === 'in_progress');
+    const pendingTasks = todos.filter(t => t.status === 'pending');
+    console.log('[useAutoResume] 🎯 Found incomplete tasks:', {
+      in_progress: inProgressTasks.length,
+      pending: pendingTasks.length,
+    });
+
+    // 如果有 in_progress 任务，肯定需要继续
+    if (inProgressTasks.length > 0) {
+      return true;
+    }
+
+    // 如果只有 pending 任务，检查已完成任务的数量
+    // 如果有已完成的任务，说明 Claude 正在执行，需要继续
+    const completedTasks = todos.filter(t => t.status === 'completed');
+    if (completedTasks.length > 0 && pendingTasks.length > 0) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * 检测是否有未完成的任务（基于消息内容）
+ */
+function detectIncompleteTasksFromContent(messages: ClaudeStreamMessage[]): boolean {
   // 倒序检查最近的消息
   for (let i = messages.length - 1; i >= Math.max(0, messages.length - 10); i--) {
     const msg = messages[i];
@@ -176,7 +231,7 @@ function detectIncompleteTasks(messages: ClaudeStreamMessage[]): boolean {
 
       // 如果有继续标记或工具错误，且没有明确结束，认为需要继续
       if ((hasContinueMarker || hasToolError) && !hasEndMarker) {
-        console.log('[useAutoResume] 🎯 Detected incomplete task:', content.slice(0, 100));
+        console.log('[useAutoResume] 🎯 Detected incomplete task from content:', content.slice(0, 100));
         return true;
       }
 
@@ -189,6 +244,27 @@ function detectIncompleteTasks(messages: ClaudeStreamMessage[]): boolean {
   }
 
   return false;
+}
+
+/**
+ * 检测是否有未完成的任务（综合判断）
+ */
+function detectIncompleteTasks(messages: ClaudeStreamMessage[]): boolean {
+  if (!messages || messages.length === 0) return false;
+
+  console.log('[useAutoResume] 🔍 Checking', messages.length, 'messages for incomplete tasks');
+
+  // 🆕 优先级 1: 检查 TodoList 中的 in_progress 状态（最准确）
+  const latestTodos = extractLatestTodoList(messages);
+  if (latestTodos) {
+    const hasTodoIncomplete = detectIncompleteTasksFromTodo(latestTodos);
+    if (hasTodoIncomplete) {
+      return true;
+    }
+  }
+
+  // 🆕 优先级 2: 检查消息内容中的关键词（兜底方案）
+  return detectIncompleteTasksFromContent(messages);
 }
 
 /**

@@ -195,7 +195,9 @@ export const SessionToolbar: React.FC<SessionToolbarProps> = ({
             onOpenChange={setCheckpointPopoverOpen}
             align="end"
             side="bottom"
-            className="w-80 p-0"
+            className="w-[min(20rem,calc(100vw-2rem))] p-0"
+            usePortal={true}
+            viewportPadding={16}
             trigger={
               <Button
                 variant="ghost"

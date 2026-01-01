@@ -253,7 +253,9 @@ export const TodayUsagePopover: React.FC<TodayUsagePopoverProps> = ({
       content={popoverContent}
       side="top"
       align="end"
-      className="w-80 p-0"
+      className="w-[min(20rem,calc(100vw-2rem))] p-0"
+      usePortal={true}
+      viewportPadding={16}
     />
   );
 };

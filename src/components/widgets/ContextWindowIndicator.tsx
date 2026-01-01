@@ -280,7 +280,9 @@ export const ContextWindowIndicator: React.FC<ContextWindowIndicatorProps> = ({
         }
         side="top"
         align="center"
-        className="w-72"
+        className="w-[min(18rem,calc(100vw-2rem))]"
+        usePortal={true}
+        viewportPadding={16}
       />
     </motion.div>
   );

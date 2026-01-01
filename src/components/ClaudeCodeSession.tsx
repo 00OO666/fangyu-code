@@ -50,6 +50,9 @@ import { useCanvasExtractor } from "@/hooks/useCanvasExtractor";
 import { useAutoMCPCallTracker } from "@/hooks/useAutoMCPCallTracker";
 import { useAutoResume } from "@/hooks/useAutoResume";
 import { AutoResumeIndicator } from "./AutoResumeIndicator";
+import { ChatNotification } from "@/components/notifications/ChatNotification";
+import { ToolRecommendationToast } from "./ToolRecommendationToast";
+import { useToolRecommendation } from "@/hooks/useToolRecommendation";
 
 import * as SessionHelpers from '@/lib/sessionHelpers';
 
@@ -283,6 +286,45 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   const messageGroups = useGroupedMessages(displayableMessages, {
     enableSubagentGrouping: true
   });
+
+  // 🆕 智能工具推荐 - 根据对话内容推荐启用 MCP/SKILL/Hook
+  const {
+    recommendations,
+    analyzeContent,
+    dismissRecommendation,
+    clearRecommendations,
+    removeRecommendation,
+  } = useToolRecommendation();
+
+  // 🆕 分析用户消息内容，生成工具推荐
+  useEffect(() => {
+    // 提取最近的用户消息内容
+    const userMessages = messages
+      .filter((m: any) => m.type === 'user' || m.message?.role === 'human')
+      .slice(-3); // 只分析最近 3 条用户消息
+
+    if (userMessages.length > 0) {
+      const content = userMessages
+        .map((m: any) => {
+          const msgContent = m.message?.content;
+          if (typeof msgContent === 'string') return msgContent;
+          if (Array.isArray(msgContent)) {
+            return msgContent
+              .filter((item: any) => item.type === 'text')
+              .map((item: any) => item.text || '')
+              .join(' ');
+          }
+          return '';
+        })
+        .join(' ');
+
+      // 获取已启用的工具 ID（用于过滤已启用的工具）
+      // TODO: 从 API 获取实际启用的工具列表
+      const enabledTools = new Set<string>();
+
+      analyzeContent(content, enabledTools);
+    }
+  }, [messages, analyzeContent]);
 
   // Stable callback for toggling plan mode (prevents unnecessary event listener re-registration)
   const handleTogglePlanMode = useCallback(() => {
@@ -730,13 +772,15 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
     };
   }, [handleSendPromptWithScroll, setSendPromptCallback]);
 
-  // 🆕 自动继续任务：已禁用发送"继续"消息的逻辑（改用 checkForActiveSession 恢复执行，不消耗 token）
-  //   useEffect(() => {
-  //     if (shouldResume && !isLoading && !isStreaming) {
-  //       console.log('[ClaudeCodeSession] 🚀 Auto-resume triggered - sending "继续"');
-  //       handleSendPromptWithScroll('继续', 'sonnet');
-  //     }
-  //   }, [shouldResume, isLoading, isStreaming, handleSendPromptWithScroll]);
+  // 🆕 自动继续任务：检测到未完成任务时自动发送"继续"
+  // 使用特殊标记 __AUTO_CONTINUE__ 让 UI 可以识别并隐藏这条消息
+  useEffect(() => {
+    if (shouldResume && !isLoading && !isStreaming && isActive) {
+      console.log('[ClaudeCodeSession] 🚀 Auto-resume triggered - sending "继续" (auto)');
+      // 发送带特殊标记的继续消息
+      handleSendPromptWithScroll('__AUTO_CONTINUE__继续', 'sonnet');
+    }
+  }, [shouldResume, isLoading, isStreaming, isActive, handleSendPromptWithScroll]);
 
   // 🆕 设置 UserQuestion 的发送消息回调，用于答案提交后自动发送
   useEffect(() => {
@@ -1575,6 +1619,9 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
 
         {/* Floating Prompt Input - 输入区域 */}
         <ErrorBoundary>
+          {/* 操作通知 - 显示在输入框上方 */}
+          <ChatNotification />
+
           {/* ✅ 重构：输入区域作为 Flex 容器的一部分，不再使用 fixed 定位 */}
           <FloatingPromptInput
             className="flex-shrink-0 transition-[left] duration-300"
@@ -1678,6 +1725,14 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
         onClose={() => setShowCanvas(false)}
         extractedCode={extractedCode?.code || ''}
         language={extractedCode?.language || 'tsx'}
+      />
+
+      {/* 🆕 智能工具推荐提示 */}
+      <ToolRecommendationToast
+        recommendations={recommendations}
+        onDismiss={dismissRecommendation}
+        onRemove={removeRecommendation}
+        onClearAll={clearRecommendations}
       />
 
       {/* 🆕 项目级 MCP 快捷配置对话框 */}

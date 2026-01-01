@@ -1,6 +1,7 @@
-import React, { useRef, useEffect, useCallback } from 'react';
+import React, { useRef, useEffect, useCallback, useState } from 'react';
 import { ClaudeCodeSession } from './ClaudeCodeSession';
 import { useTabSession, useTabs } from '@/hooks/useTabs';
+import { useExecutionTracking } from '@/hooks/useExecutionTracking';
 import type { Session } from '@/lib/api';
 
 interface TabSessionWrapperProps {
@@ -29,6 +30,21 @@ const TabSessionWrapperComponent: React.FC<TabSessionWrapperProps> = ({
   const sessionRef = useRef<{ hasChanges: boolean; sessionId: string | null }>({
     hasChanges: false,
     sessionId: null,
+  });
+
+  // 🆕 执行状态追踪 - 记录是否正在执行
+  const [isCurrentlyStreaming, setIsCurrentlyStreaming] = useState(false);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [currentEngine, setCurrentEngine] = useState<'claude' | 'codex' | 'gemini'>('claude');
+
+  // 🆕 集成 GlobalExecutionContext
+  useExecutionTracking({
+    tabId,
+    isLoading: isCurrentlyStreaming,
+    sessionId: currentSessionId,
+    projectPath: initialProjectPath || session?.project_path || '',
+    engine: currentEngine,
+    isActive,
   });
 
   // 🔧 NEW: Register cleanup callback for proper resource management
@@ -74,6 +90,7 @@ const TabSessionWrapperComponent: React.FC<TabSessionWrapperProps> = ({
 
   // 🆕 Handle engine change - 更新标签页显示的引擎类型
   const handleEngineChange = useCallback((engine: 'claude' | 'codex' | 'gemini') => {
+    setCurrentEngine(engine);
     updateEngine(engine);
   }, [updateEngine]);
 
@@ -88,6 +105,9 @@ const TabSessionWrapperComponent: React.FC<TabSessionWrapperProps> = ({
   // 🔧 性能修复：使用 useCallback 避免无限渲染循环（从 1236 renders/s 降至 1 render/s）
   const handleStreamingChange = useCallback((isStreaming: boolean, sessionId: string | null) => {
     sessionRef.current.sessionId = sessionId;
+    // 🆕 更新执行追踪状态
+    setIsCurrentlyStreaming(isStreaming);
+    setCurrentSessionId(sessionId);
     updateStreaming(isStreaming, sessionId);
     onStreamingChange?.(isStreaming, sessionId);
 

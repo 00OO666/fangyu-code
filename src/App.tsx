@@ -5,6 +5,7 @@ import { TabProvider } from "@/hooks/useTabs";
 import { UpdateProvider } from "@/contexts/UpdateContext";
 import { OutputCacheProvider } from "@/lib/outputCache";
 import { GlobalTaskStateProvider } from "@/hooks/useGlobalTaskState";
+// 🔧 FIX: 移除 GlobalExecutionProvider，改用全局对象避免 hooks 规则问题
 import { PromptQueueProvider } from "@/hooks/usePromptQueue";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ViewRouter } from "@/components/layout/ViewRouter";

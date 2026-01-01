@@ -1032,18 +1032,23 @@ pub async fn mcp_toggle_engine_server(
         // 启用：添加到配置文件
         crate::mcp::validate_server_spec(&server_spec)?;
         crate::mcp::sync_server_to_app(&id, &server_spec, &app_type)?;
-        Ok(format!(
-            "已在 {} 引擎中启用 MCP 服务器 '{}'",
-            engine, id
-        ))
     } else {
         // 禁用：从配置文件中移除（但保留在注册表中）
         crate::mcp::remove_server_from_app(&id, &app_type)?;
-        Ok(format!(
-            "已在 {} 引擎中禁用 MCP 服务器 '{}'",
-            engine, id
-        ))
     }
+
+    // 🆕 实时同步：自动同步 ~/.claude.json → ~/.claude/settings.json
+    // 确保 Fangyu Code UI 显示与实际生效的配置一致
+    if let Err(e) = crate::commands::claude::sync_claude_json_to_settings().await {
+        log::warn!("⚠️  同步配置到 settings.json 失败: {}", e);
+        // 不阻止主操作，继续返回成功
+    }
+
+    let action = if enabled { "已启用" } else { "已禁用" };
+    Ok(format!(
+        "已在 {} 引擎中{} MCP 服务器 '{}'",
+        engine, action, id
+    ))
 }
 
 /// 带启用状态的 MCP 服务器条目

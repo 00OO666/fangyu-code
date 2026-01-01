@@ -584,10 +584,8 @@ const FloatingPromptInputInner = (
         if (textarea) textarea.style.height = 'auto';
       }, 0);
 
-      // 🆕 插队模式：添加特殊标记让 AI 知道这是即时指导
-      const promptToSend = sendMode === 'interrupt'
-        ? `【即时指导】${finalPrompt}`
-        : finalPrompt;
+      // 插队模式：直接发送，不添加前缀
+      const promptToSend = finalPrompt;
 
       // 🆕 插队模式需要 forceImmediate=true 绕过 usePromptExecution 的队列检查
       const forceImmediate = sendMode === 'interrupt';
@@ -622,8 +620,8 @@ const FloatingPromptInputInner = (
     if (item) {
       promptQueue.dequeue(itemId);
       if (isLoading) {
-        // 插队模式：添加前缀
-        onSend(`【即时指导】${item.prompt}`, item.model, undefined, true);
+        // 插队模式：直接发送
+        onSend(item.prompt, item.model, undefined, true);
       } else {
         // 直接发送：不添加前缀
         onSend(item.prompt, item.model, undefined, false);

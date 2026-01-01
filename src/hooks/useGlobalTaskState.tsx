@@ -13,7 +13,8 @@
  * @module useGlobalTaskState
  */
 
-import { createContext, useContext, useCallback, useRef, useSyncExternalStore, ReactNode } from 'react';
+import { createContext, useContext, useCallback, useRef, useSyncExternalStore, ReactNode, useEffect } from 'react';
+import { emitWindowSyncEvent, onWindowSyncEvent } from '@/lib/windowManager';
 
 // ============================================================================
 // Type Definitions
@@ -91,6 +92,9 @@ class GlobalTaskStore {
   private listeners: Set<Listener> = new Set();
   private taskListeners: Map<string, Set<(task: TaskInfo | undefined) => void>> = new Map();
 
+  // 🆕 跨窗口同步标记（防止循环触发）
+  private isProcessingRemoteUpdate = false;
+
   getSnapshot = (): GlobalTaskState => {
     return this.state;
   };
@@ -102,6 +106,69 @@ class GlobalTaskStore {
 
   private notify = () => {
     this.listeners.forEach(listener => listener());
+  };
+
+  // 🆕 广播任务状态到其他窗口
+  private broadcastTaskUpdate = async (task: TaskInfo, action: 'register' | 'update' | 'remove') => {
+    // 如果正在处理远程更新，不要再广播（防止循环）
+    if (this.isProcessingRemoteUpdate) return;
+
+    try {
+      await emitWindowSyncEvent({
+        type: 'session_update',
+        tabId: task.tabId,
+        sessionId: task.sessionId,
+        projectPath: task.projectPath,
+        data: {
+          action,
+          task: {
+            ...task,
+            // 转换 Map 不能 JSON 序列化的问题
+          },
+        },
+      });
+      console.debug('[GlobalTaskState] Broadcasted task update:', action, task.taskId);
+    } catch (error) {
+      console.warn('[GlobalTaskState] Failed to broadcast task update:', error);
+    }
+  };
+
+  // 🆕 处理来自其他窗口的任务更新
+  handleRemoteTaskUpdate = (data: { action: string; task: TaskInfo }) => {
+    this.isProcessingRemoteUpdate = true;
+
+    try {
+      const { action, task } = data;
+
+      switch (action) {
+        case 'register':
+        case 'update':
+          // 更新或添加任务
+          this.state = {
+            ...this.state,
+            tasks: new Map(this.state.tasks).set(task.taskId, task),
+          };
+          this.updateActiveCount();
+          this.notify();
+          this.notifyTaskListeners(task.taskId, task);
+          console.debug('[GlobalTaskState] Applied remote task update:', action, task.taskId);
+          break;
+
+        case 'remove':
+          // 移除任务
+          const tasks = new Map(this.state.tasks);
+          if (tasks.delete(task.taskId)) {
+            this.state = { ...this.state, tasks };
+            this.updateActiveCount();
+            this.notify();
+            this.notifyTaskListeners(task.taskId, undefined);
+            console.debug('[GlobalTaskState] Applied remote task removal:', task.taskId);
+          }
+          break;
+      }
+    } finally {
+      this.isProcessingRemoteUpdate = false;
+    }
   };
 
   private notifyTaskListeners = (taskId: string, task: TaskInfo | undefined) => {
@@ -136,6 +203,9 @@ class GlobalTaskStore {
     this.notify();
     this.notifyTaskListeners(info.taskId, task);
 
+    // 🆕 广播到其他窗口
+    this.broadcastTaskUpdate(task, 'register');
+
     console.debug('[GlobalTaskState] Task registered:', info.taskId, info.status);
   };
 
@@ -166,6 +236,9 @@ class GlobalTaskStore {
     this.notify();
     this.notifyTaskListeners(taskId, updated);
 
+    // 🆕 广播到其他窗口
+    this.broadcastTaskUpdate(updated, 'update');
+
     console.debug('[GlobalTaskState] Task status updated:', taskId, status);
   };
 
@@ -186,9 +259,15 @@ class GlobalTaskStore {
 
     this.notify();
     this.notifyTaskListeners(taskId, updated);
+
+    // 🆕 广播到其他窗口
+    this.broadcastTaskUpdate(updated, 'update');
   };
 
   removeTask = (taskId: string) => {
+    const existing = this.state.tasks.get(taskId);
+    if (!existing) return;
+
     const tasks = new Map(this.state.tasks);
     const removed = tasks.delete(taskId);
 
@@ -197,6 +276,9 @@ class GlobalTaskStore {
       this.updateActiveCount();
       this.notify();
       this.notifyTaskListeners(taskId, undefined);
+
+      // 🆕 广播到其他窗口
+      this.broadcastTaskUpdate(existing, 'remove');
 
       console.debug('[GlobalTaskState] Task removed:', taskId);
     }
@@ -301,6 +383,37 @@ export const GlobalTaskStateProvider: React.FC<GlobalTaskStateProviderProps> = (
     globalTaskStore.getSnapshot,
     globalTaskStore.getSnapshot // SSR fallback (same as client)
   );
+
+  // 🆕 监听其他窗口的任务状态更新
+  useEffect(() => {
+    // ⚠️ 临时禁用：避免在 TabProvider 外部触发问题
+    // TODO: 移动到 TabProvider 内部或使用更安全的初始化方式
+    return;
+
+    /* 原代码暂时注释
+    let unlisten: (() => void) | null = null;
+
+    const setupListener = async () => {
+      try {
+        unlisten = await onWindowSyncEvent((event) => {
+          // 只处理 session_update 类型的事件
+          if (event.type === 'session_update' && event.data?.action && event.data?.task) {
+            globalTaskStore.handleRemoteTaskUpdate(event.data);
+          }
+        });
+        console.debug('[GlobalTaskState] Cross-window sync listener initialized');
+      } catch (error) {
+        console.warn('[GlobalTaskState] Failed to setup cross-window listener:', error);
+      }
+    };
+
+    setupListener();
+
+    return () => {
+      if (unlisten) unlisten();
+    };
+    */
+  }, []);
 
   const actions: GlobalTaskActions = {
     registerTask: globalTaskStore.registerTask,

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ✨ REFACTORED: useFirstLaunchChangelog Hook (Phase 2 - Task 6)
  *
  * 检测首次启动新版本，显示更新日志
@@ -17,7 +17,7 @@ import { useState, useEffect } from 'react';
 import { getVersion } from '@tauri-apps/api/app';
 
 const STORAGE_KEY = 'fangyu-code-last-seen-version';
-const FALLBACK_VERSION = '1.5.2'; // 🔧 Fallback 版本（获取失败时使用）
+const FALLBACK_VERSION = '2.0.0'; // 🔧 Fallback 版本（获取失败时使用）
 
 // 🔧 DEBUG: 全局变量用于强制显示更新日志（调试用）
 declare global {
@@ -29,6 +29,32 @@ declare global {
 
 // 版本更新日志（从新到旧）
 export const CHANGELOGS = {
+  '2.0.0': {
+    title: 'v2.0.0 - 🎉 重大更新：聊天历史回溯系统',
+    date: '2026-01-02',
+    features: [
+      '📚 聊天历史回溯系统 - 再也不怕忘记"上次让你帮我弄的那个功能"',
+      '🔍 FTS5 全文搜索 - 秒速搜索历史对话，支持模糊匹配和语义理解',
+      '💾 自动保存所有对话 - SQLite 数据库存储，WAL 模式 + 6 项索引优化',
+      '📊 会话统计 - 总消息数、Token 使用量、数据库大小一目了然',
+      '⚡ 性能优化 - 智能索引 + 自动 FTS5 同步触发器，搜索速度极快',
+      '🎯 上下文加载 - 点击搜索结果，立即加载历史对话上下文到当前会话',
+      '🔮 Phase 2 规划 - 预留向量 embedding 字段，未来支持 OpenAI/Ollama 语义搜索',
+    ],
+    improvements: [
+      '数据库架构 - chat_sessions（会话元数据）+ chat_messages（消息内容）+ chat_messages_fts（全文索引）',
+      '搜索界面优化 - 支持最近会话列表、搜索结果高亮、相对时间显示',
+      '自动保存 Hook - useChatHistorySaver 自动记录用户/AI 消息 + Token 统计',
+      '历史搜索面板 - HistorySearchPanel.tsx 提供直观的搜索和浏览界面',
+    ],
+    technical: [
+      '后端 API: save_chat_message, search_chat_history, get_session_messages, get_recent_sessions',
+      '数据库: chat_history.db (WAL 模式, 10MB 缓存, 30GB mmap)',
+      '索引优化: session_id, timestamp, project_path, model_timestamp 复合索引',
+      'FTS5 自动同步: 三个触发器（INSERT/UPDATE/DELETE）自动维护全文索引',
+    ],
+  },
+
   '1.5.2': {
     title: 'v1.5.2 - 🔧 修复自动继续功能',
     date: '2026-01-01',
