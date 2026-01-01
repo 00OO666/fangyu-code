@@ -14,11 +14,13 @@ import {
   Edit,
   Power,
   Clock,
+  Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
 import { api, type MCPServerSpec, type McpServerWithStatus } from "@/lib/api";
 import { copyTextToClipboard } from "@/lib/clipboard";
 import { MCPServerDialog } from "./MCPServerDialog";
@@ -72,6 +74,7 @@ export const MCPEnginePanel: React.FC<MCPEnginePanelProps> = ({
     id: string;
     spec: MCPServerSpec;
   } | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // 使用 MCP 调用时间追踪 hook
   const { callTimes, updateCallTime, getCallTime, formatCallTime, formatCallTimeFull } = useMCPCallTimes(engine);
@@ -85,6 +88,22 @@ export const MCPEnginePanel: React.FC<MCPEnginePanelProps> = ({
       return timeB - timeA;
     });
   }, [servers, callTimes]);
+
+  // 过滤后的服务器列表
+  const filteredServers = useMemo(() => {
+    if (!searchQuery) return sortedServers;
+
+    const query = searchQuery.toLowerCase();
+    return sortedServers.filter(server => {
+      const description = getMCPDescription(server.id);
+      return (
+        server.id.toLowerCase().includes(query) ||
+        server.spec.command?.toLowerCase().includes(query) ||
+        server.spec.url?.toLowerCase().includes(query) ||
+        description.toLowerCase().includes(query)
+      );
+    });
+  }, [sortedServers, searchQuery]);
 
   // 加载该引擎的服务器列表
   useEffect(() => {
@@ -500,22 +519,47 @@ export const MCPEnginePanel: React.FC<MCPEnginePanelProps> = ({
         </div>
       </div>
 
+      {/* 搜索框 */}
+      <div className="relative mb-4">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="搜索 MCP 工具..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-9"
+        />
+      </div>
+
       {/* 服务器列表 */}
       {loading ? (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
-      ) : servers.length === 0 ? (
+      ) : filteredServers.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <div
-            className="p-4 rounded-full mb-4"
-            style={{ backgroundColor: `${engineColor}20` }}
-          >
-            <EngineIcon className="h-12 w-12" />
-          </div>
-          <p className="text-muted-foreground mb-2 font-medium">
-            暂无 MCP 工具
-          </p>
+          {searchQuery ? (
+            <>
+              <Search className="h-12 w-12 text-muted-foreground mb-4" />
+              <p className="text-muted-foreground mb-2 font-medium">
+                未找到匹配的 MCP 工具
+              </p>
+              <p className="text-sm text-muted-foreground">
+                尝试使用不同的关键词搜索
+              </p>
+            </>
+          ) : (
+            <>
+              <div
+                className="p-4 rounded-full mb-4"
+                style={{ backgroundColor: `${engineColor}20` }}
+              >
+                <EngineIcon className="h-12 w-12" />
+              </div>
+              <p className="text-muted-foreground mb-2 font-medium">
+                暂无 MCP 工具
+              </p>
+            </>
+          )}
           <p className="text-sm text-muted-foreground">
             为 {engineLabel} 添加 MCP 工具以扩展功能
           </p>
@@ -523,7 +567,7 @@ export const MCPEnginePanel: React.FC<MCPEnginePanelProps> = ({
       ) : (
         <div className="space-y-3">
           <AnimatePresence>
-            {sortedServers.map((server, index) => renderServerItem(server, index))}
+            {filteredServers.map((server, index) => renderServerItem(server, index))}
           </AnimatePresence>
         </div>
       )}
