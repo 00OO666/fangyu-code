@@ -738,7 +738,7 @@ export const ControlBar: React.FC<ControlBarProps> = ({
       )}
 
       {/* Send/Cancel Button */}
-      {isLoading ? (
+      {isLoading && (
         <Button
           onClick={onCancel}
           variant="destructive"
@@ -748,16 +748,15 @@ export const ControlBar: React.FC<ControlBarProps> = ({
         >
           {t('buttons.cancel')}
         </Button>
-      ) : (
-        <Button
-          onClick={onSend}
-          disabled={(!prompt.trim() && !hasAttachments) || disabled}
-          size="default"
-          className="h-8 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-sm transition-all duration-200"
-        >
-          {t('promptInput.send')}
-        </Button>
       )}
+      <Button
+        onClick={onSend}
+        disabled={(!prompt.trim() && !hasAttachments) || disabled}
+        size="default"
+        className="h-8 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-sm transition-all duration-200"
+      >
+        {t('promptInput.send')}
+      </Button>
     </div>
   );
 };
