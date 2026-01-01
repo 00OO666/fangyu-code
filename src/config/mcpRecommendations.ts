@@ -289,7 +289,6 @@ export const MCP_RECOMMENDATIONS: Record<ProjectType, MCPRecommendation[]> = {
     { serverId: 'filesystem', name: 'Filesystem', reason: '读取项目文件', strength: 'required' },
     { serverId: 'fetch', name: 'Fetch', reason: 'API 测试', strength: 'recommended' },
     { serverId: 'postgres', name: 'PostgreSQL', reason: '数据库操作', strength: 'optional' },
-    { serverId: 'redis', name: 'Redis', reason: '缓存操作', strength: 'optional' },
   ],
   'backend-python': [
     { serverId: 'filesystem', name: 'Filesystem', reason: '读取 Python 文件', strength: 'required' },
@@ -298,7 +297,7 @@ export const MCP_RECOMMENDATIONS: Record<ProjectType, MCPRecommendation[]> = {
   ],
   'backend-php': [
     { serverId: 'filesystem', name: 'Filesystem', reason: '读取 PHP 文件', strength: 'required' },
-    { serverId: 'mysql', name: 'MySQL', reason: 'PbootCMS 使用 MySQL', strength: 'recommended' },
+    { serverId: 'sqlite', name: 'SQLite', reason: '本地数据库操作', strength: 'recommended' },
     { serverId: 'fetch', name: 'Fetch', reason: '外部 API 请求', strength: 'optional' },
   ],
   'fullstack': [
@@ -312,8 +311,8 @@ export const MCP_RECOMMENDATIONS: Record<ProjectType, MCPRecommendation[]> = {
   ],
   'devops': [
     { serverId: 'filesystem', name: 'Filesystem', reason: '读取配置文件', strength: 'required' },
-    { serverId: 'docker', name: 'Docker', reason: '容器操作', strength: 'recommended' },
-    { serverId: 'kubernetes', name: 'Kubernetes', reason: 'K8s 集群管理', strength: 'optional' },
+    { serverId: 'github', name: 'GitHub', reason: 'CI/CD 和仓库管理', strength: 'recommended' },
+    { serverId: 'fetch', name: 'Fetch', reason: 'API 请求', strength: 'optional' },
   ],
   'data-analysis': [
     { serverId: 'filesystem', name: 'Filesystem', reason: '读取数据文件', strength: 'required' },
@@ -392,3 +391,52 @@ export function generateMCPDocumentation(projectType: ProjectType): string {
 
   return doc;
 }
+
+/**
+ * MCP 验证状态
+ */
+export type MCPVerificationStatus = 'official' | 'community' | 'unverified';
+
+/**
+ * 获取 MCP 的验证状态
+ */
+export function getMCPVerificationStatus(serverId: string): MCPVerificationStatus {
+  // 检查是否是官方 MCP
+  if (isOfficialMCP(serverId)) {
+    return 'official';
+  }
+
+  // 检查是否是社区验证的 MCP（可以由用户自定义）
+  // 这里可以从配置文件读取用户自定义的社区验证列表
+  // 暂时返回 unverified
+  return 'unverified';
+}
+
+/**
+ * 获取验证状态的显示标签
+ */
+export function getVerificationLabel(status: MCPVerificationStatus): string {
+  switch (status) {
+    case 'official':
+      return '官方';
+    case 'community':
+      return '社区';
+    case 'unverified':
+      return '未验证';
+  }
+}
+
+/**
+ * 获取验证状态的颜色类名
+ */
+export function getVerificationColor(status: MCPVerificationStatus): string {
+  switch (status) {
+    case 'official':
+      return 'text-green-600 bg-green-50 border-green-200';
+    case 'community':
+      return 'text-blue-600 bg-blue-50 border-blue-200';
+    case 'unverified':
+      return 'text-gray-600 bg-gray-50 border-gray-200';
+  }
+}
+
