@@ -17,7 +17,7 @@ import { useState, useEffect } from 'react';
 import { getVersion } from '@tauri-apps/api/app';
 
 const STORAGE_KEY = 'fangyu-code-last-seen-version';
-const FALLBACK_VERSION = '1.5.1'; // 🔧 Fallback 版本（获取失败时使用）
+const FALLBACK_VERSION = '1.5.2'; // 🔧 Fallback 版本（获取失败时使用）
 
 // 🔧 DEBUG: 全局变量用于强制显示更新日志（调试用）
 declare global {
@@ -29,6 +29,19 @@ declare global {
 
 // 版本更新日志（从新到旧）
 export const CHANGELOGS = {
+  '1.5.2': {
+    title: 'v1.5.2 - 🔧 修复自动继续功能',
+    date: '2026-01-01',
+    bugFixes: [
+      '修复自动继续功能 - 改用 checkForActiveSession 恢复执行，不消耗 token',
+      '移除发送"继续"消息的逻辑 - 现在通过检测后端正在运行的会话自动恢复',
+      '移除倒计时提示 - 自动恢复不需要用户确认',
+    ],
+    improvements: [
+      '优化会话恢复机制 - 重新打开应用时自动检测并恢复正在执行的任务',
+      '不发送任何新消息 - 完全不消耗 token',
+    ],
+  },
   '1.5.1': {
     title: 'v1.5.1 - 🐛 紧急修复：输入框无法输入问题',
     date: '2026-01-01',
