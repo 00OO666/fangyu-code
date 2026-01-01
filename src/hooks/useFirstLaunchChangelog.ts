@@ -17,7 +17,7 @@ import { useState, useEffect } from 'react';
 import { getVersion } from '@tauri-apps/api/app';
 
 const STORAGE_KEY = 'fangyu-code-last-seen-version';
-const FALLBACK_VERSION = '1.5.0'; // 🔧 Fallback 版本（获取失败时使用）
+const FALLBACK_VERSION = '1.5.1'; // 🔧 Fallback 版本（获取失败时使用）
 
 // 🔧 DEBUG: 全局变量用于强制显示更新日志（调试用）
 declare global {
@@ -29,6 +29,14 @@ declare global {
 
 // 版本更新日志（从新到旧）
 export const CHANGELOGS = {
+  '1.5.1': {
+    title: 'v1.5.1 - 🐛 紧急修复：输入框无法输入问题',
+    date: '2026-01-01',
+    bugFixes: [
+      '修复输入框无法输入文字的严重 Bug - 优化 disabled 逻辑，检查整个 effectiveSession 对象而不是只检查 id 属性',
+      '修复历史会话输入框被错误禁用 - 避免边缘情况导致的输入框禁用',
+    ],
+  },
   '1.5.0': {
     title: 'v1.5.0 - 🎯 队列功能全面升级 + 智能优化 + Bug 修复',
     date: '2026-01-01',
