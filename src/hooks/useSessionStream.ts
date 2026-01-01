@@ -129,7 +129,6 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
   // Internal refs
   const messageQueueRef = useRef<AsyncQueue<ClaudeStreamMessage> | null>(null);
   const loadingSessionIdRef = useRef<string | null>(null);
-  const reconnectToSessionRef = useRef<((sessionId: string) => Promise<void>) | null>(null);
 
   /**
    * 获取引擎类型
@@ -315,59 +314,6 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
   ]);
 
   /**
-   * 检查活跃会话
-   */
-  const checkForActiveSession = useCallback(async () => {
-    console.log('[useSessionStream] 🔍 checkForActiveSession called', { session: session?.id });
-
-    if (!session) {
-      console.log('[useSessionStream] ⚠️ No session, skipping check');
-      return;
-    }
-
-    const engine = getEngine();
-    console.log('[useSessionStream] 🔧 Engine:', engine);
-
-    if (engine === 'codex' || engine === 'gemini') {
-      console.log('[useSessionStream] ⚠️ Codex/Gemini engine, skipping check');
-      return;
-    }
-
-    const currentSessionId = session.id;
-
-    try {
-      console.log('[useSessionStream] 📡 Fetching active sessions...');
-      const activeSessions = await api.listRunningClaudeSessions();
-      console.log('[useSessionStream] 📊 Active sessions:', activeSessions.length);
-
-      if (loadingSessionIdRef.current !== currentSessionId) {
-        console.log('[useSessionStream] ⚠️ Session ID mismatch, aborting');
-        return;
-      }
-
-      const activeSession = activeSessions.find((s: any) => {
-        if ('process_type' in s && s.process_type && 'ClaudeSession' in s.process_type) {
-          return (s.process_type as any).ClaudeSession.session_id === session.id;
-        }
-        return false;
-      });
-
-      if (activeSession) {
-        console.log('[useSessionStream] ✅ Found active session, reconnecting...', activeSession);
-        setClaudeSessionId(session.id);
-        if (reconnectToSessionRef.current) {
-          await reconnectToSessionRef.current(session.id);
-        }
-        console.log('[useSessionStream] ✅ Reconnected successfully');
-      } else {
-        console.log('[useSessionStream] ℹ️ No active session found for', session.id);
-      }
-    } catch (err) {
-      console.error('[useSessionStream] ❌ Failed to check active sessions:', err);
-    }
-  }, [session, getEngine, setClaudeSessionId]);
-
-  /**
    * 重新连接到会话
    */
   const reconnectToSession = useCallback(async (sessionId: string) => {
@@ -458,6 +404,58 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
     processMessage,
   ]);
 
+  /**
+   * 检查活跃会话
+   */
+  const checkForActiveSession = useCallback(async () => {
+    console.log('[useSessionStream] 🔍 checkForActiveSession called', { session: session?.id });
+
+    if (!session) {
+      console.log('[useSessionStream] ⚠️ No session, skipping check');
+      return;
+    }
+
+    const engine = getEngine();
+    console.log('[useSessionStream] 🔧 Engine:', engine);
+
+    if (engine === 'codex' || engine === 'gemini') {
+      console.log('[useSessionStream] ⚠️ Codex/Gemini engine, skipping check');
+      return;
+    }
+
+    const currentSessionId = session.id;
+
+    try {
+      console.log('[useSessionStream] 📡 Fetching active sessions...');
+      const activeSessions = await api.listRunningClaudeSessions();
+      console.log('[useSessionStream] 📊 Active sessions:', activeSessions.length);
+
+      if (loadingSessionIdRef.current !== currentSessionId) {
+        console.log('[useSessionStream] ⚠️ Session ID mismatch, aborting');
+        return;
+      }
+
+      const activeSession = activeSessions.find((s: any) => {
+        if ('process_type' in s && s.process_type && 'ClaudeSession' in s.process_type) {
+          return (s.process_type as any).ClaudeSession.session_id === session.id;
+        }
+        return false;
+      });
+
+      if (activeSession) {
+        console.log('[useSessionStream] ✅ Found active session, reconnecting...', activeSession);
+        setClaudeSessionId(session.id);
+        await reconnectToSession(session.id);
+        console.log('[useSessionStream] ✅ Reconnected successfully');
+      } else {
+        console.log('[useSessionStream] ℹ️ No active session found for', session.id);
+      }
+    } catch (err) {
+      console.error('[useSessionStream] ❌ Failed to check active sessions:', err);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session, getEngine, setClaudeSessionId]);
+
   // 清理（组件卸载时）
   useEffect(() => {
     return () => {
@@ -466,11 +464,6 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
       // 因为 unlistenRefs 是外部传入的
     };
   }, []);
-
-  // 更新 reconnectToSession ref
-  useEffect(() => {
-    reconnectToSessionRef.current = reconnectToSession;
-  }, [reconnectToSession]);
 
   return {
     loadSessionHistory,
