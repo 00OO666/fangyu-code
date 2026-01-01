@@ -317,17 +317,32 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
    * 检查活跃会话
    */
   const checkForActiveSession = useCallback(async () => {
-    if (!session) return;
+    console.log('[useSessionStream] 🔍 checkForActiveSession called', { session: session?.id });
+
+    if (!session) {
+      console.log('[useSessionStream] ⚠️ No session, skipping check');
+      return;
+    }
 
     const engine = getEngine();
-    if (engine === 'codex' || engine === 'gemini') return;
+    console.log('[useSessionStream] 🔧 Engine:', engine);
+
+    if (engine === 'codex' || engine === 'gemini') {
+      console.log('[useSessionStream] ⚠️ Codex/Gemini engine, skipping check');
+      return;
+    }
 
     const currentSessionId = session.id;
 
     try {
+      console.log('[useSessionStream] 📡 Fetching active sessions...');
       const activeSessions = await api.listRunningClaudeSessions();
+      console.log('[useSessionStream] 📊 Active sessions:', activeSessions.length);
 
-      if (loadingSessionIdRef.current !== currentSessionId) return;
+      if (loadingSessionIdRef.current !== currentSessionId) {
+        console.log('[useSessionStream] ⚠️ Session ID mismatch, aborting');
+        return;
+      }
 
       const activeSession = activeSessions.find((s: any) => {
         if ('process_type' in s && s.process_type && 'ClaudeSession' in s.process_type) {
@@ -337,11 +352,15 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
       });
 
       if (activeSession) {
+        console.log('[useSessionStream] ✅ Found active session, reconnecting...', activeSession);
         setClaudeSessionId(session.id);
         await reconnectToSession(session.id);
+        console.log('[useSessionStream] ✅ Reconnected successfully');
+      } else {
+        console.log('[useSessionStream] ℹ️ No active session found for', session.id);
       }
     } catch (err) {
-      console.error('[useSessionStream] Failed to check active sessions:', err);
+      console.error('[useSessionStream] ❌ Failed to check active sessions:', err);
     }
   }, [session, getEngine, setClaudeSessionId]);
 
