@@ -655,8 +655,8 @@ export const ControlBar: React.FC<ControlBarProps> = ({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {/* 🆕 待发送队列按钮 - 有队列或正在工作时显示 */}
-      {onToggleQueuePanel && (isLoading || pendingQueueCount > 0) && (
+      {/* 🆕 待发送队列按钮 - 始终显示，方便随时添加提示词 */}
+      {onToggleQueuePanel && (
         <TooltipProvider delayDuration={300}>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -726,9 +726,11 @@ export const ControlBar: React.FC<ControlBarProps> = ({
                 </div>
               ) : (
                 <div className="text-sm">
-                  <div className="font-medium">待发送队列</div>
+                  <div className="font-medium">提示词队列</div>
                   <div className="text-muted-foreground text-xs mt-1">
-                    AI 正在工作，新发送的消息会加入队列
+                    {isLoading
+                      ? 'AI 正在工作，新消息会加入队列等待发送'
+                      : '点击打开队列面板，添加提示词到队列'}
                   </div>
                 </div>
               )}
