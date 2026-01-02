@@ -538,9 +538,9 @@ export function UnifiedSearchPanel({
           // 避免从 settings.json 读取旧配置覆盖刚才的更改
 
           // 全局通知
-          notify.global.success(
+          notify.success(
             enabled ? `已启用 MCP 工具：${item.name}` : `已禁用 MCP 工具：${item.name}`,
-            { duration: 2000 }
+            { duration: 2000, position: 'global' }
           );
           break;
         }
@@ -554,9 +554,9 @@ export function UnifiedSearchPanel({
           await api.toggleHookFile(item.filePath, enabled, eventType);
 
           // 全局通知
-          notify.global.success(
+          notify.success(
             enabled ? `已启用 Hook：${item.name}` : `已禁用 Hook：${item.name}`,
-            { duration: 2000 }
+            { duration: 2000, position: 'global' }
           );
           break;
         }
@@ -568,9 +568,9 @@ export function UnifiedSearchPanel({
           await api.toggleSkill(item.originalName, item.scope, enabled, projectPath);
 
           // 全局通知
-          notify.global.success(
+          notify.success(
             enabled ? `已启用 Skill：${item.name}` : `已禁用 Skill：${item.name}`,
-            { duration: 2000 }
+            { duration: 2000, position: 'global' }
           );
           break;
         }
@@ -609,11 +609,12 @@ export function UnifiedSearchPanel({
       setItems(prev => prev.map(i => i.id === item.id ? { ...i, enabled: !enabled } : i));
 
       // 错误通知
-      notify.global.error(
+      notify.error(
         `${enabled ? '启用' : '禁用'}失败`,
         {
           description: error instanceof Error ? error.message : '未知错误',
           duration: 4000,
+          position: 'global',
         }
       );
     } finally {
