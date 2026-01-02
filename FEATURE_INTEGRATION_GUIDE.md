@@ -601,6 +601,49 @@ localStorage.setItem('claude_api_base_url', 'https://hongmacode.com/api');
 
 ---
 
+## 🎉 v2.0.0 重大更新
+
+### 12. **聊天历史回溯系统**（Chat History Retrieval）
+
+**组件位置:**
+- `src/components/HistorySearchPanel.tsx` - 历史搜索面板
+- `src/hooks/useChatHistorySaver.ts` - 自动保存 Hook
+- `src-tauri/src/commands/chat_history.rs` - Rust 后端（459 行）
+- SQLite 数据库：`~/.claude/chat_history.db`
+
+**功能:**
+- 📚 **FTS5 全文搜索** - 支持中英文语义搜索
+- 💾 **自动保存** - 每条消息自动存储到 SQLite（WAL 模式）
+- 📊 **会话统计** - 总消息数、Token 统计、数据库大小
+- 🎯 **上下文加载** - 一键加载历史对话到当前会话
+- 🔍 **智能排序** - 按相关度、时间、项目路径过滤
+
+**数据库表结构:**
+- `chat_sessions` - 会话元数据
+- `chat_messages` - 消息内容
+- `chat_messages_fts` - FTS5 全文索引
+- `message_embeddings` - 向量嵌入（预留）
+
+**使用示例:**
+
+```tsx
+import { HistorySearchPanel } from '@/components/HistorySearchPanel';
+
+<HistorySearchPanel
+  open={showHistory}
+  onOpenChange={setShowHistory}
+  onLoadContext={(messages, session) => {
+    // 加载历史上下文到当前会话
+    console.log('Loaded', messages.length, 'messages from', session.title);
+  }}
+  triggerRef={buttonRef}
+/>
+```
+
+**详细文档:** 查看 `CHANGELOG.md` v2.0.0 部分
+
+---
+
 ## 🆕 v1.5.0 新增功能
 
 ### 8. **智能会话续接**（替代压缩功能）
@@ -786,6 +829,7 @@ interface PromptQueueItem {
 
 | 版本 | 日期 | 主要更新 |
 |------|------|---------|
+| v2.0.0 | 2026-01-02 | 聊天历史回溯系统 + 智能工具推荐 |
 | v1.5.0 | 2026-01-01 | 队列功能全面升级 + Bug 修复 |
 | v1.4.0 | 2026-01-01 | 提示词队列系统 + 智能指导模式 |
 | v1.3.0 | 2025-12-31 | 应用内自动更新 + MCP 智能配置 |
