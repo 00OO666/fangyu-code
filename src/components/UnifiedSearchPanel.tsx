@@ -798,26 +798,18 @@ export function UnifiedSearchPanel({
                         )}
 
                         {/* 启用/禁用开关 */}
-                        <div
-                          className="flex items-center gap-2"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                          }}
-                        >
-                          {isToggling ? (
-                            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                          ) : (
-                            <Switch
-                              checked={item.enabled ?? false}
-                              onCheckedChange={(checked) => {
-                                console.log('[UnifiedSearchPanel] Switch clicked:', item.id, checked);
-                                handleToggle(item, checked);
-                              }}
-                              className="scale-75"
-                            />
-                          )}
-                        </div>
+                        {isToggling ? (
+                          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                        ) : (
+                          <Switch
+                            checked={item.enabled ?? false}
+                            onCheckedChange={(checked) => {
+                              console.log('[UnifiedSearchPanel] Switch clicked:', item.id, checked);
+                              handleToggle(item, checked);
+                            }}
+                            className="scale-75"
+                          />
+                        )}
                       </div>
                     </div>
                   );
