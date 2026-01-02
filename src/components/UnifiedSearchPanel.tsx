@@ -806,20 +806,21 @@ export function UnifiedSearchPanel({
                         {/* 启用/禁用开关 */}
                         <div
                           onClick={(e) => e.stopPropagation()}
-                          className="flex items-center"
+                          className="flex items-center relative"
                         >
-                          {isToggling ? (
-                            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                          ) : (
-                            <Switch
-                              checked={item.enabled ?? false}
-                              onCheckedChange={(checked) => {
-                                console.log('[UnifiedSearchPanel] Switch clicked:', item.id, checked);
-                                handleToggle(item, checked);
-                              }}
-                              className="scale-75"
-                              disabled={isToggling}
-                            />
+                          <Switch
+                            checked={item.enabled ?? false}
+                            onCheckedChange={(checked) => {
+                              console.log('[UnifiedSearchPanel] Switch clicked:', item.id, checked);
+                              handleToggle(item, checked);
+                            }}
+                            className="scale-75"
+                            disabled={isToggling}
+                          />
+                          {isToggling && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-background/50 rounded-full">
+                              <Loader2 className="h-3 w-3 animate-spin text-primary" />
+                            </div>
                           )}
                         </div>
                       </div>
