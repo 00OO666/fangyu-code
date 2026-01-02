@@ -5,14 +5,14 @@
  * 包含模式配置，避免进入历史会话页面时重复触发 WSL 检测
  */
 
-import { useState, useEffect, useCallback } from 'react';
-import { api } from '@/lib/api';
+import { useCallback, useEffect, useState } from "react";
+import { api } from "@/lib/api";
 
 // 模式配置类型
 export interface CodexModeConfig {
-  mode: 'auto' | 'native' | 'wsl';
+  mode: "auto" | "native" | "wsl";
   wslDistro: string | null;
-  actualMode: 'native' | 'wsl';
+  actualMode: "native" | "wsl";
   nativeAvailable: boolean;
   wslAvailable: boolean;
   availableDistros: string[];
@@ -20,7 +20,7 @@ export interface CodexModeConfig {
 }
 
 export interface GeminiWslModeConfig {
-  mode: 'auto' | 'native' | 'wsl';
+  mode: "auto" | "native" | "wsl";
   wslDistro: string | null;
   wslAvailable: boolean;
   availableDistros: string[];
@@ -32,7 +32,7 @@ export interface GeminiWslModeConfig {
 }
 
 export interface ClaudeWslModeConfig {
-  mode: 'auto' | 'native' | 'wsl';
+  mode: "auto" | "native" | "wsl";
   wslDistro: string | null;
   wslAvailable: boolean;
   availableDistros: string[];
@@ -40,7 +40,7 @@ export interface ClaudeWslModeConfig {
   wslClaudePath: string | null;
   wslClaudeVersion: string | null;
   nativeAvailable: boolean;
-  actualMode: 'native' | 'wsl';
+  actualMode: "native" | "wsl";
   isWindows: boolean;
 }
 
@@ -69,7 +69,7 @@ const listeners = new Set<(status: EngineStatusInfo) => void>();
 
 // 通知所有监听者
 const notifyListeners = (status: EngineStatusInfo) => {
-  listeners.forEach(listener => listener(status));
+  listeners.forEach((listener) => listener(status));
 };
 
 // 加载引擎状态
@@ -105,19 +105,21 @@ const loadEngineStatus = async (): Promise<EngineStatusInfo> => {
 
       const status: EngineStatusInfo = {
         claude: {
-          installed: claudeResult.status === 'fulfilled' ? claudeResult.value.is_installed : false,
-          version: claudeResult.status === 'fulfilled' ? claudeResult.value.version : undefined,
-          wslModeConfig: claudeWslModeResult.status === 'fulfilled' ? claudeWslModeResult.value : undefined,
+          installed: claudeResult.status === "fulfilled" ? claudeResult.value.is_installed : false,
+          version: claudeResult.status === "fulfilled" ? claudeResult.value.version : undefined,
+          wslModeConfig:
+            claudeWslModeResult.status === "fulfilled" ? claudeWslModeResult.value : undefined,
         },
         codex: {
-          available: codexResult.status === 'fulfilled' ? codexResult.value.available : false,
-          version: codexResult.status === 'fulfilled' ? codexResult.value.version : undefined,
-          modeConfig: codexModeResult.status === 'fulfilled' ? codexModeResult.value : undefined,
+          available: codexResult.status === "fulfilled" ? codexResult.value.available : false,
+          version: codexResult.status === "fulfilled" ? codexResult.value.version : undefined,
+          modeConfig: codexModeResult.status === "fulfilled" ? codexModeResult.value : undefined,
         },
         gemini: {
-          installed: geminiResult.status === 'fulfilled' ? geminiResult.value.installed : false,
-          version: geminiResult.status === 'fulfilled' ? geminiResult.value.version : undefined,
-          wslModeConfig: geminiWslModeResult.status === 'fulfilled' ? geminiWslModeResult.value : undefined,
+          installed: geminiResult.status === "fulfilled" ? geminiResult.value.installed : false,
+          version: geminiResult.status === "fulfilled" ? geminiResult.value.version : undefined,
+          wslModeConfig:
+            geminiWslModeResult.status === "fulfilled" ? geminiWslModeResult.value : undefined,
         },
       };
 
@@ -163,7 +165,7 @@ export const useEngineStatus = () => {
 
     // 如果没有缓存，触发加载
     if (!globalEngineStatus) {
-      loadEngineStatus().then(newStatus => {
+      loadEngineStatus().then((newStatus) => {
         setStatus(newStatus);
         setLoading(false);
       });

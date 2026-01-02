@@ -1,9 +1,9 @@
-import { useState, useCallback, useEffect } from 'react';
-import type { Session } from '@/lib/api';
-import { api } from '@/lib/api';
-import { filterValidSessions } from '@/lib/utils';
+import { useCallback, useEffect, useState } from "react";
+import type { Session } from "@/lib/api";
+import { api } from "@/lib/api";
+import { filterValidSessions } from "@/lib/utils";
 
-const SESSION_CACHE_KEY = 'fangyu_session_center_cache';
+const SESSION_CACHE_KEY = "fangyu_session_center_cache";
 const SESSION_CACHE_EXPIRY = 5 * 60 * 1000; // 5分钟缓存过期
 
 interface SessionCache {
@@ -45,11 +45,11 @@ const setSessionCache = (sessions: Session[]) => {
   try {
     const cache: SessionCache = {
       sessions,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
     localStorage.setItem(SESSION_CACHE_KEY, JSON.stringify(cache));
   } catch (e) {
-    console.warn('Failed to cache sessions:', e);
+    console.warn("Failed to cache sessions:", e);
   }
 };
 
@@ -59,14 +59,14 @@ const sortSessions = (sessionsToSort: Session[]) => {
     const timeA = a.last_message_timestamp
       ? new Date(a.last_message_timestamp).getTime()
       : a.message_timestamp
-      ? new Date(a.message_timestamp).getTime()
-      : a.created_at * 1000;
+        ? new Date(a.message_timestamp).getTime()
+        : a.created_at * 1000;
 
     const timeB = b.last_message_timestamp
       ? new Date(b.last_message_timestamp).getTime()
       : b.message_timestamp
-      ? new Date(b.message_timestamp).getTime()
-      : b.created_at * 1000;
+        ? new Date(b.message_timestamp).getTime()
+        : b.created_at * 1000;
 
     return timeB - timeA;
   });
@@ -138,7 +138,7 @@ export const useSessionCache = (): UseSessionCacheReturn => {
           batch.map(async (project) => {
             try {
               const projectSessions = await api.getProjectSessions(project.id, project.path);
-              return projectSessions.map(session => ({
+              return projectSessions.map((session) => ({
                 ...session,
                 project_path: session.project_path || project.path,
               }));
@@ -146,7 +146,7 @@ export const useSessionCache = (): UseSessionCacheReturn => {
               console.error(`Failed to load sessions for project ${project.id}:`, err);
               return [];
             }
-          })
+          }),
         );
 
         // 合并并立即更新 UI
@@ -170,7 +170,6 @@ export const useSessionCache = (): UseSessionCacheReturn => {
       const finalSessions = sortSessions(filterValidSessions(allSessions));
       setSessionCache(finalSessions); // 🚀 保存到 localStorage
       setSessions(finalSessions);
-
     } catch (err) {
       console.error("Failed to load all sessions:", err);
       setError("加载会话失败");

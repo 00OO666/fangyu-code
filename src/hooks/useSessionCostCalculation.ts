@@ -5,10 +5,10 @@
  * 参考：https://docs.claude.com/en/docs/claude-code/costs
  */
 
-import { useMemo, useRef, useEffect } from 'react';
-import { aggregateSessionCost } from '@/lib/sessionCost';
-import { formatCost as formatCostUtil, formatDuration, formatTokensK } from '@/lib/pricing';
-import type { ClaudeStreamMessage } from '@/types/claude';
+import { useEffect, useMemo, useRef } from "react";
+import { formatCost as formatCostUtil, formatDuration, formatTokensK } from "@/lib/pricing";
+import { aggregateSessionCost } from "@/lib/sessionCost";
+import type { ClaudeStreamMessage } from "@/types/claude";
 
 export interface SessionCostStats {
   /** 总成本（美元） */
@@ -72,7 +72,10 @@ const EMPTY_STATS: SessionCostStats = {
  * const { stats, formatCost } = useSessionCostCalculation(messages, 'claude');
  * console.log(formatCost(stats.totalCost)); // "$0.0123"
  */
-export function useSessionCostCalculation(messages: ClaudeStreamMessage[], engine?: string): SessionCostResult {
+export function useSessionCostCalculation(
+  messages: ClaudeStreamMessage[],
+  engine?: string,
+): SessionCostResult {
   const codexCacheRef = useRef<{
     stats: SessionCostStats;
     lastUsageFingerprint: string | null;
@@ -90,7 +93,7 @@ export function useSessionCostCalculation(messages: ClaudeStreamMessage[], engin
   const stats = useMemo(() => {
     // Codex 会话在流式过程中会产生大量 item.updated 等事件，但只有 turn.completed 才带 usage。
     // 为避免每条事件都 O(n) 重算费用，Codex 仅在检测到新的 usage 时才重新聚合。
-    if (engine === 'codex') {
+    if (engine === "codex") {
       const cache = codexCacheRef.current;
 
       if (messages.length === 0) {
@@ -122,8 +125,13 @@ export function useSessionCostCalculation(messages: ClaudeStreamMessage[], engin
         return cache.stats;
       }
 
-      const { totals, events, firstEventTimestampMs, lastEventTimestampMs } = aggregateSessionCost(messages);
-      const durationSeconds = calculateSessionDuration(messages, firstEventTimestampMs, lastEventTimestampMs);
+      const { totals, events, firstEventTimestampMs, lastEventTimestampMs } =
+        aggregateSessionCost(messages);
+      const durationSeconds = calculateSessionDuration(
+        messages,
+        firstEventTimestampMs,
+        lastEventTimestampMs,
+      );
       const apiDurationSeconds = events.length * 5;
 
       const nextStats: SessionCostStats = {
@@ -147,14 +155,14 @@ export function useSessionCostCalculation(messages: ClaudeStreamMessage[], engin
       return EMPTY_STATS;
     }
 
-    const {
-      totals,
-      events,
+    const { totals, events, firstEventTimestampMs, lastEventTimestampMs } =
+      aggregateSessionCost(messages);
+
+    const durationSeconds = calculateSessionDuration(
+      messages,
       firstEventTimestampMs,
       lastEventTimestampMs,
-    } = aggregateSessionCost(messages);
-
-    const durationSeconds = calculateSessionDuration(messages, firstEventTimestampMs, lastEventTimestampMs);
+    );
 
     // 计算 API 执行时长（TODO: 需要从消息中提取实际 API 响应时间）
     // 目前使用简化估算：每条唯一 assistant 消息平均 2-10 秒
@@ -168,7 +176,7 @@ export function useSessionCostCalculation(messages: ClaudeStreamMessage[], engin
       cacheReadTokens: totals.cacheReadTokens,
       cacheWriteTokens: totals.cacheWriteTokens,
       durationSeconds,
-      apiDurationSeconds
+      apiDurationSeconds,
     };
   }, [messages, engine]);
 
@@ -199,25 +207,25 @@ export function useSessionCostCalculation(messages: ClaudeStreamMessage[], engin
     delta,
     formatCost: formatCostUtil,
     formatDuration,
-    formatTokensK
+    formatTokensK,
   };
 }
 
 function calculateSessionDuration(
   messages: ClaudeStreamMessage[],
   fallbackFirstEventMs?: number,
-  fallbackLastEventMs?: number
+  fallbackLastEventMs?: number,
 ): number {
   // 绝大多数情况下 messages 是按时间顺序追加的；优先从两端取时间戳，避免 O(n) 扫描。
   const first = findTimestampMsFromStart(messages);
   const last = findTimestampMsFromEnd(messages);
-  if (typeof first === 'number' && typeof last === 'number' && last >= first) {
+  if (typeof first === "number" && typeof last === "number" && last >= first) {
     return (last - first) / 1000;
   }
 
   if (
-    typeof fallbackFirstEventMs === 'number' &&
-    typeof fallbackLastEventMs === 'number' &&
+    typeof fallbackFirstEventMs === "number" &&
+    typeof fallbackLastEventMs === "number" &&
     fallbackLastEventMs >= fallbackFirstEventMs
   ) {
     return (fallbackLastEventMs - fallbackFirstEventMs) / 1000;
@@ -226,10 +234,13 @@ function calculateSessionDuration(
   return 0;
 }
 
-function findTimestampMsFromStart(messages: ClaudeStreamMessage[], maxScan = 25): number | undefined {
+function findTimestampMsFromStart(
+  messages: ClaudeStreamMessage[],
+  maxScan = 25,
+): number | undefined {
   for (let i = 0; i < Math.min(messages.length, maxScan); i++) {
     const ts = extractTimestampMs(messages[i]);
-    if (typeof ts === 'number') return ts;
+    if (typeof ts === "number") return ts;
   }
   return undefined;
 }
@@ -237,7 +248,7 @@ function findTimestampMsFromStart(messages: ClaudeStreamMessage[], maxScan = 25)
 function findTimestampMsFromEnd(messages: ClaudeStreamMessage[], maxScan = 25): number | undefined {
   for (let i = messages.length - 1; i >= 0 && i >= messages.length - maxScan; i--) {
     const ts = extractTimestampMs(messages[i]);
-    if (typeof ts === 'number') return ts;
+    if (typeof ts === "number") return ts;
   }
   return undefined;
 }
@@ -251,7 +262,7 @@ function extractTimestampMs(message: ClaudeStreamMessage): number | undefined {
   ];
 
   for (const candidate of candidates) {
-    if (typeof candidate !== 'string' || candidate.trim() === '') {
+    if (typeof candidate !== "string" || candidate.trim() === "") {
       continue;
     }
 
@@ -266,15 +277,16 @@ function extractTimestampMs(message: ClaudeStreamMessage): number | undefined {
 
 function extractUsageCandidate(message: any): any | null {
   const usage = message?.usage || message?.message?.usage || message?.codexMetadata?.usage;
-  return usage && typeof usage === 'object' ? usage : null;
+  return usage && typeof usage === "object" ? usage : null;
 }
 
 function buildUsageFingerprint(message: any, usage: any, messageCount: number): string {
-  const timestamp = typeof message?.timestamp === 'string'
-    ? message.timestamp
-    : typeof message?.receivedAt === 'string'
-      ? message.receivedAt
-      : '';
+  const timestamp =
+    typeof message?.timestamp === "string"
+      ? message.timestamp
+      : typeof message?.receivedAt === "string"
+        ? message.receivedAt
+        : "";
 
   // 仅提取稳定字段，避免把大对象 stringify 进指纹导致性能抖动
   const input = Number(usage?.input_tokens) || 0;
@@ -283,8 +295,8 @@ function buildUsageFingerprint(message: any, usage: any, messageCount: number): 
   const cacheRead = Number(usage?.cache_read_tokens) || 0;
   const cacheWrite = Number(usage?.cache_creation_tokens) || Number(usage?.cache_write_tokens) || 0;
 
-  const model = typeof message?.model === 'string' ? message.model : '';
-  const engine = typeof message?.engine === 'string' ? message.engine : '';
+  const model = typeof message?.model === "string" ? message.model : "";
+  const engine = typeof message?.engine === "string" ? message.engine : "";
 
   return [
     messageCount,
@@ -295,5 +307,5 @@ function buildUsageFingerprint(message: any, usage: any, messageCount: number): 
     cachedInput || cacheRead,
     cacheWrite,
     output,
-  ].join('|');
+  ].join("|");
 }

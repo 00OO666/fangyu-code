@@ -4,7 +4,6 @@ import { getVersion } from "@tauri-apps/api/app";
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import type { Update } from "@tauri-apps/plugin-updater";
 
-
 export type UpdateChannel = "stable" | "beta";
 
 export interface UpdateInfo {
@@ -24,9 +23,7 @@ export interface UpdateHandle {
   version: string;
   notes?: string;
   date?: string;
-  downloadAndInstall: (
-    onProgress?: (e: UpdateProgressEvent) => void,
-  ) => Promise<void>;
+  downloadAndInstall: (onProgress?: (e: UpdateProgressEvent) => void) => Promise<void>;
   download?: () => Promise<void>;
   install?: () => Promise<void>;
 }
@@ -57,8 +54,7 @@ function mapUpdateHandle(raw: Update): UpdateHandle {
           mapped.downloaded = 0;
         } else if (evt?.event === "Progress") {
           mapped.total = evt?.data?.contentLength ?? mapped.total;
-          mapped.downloaded =
-            evt?.data?.downloaded ?? evt?.data?.chunkLength ?? mapped.downloaded;
+          mapped.downloaded = evt?.data?.downloaded ?? evt?.data?.chunkLength ?? mapped.downloaded;
         } else if (evt?.event === "Finished") {
           mapped.total = evt?.data?.contentLength ?? mapped.total;
           mapped.downloaded = mapped.total;
@@ -87,9 +83,7 @@ export async function getCurrentVersion(): Promise<string> {
   }
 }
 
-export async function checkForUpdate(
-  opts: CheckOptions = {},
-): Promise<CheckResult> {
+export async function checkForUpdate(opts: CheckOptions = {}): Promise<CheckResult> {
   try {
     // 动态引入，避免在未安装插件时导致打包期问题
     const { check } = await import("@tauri-apps/plugin-updater");
@@ -109,27 +103,34 @@ export async function checkForUpdate(
 
     return { status: "available", info, update: mapped };
   } catch (error) {
-    console.error('[Updater] Check failed:', error);
+    console.error("[Updater] Check failed:", error);
 
     // 提供详细的错误信息
-    let errorMessage = '检查更新失败';
+    let errorMessage = "检查更新失败";
 
     if (error instanceof Error) {
       errorMessage = error.message;
 
       // 识别常见错误并提供友好提示
-      if (errorMessage.includes('404') || errorMessage.includes('Not Found')) {
-        errorMessage = '更新服务暂不可用（未找到更新信息）';
-      } else if (errorMessage.includes('timeout') || errorMessage.includes('network')) {
-        errorMessage = '网络连接超时，请检查网络连接';
-      } else if (errorMessage.includes('signature') || errorMessage.includes('verify')) {
-        errorMessage = '更新签名验证失败';
-        } else if (errorMessage.toLowerCase().includes('pubkey') || errorMessage.toLowerCase().includes('public key')) {
-          errorMessage = '更新公钥配置异常，请检查 tauri.conf.json 中的 pubkey';
-        } else if (errorMessage.toLowerCase().includes('permission') || errorMessage.toLowerCase().includes('not allowed')) {
-          errorMessage = '当前应用未授予更新权限，请确认 capabilities/default.json 启用了 updater 权限';
-      } else if (errorMessage.includes('Failed to check for update')) {
-         errorMessage = '检查更新服务失败，请稍后重试';
+      if (errorMessage.includes("404") || errorMessage.includes("Not Found")) {
+        errorMessage = "更新服务暂不可用（未找到更新信息）";
+      } else if (errorMessage.includes("timeout") || errorMessage.includes("network")) {
+        errorMessage = "网络连接超时，请检查网络连接";
+      } else if (errorMessage.includes("signature") || errorMessage.includes("verify")) {
+        errorMessage = "更新签名验证失败";
+      } else if (
+        errorMessage.toLowerCase().includes("pubkey") ||
+        errorMessage.toLowerCase().includes("public key")
+      ) {
+        errorMessage = "更新公钥配置异常，请检查 tauri.conf.json 中的 pubkey";
+      } else if (
+        errorMessage.toLowerCase().includes("permission") ||
+        errorMessage.toLowerCase().includes("not allowed")
+      ) {
+        errorMessage =
+          "当前应用未授予更新权限，请确认 capabilities/default.json 启用了 updater 权限";
+      } else if (errorMessage.includes("Failed to check for update")) {
+        errorMessage = "检查更新服务失败，请稍后重试";
       }
     }
 
@@ -141,7 +142,3 @@ export async function relaunchApp(): Promise<void> {
   const { relaunch } = await import("@tauri-apps/plugin-process");
   await relaunch();
 }
-
-
-
-

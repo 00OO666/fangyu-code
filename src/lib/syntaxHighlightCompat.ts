@@ -25,19 +25,19 @@ export const checkSyntaxHighlightSupport = (() => {
 
     try {
       // 测试 lookbehind assertions 支持
-      new RegExp('(?<=test)');
+      /(?<=test)/;
 
       // 测试 named capture groups 支持 (这是 "invalid group specifier name" 错误的根源)
-      new RegExp('(?<name>test)');
+      /(?<name>test)/;
 
       // 测试 lookahead assertions 支持 (通常都支持，但以防万一)
-      new RegExp('(?=test)');
+      /(?=test)/;
 
       cachedResult = true;
     } catch {
       console.warn(
-        '[SyntaxHighlight] Browser does not support required regex features. ' +
-        'Falling back to plain text code blocks.'
+        "[SyntaxHighlight] Browser does not support required regex features. " +
+          "Falling back to plain text code blocks.",
       );
       cachedResult = false;
     }

@@ -158,6 +158,19 @@ export const PromptNavigator: React.FC<PromptNavigatorProps> = ({
   const jumpInputRef = useRef<HTMLInputElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
+  // 🔧 FIX: 强制追踪最新消息的费用变化
+  // 问题：messages 数组引用不变时，useMemo 不会重新执行
+  // 解决：提取最后几条消息的 costUSD 作为独立依赖
+  const lastMessagesCostSignal = useMemo(() => {
+    // 追踪最后 5 条消息的费用（足以覆盖最新指令的所有响应）
+    const lastMessages = messages.slice(-5);
+    return lastMessages.map(msg => {
+      const cost = (msg as any).costUSD ?? (msg as any).totalCostUSD ?? (msg as any).cost_usd ?? (msg as any).total_cost_usd ?? 0;
+      const id = (msg as any)?.message?.id || (msg as any).id || (msg as any).uuid;
+      return `${id}:${cost}`;
+    }).join('|');
+  }, [messages]);
+
   // 提取所有用户提示词（按时间倒序，最新在最上方）
   const prompts = useMemo<PromptItem[]>(() => {
     let promptIndex = 0;
@@ -349,7 +362,7 @@ export const PromptNavigator: React.FC<PromptNavigatorProps> = ({
 
     // 倒序排列：最新的指令排在最上方
     return items.reverse();
-  }, [messages]);
+  }, [messages, lastMessagesCostSignal]);  // 🔧 FIX: 使用 lastMessagesCostSignal 追踪最新消息费用变化
 
   // 过滤后的提示词
   const filteredPrompts = useMemo(() => {

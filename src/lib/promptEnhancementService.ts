@@ -5,73 +5,78 @@
  * ⚡ 使用统一的 LLMApiService 处理 API 调用
  */
 
-import { LLMApiService, type LLMProvider } from '@/lib/services/llmApiService';
-
+import { LLMApiService, type LLMProvider } from "@/lib/services/llmApiService";
 
 // 重新导出类型以保持向后兼容
 export type PromptEnhancementProvider = LLMProvider;
-export type { ApiFormat } from '@/lib/services/llmApiService';
+export type { ApiFormat } from "@/lib/services/llmApiService";
 
 // 重新导出 URL 规范化函数以保持向后兼容
-export { detectApiFormat, normalizeApiUrl, normalizeOpenAIUrl, normalizeAnthropicUrl, normalizeGeminiUrl } from '@/lib/services/llmApiService';
+export {
+  detectApiFormat,
+  normalizeAnthropicUrl,
+  normalizeApiUrl,
+  normalizeGeminiUrl,
+  normalizeOpenAIUrl,
+} from "@/lib/services/llmApiService";
 
 /**
  * 预设提供商模板
  */
 export const PRESET_PROVIDERS = {
   openai: {
-    id: 'openai',
-    name: 'OpenAI GPT-4',
-    apiUrl: 'https://api.openai.com/v1',
-    model: 'gpt-4o',
-    apiFormat: 'openai' as const,
+    id: "openai",
+    name: "OpenAI GPT-4",
+    apiUrl: "https://api.openai.com/v1",
+    model: "gpt-4o",
+    apiFormat: "openai" as const,
     enabled: false,
-    apiKey: '',
+    apiKey: "",
   },
   deepseek: {
-    id: 'deepseek',
-    name: 'Deepseek Chat',
-    apiUrl: 'https://api.deepseek.com/v1',
-    model: 'deepseek-chat',
-    apiFormat: 'openai' as const,
+    id: "deepseek",
+    name: "Deepseek Chat",
+    apiUrl: "https://api.deepseek.com/v1",
+    model: "deepseek-chat",
+    apiFormat: "openai" as const,
     enabled: false,
-    apiKey: '',
+    apiKey: "",
   },
   qwen: {
-    id: 'qwen',
-    name: '通义千问 Max',
-    apiUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
-    model: 'qwen-max',
-    apiFormat: 'openai' as const,
+    id: "qwen",
+    name: "通义千问 Max",
+    apiUrl: "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    model: "qwen-max",
+    apiFormat: "openai" as const,
     enabled: false,
-    apiKey: '',
+    apiKey: "",
   },
   siliconflow: {
-    id: 'siliconflow',
-    name: 'SiliconFlow Qwen',
-    apiUrl: 'https://api.siliconflow.cn/v1',
-    model: 'Qwen/Qwen2.5-72B-Instruct',
-    apiFormat: 'openai' as const,
+    id: "siliconflow",
+    name: "SiliconFlow Qwen",
+    apiUrl: "https://api.siliconflow.cn/v1",
+    model: "Qwen/Qwen2.5-72B-Instruct",
+    apiFormat: "openai" as const,
     enabled: false,
-    apiKey: '',
+    apiKey: "",
   },
   gemini: {
-    id: 'gemini',
-    name: 'Google Gemini 2.0',
-    apiUrl: 'https://generativelanguage.googleapis.com',
-    model: 'gemini-2.0-flash-exp',
-    apiFormat: 'gemini' as const,
+    id: "gemini",
+    name: "Google Gemini 2.0",
+    apiUrl: "https://generativelanguage.googleapis.com",
+    model: "gemini-2.0-flash-exp",
+    apiFormat: "gemini" as const,
     enabled: false,
-    apiKey: '',
+    apiKey: "",
   },
   anthropic: {
-    id: 'anthropic',
-    name: 'Anthropic Claude',
-    apiUrl: 'https://api.anthropic.com',
-    model: 'claude-sonnet-4-20250514',
-    apiFormat: 'anthropic' as const,
+    id: "anthropic",
+    name: "Anthropic Claude",
+    apiUrl: "https://api.anthropic.com",
+    model: "claude-sonnet-4-20250514",
+    apiFormat: "anthropic" as const,
     enabled: false,
-    apiKey: '',
+    apiKey: "",
   },
 };
 
@@ -80,14 +85,14 @@ export interface PromptEnhancementConfig {
   lastUsedProviderId?: string;
 }
 
-const STORAGE_KEY = 'prompt_enhancement_providers';
-const ENCRYPTION_KEY = 'prompt_enhancement_encryption_salt';
+const STORAGE_KEY = "prompt_enhancement_providers";
+const ENCRYPTION_KEY = "prompt_enhancement_encryption_salt";
 
 /**
  * 简单的XOR加密（前端基础保护，不是真正安全的加密）
  */
 function simpleEncrypt(text: string, salt: string): string {
-  let result = '';
+  let result = "";
   for (let i = 0; i < text.length; i++) {
     result += String.fromCharCode(text.charCodeAt(i) ^ salt.charCodeAt(i % salt.length));
   }
@@ -97,13 +102,13 @@ function simpleEncrypt(text: string, salt: string): string {
 function simpleDecrypt(encrypted: string, salt: string): string {
   try {
     const decoded = atob(encrypted);
-    let result = '';
+    let result = "";
     for (let i = 0; i < decoded.length; i++) {
       result += String.fromCharCode(decoded.charCodeAt(i) ^ salt.charCodeAt(i % salt.length));
     }
     return result;
   } catch {
-    return '';
+    return "";
   }
 }
 
@@ -128,19 +133,19 @@ export function loadConfig(): PromptEnhancementConfig {
     if (!stored) {
       return { providers: [] };
     }
-    
+
     const config = JSON.parse(stored) as PromptEnhancementConfig;
     const salt = getEncryptionSalt();
-    
+
     // 解密API Key
-    config.providers = config.providers.map(p => ({
+    config.providers = config.providers.map((p) => ({
       ...p,
       apiKey: simpleDecrypt(p.apiKey, salt),
     }));
-    
+
     return config;
   } catch (error) {
-    console.error('[PromptEnhancement] Failed to load config:', error);
+    console.error("[PromptEnhancement] Failed to load config:", error);
     return { providers: [] };
   }
 }
@@ -151,19 +156,19 @@ export function loadConfig(): PromptEnhancementConfig {
 export function saveConfig(config: PromptEnhancementConfig): void {
   try {
     const salt = getEncryptionSalt();
-    
+
     // 加密API Key后保存
     const encryptedConfig = {
       ...config,
-      providers: config.providers.map(p => ({
+      providers: config.providers.map((p) => ({
         ...p,
         apiKey: simpleEncrypt(p.apiKey, salt),
       })),
     };
-    
+
     localStorage.setItem(STORAGE_KEY, JSON.stringify(encryptedConfig));
   } catch (error) {
-    console.error('[PromptEnhancement] Failed to save config:', error);
+    console.error("[PromptEnhancement] Failed to save config:", error);
   }
 }
 
@@ -173,7 +178,7 @@ export function saveConfig(config: PromptEnhancementConfig): void {
 export async function callEnhancementAPI(
   provider: PromptEnhancementProvider,
   prompt: string,
-  context?: string[]
+  context?: string[],
 ): Promise<string> {
   const systemPrompt = `你是一个专业的提示词优化助手，专门为 Claude Code 编程助手优化用户的提示词。
 
@@ -196,7 +201,7 @@ export async function callEnhancementAPI(
 - ❌ 不要添加用户没有要求的额外任务
 - ❌ 不要删除或抽象化具体的路径、URL 或技术标识符
 
-${context && context.length > 0 ? `\n【当前对话上下文】\n${context.join('\n')}\n` : ''}
+${context && context.length > 0 ? `\n【当前对话上下文】\n${context.join("\n")}\n` : ""}
 
 【关键：信息保留规则】
 当用户提供以下信息时，必须原样保留：
@@ -220,24 +225,28 @@ ${context && context.length > 0 ? `\n【当前对话上下文】\n${context.join
   const userPrompt = `请优化以下提示词：\n\n${prompt}`;
   try {
     // 🆕 使用统一的 LLM API 服务（带超时和重试）
-    const response = await LLMApiService.call(provider, {
-      systemPrompt,
-      userPrompt,
-    }, {
-      timeout: 45000,     // 45秒超时（提示词优化可能需要更多时间）
-      maxRetries: 2,      // 最多重试2次
-      retryDelay: 1500,   // 1.5秒基础重试延迟
-    });
+    const response = await LLMApiService.call(
+      provider,
+      {
+        systemPrompt,
+        userPrompt,
+      },
+      {
+        timeout: 45000, // 45秒超时（提示词优化可能需要更多时间）
+        maxRetries: 2, // 最多重试2次
+        retryDelay: 1500, // 1.5秒基础重试延迟
+      },
+    );
 
     return response.content;
   } catch (error: any) {
-    console.error('[PromptEnhancement] API call failed:', error);
+    console.error("[PromptEnhancement] API call failed:", error);
     // 🆕 提供更友好的错误信息
-    if (error.message?.includes('timeout')) {
-      throw new Error('请求超时，请检查网络或稍后重试');
+    if (error.message?.includes("timeout")) {
+      throw new Error("请求超时，请检查网络或稍后重试");
     }
-    if (error.message?.includes('cancelled by user')) {
-      throw new Error('请求已取消');
+    if (error.message?.includes("cancelled by user")) {
+      throw new Error("请求已取消");
     }
     throw error;
   }
@@ -252,11 +261,11 @@ export async function testAPIConnection(provider: PromptEnhancementProvider): Pr
   latency?: number;
 }> {
   const startTime = Date.now();
-  
+
   try {
-    const testPrompt = 'Hello';
+    const testPrompt = "Hello";
     await callEnhancementAPI(provider, testPrompt);
-    
+
     const latency = Date.now() - startTime;
     return {
       success: true,
@@ -266,7 +275,7 @@ export async function testAPIConnection(provider: PromptEnhancementProvider): Pr
   } catch (error) {
     return {
       success: false,
-      message: error instanceof Error ? error.message : '连接失败',
+      message: error instanceof Error ? error.message : "连接失败",
     };
   }
 }
@@ -276,7 +285,7 @@ export async function testAPIConnection(provider: PromptEnhancementProvider): Pr
  */
 export function getEnabledProviders(): PromptEnhancementProvider[] {
   const config = loadConfig();
-  return config.providers.filter(p => p.enabled);
+  return config.providers.filter((p) => p.enabled);
 }
 
 /**
@@ -293,7 +302,7 @@ export function addProvider(provider: PromptEnhancementProvider): void {
  */
 export function updateProvider(id: string, updates: Partial<PromptEnhancementProvider>): void {
   const config = loadConfig();
-  const index = config.providers.findIndex(p => p.id === id);
+  const index = config.providers.findIndex((p) => p.id === id);
   if (index >= 0) {
     config.providers[index] = { ...config.providers[index], ...updates };
     saveConfig(config);
@@ -305,7 +314,7 @@ export function updateProvider(id: string, updates: Partial<PromptEnhancementPro
  */
 export function deleteProvider(id: string): void {
   const config = loadConfig();
-  config.providers = config.providers.filter(p => p.id !== id);
+  config.providers = config.providers.filter((p) => p.id !== id);
   saveConfig(config);
 }
 
@@ -314,6 +323,5 @@ export function deleteProvider(id: string): void {
  */
 export function getProvider(id: string): PromptEnhancementProvider | undefined {
   const config = loadConfig();
-  return config.providers.find(p => p.id === id);
+  return config.providers.find((p) => p.id === id);
 }
-

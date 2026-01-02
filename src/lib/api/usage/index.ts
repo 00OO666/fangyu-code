@@ -10,7 +10,7 @@
  */
 
 import { invoke } from "@tauri-apps/api/core";
-import type { UsageStats, ProjectUsage, SessionCacheTokens } from '../types';
+import type { ProjectUsage, SessionCacheTokens, UsageStats } from "../types";
 
 // ============================================================================
 // Claude 使用统计
@@ -46,7 +46,7 @@ export async function getUsageByDateRange(startDate: string, endDate: string): P
 export async function getSessionStats(
   since?: string,
   until?: string,
-  order?: "asc" | "desc"
+  order?: "asc" | "desc",
 ): Promise<ProjectUsage[]> {
   try {
     return await invoke<ProjectUsage[]>("get_session_stats", {
@@ -81,10 +81,10 @@ export async function getSessionCacheTokens(sessionId: string): Promise<SessionC
  */
 export async function getCodexUsageStats(
   startDate?: string,
-  endDate?: string
-): Promise<import('@/types/usage').CodexUsageStats> {
+  endDate?: string,
+): Promise<import("@/types/usage").CodexUsageStats> {
   try {
-    return await invoke<import('@/types/usage').CodexUsageStats>("get_codex_usage_stats", {
+    return await invoke<import("@/types/usage").CodexUsageStats>("get_codex_usage_stats", {
       startDate,
       endDate,
     });
@@ -103,10 +103,10 @@ export async function getCodexUsageStats(
  */
 export async function getGeminiUsageStats(
   startDate?: string,
-  endDate?: string
-): Promise<import('@/types/usage').GeminiUsageStats> {
+  endDate?: string,
+): Promise<import("@/types/usage").GeminiUsageStats> {
   try {
-    return await invoke<import('@/types/usage').GeminiUsageStats>("get_gemini_usage_stats", {
+    return await invoke<import("@/types/usage").GeminiUsageStats>("get_gemini_usage_stats", {
       startDate,
       endDate,
     });

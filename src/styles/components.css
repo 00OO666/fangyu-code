@@ -90,7 +90,7 @@ html *:hover {
 
 /* Webkit Scrollbar Styling (Chrome, Edge, Safari) */
 html *::-webkit-scrollbar {
-  width: 8px;  /* Slightly wider for better usability */
+  width: 8px; /* Slightly wider for better usability */
   height: 8px;
 }
 
@@ -247,7 +247,9 @@ code:hover::-webkit-scrollbar-thumb,
   backdrop-filter: blur(12px) saturate(180%);
   -webkit-backdrop-filter: blur(12px) saturate(180%);
   border-top: 1px solid var(--color-border);
-  box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1), 0 -2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 -4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 -2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 /* Responsive layout adjustments */
@@ -271,13 +273,27 @@ code:hover::-webkit-scrollbar-thumb,
 }
 
 /* Ensure proper z-index layering */
-.z-layer-background { z-index: 0; }
-.z-layer-content { z-index: 10; }
-.z-layer-overlay { z-index: 20; }
-.z-layer-modal { z-index: 30; }
-.z-layer-floating { z-index: 40; }
-.z-layer-input { z-index: 50; }
-.z-layer-tooltip { z-index: 60; }
+.z-layer-background {
+  z-index: 0;
+}
+.z-layer-content {
+  z-index: 10;
+}
+.z-layer-overlay {
+  z-index: 20;
+}
+.z-layer-modal {
+  z-index: 30;
+}
+.z-layer-floating {
+  z-index: 40;
+}
+.z-layer-input {
+  z-index: 50;
+}
+.z-layer-tooltip {
+  z-index: 60;
+}
 
 /* Additional contrast improvements for accessibility */
 .contrast-enhanced {
@@ -301,7 +317,9 @@ code:hover::-webkit-scrollbar-thumb,
 .floating-element {
   background-color: var(--color-background);
   border: 1px solid var(--color-border);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 /* Dark theme specific enhancements - Medium Gray */
@@ -317,7 +335,7 @@ code:hover::-webkit-scrollbar-thumb,
 }
 
 .dark .bg-background\/80 {
-  background-color: oklch(0.23 0.003 260 / 0.80) !important;
+  background-color: oklch(0.23 0.003 260 / 0.8) !important;
   backdrop-filter: blur(8px) saturate(150%);
 }
 
@@ -325,12 +343,14 @@ code:hover::-webkit-scrollbar-thumb,
 .dark .floating-input-container {
   background-color: oklch(0.23 0.003 260 / 0.95) !important;
   border-top-color: oklch(0.36 0.005 260) !important;
-  box-shadow: 0 -8px 16px -4px rgba(0, 0, 0, 0.28), 0 -4px 8px -2px rgba(0, 0, 0, 0.18) !important;
+  box-shadow:
+    0 -8px 16px -4px rgba(0, 0, 0, 0.28),
+    0 -4px 8px -2px rgba(0, 0, 0, 0.18) !important;
 }
 
 /* Better text contrast on dark backgrounds */
 .dark .text-muted-foreground {
-  color: oklch(0.60 0.005 260) !important;
+  color: oklch(0.6 0.005 260) !important;
 }
 
 /* Improve card contrast in dark theme */
@@ -343,7 +363,9 @@ code:hover::-webkit-scrollbar-thumb,
 .dark .bg-popover {
   background-color: oklch(0.25 0.003 260) !important;
   border-color: oklch(0.36 0.005 260) !important;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.35), 0 4px 6px -2px rgba(0, 0, 0, 0.20) !important;
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.35),
+    0 4px 6px -2px rgba(0, 0, 0, 0.2) !important;
 }
 
 /* Enhanced border visibility in dark theme */
@@ -353,18 +375,24 @@ code:hover::-webkit-scrollbar-thumb,
 
 /* Better shadow for dark theme */
 .dark .shadow-lg {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.45), 0 4px 6px -2px rgba(0, 0, 0, 0.30) !important;
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.45),
+    0 4px 6px -2px rgba(0, 0, 0, 0.3) !important;
 }
 
 .dark .shadow-xl {
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.50), 0 10px 10px -5px rgba(0, 0, 0, 0.35) !important;
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.5),
+    0 10px 10px -5px rgba(0, 0, 0, 0.35) !important;
 }
 
 /* Light theme specific enhancements */
 .light .floating-element {
   background-color: oklch(0.99 0.002 240 / 0.98);
   backdrop-filter: blur(12px) saturate(180%) brightness(1.05);
-  box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.12), 0 4px 8px -2px rgba(0, 0, 0, 0.08);
+  box-shadow:
+    0 8px 16px -4px rgba(0, 0, 0, 0.12),
+    0 4px 8px -2px rgba(0, 0, 0, 0.08);
 }
 
 /* Light theme specific styles */
@@ -380,23 +408,29 @@ code:hover::-webkit-scrollbar-thumb,
 
 /* Improve floating elements contrast */
 .light .border-border\/50 {
-  border-color: oklch(0.80 0.005 240 / 0.8) !important;
+  border-color: oklch(0.8 0.005 240 / 0.8) !important;
 }
 
 /* Enhanced shadow for better separation */
 .light .shadow-lg {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.15), 0 4px 6px -2px rgba(0, 0, 0, 0.08) !important;
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.15),
+    0 4px 6px -2px rgba(0, 0, 0, 0.08) !important;
 }
 
 .light .shadow-xl {
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.08) !important;
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.15),
+    0 10px 10px -5px rgba(0, 0, 0, 0.08) !important;
 }
 
 /* Improve floating input contrast in light theme */
 .light .floating-input-container {
   background-color: oklch(0.99 0.005 240 / 0.98) !important;
-  border-top-color: oklch(0.80 0.005 240) !important;
-  box-shadow: 0 -8px 16px -4px rgba(0, 0, 0, 0.12), 0 -4px 8px -2px rgba(0, 0, 0, 0.08) !important;
+  border-top-color: oklch(0.8 0.005 240) !important;
+  box-shadow:
+    0 -8px 16px -4px rgba(0, 0, 0, 0.12),
+    0 -4px 8px -2px rgba(0, 0, 0, 0.08) !important;
 }
 
 /* Better text contrast on light backgrounds */
@@ -414,5 +448,7 @@ code:hover::-webkit-scrollbar-thumb,
 .light .bg-popover {
   background-color: oklch(0.99 0.005 240) !important;
   border-color: oklch(0.82 0.005 240) !important;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.15), 0 4px 6px -2px rgba(0, 0, 0, 0.08) !important;
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.15),
+    0 4px 6px -2px rgba(0, 0, 0, 0.08) !important;
 }

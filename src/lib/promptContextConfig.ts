@@ -13,25 +13,25 @@ export interface PromptContextConfig {
    * @default 15
    */
   maxMessages: number;
-  
+
   /**
    * 助手消息的最大字符长度（超过会被截断）
    * @default 2000
    */
   maxAssistantMessageLength: number;
-  
+
   /**
    * 用户消息的最大字符长度（超过会被截断）
    * @default 1000
    */
   maxUserMessageLength: number;
-  
+
   /**
    * 是否包含执行结果
    * @default true
    */
   includeExecutionResults: boolean;
-  
+
   /**
    * 执行结果的最大字符长度
    * @default 500
@@ -39,8 +39,8 @@ export interface PromptContextConfig {
   maxExecutionResultLength: number;
 }
 
-const STORAGE_KEY = 'prompt_context_config';
-const CONFIG_VERSION = 2;  // 🆕 配置版本号，修改此值会触发配置重置
+const STORAGE_KEY = "prompt_context_config";
+const CONFIG_VERSION = 2; // 🆕 配置版本号，修改此值会触发配置重置
 
 /**
  * 默认配置
@@ -51,7 +51,7 @@ const CONFIG_VERSION = 2;  // 🆕 配置版本号，修改此值会触发配置
  * - 超过此阈值会触发 AI 智能筛选，而非简单截取
  */
 export const DEFAULT_CONTEXT_CONFIG: PromptContextConfig = {
-  maxMessages: 8,  // 降低阈值：更早触发 AI 筛选，提高上下文质量
+  maxMessages: 8, // 降低阈值：更早触发 AI 筛选，提高上下文质量
   maxAssistantMessageLength: 2000,
   maxUserMessageLength: 1000,
   includeExecutionResults: true,
@@ -68,10 +68,10 @@ export const DEFAULT_CONTEXT_CONFIG: PromptContextConfig = {
  */
 export const CONTEXT_PRESETS = {
   minimal: {
-    nameKey: 'promptContext.presets.minimal',
-    descriptionKey: 'promptContext.presets.minimalDesc',
+    nameKey: "promptContext.presets.minimal",
+    descriptionKey: "promptContext.presets.minimalDesc",
     config: {
-      maxMessages: 4,  // 2 轮对话
+      maxMessages: 4, // 2 轮对话
       maxAssistantMessageLength: 500,
       maxUserMessageLength: 500,
       includeExecutionResults: false,
@@ -79,15 +79,15 @@ export const CONTEXT_PRESETS = {
     } as PromptContextConfig,
   },
   balanced: {
-    nameKey: 'promptContext.presets.balanced',
-    descriptionKey: 'promptContext.presets.balancedDesc',
+    nameKey: "promptContext.presets.balanced",
+    descriptionKey: "promptContext.presets.balancedDesc",
     config: DEFAULT_CONTEXT_CONFIG,
   },
   detailed: {
-    nameKey: 'promptContext.presets.detailed',
-    descriptionKey: 'promptContext.presets.detailedDesc',
+    nameKey: "promptContext.presets.detailed",
+    descriptionKey: "promptContext.presets.detailedDesc",
     config: {
-      maxMessages: 16,  // 8 轮对话
+      maxMessages: 16, // 8 轮对话
       maxAssistantMessageLength: 5000,
       maxUserMessageLength: 2000,
       includeExecutionResults: true,
@@ -114,7 +114,6 @@ export function loadContextConfig(): PromptContextConfig {
 
     // 🆕 版本检查：如果版本不匹配，重置为默认配置
     if (!parsed._version || parsed._version < CONFIG_VERSION) {
-      
       saveConfigWithVersion(DEFAULT_CONTEXT_CONFIG);
       return DEFAULT_CONTEXT_CONFIG;
     }
@@ -128,7 +127,7 @@ export function loadContextConfig(): PromptContextConfig {
       ...config,
     };
   } catch (error) {
-    console.error('[PromptContextConfig] Failed to load config:', error);
+    console.error("[PromptContextConfig] Failed to load config:", error);
     return DEFAULT_CONTEXT_CONFIG;
   }
 }
@@ -144,7 +143,7 @@ function saveConfigWithVersion(config: PromptContextConfig): void {
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(configWithVersion));
   } catch (error) {
-    console.error('[PromptContextConfig] Failed to save config:', error);
+    console.error("[PromptContextConfig] Failed to save config:", error);
   }
 }
 
@@ -171,4 +170,3 @@ export function applyPreset(presetKey: keyof typeof CONTEXT_PRESETS): void {
     saveContextConfig(preset.config);
   }
 }
-

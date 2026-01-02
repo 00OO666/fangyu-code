@@ -2,7 +2,7 @@
  * 插件系统演示页面
  */
 
-import { PluginManager } from '@/plugins';
+import { PluginManager } from "@/plugins";
 
 export function PluginDemo() {
   return (
@@ -17,8 +17,8 @@ export function PluginDemo() {
 
         <PluginManager
           workspacePath={undefined}
-          onInstall={(id) => console.log('安装插件:', id)}
-          onUninstall={(id) => console.log('卸载插件:', id)}
+          onInstall={(id) => console.log("安装插件:", id)}
+          onUninstall={(id) => console.log("卸载插件:", id)}
         />
       </div>
     </div>

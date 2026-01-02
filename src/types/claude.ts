@@ -1,8 +1,16 @@
 // Claude stream message types
-import type { CodexMessageMetadata } from './codex';
+import type { CodexMessageMetadata } from "./codex";
 
 export interface ClaudeStreamMessage {
-  type: "system" | "assistant" | "user" | "result" | "summary" | "queue-operation" | "thinking" | "tool_use";
+  type:
+    | "system"
+    | "assistant"
+    | "user"
+    | "result"
+    | "summary"
+    | "queue-operation"
+    | "thinking"
+    | "tool_use";
   subtype?: string;
   message?: {
     content?: any[];
@@ -24,7 +32,7 @@ export interface ClaudeStreamMessage {
   codexMetadata?: CodexMessageMetadata;
   // Google Gemini metadata (when converted from Gemini events)
   geminiMetadata?: {
-    provider: 'gemini';
+    provider: "gemini";
     eventType: string;
     delta?: boolean;
     stats?: {
@@ -41,6 +49,6 @@ export interface ClaudeStreamMessage {
     raw?: unknown;
   };
   // Execution engine identifier
-  engine?: 'claude' | 'codex' | 'gemini';
+  engine?: "claude" | "codex" | "gemini";
   [key: string]: any;
 }

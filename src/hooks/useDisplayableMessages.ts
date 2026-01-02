@@ -5,8 +5,8 @@
  * 负责过滤出应该在 UI 中显示的消息
  */
 
-import { useMemo } from 'react';
-import type { ClaudeStreamMessage } from '@/types/claude';
+import { useMemo } from "react";
+import type { ClaudeStreamMessage } from "@/types/claude";
 
 /**
  * 过滤选项
@@ -24,31 +24,31 @@ interface DisplayableMessagesOptions {
  */
 function isStartupWarningMessage(message: ClaudeStreamMessage): boolean {
   // 只检查 system 类型的消息
-  if (message.type !== 'system') return false;
+  if (message.type !== "system") return false;
 
   // 获取消息内容
   const content = message.message?.content;
-  let text = '';
+  let text = "";
 
-  if (typeof content === 'string') {
+  if (typeof content === "string") {
     text = content;
   } else if (Array.isArray(content)) {
     text = content
-      .filter((item: any) => item.type === 'text')
-      .map((item: any) => item.text || '')
-      .join('');
+      .filter((item: any) => item.type === "text")
+      .map((item: any) => item.text || "")
+      .join("");
   }
 
   // 检查是否包含启动期间的特征字符串
   const startupPatterns = [
-    '[STARTUP]',
-    'Recording metric',
-    'initialize_mcp_clients',
-    'Initializing MCP',
-    'MCP client',
+    "[STARTUP]",
+    "Recording metric",
+    "initialize_mcp_clients",
+    "Initializing MCP",
+    "MCP client",
   ];
 
-  return startupPatterns.some(pattern => text.includes(pattern));
+  return startupPatterns.some((pattern) => text.includes(pattern));
 }
 
 /**
@@ -58,18 +58,18 @@ function isStartupWarningMessage(message: ClaudeStreamMessage): boolean {
  * 需要排除用户粘贴的包含 "Warmup" 关键字的长文本（如日志内容）
  */
 function isWarmupMessage(message: ClaudeStreamMessage): boolean {
-  if (message.type !== 'user') return false;
+  if (message.type !== "user") return false;
 
   const content = message.message?.content;
-  let text = '';
+  let text = "";
 
-  if (typeof content === 'string') {
+  if (typeof content === "string") {
     text = content;
   } else if (Array.isArray(content)) {
     text = content
-      .filter((item: any) => item.type === 'text')
-      .map((item: any) => item.text || '')
-      .join('');
+      .filter((item: any) => item.type === "text")
+      .map((item: any) => item.text || "")
+      .join("");
   }
 
   // 修复：更精确的 Warmup 消息检测
@@ -86,7 +86,7 @@ function isWarmupMessage(message: ClaudeStreamMessage): boolean {
   }
 
   // 检查是否以 "Warmup" 开头（不区分大小写）
-  return trimmedText.toLowerCase().startsWith('warmup');
+  return trimmedText.toLowerCase().startsWith("warmup");
 }
 
 /**
@@ -96,22 +96,22 @@ function isWarmupMessage(message: ClaudeStreamMessage): boolean {
  * 这些消息对用户是透明的，应该在 UI 中隐藏
  */
 function isAutoContinueMessage(message: ClaudeStreamMessage): boolean {
-  if (message.type !== 'user') return false;
+  if (message.type !== "user") return false;
 
   const content = message.message?.content;
-  let text = '';
+  let text = "";
 
-  if (typeof content === 'string') {
+  if (typeof content === "string") {
     text = content;
   } else if (Array.isArray(content)) {
     text = content
-      .filter((item: any) => item.type === 'text')
-      .map((item: any) => item.text || '')
-      .join('');
+      .filter((item: any) => item.type === "text")
+      .map((item: any) => item.text || "")
+      .join("");
   }
 
   // 检查是否包含自动继续标记
-  return text.includes('__AUTO_CONTINUE__');
+  return text.includes("__AUTO_CONTINUE__");
 }
 
 /**
@@ -133,7 +133,7 @@ function isAutoContinueMessage(message: ClaudeStreamMessage): boolean {
  */
 export function useDisplayableMessages(
   messages: ClaudeStreamMessage[],
-  options: DisplayableMessagesOptions = {}
+  options: DisplayableMessagesOptions = {},
 ): ClaudeStreamMessage[] {
   // 默认隐藏 Warmup（undefined 时为 true），只有明确设置为 false 时才显示
   const hideWarmupMessages = options.hideWarmupMessages !== false;
@@ -151,22 +151,21 @@ export function useDisplayableMessages(
         if (isWarmupMessage(msg)) {
           warmupIndices.add(idx);
           // 找到紧跟其后的 assistant 回复（Warmup 的响应）
-          if (idx + 1 < messages.length && messages[idx + 1].type === 'assistant') {
+          if (idx + 1 < messages.length && messages[idx + 1].type === "assistant") {
             warmupIndices.add(idx + 1);
           }
         }
       });
-
     }
 
     // 🆕 隐藏自动继续消息及其回复（始终隐藏，与 hideWarmupMessages 无关）
     messages.forEach((msg, idx) => {
       if (isAutoContinueMessage(msg)) {
-        console.log('[useDisplayableMessages] Found auto-continue message at index', idx);
+        console.log("[useDisplayableMessages] Found auto-continue message at index", idx);
         autoContinueIndices.add(idx);
         // 找到紧跟其后的所有消息，直到下一条用户消息（这些都是自动继续的响应）
         for (let i = idx + 1; i < messages.length; i++) {
-          if (messages[i].type === 'user') {
+          if (messages[i].type === "user") {
             // 遇到下一条用户消息，停止
             break;
           }
@@ -194,26 +193,26 @@ export function useDisplayableMessages(
       }
 
       // 规则 2 & 3：处理用户消息
-      if (message.type === 'user' && message.message) {
+      if (message.type === "user" && message.message) {
         // 跳过元消息标记的用户消息
         if (message.isMeta) {
-          console.log('[useDisplayableMessages] Filtered out: isMeta user message');
+          console.log("[useDisplayableMessages] Filtered out: isMeta user message");
           return false;
         }
 
         const msg = message.message;
 
         // 🔧 DEBUG: 日志用户消息的 content
-        console.log('[useDisplayableMessages] Processing user message:', {
+        console.log("[useDisplayableMessages] Processing user message:", {
           hasContent: !!msg.content,
           isArray: Array.isArray(msg.content),
-          contentLength: Array.isArray(msg.content) ? msg.content.length : 'N/A',
-          content: msg.content
+          contentLength: Array.isArray(msg.content) ? msg.content.length : "N/A",
+          content: msg.content,
         });
 
         // 检查是否有空内容
         if (!msg.content || (Array.isArray(msg.content) && msg.content.length === 0)) {
-          console.log('[useDisplayableMessages] Filtered out: empty content');
+          console.log("[useDisplayableMessages] Filtered out: empty content");
           return false;
         }
 
@@ -225,20 +224,20 @@ export function useDisplayableMessages(
           msg.content.forEach((content, i) => {
             console.log(`[useDisplayableMessages] Content item ${i}:`, {
               type: content.type,
-              text: content.type === 'text' ? (content as any).text?.substring(0, 50) : 'N/A'
+              text: content.type === "text" ? (content as any).text?.substring(0, 50) : "N/A",
             });
           });
 
           for (const content of msg.content) {
             // 如果有文本内容，保留消息
-            if (content.type === 'text') {
+            if (content.type === "text") {
               hasVisibleContent = true;
-              console.log('[useDisplayableMessages] Found text content, will display');
+              console.log("[useDisplayableMessages] Found text content, will display");
               break;
             }
 
             // 检查工具结果是否会被跳过（已在 assistant 消息中显示）
-            if (content.type === 'tool_result') {
+            if (content.type === "tool_result") {
               let willBeSkipped = false;
 
               if (content.tool_use_id) {
@@ -247,12 +246,12 @@ export function useDisplayableMessages(
                   const prevMsg = messages[i];
 
                   if (
-                    prevMsg.type === 'assistant' &&
+                    prevMsg.type === "assistant" &&
                     prevMsg.message?.content &&
                     Array.isArray(prevMsg.message.content)
                   ) {
                     const toolUse = prevMsg.message.content.find(
-                      (c: any) => c.type === 'tool_use' && c.id === content.tool_use_id
+                      (c: any) => c.type === "tool_use" && c.id === content.tool_use_id,
                     );
 
                     if (toolUse) {
@@ -260,21 +259,21 @@ export function useDisplayableMessages(
 
                       // 这些工具有专用的 Widget，结果不需要单独显示
                       const toolsWithWidgets = [
-                        'task',
-                        'edit',
-                        'multiedit',
-                        'todowrite',
-                        'ls',
-                        'read',
-                        'glob',
-                        'bash',
-                        'write',
-                        'grep'
+                        "task",
+                        "edit",
+                        "multiedit",
+                        "todowrite",
+                        "ls",
+                        "read",
+                        "glob",
+                        "bash",
+                        "write",
+                        "grep",
                       ];
 
                       if (
                         toolsWithWidgets.includes(toolName) ||
-                        toolUse.name?.startsWith('mcp__')
+                        toolUse.name?.startsWith("mcp__")
                       ) {
                         willBeSkipped = true;
                       }
@@ -294,7 +293,7 @@ export function useDisplayableMessages(
 
           // 如果没有可见内容，过滤掉这条消息
           if (!hasVisibleContent) {
-            console.log('[useDisplayableMessages] Filtered out: no visible content');
+            console.log("[useDisplayableMessages] Filtered out: no visible content");
             return false;
           }
         }

@@ -11,8 +11,8 @@
  * 来源: Claude Code Hooks System
  */
 
-import { useState, useCallback, useRef } from 'react';
-import type { HookEvent, HookMatcher, HookCommand } from '@/types/hooks';
+import { useCallback, useRef, useState } from "react";
+import type { HookCommand, HookEvent, HookMatcher } from "@/types/hooks";
 
 // ============================================================
 // 类型定义
@@ -89,7 +89,10 @@ const MAX_LOG_ENTRIES = 100;
 
 interface UseHookChainOptions {
   /** 执行命令的回调 */
-  executeCommand?: (command: string, context: HookExecutionContext) => Promise<{
+  executeCommand?: (
+    command: string,
+    context: HookExecutionContext,
+  ) => Promise<{
     success: boolean;
     output?: string;
     error?: string;
@@ -101,11 +104,7 @@ interface UseHookChainOptions {
 }
 
 export function useHookChain(options: UseHookChainOptions = {}) {
-  const {
-    executeCommand,
-    defaultTimeout = DEFAULT_TIMEOUT,
-    enableLogging = true,
-  } = options;
+  const { executeCommand, defaultTimeout = DEFAULT_TIMEOUT, enableLogging = true } = options;
 
   // 执行日志
   const [executionLog, setExecutionLog] = useState<HookLogEntry[]>([]);
@@ -115,38 +114,31 @@ export function useHookChain(options: UseHookChainOptions = {}) {
   /**
    * 匹配 hook
    */
-  const matchHook = useCallback(
-    (matchers: HookMatcher[], toolName?: string): HookMatcher[] => {
-      return matchers.filter((matcher) => {
-        if (!matcher.matcher || matcher.matcher === '*') {
-          return true;
-        }
+  const matchHook = useCallback((matchers: HookMatcher[], toolName?: string): HookMatcher[] => {
+    return matchers.filter((matcher) => {
+      if (!matcher.matcher || matcher.matcher === "*") {
+        return true;
+      }
 
-        if (!toolName) {
-          return false;
-        }
+      if (!toolName) {
+        return false;
+      }
 
-        try {
-          const regex = new RegExp(`^${matcher.matcher}$`);
-          return regex.test(toolName);
-        } catch {
-          // 简单字符串匹配
-          return matcher.matcher === toolName ||
-                 matcher.matcher.split('|').includes(toolName);
-        }
-      });
-    },
-    []
-  );
+      try {
+        const regex = new RegExp(`^${matcher.matcher}$`);
+        return regex.test(toolName);
+      } catch {
+        // 简单字符串匹配
+        return matcher.matcher === toolName || matcher.matcher.split("|").includes(toolName);
+      }
+    });
+  }, []);
 
   /**
    * 执行单个命令
    */
   const executeHookCommand = useCallback(
-    async (
-      command: HookCommand,
-      context: HookExecutionContext
-    ): Promise<HookExecutionResult> => {
+    async (command: HookCommand, context: HookExecutionContext): Promise<HookExecutionResult> => {
       const startTime = Date.now();
       const timeout = (command.timeout || defaultTimeout / 1000) * 1000;
 
@@ -156,7 +148,7 @@ export function useHookChain(options: UseHookChainOptions = {}) {
           return {
             success: false,
             command: command.command,
-            error: '执行已中断',
+            error: "执行已中断",
             duration: Date.now() - startTime,
           };
         }
@@ -169,8 +161,8 @@ export function useHookChain(options: UseHookChainOptions = {}) {
             /\$\(\s*jq\s+-r\s+'?\.([^')\s]+)'?\s*\)/g,
             (_, path) => {
               const value = getNestedValue(context.toolInput, path);
-              return String(value ?? '');
-            }
+              return String(value ?? "");
+            },
           );
         }
 
@@ -186,13 +178,11 @@ export function useHookChain(options: UseHookChainOptions = {}) {
         }
 
         // 设置超时
-        const timeoutPromise = new Promise<{ success: false; error: string }>(
-          (resolve) => {
-            setTimeout(() => {
-              resolve({ success: false, error: `命令执行超时 (${timeout}ms)` });
-            }, timeout);
-          }
-        );
+        const timeoutPromise = new Promise<{ success: false; error: string }>((resolve) => {
+          setTimeout(() => {
+            resolve({ success: false, error: `命令执行超时 (${timeout}ms)` });
+          }, timeout);
+        });
 
         const result = await Promise.race([
           executeCommand(processedCommand, context),
@@ -205,10 +195,10 @@ export function useHookChain(options: UseHookChainOptions = {}) {
         let blocked = false;
         let blockReason: string | undefined;
 
-        if (result.success && 'output' in result && result.output) {
+        if (result.success && "output" in result && result.output) {
           try {
             const parsed = JSON.parse(result.output);
-            if (parsed.decision === 'block') {
+            if (parsed.decision === "block") {
               blocked = true;
               blockReason = parsed.reason;
             }
@@ -220,8 +210,8 @@ export function useHookChain(options: UseHookChainOptions = {}) {
         return {
           success: result.success,
           command: processedCommand,
-          output: 'output' in result ? result.output : undefined,
-          error: 'error' in result ? result.error : undefined,
+          output: "output" in result ? result.output : undefined,
+          error: "error" in result ? result.error : undefined,
           duration,
           blocked,
           blockReason,
@@ -235,17 +225,14 @@ export function useHookChain(options: UseHookChainOptions = {}) {
         };
       }
     },
-    [executeCommand, defaultTimeout]
+    [executeCommand, defaultTimeout],
   );
 
   /**
    * 执行 hook 链
    */
   const executeChain = useCallback(
-    async (
-      matchers: HookMatcher[],
-      context: HookExecutionContext
-    ): Promise<HookChainResult> => {
+    async (matchers: HookMatcher[], context: HookExecutionContext): Promise<HookChainResult> => {
       setIsExecuting(true);
       abortControllerRef.current = new AbortController();
 
@@ -262,7 +249,7 @@ export function useHookChain(options: UseHookChainOptions = {}) {
           // 检查是否已中断
           if (abortControllerRef.current.signal.aborted) {
             interrupted = true;
-            interruptReason = '用户中断';
+            interruptReason = "用户中断";
             break;
           }
 
@@ -288,12 +275,12 @@ export function useHookChain(options: UseHookChainOptions = {}) {
           // 检查是否应该阻止后续执行
           if (result.blocked) {
             interrupted = true;
-            interruptReason = result.blockReason || 'Hook 请求阻止';
+            interruptReason = result.blockReason || "Hook 请求阻止";
             break;
           }
 
           // 如果执行失败且返回码为 2，阻止执行
-          if (!result.success && result.error?.includes('exit 2')) {
+          if (!result.success && result.error?.includes("exit 2")) {
             interrupted = true;
             interruptReason = result.error;
             break;
@@ -313,7 +300,7 @@ export function useHookChain(options: UseHookChainOptions = {}) {
         interruptReason,
       };
     },
-    [matchHook, executeHookCommand, enableLogging]
+    [matchHook, executeHookCommand, enableLogging],
   );
 
   /**
@@ -338,9 +325,7 @@ export function useHookChain(options: UseHookChainOptions = {}) {
     const successful = executionLog.filter((e) => e.success).length;
     const failed = total - successful;
     const avgDuration =
-      total > 0
-        ? executionLog.reduce((sum, e) => sum + e.duration, 0) / total
-        : 0;
+      total > 0 ? executionLog.reduce((sum, e) => sum + e.duration, 0) / total : 0;
 
     const eventCounts: Record<string, number> = {};
     executionLog.forEach((e) => {
@@ -381,14 +366,14 @@ export function useHookChain(options: UseHookChainOptions = {}) {
  * 获取嵌套对象的值
  */
 function getNestedValue(obj: unknown, path: string): unknown {
-  if (!obj || typeof obj !== 'object') return undefined;
+  if (!obj || typeof obj !== "object") return undefined;
 
-  const parts = path.split('.');
+  const parts = path.split(".");
   let current: unknown = obj;
 
   for (const part of parts) {
     if (current === null || current === undefined) return undefined;
-    if (typeof current !== 'object') return undefined;
+    if (typeof current !== "object") return undefined;
     current = (current as Record<string, unknown>)[part];
   }
 

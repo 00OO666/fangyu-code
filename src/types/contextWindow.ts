@@ -35,7 +35,7 @@ export interface ContextWindowUsage {
  * - high: 80-90% (橙色)
  * - critical: 90-100% (红色)
  */
-export type ContextUsageLevel = 'low' | 'medium' | 'high' | 'critical';
+export type ContextUsageLevel = "low" | "medium" | "high" | "critical";
 
 /**
  * 根据百分比获取使用级别
@@ -43,10 +43,10 @@ export type ContextUsageLevel = 'low' | 'medium' | 'high' | 'critical';
  * @returns 使用级别
  */
 export function getUsageLevel(percentage: number): ContextUsageLevel {
-  if (percentage >= 90) return 'critical';
-  if (percentage >= 80) return 'high';
-  if (percentage >= 60) return 'medium';
-  return 'low';
+  if (percentage >= 90) return "critical";
+  if (percentage >= 80) return "high";
+  if (percentage >= 60) return "medium";
+  return "low";
 }
 
 /**
@@ -54,27 +54,27 @@ export function getUsageLevel(percentage: number): ContextUsageLevel {
  */
 export const USAGE_LEVEL_COLORS = {
   low: {
-    bg: 'bg-green-100 dark:bg-green-900/30',
-    text: 'text-green-700 dark:text-green-400',
-    border: 'border-green-200 dark:border-green-800',
-    progress: 'bg-green-500',
+    bg: "bg-green-100 dark:bg-green-900/30",
+    text: "text-green-700 dark:text-green-400",
+    border: "border-green-200 dark:border-green-800",
+    progress: "bg-green-500",
   },
   medium: {
-    bg: 'bg-yellow-100 dark:bg-yellow-900/30',
-    text: 'text-yellow-700 dark:text-yellow-400',
-    border: 'border-yellow-200 dark:border-yellow-800',
-    progress: 'bg-yellow-500',
+    bg: "bg-yellow-100 dark:bg-yellow-900/30",
+    text: "text-yellow-700 dark:text-yellow-400",
+    border: "border-yellow-200 dark:border-yellow-800",
+    progress: "bg-yellow-500",
   },
   high: {
-    bg: 'bg-orange-100 dark:bg-orange-900/30',
-    text: 'text-orange-700 dark:text-orange-400',
-    border: 'border-orange-200 dark:border-orange-800',
-    progress: 'bg-orange-500',
+    bg: "bg-orange-100 dark:bg-orange-900/30",
+    text: "text-orange-700 dark:text-orange-400",
+    border: "border-orange-200 dark:border-orange-800",
+    progress: "bg-orange-500",
   },
   critical: {
-    bg: 'bg-red-100 dark:bg-red-900/30',
-    text: 'text-red-700 dark:text-red-400',
-    border: 'border-red-200 dark:border-red-800',
-    progress: 'bg-red-500',
+    bg: "bg-red-100 dark:bg-red-900/30",
+    text: "text-red-700 dark:text-red-400",
+    border: "border-red-200 dark:border-red-800",
+    progress: "bg-red-500",
   },
 } as const;

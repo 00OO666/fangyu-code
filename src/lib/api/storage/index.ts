@@ -30,7 +30,7 @@ export async function storageReadTable(
   tableName: string,
   page: number,
   pageSize: number,
-  searchQuery?: string
+  searchQuery?: string,
 ): Promise<any> {
   try {
     return await invoke<any>("storage_read_table", {
@@ -55,7 +55,7 @@ export async function storageReadTable(
 export async function storageUpdateRow(
   tableName: string,
   primaryKeyValues: Record<string, any>,
-  updates: Record<string, any>
+  updates: Record<string, any>,
 ): Promise<void> {
   try {
     return await invoke<void>("storage_update_row", {
@@ -77,7 +77,7 @@ export async function storageUpdateRow(
  */
 export async function storageDeleteRow(
   tableName: string,
-  primaryKeyValues: Record<string, any>
+  primaryKeyValues: Record<string, any>,
 ): Promise<void> {
   try {
     return await invoke<void>("storage_delete_row", {
@@ -98,7 +98,7 @@ export async function storageDeleteRow(
  */
 export async function storageInsertRow(
   tableName: string,
-  values: Record<string, any>
+  values: Record<string, any>,
 ): Promise<number> {
   try {
     return await invoke<number>("storage_insert_row", {

@@ -10,13 +10,13 @@
  * 来源: Claude Code Auto Accept + Cursor Composer Agent Mode
  */
 
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState } from "react";
 
 // ============================================================
 // 类型定义
 // ============================================================
 
-export type TurboModeLevel = 'off' | 'safe' | 'moderate' | 'full';
+export type TurboModeLevel = "off" | "safe" | "moderate" | "full";
 
 export interface TurboModeConfig {
   /** 当前模式级别 */
@@ -39,7 +39,7 @@ export interface TurboModeConfig {
 
 export interface CommandAnalysis {
   command: string;
-  risk: 'safe' | 'moderate' | 'dangerous' | 'critical';
+  risk: "safe" | "moderate" | "dangerous" | "critical";
   category: string;
   reason: string;
   requiresConfirmation: boolean;
@@ -59,43 +59,106 @@ export interface ExecutionResult {
 // ============================================================
 
 const DEFAULT_CONFIG: TurboModeConfig = {
-  level: 'off',
+  level: "off",
   whitelist: [
     // 读取操作
-    'ls', 'dir', 'cat', 'head', 'tail', 'less', 'more',
-    'pwd', 'echo', 'which', 'whereis', 'type',
-    'file', 'stat', 'wc', 'diff', 'grep', 'find',
+    "ls",
+    "dir",
+    "cat",
+    "head",
+    "tail",
+    "less",
+    "more",
+    "pwd",
+    "echo",
+    "which",
+    "whereis",
+    "type",
+    "file",
+    "stat",
+    "wc",
+    "diff",
+    "grep",
+    "find",
     // Git 读取
-    'git status', 'git log', 'git diff', 'git branch', 'git remote',
-    'git show', 'git blame', 'git stash list',
+    "git status",
+    "git log",
+    "git diff",
+    "git branch",
+    "git remote",
+    "git show",
+    "git blame",
+    "git stash list",
     // 包管理器查询
-    'npm list', 'npm outdated', 'npm view', 'npm info',
-    'yarn list', 'yarn info', 'yarn why',
-    'pnpm list', 'pnpm why',
-    'pip list', 'pip show', 'pip freeze',
+    "npm list",
+    "npm outdated",
+    "npm view",
+    "npm info",
+    "yarn list",
+    "yarn info",
+    "yarn why",
+    "pnpm list",
+    "pnpm why",
+    "pip list",
+    "pip show",
+    "pip freeze",
     // 构建/测试（只读）
-    'npm run lint', 'npm run typecheck', 'npm run test',
-    'yarn lint', 'yarn typecheck', 'yarn test',
+    "npm run lint",
+    "npm run typecheck",
+    "npm run test",
+    "yarn lint",
+    "yarn typecheck",
+    "yarn test",
     // 系统信息
-    'node --version', 'npm --version', 'python --version',
-    'uname', 'hostname', 'date', 'uptime',
+    "node --version",
+    "npm --version",
+    "python --version",
+    "uname",
+    "hostname",
+    "date",
+    "uptime",
   ],
   blacklist: [
     // 危险的 Git 操作
-    'git push --force', 'git push -f', 'git reset --hard',
-    'git clean -fd', 'git checkout .', 'git stash drop',
+    "git push --force",
+    "git push -f",
+    "git reset --hard",
+    "git clean -fd",
+    "git checkout .",
+    "git stash drop",
     // 危险的文件操作
-    'rm -rf', 'rm -r', 'rmdir', 'del /s', 'rd /s',
-    'mv /', 'cp -r /', 'chmod 777', 'chown -R',
+    "rm -rf",
+    "rm -r",
+    "rmdir",
+    "del /s",
+    "rd /s",
+    "mv /",
+    "cp -r /",
+    "chmod 777",
+    "chown -R",
     // 危险的系统操作
-    'sudo', 'su', 'shutdown', 'reboot', 'init',
-    'format', 'fdisk', 'mkfs', 'dd if=',
+    "sudo",
+    "su",
+    "shutdown",
+    "reboot",
+    "init",
+    "format",
+    "fdisk",
+    "mkfs",
+    "dd if=",
     // 网络危险操作
-    'curl | sh', 'curl | bash', 'wget -O - | sh',
+    "curl | sh",
+    "curl | bash",
+    "wget -O - | sh",
     // 数据库危险操作
-    'DROP DATABASE', 'DROP TABLE', 'TRUNCATE', 'DELETE FROM',
+    "DROP DATABASE",
+    "DROP TABLE",
+    "TRUNCATE",
+    "DELETE FROM",
     // 包管理器全局安装
-    'npm install -g', 'yarn global add', 'pip install --user',
+    "npm install -g",
+    "yarn global add",
+    "pip install --user",
   ],
   maxRetries: 3,
   retryDelay: 1000,
@@ -110,42 +173,62 @@ const DEFAULT_CONFIG: TurboModeConfig = {
 
 const RISK_PATTERNS: Array<{
   pattern: RegExp | string;
-  risk: CommandAnalysis['risk'];
+  risk: CommandAnalysis["risk"];
   category: string;
   reason: string;
 }> = [
   // Critical - 绝对危险
-  { pattern: /rm\s+-rf\s+\//, risk: 'critical', category: '文件系统', reason: '可能删除系统根目录' },
-  { pattern: /dd\s+if=.*of=\/dev/, risk: 'critical', category: '磁盘', reason: '可能覆盖磁盘数据' },
-  { pattern: /mkfs/, risk: 'critical', category: '磁盘', reason: '格式化文件系统' },
-  { pattern: /:(){ :|:& };:/, risk: 'critical', category: '系统', reason: 'Fork 炸弹' },
+  {
+    pattern: /rm\s+-rf\s+\//,
+    risk: "critical",
+    category: "文件系统",
+    reason: "可能删除系统根目录",
+  },
+  { pattern: /dd\s+if=.*of=\/dev/, risk: "critical", category: "磁盘", reason: "可能覆盖磁盘数据" },
+  { pattern: /mkfs/, risk: "critical", category: "磁盘", reason: "格式化文件系统" },
+  { pattern: /:(){ :|:& };:/, risk: "critical", category: "系统", reason: "Fork 炸弹" },
 
   // Dangerous - 高危
-  { pattern: /git\s+push\s+(-f|--force)/, risk: 'dangerous', category: 'Git', reason: '强制推送会覆盖远程历史' },
-  { pattern: /git\s+reset\s+--hard/, risk: 'dangerous', category: 'Git', reason: '会丢失未提交的更改' },
-  { pattern: /rm\s+-rf?/, risk: 'dangerous', category: '文件系统', reason: '递归删除文件' },
-  { pattern: /DROP\s+(DATABASE|TABLE)/i, risk: 'dangerous', category: '数据库', reason: '删除数据库对象' },
-  { pattern: /TRUNCATE/i, risk: 'dangerous', category: '数据库', reason: '清空表数据' },
-  { pattern: /sudo/, risk: 'dangerous', category: '系统', reason: '需要管理员权限' },
+  {
+    pattern: /git\s+push\s+(-f|--force)/,
+    risk: "dangerous",
+    category: "Git",
+    reason: "强制推送会覆盖远程历史",
+  },
+  {
+    pattern: /git\s+reset\s+--hard/,
+    risk: "dangerous",
+    category: "Git",
+    reason: "会丢失未提交的更改",
+  },
+  { pattern: /rm\s+-rf?/, risk: "dangerous", category: "文件系统", reason: "递归删除文件" },
+  {
+    pattern: /DROP\s+(DATABASE|TABLE)/i,
+    risk: "dangerous",
+    category: "数据库",
+    reason: "删除数据库对象",
+  },
+  { pattern: /TRUNCATE/i, risk: "dangerous", category: "数据库", reason: "清空表数据" },
+  { pattern: /sudo/, risk: "dangerous", category: "系统", reason: "需要管理员权限" },
 
   // Moderate - 中等风险
-  { pattern: /npm\s+install/, risk: 'moderate', category: '包管理', reason: '安装依赖包' },
-  { pattern: /yarn\s+add/, risk: 'moderate', category: '包管理', reason: '安装依赖包' },
-  { pattern: /git\s+push/, risk: 'moderate', category: 'Git', reason: '推送代码到远程' },
-  { pattern: /git\s+commit/, risk: 'moderate', category: 'Git', reason: '提交更改' },
-  { pattern: /git\s+merge/, risk: 'moderate', category: 'Git', reason: '合并分支' },
-  { pattern: /git\s+rebase/, risk: 'moderate', category: 'Git', reason: '变基操作' },
-  { pattern: /npm\s+run\s+build/, risk: 'moderate', category: '构建', reason: '执行构建脚本' },
-  { pattern: /curl|wget/, risk: 'moderate', category: '网络', reason: '网络请求' },
+  { pattern: /npm\s+install/, risk: "moderate", category: "包管理", reason: "安装依赖包" },
+  { pattern: /yarn\s+add/, risk: "moderate", category: "包管理", reason: "安装依赖包" },
+  { pattern: /git\s+push/, risk: "moderate", category: "Git", reason: "推送代码到远程" },
+  { pattern: /git\s+commit/, risk: "moderate", category: "Git", reason: "提交更改" },
+  { pattern: /git\s+merge/, risk: "moderate", category: "Git", reason: "合并分支" },
+  { pattern: /git\s+rebase/, risk: "moderate", category: "Git", reason: "变基操作" },
+  { pattern: /npm\s+run\s+build/, risk: "moderate", category: "构建", reason: "执行构建脚本" },
+  { pattern: /curl|wget/, risk: "moderate", category: "网络", reason: "网络请求" },
 
   // Safe - 安全操作
-  { pattern: /^ls/, risk: 'safe', category: '读取', reason: '列出文件' },
-  { pattern: /^cat\s/, risk: 'safe', category: '读取', reason: '查看文件内容' },
-  { pattern: /^pwd/, risk: 'safe', category: '读取', reason: '显示当前目录' },
-  { pattern: /^echo/, risk: 'safe', category: '输出', reason: '打印输出' },
-  { pattern: /^git\s+status/, risk: 'safe', category: 'Git', reason: '查看状态' },
-  { pattern: /^git\s+log/, risk: 'safe', category: 'Git', reason: '查看历史' },
-  { pattern: /^git\s+diff/, risk: 'safe', category: 'Git', reason: '查看差异' },
+  { pattern: /^ls/, risk: "safe", category: "读取", reason: "列出文件" },
+  { pattern: /^cat\s/, risk: "safe", category: "读取", reason: "查看文件内容" },
+  { pattern: /^pwd/, risk: "safe", category: "读取", reason: "显示当前目录" },
+  { pattern: /^echo/, risk: "safe", category: "输出", reason: "打印输出" },
+  { pattern: /^git\s+status/, risk: "safe", category: "Git", reason: "查看状态" },
+  { pattern: /^git\s+log/, risk: "safe", category: "Git", reason: "查看历史" },
+  { pattern: /^git\s+diff/, risk: "safe", category: "Git", reason: "查看差异" },
 ];
 
 // ============================================================
@@ -188,16 +271,16 @@ export function useTurboMode(options: UseTurboModeOptions = {}) {
   const setLevel = useCallback(
     (level: TurboModeLevel) => {
       updateConfig({ level });
-      setIsActive(level !== 'off');
+      setIsActive(level !== "off");
 
-      if (level !== 'off') {
+      if (level !== "off") {
         sessionStartRef.current = Date.now();
         // 设置会话超时
         if (sessionTimeoutRef.current) {
           clearTimeout(sessionTimeoutRef.current);
         }
         sessionTimeoutRef.current = setTimeout(() => {
-          setLevel('off');
+          setLevel("off");
         }, config.sessionTimeout);
       } else {
         sessionStartRef.current = null;
@@ -209,7 +292,7 @@ export function useTurboMode(options: UseTurboModeOptions = {}) {
 
       onModeChange?.(level);
     },
-    [config.sessionTimeout, onModeChange, updateConfig]
+    [config.sessionTimeout, onModeChange, updateConfig],
   );
 
   // 清理
@@ -232,15 +315,15 @@ export function useTurboMode(options: UseTurboModeOptions = {}) {
       const isBlacklisted = config.blacklist.some(
         (pattern) =>
           trimmedCommand === pattern.toLowerCase() ||
-          trimmedCommand.startsWith(pattern.toLowerCase())
+          trimmedCommand.startsWith(pattern.toLowerCase()),
       );
 
       if (isBlacklisted) {
         return {
           command,
-          risk: 'critical',
-          category: '黑名单',
-          reason: '命令在黑名单中',
+          risk: "critical",
+          category: "黑名单",
+          reason: "命令在黑名单中",
           requiresConfirmation: true,
         };
       }
@@ -249,29 +332,29 @@ export function useTurboMode(options: UseTurboModeOptions = {}) {
       const isWhitelisted = config.whitelist.some(
         (pattern) =>
           trimmedCommand === pattern.toLowerCase() ||
-          trimmedCommand.startsWith(pattern.toLowerCase())
+          trimmedCommand.startsWith(pattern.toLowerCase()),
       );
 
       if (isWhitelisted) {
         return {
           command,
-          risk: 'safe',
-          category: '白名单',
-          reason: '命令在白名单中',
+          risk: "safe",
+          category: "白名单",
+          reason: "命令在白名单中",
           requiresConfirmation: false,
         };
       }
 
       // 使用风险模式匹配
       for (const { pattern, risk, category, reason } of RISK_PATTERNS) {
-        const regex = typeof pattern === 'string' ? new RegExp(pattern, 'i') : pattern;
+        const regex = typeof pattern === "string" ? new RegExp(pattern, "i") : pattern;
         if (regex.test(command)) {
           return {
             command,
             risk,
             category,
             reason,
-            requiresConfirmation: risk !== 'safe',
+            requiresConfirmation: risk !== "safe",
           };
         }
       }
@@ -279,13 +362,13 @@ export function useTurboMode(options: UseTurboModeOptions = {}) {
       // 默认为中等风险
       return {
         command,
-        risk: 'moderate',
-        category: '未知',
-        reason: '无法识别的命令',
-        requiresConfirmation: config.level !== 'full',
+        risk: "moderate",
+        category: "未知",
+        reason: "无法识别的命令",
+        requiresConfirmation: config.level !== "full",
       };
     },
-    [config.blacklist, config.whitelist, config.level]
+    [config.blacklist, config.whitelist, config.level],
   );
 
   /**
@@ -293,23 +376,23 @@ export function useTurboMode(options: UseTurboModeOptions = {}) {
    */
   const shouldAutoExecute = useCallback(
     (analysis: CommandAnalysis): boolean => {
-      if (config.level === 'off') return false;
-      if (analysis.risk === 'critical') return false;
+      if (config.level === "off") return false;
+      if (analysis.risk === "critical") return false;
       if (consecutiveAutoCount >= config.maxConsecutiveAuto) return false;
 
       switch (config.level) {
-        case 'safe':
-          return analysis.risk === 'safe';
-        case 'moderate':
-          return analysis.risk === 'safe' || analysis.risk === 'moderate';
-        case 'full':
+        case "safe":
+          return analysis.risk === "safe";
+        case "moderate":
+          return analysis.risk === "safe" || analysis.risk === "moderate";
+        case "full":
           // 在 full 模式下，执行非 critical 的命令（safe, moderate, dangerous）
           return true;
         default:
           return false;
       }
     },
-    [config.level, config.maxConsecutiveAuto, consecutiveAutoCount]
+    [config.level, config.maxConsecutiveAuto, consecutiveAutoCount],
   );
 
   /**
@@ -318,7 +401,7 @@ export function useTurboMode(options: UseTurboModeOptions = {}) {
   const executeWithRetry = useCallback(
     async (command: string): Promise<ExecutionResult> => {
       if (!onExecute) {
-        return { success: false, error: '未配置执行回调', retryCount: 0 };
+        return { success: false, error: "未配置执行回调", retryCount: 0 };
       }
 
       let retryCount = 0;
@@ -361,7 +444,7 @@ export function useTurboMode(options: UseTurboModeOptions = {}) {
 
       return { success: false, error: lastError, retryCount };
     },
-    [onExecute, config.maxRetries, config.retryDelay, config.smartRecovery]
+    [onExecute, config.maxRetries, config.retryDelay, config.smartRecovery],
   );
 
   /**
@@ -371,25 +454,25 @@ export function useTurboMode(options: UseTurboModeOptions = {}) {
     const errorLower = error.toLowerCase();
 
     // npm 相关错误恢复
-    if (command.includes('npm') && errorLower.includes('enoent')) {
-      return 'npm install';
+    if (command.includes("npm") && errorLower.includes("enoent")) {
+      return "npm install";
     }
 
-    if (command.includes('npm') && errorLower.includes('permission denied')) {
-      return command.replace('npm', 'npx');
+    if (command.includes("npm") && errorLower.includes("permission denied")) {
+      return command.replace("npm", "npx");
     }
 
     // Git 相关错误恢复
-    if (command.includes('git push') && errorLower.includes('rejected')) {
-      return 'git pull --rebase';
+    if (command.includes("git push") && errorLower.includes("rejected")) {
+      return "git pull --rebase";
     }
 
-    if (command.includes('git') && errorLower.includes('not a git repository')) {
-      return 'git init';
+    if (command.includes("git") && errorLower.includes("not a git repository")) {
+      return "git init";
     }
 
     // 文件不存在
-    if (errorLower.includes('no such file') || errorLower.includes('not found')) {
+    if (errorLower.includes("no such file") || errorLower.includes("not found")) {
       const match = command.match(/(mkdir|touch)\s+(.+)/);
       if (match) {
         return `mkdir -p ${match[2]}`;
@@ -427,7 +510,7 @@ export function useTurboMode(options: UseTurboModeOptions = {}) {
 
       return { autoExecuted: false };
     },
-    [analyzeCommand, shouldAutoExecute, executeWithRetry, onConfirmationNeeded]
+    [analyzeCommand, shouldAutoExecute, executeWithRetry, onConfirmationNeeded],
   );
 
   /**
@@ -481,7 +564,7 @@ export function useTurboMode(options: UseTurboModeOptions = {}) {
    * 获取会话剩余时间
    */
   const getSessionRemainingTime = useCallback((): number | null => {
-    if (!sessionStartRef.current || config.level === 'off') return null;
+    if (!sessionStartRef.current || config.level === "off") return null;
     const elapsed = Date.now() - sessionStartRef.current;
     return Math.max(0, config.sessionTimeout - elapsed);
   }, [config.level, config.sessionTimeout]);
@@ -491,16 +574,16 @@ export function useTurboMode(options: UseTurboModeOptions = {}) {
    */
   const getModeDescription = useCallback((level: TurboModeLevel): string => {
     switch (level) {
-      case 'off':
-        return '已关闭 - 所有命令需要确认';
-      case 'safe':
-        return '安全模式 - 只自动执行只读命令';
-      case 'moderate':
-        return '中等模式 - 自动执行大部分安全操作';
-      case 'full':
-        return '完全模式 - 自动执行非危险命令';
+      case "off":
+        return "已关闭 - 所有命令需要确认";
+      case "safe":
+        return "安全模式 - 只自动执行只读命令";
+      case "moderate":
+        return "中等模式 - 自动执行大部分安全操作";
+      case "full":
+        return "完全模式 - 自动执行非危险命令";
       default:
-        return '';
+        return "";
     }
   }, []);
 

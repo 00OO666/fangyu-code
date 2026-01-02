@@ -4,7 +4,7 @@ export type ProcessType =
   | { ClaudeSession: { session_id: string } };
 
 /** Checkpoint type */
-export type CheckpointType = 'auto' | 'manual' | 'tool_call';
+export type CheckpointType = "auto" | "manual" | "tool_call";
 
 /** Checkpoint file information */
 export interface CheckpointFile {
@@ -79,7 +79,7 @@ export interface Session {
   /** The model used in this session (if available) */
   model?: string;
   /** Execution engine: 'claude' | 'codex' | 'gemini' */
-  engine?: 'claude' | 'codex' | 'gemini';
+  engine?: "claude" | "codex" | "gemini";
 }
 
 /**
@@ -277,7 +277,6 @@ export interface PromptRecord {
   source: string;
 }
 
-
 // Smart Project Management types
 /**
  * Result of creating or renaming a smart project
@@ -427,7 +426,7 @@ export interface CodexProviderConfig {
   name: string;
   description?: string;
   websiteUrl?: string;
-  category?: 'official' | 'cn_official' | 'aggregator' | 'third_party' | 'custom';
+  category?: "official" | "cn_official" | "aggregator" | "third_party" | "custom";
   auth: Record<string, any>; // 写入 ~/.codex/auth.json
   config: string; // 写入 ~/.codex/config.toml（TOML 字符串）
   isOfficial?: boolean;
@@ -454,7 +453,7 @@ export interface GeminiProviderConfig {
   name: string;
   description?: string;
   websiteUrl?: string;
-  category?: 'official' | 'third_party' | 'custom';
+  category?: "official" | "third_party" | "custom";
   env: Record<string, string>; // 环境变量，写入 ~/.gemini/.env
   isOfficial?: boolean;
   isPartner?: boolean;
@@ -599,8 +598,6 @@ export interface MCPServerConfig {
   env: Record<string, string>;
 }
 
-
-
 /**
  * Result of saving clipboard image
  */
@@ -640,7 +637,6 @@ export interface TranslationCacheStats {
   active_entries: number;
 }
 
-
 /**
  * Auto-compact configuration
  */
@@ -666,11 +662,7 @@ export interface AutoCompactConfig {
 /**
  * Compaction strategies
  */
-export type CompactionStrategy =
-  | 'Smart'
-  | 'Aggressive'
-  | 'Conservative'
-  | { Custom: string };
+export type CompactionStrategy = "Smart" | "Aggressive" | "Conservative" | { Custom: string };
 
 /**
  * Session context information
@@ -689,11 +681,7 @@ export interface SessionContext {
 /**
  * Session status
  */
-export type SessionStatus =
-  | 'Active'
-  | 'Idle'
-  | 'Compacting'
-  | { CompactionFailed: string };
+export type SessionStatus = "Active" | "Idle" | "Compacting" | { CompactionFailed: string };
 
 /**
  * Auto-compact status information

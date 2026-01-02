@@ -4,19 +4,19 @@
  * 统一管理工作流的完整生命周期
  */
 
-import { useState, useCallback, useRef, useEffect } from 'react';
-import { TaskPlanner, DEFAULT_PLANNER_CONFIG } from '@/core/planning/TaskPlanner';
-import { AgentSwarmManager } from '@/core/agents/AgentSwarmManager';
-import { SandboxManager } from '@/core/sandbox/SandboxManager';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { AgentSwarmManager } from "@/core/agents/AgentSwarmManager";
+import { DEFAULT_PLANNER_CONFIG, TaskPlanner } from "@/core/planning/TaskPlanner";
+import { SandboxManager } from "@/core/sandbox/SandboxManager";
 import type {
-  WorkflowDAG,
   Agent,
+  DEFAULT_WORKFLOW_CONFIG,
   Task,
-  WorkflowLog,
-  WorkflowEvent,
   WorkflowConfig,
-  DEFAULT_WORKFLOW_CONFIG
-} from '@/core/types/workflow';
+  WorkflowDAG,
+  WorkflowEvent,
+  WorkflowLog,
+} from "@/core/types/workflow";
 
 // ============================================
 // 类型定义
@@ -60,12 +60,12 @@ export interface UseWorkflowOrchestratorOptions {
 // ============================================
 
 export function useWorkflowOrchestrator(
-  options: UseWorkflowOrchestratorOptions = {}
+  options: UseWorkflowOrchestratorOptions = {},
 ): WorkflowOrchestrator {
   // 配置
   const config = useRef<WorkflowConfig>({
     ...DEFAULT_WORKFLOW_CONFIG,
-    ...options.config
+    ...options.config,
   }).current;
 
   // 管理器实例
@@ -87,8 +87,8 @@ export function useWorkflowOrchestrator(
     // 初始化 Planner
     plannerRef.current = new TaskPlanner({
       ...DEFAULT_PLANNER_CONFIG,
-      apiKey: localStorage.getItem('claude_api_key') || '',
-      baseUrl: localStorage.getItem('claude_api_base_url') || undefined
+      apiKey: localStorage.getItem("claude_api_key") || "",
+      baseUrl: localStorage.getItem("claude_api_base_url") || undefined,
     });
 
     // 初始化 Sandbox Manager
@@ -103,14 +103,14 @@ export function useWorkflowOrchestrator(
       // 添加日志
       addLog({
         timestamp: event.timestamp,
-        level: 'info',
+        level: "info",
         message: `[${event.type}] ${JSON.stringify(event.data)}`,
         taskId: event.taskId,
-        agentId: event.agentId
+        agentId: event.agentId,
       });
 
       // 更新代理状态
-      if (event.type.startsWith('agent:')) {
+      if (event.type.startsWith("agent:")) {
         updateAgentList();
       }
 
@@ -118,16 +118,16 @@ export function useWorkflowOrchestrator(
       options.onEvent?.(event);
     };
 
-    swarmManagerRef.current.on('*', handleEvent);
+    swarmManagerRef.current.on("*", handleEvent);
 
     return () => {
-      swarmManagerRef.current?.removeListener('*', handleEvent);
+      swarmManagerRef.current?.removeListener("*", handleEvent);
     };
   }, []);
 
   // 添加日志
   const addLog = useCallback((log: WorkflowLog) => {
-    setLogs(prev => [...prev, log].slice(-500));
+    setLogs((prev) => [...prev, log].slice(-500));
   }, []);
 
   // 更新代理列表
@@ -139,75 +139,71 @@ export function useWorkflowOrchestrator(
   }, []);
 
   // 生成工作流
-  const generateWorkflow = useCallback(async (
-    prompt: string,
-    ultrathink: boolean = true
-  ) => {
-    if (!plannerRef.current) {
-      throw new Error('TaskPlanner not initialized');
-    }
-
-    setIsPlanning(true);
-    setError(null);
-
-    addLog({
-      timestamp: Date.now(),
-      level: 'info',
-      message: `开始分析任务: ${prompt.slice(0, 50)}...`
-    });
-
-    try {
-      const result = await plannerRef.current.generateWorkflowDAG(
-        prompt,
-        {
-          projectPath: options.projectPath,
-          techStack: ['react', 'typescript', 'tauri']
-        }
-      );
-
-      setWorkflow(result.workflow);
-      setIsPlanning(false);
-
-      addLog({
-        timestamp: Date.now(),
-        level: 'info',
-        message: `工作流生成完成: ${result.workflow.tasks.length} 个任务, ${result.workflow.parallelGroups.length} 个并行组`
-      });
-
-      if (result.thinkingProcess) {
-        addLog({
-          timestamp: Date.now(),
-          level: 'debug',
-          message: `AI 思考过程: ${result.thinkingProcess.slice(0, 200)}...`
-        });
+  const generateWorkflow = useCallback(
+    async (prompt: string, ultrathink: boolean = true) => {
+      if (!plannerRef.current) {
+        throw new Error("TaskPlanner not initialized");
       }
 
-      options.onWorkflowGenerated?.(result.workflow);
-
-      return result.workflow;
-
-    } catch (err: any) {
-      setError(err.message);
-      setIsPlanning(false);
+      setIsPlanning(true);
+      setError(null);
 
       addLog({
         timestamp: Date.now(),
-        level: 'error',
-        message: `工作流生成失败: ${err.message}`
+        level: "info",
+        message: `开始分析任务: ${prompt.slice(0, 50)}...`,
       });
 
-      throw err;
-    }
-  }, [options.projectPath, addLog]);
+      try {
+        const result = await plannerRef.current.generateWorkflowDAG(prompt, {
+          projectPath: options.projectPath,
+          techStack: ["react", "typescript", "tauri"],
+        });
+
+        setWorkflow(result.workflow);
+        setIsPlanning(false);
+
+        addLog({
+          timestamp: Date.now(),
+          level: "info",
+          message: `工作流生成完成: ${result.workflow.tasks.length} 个任务, ${result.workflow.parallelGroups.length} 个并行组`,
+        });
+
+        if (result.thinkingProcess) {
+          addLog({
+            timestamp: Date.now(),
+            level: "debug",
+            message: `AI 思考过程: ${result.thinkingProcess.slice(0, 200)}...`,
+          });
+        }
+
+        options.onWorkflowGenerated?.(result.workflow);
+
+        return result.workflow;
+      } catch (err: any) {
+        setError(err.message);
+        setIsPlanning(false);
+
+        addLog({
+          timestamp: Date.now(),
+          level: "error",
+          message: `工作流生成失败: ${err.message}`,
+        });
+
+        throw err;
+      }
+    },
+    [options.projectPath, addLog],
+  );
 
   // 开始执行
   const startExecution = useCallback(async () => {
     if (!workflow) {
-      throw new Error('No workflow to execute');
+      throw new Error("No workflow to execute");
     }
 
     if (!swarmManagerRef.current) {
-      throw new Error('SwarmManager not initialized');
+      throw new Error("SwarmManager not initialized");
     }
 
     setIsRunning(true);
@@ -216,8 +212,8 @@ export function useWorkflowOrchestrator(
 
     addLog({
       timestamp: Date.now(),
-      level: 'info',
-      message: '开始执行工作流...'
+      level: "info",
+      message: "开始执行工作流...",
     });
 
     try {
@@ -227,41 +223,40 @@ export function useWorkflowOrchestrator(
       const updateInterval = setInterval(updateAgentList, 1000);
 
       // 等待完成
-      swarmManagerRef.current.once('workflow:completed', (event) => {
+      swarmManagerRef.current.once("workflow:completed", (event) => {
         clearInterval(updateInterval);
         setIsRunning(false);
 
         addLog({
           timestamp: Date.now(),
-          level: 'info',
-          message: '工作流执行完成！'
+          level: "info",
+          message: "工作流执行完成！",
         });
 
         options.onWorkflowCompleted?.(event.workflow);
       });
 
-      swarmManagerRef.current.once('workflow:failed', (event) => {
+      swarmManagerRef.current.once("workflow:failed", (event) => {
         clearInterval(updateInterval);
         setIsRunning(false);
-        setError('Workflow execution failed');
+        setError("Workflow execution failed");
 
         addLog({
           timestamp: Date.now(),
-          level: 'error',
-          message: '工作流执行失败'
+          level: "error",
+          message: "工作流执行失败",
         });
 
-        options.onWorkflowFailed?.(new Error('Workflow execution failed'));
+        options.onWorkflowFailed?.(new Error("Workflow execution failed"));
       });
-
     } catch (err: any) {
       setError(err.message);
       setIsRunning(false);
 
       addLog({
         timestamp: Date.now(),
-        level: 'error',
-        message: `执行失败: ${err.message}`
+        level: "error",
+        message: `执行失败: ${err.message}`,
       });
 
       throw err;
@@ -277,8 +272,8 @@ export function useWorkflowOrchestrator(
 
     addLog({
       timestamp: Date.now(),
-      level: 'info',
-      message: '工作流已暂停'
+      level: "info",
+      message: "工作流已暂停",
     });
   }, [addLog]);
 
@@ -291,8 +286,8 @@ export function useWorkflowOrchestrator(
 
     addLog({
       timestamp: Date.now(),
-      level: 'info',
-      message: '工作流已恢复'
+      level: "info",
+      message: "工作流已恢复",
     });
   }, [addLog]);
 
@@ -306,43 +301,55 @@ export function useWorkflowOrchestrator(
 
     addLog({
       timestamp: Date.now(),
-      level: 'info',
-      message: '工作流已停止'
+      level: "info",
+      message: "工作流已停止",
     });
   }, [addLog]);
 
   // 重试任务
-  const retryTask = useCallback(async (taskId: string) => {
-    // TODO: 实现任务重试
-    addLog({
-      timestamp: Date.now(),
-      level: 'info',
-      message: `重试任务: ${taskId}`
-    });
-  }, [addLog]);
+  const retryTask = useCallback(
+    async (taskId: string) => {
+      // TODO: 实现任务重试
+      addLog({
+        timestamp: Date.now(),
+        level: "info",
+        message: `重试任务: ${taskId}`,
+      });
+    },
+    [addLog],
+  );
 
   // 取消任务
-  const cancelTask = useCallback(async (taskId: string) => {
-    if (!swarmManagerRef.current) return;
+  const cancelTask = useCallback(
+    async (taskId: string) => {
+      if (!swarmManagerRef.current) return;
 
-    await swarmManagerRef.current.cancelTask(taskId);
+      await swarmManagerRef.current.cancelTask(taskId);
 
-    addLog({
-      timestamp: Date.now(),
-      level: 'info',
-      message: `任务已取消: ${taskId}`
-    });
-  }, [addLog]);
+      addLog({
+        timestamp: Date.now(),
+        level: "info",
+        message: `任务已取消: ${taskId}`,
+      });
+    },
+    [addLog],
+  );
 
   // 获取任务状态
-  const getTaskStatus = useCallback((taskId: string): Task | undefined => {
-    return workflow?.tasks.find(t => t.id === taskId);
-  }, [workflow]);
+  const getTaskStatus = useCallback(
+    (taskId: string): Task | undefined => {
+      return workflow?.tasks.find((t) => t.id === taskId);
+    },
+    [workflow],
+  );
 
   // 获取代理状态
-  const getAgentStatus = useCallback((agentId: string): Agent | undefined => {
-    return agents.find(a => a.id === agentId);
-  }, [agents]);
+  const getAgentStatus = useCallback(
+    (agentId: string): Agent | undefined => {
+      return agents.find((a) => a.id === agentId);
+    },
+    [agents],
+  );
 
   return {
     // 状态
@@ -365,7 +372,7 @@ export function useWorkflowOrchestrator(
 
     // 监控
     getTaskStatus,
-    getAgentStatus
+    getAgentStatus,
   };
 }
 

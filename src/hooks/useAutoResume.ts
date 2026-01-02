@@ -13,8 +13,13 @@
  * - https://www.letsgroto.com/blog/ux-best-practices-for-ai-chatbots
  */
 
-import { useState, useEffect, useRef, useCallback } from 'react';
-import type { ClaudeStreamMessage } from '@/types/claude';
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { ClaudeStreamMessage } from "@/types/claude";
+
+// 🔧 FIX: Use ref to track messages without triggering re-renders
+
+// 🚨 EMERGENCY KILL SWITCH: Set to false to completely disable auto-resume
+const AUTO_RESUME_ENABLED = false;  // 🔧 临时禁用以诊断 token 消耗问题
 
 interface AutoResumeConfig {
   /** 会话 ID */
@@ -84,11 +89,14 @@ function getSessionMetadata(sessionId: string) {
 /**
  * 保存会话元数据到 localStorage
  */
-function saveSessionMetadata(sessionId: string, metadata: {
-  attemptCount: number;
-  lastResumeTime: number;
-  cancelled: boolean;
-}) {
+function saveSessionMetadata(
+  sessionId: string,
+  metadata: {
+    attemptCount: number;
+    lastResumeTime: number;
+    cancelled: boolean;
+  },
+) {
   const key = `auto_resume_${sessionId}`;
   localStorage.setItem(key, JSON.stringify(metadata));
 }
@@ -98,23 +106,23 @@ function saveSessionMetadata(sessionId: string, metadata: {
  */
 function extractMessageContent(msg: ClaudeStreamMessage): string {
   // 尝试多种可能的内容字段
-  if (typeof msg.content === 'string') {
+  if (typeof msg.content === "string") {
     return msg.content;
   }
-  if (typeof msg.text === 'string') {
+  if (typeof msg.text === "string") {
     return msg.text;
   }
   if (msg.message?.content) {
-    if (typeof msg.message.content === 'string') {
+    if (typeof msg.message.content === "string") {
       return msg.message.content;
     }
     if (Array.isArray(msg.message.content)) {
       return msg.message.content
-        .map((item: any) => (typeof item === 'string' ? item : item?.text || ''))
-        .join(' ');
+        .map((item: any) => (typeof item === "string" ? item : item?.text || ""))
+        .join(" ");
     }
   }
-  return '';
+  return "";
 }
 
 /**
@@ -126,21 +134,22 @@ function extractLatestTodoList(messages: ClaudeStreamMessage[]): any[] | null {
     const msg = messages[i];
 
     // 检查是否是工具调用消息
-    if (msg.type === 'result' || msg.type === 'assistant') {
+    if (msg.type === "result" || msg.type === "assistant") {
       // 尝试从不同的可能字段提取 todos
-      const todos = (msg as any).todos ||
-                   (msg as any).result?.todos ||
-                   (msg as any).message?.content?.todos ||
-                   (msg as any).tool_use?.parameters?.todos;
+      const todos =
+        (msg as any).todos ||
+        (msg as any).result?.todos ||
+        (msg as any).message?.content?.todos ||
+        (msg as any).tool_use?.parameters?.todos;
 
       if (todos && Array.isArray(todos)) {
-        console.log('[useAutoResume] 📋 Found TodoList with', todos.length, 'items');
+        console.log("[useAutoResume] 📋 Found TodoList with", todos.length, "items");
         return todos;
       }
     }
   }
 
-  console.log('[useAutoResume] ℹ️ No TodoList found in messages');
+  console.log("[useAutoResume] ℹ️ No TodoList found in messages");
   return null;
 }
 
@@ -148,14 +157,14 @@ function extractLatestTodoList(messages: ClaudeStreamMessage[]): any[] | null {
  * 检测 TodoList 中是否有未完成的任务
  */
 function detectIncompleteTasksFromTodo(todos: any[]): boolean {
-  const hasInProgress = todos.some(todo =>
-    todo.status === 'in_progress' || todo.status === 'pending'
+  const hasInProgress = todos.some(
+    (todo) => todo.status === "in_progress" || todo.status === "pending",
   );
 
   if (hasInProgress) {
-    const inProgressTasks = todos.filter(t => t.status === 'in_progress');
-    const pendingTasks = todos.filter(t => t.status === 'pending');
-    console.log('[useAutoResume] 🎯 Found incomplete tasks:', {
+    const inProgressTasks = todos.filter((t) => t.status === "in_progress");
+    const pendingTasks = todos.filter((t) => t.status === "pending");
+    console.log("[useAutoResume] 🎯 Found incomplete tasks:", {
       in_progress: inProgressTasks.length,
       pending: pendingTasks.length,
     });
@@ -167,7 +176,7 @@ function detectIncompleteTasksFromTodo(todos: any[]): boolean {
 
     // 如果只有 pending 任务，检查已完成任务的数量
     // 如果有已完成的任务，说明 Claude 正在执行，需要继续
-    const completedTasks = todos.filter(t => t.status === 'completed');
+    const completedTasks = todos.filter((t) => t.status === "completed");
     if (completedTasks.length > 0 && pendingTasks.length > 0) {
       return true;
     }
@@ -178,66 +187,65 @@ function detectIncompleteTasksFromTodo(todos: any[]): boolean {
 
 /**
  * 检测是否有未完成的任务（基于消息内容）
+ * 🔧 IMPROVED: More strict detection to reduce false positives
  */
 function detectIncompleteTasksFromContent(messages: ClaudeStreamMessage[]): boolean {
-  // 倒序检查最近的消息
-  for (let i = messages.length - 1; i >= Math.max(0, messages.length - 10); i--) {
+  // 🔧 FIX: Only check last 3 messages instead of 10 to reduce false positives
+  for (let i = messages.length - 1; i >= Math.max(0, messages.length - 3); i--) {
     const msg = messages[i];
     const msgType = msg.type || msg.role;
 
     // 跳过 system 消息
-    if (msgType === 'system') continue;
+    if (msgType === "system") continue;
 
     // 如果最后一条是用户消息，不需要继续（用户已经发送了新消息）
-    if ((msgType === 'user') && i === messages.length - 1) {
-      console.log('[useAutoResume] 📝 Last message is from user, no need to resume');
+    if (msgType === "user" && i === messages.length - 1) {
+      console.log("[useAutoResume] 📝 Last message is from user, no need to resume");
       return false;
     }
 
     // 如果是 assistant 消息，检查是否有未完成的任务
-    if (msgType === 'assistant' || msgType === 'result') {
+    if (msgType === "assistant" || msgType === "result") {
       const content = extractMessageContent(msg).toLowerCase();
 
       if (!content) continue;
 
-      // 1. 检查是否有明确的待续标记
+      // 🔧 IMPROVED: More strict keyword matching
+      // 1. 检查是否有明确的待续标记（减少关键词，提高精确度）
       const hasContinueMarker =
-        content.includes('继续') ||
-        content.includes('下一步') ||
-        content.includes('待续') ||
-        content.includes('未完成') ||
-        content.includes('todo') ||
-        content.includes('pending') ||
-        content.includes('in progress') ||
-        content.includes('in_progress') ||
-        content.includes('接下来');
+        content.includes("待续") ||
+        content.includes("未完成") ||
+        (content.includes("in_progress") && content.includes("status"));  // Must have both
 
       // 2. 检查是否有工具调用失败
       const hasToolError =
-        content.includes('error') ||
-        content.includes('failed') ||
-        content.includes('失败') ||
-        content.includes('错误');
+        content.includes("error") ||
+        content.includes("failed") ||
+        content.includes("失败") ||
+        content.includes("错误");
 
       // 3. 检查是否有明确的结束标记
       const hasEndMarker =
-        content.includes('已完成') ||
-        content.includes('全部完成') ||
-        content.includes('任务完成') ||
-        content.includes('done') ||
-        content.includes('finished') ||
-        content.includes('completed') ||
-        content.includes('all done');
+        content.includes("已完成") ||
+        content.includes("全部完成") ||
+        content.includes("任务完成") ||
+        content.includes("done") ||
+        content.includes("finished") ||
+        content.includes("completed") ||
+        content.includes("all done");
 
       // 如果有继续标记或工具错误，且没有明确结束，认为需要继续
       if ((hasContinueMarker || hasToolError) && !hasEndMarker) {
-        console.log('[useAutoResume] 🎯 Detected incomplete task from content:', content.slice(0, 100));
+        console.log(
+          "[useAutoResume] 🎯 Detected incomplete task from content:",
+          content.slice(0, 100),
+        );
         return true;
       }
 
       // 如果有明确结束标记，不需要继续
       if (hasEndMarker) {
-        console.log('[useAutoResume] ✅ Found end marker, no need to resume');
+        console.log("[useAutoResume] ✅ Found end marker, no need to resume");
         return false;
       }
     }
@@ -252,7 +260,7 @@ function detectIncompleteTasksFromContent(messages: ClaudeStreamMessage[]): bool
 function detectIncompleteTasks(messages: ClaudeStreamMessage[]): boolean {
   if (!messages || messages.length === 0) return false;
 
-  console.log('[useAutoResume] 🔍 Checking', messages.length, 'messages for incomplete tasks');
+  console.log("[useAutoResume] 🔍 Checking", messages.length, "messages for incomplete tasks");
 
   // 🆕 优先级 1: 检查 TodoList 中的 in_progress 状态（最准确）
   const latestTodos = extractLatestTodoList(messages);
@@ -292,6 +300,12 @@ export function useAutoResume(config: AutoResumeConfig): AutoResumeReturn {
   const countdownTimerRef = useRef<NodeJS.Timeout | null>(null);
   const metadataRef = useRef({ attemptCount: 0, lastResumeTime: 0, cancelled: false });
 
+  // 🔧 CRITICAL FIX: Use ref for messages to prevent infinite loop
+  const messagesRef = useRef(messages);
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
+
   // 加载会话元数据
   useEffect(() => {
     if (!sessionId) return;
@@ -314,7 +328,7 @@ export function useAutoResume(config: AutoResumeConfig): AutoResumeReturn {
 
   // 取消自动继续
   const cancel = useCallback(() => {
-    console.log('[useAutoResume] ❌ User cancelled auto-resume');
+    console.log("[useAutoResume] ❌ User cancelled auto-resume");
     clearTimers();
     setShouldResume(false);
     setCountdown(0);
@@ -330,7 +344,7 @@ export function useAutoResume(config: AutoResumeConfig): AutoResumeReturn {
 
   // 手动触发继续
   const resume = useCallback(() => {
-    console.log('[useAutoResume] ✅ Manual resume triggered');
+    console.log("[useAutoResume] ✅ Manual resume triggered");
     clearTimers();
     setShouldResume(true);
     setCountdown(0);
@@ -348,6 +362,12 @@ export function useAutoResume(config: AutoResumeConfig): AutoResumeReturn {
 
   // 主逻辑：检测并触发自动继续
   useEffect(() => {
+    // 🚨 EMERGENCY KILL SWITCH: Check if auto-resume is enabled
+    if (!AUTO_RESUME_ENABLED) {
+      console.log("[useAutoResume] 🚫 Auto-resume is disabled by kill switch");
+      return;
+    }
+
     // 清理之前的定时器
     clearTimers();
 
@@ -358,7 +378,7 @@ export function useAutoResume(config: AutoResumeConfig): AutoResumeReturn {
 
     // 检查是否超过最大尝试次数
     if (metadataRef.current.attemptCount >= maxAttempts) {
-      console.log('[useAutoResume] 🛑 Max attempts reached:', maxAttempts);
+      console.log("[useAutoResume] 🛑 Max attempts reached:", maxAttempts);
       return;
     }
 
@@ -366,13 +386,14 @@ export function useAutoResume(config: AutoResumeConfig): AutoResumeReturn {
     const now = Date.now();
     const timeSinceLastResume = now - metadataRef.current.lastResumeTime;
     if (timeSinceLastResume < minInterval) {
-      console.log('[useAutoResume] ⏱️ Too soon to resume:', timeSinceLastResume, 'ms');
+      console.log("[useAutoResume] ⏱️ Too soon to resume:", timeSinceLastResume, "ms");
       return;
     }
 
     // 检查会话是否超时（仅当消息有时间戳时检查）
-    if (messages.length > 0) {
-      const lastMessage = messages[messages.length - 1];
+    // 🔧 FIX: Use messagesRef to access current messages
+    if (messagesRef.current.length > 0) {
+      const lastMessage = messagesRef.current[messagesRef.current.length - 1];
 
       // 🔧 FIX: 如果消息没有 timestamp，说明是刚加载的历史消息，跳过超时检查
       if (lastMessage.timestamp) {
@@ -380,22 +401,29 @@ export function useAutoResume(config: AutoResumeConfig): AutoResumeReturn {
         const timeSinceLastMessage = now - lastMessageTime;
 
         if (timeSinceLastMessage > inactiveTimeout) {
-          console.log('[useAutoResume] ⏰ Session inactive for too long:', timeSinceLastMessage, 'ms');
+          console.log(
+            "[useAutoResume] ⏰ Session inactive for too long:",
+            timeSinceLastMessage,
+            "ms",
+          );
           return;
         }
       } else {
-        console.log('[useAutoResume] ℹ️ Message has no timestamp, skipping timeout check (likely historical data)');
+        console.log(
+          "[useAutoResume] ℹ️ Message has no timestamp, skipping timeout check (likely historical data)",
+        );
       }
     }
 
     // 检测是否有未完成的任务
-    const hasIncompleteTasks = detectIncompleteTasks(messages);
+    // 🔧 CRITICAL FIX: Use messagesRef instead of messages to prevent infinite loop
+    const hasIncompleteTasks = detectIncompleteTasks(messagesRef.current);
     if (!hasIncompleteTasks) {
-      console.log('[useAutoResume] ✅ No incomplete tasks detected');
+      console.log("[useAutoResume] ✅ No incomplete tasks detected");
       return;
     }
 
-    console.log('[useAutoResume] 🚀 Starting auto-resume countdown...');
+    console.log("[useAutoResume] 🚀 Starting auto-resume countdown...");
 
     // 开始倒计时
     let remainingSeconds = Math.floor(delay / 1000);
@@ -420,7 +448,7 @@ export function useAutoResume(config: AutoResumeConfig): AutoResumeReturn {
 
     // 主定时器：delay 后触发继续
     timerRef.current = setTimeout(() => {
-      console.log('[useAutoResume] ✅ Auto-resume triggered!');
+      console.log("[useAutoResume] ✅ Auto-resume triggered!");
       setShouldResume(true);
       setCountdown(0);
 
@@ -437,7 +465,19 @@ export function useAutoResume(config: AutoResumeConfig): AutoResumeReturn {
     return () => {
       clearTimers();
     };
-  }, [sessionId, messages, isLoading, isStreaming, isCancelled, delay, maxAttempts, minInterval, inactiveTimeout, clearTimers]);
+  }, [
+    sessionId,
+    // 🔧 CRITICAL FIX: Removed 'messages' from dependencies to prevent infinite loop
+    // messages, ❌ This caused infinite loop: auto-resume → new messages → re-trigger
+    isLoading,
+    isStreaming,
+    isCancelled,
+    delay,
+    maxAttempts,
+    minInterval,
+    inactiveTimeout,
+    clearTimers,
+  ]);
 
   // 当 shouldResume 变为 true 后，立即重置（避免重复触发）
   useEffect(() => {

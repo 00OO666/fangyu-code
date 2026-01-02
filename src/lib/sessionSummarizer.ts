@@ -8,11 +8,11 @@
  */
 
 import type {
-  SessionSummary,
-  TaskSummary,
   FileSummary,
   MessageSummary,
-} from '@/types/session-continue';
+  SessionSummary,
+  TaskSummary,
+} from "@/types/session-continue";
 
 /**
  * 摘要生成配置
@@ -21,7 +21,7 @@ interface SummarizerConfig {
   /** 保留最近消息数 */
   recentMessagesCount: number;
   /** 摘要详细程度 */
-  verbosity: 'concise' | 'detailed';
+  verbosity: "concise" | "detailed";
   /** 项目路径 */
   projectPath: string;
   /** 会话 ID */
@@ -33,7 +33,7 @@ interface SummarizerConfig {
  */
 interface HistoryMessage {
   id: string;
-  role: 'user' | 'assistant' | 'system';
+  role: "user" | "assistant" | "system";
   content: string;
   timestamp: number;
   toolCalls?: Array<{
@@ -46,7 +46,7 @@ interface HistoryMessage {
 /**
  * 从消息历史中提取 TodoList 状态
  */
-export function extractTodoList(messages: HistoryMessage[]): SessionSummary['todoList'] {
+export function extractTodoList(messages: HistoryMessage[]): SessionSummary["todoList"] {
   const completed: TaskSummary[] = [];
   const inProgress: TaskSummary[] = [];
   const pending: TaskSummary[] = [];
@@ -54,28 +54,36 @@ export function extractTodoList(messages: HistoryMessage[]): SessionSummary['tod
   // 从最新的消息开始搜索 TodoList
   for (let i = messages.length - 1; i >= 0; i--) {
     const msg = messages[i];
-    if (msg.role !== 'assistant') continue;
+    if (msg.role !== "assistant") continue;
 
     // 查找 TodoList 相关的工具调用
     if (msg.toolCalls) {
-      const todoCall = msg.toolCalls.find(tc => tc.name === 'TodoWrite');
-      if (todoCall && todoCall.input && Array.isArray((todoCall.input as { todos?: unknown[] }).todos)) {
-        const todos = (todoCall.input as { todos: Array<{ content: string; status: string; activeForm?: string }> }).todos;
+      const todoCall = msg.toolCalls.find((tc) => tc.name === "TodoWrite");
+      if (
+        todoCall &&
+        todoCall.input &&
+        Array.isArray((todoCall.input as { todos?: unknown[] }).todos)
+      ) {
+        const todos = (
+          todoCall.input as {
+            todos: Array<{ content: string; status: string; activeForm?: string }>;
+          }
+        ).todos;
         todos.forEach((todo, index) => {
           const task: TaskSummary = {
             id: `task-${index}`,
             content: todo.content,
-            status: todo.status as TaskSummary['status'],
+            status: todo.status as TaskSummary["status"],
           };
 
           switch (todo.status) {
-            case 'completed':
+            case "completed":
               completed.push(task);
               break;
-            case 'in_progress':
+            case "in_progress":
               inProgress.push(task);
               break;
-            case 'pending':
+            case "pending":
               pending.push(task);
               break;
           }
@@ -89,7 +97,7 @@ export function extractTodoList(messages: HistoryMessage[]): SessionSummary['tod
     const todoPattern = /\[?(completed|in_progress|pending)\]?\s*(.+)/gi;
     const matches = msg.content.matchAll(todoPattern);
     for (const match of matches) {
-      const status = match[1].toLowerCase() as TaskSummary['status'];
+      const status = match[1].toLowerCase() as TaskSummary["status"];
       const content = match[2].trim();
       const task: TaskSummary = {
         id: `content-task-${Math.random().toString(36).slice(2, 8)}`,
@@ -98,18 +106,18 @@ export function extractTodoList(messages: HistoryMessage[]): SessionSummary['tod
       };
 
       switch (status) {
-        case 'completed':
-          if (!completed.some(t => t.content === content)) {
+        case "completed":
+          if (!completed.some((t) => t.content === content)) {
             completed.push(task);
           }
           break;
-        case 'in_progress':
-          if (!inProgress.some(t => t.content === content)) {
+        case "in_progress":
+          if (!inProgress.some((t) => t.content === content)) {
             inProgress.push(task);
           }
           break;
-        case 'pending':
-          if (!pending.some(t => t.content === content)) {
+        case "pending":
+          if (!pending.some((t) => t.content === content)) {
             pending.push(task);
           }
           break;
@@ -127,38 +135,38 @@ export function extractModifiedFiles(messages: HistoryMessage[]): FileSummary[] 
   const files = new Map<string, FileSummary>();
 
   for (const msg of messages) {
-    if (msg.role !== 'assistant' || !msg.toolCalls) continue;
+    if (msg.role !== "assistant" || !msg.toolCalls) continue;
 
     for (const tc of msg.toolCalls) {
       const input = tc.input as Record<string, string>;
 
-      if (tc.name === 'Write' && input.file_path) {
+      if (tc.name === "Write" && input.file_path) {
         files.set(input.file_path, {
           path: input.file_path,
-          operation: 'created',
+          operation: "created",
           description: `创建文件`,
         });
       }
 
-      if (tc.name === 'Edit' && input.file_path) {
+      if (tc.name === "Edit" && input.file_path) {
         const existing = files.get(input.file_path);
-        if (!existing || existing.operation !== 'created') {
+        if (!existing || existing.operation !== "created") {
           files.set(input.file_path, {
             path: input.file_path,
-            operation: 'modified',
+            operation: "modified",
             description: `修改文件`,
           });
         }
       }
 
-      if (tc.name === 'Bash' && input.command) {
+      if (tc.name === "Bash" && input.command) {
         // 检测删除命令
         const deleteMatch = input.command.match(/rm\s+(-rf?\s+)?['""]?([^'""\s]+)['""]?/);
         if (deleteMatch) {
           const deletedPath = deleteMatch[2];
           files.set(deletedPath, {
             path: deletedPath,
-            operation: 'deleted',
+            operation: "deleted",
             description: `删除文件`,
           });
         }
@@ -175,13 +183,25 @@ export function extractModifiedFiles(messages: HistoryMessage[]): FileSummary[] 
 export function extractKeyDecisions(messages: HistoryMessage[]): string[] {
   const decisions: string[] = [];
   const decisionKeywords = [
-    '决定使用', '选择', '采用', '决定', '方案是', '将使用',
-    'decided to', 'will use', 'choosing', 'going with',
-    '因为', '所以', '建议', '推荐', '最佳选择',
+    "决定使用",
+    "选择",
+    "采用",
+    "决定",
+    "方案是",
+    "将使用",
+    "decided to",
+    "will use",
+    "choosing",
+    "going with",
+    "因为",
+    "所以",
+    "建议",
+    "推荐",
+    "最佳选择",
   ];
 
   for (const msg of messages) {
-    if (msg.role !== 'assistant') continue;
+    if (msg.role !== "assistant") continue;
 
     // 检查是否包含决策关键词
     for (const keyword of decisionKeywords) {
@@ -209,35 +229,32 @@ export function extractKeyDecisions(messages: HistoryMessage[]): string[] {
 /**
  * 提取最近重要消息
  */
-export function extractRecentMessages(
-  messages: HistoryMessage[],
-  count: number
-): MessageSummary[] {
+export function extractRecentMessages(messages: HistoryMessage[], count: number): MessageSummary[] {
   const result: MessageSummary[] = [];
 
   // 从最新消息开始，过滤并提取
   for (let i = messages.length - 1; i >= 0 && result.length < count; i--) {
     const msg = messages[i];
-    if (msg.role === 'system') continue;
+    if (msg.role === "system") continue;
 
     // 判断消息重要性
     const isImportant =
       msg.content.length > 50 ||
       !!(msg.toolCalls && msg.toolCalls.length > 0) ||
-      msg.content.includes('完成') ||
-      msg.content.includes('创建') ||
-      msg.content.includes('修改') ||
-      msg.content.includes('错误') ||
-      msg.content.includes('成功');
+      msg.content.includes("完成") ||
+      msg.content.includes("创建") ||
+      msg.content.includes("修改") ||
+      msg.content.includes("错误") ||
+      msg.content.includes("成功");
 
     // 压缩消息内容（如果太长）
     let content = msg.content;
     if (content.length > 200) {
-      content = content.slice(0, 197) + '...';
+      content = content.slice(0, 197) + "...";
     }
 
     result.unshift({
-      role: msg.role as 'user' | 'assistant',
+      role: msg.role as "user" | "assistant",
       content,
       timestamp: msg.timestamp,
       important: isImportant,
@@ -250,21 +267,21 @@ export function extractRecentMessages(
 /**
  * 生成 Markdown 格式的摘要文本
  */
-export function generateSummaryText(summary: Omit<SessionSummary, 'summaryText'>): string {
+export function generateSummaryText(summary: Omit<SessionSummary, "summaryText">): string {
   const lines: string[] = [];
 
   // 标题
   lines.push(`# 会话继承自 Session #${summary.sessionId.slice(0, 8)}`);
-  lines.push('');
+  lines.push("");
 
   // 项目信息
-  lines.push('## 项目信息');
+  lines.push("## 项目信息");
   lines.push(`- **路径**: ${summary.project.path}`);
   lines.push(`- **名称**: ${summary.project.name}`);
   if (summary.project.techStack?.length) {
-    lines.push(`- **技术栈**: ${summary.project.techStack.join(', ')}`);
+    lines.push(`- **技术栈**: ${summary.project.techStack.join(", ")}`);
   }
-  lines.push('');
+  lines.push("");
 
   // TodoList 状态
   if (summary.todoList) {
@@ -272,9 +289,9 @@ export function generateSummaryText(summary: Omit<SessionSummary, 'summaryText'>
     const total = completed.length + inProgress.length + pending.length;
 
     if (total > 0) {
-      lines.push('## 任务进度');
+      lines.push("## 任务进度");
       lines.push(`进度: ${completed.length}/${total} 已完成`);
-      lines.push('');
+      lines.push("");
 
       for (const task of completed) {
         lines.push(`- [x] ~~${task.content}~~`);
@@ -285,44 +302,44 @@ export function generateSummaryText(summary: Omit<SessionSummary, 'summaryText'>
       for (const task of pending) {
         lines.push(`- [ ] ${task.content}`);
       }
-      lines.push('');
+      lines.push("");
     }
   }
 
   // 修改文件
   if (summary.modifiedFiles.length > 0) {
-    lines.push('## 最近修改的文件');
+    lines.push("## 最近修改的文件");
     for (const file of summary.modifiedFiles) {
-      const icon = file.operation === 'created' ? '+' : file.operation === 'deleted' ? '-' : '~';
+      const icon = file.operation === "created" ? "+" : file.operation === "deleted" ? "-" : "~";
       lines.push(`- \`${icon}\` ${file.path}`);
     }
-    lines.push('');
+    lines.push("");
   }
 
   // 关键决策
   if (summary.keyDecisions.length > 0) {
-    lines.push('## 关键决策');
+    lines.push("## 关键决策");
     for (const decision of summary.keyDecisions) {
       lines.push(`- ${decision}`);
     }
-    lines.push('');
+    lines.push("");
   }
 
   // 最近对话摘要
   if (summary.recentMessages.length > 0) {
-    lines.push('## 最近对话');
+    lines.push("## 最近对话");
     for (const msg of summary.recentMessages) {
-      const role = msg.role === 'user' ? '👤 User' : '🤖 Assistant';
-      const content = msg.content.replace(/\n/g, ' ').slice(0, 100);
-      lines.push(`- **${role}**: ${content}${msg.content.length > 100 ? '...' : ''}`);
+      const role = msg.role === "user" ? "👤 User" : "🤖 Assistant";
+      const content = msg.content.replace(/\n/g, " ").slice(0, 100);
+      lines.push(`- **${role}**: ${content}${msg.content.length > 100 ? "..." : ""}`);
     }
-    lines.push('');
+    lines.push("");
   }
 
-  lines.push('---');
+  lines.push("---");
   lines.push(`*摘要生成于 ${new Date(summary.generatedAt).toLocaleString()}*`);
 
-  return lines.join('\n');
+  return lines.join("\n");
 }
 
 /**
@@ -330,14 +347,14 @@ export function generateSummaryText(summary: Omit<SessionSummary, 'summaryText'>
  */
 export async function generateSessionSummary(
   messages: HistoryMessage[],
-  config: SummarizerConfig
+  config: SummarizerConfig,
 ): Promise<SessionSummary> {
-  console.log('[SessionSummarizer] Generating summary for session:', config.sessionId);
-  console.log('[SessionSummarizer] Total messages:', messages.length);
+  console.log("[SessionSummarizer] Generating summary for session:", config.sessionId);
+  console.log("[SessionSummarizer] Total messages:", messages.length);
 
   // 1. 提取 TodoList 状态
   const todoList = extractTodoList(messages);
-  console.log('[SessionSummarizer] TodoList extracted:', {
+  console.log("[SessionSummarizer] TodoList extracted:", {
     completed: todoList?.completed?.length ?? 0,
     inProgress: todoList?.inProgress?.length ?? 0,
     pending: todoList?.pending?.length ?? 0,
@@ -345,21 +362,21 @@ export async function generateSessionSummary(
 
   // 2. 提取修改文件
   const modifiedFiles = extractModifiedFiles(messages);
-  console.log('[SessionSummarizer] Modified files:', modifiedFiles.length);
+  console.log("[SessionSummarizer] Modified files:", modifiedFiles.length);
 
   // 3. 提取关键决策
   const keyDecisions = extractKeyDecisions(messages);
-  console.log('[SessionSummarizer] Key decisions:', keyDecisions.length);
+  console.log("[SessionSummarizer] Key decisions:", keyDecisions.length);
 
   // 4. 提取最近消息
   const recentMessages = extractRecentMessages(messages, config.recentMessagesCount);
-  console.log('[SessionSummarizer] Recent messages:', recentMessages.length);
+  console.log("[SessionSummarizer] Recent messages:", recentMessages.length);
 
   // 5. 构建项目信息
-  const projectName = config.projectPath.split(/[/\\]/).pop() || 'Unknown';
+  const projectName = config.projectPath.split(/[/\\]/).pop() || "Unknown";
 
   // 6. 构建摘要对象
-  const summaryBase: Omit<SessionSummary, 'summaryText'> = {
+  const summaryBase: Omit<SessionSummary, "summaryText"> = {
     sessionId: config.sessionId,
     project: {
       path: config.projectPath,
@@ -381,8 +398,8 @@ export async function generateSessionSummary(
     summaryText,
   };
 
-  console.log('[SessionSummarizer] Summary generated successfully');
-  console.log('[SessionSummarizer] Summary text length:', summaryText.length, 'chars');
+  console.log("[SessionSummarizer] Summary generated successfully");
+  console.log("[SessionSummarizer] Summary text length:", summaryText.length, "chars");
 
   return summary;
 }

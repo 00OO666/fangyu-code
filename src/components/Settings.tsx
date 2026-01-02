@@ -6,6 +6,7 @@ import {
   AlertCircle,
   Loader2,
 } from "lucide-react";
+import { notify } from "@/components/notifications";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
@@ -236,11 +237,18 @@ export const Settings: React.FC<SettingsProps> = ({
         setUserHooksChanged(false);
       }
 
-      setToast({ message: "Settings saved successfully!", type: "success" });
+      // 🆕 使用顶部居中通知
+      notify.success(t('settings.saved') || "设置已保存", {
+        position: "top-center",
+        duration: 3000,
+      });
     } catch (err) {
       console.error("Failed to save settings:", err);
       setError(t('errors.saveFailed'));
-      setToast({ message: t('errors.saveFailed'), type: "error" });
+      notify.error(t('errors.saveFailed') || "设置保存失败", {
+        position: "top-center",
+        duration: 5000,
+      });
     } finally {
       setSaving(false);
     }

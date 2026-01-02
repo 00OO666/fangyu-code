@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
-import { api } from '@/lib/api';
+import { useEffect, useRef, useState } from "react";
+import { api } from "@/lib/api";
 
 interface SessionActivityInfo {
   sessionId: string;
@@ -34,7 +34,7 @@ interface SessionActivityStatus {
   isCurrentSession: boolean;
   shouldTrackCost: boolean;
   lastActivity?: string;
-  activityState: 'active' | 'inactive' | 'expired' | 'unknown';
+  activityState: "active" | "inactive" | "expired" | "unknown";
 }
 
 /**
@@ -42,12 +42,14 @@ interface SessionActivityStatus {
  *
  * Based on Claude Code's 5-hour session window policy and activity detection
  */
-export const useSessionActivityStatus = (options: UseSessionActivityStatusOptions = {}): SessionActivityStatus => {
+export const useSessionActivityStatus = (
+  options: UseSessionActivityStatusOptions = {},
+): SessionActivityStatus => {
   const {
     sessionId,
     enableRealTimeTracking = true,
     pollInterval = 30000, // 30 seconds
-    activityTimeoutMinutes = 30 // Consider inactive after 30 minutes of no activity
+    activityTimeoutMinutes = 30, // Consider inactive after 30 minutes of no activity
   } = options;
 
   const [activityInfo, setActivityInfo] = useState<SessionActivityInfo | null>(null);
@@ -69,7 +71,7 @@ export const useSessionActivityStatus = (options: UseSessionActivityStatusOption
       // For now, we'll consider a session current if it has recent activity
       // In a real implementation, this would be managed by the session manager
       const urlParams = new URLSearchParams(window.location.search);
-      const currentSessionFromUrl = urlParams.get('session');
+      const currentSessionFromUrl = urlParams.get("session");
       setIsCurrentSession(sessionId === currentSessionFromUrl || !currentSessionFromUrl);
     };
 
@@ -77,10 +79,10 @@ export const useSessionActivityStatus = (options: UseSessionActivityStatusOption
 
     // Listen for session changes
     const handleSessionChange = () => checkCurrentSession();
-    window.addEventListener('session-changed', handleSessionChange);
+    window.addEventListener("session-changed", handleSessionChange);
 
     return () => {
-      window.removeEventListener('session-changed', handleSessionChange);
+      window.removeEventListener("session-changed", handleSessionChange);
     };
   }, [sessionId]);
 
@@ -99,7 +101,7 @@ export const useSessionActivityStatus = (options: UseSessionActivityStatusOption
           isActive: sessionInfo.is_active,
           timeRemainingHours: sessionInfo.time_remaining_hours,
           startTime: sessionInfo.start_time,
-          lastActivity: sessionInfo.last_activity
+          lastActivity: sessionInfo.last_activity,
         });
 
         // Update last activity reference
@@ -112,19 +114,19 @@ export const useSessionActivityStatus = (options: UseSessionActivityStatusOption
           sessionId,
           isActive: false,
           timeRemainingHours: 0,
-          startTime: '',
-          lastActivity: ''
+          startTime: "",
+          lastActivity: "",
         });
       }
     } catch (error) {
-      console.warn('Failed to fetch session activity status:', error);
+      console.warn("Failed to fetch session activity status:", error);
       // On error, default to inactive to prevent unwanted cost tracking
       setActivityInfo({
         sessionId,
         isActive: false,
         timeRemainingHours: 0,
-        startTime: '',
-        lastActivity: ''
+        startTime: "",
+        lastActivity: "",
       });
     }
   };
@@ -151,28 +153,28 @@ export const useSessionActivityStatus = (options: UseSessionActivityStatusOption
   }, [sessionId, enableRealTimeTracking, pollInterval]);
 
   // Determine activity state based on session status and recent activity
-  const getActivityState = (): 'active' | 'inactive' | 'expired' | 'unknown' => {
-    if (!activityInfo) return 'unknown';
+  const getActivityState = (): "active" | "inactive" | "expired" | "unknown" => {
+    if (!activityInfo) return "unknown";
 
     // If session window has expired
     if (!activityInfo.isActive) {
-      return 'expired';
+      return "expired";
     }
 
     // If this is the current session, consider it active
     if (isCurrentSession) {
-      return 'active';
+      return "active";
     }
 
     // Check last activity time
     if (lastActivityRef.current) {
       const minutesSinceActivity = (Date.now() - lastActivityRef.current.getTime()) / (1000 * 60);
       if (minutesSinceActivity > activityTimeoutMinutes) {
-        return 'inactive';
+        return "inactive";
       }
     }
 
-    return 'active';
+    return "active";
   };
 
   // Method to manually update activity (called when new messages arrive)
@@ -181,10 +183,14 @@ export const useSessionActivityStatus = (options: UseSessionActivityStatusOption
 
     // If we have session info and it's within the window, mark as active
     if (activityInfo && activityInfo.timeRemainingHours > 0) {
-      setActivityInfo(prev => prev ? {
-        ...prev,
-        lastActivity: new Date().toISOString()
-      } : null);
+      setActivityInfo((prev) =>
+        prev
+          ? {
+              ...prev,
+              lastActivity: new Date().toISOString(),
+            }
+          : null,
+      );
     }
   };
 
@@ -207,9 +213,9 @@ export const useSessionActivityStatus = (options: UseSessionActivityStatusOption
     isActive: activityInfo?.isActive ?? false,
     timeRemainingHours: activityInfo?.timeRemainingHours ?? 0,
     isCurrentSession,
-    shouldTrackCost: activityState === 'active',
+    shouldTrackCost: activityState === "active",
     lastActivity: activityInfo?.lastActivity,
-    activityState
+    activityState,
   };
 };
 

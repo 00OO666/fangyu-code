@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from "react";
 
-const STORAGE_KEY = 'session_cost_snapshot_v3';
+const STORAGE_KEY = "session_cost_snapshot_v3";
 
 /**
  * ✨ REFACTORED v3: 修复初始化问题
@@ -24,11 +24,7 @@ interface SessionCostSnapshot {
   lastUpdate: number;
 }
 
-export function useCostDelta(
-  sessionId: string | undefined,
-  currentCost: number,
-  messages?: any[]
-) {
+export function useCostDelta(sessionId: string | undefined, currentCost: number, messages?: any[]) {
   const [sessionStartCost, setSessionStartCost] = useState<number>(0);
   const [lastUserMessageCost, setLastUserMessageCost] = useState<number>(0);
   const lastUserMessageIndexRef = useRef<number>(-1);
@@ -44,7 +40,7 @@ export function useCostDelta(
   const findLastUserMessageIndex = useCallback((msgs: any[]): number => {
     for (let i = msgs.length - 1; i >= 0; i--) {
       const msg = msgs[i];
-      const isUser = msg?.type === 'user' || msg?.role === 'user';
+      const isUser = msg?.type === "user" || msg?.role === "user";
       if (isUser) {
         return i;
       }
@@ -60,7 +56,7 @@ export function useCostDelta(
       records[snapshot.sessionId] = snapshot;
       localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
     } catch (error) {
-      console.error('[useCostDelta] Failed to save snapshot:', error);
+      console.error("[useCostDelta] Failed to save snapshot:", error);
     }
   }, []);
 
@@ -110,7 +106,7 @@ export function useCostDelta(
             lastUserMessageIndexRef.current = snapshot.lastUserMessageIndex;
             prevCostRef.current = currentCost;
 
-            console.log('[useCostDelta] ✅ 恢复快照:', {
+            console.log("[useCostDelta] ✅ 恢复快照:", {
               sessionId,
               baseline: snapshot.lastUserMessageCost,
               currentCost,
@@ -140,13 +136,13 @@ export function useCostDelta(
 
       saveSnapshot(initialSnapshot);
 
-      console.log('[useCostDelta] 🆕 新会话初始化:', {
+      console.log("[useCostDelta] 🆕 新会话初始化:", {
         sessionId,
         baseline: currentCost,
         msgIndex: currentMsgIndex,
       });
     } catch (error) {
-      console.error('[useCostDelta] Failed to initialize:', error);
+      console.error("[useCostDelta] Failed to initialize:", error);
     }
   }, [sessionId, currentCost, messages, findLastUserMessageIndex, saveSnapshot]);
 
@@ -166,7 +162,7 @@ export function useCostDelta(
       setLastUserMessageCost(baselineCost);
       lastUserMessageIndexRef.current = currentUserMsgIndex;
 
-      console.log('[useCostDelta] 🆕 新指令，设置 baseline:', {
+      console.log("[useCostDelta] 🆕 新指令，设置 baseline:", {
         baselineCost,
         currentCost,
         msgIndex: currentUserMsgIndex,
@@ -262,7 +258,7 @@ export function useCostDelta(
         const thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000;
 
         const cleanedRecords = Object.fromEntries(
-          Object.entries(records).filter(([_, record]) => record.lastUpdate > thirtyDaysAgo)
+          Object.entries(records).filter(([_, record]) => record.lastUpdate > thirtyDaysAgo),
         );
 
         if (Object.keys(cleanedRecords).length !== Object.keys(records).length) {
@@ -270,15 +266,15 @@ export function useCostDelta(
         }
       }
     } catch (error) {
-      console.error('[useCostDelta] Failed to clean up old records:', error);
+      console.error("[useCostDelta] Failed to clean up old records:", error);
     }
   }, []);
 
   // 计算费用增量
   // 🔧 FIX: 只有在数据加载完成后才计算有效的 delta
   // 否则 lastUserMessageCost = 0 会导致显示整个会话费用
-  const sessionDelta = isDataLoadedRef.current ? (currentCost - sessionStartCost) : 0;
-  const commandDelta = isDataLoadedRef.current ? (currentCost - lastUserMessageCost) : 0;
+  const sessionDelta = isDataLoadedRef.current ? currentCost - sessionStartCost : 0;
+  const commandDelta = isDataLoadedRef.current ? currentCost - lastUserMessageCost : 0;
 
   return {
     // 会话总增量（相对于会话开始）

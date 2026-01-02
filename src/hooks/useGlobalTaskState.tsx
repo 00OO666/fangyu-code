@@ -13,14 +13,22 @@
  * @module useGlobalTaskState
  */
 
-import { createContext, useContext, useCallback, useRef, useSyncExternalStore, ReactNode, useEffect } from 'react';
-import { emitWindowSyncEvent, onWindowSyncEvent } from '@/lib/windowManager';
+import {
+  createContext,
+  type ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useSyncExternalStore,
+} from "react";
+import { emitWindowSyncEvent, onWindowSyncEvent } from "@/lib/windowManager";
 
 // ============================================================================
 // Type Definitions
 // ============================================================================
 
-export type TaskStatus = 'idle' | 'pending' | 'running' | 'completed' | 'failed' | 'cancelled';
+export type TaskStatus = "idle" | "pending" | "running" | "completed" | "failed" | "cancelled";
 
 export interface TaskInfo {
   /** 任务唯一标识（通常是 sessionId） */
@@ -32,7 +40,7 @@ export interface TaskInfo {
   /** 项目路径 */
   projectPath: string;
   /** 执行引擎 */
-  engine: 'claude' | 'codex' | 'gemini';
+  engine: "claude" | "codex" | "gemini";
   /** 任务状态 */
   status: TaskStatus;
   /** 进度百分比 (0-100) */
@@ -56,7 +64,7 @@ export interface GlobalTaskState {
 
 export interface GlobalTaskActions {
   /** 注册新任务 */
-  registerTask: (info: Omit<TaskInfo, 'updatedAt'>) => void;
+  registerTask: (info: Omit<TaskInfo, "updatedAt">) => void;
   /** 更新任务状态 */
   updateTaskStatus: (taskId: string, status: TaskStatus, error?: string) => void;
   /** 更新任务进度 */
@@ -105,17 +113,20 @@ class GlobalTaskStore {
   };
 
   private notify = () => {
-    this.listeners.forEach(listener => listener());
+    this.listeners.forEach((listener) => listener());
   };
 
   // 🆕 广播任务状态到其他窗口
-  private broadcastTaskUpdate = async (task: TaskInfo, action: 'register' | 'update' | 'remove') => {
+  private broadcastTaskUpdate = async (
+    task: TaskInfo,
+    action: "register" | "update" | "remove",
+  ) => {
     // 如果正在处理远程更新，不要再广播（防止循环）
     if (this.isProcessingRemoteUpdate) return;
 
     try {
       await emitWindowSyncEvent({
-        type: 'session_update',
+        type: "session_update",
         tabId: task.tabId,
         sessionId: task.sessionId,
         projectPath: task.projectPath,
@@ -127,9 +138,9 @@ class GlobalTaskStore {
           },
         },
       });
-      console.debug('[GlobalTaskState] Broadcasted task update:', action, task.taskId);
+      console.debug("[GlobalTaskState] Broadcasted task update:", action, task.taskId);
     } catch (error) {
-      console.warn('[GlobalTaskState] Failed to broadcast task update:', error);
+      console.warn("[GlobalTaskState] Failed to broadcast task update:", error);
     }
   };
 
@@ -141,8 +152,8 @@ class GlobalTaskStore {
       const { action, task } = data;
 
       switch (action) {
-        case 'register':
-        case 'update':
+        case "register":
+        case "update":
           // 更新或添加任务
           this.state = {
             ...this.state,
@@ -151,10 +162,10 @@ class GlobalTaskStore {
           this.updateActiveCount();
           this.notify();
           this.notifyTaskListeners(task.taskId, task);
-          console.debug('[GlobalTaskState] Applied remote task update:', action, task.taskId);
+          console.debug("[GlobalTaskState] Applied remote task update:", action, task.taskId);
           break;
 
-        case 'remove':
+        case "remove": {
           // 移除任务
           const tasks = new Map(this.state.tasks);
           if (tasks.delete(task.taskId)) {
@@ -162,9 +173,10 @@ class GlobalTaskStore {
             this.updateActiveCount();
             this.notify();
             this.notifyTaskListeners(task.taskId, undefined);
-            console.debug('[GlobalTaskState] Applied remote task removal:', task.taskId);
+            console.debug("[GlobalTaskState] Applied remote task removal:", task.taskId);
           }
           break;
+        }
       }
     } finally {
       this.isProcessingRemoteUpdate = false;
@@ -174,21 +186,21 @@ class GlobalTaskStore {
   private notifyTaskListeners = (taskId: string, task: TaskInfo | undefined) => {
     const listeners = this.taskListeners.get(taskId);
     if (listeners) {
-      listeners.forEach(callback => callback(task));
+      listeners.forEach((callback) => callback(task));
     }
   };
 
   private updateActiveCount = () => {
     let count = 0;
-    this.state.tasks.forEach(task => {
-      if (task.status === 'running' || task.status === 'pending') {
+    this.state.tasks.forEach((task) => {
+      if (task.status === "running" || task.status === "pending") {
         count++;
       }
     });
     this.state.activeCount = count;
   };
 
-  registerTask = (info: Omit<TaskInfo, 'updatedAt'>) => {
+  registerTask = (info: Omit<TaskInfo, "updatedAt">) => {
     const task: TaskInfo = {
       ...info,
       updatedAt: Date.now(),
@@ -204,15 +216,15 @@ class GlobalTaskStore {
     this.notifyTaskListeners(info.taskId, task);
 
     // 🆕 广播到其他窗口
-    this.broadcastTaskUpdate(task, 'register');
+    this.broadcastTaskUpdate(task, "register");
 
-    console.debug('[GlobalTaskState] Task registered:', info.taskId, info.status);
+    console.debug("[GlobalTaskState] Task registered:", info.taskId, info.status);
   };
 
   updateTaskStatus = (taskId: string, status: TaskStatus, error?: string) => {
     const existing = this.state.tasks.get(taskId);
     if (!existing) {
-      console.warn('[GlobalTaskState] Task not found:', taskId);
+      console.warn("[GlobalTaskState] Task not found:", taskId);
       return;
     }
 
@@ -222,9 +234,10 @@ class GlobalTaskStore {
       status,
       error,
       updatedAt: now,
-      completedAt: (status === 'completed' || status === 'failed' || status === 'cancelled')
-        ? now
-        : existing.completedAt,
+      completedAt:
+        status === "completed" || status === "failed" || status === "cancelled"
+          ? now
+          : existing.completedAt,
     };
 
     this.state = {
@@ -237,9 +250,9 @@ class GlobalTaskStore {
     this.notifyTaskListeners(taskId, updated);
 
     // 🆕 广播到其他窗口
-    this.broadcastTaskUpdate(updated, 'update');
+    this.broadcastTaskUpdate(updated, "update");
 
-    console.debug('[GlobalTaskState] Task status updated:', taskId, status);
+    console.debug("[GlobalTaskState] Task status updated:", taskId, status);
   };
 
   updateTaskProgress = (taskId: string, progress: number) => {
@@ -261,7 +274,7 @@ class GlobalTaskStore {
     this.notifyTaskListeners(taskId, updated);
 
     // 🆕 广播到其他窗口
-    this.broadcastTaskUpdate(updated, 'update');
+    this.broadcastTaskUpdate(updated, "update");
   };
 
   removeTask = (taskId: string) => {
@@ -278,9 +291,9 @@ class GlobalTaskStore {
       this.notifyTaskListeners(taskId, undefined);
 
       // 🆕 广播到其他窗口
-      this.broadcastTaskUpdate(existing, 'remove');
+      this.broadcastTaskUpdate(existing, "remove");
 
-      console.debug('[GlobalTaskState] Task removed:', taskId);
+      console.debug("[GlobalTaskState] Task removed:", taskId);
     }
   };
 
@@ -308,15 +321,18 @@ class GlobalTaskStore {
 
   getActiveTasks = (): TaskInfo[] => {
     const active: TaskInfo[] = [];
-    this.state.tasks.forEach(task => {
-      if (task.status === 'running' || task.status === 'pending') {
+    this.state.tasks.forEach((task) => {
+      if (task.status === "running" || task.status === "pending") {
         active.push(task);
       }
     });
     return active;
   };
 
-  subscribeToTask = (taskId: string, callback: (task: TaskInfo | undefined) => void): (() => void) => {
+  subscribeToTask = (
+    taskId: string,
+    callback: (task: TaskInfo | undefined) => void,
+  ): (() => void) => {
     if (!this.taskListeners.has(taskId)) {
       this.taskListeners.set(taskId, new Set());
     }
@@ -342,9 +358,9 @@ class GlobalTaskStore {
     };
 
     this.notify();
-    taskIds.forEach(id => this.notifyTaskListeners(id, undefined));
+    taskIds.forEach((id) => this.notifyTaskListeners(id, undefined));
 
-    console.debug('[GlobalTaskState] All tasks cleared');
+    console.debug("[GlobalTaskState] All tasks cleared");
   };
 }
 
@@ -381,7 +397,7 @@ export const GlobalTaskStateProvider: React.FC<GlobalTaskStateProviderProps> = (
   const state = useSyncExternalStore(
     globalTaskStore.subscribe,
     globalTaskStore.getSnapshot,
-    globalTaskStore.getSnapshot // SSR fallback (same as client)
+    globalTaskStore.getSnapshot, // SSR fallback (same as client)
   );
 
   // 🆕 监听其他窗口的任务状态更新
@@ -429,9 +445,7 @@ export const GlobalTaskStateProvider: React.FC<GlobalTaskStateProviderProps> = (
   };
 
   return (
-    <GlobalTaskContext.Provider value={{ state, actions }}>
-      {children}
-    </GlobalTaskContext.Provider>
+    <GlobalTaskContext.Provider value={{ state, actions }}>{children}</GlobalTaskContext.Provider>
   );
 };
 
@@ -467,7 +481,7 @@ export const GlobalTaskStateProvider: React.FC<GlobalTaskStateProviderProps> = (
 export const useGlobalTaskState = (): GlobalTaskContextValue => {
   const context = useContext(GlobalTaskContext);
   if (!context) {
-    throw new Error('useGlobalTaskState must be used within a GlobalTaskStateProvider');
+    throw new Error("useGlobalTaskState must be used within a GlobalTaskStateProvider");
   }
   return context;
 };
@@ -507,10 +521,10 @@ export const useActiveTaskCount = (): number => {
  * @param engine 执行引擎类型
  * @returns 该引擎的所有任务
  */
-export const useTasksByEngine = (engine: 'claude' | 'codex' | 'gemini'): TaskInfo[] => {
+export const useTasksByEngine = (engine: "claude" | "codex" | "gemini"): TaskInfo[] => {
   const { state } = useGlobalTaskState();
   const tasks: TaskInfo[] = [];
-  state.tasks.forEach(task => {
+  state.tasks.forEach((task) => {
     if (task.engine === engine) {
       tasks.push(task);
     }

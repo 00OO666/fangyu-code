@@ -10,30 +10,30 @@
  * 4. 记录详细的错误日志
  */
 
-import { useState, useCallback, useRef, useEffect } from 'react';
-import { listen, emit, type UnlistenFn } from '@tauri-apps/api/event';
-import { api } from '@/lib/api';
+import { emit, listen, type UnlistenFn } from "@tauri-apps/api/event";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { api } from "@/lib/api";
 
 // 连接状态
-export type ConnectionStatus = 'connected' | 'disconnected' | 'reconnecting' | 'unknown';
+export type ConnectionStatus = "connected" | "disconnected" | "reconnecting" | "unknown";
 
 // 诊断结果
 export interface DiagnosticResult {
   timestamp: number;
   checks: {
     name: string;
-    status: 'ok' | 'warning' | 'error';
+    status: "ok" | "warning" | "error";
     message: string;
     details?: any;
   }[];
-  overallStatus: 'healthy' | 'degraded' | 'unhealthy';
+  overallStatus: "healthy" | "degraded" | "unhealthy";
   recommendations: string[];
 }
 
 // 错误日志条目
 export interface ErrorLogEntry {
   timestamp: number;
-  type: 'api_error' | 'network_error' | 'timeout' | 'parse_error' | 'unknown';
+  type: "api_error" | "network_error" | "timeout" | "parse_error" | "unknown";
   message: string;
   details?: any;
   sessionId?: string;
@@ -52,7 +52,7 @@ interface UseApiHealthCheckConfig {
   /** 当前会话 ID */
   sessionId?: string;
   /** 当前引擎 */
-  engine?: 'claude' | 'codex' | 'gemini';
+  engine?: "claude" | "codex" | "gemini";
 }
 
 // Hook 返回值
@@ -78,13 +78,13 @@ interface UseApiHealthCheckReturn {
   /** 记录请求成功 */
   recordSuccess: () => void;
   /** 记录请求失败 */
-  recordFailure: (error: any, type?: ErrorLogEntry['type']) => void;
+  recordFailure: (error: any, type?: ErrorLogEntry["type"]) => void;
   /** 重置状态 */
   reset: () => void;
 }
 
 const MAX_ERROR_LOG_SIZE = 20;
-const STORAGE_KEY = 'api_health_check_state';
+const STORAGE_KEY = "api_health_check_state";
 
 export function useApiHealthCheck(config: UseApiHealthCheckConfig = {}): UseApiHealthCheckReturn {
   const {
@@ -93,11 +93,11 @@ export function useApiHealthCheck(config: UseApiHealthCheckConfig = {}): UseApiH
     retryBaseDelay = 1000,
     healthCheckInterval = 30000,
     sessionId,
-    engine = 'claude',
+    engine = "claude",
   } = config;
 
   // 状态
-  const [status, setStatus] = useState<ConnectionStatus>('unknown');
+  const [status, setStatus] = useState<ConnectionStatus>("unknown");
   const [lastSuccessTime, setLastSuccessTime] = useState<number | null>(null);
   const [consecutiveFailures, setConsecutiveFailures] = useState(0);
   const [isReconnecting, setIsReconnecting] = useState(false);
@@ -111,117 +111,128 @@ export function useApiHealthCheck(config: UseApiHealthCheckConfig = {}): UseApiH
   const isMountedRef = useRef(true);
 
   // 添加错误日志
-  const addErrorLog = useCallback((entry: Omit<ErrorLogEntry, 'timestamp'>) => {
-    const fullEntry: ErrorLogEntry = {
-      ...entry,
-      timestamp: Date.now(),
-      sessionId,
-    };
+  const addErrorLog = useCallback(
+    (entry: Omit<ErrorLogEntry, "timestamp">) => {
+      const fullEntry: ErrorLogEntry = {
+        ...entry,
+        timestamp: Date.now(),
+        sessionId,
+      };
 
-    setErrorLog(prev => {
-      const newLog = [fullEntry, ...prev].slice(0, MAX_ERROR_LOG_SIZE);
-      // 保存到 localStorage
-      try {
-        localStorage.setItem(`${STORAGE_KEY}_log`, JSON.stringify(newLog));
-      } catch (e) {
-        console.warn('[ApiHealthCheck] Failed to save error log:', e);
-      }
-      return newLog;
-    });
+      setErrorLog((prev) => {
+        const newLog = [fullEntry, ...prev].slice(0, MAX_ERROR_LOG_SIZE);
+        // 保存到 localStorage
+        try {
+          localStorage.setItem(`${STORAGE_KEY}_log`, JSON.stringify(newLog));
+        } catch (e) {
+          console.warn("[ApiHealthCheck] Failed to save error log:", e);
+        }
+        return newLog;
+      });
 
-    console.warn('[ApiHealthCheck] Error logged:', fullEntry);
-  }, [sessionId]);
+      console.warn("[ApiHealthCheck] Error logged:", fullEntry);
+    },
+    [sessionId],
+  );
 
   // 记录成功
   const recordSuccess = useCallback(() => {
     const now = Date.now();
     setLastSuccessTime(now);
     setConsecutiveFailures(0);
-    setStatus('connected');
+    setStatus("connected");
     retryCountRef.current = 0;
 
     // 保存状态
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        lastSuccessTime: now,
-        status: 'connected',
-      }));
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          lastSuccessTime: now,
+          status: "connected",
+        }),
+      );
     } catch (e) {
       // ignore
     }
   }, []);
 
   // 记录失败
-  const recordFailure = useCallback((error: any, type: ErrorLogEntry['type'] = 'unknown') => {
-    const errorMessage = error?.message || error?.toString() || 'Unknown error';
+  const recordFailure = useCallback(
+    (error: any, type: ErrorLogEntry["type"] = "unknown") => {
+      const errorMessage = error?.message || error?.toString() || "Unknown error";
 
-    // 自动检测错误类型
-    let detectedType = type;
-    if (type === 'unknown') {
-      if (errorMessage.includes('network') || errorMessage.includes('fetch')) {
-        detectedType = 'network_error';
-      } else if (errorMessage.includes('timeout') || errorMessage.includes('Timeout')) {
-        detectedType = 'timeout';
-      } else if (errorMessage.includes('parse') || errorMessage.includes('JSON')) {
-        detectedType = 'parse_error';
-      } else {
-        detectedType = 'api_error';
-      }
-    }
-
-    addErrorLog({
-      type: detectedType,
-      message: errorMessage,
-      details: error?.details || error?.stack,
-    });
-
-    setConsecutiveFailures(prev => {
-      const newCount = prev + 1;
-
-      // 连续失败超过阈值，标记为断开
-      if (newCount >= 2) {
-        setStatus('disconnected');
+      // 自动检测错误类型
+      let detectedType = type;
+      if (type === "unknown") {
+        if (errorMessage.includes("network") || errorMessage.includes("fetch")) {
+          detectedType = "network_error";
+        } else if (errorMessage.includes("timeout") || errorMessage.includes("Timeout")) {
+          detectedType = "timeout";
+        } else if (errorMessage.includes("parse") || errorMessage.includes("JSON")) {
+          detectedType = "parse_error";
+        } else {
+          detectedType = "api_error";
+        }
       }
 
-      // 自动重连逻辑
-      if (autoReconnect && newCount >= 2 && retryCountRef.current < maxRetries) {
-        triggerReconnect();
-      }
+      addErrorLog({
+        type: detectedType,
+        message: errorMessage,
+        details: error?.details || error?.stack,
+      });
 
-      return newCount;
-    });
-  }, [addErrorLog, autoReconnect, maxRetries]);
+      setConsecutiveFailures((prev) => {
+        const newCount = prev + 1;
+
+        // 连续失败超过阈值，标记为断开
+        if (newCount >= 2) {
+          setStatus("disconnected");
+        }
+
+        // 自动重连逻辑
+        if (autoReconnect && newCount >= 2 && retryCountRef.current < maxRetries) {
+          triggerReconnect();
+        }
+
+        return newCount;
+      });
+    },
+    [addErrorLog, autoReconnect, maxRetries],
+  );
 
   // 触发重连
   const triggerReconnect = useCallback(async (): Promise<boolean> => {
     if (isReconnecting) return false;
 
     setIsReconnecting(true);
-    setStatus('reconnecting');
+    setStatus("reconnecting");
     retryCountRef.current += 1;
 
-    const delay = retryBaseDelay * Math.pow(2, retryCountRef.current - 1);
-    console.log(`[ApiHealthCheck] Attempting reconnect (${retryCountRef.current}/${maxRetries}) in ${delay}ms...`);
+    const delay = retryBaseDelay * 2 ** (retryCountRef.current - 1);
+    console.log(
+      `[ApiHealthCheck] Attempting reconnect (${retryCountRef.current}/${maxRetries}) in ${delay}ms...`,
+    );
 
-    await new Promise(resolve => setTimeout(resolve, delay));
+    await new Promise((resolve) => setTimeout(resolve, delay));
 
     try {
       // 尝试健康检查
       const result = await runHealthCheck();
 
       if (result) {
-        console.log('[ApiHealthCheck] Reconnect successful!');
+        console.log("[ApiHealthCheck] Reconnect successful!");
         recordSuccess();
         setIsReconnecting(false);
 
         // 通知 UI 重连成功
-        await emit('api-reconnected', { engine, sessionId });
+        await emit("api-reconnected", { engine, sessionId });
         return true;
       } else {
-        throw new Error('Health check failed');
+        throw new Error("Health check failed");
       }
     } catch (err) {
-      console.error('[ApiHealthCheck] Reconnect failed:', err);
+      console.error("[ApiHealthCheck] Reconnect failed:", err);
 
       if (retryCountRef.current < maxRetries) {
         // 继续重试
@@ -229,12 +240,12 @@ export function useApiHealthCheck(config: UseApiHealthCheckConfig = {}): UseApiH
         return triggerReconnect();
       } else {
         // 放弃重试
-        console.error('[ApiHealthCheck] Max retries reached, giving up');
-        setStatus('disconnected');
+        console.error("[ApiHealthCheck] Max retries reached, giving up");
+        setStatus("disconnected");
         setIsReconnecting(false);
 
         addErrorLog({
-          type: 'network_error',
+          type: "network_error",
           message: `Reconnection failed after ${maxRetries} attempts`,
           details: err,
         });
@@ -251,16 +262,16 @@ export function useApiHealthCheck(config: UseApiHealthCheckConfig = {}): UseApiH
       await api.listProjects();
       return true;
     } catch (err) {
-      console.warn('[ApiHealthCheck] Health check failed:', err);
+      console.warn("[ApiHealthCheck] Health check failed:", err);
       return false;
     }
   }, []);
 
   // 完整诊断
   const runDiagnostics = useCallback(async (): Promise<DiagnosticResult> => {
-    const checks: DiagnosticResult['checks'] = [];
+    const checks: DiagnosticResult["checks"] = [];
     const recommendations: string[] = [];
-    let overallStatus: DiagnosticResult['overallStatus'] = 'healthy';
+    let overallStatus: DiagnosticResult["overallStatus"] = "healthy";
 
     // 1. 检查基本功能（通过尝试调用 API）
     // 注：暂时跳过二进制检查，使用项目 API 作为连接测试
@@ -269,18 +280,18 @@ export function useApiHealthCheck(config: UseApiHealthCheckConfig = {}): UseApiH
     try {
       const projects = await api.listProjects();
       checks.push({
-        name: 'API 连接',
-        status: 'ok',
+        name: "API 连接",
+        status: "ok",
         message: `成功获取 ${projects.length} 个项目`,
       });
     } catch (err) {
       checks.push({
-        name: 'API 连接',
-        status: 'error',
-        message: 'API 调用失败: ' + (err as Error).message,
+        name: "API 连接",
+        status: "error",
+        message: "API 调用失败: " + (err as Error).message,
       });
-      overallStatus = 'unhealthy';
-      recommendations.push('检查网络连接或重启应用');
+      overallStatus = "unhealthy";
+      recommendations.push("检查网络连接或重启应用");
     }
 
     // 3. 检查 Provider 配置
@@ -288,46 +299,46 @@ export function useApiHealthCheck(config: UseApiHealthCheckConfig = {}): UseApiH
       const providerConfig = await api.getCurrentProviderConfig();
       if (providerConfig?.apiKey) {
         checks.push({
-          name: 'Provider 配置',
-          status: 'ok',
-          message: `已配置 ${providerConfig.name || 'Provider'}`,
+          name: "Provider 配置",
+          status: "ok",
+          message: `已配置 ${providerConfig.name || "Provider"}`,
         });
       } else {
         checks.push({
-          name: 'Provider 配置',
-          status: 'warning',
-          message: '未配置 API Key',
+          name: "Provider 配置",
+          status: "warning",
+          message: "未配置 API Key",
         });
-        if (overallStatus === 'healthy') overallStatus = 'degraded';
-        recommendations.push('请在设置中配置 API Key');
+        if (overallStatus === "healthy") overallStatus = "degraded";
+        recommendations.push("请在设置中配置 API Key");
       }
     } catch (err) {
       checks.push({
-        name: 'Provider 配置',
-        status: 'warning',
-        message: '无法获取配置: ' + (err as Error).message,
+        name: "Provider 配置",
+        status: "warning",
+        message: "无法获取配置: " + (err as Error).message,
       });
-      if (overallStatus === 'healthy') overallStatus = 'degraded';
+      if (overallStatus === "healthy") overallStatus = "degraded";
     }
 
     // 4. 检查连续失败次数
     if (consecutiveFailures > 0) {
       checks.push({
-        name: '请求状态',
-        status: consecutiveFailures >= 3 ? 'error' : 'warning',
+        name: "请求状态",
+        status: consecutiveFailures >= 3 ? "error" : "warning",
         message: `连续失败 ${consecutiveFailures} 次`,
       });
       if (consecutiveFailures >= 3) {
-        overallStatus = 'unhealthy';
-        recommendations.push('尝试重新连接或检查网络');
-      } else if (overallStatus === 'healthy') {
-        overallStatus = 'degraded';
+        overallStatus = "unhealthy";
+        recommendations.push("尝试重新连接或检查网络");
+      } else if (overallStatus === "healthy") {
+        overallStatus = "degraded";
       }
     } else {
       checks.push({
-        name: '请求状态',
-        status: 'ok',
-        message: '运行正常',
+        name: "请求状态",
+        status: "ok",
+        message: "运行正常",
       });
     }
 
@@ -336,16 +347,16 @@ export function useApiHealthCheck(config: UseApiHealthCheckConfig = {}): UseApiH
       const minutesSinceSuccess = Math.floor((Date.now() - lastSuccessTime) / 60000);
       if (minutesSinceSuccess > 5) {
         checks.push({
-          name: '最后成功',
-          status: 'warning',
+          name: "最后成功",
+          status: "warning",
           message: `${minutesSinceSuccess} 分钟前`,
         });
-        if (overallStatus === 'healthy') overallStatus = 'degraded';
+        if (overallStatus === "healthy") overallStatus = "degraded";
       } else {
         checks.push({
-          name: '最后成功',
-          status: 'ok',
-          message: minutesSinceSuccess === 0 ? '刚刚' : `${minutesSinceSuccess} 分钟前`,
+          name: "最后成功",
+          status: "ok",
+          message: minutesSinceSuccess === 0 ? "刚刚" : `${minutesSinceSuccess} 分钟前`,
         });
       }
     }
@@ -369,7 +380,7 @@ export function useApiHealthCheck(config: UseApiHealthCheckConfig = {}): UseApiH
 
   // 重置状态
   const reset = useCallback(() => {
-    setStatus('unknown');
+    setStatus("unknown");
     setLastSuccessTime(null);
     setConsecutiveFailures(0);
     setIsReconnecting(false);
@@ -384,28 +395,28 @@ export function useApiHealthCheck(config: UseApiHealthCheckConfig = {}): UseApiH
 
     const setupListeners = async () => {
       // 监听 Claude 错误
-      const claudeErrorUnlisten = await listen<string>('claude-error', (evt) => {
+      const claudeErrorUnlisten = await listen<string>("claude-error", (evt) => {
         if (!isMountedRef.current) return;
-        recordFailure(evt.payload, 'api_error');
+        recordFailure(evt.payload, "api_error");
       });
       unlistenRefs.current.push(claudeErrorUnlisten);
 
       // 监听 Codex 错误
-      const codexErrorUnlisten = await listen<string>('codex-error', (evt) => {
+      const codexErrorUnlisten = await listen<string>("codex-error", (evt) => {
         if (!isMountedRef.current) return;
-        recordFailure(evt.payload, 'api_error');
+        recordFailure(evt.payload, "api_error");
       });
       unlistenRefs.current.push(codexErrorUnlisten);
 
       // 监听 Gemini 错误
-      const geminiErrorUnlisten = await listen<string>('gemini-error', (evt) => {
+      const geminiErrorUnlisten = await listen<string>("gemini-error", (evt) => {
         if (!isMountedRef.current) return;
-        recordFailure(evt.payload, 'api_error');
+        recordFailure(evt.payload, "api_error");
       });
       unlistenRefs.current.push(geminiErrorUnlisten);
 
       // 监听成功消息（用于重置失败计数）
-      const successUnlisten = await listen<any>('claude-output', () => {
+      const successUnlisten = await listen<any>("claude-output", () => {
         if (!isMountedRef.current) return;
         recordSuccess();
       });
@@ -439,14 +450,14 @@ export function useApiHealthCheck(config: UseApiHealthCheckConfig = {}): UseApiH
         const healthy = await runHealthCheck();
         if (!healthy && consecutiveFailures === 0) {
           // 静默失败，只更新状态
-          setStatus(prev => prev === 'connected' ? 'disconnected' : prev);
+          setStatus((prev) => (prev === "connected" ? "disconnected" : prev));
         }
       }, healthCheckInterval);
     }
 
     return () => {
       isMountedRef.current = false;
-      unlistenRefs.current.forEach(fn => fn());
+      unlistenRefs.current.forEach((fn) => fn());
       unlistenRefs.current = [];
       if (healthCheckTimerRef.current) {
         clearInterval(healthCheckTimerRef.current);

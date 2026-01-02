@@ -8,9 +8,9 @@
  * 4. 支持手动触发检查
  */
 
-import { useState, useEffect, useCallback } from 'react';
-import { check, Update } from '@tauri-apps/plugin-updater';
-import { relaunch } from '@tauri-apps/plugin-process';
+import { relaunch } from "@tauri-apps/plugin-process";
+import { check, type Update } from "@tauri-apps/plugin-updater";
+import { useCallback, useEffect, useState } from "react";
 
 export interface UpdateInfo {
   available: boolean;
@@ -31,10 +31,12 @@ export interface UseAutoUpdateReturn {
   installUpdate: () => Promise<void>;
 }
 
-export function useTauriAutoUpdate(options: {
-  checkOnMount?: boolean;
-  autoCheckInterval?: number; // 分钟
-} = {}): UseAutoUpdateReturn {
+export function useTauriAutoUpdate(
+  options: {
+    checkOnMount?: boolean;
+    autoCheckInterval?: number; // 分钟
+  } = {},
+): UseAutoUpdateReturn {
   const { checkOnMount = true, autoCheckInterval = 60 } = options;
 
   const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(null);
@@ -53,11 +55,11 @@ export function useTauriAutoUpdate(options: {
     setError(null);
 
     try {
-      console.log('[Auto Update] Checking for updates...');
+      console.log("[Auto Update] Checking for updates...");
       const update = await check();
 
       if (update) {
-        console.log('[Auto Update] Update available:', update);
+        console.log("[Auto Update] Update available:", update);
         setUpdateInfo({
           available: true,
           currentVersion: update.currentVersion,
@@ -67,16 +69,16 @@ export function useTauriAutoUpdate(options: {
         });
         setPendingUpdate(update);
       } else {
-        console.log('[Auto Update] No update available');
+        console.log("[Auto Update] No update available");
         setUpdateInfo({
           available: false,
-          currentVersion: '', // Tauri 会自动填充
-          latestVersion: '',
+          currentVersion: "", // Tauri 会自动填充
+          latestVersion: "",
         });
       }
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : '检查更新失败';
-      console.error('[Auto Update] Check failed:', errorMsg);
+      const errorMsg = err instanceof Error ? err.message : "检查更新失败";
+      console.error("[Auto Update] Check failed:", errorMsg);
       setError(errorMsg);
     } finally {
       setChecking(false);
@@ -86,7 +88,7 @@ export function useTauriAutoUpdate(options: {
   // 下载并安装更新
   const installUpdate = useCallback(async () => {
     if (!pendingUpdate) {
-      setError('没有可用的更新');
+      setError("没有可用的更新");
       return;
     }
 
@@ -95,16 +97,16 @@ export function useTauriAutoUpdate(options: {
     setDownloadProgress(0);
 
     try {
-      console.log('[Auto Update] Downloading update...');
+      console.log("[Auto Update] Downloading update...");
 
       // 下载更新包
       await pendingUpdate.downloadAndInstall((event) => {
         switch (event.event) {
-          case 'Started':
-            console.log('[Auto Update] Download started, contentLength:', event.data.contentLength);
+          case "Started":
+            console.log("[Auto Update] Download started, contentLength:", event.data.contentLength);
             setDownloadProgress(0);
             break;
-          case 'Progress':
+          case "Progress": {
             // 🔧 FIX: 安全计算进度，避免 NaN 和 Infinity
             const downloaded = event.data.downloaded ?? 0;
             const total = event.data.contentLength ?? 0;
@@ -122,14 +124,17 @@ export function useTauriAutoUpdate(options: {
             // 确保不是 NaN
             if (isNaN(progress)) {
               progress = 0;
-              console.warn('[Auto Update] Progress calculation resulted in NaN');
+              console.warn("[Auto Update] Progress calculation resulted in NaN");
             }
 
-            console.log(`[Auto Update] Download progress: ${progress}% (${downloaded}/${total} bytes)`);
+            console.log(
+              `[Auto Update] Download progress: ${progress}% (${downloaded}/${total} bytes)`,
+            );
             setDownloadProgress(progress);
             break;
-          case 'Finished':
-            console.log('[Auto Update] Download finished');
+          }
+          case "Finished":
+            console.log("[Auto Update] Download finished");
             setDownloadProgress(100);
             break;
         }
@@ -139,14 +144,14 @@ export function useTauriAutoUpdate(options: {
       setInstalling(true);
 
       // 安装完成，准备重启
-      console.log('[Auto Update] Installing update and restarting...');
-      await new Promise(resolve => setTimeout(resolve, 1000)); // 短暂延迟让用户看到进度
+      console.log("[Auto Update] Installing update and restarting...");
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // 短暂延迟让用户看到进度
 
       // 重启应用
       await relaunch();
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : '更新失败';
-      console.error('[Auto Update] Install failed:', errorMsg);
+      const errorMsg = err instanceof Error ? err.message : "更新失败";
+      console.error("[Auto Update] Install failed:", errorMsg);
       setError(errorMsg);
       setDownloading(false);
       setInstalling(false);
@@ -169,9 +174,12 @@ export function useTauriAutoUpdate(options: {
   useEffect(() => {
     if (!autoCheckInterval) return;
 
-    const interval = setInterval(() => {
-      checkForUpdates();
-    }, autoCheckInterval * 60 * 1000);
+    const interval = setInterval(
+      () => {
+        checkForUpdates();
+      },
+      autoCheckInterval * 60 * 1000,
+    );
 
     return () => clearInterval(interval);
   }, [autoCheckInterval, checkForUpdates]);

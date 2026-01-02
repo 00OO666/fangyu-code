@@ -5,19 +5,13 @@
  * 使用发布-订阅模式实现状态更新通知
  */
 
-import type { ClaudeStreamMessage } from '@/types/claude';
-import type { EngineType } from './converters';
+import type { ClaudeStreamMessage } from "@/types/claude";
+import type { EngineType } from "./converters";
 
 /**
  * 会话状态
  */
-export type SessionStatus =
-  | 'idle'
-  | 'loading'
-  | 'connected'
-  | 'streaming'
-  | 'completed'
-  | 'error';
+export type SessionStatus = "idle" | "loading" | "connected" | "streaming" | "completed" | "error";
 
 /**
  * 会话数据
@@ -96,7 +90,7 @@ class SessionStore {
     const session: SessionData = {
       id,
       engine,
-      status: 'idle',
+      status: "idle",
       messages: [],
       rawJsonl: [],
       error: null,
@@ -173,7 +167,7 @@ class SessionStore {
     const updated: SessionData = {
       ...session,
       error,
-      status: error ? 'error' : session.status,
+      status: error ? "error" : session.status,
       updatedAt: Date.now(),
     };
 
@@ -364,25 +358,19 @@ export const sessionStore = new SessionStore();
 /**
  * React Hook: 订阅 Store 状态
  */
-import { useSyncExternalStore, useCallback } from 'react';
+import { useCallback, useSyncExternalStore } from "react";
 
 export function useSessionStore<T>(selector: Selector<T>): T {
   const getSnapshot = useCallback(() => selector(sessionStore.getState()), [selector]);
 
-  return useSyncExternalStore(
-    sessionStore.subscribe.bind(sessionStore),
-    getSnapshot,
-    getSnapshot
-  );
+  return useSyncExternalStore(sessionStore.subscribe.bind(sessionStore), getSnapshot, getSnapshot);
 }
 
 /**
  * React Hook: 获取会话数据
  */
 export function useSession(id: string): SessionData | undefined {
-  return useSessionStore(
-    useCallback((state) => state.sessions.get(id), [id])
-  );
+  return useSessionStore(useCallback((state) => state.sessions.get(id), [id]));
 }
 
 /**
@@ -399,16 +387,12 @@ export function useActiveSession(): SessionData | undefined {
  * React Hook: 获取会话消息
  */
 export function useSessionMessages(id: string): ClaudeStreamMessage[] {
-  return useSessionStore(
-    useCallback((state) => state.sessions.get(id)?.messages ?? [], [id])
-  );
+  return useSessionStore(useCallback((state) => state.sessions.get(id)?.messages ?? [], [id]));
 }
 
 /**
  * React Hook: 获取会话状态
  */
 export function useSessionStatus(id: string): SessionStatus {
-  return useSessionStore(
-    useCallback((state) => state.sessions.get(id)?.status ?? 'idle', [id])
-  );
+  return useSessionStore(useCallback((state) => state.sessions.get(id)?.status ?? "idle", [id]));
 }

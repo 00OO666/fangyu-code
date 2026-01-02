@@ -10,17 +10,17 @@
 
 import { invoke } from "@tauri-apps/api/core";
 import type {
-  MCPServer,
-  MCPServerSpec,
-  MCPProjectConfig,
-  McpServer,
-  McpStatus,
-  McpServerWithStatus,
-  McpApps,
-  ServerStatus,
   AddServerResult,
   ImportResult,
-} from '../types';
+  MCPProjectConfig,
+  MCPServer,
+  MCPServerSpec,
+  McpApps,
+  McpServer,
+  McpServerWithStatus,
+  McpStatus,
+  ServerStatus,
+} from "../types";
 
 // ============================================================================
 // 基础 MCP 服务器操作
@@ -36,7 +36,7 @@ export async function mcpAdd(
   args: string[] = [],
   env: Record<string, string> = {},
   url?: string,
-  scope: string = "local"
+  scope: string = "local",
 ): Promise<AddServerResult> {
   try {
     return await invoke<AddServerResult>("mcp_add", {
@@ -46,7 +46,7 @@ export async function mcpAdd(
       args,
       env,
       url,
-      scope
+      scope,
     });
   } catch (error) {
     console.error("Failed to add MCP server:", error);
@@ -93,7 +93,11 @@ export async function mcpRemove(name: string): Promise<string> {
 /**
  * 从 JSON 配置添加 MCP 服务器
  */
-export async function mcpAddJson(name: string, jsonConfig: string, scope: string = "local"): Promise<AddServerResult> {
+export async function mcpAddJson(
+  name: string,
+  jsonConfig: string,
+  scope: string = "local",
+): Promise<AddServerResult> {
   try {
     return await invoke<AddServerResult>("mcp_add_json", { name, jsonConfig, scope });
   } catch (error) {
@@ -197,7 +201,10 @@ export async function mcpReadProjectConfig(projectPath: string): Promise<MCPProj
 /**
  * 保存项目 .mcp.json 配置
  */
-export async function mcpSaveProjectConfig(projectPath: string, config: MCPProjectConfig): Promise<string> {
+export async function mcpSaveProjectConfig(
+  projectPath: string,
+  config: MCPProjectConfig,
+): Promise<string> {
   try {
     return await invoke<string>("mcp_save_project_config", { projectPath, config });
   } catch (error) {
@@ -256,7 +263,7 @@ export async function mcpGetUnifiedServers(): Promise<Record<string, McpServer>>
  * 获取指定引擎的 MCP 服务器列表
  */
 export async function mcpGetEngineServers(
-  engine: "claude" | "codex" | "gemini"
+  engine: "claude" | "codex" | "gemini",
 ): Promise<Record<string, MCPServerSpec>> {
   try {
     return await invoke<Record<string, MCPServerSpec>>("mcp_get_engine_servers", {
@@ -274,7 +281,7 @@ export async function mcpGetEngineServers(
 export async function mcpUpsertEngineServer(
   engine: "claude" | "codex" | "gemini",
   id: string,
-  serverSpec: MCPServerSpec
+  serverSpec: MCPServerSpec,
 ): Promise<string> {
   try {
     return await invoke<string>("mcp_upsert_engine_server", {
@@ -293,7 +300,7 @@ export async function mcpUpsertEngineServer(
  */
 export async function mcpDeleteEngineServer(
   engine: "claude" | "codex" | "gemini",
-  id: string
+  id: string,
 ): Promise<string> {
   try {
     return await invoke<string>("mcp_delete_engine_server", {
@@ -313,7 +320,7 @@ export async function mcpToggleEngineServer(
   engine: "claude" | "codex" | "gemini",
   id: string,
   serverSpec: MCPServerSpec,
-  enabled: boolean
+  enabled: boolean,
 ): Promise<string> {
   try {
     return await invoke<string>("mcp_toggle_engine_server", {
@@ -332,7 +339,7 @@ export async function mcpToggleEngineServer(
  * 获取指定引擎的 MCP 服务器列表（包含禁用的服务器）
  */
 export async function mcpGetEngineServersWithStatus(
-  engine: "claude" | "codex" | "gemini"
+  engine: "claude" | "codex" | "gemini",
 ): Promise<McpServerWithStatus[]> {
   try {
     return await invoke<McpServerWithStatus[]>("mcp_get_engine_servers_with_status", {
@@ -351,7 +358,7 @@ export async function mcpUpsertServer(
   id: string,
   name: string,
   serverSpec: MCPServerSpec,
-  apps: McpApps
+  apps: McpApps,
 ): Promise<string> {
   try {
     return await invoke<string>("mcp_upsert_server", {
@@ -385,7 +392,7 @@ export async function mcpToggleApp(
   id: string,
   serverSpec: MCPServerSpec,
   app: string,
-  enabled: boolean
+  enabled: boolean,
 ): Promise<string> {
   try {
     return await invoke<string>("mcp_toggle_app", {

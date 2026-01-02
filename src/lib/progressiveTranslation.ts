@@ -3,14 +3,13 @@
  * Handles non-blocking, prioritized translation of messages
  */
 
-import { translationMiddleware, type TranslationResult } from './translationMiddleware';
-
+import { type TranslationResult, translationMiddleware } from "./translationMiddleware";
 
 export interface TranslationTask {
   id: string;
   content: string;
   priority: TranslationPriority;
-  status: 'pending' | 'processing' | 'completed' | 'error';
+  status: "pending" | "processing" | "completed" | "error";
   createdAt: number;
   completedAt?: number;
   result?: TranslationResult;
@@ -18,15 +17,15 @@ export interface TranslationTask {
 }
 
 export enum TranslationPriority {
-  CRITICAL = 1,    // Currently visible messages
-  HIGH = 2,        // Recent messages (last 10)
-  NORMAL = 3,      // Other messages
-  LOW = 4          // Background messages
+  CRITICAL = 1, // Currently visible messages
+  HIGH = 2, // Recent messages (last 10)
+  NORMAL = 3, // Other messages
+  LOW = 4, // Background messages
 }
 
 export interface TranslationState {
   [messageId: string]: {
-    status: 'original' | 'translating' | 'translated' | 'error';
+    status: "original" | "translating" | "translated" | "error";
     translatedContent?: string;
     originalContent: string;
     error?: string;
@@ -54,7 +53,7 @@ export class ProgressiveTranslationManager {
     messageId: string,
     content: string,
     priority: TranslationPriority = TranslationPriority.NORMAL,
-    callback?: (result: TranslationResult | null) => void
+    callback?: (result: TranslationResult | null) => void,
   ): void {
     // Check cache first
     const cacheKey = this.getCacheKey(content);
@@ -69,9 +68,9 @@ export class ProgressiveTranslationManager {
       id: messageId,
       content: content.trim(),
       priority,
-      status: 'pending',
+      status: "pending",
       createdAt: Date.now(),
-      retryCount: 0
+      retryCount: 0,
     };
 
     this.queue.set(messageId, task);
@@ -105,7 +104,7 @@ export class ProgressiveTranslationManager {
    */
   updatePriority(messageId: string, priority: TranslationPriority): void {
     const task = this.queue.get(messageId);
-    if (task && task.status === 'pending') {
+    if (task && task.status === "pending") {
       task.priority = priority;
       this.sortQueue();
     }
@@ -135,22 +134,22 @@ export class ProgressiveTranslationManager {
     while (true) {
       // Get next batch of tasks to process
       const tasksToProcess = Array.from(this.queue.values())
-        .filter(task => task.status === 'pending')
+        .filter((task) => task.status === "pending")
         .sort((a, b) => a.priority - b.priority || a.createdAt - b.createdAt)
         .slice(0, this.maxConcurrent - this.processing.size);
 
       if (tasksToProcess.length === 0) {
         // No tasks to process, wait a bit
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
         continue;
       }
 
       // Process tasks concurrently
-      const promises = tasksToProcess.map(task => this.processTask(task));
+      const promises = tasksToProcess.map((task) => this.processTask(task));
       await Promise.allSettled(promises);
 
       // Short delay before next batch
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
   }
 
@@ -161,7 +160,7 @@ export class ProgressiveTranslationManager {
     if (this.processing.has(task.id)) return;
 
     this.processing.add(task.id);
-    task.status = 'processing';
+    task.status = "processing";
 
     try {
       const controller = new AbortController();
@@ -187,7 +186,7 @@ export class ProgressiveTranslationManager {
       }
 
       // Update task
-      task.status = 'completed';
+      task.status = "completed";
       task.completedAt = Date.now();
       task.result = result;
 
@@ -197,19 +196,15 @@ export class ProgressiveTranslationManager {
         callback(result);
         this.subscribers.delete(task.id);
       }
-
-      
-
     } catch (error: any) {
       console.error(`[ProgressiveTranslation] Error processing task ${task.id}:`, error);
 
       // Handle retry logic
-      if (task.retryCount < 3 && !error.name?.includes('Abort')) {
+      if (task.retryCount < 3 && !error.name?.includes("Abort")) {
         task.retryCount++;
-        task.status = 'pending';
-        
+        task.status = "pending";
       } else {
-        task.status = 'error';
+        task.status = "error";
         const callback = this.subscribers.get(task.id);
         if (callback) {
           callback(null);
@@ -226,15 +221,14 @@ export class ProgressiveTranslationManager {
    * Sort the queue by priority and creation time
    */
   private sortQueue(): void {
-    const sortedEntries = Array.from(this.queue.entries())
-      .sort(([, a], [, b]) => {
-        // First by priority (lower number = higher priority)
-        if (a.priority !== b.priority) {
-          return a.priority - b.priority;
-        }
-        // Then by creation time (older first within same priority)
-        return a.createdAt - b.createdAt;
-      });
+    const sortedEntries = Array.from(this.queue.entries()).sort(([, a], [, b]) => {
+      // First by priority (lower number = higher priority)
+      if (a.priority !== b.priority) {
+        return a.priority - b.priority;
+      }
+      // Then by creation time (older first within same priority)
+      return a.createdAt - b.createdAt;
+    });
 
     this.queue = new Map(sortedEntries);
   }
@@ -247,7 +241,7 @@ export class ProgressiveTranslationManager {
     let hash = 0;
     for (let i = 0; i < content.length; i++) {
       const char = content.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash; // Convert to 32-bit integer
     }
     return `trans_${Math.abs(hash)}`;
@@ -273,11 +267,11 @@ export class ProgressiveTranslationManager {
     const tasks = Array.from(this.queue.values());
     return {
       total: tasks.length,
-      pending: tasks.filter(t => t.status === 'pending').length,
-      processing: tasks.filter(t => t.status === 'processing').length,
-      completed: tasks.filter(t => t.status === 'completed').length,
-      errors: tasks.filter(t => t.status === 'error').length,
-      cacheSize: this.cache.size
+      pending: tasks.filter((t) => t.status === "pending").length,
+      processing: tasks.filter((t) => t.status === "processing").length,
+      completed: tasks.filter((t) => t.status === "completed").length,
+      errors: tasks.filter((t) => t.status === "error").length,
+      cacheSize: this.cache.size,
     };
   }
 
@@ -286,7 +280,7 @@ export class ProgressiveTranslationManager {
    */
   cleanup(): void {
     // Cancel all ongoing requests
-    this.abortControllers.forEach(controller => controller.abort());
+    this.abortControllers.forEach((controller) => controller.abort());
     this.abortControllers.clear();
 
     // Clear all data

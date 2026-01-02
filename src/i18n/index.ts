@@ -1,22 +1,22 @@
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import LanguageDetector from 'i18next-browser-languagedetector';
+import i18n from "i18next";
+import LanguageDetector from "i18next-browser-languagedetector";
+import { initReactI18next } from "react-i18next";
 
 // Import language resources
-import en from './locales/en.json';
-import zh from './locales/zh.json';
-import zhTW from './locales/zh-TW.json';
+import en from "./locales/en.json";
+import zh from "./locales/zh.json";
+import zhTW from "./locales/zh-TW.json";
 
 const resources = {
   en: {
-    translation: en
+    translation: en,
   },
   zh: {
-    translation: zh
+    translation: zh,
   },
-  'zh-TW': {
-    translation: zhTW
-  }
+  "zh-TW": {
+    translation: zhTW,
+  },
 };
 
 i18n
@@ -24,8 +24,8 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    fallbackLng: 'zh', // Default to Chinese
-    lng: 'zh', // Set Chinese as default language
+    fallbackLng: "zh", // Default to Chinese
+    lng: "zh", // Set Chinese as default language
     debug: false,
 
     interpolation: {
@@ -33,8 +33,8 @@ i18n
     },
 
     detection: {
-      order: ['localStorage', 'navigator', 'htmlTag'],
-      caches: ['localStorage'],
+      order: ["localStorage", "navigator", "htmlTag"],
+      caches: ["localStorage"],
     },
   });
 

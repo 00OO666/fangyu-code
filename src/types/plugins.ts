@@ -59,27 +59,27 @@ export interface PluginManifest {
 }
 
 export type PluginCategory =
-  | 'ai' // AI 增强
-  | 'editor' // 编辑器功能
-  | 'language' // 语言支持
-  | 'theme' // 主题
-  | 'snippet' // 代码片段
-  | 'debugger' // 调试器
-  | 'formatter' // 格式化
-  | 'linter' // 代码检查
-  | 'testing' // 测试
-  | 'productivity' // 效率工具
-  | 'git' // Git 工具
-  | 'other'; // 其他
+  | "ai" // AI 增强
+  | "editor" // 编辑器功能
+  | "language" // 语言支持
+  | "theme" // 主题
+  | "snippet" // 代码片段
+  | "debugger" // 调试器
+  | "formatter" // 格式化
+  | "linter" // 代码检查
+  | "testing" // 测试
+  | "productivity" // 效率工具
+  | "git" // Git 工具
+  | "other"; // 其他
 
 export type ActivationEvent =
-  | '*' // 总是激活
+  | "*" // 总是激活
   | `onLanguage:${string}` // 打开特定语言文件时
   | `onCommand:${string}` // 执行特定命令时
   | `onView:${string}` // 打开特定视图时
   | `onFileSystem:${string}` // 访问特定文件系统时
-  | 'onStartupFinished' // 启动完成后
-  | 'onUri'; // 处理 URI 时
+  | "onStartupFinished" // 启动完成后
+  | "onUri"; // 处理 URI 时
 
 export interface PluginContributions {
   /** 命令贡献 */
@@ -131,7 +131,7 @@ export interface ConfigurationContribution {
 }
 
 export interface ConfigurationProperty {
-  type: 'string' | 'number' | 'boolean' | 'array' | 'object';
+  type: "string" | "number" | "boolean" | "array" | "object";
   default?: any;
   description: string;
   enum?: any[];
@@ -148,7 +148,7 @@ export interface LanguageContribution {
 export interface ThemeContribution {
   id: string;
   label: string;
-  uiTheme: 'vs' | 'vs-dark' | 'hc-black';
+  uiTheme: "vs" | "vs-dark" | "hc-black";
   path: string;
 }
 
@@ -173,16 +173,16 @@ export interface ToolContribution {
 }
 
 export type PluginPermission =
-  | 'filesystem.read' // 读取文件系统
-  | 'filesystem.write' // 写入文件系统
-  | 'network.fetch' // 网络请求
-  | 'shell.execute' // 执行 Shell 命令
-  | 'clipboard.read' // 读取剪贴板
-  | 'clipboard.write' // 写入剪贴板
-  | 'ai.prompt' // 使用 AI 提示
-  | 'ai.tools' // 使用 AI 工具
-  | 'config.read' // 读取配置
-  | 'config.write'; // 写入配置
+  | "filesystem.read" // 读取文件系统
+  | "filesystem.write" // 写入文件系统
+  | "network.fetch" // 网络请求
+  | "shell.execute" // 执行 Shell 命令
+  | "clipboard.read" // 读取剪贴板
+  | "clipboard.write" // 写入剪贴板
+  | "ai.prompt" // 使用 AI 提示
+  | "ai.tools" // 使用 AI 工具
+  | "config.read" // 读取配置
+  | "config.write"; // 写入配置
 
 // ============================================================
 // 插件状态
@@ -285,7 +285,7 @@ export interface EnvironmentVariableCollection {
 
 export interface EnvironmentVariable {
   value: string;
-  type: 'replace' | 'append' | 'prepend';
+  type: "replace" | "append" | "prepend";
 }
 
 /**
@@ -321,11 +321,7 @@ export interface PluginAPI {
 
 export interface CommandsAPI {
   /** 注册命令 */
-  registerCommand(
-    command: string,
-    callback: (...args: any[]) => any,
-    thisArg?: any
-  ): Disposable;
+  registerCommand(command: string, callback: (...args: any[]) => any, thisArg?: any): Disposable;
   /** 执行命令 */
   executeCommand<T = unknown>(command: string, ...args: any[]): Promise<T>;
   /** 获取所有命令 */
@@ -340,9 +336,7 @@ export interface EditorAPI {
   /** 打开文件 */
   openFile(path: string, options?: OpenFileOptions): Promise<EditorInstance>;
   /** 监听编辑器变化 */
-  onDidChangeActiveEditor(
-    listener: (editor: EditorInstance | undefined) => void
-  ): Disposable;
+  onDidChangeActiveEditor(listener: (editor: EditorInstance | undefined) => void): Disposable;
 }
 
 export interface EditorInstance {
@@ -400,17 +394,11 @@ export interface WorkspaceAPI {
   /** 获取工作区文件夹 */
   getWorkspaceFolders(): WorkspaceFolder[];
   /** 查找文件 */
-  findFiles(
-    include: string,
-    exclude?: string,
-    maxResults?: number
-  ): Promise<string[]>;
+  findFiles(include: string, exclude?: string, maxResults?: number): Promise<string[]>;
   /** 读取配置 */
   getConfiguration(section?: string): WorkspaceConfiguration;
   /** 监听文件变化 */
-  onDidChangeTextDocument(
-    listener: (event: TextDocumentChangeEvent) => void
-  ): Disposable;
+  onDidChangeTextDocument(listener: (event: TextDocumentChangeEvent) => void): Disposable;
 }
 
 export interface WorkspaceFolder {
@@ -423,11 +411,7 @@ export interface WorkspaceConfiguration {
   get<T>(section: string): T | undefined;
   get<T>(section: string, defaultValue: T): T;
   has(section: string): boolean;
-  update(
-    section: string,
-    value: any,
-    configurationTarget?: 'global' | 'workspace'
-  ): Promise<void>;
+  update(section: string, value: any, configurationTarget?: "global" | "workspace"): Promise<void>;
 }
 
 export interface TextDocumentChangeEvent {
@@ -443,15 +427,12 @@ export interface TextDocumentContentChangeEvent {
 
 export interface AIAPI {
   /** 发送提示词 */
-  prompt(
-    prompt: string,
-    options?: AIPromptOptions
-  ): Promise<AIResponse>;
+  prompt(prompt: string, options?: AIPromptOptions): Promise<AIResponse>;
   /** 流式提示 */
   streamPrompt(
     prompt: string,
     options?: AIPromptOptions,
-    onChunk?: (chunk: string) => void
+    onChunk?: (chunk: string) => void,
   ): Promise<AIResponse>;
   /** 注册工具 */
   registerTool(tool: AITool): Disposable;
@@ -503,12 +484,12 @@ export interface WindowAPI {
   /** 显示快速选择 */
   showQuickPick(
     items: string[] | QuickPickItem[],
-    options?: QuickPickOptions
+    options?: QuickPickOptions,
   ): Promise<string | QuickPickItem | undefined>;
   /** 创建输出通道 */
   createOutputChannel(name: string): OutputChannel;
   /** 创建状态栏项 */
-  createStatusBarItem(alignment?: 'left' | 'right', priority?: number): StatusBarItem;
+  createStatusBarItem(alignment?: "left" | "right", priority?: number): StatusBarItem;
 }
 
 export interface InputBoxOptions {
@@ -549,7 +530,7 @@ export interface StatusBarItem {
   tooltip?: string;
   color?: string;
   command?: string;
-  alignment: 'left' | 'right';
+  alignment: "left" | "right";
   priority: number;
   show(): void;
   hide(): void;
@@ -562,7 +543,7 @@ export interface FileSystemAPI {
   /** 写入文件 */
   writeFile(path: string, content: Uint8Array): Promise<void>;
   /** 读取目录 */
-  readDirectory(path: string): Promise<[string, 'file' | 'directory'][]>;
+  readDirectory(path: string): Promise<[string, "file" | "directory"][]>;
   /** 创建目录 */
   createDirectory(path: string): Promise<void>;
   /** 删除文件或目录 */
@@ -576,7 +557,7 @@ export interface FileSystemAPI {
 }
 
 export interface FileStat {
-  type: 'file' | 'directory' | 'symlink';
+  type: "file" | "directory" | "symlink";
   ctime: number;
   mtime: number;
   size: number;
@@ -607,7 +588,7 @@ export interface GitRepositoryState {
 
 export interface GitBranch {
   name: string;
-  type: 'local' | 'remote';
+  type: "local" | "remote";
   commit?: string;
   upstream?: GitBranch;
 }
@@ -615,12 +596,12 @@ export interface GitBranch {
 export interface GitRef {
   name: string;
   commit: string;
-  type: 'branch' | 'tag' | 'remote';
+  type: "branch" | "tag" | "remote";
 }
 
 export interface GitChange {
   uri: string;
-  status: 'added' | 'modified' | 'deleted' | 'renamed' | 'untracked';
+  status: "added" | "modified" | "deleted" | "renamed" | "untracked";
   originalUri?: string;
 }
 
@@ -643,7 +624,7 @@ export interface GitCommit {
 
 export interface PluginInstallOptions {
   /** 安装源 */
-  source: 'marketplace' | 'file' | 'url' | 'git';
+  source: "marketplace" | "file" | "url" | "git";
   /** 源路径或URL */
   location: string;
   /** 是否覆盖已存在的插件 */
@@ -675,7 +656,7 @@ export interface PluginSearchOptions {
   /** 分类过滤 */
   category?: PluginCategory;
   /** 排序方式 */
-  sortBy?: 'relevance' | 'downloads' | 'rating' | 'date';
+  sortBy?: "relevance" | "downloads" | "rating" | "date";
   /** 页码 */
   page?: number;
   /** 每页数量 */

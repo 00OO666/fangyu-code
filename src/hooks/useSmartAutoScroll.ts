@@ -5,8 +5,8 @@
  * 提供智能滚动管理：用户手动滚动检测、自动滚动到底部、流式输出滚动
  */
 
-import { useRef, useState, useEffect, useMemo } from 'react';
-import type { ClaudeStreamMessage } from '@/types/claude';
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { ClaudeStreamMessage } from "@/types/claude";
 
 interface SmartAutoScrollConfig {
   /** 可显示的消息列表（用于触发滚动） */
@@ -19,10 +19,10 @@ interface SmartAutoScrollConfig {
  * 计算消息的内容哈希，用于检测内容变化
  */
 function getLastMessageContentHash(messages: ClaudeStreamMessage[]): string {
-  if (messages.length === 0) return '';
+  if (messages.length === 0) return "";
   const lastMsg = messages[messages.length - 1];
   // 简单地使用内容长度和类型作为哈希
-  const contentLength = JSON.stringify(lastMsg.message?.content || '').length;
+  const contentLength = JSON.stringify(lastMsg.message?.content || "").length;
   return `${messages.length}-${lastMsg.type}-${contentLength}`;
 }
 
@@ -65,22 +65,23 @@ export function useSmartAutoScroll(config: SmartAutoScrollConfig): SmartAutoScro
   // 🆕 计算最后一条消息的内容哈希，用于检测内容变化
   const lastMessageHash = useMemo(
     () => getLastMessageContentHash(displayableMessages),
-    [displayableMessages]
+    [displayableMessages],
   );
 
   // Helper to perform auto-scroll safely
-  const performAutoScroll = (behavior: ScrollBehavior = 'smooth') => {
+  const performAutoScroll = (behavior: ScrollBehavior = "smooth") => {
     if (parentRef.current) {
       const scrollElement = parentRef.current;
       // Check if we actually need to scroll to avoid unnecessary events
       const { scrollTop, scrollHeight, clientHeight } = scrollElement;
       const targetScrollTop = scrollHeight - clientHeight;
-      
-      if (Math.abs(scrollTop - targetScrollTop) > 1) { // Small tolerance
+
+      if (Math.abs(scrollTop - targetScrollTop) > 1) {
+        // Small tolerance
         isAutoScrollingRef.current = true;
         scrollElement.scrollTo({
           top: targetScrollTop,
-          behavior
+          behavior,
         });
       }
     }
@@ -101,7 +102,7 @@ export function useSmartAutoScroll(config: SmartAutoScrollConfig): SmartAutoScro
       }
 
       const { scrollTop, scrollHeight, clientHeight } = scrollElement;
-      
+
       // 2. Calculate distance from bottom
       const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
       const isAtBottom = distanceFromBottom <= 50; // 50px threshold
@@ -120,10 +121,10 @@ export function useSmartAutoScroll(config: SmartAutoScrollConfig): SmartAutoScro
       lastScrollPositionRef.current = scrollTop;
     };
 
-    scrollElement.addEventListener('scroll', handleScroll, { passive: true });
+    scrollElement.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => {
-      scrollElement.removeEventListener('scroll', handleScroll);
+      scrollElement.removeEventListener("scroll", handleScroll);
     };
   }, []); // Empty deps - event listener only needs to be registered once
 
@@ -163,7 +164,7 @@ export function useSmartAutoScroll(config: SmartAutoScrollConfig): SmartAutoScro
     let ticks = 0;
     const intervalId = setInterval(() => {
       ticks += 1;
-      performAutoScroll('auto');
+      performAutoScroll("auto");
       if (ticks >= 8) {
         clearInterval(intervalId);
       }
@@ -186,6 +187,6 @@ export function useSmartAutoScroll(config: SmartAutoScrollConfig): SmartAutoScro
     parentRef,
     userScrolled,
     setUserScrolled,
-    setShouldAutoScroll
+    setShouldAutoScroll,
   };
 }

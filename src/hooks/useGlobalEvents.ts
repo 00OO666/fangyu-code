@@ -1,13 +1,13 @@
-import { useEffect } from 'react';
-import { listen } from '@tauri-apps/api/event';
-import { useProject } from '@/contexts/ProjectContext';
-import { useNavigation } from '@/contexts/NavigationContext';
-import { useTabs } from '@/hooks/useTabs';
+import { listen } from "@tauri-apps/api/event";
+import { useEffect } from "react";
+import { useNavigation } from "@/contexts/NavigationContext";
+import { useProject } from "@/contexts/ProjectContext";
+import { useTabs } from "@/hooks/useTabs";
 
 type ClaudeCompletePayload = { tab_id?: string | null; payload: boolean } | boolean;
 
 const isClaudeCompleteSuccess = (payload: ClaudeCompletePayload) => {
-  if (typeof payload === 'boolean') return payload;
+  if (typeof payload === "boolean") return payload;
   return payload?.payload === true;
 };
 
@@ -23,28 +23,30 @@ export const useGlobalEvents = () => {
       const result = openSessionInBackground(session);
       switchToTab(result.tabId);
       navigateTo("claude-tab-manager");
-      
+
       // Toast notifications should be handled by a global toast context or event
-      window.dispatchEvent(new CustomEvent('show-toast', {
-        detail: {
-          message: result.isNew 
-            ? `会话 ${session.id.slice(-8)} 已打开` 
-            : `已切换到会话 ${session.id.slice(-8)}`,
-          type: result.isNew ? "success" : "info"
-        }
-      }));
+      window.dispatchEvent(
+        new CustomEvent("show-toast", {
+          detail: {
+            message: result.isNew
+              ? `会话 ${session.id.slice(-8)} 已打开`
+              : `已切换到会话 ${session.id.slice(-8)}`,
+            type: result.isNew ? "success" : "info",
+          },
+        }),
+      );
     };
 
     const handleClaudeNotFound = () => {
-      window.dispatchEvent(new CustomEvent('show-claude-binary-dialog'));
+      window.dispatchEvent(new CustomEvent("show-claude-binary-dialog"));
     };
 
-    window.addEventListener('claude-session-selected', handleSessionSelected as EventListener);
-    window.addEventListener('claude-not-found', handleClaudeNotFound as EventListener);
-    
+    window.addEventListener("claude-session-selected", handleSessionSelected as EventListener);
+    window.addEventListener("claude-not-found", handleClaudeNotFound as EventListener);
+
     return () => {
-      window.removeEventListener('claude-session-selected', handleSessionSelected as EventListener);
-      window.removeEventListener('claude-not-found', handleClaudeNotFound as EventListener);
+      window.removeEventListener("claude-session-selected", handleSessionSelected as EventListener);
+      window.removeEventListener("claude-not-found", handleClaudeNotFound as EventListener);
     };
   }, [openSessionInBackground, switchToTab, navigateTo]);
 
@@ -54,7 +56,7 @@ export const useGlobalEvents = () => {
 
     const setupListener = async () => {
       try {
-        unlisten = await listen<ClaudeCompletePayload>('claude-complete', async (event) => {
+        unlisten = await listen<ClaudeCompletePayload>("claude-complete", async (event) => {
           if (isClaudeCompleteSuccess(event.payload)) {
             await loadProjects();
             if (selectedProject) {
@@ -63,7 +65,7 @@ export const useGlobalEvents = () => {
           }
         });
       } catch (err) {
-        console.error('Failed to setup claude-complete listener:', err);
+        console.error("Failed to setup claude-complete listener:", err);
       }
     };
 
@@ -79,12 +81,19 @@ export const useGlobalEvents = () => {
       if (currentView !== "settings") {
         navigateTo("settings");
         setTimeout(() => {
-          window.dispatchEvent(new CustomEvent('switch-to-prompt-api-tab'));
+          window.dispatchEvent(new CustomEvent("switch-to-prompt-api-tab"));
         }, 100);
       }
     };
 
-    window.addEventListener('open-prompt-api-settings', handleOpenPromptAPISettings as EventListener);
-    return () => window.removeEventListener('open-prompt-api-settings', handleOpenPromptAPISettings as EventListener);
+    window.addEventListener(
+      "open-prompt-api-settings",
+      handleOpenPromptAPISettings as EventListener,
+    );
+    return () =>
+      window.removeEventListener(
+        "open-prompt-api-settings",
+        handleOpenPromptAPISettings as EventListener,
+      );
   }, [currentView, navigateTo]);
 };

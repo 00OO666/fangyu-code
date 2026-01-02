@@ -9,7 +9,7 @@
  */
 
 import { invoke } from "@tauri-apps/api/core";
-import type { ProviderConfig, CurrentProviderConfig, ApiKeyUsage } from '../types';
+import type { ApiKeyUsage, CurrentProviderConfig, ProviderConfig } from "../types";
 
 // ============================================================================
 // Provider 预设和当前配置
@@ -86,17 +86,17 @@ export async function getProviderConfig(id: string): Promise<ProviderConfig> {
 /**
  * 添加新的 Provider 配置
  */
-export async function addProviderConfig(config: Omit<ProviderConfig, 'id'>): Promise<string> {
+export async function addProviderConfig(config: Omit<ProviderConfig, "id">): Promise<string> {
   // Generate ID from name
   const id = config.name
     .toLowerCase()
-    .replace(/[^a-z0-9]/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '');
+    .replace(/[^a-z0-9]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
 
   const fullConfig: ProviderConfig = {
     ...config,
-    id
+    id,
   };
 
   try {

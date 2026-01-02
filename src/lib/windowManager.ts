@@ -4,9 +4,8 @@
  * Provides functions to create, manage, and communicate with independent session windows.
  */
 
-import { invoke } from '@tauri-apps/api/core';
-import { emit, listen, type UnlistenFn } from '@tauri-apps/api/event';
-
+import { invoke } from "@tauri-apps/api/core";
+import { emit, listen, type UnlistenFn } from "@tauri-apps/api/event";
 
 // ============================================================================
 // Types
@@ -18,7 +17,7 @@ export interface CreateSessionWindowParams {
   projectPath?: string;
   title: string;
   /** Execution engine: 'claude' | 'codex' | 'gemini' */
-  engine?: 'claude' | 'codex' | 'gemini';
+  engine?: "claude" | "codex" | "gemini";
 }
 
 export interface WindowCreationResult {
@@ -28,7 +27,7 @@ export interface WindowCreationResult {
 
 // Event types for cross-window communication
 export interface WindowSyncEvent {
-  type: 'session_update' | 'session_complete' | 'tab_closed' | 'tab_detached' | 'tab_attached';
+  type: "session_update" | "session_complete" | "tab_closed" | "tab_detached" | "tab_attached";
   tabId: string;
   sessionId?: string;
   projectPath?: string;
@@ -47,7 +46,7 @@ export interface WindowSyncEvent {
  */
 export async function createSessionWindow(params: CreateSessionWindowParams): Promise<string> {
   try {
-    const result = await invoke<WindowCreationResult>('create_session_window', {
+    const result = await invoke<WindowCreationResult>("create_session_window", {
       params: {
         tab_id: params.tabId,
         session_id: params.sessionId || null,
@@ -58,11 +57,11 @@ export async function createSessionWindow(params: CreateSessionWindowParams): Pr
     });
 
     if (!result.success) {
-      throw new Error('Window creation failed');
+      throw new Error("Window creation failed");
     }
     return result.window_label;
   } catch (error) {
-    console.error('[WindowManager] Failed to create session window:', error);
+    console.error("[WindowManager] Failed to create session window:", error);
     throw error;
   }
 }
@@ -74,9 +73,9 @@ export async function createSessionWindow(params: CreateSessionWindowParams): Pr
  */
 export async function closeSessionWindow(windowLabel: string): Promise<void> {
   try {
-    await invoke('close_session_window', { windowLabel });
+    await invoke("close_session_window", { windowLabel });
   } catch (error) {
-    console.error('[WindowManager] Failed to close session window:', error);
+    console.error("[WindowManager] Failed to close session window:", error);
     throw error;
   }
 }
@@ -88,9 +87,9 @@ export async function closeSessionWindow(windowLabel: string): Promise<void> {
  */
 export async function listSessionWindows(): Promise<string[]> {
   try {
-    return await invoke<string[]>('list_session_windows');
+    return await invoke<string[]>("list_session_windows");
   } catch (error) {
-    console.error('[WindowManager] Failed to list session windows:', error);
+    console.error("[WindowManager] Failed to list session windows:", error);
     return [];
   }
 }
@@ -102,9 +101,9 @@ export async function listSessionWindows(): Promise<string[]> {
  */
 export async function focusSessionWindow(windowLabel: string): Promise<void> {
   try {
-    await invoke('focus_session_window', { windowLabel });
+    await invoke("focus_session_window", { windowLabel });
   } catch (error) {
-    console.error('[WindowManager] Failed to focus session window:', error);
+    console.error("[WindowManager] Failed to focus session window:", error);
     throw error;
   }
 }
@@ -123,16 +122,16 @@ export async function focusSessionWindow(windowLabel: string): Promise<void> {
 export async function emitToWindow(
   windowLabel: string,
   eventName: string,
-  payload: any
+  payload: any,
 ): Promise<void> {
   try {
-    await invoke('emit_to_window', {
+    await invoke("emit_to_window", {
       windowLabel,
       eventName,
       payload: JSON.stringify(payload),
     });
   } catch (error) {
-    console.error('[WindowManager] Failed to emit to window:', error);
+    console.error("[WindowManager] Failed to emit to window:", error);
     throw error;
   }
 }
@@ -144,17 +143,14 @@ export async function emitToWindow(
  * @param payload - Event payload
  * @returns Number of windows that received the event
  */
-export async function broadcastToSessionWindows(
-  eventName: string,
-  payload: any
-): Promise<number> {
+export async function broadcastToSessionWindows(eventName: string, payload: any): Promise<number> {
   try {
-    return await invoke<number>('broadcast_to_session_windows', {
+    return await invoke<number>("broadcast_to_session_windows", {
       eventName,
       payload: JSON.stringify(payload),
     });
   } catch (error) {
-    console.error('[WindowManager] Failed to broadcast:', error);
+    console.error("[WindowManager] Failed to broadcast:", error);
     return 0;
   }
 }
@@ -163,7 +159,7 @@ export async function broadcastToSessionWindows(
 // Window Sync Events
 // ============================================================================
 
-const WINDOW_SYNC_EVENT = 'window-sync';
+const WINDOW_SYNC_EVENT = "window-sync";
 
 /**
  * Emits a sync event to all windows
@@ -174,7 +170,7 @@ export async function emitWindowSyncEvent(event: WindowSyncEvent): Promise<void>
   try {
     await emit(WINDOW_SYNC_EVENT, event);
   } catch (error) {
-    console.error('[WindowManager] Failed to emit sync event:', error);
+    console.error("[WindowManager] Failed to emit sync event:", error);
   }
 }
 
@@ -185,7 +181,7 @@ export async function emitWindowSyncEvent(event: WindowSyncEvent): Promise<void>
  * @returns Unlisten function
  */
 export async function onWindowSyncEvent(
-  callback: (event: WindowSyncEvent) => void
+  callback: (event: WindowSyncEvent) => void,
 ): Promise<UnlistenFn> {
   return listen<WindowSyncEvent>(WINDOW_SYNC_EVENT, (event) => {
     callback(event.payload);
@@ -206,23 +202,26 @@ export function parseSessionWindowParams(): {
   tabId?: string;
   sessionId?: string;
   projectPath?: string;
-  engine?: 'claude' | 'codex' | 'gemini';
+  engine?: "claude" | "codex" | "gemini";
 } {
   const params = new URLSearchParams(window.location.search);
-  const windowType = params.get('window');
+  const windowType = params.get("window");
 
-  if (windowType !== 'session') {
+  if (windowType !== "session") {
     return { isSessionWindow: false };
   }
 
-  const tabId = params.get('tab_id') || undefined;
-  const sessionId = params.get('session_id') || undefined;
-  const projectPath = params.get('project_path')
-    ? decodeURIComponent(params.get('project_path')!)
+  const tabId = params.get("tab_id") || undefined;
+  const sessionId = params.get("session_id") || undefined;
+  const projectPath = params.get("project_path")
+    ? decodeURIComponent(params.get("project_path")!)
     : undefined;
-  const engineParam = params.get('engine');
+  const engineParam = params.get("engine");
   // 🔧 FIX: 支持 gemini 引擎
-  const engine = (engineParam === 'claude' || engineParam === 'codex' || engineParam === 'gemini') ? engineParam : undefined;
+  const engine =
+    engineParam === "claude" || engineParam === "codex" || engineParam === "gemini"
+      ? engineParam
+      : undefined;
   return {
     isSessionWindow: true,
     tabId,
@@ -239,7 +238,7 @@ export function parseSessionWindowParams(): {
  */
 export function isSessionWindow(): boolean {
   const params = new URLSearchParams(window.location.search);
-  return params.get('window') === 'session';
+  return params.get("window") === "session";
 }
 
 // ============================================================================

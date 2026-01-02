@@ -10,13 +10,13 @@
  * 来源: Claude Extended Thinking + OpenAI o1 Reasoning
  */
 
-import { useState, useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from "react";
 
 // ============================================================
 // 类型定义
 // ============================================================
 
-export type ThinkingDepth = 'normal' | 'deep' | 'ultra';
+export type ThinkingDepth = "normal" | "deep" | "ultra";
 
 export interface ThinkingConfig {
   /** 当前思考深度 */
@@ -59,20 +59,20 @@ export interface ThinkingSession {
 // ============================================================
 
 const DEFAULT_CONFIG: ThinkingConfig = {
-  depth: 'normal',
+  depth: "normal",
   autoDetect: true,
   triggerKeywords: [
-    'ultrathink',
-    'think deeply',
-    'deep thinking',
-    'reasoning',
-    'analyze carefully',
-    'step by step',
-    'think hard',
-    '深度思考',
-    '仔细分析',
-    '推理',
-    '逐步分析',
+    "ultrathink",
+    "think deeply",
+    "deep thinking",
+    "reasoning",
+    "analyze carefully",
+    "step by step",
+    "think hard",
+    "深度思考",
+    "仔细分析",
+    "推理",
+    "逐步分析",
   ],
   showProcess: true,
   maxThinkingTime: 120, // 2分钟
@@ -113,9 +113,12 @@ export function useExtendedThinking(options: UseExtendedThinkingOptions = {}) {
   }, []);
 
   // 设置思考深度
-  const setDepth = useCallback((depth: ThinkingDepth) => {
-    updateConfig({ depth });
-  }, [updateConfig]);
+  const setDepth = useCallback(
+    (depth: ThinkingDepth) => {
+      updateConfig({ depth });
+    },
+    [updateConfig],
+  );
 
   /**
    * 检测输入是否包含触发关键词
@@ -123,41 +126,37 @@ export function useExtendedThinking(options: UseExtendedThinkingOptions = {}) {
   const detectTrigger = useCallback(
     (input: string): { triggered: boolean; suggestedDepth: ThinkingDepth } => {
       if (!config.autoDetect) {
-        return { triggered: false, suggestedDepth: 'normal' };
+        return { triggered: false, suggestedDepth: "normal" };
       }
 
       const lowerInput = input.toLowerCase();
 
       // 检查是否包含触发关键词
       const hasKeyword = config.triggerKeywords.some((keyword) =>
-        lowerInput.includes(keyword.toLowerCase())
+        lowerInput.includes(keyword.toLowerCase()),
       );
 
       if (!hasKeyword) {
-        return { triggered: false, suggestedDepth: 'normal' };
+        return { triggered: false, suggestedDepth: "normal" };
       }
 
       // 根据关键词强度建议深度
-      const ultraKeywords = ['ultrathink', 'think hard', '深度思考', 'analyze carefully'];
-      const deepKeywords = ['think deeply', 'reasoning', '推理', 'step by step'];
+      const ultraKeywords = ["ultrathink", "think hard", "深度思考", "analyze carefully"];
+      const deepKeywords = ["think deeply", "reasoning", "推理", "step by step"];
 
-      const hasUltra = ultraKeywords.some((keyword) =>
-        lowerInput.includes(keyword.toLowerCase())
-      );
-      const hasDeep = deepKeywords.some((keyword) =>
-        lowerInput.includes(keyword.toLowerCase())
-      );
+      const hasUltra = ultraKeywords.some((keyword) => lowerInput.includes(keyword.toLowerCase()));
+      const hasDeep = deepKeywords.some((keyword) => lowerInput.includes(keyword.toLowerCase()));
 
-      let suggestedDepth: ThinkingDepth = 'normal';
+      let suggestedDepth: ThinkingDepth = "normal";
       if (hasUltra) {
-        suggestedDepth = 'ultra';
+        suggestedDepth = "ultra";
       } else if (hasDeep) {
-        suggestedDepth = 'deep';
+        suggestedDepth = "deep";
       }
 
       return { triggered: true, suggestedDepth };
     },
-    [config.autoDetect, config.triggerKeywords]
+    [config.autoDetect, config.triggerKeywords],
   );
 
   /**
@@ -178,7 +177,7 @@ export function useExtendedThinking(options: UseExtendedThinkingOptions = {}) {
 
       return session;
     },
-    [config.depth, onThinkingStart]
+    [config.depth, onThinkingStart],
   );
 
   /**
@@ -196,7 +195,7 @@ export function useExtendedThinking(options: UseExtendedThinkingOptions = {}) {
       setCurrentSession(updatedSession);
       onThinkingUpdate?.(updatedSession, content);
     },
-    [currentSession, onThinkingUpdate]
+    [currentSession, onThinkingUpdate],
   );
 
   /**
@@ -224,7 +223,7 @@ export function useExtendedThinking(options: UseExtendedThinkingOptions = {}) {
 
       return completedSession;
     },
-    [currentSession, onThinkingEnd]
+    [currentSession, onThinkingEnd],
   );
 
   /**
@@ -240,7 +239,7 @@ export function useExtendedThinking(options: UseExtendedThinkingOptions = {}) {
       ...currentSession,
       endTime,
       duration,
-      finalResponse: '[思考已取消]',
+      finalResponse: "[思考已取消]",
     };
 
     setCurrentSession(null);
@@ -286,12 +285,12 @@ export function useExtendedThinking(options: UseExtendedThinkingOptions = {}) {
    */
   const getDepthDescription = useCallback((depth: ThinkingDepth): string => {
     switch (depth) {
-      case 'normal':
-        return '正常思考 - 快速响应';
-      case 'deep':
-        return '深度思考 - 详细分析问题';
-      case 'ultra':
-        return '超深度思考 - 全面推理和验证';
+      case "normal":
+        return "正常思考 - 快速响应";
+      case "deep":
+        return "深度思考 - 详细分析问题";
+      case "ultra":
+        return "超深度思考 - 全面推理和验证";
     }
   }, []);
 
@@ -300,15 +299,15 @@ export function useExtendedThinking(options: UseExtendedThinkingOptions = {}) {
    */
   const getSystemPrompt = useCallback((depth: ThinkingDepth): string => {
     switch (depth) {
-      case 'normal':
-        return '';
-      case 'deep':
+      case "normal":
+        return "";
+      case "deep":
         return `请进行深度思考分析：
 1. 仔细理解问题的每个方面
 2. 考虑多种可能的解决方案
 3. 评估每种方案的优劣
 4. 给出详细的推理过程`;
-      case 'ultra':
+      case "ultra":
         return `请进行超深度思考分析：
 1. 从多个角度全面理解问题
 2. 列举所有可能的解决方案
@@ -337,22 +336,16 @@ export function useExtendedThinking(options: UseExtendedThinkingOptions = {}) {
    */
   const formatThinkingContent = useCallback((content: string): string => {
     // 标记思考步骤
-    let formatted = content.replace(
-      /^(\d+[\.\)]|\*|\-)\s+(.+)$/gm,
-      '<step>$1 $2</step>'
-    );
+    let formatted = content.replace(/^(\d+[.)]|\*|-)\s+(.+)$/gm, "<step>$1 $2</step>");
 
     // 标记推理链
     formatted = formatted.replace(
       /(因为|所以|因此|因而|由于|根据|基于|考虑到)/g,
-      '<reasoning>$1</reasoning>'
+      "<reasoning>$1</reasoning>",
     );
 
     // 标记关键结论
-    formatted = formatted.replace(
-      /(结论|总结|综上|最终|最佳)/g,
-      '<conclusion>$1</conclusion>'
-    );
+    formatted = formatted.replace(/(结论|总结|综上|最终|最佳)/g, "<conclusion>$1</conclusion>");
 
     return formatted;
   }, []);

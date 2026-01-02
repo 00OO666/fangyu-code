@@ -22,7 +22,7 @@ export interface SessionContinueConfig {
   /** 是否保留旧会话（默认 true） */
   keepOldSession?: boolean;
   /** 摘要详细程度 */
-  summaryVerbosity?: 'concise' | 'detailed';
+  summaryVerbosity?: "concise" | "detailed";
   /** 上下文使用率（0-1） */
   contextUsage?: number;
 }
@@ -63,7 +63,7 @@ export interface SessionSummary {
 export interface TaskSummary {
   id: string;
   content: string;
-  status: 'completed' | 'in_progress' | 'pending';
+  status: "completed" | "in_progress" | "pending";
   progress?: number;
 }
 
@@ -72,7 +72,7 @@ export interface TaskSummary {
  */
 export interface FileSummary {
   path: string;
-  operation: 'created' | 'modified' | 'deleted';
+  operation: "created" | "modified" | "deleted";
   description: string;
 }
 
@@ -80,7 +80,7 @@ export interface FileSummary {
  * 消息摘要
  */
 export interface MessageSummary {
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   content: string;
   timestamp: number;
   important: boolean;
@@ -90,13 +90,13 @@ export interface MessageSummary {
  * 会话续接状态
  */
 export type SessionContinueStatus =
-  | 'idle'           // 空闲
-  | 'generating'     // 生成摘要中
-  | 'ready'          // 准备就绪
-  | 'creating'       // 创建新会话中
-  | 'switching'      // 切换中
-  | 'completed'      // 完成
-  | 'error';         // 错误
+  | "idle" // 空闲
+  | "generating" // 生成摘要中
+  | "ready" // 准备就绪
+  | "creating" // 创建新会话中
+  | "switching" // 切换中
+  | "completed" // 完成
+  | "error"; // 错误
 
 /**
  * Hook 返回值

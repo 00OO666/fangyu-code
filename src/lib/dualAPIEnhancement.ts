@@ -13,16 +13,15 @@
  * - 成本可控（条件触发，非始终双调用）
  */
 
-import { ClaudeStreamMessage } from '@/types/claude';
-import { extractTextFromContent } from './sessionHelpers';
-import { LLMApiService, type LLMProvider } from '@/lib/services/llmApiService';
-import { callEnhancementAPI } from './promptEnhancementService';
-import { loadContextConfig } from './promptContextConfig';
-
+import { LLMApiService, type LLMProvider } from "@/lib/services/llmApiService";
+import type { ClaudeStreamMessage } from "@/types/claude";
+import { loadContextConfig } from "./promptContextConfig";
+import { callEnhancementAPI } from "./promptEnhancementService";
+import { extractTextFromContent } from "./sessionHelpers";
 
 // 重新导出类型以保持向后兼容
 export type PromptEnhancementProvider = LLMProvider;
-export { normalizeOpenAIUrl } from '@/lib/services/llmApiService';
+export { normalizeOpenAIUrl } from "@/lib/services/llmApiService";
 
 /**
  * 第一次 API 调用的系统提示词（专门用于上下文提取）
@@ -116,9 +115,9 @@ const ACEMCP_REFINEMENT_SYSTEM_PROMPT = `你是代码上下文整理专家。
 
 // acemcp 结果整理的触发阈值
 const ACEMCP_REFINEMENT_THRESHOLDS = {
-  minSnippetCount: 5,      // 片段数超过此值触发整理
-  minContentLength: 3000,  // 内容长度超过此值触发整理
-  maxRefinedLength: 3000,  // 整理后的最大长度
+  minSnippetCount: 5, // 片段数超过此值触发整理
+  minContentLength: 3000, // 内容长度超过此值触发整理
+  maxRefinedLength: 3000, // 整理后的最大长度
 };
 
 /**
@@ -134,12 +133,12 @@ export async function enhancePromptWithDualAPI(
   messages: ClaudeStreamMessage[],
   currentPrompt: string,
   provider: PromptEnhancementProvider,
-  projectContext?: string
+  projectContext?: string,
 ): Promise<string> {
   const config = loadContextConfig();
 
   // 过滤有意义的消息
-  const meaningful = messages.filter(msg => {
+  const meaningful = messages.filter((msg) => {
     if (msg.type === "system" && msg.subtype === "init") return false;
     if (!msg.message?.content?.length && !msg.result) return false;
     return true;
@@ -160,30 +159,26 @@ export async function enhancePromptWithDualAPI(
 
   if (needsAcemcpRefinement) {
     // 优先整理 acemcp 结果（对最终效果影响更大）
-    
 
     try {
       refinedProjectContext = await refineAcemcpContextWithAPI(
         projectContext!,
         currentPrompt,
-        provider
+        provider,
       );
     } catch (error) {
-      console.error('[Dual API] Acemcp refinement failed, using original:', error);
+      console.error("[Dual API] Acemcp refinement failed, using original:", error);
       // 降级：使用原始上下文
       refinedProjectContext = projectContext;
     }
 
     // 历史消息使用简单截取（已消耗一次 API 调用）
     if (meaningful.length > 0) {
-      selectedContext = meaningful
-        .slice(-config.maxMessages)
-        .map(msg => {
-          const text = extractTextFromContent(msg.message?.content || []);
-          return `${msg.type === 'user' ? '用户' : '助手'}: ${text}`;
-        });
+      selectedContext = meaningful.slice(-config.maxMessages).map((msg) => {
+        const text = extractTextFromContent(msg.message?.content || []);
+        return `${msg.type === "user" ? "用户" : "助手"}: ${text}`;
+      });
     }
-
   } else if (needsHistoryFiltering) {
     // 没有 acemcp 需要整理，但历史消息需要筛选
     try {
@@ -191,24 +186,21 @@ export async function enhancePromptWithDualAPI(
         meaningful,
         currentPrompt,
         config.maxMessages,
-        provider
+        provider,
       );
     } catch (error) {
-      console.error('[Dual API] Step 1 failed, falling back to recent messages:', error);
-      selectedContext = meaningful
-        .slice(-config.maxMessages)
-        .map(msg => {
-          const text = extractTextFromContent(msg.message?.content || []);
-          return `${msg.type === 'user' ? '用户' : '助手'}: ${text}`;
-        });
+      console.error("[Dual API] Step 1 failed, falling back to recent messages:", error);
+      selectedContext = meaningful.slice(-config.maxMessages).map((msg) => {
+        const text = extractTextFromContent(msg.message?.content || []);
+        return `${msg.type === "user" ? "用户" : "助手"}: ${text}`;
+      });
     }
-
   } else {
     // 都不需要第一次 API 调用
-    
-    selectedContext = meaningful.map(msg => {
+
+    selectedContext = meaningful.map((msg) => {
       const text = extractTextFromContent(msg.message?.content || []);
-      return `${msg.type === 'user' ? '用户' : '助手'}: ${text}`;
+      return `${msg.type === "user" ? "用户" : "助手"}: ${text}`;
     });
   }
 
@@ -221,9 +213,9 @@ export async function enhancePromptWithDualAPI(
   // 🔥 第二次 API 调用：优化提示词
   // ==========================================
   const enhancedPrompt = await callEnhancementAPI(
-    provider,  // 🔑 使用同一个提供商
+    provider, // 🔑 使用同一个提供商
     currentPrompt,
-    selectedContext
+    selectedContext,
   );
   return enhancedPrompt;
 }
@@ -235,19 +227,18 @@ async function extractContextWithAPI(
   messages: ClaudeStreamMessage[],
   currentPrompt: string,
   maxCount: number,
-  provider: PromptEnhancementProvider
+  provider: PromptEnhancementProvider,
 ): Promise<string[]> {
-
   // 1️⃣ 构建消息列表（精简版，节省 token）
-  const messageList = messages.map((msg, idx) => {
-    const text = extractTextFromContent(msg.message?.content || []);
-    // 每条消息只取前 120 字符（节省成本）
-    const preview = text.length > 120
-      ? text.substring(0, 120) + '...'
-      : text;
-    const role = msg.type === 'user' ? 'U' : 'A';
-    return `[${idx}] ${role}: ${preview}`;
-  }).join('\n');
+  const messageList = messages
+    .map((msg, idx) => {
+      const text = extractTextFromContent(msg.message?.content || []);
+      // 每条消息只取前 120 字符（节省成本）
+      const preview = text.length > 120 ? text.substring(0, 120) + "..." : text;
+      const role = msg.type === "user" ? "U" : "A";
+      return `[${idx}] ${role}: ${preview}`;
+    })
+    .join("\n");
 
   // 2️⃣ 构建请求
   const userPrompt = `当前提示词：
@@ -263,31 +254,26 @@ ${messageList}
   const response = await callContextExtractionAPI(
     provider,
     CONTEXT_EXTRACTION_SYSTEM_PROMPT,
-    userPrompt
+    userPrompt,
   );
 
   // 4️⃣ 解析返回的索引
   const indices = parseIndicesFromResponse(response, messages.length, maxCount);
   // 5️⃣ 提取对应的消息
-  const selectedMessages = indices
-    .map(idx => messages[idx])
-    .filter(msg => msg !== undefined);
+  const selectedMessages = indices.map((idx) => messages[idx]).filter((msg) => msg !== undefined);
 
   // 6️⃣ 按时间顺序排列（保持对话连贯性）
-  selectedMessages.sort((a, b) =>
-    messages.indexOf(a) - messages.indexOf(b)
-  );
+  selectedMessages.sort((a, b) => messages.indexOf(a) - messages.indexOf(b));
 
   // 7️⃣ 格式化输出
   const config = loadContextConfig();
 
-  return selectedMessages.map(msg => {
+  return selectedMessages.map((msg) => {
     const text = extractTextFromContent(msg.message?.content || []);
-    const maxLen = msg.type === 'user'
-      ? config.maxUserMessageLength
-      : config.maxAssistantMessageLength;
+    const maxLen =
+      msg.type === "user" ? config.maxUserMessageLength : config.maxAssistantMessageLength;
     const truncated = smartTruncate(text, maxLen);
-    return `${msg.type === 'user' ? '用户' : '助手'}: ${truncated}`;
+    return `${msg.type === "user" ? "用户" : "助手"}: ${truncated}`;
   });
 }
 
@@ -298,17 +284,21 @@ ${messageList}
 async function callContextExtractionAPI(
   provider: PromptEnhancementProvider,
   systemPrompt: string,
-  userPrompt: string
+  userPrompt: string,
 ): Promise<string> {
   // 🆕 使用统一的 LLM API 服务（带超时和重试）
-  const response = await LLMApiService.call(provider, {
-    systemPrompt,
-    userPrompt,
-  }, {
-    timeout: 30000,     // 30秒超时（上下文提取通常较快）
-    maxRetries: 2,      // 最多重试2次
-    retryDelay: 1000,   // 1秒基础重试延迟
-  });
+  const response = await LLMApiService.call(
+    provider,
+    {
+      systemPrompt,
+      userPrompt,
+    },
+    {
+      timeout: 30000, // 30秒超时（上下文提取通常较快）
+      maxRetries: 2, // 最多重试2次
+      retryDelay: 1000, // 1秒基础重试延迟
+    },
+  );
 
   return response.content;
 }
@@ -316,16 +306,12 @@ async function callContextExtractionAPI(
 /**
  * 解析 AI 返回的索引数组
  */
-function parseIndicesFromResponse(
-  response: string,
-  maxIndex: number,
-  maxCount: number
-): number[] {
+function parseIndicesFromResponse(response: string, maxIndex: number, maxCount: number): number[] {
   try {
     let jsonStr = response.trim();
 
     // 移除可能的 markdown 标记
-    jsonStr = jsonStr.replace(/```json\s*/g, '').replace(/```\s*/g, '');
+    jsonStr = jsonStr.replace(/```json\s*/g, "").replace(/```\s*/g, "");
 
     // 移除开头和结尾的非 JSON 内容
     const arrayMatch = jsonStr.match(/\[[\d,\s]+\]/);
@@ -338,26 +324,24 @@ function parseIndicesFromResponse(
 
     // 验证和过滤
     const validIndices = indices
-      .filter(idx => typeof idx === 'number' && idx >= 0 && idx < maxIndex)
+      .filter((idx) => typeof idx === "number" && idx >= 0 && idx < maxIndex)
       .slice(0, maxCount);
 
     if (validIndices.length === 0) {
-      throw new Error('No valid indices found');
+      throw new Error("No valid indices found");
     }
 
     return validIndices;
-
   } catch (error) {
-    console.error('[parseIndices] Parse failed:', error);
-    console.error('[parseIndices] Response was:', response);
+    console.error("[parseIndices] Parse failed:", error);
+    console.error("[parseIndices] Response was:", response);
 
     // 降级方案：使用最后 N 条消息的索引
-    const fallbackIndices = Array.from(
-      { length: Math.min(maxCount, maxIndex) },
-      (_, i) => Math.max(0, maxIndex - maxCount + i)
-    ).filter(idx => idx >= 0 && idx < maxIndex);
+    const fallbackIndices = Array.from({ length: Math.min(maxCount, maxIndex) }, (_, i) =>
+      Math.max(0, maxIndex - maxCount + i),
+    ).filter((idx) => idx >= 0 && idx < maxIndex);
 
-    console.warn('[parseIndices] Using fallback (last N messages):', fallbackIndices);
+    console.warn("[parseIndices] Using fallback (last N messages):", fallbackIndices);
     return fallbackIndices;
   }
 }
@@ -371,18 +355,18 @@ function smartTruncate(text: string, maxLength: number): string {
   }
 
   // 尝试在句子边界截断
-  const sentenceEnd = text.substring(0, maxLength).lastIndexOf('。');
+  const sentenceEnd = text.substring(0, maxLength).lastIndexOf("。");
   if (sentenceEnd > maxLength * 0.7) {
     return text.substring(0, sentenceEnd + 1);
   }
 
-  const periodEnd = text.substring(0, maxLength).lastIndexOf('.');
+  const periodEnd = text.substring(0, maxLength).lastIndexOf(".");
   if (periodEnd > maxLength * 0.7) {
     return text.substring(0, periodEnd + 1);
   }
 
   // 降级到简单截断
-  return text.substring(0, maxLength) + '...';
+  return text.substring(0, maxLength) + "...";
 }
 
 // ============================================================================
@@ -423,9 +407,8 @@ function shouldRefineAcemcpResult(projectContext?: string): boolean {
 async function refineAcemcpContextWithAPI(
   acemcpResult: string,
   currentPrompt: string,
-  provider: PromptEnhancementProvider
+  provider: PromptEnhancementProvider,
 ): Promise<string> {
-
   const userPrompt = `用户提示词：
 ${currentPrompt}
 
@@ -437,12 +420,12 @@ ${acemcpResult}
   const response = await callContextExtractionAPI(
     provider,
     ACEMCP_REFINEMENT_SYSTEM_PROMPT,
-    userPrompt
+    userPrompt,
   );
 
   // 验证返回结果
   if (!response || response.trim().length === 0) {
-    throw new Error('API returned empty refinement result');
+    throw new Error("API returned empty refinement result");
   }
 
   // 如果整理后反而更长，使用智能截断

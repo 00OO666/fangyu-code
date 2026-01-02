@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { normalizeRawUsage } from './tokenExtractor';
+import { normalizeRawUsage } from "./tokenExtractor";
 
 /**
  * Combines multiple class values into a single string using clsx and tailwind-merge.
@@ -74,8 +74,12 @@ export function normalizeUsageData(usage: any): UsageData {
  * @returns Total token count including cache tokens
  */
 export function calculateTotalTokens(usage: UsageData): number {
-  return usage.input_tokens + usage.output_tokens +
-         (usage.cache_creation_tokens || 0) + (usage.cache_read_tokens || 0);
+  return (
+    usage.input_tokens +
+    usage.output_tokens +
+    (usage.cache_creation_tokens || 0) +
+    (usage.cache_read_tokens || 0)
+  );
 }
 
 /**
@@ -84,7 +88,7 @@ export function calculateTotalTokens(usage: UsageData): number {
 export interface ValidatableSession {
   id: string;
   first_message?: string;
-  engine?: 'claude' | 'codex' | 'gemini';
+  engine?: "claude" | "codex" | "gemini";
 }
 
 /**
@@ -107,11 +111,9 @@ export interface ValidatableSession {
 export function isValidSession(session: ValidatableSession): boolean {
   return Boolean(
     session.id &&
-    session.id.trim() !== '' &&
-    (
-      (session.first_message && session.first_message.trim() !== '') ||
-      session.engine === 'codex' // Codex 会话始终显示
-    )
+      session.id.trim() !== "" &&
+      ((session.first_message && session.first_message.trim() !== "") ||
+        session.engine === "codex"), // Codex 会话始终显示
   );
 }
 
@@ -148,9 +150,9 @@ export interface ValidatableGeminiSession {
 export function isValidGeminiSession(session: ValidatableGeminiSession): boolean {
   return Boolean(
     session.sessionId &&
-    session.sessionId.trim() !== '' &&
-    session.firstMessage &&
-    session.firstMessage.trim() !== ''
+      session.sessionId.trim() !== "" &&
+      session.firstMessage &&
+      session.firstMessage.trim() !== "",
   );
 }
 
@@ -159,4 +161,4 @@ export function isValidGeminiSession(session: ValidatableGeminiSession): boolean
  */
 export function filterValidGeminiSessions<T extends ValidatableGeminiSession>(sessions: T[]): T[] {
   return sessions.filter(isValidGeminiSession);
-} 
+}

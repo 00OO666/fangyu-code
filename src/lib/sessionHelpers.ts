@@ -11,10 +11,9 @@
  */
 
 import { open } from "@tauri-apps/plugin-dialog";
-import type { ClaudeStreamMessage } from '@/types/claude';
-import { copyTextToClipboard } from '@/lib/clipboard';
-import { loadContextConfig, type PromptContextConfig } from './promptContextConfig';
-
+import { copyTextToClipboard } from "@/lib/clipboard";
+import type { ClaudeStreamMessage } from "@/types/claude";
+import { loadContextConfig, type PromptContextConfig } from "./promptContextConfig";
 
 // ============================================================================
 // Type Definitions
@@ -55,13 +54,15 @@ export async function selectProjectPath(): Promise<string | null> {
     const selected = await open({
       directory: true,
       multiple: false,
-      title: "选择项目目录"
+      title: "选择项目目录",
     });
 
     return selected as string | null;
   } catch (err) {
     console.error("Failed to select directory:", err);
-    throw new Error(`Failed to select directory: ${err instanceof Error ? err.message : String(err)}`);
+    throw new Error(
+      `Failed to select directory: ${err instanceof Error ? err.message : String(err)}`,
+    );
   }
 }
 
@@ -74,7 +75,7 @@ export async function selectProjectPath(): Promise<string | null> {
  * @param rawJsonlOutput Array of JSONL strings
  */
 export async function copyAsJsonl(rawJsonlOutput: string[]): Promise<void> {
-  const jsonl = rawJsonlOutput.join('\n');
+  const jsonl = rawJsonlOutput.join("\n");
   await copyTextToClipboard(jsonl);
 }
 
@@ -85,7 +86,7 @@ export async function copyAsJsonl(rawJsonlOutput: string[]): Promise<void> {
  */
 export async function copyAsMarkdown(
   messages: ClaudeStreamMessage[],
-  projectPath: string
+  projectPath: string,
 ): Promise<void> {
   let markdown = `# Claude 代码会话\n\n`;
   markdown += `**Project:** ${projectPath}\n`;
@@ -95,18 +96,19 @@ export async function copyAsMarkdown(
   for (const msg of messages) {
     if (msg.type === "system" && msg.subtype === "init") {
       markdown += `## System Initialization\n\n`;
-      markdown += `- Session ID: \`${msg.session_id || 'N/A'}\`\n`;
-      markdown += `- Model: \`${msg.model || 'default'}\`\n`;
+      markdown += `- Session ID: \`${msg.session_id || "N/A"}\`\n`;
+      markdown += `- Model: \`${msg.model || "default"}\`\n`;
       if (msg.cwd) markdown += `- Working Directory: \`${msg.cwd}\`\n`;
-      if (msg.tools?.length) markdown += `- Tools: ${msg.tools.join(', ')}\n`;
+      if (msg.tools?.length) markdown += `- Tools: ${msg.tools.join(", ")}\n`;
       markdown += `\n`;
     } else if (msg.type === "assistant" && msg.message) {
       markdown += `## Assistant\n\n`;
       for (const content of msg.message.content || []) {
         if (content.type === "text") {
-          const textContent = typeof content.text === 'string'
-            ? content.text
-            : (content.text?.text || JSON.stringify(content.text || content));
+          const textContent =
+            typeof content.text === "string"
+              ? content.text
+              : content.text?.text || JSON.stringify(content.text || content);
           markdown += `${textContent}\n\n`;
         } else if (content.type === "tool_use") {
           markdown += `### Tool: ${content.name}\n\n`;
@@ -114,7 +116,8 @@ export async function copyAsMarkdown(
         }
       }
       if (msg.message.usage) {
-        const { input_tokens, output_tokens, cache_creation_tokens, cache_read_tokens } = msg.message.usage;
+        const { input_tokens, output_tokens, cache_creation_tokens, cache_read_tokens } =
+          msg.message.usage;
         let tokenText = `*Tokens: ${input_tokens} in, ${output_tokens} out`;
         if (cache_creation_tokens && cache_creation_tokens > 0) {
           tokenText += `, creation: ${cache_creation_tokens}`;
@@ -128,22 +131,23 @@ export async function copyAsMarkdown(
       markdown += `## User\n\n`;
       for (const content of msg.message.content || []) {
         if (content.type === "text") {
-          const textContent = typeof content.text === 'string'
-            ? content.text
-            : (content.text?.text || JSON.stringify(content.text));
+          const textContent =
+            typeof content.text === "string"
+              ? content.text
+              : content.text?.text || JSON.stringify(content.text);
           markdown += `${textContent}\n\n`;
         } else if (content.type === "tool_result") {
           markdown += `### Tool Result\n\n`;
-          let contentText = '';
-          if (typeof content.content === 'string') {
+          let contentText = "";
+          if (typeof content.content === "string") {
             contentText = content.content;
-          } else if (content.content && typeof content.content === 'object') {
+          } else if (content.content && typeof content.content === "object") {
             if (content.content.text) {
               contentText = content.content.text;
             } else if (Array.isArray(content.content)) {
               contentText = content.content
-                .map((c: any) => (typeof c === 'string' ? c : c.text || JSON.stringify(c)))
-                .join('\n');
+                .map((c: any) => (typeof c === "string" ? c : c.text || JSON.stringify(c)))
+                .join("\n");
             } else {
               contentText = JSON.stringify(content.content, null, 2);
             }
@@ -196,7 +200,7 @@ export function extractTextFromContent(content: MessageContent): string {
   }
 
   // Handle string content
-  if (typeof content === 'string') {
+  if (typeof content === "string") {
     return content;
   }
 
@@ -206,13 +210,13 @@ export function extractTextFromContent(content: MessageContent): string {
       .filter((part: MessageContentPart) => part.type === "text")
       .map((part: MessageContentPart) => {
         // Handle nested text structure
-        if (typeof part.text === 'string') {
+        if (typeof part.text === "string") {
           return part.text;
         }
-        if (part.text && typeof part.text === 'object' && 'text' in part.text) {
+        if (part.text && typeof part.text === "object" && "text" in part.text) {
           return part.text.text;
         }
-        return '';
+        return "";
       })
       .filter(Boolean) // Remove empty strings
       .join("\n");
@@ -230,7 +234,7 @@ export function extractTextFromContent(content: MessageContent): string {
  */
 export function getConversationContext(
   messages: ClaudeStreamMessage[],
-  customConfig?: Partial<PromptContextConfig>
+  customConfig?: Partial<PromptContextConfig>,
 ): string[] {
   // Load config from localStorage and merge with custom config
   const config = {
@@ -241,7 +245,7 @@ export function getConversationContext(
   const contextMessages: string[] = [];
 
   // Filter out system init messages and get meaningful content
-  const meaningfulMessages = messages.filter(msg => {
+  const meaningfulMessages = messages.filter((msg) => {
     // Skip system init messages
     if (msg.type === "system" && msg.subtype === "init") return false;
     // Skip empty messages
@@ -261,9 +265,10 @@ export function getConversationContext(
 
       if (userText) {
         // Truncate based on config
-        const truncated = userText.length > config.maxUserMessageLength
-          ? userText.substring(0, config.maxUserMessageLength) + "..."
-          : userText;
+        const truncated =
+          userText.length > config.maxUserMessageLength
+            ? userText.substring(0, config.maxUserMessageLength) + "..."
+            : userText;
         contextLine = `用户: ${truncated}`;
       }
     } else if (msg.type === "assistant" && msg.message) {
@@ -272,17 +277,19 @@ export function getConversationContext(
 
       if (assistantText) {
         // Truncate based on config
-        const truncated = assistantText.length > config.maxAssistantMessageLength
-          ? assistantText.substring(0, config.maxAssistantMessageLength) + "..."
-          : assistantText;
+        const truncated =
+          assistantText.length > config.maxAssistantMessageLength
+            ? assistantText.substring(0, config.maxAssistantMessageLength) + "..."
+            : assistantText;
         contextLine = `助手: ${truncated}`;
       }
     } else if (msg.type === "result" && msg.result && config.includeExecutionResults) {
       // Include execution results if enabled in config
       const resultText = msg.result;
-      const truncated = resultText.length > config.maxExecutionResultLength
-        ? resultText.substring(0, config.maxExecutionResultLength) + "..."
-        : resultText;
+      const truncated =
+        resultText.length > config.maxExecutionResultLength
+          ? resultText.substring(0, config.maxExecutionResultLength) + "..."
+          : resultText;
       contextLine = `执行结果: ${truncated}`;
     }
 
@@ -309,7 +316,7 @@ export function handleLinkDetected(url: string, currentState: PreviewState): Pre
     return {
       ...currentState,
       previewUrl: url,
-      showPreviewPrompt: true
+      showPreviewPrompt: true,
     };
   }
   return currentState;
@@ -324,7 +331,7 @@ export function handleClosePreview(currentState: PreviewState): PreviewState {
   return {
     ...currentState,
     showPreview: false,
-    isPreviewMaximized: false
+    isPreviewMaximized: false,
     // Keep previewUrl so it can be restored when reopening
   };
 }
@@ -338,7 +345,7 @@ export function handleClosePreview(currentState: PreviewState): PreviewState {
 export function handlePreviewUrlChange(url: string, currentState: PreviewState): PreviewState {
   return {
     ...currentState,
-    previewUrl: url
+    previewUrl: url,
   };
 }
 
@@ -353,6 +360,6 @@ export function handleTogglePreviewMaximize(currentState: PreviewState): Preview
     ...currentState,
     isPreviewMaximized: newMaximized,
     // Reset split position when toggling maximize
-    splitPosition: newMaximized ? currentState.splitPosition : 50
+    splitPosition: newMaximized ? currentState.splitPosition : 50,
   };
 }

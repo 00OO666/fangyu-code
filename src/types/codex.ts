@@ -36,7 +36,7 @@ export type CodexEvent = CodexBaseEvent;
  */
 export interface CodexAgentMessageItem {
   id: string;
-  type: 'agent_message';
+  type: "agent_message";
   text: string;
 }
 
@@ -45,7 +45,7 @@ export interface CodexAgentMessageItem {
  */
 export interface CodexReasoningItem {
   id: string;
-  type: 'reasoning';
+  type: "reasoning";
   text: string;
 }
 
@@ -54,11 +54,11 @@ export interface CodexReasoningItem {
  */
 export interface CodexCommandExecutionItem {
   id: string;
-  type: 'command_execution';
+  type: "command_execution";
   command: string;
   aggregated_output: string;
   exit_code?: number;
-  status: 'in_progress' | 'completed' | 'failed';
+  status: "in_progress" | "completed" | "failed";
 }
 
 /**
@@ -66,11 +66,11 @@ export interface CodexCommandExecutionItem {
  */
 export interface CodexFileChangeItem {
   id: string;
-  type: 'file_change';
+  type: "file_change";
   file_path: string;
-  change_type: 'create' | 'update' | 'delete';
+  change_type: "create" | "update" | "delete";
   content?: string;
-  status: 'in_progress' | 'completed' | 'failed';
+  status: "in_progress" | "completed" | "failed";
 }
 
 /**
@@ -78,11 +78,11 @@ export interface CodexFileChangeItem {
  */
 export interface CodexMcpToolCallItem {
   id: string;
-  type: 'mcp_tool_call';
+  type: "mcp_tool_call";
   tool_name: string;
   tool_input: any;
   tool_output?: any;
-  status: 'in_progress' | 'completed' | 'failed';
+  status: "in_progress" | "completed" | "failed";
 }
 
 /**
@@ -90,10 +90,10 @@ export interface CodexMcpToolCallItem {
  */
 export interface CodexWebSearchItem {
   id: string;
-  type: 'web_search';
+  type: "web_search";
   query: string;
   results?: any[];
-  status: 'in_progress' | 'completed' | 'failed';
+  status: "in_progress" | "completed" | "failed";
 }
 
 /**
@@ -101,11 +101,11 @@ export interface CodexWebSearchItem {
  */
 export interface CodexTodoListItem {
   id: string;
-  type: 'todo_list';
+  type: "todo_list";
   todos: Array<{
     id: string;
     description: string;
-    status: 'pending' | 'in_progress' | 'completed' | 'failed';
+    status: "pending" | "in_progress" | "completed" | "failed";
   }>;
 }
 
@@ -128,7 +128,7 @@ export type CodexItem =
 /**
  * Codex execution mode
  */
-export type CodexExecutionMode = 'read-only' | 'full-auto' | 'danger-full-access';
+export type CodexExecutionMode = "read-only" | "full-auto" | "danger-full-access";
 
 /**
  * Codex execution options
@@ -201,7 +201,7 @@ export interface CodexSession {
   model?: string;
 
   /** Session status */
-  status: 'active' | 'completed' | 'failed';
+  status: "active" | "completed" | "failed";
 
   /** 🆕 First user message */
   firstMessage?: string;

@@ -10,8 +10,8 @@
  * 来源: Claude Code Slash Commands + Cursor Custom Commands
  */
 
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { api } from '@/lib/api';
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { api } from "@/lib/api";
 
 // ============================================================
 // 类型定义
@@ -28,7 +28,7 @@ export interface SkillInfo {
 export interface TriggerMatch {
   skill: SkillInfo;
   trigger: string;
-  matchType: 'exact' | 'prefix' | 'keyword';
+  matchType: "exact" | "prefix" | "keyword";
   score: number;
 }
 
@@ -54,17 +54,12 @@ interface UseSkillTriggerOptions {
 }
 
 export function useSkillTrigger(options: UseSkillTriggerOptions = {}) {
-  const {
-    projectPath,
-    enabled = true,
-    showSuggestions = true,
-    maxSuggestions = 5,
-  } = options;
+  const { projectPath, enabled = true, showSuggestions = true, maxSuggestions = 5 } = options;
 
   const [skills, setSkills] = useState<SkillInfo[]>([]);
   const [loading, setLoading] = useState(false);
   const [suggestions, setSuggestions] = useState<TriggerSuggestion[]>([]);
-  const lastInputRef = useRef<string>('');
+  const lastInputRef = useRef<string>("");
 
   // 加载技能列表
   const loadSkills = useCallback(async () => {
@@ -76,7 +71,7 @@ export function useSkillTrigger(options: UseSkillTriggerOptions = {}) {
 
       const skillInfos: SkillInfo[] = await Promise.all(
         result.map(async (s: any) => {
-          let content = '';
+          let content = "";
           try {
             content = await api.readSkill(s.path);
           } catch {
@@ -93,12 +88,12 @@ export function useSkillTrigger(options: UseSkillTriggerOptions = {}) {
             triggers,
             content,
           };
-        })
+        }),
       );
 
       setSkills(skillInfos);
     } catch (error) {
-      console.error('加载技能失败:', error);
+      console.error("加载技能失败:", error);
     } finally {
       setLoading(false);
     }
@@ -119,8 +114,8 @@ export function useSkillTrigger(options: UseSkillTriggerOptions = {}) {
     const triggerMatch = content.match(/triggers?:\s*\[([^\]]+)\]/i);
     if (triggerMatch) {
       const extracted = triggerMatch[1]
-        .split(',')
-        .map((t) => t.trim().replace(/['"]/g, ''))
+        .split(",")
+        .map((t) => t.trim().replace(/['"]/g, ""))
         .filter((t) => t.length > 0);
       triggers.push(...extracted);
     }
@@ -137,7 +132,7 @@ export function useSkillTrigger(options: UseSkillTriggerOptions = {}) {
   // 提取描述
   const extractDescription = (content: string): string => {
     const match = content.match(/^#\s+(.+?)(?:\n|$)/m);
-    return match ? match[1].trim() : '';
+    return match ? match[1].trim() : "";
   };
 
   /**
@@ -150,7 +145,7 @@ export function useSkillTrigger(options: UseSkillTriggerOptions = {}) {
       const trimmed = input.trim();
 
       // 检查精确匹配 /command
-      if (trimmed.startsWith('/')) {
+      if (trimmed.startsWith("/")) {
         const command = trimmed.split(/\s+/)[0].toLowerCase();
 
         for (const skill of skills) {
@@ -159,7 +154,7 @@ export function useSkillTrigger(options: UseSkillTriggerOptions = {}) {
               return {
                 skill,
                 trigger,
-                matchType: 'exact',
+                matchType: "exact",
                 score: 100,
               };
             }
@@ -174,7 +169,7 @@ export function useSkillTrigger(options: UseSkillTriggerOptions = {}) {
             return {
               skill,
               trigger,
-              matchType: 'prefix',
+              matchType: "prefix",
               score: 80,
             };
           }
@@ -183,7 +178,7 @@ export function useSkillTrigger(options: UseSkillTriggerOptions = {}) {
 
       return null;
     },
-    [skills, enabled]
+    [skills, enabled],
   );
 
   /**
@@ -196,7 +191,7 @@ export function useSkillTrigger(options: UseSkillTriggerOptions = {}) {
       const trimmed = input.trim().toLowerCase();
 
       // 只在输入 / 开头时提供建议
-      if (!trimmed.startsWith('/')) return [];
+      if (!trimmed.startsWith("/")) return [];
 
       const query = trimmed.slice(1); // 移除 /
 
@@ -204,7 +199,7 @@ export function useSkillTrigger(options: UseSkillTriggerOptions = {}) {
 
       for (const skill of skills) {
         for (const trigger of skill.triggers) {
-          const triggerLower = trigger.toLowerCase().replace(/^\//, '');
+          const triggerLower = trigger.toLowerCase().replace(/^\//, "");
 
           // 前缀匹配
           if (triggerLower.startsWith(query) || query.length === 0) {
@@ -226,14 +221,12 @@ export function useSkillTrigger(options: UseSkillTriggerOptions = {}) {
       }
 
       // 去重并排序
-      const uniqueMatches = Array.from(
-        new Map(matches.map((m) => [m.trigger, m])).values()
-      );
+      const uniqueMatches = Array.from(new Map(matches.map((m) => [m.trigger, m])).values());
 
       // 按匹配程度排序
       uniqueMatches.sort((a, b) => {
-        const aStarts = a.trigger.toLowerCase().startsWith('/' + query);
-        const bStarts = b.trigger.toLowerCase().startsWith('/' + query);
+        const aStarts = a.trigger.toLowerCase().startsWith("/" + query);
+        const bStarts = b.trigger.toLowerCase().startsWith("/" + query);
         if (aStarts && !bStarts) return -1;
         if (!aStarts && bStarts) return 1;
         return a.trigger.length - b.trigger.length;
@@ -241,7 +234,7 @@ export function useSkillTrigger(options: UseSkillTriggerOptions = {}) {
 
       return uniqueMatches.slice(0, maxSuggestions);
     },
-    [skills, showSuggestions, maxSuggestions]
+    [skills, showSuggestions, maxSuggestions],
   );
 
   /**
@@ -256,7 +249,7 @@ export function useSkillTrigger(options: UseSkillTriggerOptions = {}) {
         setSuggestions(newSuggestions);
       }
     },
-    [getSuggestions, showSuggestions]
+    [getSuggestions, showSuggestions],
   );
 
   /**
@@ -265,28 +258,25 @@ export function useSkillTrigger(options: UseSkillTriggerOptions = {}) {
   const applySuggestion = useCallback(
     (
       suggestion: TriggerSuggestion,
-      currentInput: string
+      currentInput: string,
     ): { newInput: string; skill: SkillInfo } => {
       // 替换当前的 /xxx 为完整触发词
       const parts = currentInput.split(/\s+/);
       parts[0] = suggestion.trigger;
 
       return {
-        newInput: parts.join(' '),
+        newInput: parts.join(" "),
         skill: suggestion.skill,
       };
     },
-    []
+    [],
   );
 
   /**
    * 执行技能
    */
   const executeSkill = useCallback(
-    async (
-      skill: SkillInfo,
-      args?: string
-    ): Promise<{ success: boolean; content: string }> => {
+    async (skill: SkillInfo, args?: string): Promise<{ success: boolean; content: string }> => {
       try {
         // 读取技能内容
         const content = skill.content || (await api.readSkill(skill.path));
@@ -297,31 +287,30 @@ export function useSkillTrigger(options: UseSkillTriggerOptions = {}) {
           content: args ? `${content}\n\n用户参数: ${args}` : content,
         };
       } catch (error) {
-        console.error('执行技能失败:', error);
+        console.error("执行技能失败:", error);
         return {
           success: false,
           content: `执行技能 ${skill.name} 失败: ${error}`,
         };
       }
     },
-    []
+    [],
   );
 
   /**
    * 解析输入并提取技能和参数
    */
   const parseInput = useCallback(
-    (
-      input: string
-    ): { skill: SkillInfo | null; args: string; remainingInput: string } => {
+    (input: string): { skill: SkillInfo | null; args: string; remainingInput: string } => {
       const match = detectTrigger(input);
 
       if (!match) {
-        return { skill: null, args: '', remainingInput: input };
+        return { skill: null, args: "", remainingInput: input };
       }
 
       // 提取参数（触发词之后的内容）
-      const triggerEnd = input.toLowerCase().indexOf(match.trigger.toLowerCase()) + match.trigger.length;
+      const triggerEnd =
+        input.toLowerCase().indexOf(match.trigger.toLowerCase()) + match.trigger.length;
       const args = input.slice(triggerEnd).trim();
 
       return {
@@ -330,7 +319,7 @@ export function useSkillTrigger(options: UseSkillTriggerOptions = {}) {
         remainingInput: args,
       };
     },
-    [detectTrigger]
+    [detectTrigger],
   );
 
   /**
@@ -359,7 +348,7 @@ export function useSkillTrigger(options: UseSkillTriggerOptions = {}) {
 
       return null;
     },
-    [skills]
+    [skills],
   );
 
   return {

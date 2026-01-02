@@ -7,12 +7,12 @@
  * - 包含 token 使用统计
  */
 
-import { useCallback } from 'react';
-import { invoke } from '@tauri-apps/api/core';
+import { invoke } from "@tauri-apps/api/core";
+import { useCallback } from "react";
 
 export interface SaveMessageOptions {
   sessionId: string;
-  role: 'user' | 'assistant' | 'system';
+  role: "user" | "assistant" | "system";
   content: string;
   tokensInput?: number;
   tokensOutput?: number;
@@ -26,7 +26,7 @@ export function useChatHistorySaver() {
    */
   const saveMessage = useCallback(async (options: SaveMessageOptions): Promise<number> => {
     try {
-      const messageId = await invoke<number>('save_chat_message', {
+      const messageId = await invoke<number>("save_chat_message", {
         sessionId: options.sessionId,
         role: options.role,
         content: options.content,
@@ -38,7 +38,7 @@ export function useChatHistorySaver() {
 
       return messageId;
     } catch (error) {
-      console.error('Failed to save chat message:', error);
+      console.error("Failed to save chat message:", error);
       throw error;
     }
   }, []);
@@ -46,29 +46,35 @@ export function useChatHistorySaver() {
   /**
    * 批量保存多条消息（用于导入历史记录）
    */
-  const saveMessages = useCallback(async (messages: SaveMessageOptions[]): Promise<void> => {
-    try {
-      await Promise.all(messages.map((msg) => saveMessage(msg)));
-    } catch (error) {
-      console.error('Failed to save multiple messages:', error);
-      throw error;
-    }
-  }, [saveMessage]);
+  const saveMessages = useCallback(
+    async (messages: SaveMessageOptions[]): Promise<void> => {
+      try {
+        await Promise.all(messages.map((msg) => saveMessage(msg)));
+      } catch (error) {
+        console.error("Failed to save multiple messages:", error);
+        throw error;
+      }
+    },
+    [saveMessage],
+  );
 
   /**
    * 更新会话标题
    */
-  const updateSessionTitle = useCallback(async (sessionId: string, title: string): Promise<void> => {
-    try {
-      await invoke('update_session_title', {
-        sessionId,
-        title,
-      });
-    } catch (error) {
-      console.error('Failed to update session title:', error);
-      throw error;
-    }
-  }, []);
+  const updateSessionTitle = useCallback(
+    async (sessionId: string, title: string): Promise<void> => {
+      try {
+        await invoke("update_session_title", {
+          sessionId,
+          title,
+        });
+      } catch (error) {
+        console.error("Failed to update session title:", error);
+        throw error;
+      }
+    },
+    [],
+  );
 
   return {
     saveMessage,

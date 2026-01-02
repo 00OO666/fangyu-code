@@ -4,9 +4,13 @@
  * 提供简单易用的通知 API，自动处理组件生命周期
  */
 
-import { useCallback } from 'react';
-import { notificationService } from '@/services/notificationService';
-import { NotificationTemplates, NotificationOptions, NotificationPosition } from '@/types/notification';
+import { useCallback } from "react";
+import { notificationService } from "@/services/notificationService";
+import {
+  type NotificationOptions,
+  type NotificationPosition,
+  NotificationTemplates,
+} from "@/types/notification";
 
 export interface UseNotifyOptions {
   /** 默认通知位置 */
@@ -33,7 +37,7 @@ export interface NotifyAPI {
   /** 使用模板发送通知 */
   fromTemplate: <K extends keyof typeof NotificationTemplates>(
     templateName: K,
-    ...args: Parameters<typeof NotificationTemplates[K]>
+    ...args: Parameters<(typeof NotificationTemplates)[K]>
   ) => string;
 }
 
@@ -57,29 +61,44 @@ export interface NotifyAPI {
  * ```
  */
 export function useNotify(options: UseNotifyOptions = {}): NotifyAPI {
-  const { defaultPosition = 'chat', defaultDuration } = options;
+  const { defaultPosition = "chat", defaultDuration } = options;
 
-  const mergeOptions = useCallback((opts?: Partial<NotificationOptions>): NotificationOptions => ({
-    position: defaultPosition,
-    ...(defaultDuration !== undefined && { duration: defaultDuration }),
-    ...opts,
-  }), [defaultPosition, defaultDuration]);
+  const mergeOptions = useCallback(
+    (opts?: Partial<NotificationOptions>): NotificationOptions => ({
+      position: defaultPosition,
+      ...(defaultDuration !== undefined && { duration: defaultDuration }),
+      ...opts,
+    }),
+    [defaultPosition, defaultDuration],
+  );
 
-  const success = useCallback((message: string, opts?: Partial<NotificationOptions>) => {
-    return notificationService.success(message, mergeOptions(opts));
-  }, [mergeOptions]);
+  const success = useCallback(
+    (message: string, opts?: Partial<NotificationOptions>) => {
+      return notificationService.success(message, mergeOptions(opts));
+    },
+    [mergeOptions],
+  );
 
-  const error = useCallback((message: string, opts?: Partial<NotificationOptions>) => {
-    return notificationService.error(message, mergeOptions(opts));
-  }, [mergeOptions]);
+  const error = useCallback(
+    (message: string, opts?: Partial<NotificationOptions>) => {
+      return notificationService.error(message, mergeOptions(opts));
+    },
+    [mergeOptions],
+  );
 
-  const info = useCallback((message: string, opts?: Partial<NotificationOptions>) => {
-    return notificationService.info(message, mergeOptions(opts));
-  }, [mergeOptions]);
+  const info = useCallback(
+    (message: string, opts?: Partial<NotificationOptions>) => {
+      return notificationService.info(message, mergeOptions(opts));
+    },
+    [mergeOptions],
+  );
 
-  const warning = useCallback((message: string, opts?: Partial<NotificationOptions>) => {
-    return notificationService.warning(message, mergeOptions(opts));
-  }, [mergeOptions]);
+  const warning = useCallback(
+    (message: string, opts?: Partial<NotificationOptions>) => {
+      return notificationService.warning(message, mergeOptions(opts));
+    },
+    [mergeOptions],
+  );
 
   const close = useCallback((id: string) => {
     notificationService.close(id);
@@ -89,17 +108,20 @@ export function useNotify(options: UseNotifyOptions = {}): NotifyAPI {
     notificationService.closeAll();
   }, []);
 
-  const fromTemplate = useCallback(<K extends keyof typeof NotificationTemplates>(
-    templateName: K,
-    ...args: Parameters<typeof NotificationTemplates[K]>
-  ): string => {
-    // @ts-ignore - TypeScript 无法正确推断模板函数的参数类型
-    const template = NotificationTemplates[templateName](...args);
-    return notificationService.notify(template.message, {
-      ...template,
-      position: defaultPosition,
-    });
-  }, [defaultPosition]);
+  const fromTemplate = useCallback(
+    <K extends keyof typeof NotificationTemplates>(
+      templateName: K,
+      ...args: Parameters<(typeof NotificationTemplates)[K]>
+    ): string => {
+      // @ts-expect-error - TypeScript 无法正确推断模板函数的参数类型
+      const template = NotificationTemplates[templateName](...args);
+      return notificationService.notify(template.message, {
+        ...template,
+        position: defaultPosition,
+      });
+    },
+    [defaultPosition],
+  );
 
   return {
     success,
@@ -122,8 +144,10 @@ export function useNotify(options: UseNotifyOptions = {}): NotifyAPI {
  * notify.success('MCP 工具已启用');
  * ```
  */
-export function useGlobalNotify(options: Omit<UseNotifyOptions, 'defaultPosition'> = {}): NotifyAPI {
-  return useNotify({ ...options, defaultPosition: 'global' });
+export function useGlobalNotify(
+  options: Omit<UseNotifyOptions, "defaultPosition"> = {},
+): NotifyAPI {
+  return useNotify({ ...options, defaultPosition: "global" });
 }
 
 /**
@@ -135,8 +159,8 @@ export function useGlobalNotify(options: Omit<UseNotifyOptions, 'defaultPosition
  * notify.success('消息已发送');
  * ```
  */
-export function useChatNotify(options: Omit<UseNotifyOptions, 'defaultPosition'> = {}): NotifyAPI {
-  return useNotify({ ...options, defaultPosition: 'chat' });
+export function useChatNotify(options: Omit<UseNotifyOptions, "defaultPosition"> = {}): NotifyAPI {
+  return useNotify({ ...options, defaultPosition: "chat" });
 }
 
 // 导出便捷方法（非 Hook，可在任何地方使用）
@@ -154,35 +178,35 @@ export const notify = {
 
   /** 全局通知（标题栏） */
   global: {
-    success: (message: string, options?: Omit<NotificationOptions, 'position'>) =>
-      notificationService.success(message, { ...options, position: 'global' }),
-    error: (message: string, options?: Omit<NotificationOptions, 'position'>) =>
-      notificationService.error(message, { ...options, position: 'global' }),
-    info: (message: string, options?: Omit<NotificationOptions, 'position'>) =>
-      notificationService.info(message, { ...options, position: 'global' }),
-    warning: (message: string, options?: Omit<NotificationOptions, 'position'>) =>
-      notificationService.warning(message, { ...options, position: 'global' }),
+    success: (message: string, options?: Omit<NotificationOptions, "position">) =>
+      notificationService.success(message, { ...options, position: "global" }),
+    error: (message: string, options?: Omit<NotificationOptions, "position">) =>
+      notificationService.error(message, { ...options, position: "global" }),
+    info: (message: string, options?: Omit<NotificationOptions, "position">) =>
+      notificationService.info(message, { ...options, position: "global" }),
+    warning: (message: string, options?: Omit<NotificationOptions, "position">) =>
+      notificationService.warning(message, { ...options, position: "global" }),
   },
 
   /** 聊天通知（输入框上方） */
   chat: {
-    success: (message: string, options?: Omit<NotificationOptions, 'position'>) =>
-      notificationService.success(message, { ...options, position: 'chat' }),
-    error: (message: string, options?: Omit<NotificationOptions, 'position'>) =>
-      notificationService.error(message, { ...options, position: 'chat' }),
-    info: (message: string, options?: Omit<NotificationOptions, 'position'>) =>
-      notificationService.info(message, { ...options, position: 'chat' }),
-    warning: (message: string, options?: Omit<NotificationOptions, 'position'>) =>
-      notificationService.warning(message, { ...options, position: 'chat' }),
+    success: (message: string, options?: Omit<NotificationOptions, "position">) =>
+      notificationService.success(message, { ...options, position: "chat" }),
+    error: (message: string, options?: Omit<NotificationOptions, "position">) =>
+      notificationService.error(message, { ...options, position: "chat" }),
+    info: (message: string, options?: Omit<NotificationOptions, "position">) =>
+      notificationService.info(message, { ...options, position: "chat" }),
+    warning: (message: string, options?: Omit<NotificationOptions, "position">) =>
+      notificationService.warning(message, { ...options, position: "chat" }),
   },
 
   /** 使用预设模板 */
   template: <K extends keyof typeof NotificationTemplates>(
     templateName: K,
     position: NotificationPosition,
-    ...args: Parameters<typeof NotificationTemplates[K]>
+    ...args: Parameters<(typeof NotificationTemplates)[K]>
   ): string => {
-    // @ts-ignore
+    // @ts-expect-error
     const template = NotificationTemplates[templateName](...args);
     return notificationService.notify(template.message, {
       ...template,

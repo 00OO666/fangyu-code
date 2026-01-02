@@ -9,20 +9,20 @@
  * @returns 格式化后的时间字符串，如 "14:30:25"
  */
 export const formatTimestamp = (timestamp: string | undefined): string => {
-  if (!timestamp) return '';
+  if (!timestamp) return "";
 
   try {
     const date = new Date(timestamp);
-    if (isNaN(date.getTime())) return '';
+    if (isNaN(date.getTime())) return "";
 
-    return date.toLocaleTimeString('zh-CN', {
+    return date.toLocaleTimeString("zh-CN", {
       hour12: false,
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
     });
   } catch {
-    return '';
+    return "";
   }
 };
 
@@ -32,11 +32,11 @@ export const formatTimestamp = (timestamp: string | undefined): string => {
  * @returns 相对时间字符串
  */
 export const formatRelativeTime = (timestamp: string | undefined): string => {
-  if (!timestamp) return '';
+  if (!timestamp) return "";
 
   try {
     const date = new Date(timestamp);
-    if (isNaN(date.getTime())) return '';
+    if (isNaN(date.getTime())) return "";
 
     const now = new Date();
     const diff = now.getTime() - date.getTime();
@@ -45,14 +45,14 @@ export const formatRelativeTime = (timestamp: string | undefined): string => {
     const hours = Math.floor(minutes / 60);
     const days = Math.floor(hours / 24);
 
-    if (seconds < 60) return '刚刚';
+    if (seconds < 60) return "刚刚";
     if (minutes < 60) return `${minutes}分钟前`;
     if (hours < 24) return `${hours}小时前`;
     if (days < 7) return `${days}天前`;
 
     return formatTimestamp(timestamp);
   } catch {
-    return '';
+    return "";
   }
 };
 
@@ -85,9 +85,9 @@ export const iconColors = {
  * 统一的加载指示器尺寸
  */
 export const loaderSizes = {
-  sm: "h-4 w-4",      // 用于按钮内
+  sm: "h-4 w-4", // 用于按钮内
   default: "h-6 w-6", // 用于卡片内
-  lg: "h-8 w-8",      // 用于页面级
+  lg: "h-8 w-8", // 用于页面级
 } as const;
 
 export type StatusType = keyof typeof statusStyles;

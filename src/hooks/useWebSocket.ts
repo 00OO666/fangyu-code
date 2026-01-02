@@ -10,18 +10,18 @@
  * 主要用于跨窗口会话消息同步
  */
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from "react";
 import type {
-  WebSocketState,
-  WebSocketMessage,
-  WebSocketMessageType,
   WebSocketConfig,
   WebSocketEventHandlers,
-} from '@/types/websocket';
+  WebSocketMessage,
+  WebSocketMessageType,
+  WebSocketState,
+} from "@/types/websocket";
 
 // 默认配置
-const DEFAULT_CONFIG: Required<Omit<WebSocketConfig, 'handlers'>> = {
-  url: 'ws://localhost:9527',
+const DEFAULT_CONFIG: Required<Omit<WebSocketConfig, "handlers">> = {
+  url: "ws://localhost:9527",
   reconnectInterval: 3000,
   maxReconnectAttempts: 10,
   heartbeatInterval: 30000,
@@ -30,16 +30,15 @@ const DEFAULT_CONFIG: Required<Omit<WebSocketConfig, 'handlers'>> = {
 
 // 生成唯一窗口 ID
 const generateWindowId = () => {
-  const stored = sessionStorage.getItem('fangyu_window_id');
+  const stored = sessionStorage.getItem("fangyu_window_id");
   if (stored) return stored;
   const newId = `window_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-  sessionStorage.setItem('fangyu_window_id', newId);
+  sessionStorage.setItem("fangyu_window_id", newId);
   return newId;
 };
 
 // 生成唯一消息 ID
-const generateMessageId = () =>
-  `msg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+const generateMessageId = () => `msg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
 
 /**
  * WebSocket 连接管理 Hook
@@ -47,16 +46,11 @@ const generateMessageId = () =>
 export function useWebSocket(config: WebSocketConfig = {}) {
   // 合并配置
   const mergedConfig = { ...DEFAULT_CONFIG, ...config };
-  const {
-    url,
-    reconnectInterval,
-    maxReconnectAttempts,
-    heartbeatInterval,
-    autoReconnect,
-  } = mergedConfig;
+  const { url, reconnectInterval, maxReconnectAttempts, heartbeatInterval, autoReconnect } =
+    mergedConfig;
 
   // 状态
-  const [state, setState] = useState<WebSocketState>('disconnected');
+  const [state, setState] = useState<WebSocketState>("disconnected");
   const [lastError, setLastError] = useState<Error | null>(null);
 
   // Refs
@@ -65,9 +59,7 @@ export function useWebSocket(config: WebSocketConfig = {}) {
   const reconnectCountRef = useRef(0);
   const reconnectTimerRef = useRef<NodeJS.Timeout | null>(null);
   const heartbeatTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const handlersRef = useRef<Map<keyof WebSocketEventHandlers, Set<Function>>>(
-    new Map()
-  );
+  const handlersRef = useRef<Map<keyof WebSocketEventHandlers, Set<Function>>>(new Map());
   const processedMessagesRef = useRef<Set<string>>(new Set());
   const configRef = useRef(mergedConfig);
 
@@ -105,29 +97,26 @@ export function useWebSocket(config: WebSocketConfig = {}) {
         });
       }
     },
-    []
+    [],
   );
 
   // 发送消息
-  const send = useCallback(
-    <T = any>(type: WebSocketMessageType, payload: T) => {
-      if (wsRef.current?.readyState !== WebSocket.OPEN) {
-        console.warn('[WebSocket] Cannot send message: not connected');
-        return;
-      }
+  const send = useCallback(<T = any>(type: WebSocketMessageType, payload: T) => {
+    if (wsRef.current?.readyState !== WebSocket.OPEN) {
+      console.warn("[WebSocket] Cannot send message: not connected");
+      return;
+    }
 
-      const message: WebSocketMessage<T> = {
-        type,
-        payload,
-        messageId: generateMessageId(),
-        windowId: windowIdRef.current,
-        timestamp: Date.now(),
-      };
+    const message: WebSocketMessage<T> = {
+      type,
+      payload,
+      messageId: generateMessageId(),
+      windowId: windowIdRef.current,
+      timestamp: Date.now(),
+    };
 
-      wsRef.current.send(JSON.stringify(message));
-    },
-    []
-  );
+    wsRef.current.send(JSON.stringify(message));
+  }, []);
 
   // 启动心跳
   const startHeartbeat = useCallback(() => {
@@ -137,7 +126,7 @@ export function useWebSocket(config: WebSocketConfig = {}) {
 
     heartbeatTimerRef.current = setInterval(() => {
       if (wsRef.current?.readyState === WebSocket.OPEN) {
-        send('ping', { timestamp: Date.now() });
+        send("ping", { timestamp: Date.now() });
       }
     }, configRef.current.heartbeatInterval);
   }, [send]);
@@ -162,36 +151,34 @@ export function useWebSocket(config: WebSocketConfig = {}) {
         // 限制已处理消息缓存大小
         if (processedMessagesRef.current.size > 1000) {
           const entries = Array.from(processedMessagesRef.current);
-          entries.slice(0, 500).forEach((id) =>
-            processedMessagesRef.current.delete(id)
-          );
+          entries.slice(0, 500).forEach((id) => processedMessagesRef.current.delete(id));
         }
 
         // 触发通用消息处理器
-        emit('onMessage', message);
+        emit("onMessage", message);
 
         // 根据消息类型触发特定处理器
         switch (message.type) {
-          case 'session:message':
-            emit('onSessionMessage', message.payload);
+          case "session:message":
+            emit("onSessionMessage", message.payload);
             break;
-          case 'session:status':
-            emit('onSessionStatus', message.payload);
+          case "session:status":
+            emit("onSessionStatus", message.payload);
             break;
-          case 'file:change':
-          case 'file:create':
-          case 'file:delete':
-            emit('onFileChange', message.payload);
+          case "file:change":
+          case "file:create":
+          case "file:delete":
+            emit("onFileChange", message.payload);
             break;
-          case 'pong':
+          case "pong":
             // 心跳响应，不需要特殊处理
             break;
         }
       } catch (error) {
-        console.error('[WebSocket] Failed to parse message:', error);
+        console.error("[WebSocket] Failed to parse message:", error);
       }
     },
-    [emit]
+    [emit],
   );
 
   // 连接 WebSocket
@@ -202,21 +189,21 @@ export function useWebSocket(config: WebSocketConfig = {}) {
     }
 
     cleanup();
-    setState('connecting');
+    setState("connecting");
 
     try {
       const ws = new WebSocket(configRef.current.url);
 
       ws.onopen = () => {
-        console.log('[WebSocket] Connected to', configRef.current.url);
-        setState('connected');
+        console.log("[WebSocket] Connected to", configRef.current.url);
+        setState("connected");
         reconnectCountRef.current = 0;
         startHeartbeat();
-        emit('onStateChange', 'connected');
+        emit("onStateChange", "connected");
       };
 
       ws.onclose = (event) => {
-        console.log('[WebSocket] Connection closed:', event.code, event.reason);
+        console.log("[WebSocket] Connection closed:", event.code, event.reason);
         cleanup();
 
         // 如果不是正常关闭且允许自动重连
@@ -225,41 +212,41 @@ export function useWebSocket(config: WebSocketConfig = {}) {
           configRef.current.autoReconnect &&
           reconnectCountRef.current < configRef.current.maxReconnectAttempts
         ) {
-          setState('reconnecting');
-          emit('onStateChange', 'reconnecting');
+          setState("reconnecting");
+          emit("onStateChange", "reconnecting");
 
           reconnectTimerRef.current = setTimeout(() => {
             reconnectCountRef.current++;
             console.log(
-              `[WebSocket] Reconnecting... (${reconnectCountRef.current}/${configRef.current.maxReconnectAttempts})`
+              `[WebSocket] Reconnecting... (${reconnectCountRef.current}/${configRef.current.maxReconnectAttempts})`,
             );
             connect();
           }, configRef.current.reconnectInterval);
         } else {
-          setState('disconnected');
-          emit('onStateChange', 'disconnected');
+          setState("disconnected");
+          emit("onStateChange", "disconnected");
         }
       };
 
       ws.onerror = (error) => {
-        console.error('[WebSocket] Error:', error);
-        const err = new Error('WebSocket connection error');
+        console.error("[WebSocket] Error:", error);
+        const err = new Error("WebSocket connection error");
         setLastError(err);
-        setState('error');
-        emit('onStateChange', 'error');
-        emit('onError', err);
+        setState("error");
+        emit("onStateChange", "error");
+        emit("onError", err);
       };
 
       ws.onmessage = handleMessage;
 
       wsRef.current = ws;
     } catch (error) {
-      console.error('[WebSocket] Failed to create connection:', error);
+      console.error("[WebSocket] Failed to create connection:", error);
       const err = error instanceof Error ? error : new Error(String(error));
       setLastError(err);
-      setState('error');
-      emit('onStateChange', 'error');
-      emit('onError', err);
+      setState("error");
+      emit("onStateChange", "error");
+      emit("onError", err);
     }
   }, [cleanup, startHeartbeat, handleMessage, emit]);
 
@@ -267,10 +254,10 @@ export function useWebSocket(config: WebSocketConfig = {}) {
   const close = useCallback(() => {
     cleanup();
     if (wsRef.current) {
-      wsRef.current.close(1000, 'Normal closure');
+      wsRef.current.close(1000, "Normal closure");
       wsRef.current = null;
     }
-    setState('disconnected');
+    setState("disconnected");
   }, [cleanup]);
 
   // 手动重连
@@ -283,7 +270,7 @@ export function useWebSocket(config: WebSocketConfig = {}) {
   const on = useCallback(
     <K extends keyof WebSocketEventHandlers>(
       event: K,
-      handler: NonNullable<WebSocketEventHandlers[K]>
+      handler: NonNullable<WebSocketEventHandlers[K]>,
     ): (() => void) => {
       if (!handlersRef.current.has(event)) {
         handlersRef.current.set(event, new Set());
@@ -295,7 +282,7 @@ export function useWebSocket(config: WebSocketConfig = {}) {
         handlersRef.current.get(event)?.delete(handler);
       };
     },
-    []
+    [],
   );
 
   // 注册初始处理器
@@ -305,9 +292,7 @@ export function useWebSocket(config: WebSocketConfig = {}) {
 
       Object.entries(config.handlers).forEach(([event, handler]) => {
         if (handler) {
-          unsubscribes.push(
-            on(event as keyof WebSocketEventHandlers, handler as any)
-          );
+          unsubscribes.push(on(event as keyof WebSocketEventHandlers, handler as any));
         }
       });
 
@@ -329,7 +314,7 @@ export function useWebSocket(config: WebSocketConfig = {}) {
     state,
     lastError,
     windowId: windowIdRef.current,
-    isConnected: state === 'connected',
+    isConnected: state === "connected",
 
     // 方法
     connect,

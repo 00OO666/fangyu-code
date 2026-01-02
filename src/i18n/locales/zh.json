@@ -68,7 +68,8 @@
     "provider": "代理商",
     "claudeProvider": "Claude 代理商",
     "codexProvider": "Codex 代理商",
-    "geminiProvider": "Gemini 代理商"
+    "geminiProvider": "Gemini 代理商",
+    "saved": "设置已保存"
   },
   "usage": {
     "title": "使用统计",

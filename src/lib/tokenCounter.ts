@@ -7,8 +7,8 @@
  * 2025年最新官方定价和Claude 4系列模型支持
  */
 
-import Anthropic from '@anthropic-ai/sdk';
-import { api } from './api';
+import Anthropic from "@anthropic-ai/sdk";
+import { api } from "./api";
 
 // ============================================================================
 // Claude Model Pricing - MUST MATCH BACKEND (usage.rs)
@@ -20,62 +20,62 @@ import { api } from './api';
 
 export const CLAUDE_PRICING = {
   // Claude 4.5 Series (Latest - December 2025)
-  'claude-opus-4-5': {
+  "claude-opus-4-5": {
     input: 5.0,
     output: 25.0,
     cache_write: 6.25,
-    cache_read: 0.50,
+    cache_read: 0.5,
   },
-  'claude-opus-4-5-20251101': {
+  "claude-opus-4-5-20251101": {
     input: 5.0,
     output: 25.0,
     cache_write: 6.25,
-    cache_read: 0.50,
+    cache_read: 0.5,
   },
-  'claude-sonnet-4-5': {
+  "claude-sonnet-4-5": {
     input: 3.0,
     output: 15.0,
     cache_write: 3.75,
-    cache_read: 0.30,
+    cache_read: 0.3,
   },
-  'claude-sonnet-4-5-20250929': {
+  "claude-sonnet-4-5-20250929": {
     input: 3.0,
     output: 15.0,
     cache_write: 3.75,
-    cache_read: 0.30,
+    cache_read: 0.3,
   },
-  'claude-haiku-4-5': {
+  "claude-haiku-4-5": {
     input: 1.0,
     output: 5.0,
     cache_write: 1.25,
-    cache_read: 0.10,
+    cache_read: 0.1,
   },
-  'claude-haiku-4-5-20251001': {
+  "claude-haiku-4-5-20251001": {
     input: 1.0,
     output: 5.0,
     cache_write: 1.25,
-    cache_read: 0.10,
+    cache_read: 0.1,
   },
   // Claude 4.1 Series
-  'claude-opus-4-1': {
+  "claude-opus-4-1": {
     input: 15.0,
     output: 75.0,
     cache_write: 18.75,
-    cache_read: 1.50,
+    cache_read: 1.5,
   },
-  'claude-opus-4-1-20250805': {
+  "claude-opus-4-1-20250805": {
     input: 15.0,
     output: 75.0,
     cache_write: 18.75,
-    cache_read: 1.50,
+    cache_read: 1.5,
   },
   // 默认值 (使用最新 Sonnet 4.5 定价)
-  'default': {
+  default: {
     input: 3.0,
     output: 15.0,
     cache_write: 3.75,
-    cache_read: 0.30,
-  }
+    cache_read: 0.3,
+  },
 } as const;
 
 // ============================================================================
@@ -87,17 +87,17 @@ export const CLAUDE_PRICING = {
 
 export const CLAUDE_CONTEXT_WINDOWS = {
   // Claude 4.5 Series
-  'claude-opus-4-5': 200000,
-  'claude-opus-4-5-20251101': 200000,
-  'claude-sonnet-4-5': 200000,
-  'claude-sonnet-4-5-20250929': 200000,
-  'claude-haiku-4-5': 200000,
-  'claude-haiku-4-5-20251001': 200000,
+  "claude-opus-4-5": 200000,
+  "claude-opus-4-5-20251101": 200000,
+  "claude-sonnet-4-5": 200000,
+  "claude-sonnet-4-5-20250929": 200000,
+  "claude-haiku-4-5": 200000,
+  "claude-haiku-4-5-20251001": 200000,
   // Claude 4.1 Series
-  'claude-opus-4-1': 200000,
-  'claude-opus-4-1-20250805': 200000,
+  "claude-opus-4-1": 200000,
+  "claude-opus-4-1-20250805": 200000,
   // 默认值
-  'default': 200000,
+  default: 200000,
 } as const;
 
 // ============================================================================
@@ -108,24 +108,24 @@ export const CLAUDE_CONTEXT_WINDOWS = {
 export const CODEX_CONTEXT_WINDOWS = {
   // GPT-5.1-Codex 系列 - Codex CLI 主要使用的模型
   // 272K context window
-  'gpt-5.1-codex': 272000,
-  'gpt-5.1-codex-mini': 272000,
-  'gpt-5.1-codex-max': 272000,
-  'gpt-5-codex': 272000,
+  "gpt-5.1-codex": 272000,
+  "gpt-5.1-codex-mini": 272000,
+  "gpt-5.1-codex-max": 272000,
+  "gpt-5-codex": 272000,
   // codex-mini-latest - 默认 Codex CLI 模型
   // 272K context window
-  'codex-mini-latest': 272000,
+  "codex-mini-latest": 272000,
   // GPT-5.2 系列 - 最新模型
   // 272K context, 128K max output
-  'gpt-5.2': 272000,
-  'gpt-5.2-codex': 272000,  // 🆕 GPT-5.2-Codex（2025年12月18日发布）
-  'gpt-5.2-instant': 272000,
-  'gpt-5.2-thinking': 272000,
-  'gpt-5.2-pro': 272000,
+  "gpt-5.2": 272000,
+  "gpt-5.2-codex": 272000, // 🆕 GPT-5.2-Codex（2025年12月18日发布）
+  "gpt-5.2-instant": 272000,
+  "gpt-5.2-thinking": 272000,
+  "gpt-5.2-pro": 272000,
   // o4-mini (Codex 底层模型)
-  'o4-mini': 128000,
+  "o4-mini": 128000,
   // 默认值 - 使用 codex-mini-latest 的窗口大小
-  'default': 272000,
+  default: 272000,
 } as const;
 
 // ============================================================================
@@ -135,14 +135,14 @@ export const CODEX_CONTEXT_WINDOWS = {
 // ============================================================================
 
 export const GEMINI_CONTEXT_WINDOWS = {
-  'gemini-3-pro-preview': 1_000_000,
-  'gemini-3-pro-image-preview': 1_000_000,
-  'gemini-2.5-pro': 1_000_000,
-  'gemini-2.5-flash': 1_000_000,
-  'gemini-2.5-flash-lite': 1_000_000,
-  'gemini-2.0-flash': 1_000_000,
-  'gemini-2.0-flash-exp': 1_000_000,
-  'default': 1_000_000,
+  "gemini-3-pro-preview": 1_000_000,
+  "gemini-3-pro-image-preview": 1_000_000,
+  "gemini-2.5-pro": 1_000_000,
+  "gemini-2.5-flash": 1_000_000,
+  "gemini-2.5-flash-lite": 1_000_000,
+  "gemini-2.0-flash": 1_000_000,
+  "gemini-2.0-flash-exp": 1_000_000,
+  default: 1_000_000,
 } as const;
 
 /**
@@ -153,33 +153,33 @@ export const GEMINI_CONTEXT_WINDOWS = {
  */
 export function getContextWindowSize(model?: string, engine?: string): number {
   // Gemini 引擎
-  if (engine === 'gemini') {
-    if (!model) return GEMINI_CONTEXT_WINDOWS['default'];
+  if (engine === "gemini") {
+    if (!model) return GEMINI_CONTEXT_WINDOWS["default"];
 
     const lowerModel = model.toLowerCase();
 
     // 处理 Vertex AI / provider 前缀与版本后缀
     const normalized = lowerModel
-      .replace('google.', '')
-      .replace('vertex.', '')
-      .replace('-v1:0', '')
-      .split('@')[0];
+      .replace("google.", "")
+      .replace("vertex.", "")
+      .replace("-v1:0", "")
+      .split("@")[0];
 
     if (normalized in GEMINI_CONTEXT_WINDOWS) {
       return GEMINI_CONTEXT_WINDOWS[normalized as keyof typeof GEMINI_CONTEXT_WINDOWS];
     }
 
     // 常见变体：-exp / -preview / 版本日期后缀等 -> 回退到家族默认 1M
-    if (normalized.startsWith('gemini-')) {
-      return GEMINI_CONTEXT_WINDOWS['default'];
+    if (normalized.startsWith("gemini-")) {
+      return GEMINI_CONTEXT_WINDOWS["default"];
     }
 
-    return GEMINI_CONTEXT_WINDOWS['default'];
+    return GEMINI_CONTEXT_WINDOWS["default"];
   }
 
   // Codex 引擎
-  if (engine === 'codex') {
-    if (!model) return CODEX_CONTEXT_WINDOWS['default'];
+  if (engine === "codex") {
+    if (!model) return CODEX_CONTEXT_WINDOWS["default"];
 
     const lowerModel = model.toLowerCase();
 
@@ -189,59 +189,63 @@ export function getContextWindowSize(model?: string, engine?: string): number {
     }
 
     // GPT-5.1-Codex 系列
-    if (lowerModel.includes('5.1-codex-max') || lowerModel.includes('5_1_codex_max')) {
-      return CODEX_CONTEXT_WINDOWS['gpt-5.1-codex-max'];
+    if (lowerModel.includes("5.1-codex-max") || lowerModel.includes("5_1_codex_max")) {
+      return CODEX_CONTEXT_WINDOWS["gpt-5.1-codex-max"];
     }
-    if (lowerModel.includes('5.1-codex-mini') || lowerModel.includes('5_1_codex_mini')) {
-      return CODEX_CONTEXT_WINDOWS['gpt-5.1-codex-mini'];
+    if (lowerModel.includes("5.1-codex-mini") || lowerModel.includes("5_1_codex_mini")) {
+      return CODEX_CONTEXT_WINDOWS["gpt-5.1-codex-mini"];
     }
-    if (lowerModel.includes('5.1-codex') || lowerModel.includes('5_1_codex')) {
-      return CODEX_CONTEXT_WINDOWS['gpt-5.1-codex'];
+    if (lowerModel.includes("5.1-codex") || lowerModel.includes("5_1_codex")) {
+      return CODEX_CONTEXT_WINDOWS["gpt-5.1-codex"];
     }
 
     // GPT-5.2 系列 (Codex, Instant, Thinking, Pro variants)
     // GPT-5.2-Codex 优先匹配（最新代码模型）
-    if (lowerModel.includes('5.2-codex') || lowerModel.includes('5_2_codex')) {
-      return CODEX_CONTEXT_WINDOWS['gpt-5.2-codex'];
+    if (lowerModel.includes("5.2-codex") || lowerModel.includes("5_2_codex")) {
+      return CODEX_CONTEXT_WINDOWS["gpt-5.2-codex"];
     }
-    if (lowerModel.includes('5.2-pro') || lowerModel.includes('5_2_pro')) {
-      return CODEX_CONTEXT_WINDOWS['gpt-5.2-pro'];
+    if (lowerModel.includes("5.2-pro") || lowerModel.includes("5_2_pro")) {
+      return CODEX_CONTEXT_WINDOWS["gpt-5.2-pro"];
     }
-    if (lowerModel.includes('5.2-thinking') || lowerModel.includes('5_2_thinking')) {
-      return CODEX_CONTEXT_WINDOWS['gpt-5.2-thinking'];
+    if (lowerModel.includes("5.2-thinking") || lowerModel.includes("5_2_thinking")) {
+      return CODEX_CONTEXT_WINDOWS["gpt-5.2-thinking"];
     }
-    if (lowerModel.includes('5.2-instant') || lowerModel.includes('5_2_instant')) {
-      return CODEX_CONTEXT_WINDOWS['gpt-5.2-instant'];
+    if (lowerModel.includes("5.2-instant") || lowerModel.includes("5_2_instant")) {
+      return CODEX_CONTEXT_WINDOWS["gpt-5.2-instant"];
     }
-    if (lowerModel.includes('gpt-5.2') || lowerModel.includes('gpt_5_2') || lowerModel.includes('5.2')) {
-      return CODEX_CONTEXT_WINDOWS['gpt-5.2'];
+    if (
+      lowerModel.includes("gpt-5.2") ||
+      lowerModel.includes("gpt_5_2") ||
+      lowerModel.includes("5.2")
+    ) {
+      return CODEX_CONTEXT_WINDOWS["gpt-5.2"];
     }
 
     // o4-mini
-    if (lowerModel.includes('o4-mini') || lowerModel.includes('o4_mini')) {
-      return CODEX_CONTEXT_WINDOWS['o4-mini'];
+    if (lowerModel.includes("o4-mini") || lowerModel.includes("o4_mini")) {
+      return CODEX_CONTEXT_WINDOWS["o4-mini"];
     }
 
     // codex-mini-latest - 默认 CLI 模型
-    if (lowerModel.includes('codex-mini-latest') || lowerModel.includes('codex_mini_latest')) {
-      return CODEX_CONTEXT_WINDOWS['codex-mini-latest'];
+    if (lowerModel.includes("codex-mini-latest") || lowerModel.includes("codex_mini_latest")) {
+      return CODEX_CONTEXT_WINDOWS["codex-mini-latest"];
     }
 
     // gpt-5-codex (别名)
-    if (lowerModel.includes('gpt-5-codex') || lowerModel.includes('gpt_5_codex')) {
-      return CODEX_CONTEXT_WINDOWS['gpt-5-codex'];
+    if (lowerModel.includes("gpt-5-codex") || lowerModel.includes("gpt_5_codex")) {
+      return CODEX_CONTEXT_WINDOWS["gpt-5-codex"];
     }
 
     // 通用 Codex 匹配 - 默认使用 codex-mini-latest (200K)
-    if (lowerModel.includes('codex')) {
-      return CODEX_CONTEXT_WINDOWS['codex-mini-latest'];
+    if (lowerModel.includes("codex")) {
+      return CODEX_CONTEXT_WINDOWS["codex-mini-latest"];
     }
 
-    return CODEX_CONTEXT_WINDOWS['default'];
+    return CODEX_CONTEXT_WINDOWS["default"];
   }
 
   // Claude 引擎（默认）
-  if (!model) return CLAUDE_CONTEXT_WINDOWS['default'];
+  if (!model) return CLAUDE_CONTEXT_WINDOWS["default"];
 
   // 尝试直接匹配
   if (model in CLAUDE_CONTEXT_WINDOWS) {
@@ -254,22 +258,22 @@ export function getContextWindowSize(model?: string, engine?: string): number {
     return CLAUDE_CONTEXT_WINDOWS[normalizedModel as keyof typeof CLAUDE_CONTEXT_WINDOWS];
   }
 
-  return CLAUDE_CONTEXT_WINDOWS['default'];
+  return CLAUDE_CONTEXT_WINDOWS["default"];
 }
 
 // 标准化模型名称映射
 export const MODEL_ALIASES = {
-  'opus': 'claude-opus-4-5', // 默认最新版本
-  'opus4.5': 'claude-opus-4-5',
-  'opus-4.5': 'claude-opus-4-5',
-  'opus4.1': 'claude-opus-4-1',
-  'opus-4.1': 'claude-opus-4-1',
-  'sonnet': 'claude-sonnet-4-5', // 默认最新版本
-  'sonnet4.5': 'claude-sonnet-4-5',
-  'sonnet-4.5': 'claude-sonnet-4-5',
-  'haiku': 'claude-haiku-4-5', // 默认最新版本
-  'haiku4.5': 'claude-haiku-4-5',
-  'haiku-4.5': 'claude-haiku-4-5',
+  opus: "claude-opus-4-5", // 默认最新版本
+  "opus4.5": "claude-opus-4-5",
+  "opus-4.5": "claude-opus-4-5",
+  "opus4.1": "claude-opus-4-1",
+  "opus-4.1": "claude-opus-4-1",
+  sonnet: "claude-sonnet-4-5", // 默认最新版本
+  "sonnet4.5": "claude-sonnet-4-5",
+  "sonnet-4.5": "claude-sonnet-4-5",
+  haiku: "claude-haiku-4-5", // 默认最新版本
+  "haiku4.5": "claude-haiku-4-5",
+  "haiku-4.5": "claude-haiku-4-5",
 } as const;
 
 /**
@@ -294,16 +298,18 @@ export interface TokenUsage {
 
 // 消息接口
 export interface ClaudeMessage {
-  role: 'user' | 'assistant' | 'system';
-  content: string | Array<{
-    type: 'text' | 'image' | 'document';
-    text?: string;
-    source?: {
-      type: 'base64';
-      media_type: string;
-      data: string;
-    };
-  }>;
+  role: "user" | "assistant" | "system";
+  content:
+    | string
+    | Array<{
+        type: "text" | "image" | "document";
+        text?: string;
+        source?: {
+          type: "base64";
+          media_type: string;
+          data: string;
+        };
+      }>;
 }
 
 // 工具定义接口
@@ -311,7 +317,7 @@ export interface ClaudeTool {
   name: string;
   description: string;
   input_schema: {
-    type: 'object';
+    type: "object";
     properties: Record<string, any>;
     required?: string[];
   };
@@ -371,12 +377,12 @@ export class TokenCounterService {
           apiKey: this.apiKey,
           baseURL: this.baseURL || undefined,
           defaultHeaders: {
-            'anthropic-beta': 'prompt-caching-2024-07-31,token-counting-2024-11-01',
+            "anthropic-beta": "prompt-caching-2024-07-31,token-counting-2024-11-01",
           },
         });
       }
     } catch (error) {
-      console.warn('[TokenCounter] 初始化失败，将使用估算方法:', error);
+      console.warn("[TokenCounter] 初始化失败，将使用估算方法:", error);
     }
   }
 
@@ -385,28 +391,24 @@ export class TokenCounterService {
    */
   private getApiKey(): string | null {
     // 1. 环境变量
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       // 浏览器环境
       return null; // 浏览器中不应直接使用API密钥
     }
 
     // Node.js环境
-    return process.env.ANTHROPIC_API_KEY ||
-           process.env.ANTHROPIC_AUTH_TOKEN ||
-           null;
+    return process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN || null;
   }
 
   /**
    * 获取基础URL
    */
   private getBaseURL(): string | null {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('anthropic_base_url');
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("anthropic_base_url");
     }
 
-    return process.env.ANTHROPIC_BASE_URL ||
-           process.env.CLAUDE_API_BASE_URL ||
-           null;
+    return process.env.ANTHROPIC_BASE_URL || process.env.CLAUDE_API_BASE_URL || null;
   }
 
   /**
@@ -417,15 +419,15 @@ export class TokenCounterService {
    * model identification and pricing across frontend and backend.
    */
   public normalizeModel(model?: string): string {
-    if (!model) return 'claude-sonnet-4-5-20250929';
+    if (!model) return "claude-sonnet-4-5-20250929";
 
     // Normalize: lowercase + remove common prefixes/suffixes
     let normalized = model.toLowerCase();
-    normalized = normalized.replace('anthropic.', '');
-    normalized = normalized.replace('-v1:0', '');
+    normalized = normalized.replace("anthropic.", "");
+    normalized = normalized.replace("-v1:0", "");
 
     // Handle @ symbol for Vertex AI format
-    const atIndex = normalized.indexOf('@');
+    const atIndex = normalized.indexOf("@");
     if (atIndex !== -1) {
       normalized = normalized.substring(0, atIndex);
     }
@@ -433,30 +435,36 @@ export class TokenCounterService {
     // Priority-based matching (order matters! MUST match backend logic)
 
     // Claude 4.5 Series (Latest)
-    if (normalized.includes('opus') && (normalized.includes('4.5') || normalized.includes('4-5'))) {
-      return 'claude-opus-4-5';
+    if (normalized.includes("opus") && (normalized.includes("4.5") || normalized.includes("4-5"))) {
+      return "claude-opus-4-5";
     }
-    if (normalized.includes('haiku') && (normalized.includes('4.5') || normalized.includes('4-5'))) {
-      return 'claude-haiku-4-5';
+    if (
+      normalized.includes("haiku") &&
+      (normalized.includes("4.5") || normalized.includes("4-5"))
+    ) {
+      return "claude-haiku-4-5";
     }
-    if (normalized.includes('sonnet') && (normalized.includes('4.5') || normalized.includes('4-5'))) {
-      return 'claude-sonnet-4-5';
+    if (
+      normalized.includes("sonnet") &&
+      (normalized.includes("4.5") || normalized.includes("4-5"))
+    ) {
+      return "claude-sonnet-4-5";
     }
 
     // Claude 4.1 Series
-    if (normalized.includes('opus') && (normalized.includes('4.1') || normalized.includes('4-1'))) {
-      return 'claude-opus-4-1';
+    if (normalized.includes("opus") && (normalized.includes("4.1") || normalized.includes("4-1"))) {
+      return "claude-opus-4-1";
     }
 
     // Generic family detection (fallback - MUST match backend)
-    if (normalized.includes('haiku')) {
-      return 'claude-haiku-4-5'; // Default to latest
+    if (normalized.includes("haiku")) {
+      return "claude-haiku-4-5"; // Default to latest
     }
-    if (normalized.includes('opus')) {
-      return 'claude-opus-4-5'; // Default to latest
+    if (normalized.includes("opus")) {
+      return "claude-opus-4-5"; // Default to latest
     }
-    if (normalized.includes('sonnet')) {
-      return 'claude-sonnet-4-5'; // Default to latest
+    if (normalized.includes("sonnet")) {
+      return "claude-sonnet-4-5"; // Default to latest
     }
 
     // Unknown model - return original
@@ -471,7 +479,7 @@ export class TokenCounterService {
     messages: ClaudeMessage[],
     model?: string,
     tools?: ClaudeTool[],
-    systemPrompt?: string
+    systemPrompt?: string,
   ): Promise<TokenCountResponse> {
     const normalizedModel = this.normalizeModel(model);
 
@@ -483,7 +491,7 @@ export class TokenCounterService {
     try {
       const requestData: any = {
         model: normalizedModel,
-        messages: messages.map(msg => ({
+        messages: messages.map((msg) => ({
           role: msg.role,
           content: msg.content,
         })),
@@ -505,7 +513,7 @@ export class TokenCounterService {
         cache_read_input_tokens: (response as any).cache_read_input_tokens,
       };
     } catch (error) {
-      console.warn('[TokenCounter] API调用失败，使用估算方法:', error);
+      console.warn("[TokenCounter] API调用失败，使用估算方法:", error);
       return this.estimateTokens(messages, tools, systemPrompt);
     }
   }
@@ -516,21 +524,21 @@ export class TokenCounterService {
   private estimateTokens(
     messages: ClaudeMessage[],
     tools?: ClaudeTool[],
-    systemPrompt?: string
+    systemPrompt?: string,
   ): TokenCountResponse {
     let totalTokens = 0;
 
     // 估算消息token
     for (const message of messages) {
-      if (typeof message.content === 'string') {
+      if (typeof message.content === "string") {
         totalTokens += Math.ceil(message.content.length / 4); // 粗略估算：4字符=1token
       } else if (Array.isArray(message.content)) {
         for (const content of message.content) {
-          if (content.type === 'text' && content.text) {
+          if (content.type === "text" && content.text) {
             totalTokens += Math.ceil(content.text.length / 4);
-          } else if (content.type === 'image') {
+          } else if (content.type === "image") {
             totalTokens += 1551; // 基于官方文档的图像token估算
-          } else if (content.type === 'document') {
+          } else if (content.type === "document") {
             totalTokens += 2188; // 基于官方文档的PDF token估算
           }
         }
@@ -562,20 +570,25 @@ export class TokenCounterService {
       model?: string;
       tools?: ClaudeTool[];
       systemPrompt?: string;
-    }>
+    }>,
   ): Promise<TokenCountResponse[]> {
     try {
-      const promises = requests.map(req =>
-        this.countTokens(req.messages, req.model, req.tools, req.systemPrompt)
+      const promises = requests.map((req) =>
+        this.countTokens(req.messages, req.model, req.tools, req.systemPrompt),
       );
       return await Promise.all(promises);
     } catch (error) {
-      console.error('[TokenCounter] 批量计算失败:', error);
+      console.error("[TokenCounter] 批量计算失败:", error);
       // 降级到逐个计算
       const results: TokenCountResponse[] = [];
       for (const req of requests) {
         try {
-          const result = await this.countTokens(req.messages, req.model, req.tools, req.systemPrompt);
+          const result = await this.countTokens(
+            req.messages,
+            req.model,
+            req.tools,
+            req.systemPrompt,
+          );
           results.push(result);
         } catch (err) {
           results.push({ input_tokens: 0 });
@@ -606,7 +619,8 @@ export class TokenCounterService {
 
     const input_tokens = usage.input_tokens || 0;
     const output_tokens = usage.output_tokens || 0;
-    const cache_write_tokens = usage.cache_creation_input_tokens || usage.cache_creation_tokens || 0;
+    const cache_write_tokens =
+      usage.cache_creation_input_tokens || usage.cache_creation_tokens || 0;
     const cache_read_tokens = usage.cache_read_input_tokens || usage.cache_read_tokens || 0;
 
     const input_cost = (input_tokens * pricing.input) / 1_000_000;
@@ -632,14 +646,19 @@ export class TokenCounterService {
     const normalized = this.normalizeUsage(usage);
     const cost = this.calculateCost(normalized, model);
 
-    const total = normalized.input_tokens + normalized.output_tokens +
-                 (normalized.cache_creation_tokens || 0) + (normalized.cache_read_tokens || 0);
+    const total =
+      normalized.input_tokens +
+      normalized.output_tokens +
+      (normalized.cache_creation_tokens || 0) +
+      (normalized.cache_read_tokens || 0);
 
     const cache_hit_rate = total > 0 ? ((normalized.cache_read_tokens || 0) / total) * 100 : 0;
 
     // 计算缓存节约的成本
-    const standard_cost = ((normalized.cache_read_tokens || 0) *
-                          (CLAUDE_PRICING[this.normalizeModel(model) as keyof typeof CLAUDE_PRICING]?.input || 3)) / 1_000_000;
+    const standard_cost =
+      ((normalized.cache_read_tokens || 0) *
+        (CLAUDE_PRICING[this.normalizeModel(model) as keyof typeof CLAUDE_PRICING]?.input || 3)) /
+      1_000_000;
     const actual_cache_cost = cost.cache_read_cost;
     const cost_savings = standard_cost - actual_cache_cost;
 
@@ -665,7 +684,7 @@ export class TokenCounterService {
    */
   normalizeUsage(usage: TokenUsage): Required<TokenUsage> {
     // Import from tokenExtractor for unified normalization
-    const { normalizeRawUsage } = require('./tokenExtractor');
+    const { normalizeRawUsage } = require("./tokenExtractor");
     const standardized = normalizeRawUsage(usage);
 
     // Return in the expected TokenUsage format
@@ -704,7 +723,7 @@ export class TokenCounterService {
     } else if (cost > 0) {
       return `$${cost.toFixed(6)}`;
     }
-    return '$0.00';
+    return "$0.00";
   }
 
   /**
@@ -716,8 +735,8 @@ export class TokenCounterService {
     options: {
       compact?: boolean;
       includeCost?: boolean;
-      includeEfficiency?: boolean
-    } = {}
+      includeEfficiency?: boolean;
+    } = {},
   ): string {
     const breakdown = this.calculateBreakdown(usage, model);
 
@@ -728,7 +747,7 @@ export class TokenCounterService {
       if (breakdown.output > 0) parts.push(`${this.formatCount(breakdown.output)} out`);
       if (breakdown.cache_read > 0) parts.push(`${this.formatCount(breakdown.cache_read)} read`);
 
-      let result = parts.join(', ');
+      let result = parts.join(", ");
 
       if (options.includeCost && breakdown.cost.total_cost > 0) {
         result += ` • ${this.formatCost(breakdown.cost.total_cost)}`;
@@ -756,7 +775,7 @@ export class TokenCounterService {
 
     lines.push(`模型: ${normalizedModel}`);
     lines.push(`总Token: ${breakdown.total.toLocaleString()}`);
-    lines.push('');
+    lines.push("");
 
     // Token明细
     if (breakdown.input > 0) {
@@ -774,7 +793,7 @@ export class TokenCounterService {
 
     // 成本明细
     if (breakdown.cost.total_cost > 0) {
-      lines.push('');
+      lines.push("");
       lines.push(`总成本: ${this.formatCost(breakdown.cost.total_cost)}`);
 
       if (breakdown.cost.input_cost > 0) {
@@ -793,7 +812,7 @@ export class TokenCounterService {
 
     // 效率指标
     if (breakdown.efficiency.cache_hit_rate > 0) {
-      lines.push('');
+      lines.push("");
       lines.push(`缓存命中率: ${breakdown.efficiency.cache_hit_rate.toFixed(1)}%`);
       if (breakdown.efficiency.cost_savings > 0) {
         lines.push(`成本节约: ${this.formatCost(breakdown.efficiency.cost_savings)}`);
@@ -802,15 +821,15 @@ export class TokenCounterService {
 
     // 定价信息
     if (pricing) {
-      lines.push('');
-      lines.push('定价 (每百万token):');
+      lines.push("");
+      lines.push("定价 (每百万token):");
       lines.push(`输入: $${pricing.input}`);
       lines.push(`输出: $${pricing.output}`);
       lines.push(`缓存写入: $${pricing.cache_write}`);
       lines.push(`缓存读取: $${pricing.cache_read}`);
     }
 
-    return lines.join('\n');
+    return lines.join("\n");
   }
 
   /**
@@ -830,13 +849,24 @@ export class TokenCounterService {
         return {
           input_tokens: (total.input_tokens || 0) + (normalized.input_tokens || 0),
           output_tokens: (total.output_tokens || 0) + (normalized.output_tokens || 0),
-          cache_creation_tokens: (total.cache_creation_tokens || 0) + (normalized.cache_creation_tokens || 0),
+          cache_creation_tokens:
+            (total.cache_creation_tokens || 0) + (normalized.cache_creation_tokens || 0),
           cache_read_tokens: (total.cache_read_tokens || 0) + (normalized.cache_read_tokens || 0),
-          cache_creation_input_tokens: (total.cache_creation_input_tokens || 0) + (normalized.cache_creation_input_tokens || 0),
-          cache_read_input_tokens: (total.cache_read_input_tokens || 0) + (normalized.cache_read_input_tokens || 0),
+          cache_creation_input_tokens:
+            (total.cache_creation_input_tokens || 0) +
+            (normalized.cache_creation_input_tokens || 0),
+          cache_read_input_tokens:
+            (total.cache_read_input_tokens || 0) + (normalized.cache_read_input_tokens || 0),
         };
       },
-      { input_tokens: 0, output_tokens: 0, cache_creation_tokens: 0, cache_read_tokens: 0, cache_creation_input_tokens: 0, cache_read_input_tokens: 0 }
+      {
+        input_tokens: 0,
+        output_tokens: 0,
+        cache_creation_tokens: 0,
+        cache_read_tokens: 0,
+        cache_creation_input_tokens: 0,
+        cache_read_input_tokens: 0,
+      },
     );
   }
 
@@ -869,8 +899,12 @@ export interface SessionTokenStats {
 export const tokenCounter = new TokenCounterService();
 
 // 便利函数导出
-export const countTokens = (messages: ClaudeMessage[], model?: string, tools?: ClaudeTool[], systemPrompt?: string) =>
-  tokenCounter.countTokens(messages, model, tools, systemPrompt);
+export const countTokens = (
+  messages: ClaudeMessage[],
+  model?: string,
+  tools?: ClaudeTool[],
+  systemPrompt?: string,
+) => tokenCounter.countTokens(messages, model, tools, systemPrompt);
 
 export const calculateCost = (usage: TokenUsage, model?: string) =>
   tokenCounter.calculateCost(usage, model);
@@ -895,10 +929,7 @@ export function getModelPricing(model?: string) {
 /**
  * Calculate detailed token breakdown with cost analysis
  */
-export function calculateTokenBreakdown(
-  usage: TokenUsage,
-  model?: string
-): TokenBreakdown {
+export function calculateTokenBreakdown(usage: TokenUsage, model?: string): TokenBreakdown {
   return tokenCounter.calculateBreakdown(usage, model);
 }
 
@@ -927,22 +958,19 @@ export function formatUsageBreakdown(
     includeCost?: boolean;
     includeEfficiency?: boolean;
     compact?: boolean;
-  } = {}
+  } = {},
 ): string {
   return tokenCounter.formatBreakdown(usage, model, {
     compact: options.compact,
     includeCost: options.includeCost,
-    includeEfficiency: options.includeEfficiency
+    includeEfficiency: options.includeEfficiency,
   });
 }
 
 /**
  * Create a detailed tooltip with comprehensive token information
  */
-export function createTokenTooltip(
-  usage: TokenUsage,
-  model?: string
-): string {
+export function createTokenTooltip(usage: TokenUsage, model?: string): string {
   return tokenCounter.createTooltip(usage, model);
 }
 
@@ -956,11 +984,12 @@ export function aggregateTokenUsage(usages: TokenUsage[]): TokenUsage {
       return {
         input_tokens: (total.input_tokens || 0) + (normalized.input_tokens || 0),
         output_tokens: (total.output_tokens || 0) + (normalized.output_tokens || 0),
-        cache_creation_tokens: (total.cache_creation_tokens || 0) + (normalized.cache_creation_tokens || 0),
+        cache_creation_tokens:
+          (total.cache_creation_tokens || 0) + (normalized.cache_creation_tokens || 0),
         cache_read_tokens: (total.cache_read_tokens || 0) + (normalized.cache_read_tokens || 0),
       };
     },
-    { input_tokens: 0, output_tokens: 0, cache_creation_tokens: 0, cache_read_tokens: 0 }
+    { input_tokens: 0, output_tokens: 0, cache_creation_tokens: 0, cache_read_tokens: 0 },
   );
 }
 
@@ -969,12 +998,10 @@ export function aggregateTokenUsage(usages: TokenUsage[]): TokenUsage {
  */
 export function calculateSessionStats(
   messages: Array<{ usage?: any; timestamp?: string; receivedAt?: string }>,
-  model?: string
+  model?: string,
 ): SessionTokenStats {
   // Extract valid usage data from messages
-  const usages = messages
-    .filter(msg => msg.usage)
-    .map(msg => normalizeTokenUsage(msg.usage));
+  const usages = messages.filter((msg) => msg.usage).map((msg) => normalizeTokenUsage(msg.usage));
 
   if (usages.length === 0) {
     return {
@@ -987,7 +1014,7 @@ export function calculateSessionStats(
       trend: {
         tokens_per_hour: 0,
         cost_per_hour: 0,
-      }
+      },
     };
   }
 
@@ -995,14 +1022,19 @@ export function calculateSessionStats(
   const breakdown = calculateTokenBreakdown(aggregated, model);
 
   // Calculate time-based trends
-  const timestampedMessages = messages.filter(msg => msg.timestamp || msg.receivedAt);
+  const timestampedMessages = messages.filter((msg) => msg.timestamp || msg.receivedAt);
   let tokensPerHour = 0;
   let costPerHour = 0;
   let peakUsageTime: string | undefined;
 
   if (timestampedMessages.length >= 2) {
-    const firstTime = new Date(timestampedMessages[0].timestamp || timestampedMessages[0].receivedAt!);
-    const lastTime = new Date(timestampedMessages[timestampedMessages.length - 1].timestamp || timestampedMessages[timestampedMessages.length - 1].receivedAt!);
+    const firstTime = new Date(
+      timestampedMessages[0].timestamp || timestampedMessages[0].receivedAt!,
+    );
+    const lastTime = new Date(
+      timestampedMessages[timestampedMessages.length - 1].timestamp ||
+        timestampedMessages[timestampedMessages.length - 1].receivedAt!,
+    );
     const hoursElapsed = (lastTime.getTime() - firstTime.getTime()) / (1000 * 60 * 60);
 
     if (hoursElapsed > 0) {
@@ -1022,22 +1054,24 @@ export function calculateSessionStats(
       tokens_per_hour: tokensPerHour,
       cost_per_hour: costPerHour,
       peak_usage_time: peakUsageTime,
-    }
+    },
   };
 }
 
 /**
  * Get cached session token data from the API
  */
-export async function getSessionCacheTokens(sessionId: string): Promise<{ cache_creation: number; cache_read: number }> {
+export async function getSessionCacheTokens(
+  sessionId: string,
+): Promise<{ cache_creation: number; cache_read: number }> {
   try {
     const cacheData = await api.getSessionCacheTokens(sessionId);
     return {
       cache_creation: cacheData.total_cache_creation_tokens,
-      cache_read: cacheData.total_cache_read_tokens
+      cache_read: cacheData.total_cache_read_tokens,
     };
   } catch (error) {
-    console.warn('Failed to fetch session cache tokens:', error);
+    console.warn("Failed to fetch session cache tokens:", error);
     return { cache_creation: 0, cache_read: 0 };
   }
 }

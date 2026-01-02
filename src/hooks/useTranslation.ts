@@ -1,4 +1,4 @@
-import { useTranslation as useI18nTranslation } from 'react-i18next';
+import { useTranslation as useI18nTranslation } from "react-i18next";
 
 export const useTranslation = () => {
   const { t, i18n } = useI18nTranslation();
@@ -12,14 +12,14 @@ export const useTranslation = () => {
   };
 
   const getAvailableLanguages = () => {
-    return ['zh', 'zh-TW', 'en'];
+    return ["zh", "zh-TW", "en"];
   };
 
   const getLanguageLabel = (lng: string) => {
     const labels: Record<string, string> = {
-      zh: '简体中文',
-      'zh-TW': '繁體中文',
-      en: 'English'
+      zh: "简体中文",
+      "zh-TW": "繁體中文",
+      en: "English",
     };
     return labels[lng] || lng;
   };
@@ -30,7 +30,7 @@ export const useTranslation = () => {
     getCurrentLanguage,
     getAvailableLanguages,
     getLanguageLabel,
-    i18n
+    i18n,
   };
 };
 

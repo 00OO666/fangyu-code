@@ -4,43 +4,43 @@
  * 用于跨窗口会话消息同步、状态更新、协作编辑等场景
  */
 
-import type { ClaudeStreamMessage } from './claude';
+import type { ClaudeStreamMessage } from "./claude";
 
 /**
  * WebSocket 连接状态
  */
 export type WebSocketState =
-  | 'disconnected'  // 未连接
-  | 'connecting'    // 连接中
-  | 'connected'     // 已连接
-  | 'reconnecting'  // 重连中
-  | 'error';        // 连接错误
+  | "disconnected" // 未连接
+  | "connecting" // 连接中
+  | "connected" // 已连接
+  | "reconnecting" // 重连中
+  | "error"; // 连接错误
 
 /**
  * WebSocket 消息类型
  */
 export type WebSocketMessageType =
   // 会话相关
-  | 'session:new'           // 新会话创建
-  | 'session:message'       // 会话消息更新
-  | 'session:status'        // 会话状态更新
-  | 'session:close'         // 会话关闭
+  | "session:new" // 新会话创建
+  | "session:message" // 会话消息更新
+  | "session:status" // 会话状态更新
+  | "session:close" // 会话关闭
   // 项目相关
-  | 'project:create'        // 项目创建
-  | 'project:update'        // 项目更新
-  | 'project:delete'        // 项目删除
+  | "project:create" // 项目创建
+  | "project:update" // 项目更新
+  | "project:delete" // 项目删除
   // 文件相关
-  | 'file:change'           // 文件变更
-  | 'file:create'           // 文件创建
-  | 'file:delete'           // 文件删除
+  | "file:change" // 文件变更
+  | "file:create" // 文件创建
+  | "file:delete" // 文件删除
   // 窗口相关
-  | 'window:focus'          // 窗口获得焦点
-  | 'window:blur'           // 窗口失去焦点
-  | 'window:close'          // 窗口关闭
+  | "window:focus" // 窗口获得焦点
+  | "window:blur" // 窗口失去焦点
+  | "window:close" // 窗口关闭
   // 系统相关
-  | 'ping'                  // 心跳
-  | 'pong'                  // 心跳响应
-  | 'error';                // 错误消息
+  | "ping" // 心跳
+  | "pong" // 心跳响应
+  | "error"; // 错误消息
 
 /**
  * WebSocket 消息基础结构
@@ -83,7 +83,7 @@ export interface SessionStatusPayload {
   /** 项目 ID */
   projectId: string;
   /** 状态 */
-  status: 'active' | 'paused' | 'stopped' | 'error';
+  status: "active" | "paused" | "stopped" | "error";
   /** 错误信息（如果有） */
   error?: string;
 }
@@ -97,7 +97,7 @@ export interface FileChangePayload {
   /** 文件路径（相对于项目根目录） */
   filePath: string;
   /** 变更类型 */
-  changeType: 'create' | 'update' | 'delete';
+  changeType: "create" | "update" | "delete";
   /** 文件内容（创建/更新时） */
   content?: string;
 }
@@ -153,6 +153,6 @@ export interface WebSocketConnection {
   /** 注册事件处理器 */
   on: <K extends keyof WebSocketEventHandlers>(
     event: K,
-    handler: NonNullable<WebSocketEventHandlers[K]>
+    handler: NonNullable<WebSocketEventHandlers[K]>,
   ) => () => void;
 }

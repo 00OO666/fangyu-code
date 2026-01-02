@@ -1,143 +1,135 @@
 import { invoke } from "@tauri-apps/api/core";
-import type { HooksConfiguration } from '@/types/hooks';
-import { HooksManager } from '@/lib/hooksManager';
-import { codexProviderPresets } from '@/config/codexProviderPresets';
+import { codexProviderPresets } from "@/config/codexProviderPresets";
+import { HooksManager } from "@/lib/hooksManager";
+import type { HooksConfiguration } from "@/types/hooks";
 
 // Import cache utilities
-import {
-  SESSION_CACHE,
-  isCacheValid,
-} from './api/cache';
-
-// Import session module utilities
-import * as SessionModule from './api/session';
-
-// Import providers module utilities
-import * as ProvidersModule from './api/providers';
-
+import { isCacheValid, SESSION_CACHE } from "./api/cache";
+// Import git module utilities
+import * as GitModule from "./api/git";
 // Import MCP module utilities
-import * as McpModule from './api/mcp';
-
-// Import usage module utilities
-import * as UsageModule from './api/usage';
+import * as McpModule from "./api/mcp";
+// Import providers module utilities
+import * as ProvidersModule from "./api/providers";
+// Import session module utilities
+import * as SessionModule from "./api/session";
 
 // Import storage module utilities
-import * as StorageModule from './api/storage';
+import * as StorageModule from "./api/storage";
 
 // Import translation module utilities
-import * as TranslationModule from './api/translation';
-
-// Import git module utilities
-import * as GitModule from './api/git';
+import * as TranslationModule from "./api/translation";
+// Import usage module utilities
+import * as UsageModule from "./api/usage";
 
 // Re-export types for backward compatibility
 export type {
-  ProcessType,
-  CheckpointType,
-  CheckpointFile,
-  ToolCallInfo,
-  Checkpoint,
-  ProcessInfo,
-  Project,
-  Session,
-  ConversionSource,
-  ConversionResult,
-  ClaudeSettings,
-  ClaudePermissionConfig,
-  ClaudeExecutionConfig,
-  ClaudeVersionStatus,
-  ClaudeMdFile,
-  FileEntry,
-  RewindMode,
-  RewindCapabilities,
-  ResetSafetyInfo,
-  GitFileChange,
-  PromptRecord,
-  SmartProjectResult,
-  UsageEntry,
-  ModelUsage,
-  DailyUsage,
-  ProjectUsage,
+  AddServerResult,
   ApiBaseUrlUsage,
-  UsageStats,
-  UsageOverview,
-  SessionCacheTokens,
-  ProviderConfig,
-  CurrentProviderConfig,
   ApiKeyUsage,
+  AutoCompactConfig,
+  AutoCompactStatus,
+  Checkpoint,
+  CheckpointFile,
+  CheckpointType,
+  ClaudeExecutionConfig,
+  ClaudeMdFile,
+  ClaudePermissionConfig,
+  ClaudeSettings,
+  ClaudeVersionStatus,
   CodexProviderConfig,
+  CompactionStrategy,
+  ConversionResult,
+  ConversionSource,
   CurrentCodexConfig,
-  GeminiProviderConfig,
   CurrentGeminiProviderConfig,
+  CurrentProviderConfig,
+  DailyUsage,
+  FileEntry,
+  GeminiProviderConfig,
+  GitFileChange,
+  ImportResult,
+  ImportServerResult,
+  MCPProjectConfig,
+  MCPServer,
+  MCPServerConfig,
   MCPServerSpec,
   McpApps,
   McpServer,
-  McpStatus,
   McpServerWithStatus,
-  MCPServer,
-  ServerStatus,
-  MCPProjectConfig,
-  MCPServerConfig,
+  McpStatus,
+  ModelUsage,
+  ProcessInfo,
+  ProcessType,
+  Project,
+  ProjectUsage,
+  PromptRecord,
+  ProviderConfig,
+  ResetSafetyInfo,
+  RewindCapabilities,
+  RewindMode,
   SavedImageResult,
-  AddServerResult,
-  TranslationConfig,
-  TranslationCacheStats,
-  AutoCompactConfig,
-  CompactionStrategy,
+  ServerStatus,
+  Session,
+  SessionCacheTokens,
   SessionContext,
   SessionStatus,
-  AutoCompactStatus,
-  ImportResult,
-  ImportServerResult,
-} from './api/types';
+  SmartProjectResult,
+  ToolCallInfo,
+  TranslationCacheStats,
+  TranslationConfig,
+  UsageEntry,
+  UsageOverview,
+  UsageStats,
+} from "./api/types";
 
-export { PermissionMode, OutputFormat } from './api/types';
+export { OutputFormat, PermissionMode } from "./api/types";
 
 // Import types locally for use in api object
 import type {
-  Project,
-  Session,
-  ConversionResult,
-  ClaudeSettings,
-  ClaudeExecutionConfig,
-  ClaudeVersionStatus,
-  ClaudeMdFile,
-  FileEntry,
-  RewindMode,
-  RewindCapabilities,
-  ResetSafetyInfo,
-  GitFileChange,
-  PromptRecord,
-  SmartProjectResult,
-  UsageStats,
-  SessionCacheTokens,
-  ProviderConfig,
-  CurrentProviderConfig,
-  ApiKeyUsage,
-  CodexProviderConfig,
-  CurrentCodexConfig,
-  GeminiProviderConfig,
-  CurrentGeminiProviderConfig,
-  MCPServerSpec,
-  McpServer,
-  McpStatus,
-  McpServerWithStatus,
-  McpApps,
-  MCPServer,
-  ServerStatus,
-  MCPProjectConfig,
-  SavedImageResult,
   AddServerResult,
-  TranslationConfig,
-  TranslationCacheStats,
+  ApiKeyUsage,
   AutoCompactConfig,
-  SessionContext,
   AutoCompactStatus,
-  ImportResult,
   Checkpoint,
   CheckpointType,
+  ClaudeExecutionConfig,
+  ClaudeMdFile,
+  ClaudeSettings,
+  ClaudeVersionStatus,
+  CodexProviderConfig,
+  ConversionResult,
+  CurrentCodexConfig,
+  CurrentGeminiProviderConfig,
+  CurrentProviderConfig,
+  FileEntry,
+  GeminiProviderConfig,
+  GitFileChange,
+  ImportResult,
+  MCPProjectConfig,
+  MCPServer,
+  MCPServerSpec,
+  McpApps,
+  McpServer,
+  McpServerWithStatus,
+  McpStatus,
+  Project,
   ProjectUsage,
-} from './api/types';
+  PromptRecord,
+  ProviderConfig,
+  ResetSafetyInfo,
+  RewindCapabilities,
+  RewindMode,
+  SavedImageResult,
+  ServerStatus,
+  Session,
+  SessionCacheTokens,
+  SessionContext,
+  SmartProjectResult,
+  TranslationCacheStats,
+  TranslationConfig,
+  UsageStats,
+} from "./api/types";
 
 /**
  * API client for interacting with the Rust backend
@@ -158,7 +150,7 @@ export const api = {
   async getProjectSessions(projectId: string, projectPath?: string): Promise<Session[]> {
     try {
       // Get Claude sessions
-      const claudeSessions = await invoke<Session[]>('get_project_sessions', { projectId });
+      const claudeSessions = await invoke<Session[]>("get_project_sessions", { projectId });
 
       // Get Codex sessions and filter by project path
       const codexSessions = await this.listCodexSessions();
@@ -166,11 +158,12 @@ export const api = {
       const targetPath = projectPath || claudeSessions[0]?.project_path;
 
       // Normalize paths for comparison (handle Windows backslashes and case insensitivity)
-      const normalize = (p: string) => p ? p.replace(/\\/g, '/').replace(/\/$/, '').toLowerCase() : '';
-      const targetPathNorm = normalize(targetPath || '');
+      const normalize = (p: string) =>
+        p ? p.replace(/\\/g, "/").replace(/\/$/, "").toLowerCase() : "";
+      const targetPathNorm = normalize(targetPath || "");
 
       const filteredCodexSessions: Session[] = codexSessions
-        .filter(cs => {
+        .filter((cs) => {
           // If we don't have a target path, we can't filter, so return no Codex sessions
           if (!targetPathNorm) return false;
 
@@ -179,20 +172,23 @@ export const api = {
 
           return match;
         })
-        .map(cs => ({
+        .map((cs) => ({
           id: cs.id,
           project_id: projectId,
           project_path: cs.projectPath,
           created_at: cs.createdAt,
-          model: cs.model || 'gpt-5.1-codex-max',
-          engine: 'codex' as const,
+          model: cs.model || "gpt-5.1-codex-max",
+          engine: "codex" as const,
           // 🆕 Use actual first message from JSONL file
           first_message: cs.firstMessage || `Codex Session`,
           last_message_timestamp: cs.lastMessageTimestamp,
         }));
 
       // Merge and sort by creation time
-      const allSessions = [...claudeSessions.map(s => ({ ...s, engine: 'claude' as const })), ...filteredCodexSessions];
+      const allSessions = [
+        ...claudeSessions.map((s) => ({ ...s, engine: "claude" as const })),
+        ...filteredCodexSessions,
+      ];
       allSessions.sort((a, b) => b.created_at - a.created_at);
 
       return allSessions;
@@ -248,7 +244,7 @@ export const api = {
   /**
    * Reads the Claude settings file
    * @returns Promise resolving to the settings object
-  */
+   */
   async getClaudeSettings(): Promise<ClaudeSettings> {
     try {
       // Due to #[serde(flatten)] in Rust, the result is directly the settings object
@@ -466,7 +462,6 @@ export const api = {
     }
   },
 
-
   /**
    * Loads the JSONL history for a specific session (Claude or Codex)
    */
@@ -482,8 +477,22 @@ export const api = {
    * @param planMode - Enable Plan Mode for read-only research and planning
    * @param tabId - Unique identifier for the tab, used to filter global events
    */
-  async executeClaudeCode(projectPath: string, prompt: string, model: string, planMode?: boolean, maxThinkingTokens?: number, tabId?: string): Promise<void> {
-    return invoke("execute_claude_code", { projectPath, prompt, model, planMode, maxThinkingTokens, tabId });
+  async executeClaudeCode(
+    projectPath: string,
+    prompt: string,
+    model: string,
+    planMode?: boolean,
+    maxThinkingTokens?: number,
+    tabId?: string,
+  ): Promise<void> {
+    return invoke("execute_claude_code", {
+      projectPath,
+      prompt,
+      model,
+      planMode,
+      maxThinkingTokens,
+      tabId,
+    });
   },
 
   /**
@@ -491,8 +500,22 @@ export const api = {
    * @param planMode - Enable Plan Mode for read-only research and planning
    * @param tabId - Unique identifier for the tab, used to filter global events
    */
-  async continueClaudeCode(projectPath: string, prompt: string, model: string, planMode?: boolean, maxThinkingTokens?: number, tabId?: string): Promise<void> {
-    return invoke("continue_claude_code", { projectPath, prompt, model, planMode, maxThinkingTokens, tabId });
+  async continueClaudeCode(
+    projectPath: string,
+    prompt: string,
+    model: string,
+    planMode?: boolean,
+    maxThinkingTokens?: number,
+    tabId?: string,
+  ): Promise<void> {
+    return invoke("continue_claude_code", {
+      projectPath,
+      prompt,
+      model,
+      planMode,
+      maxThinkingTokens,
+      tabId,
+    });
   },
 
   /**
@@ -500,8 +523,24 @@ export const api = {
    * @param planMode - Enable Plan Mode for read-only research and planning
    * @param tabId - Unique identifier for the tab, used to filter global events
    */
-  async resumeClaudeCode(projectPath: string, sessionId: string, prompt: string, model: string, planMode?: boolean, maxThinkingTokens?: number, tabId?: string): Promise<void> {
-    return invoke("resume_claude_code", { projectPath, sessionId, prompt, model, planMode, maxThinkingTokens, tabId });
+  async resumeClaudeCode(
+    projectPath: string,
+    sessionId: string,
+    prompt: string,
+    model: string,
+    planMode?: boolean,
+    maxThinkingTokens?: number,
+    tabId?: string,
+  ): Promise<void> {
+    return invoke("resume_claude_code", {
+      projectPath,
+      sessionId,
+      prompt,
+      model,
+      planMode,
+      maxThinkingTokens,
+      tabId,
+    });
   },
 
   /**
@@ -685,7 +724,6 @@ export const api = {
     }
   },
 
-
   // ============================================================================
   // STORAGE API (delegated to StorageModule)
   // ============================================================================
@@ -717,7 +755,10 @@ export const api = {
    * @param projectPath - Project path (required for project and local scopes)
    * @returns Promise resolving to the hooks configuration
    */
-  async getHooksConfig(scope: 'user' | 'project' | 'local', projectPath?: string): Promise<HooksConfiguration> {
+  async getHooksConfig(
+    scope: "user" | "project" | "local",
+    projectPath?: string,
+  ): Promise<HooksConfiguration> {
     try {
       return await invoke<HooksConfiguration>("get_hooks_config", { scope, projectPath });
     } catch (error) {
@@ -734,9 +775,9 @@ export const api = {
    * @returns Promise resolving to success message
    */
   async updateHooksConfig(
-    scope: 'user' | 'project' | 'local',
+    scope: "user" | "project" | "local",
     hooks: HooksConfiguration,
-    projectPath?: string
+    projectPath?: string,
   ): Promise<string> {
     try {
       return await invoke<string>("update_hooks_config", { scope, projectPath, hooks });
@@ -753,7 +794,9 @@ export const api = {
    */
   async validateHookCommand(command: string): Promise<{ valid: boolean; message: string }> {
     try {
-      return await invoke<{ valid: boolean; message: string }>("validate_hook_command", { command });
+      return await invoke<{ valid: boolean; message: string }>("validate_hook_command", {
+        command,
+      });
     } catch (error) {
       console.error("Failed to validate hook command:", error);
       throw error;
@@ -768,9 +811,9 @@ export const api = {
   async getMergedHooksConfig(projectPath: string): Promise<HooksConfiguration> {
     try {
       const [userHooks, projectHooks, localHooks] = await Promise.all([
-        this.getHooksConfig('user'),
-        this.getHooksConfig('project', projectPath),
-        this.getHooksConfig('local', projectPath)
+        this.getHooksConfig("user"),
+        this.getHooksConfig("project", projectPath),
+        this.getHooksConfig("local", projectPath),
       ]);
 
       return HooksManager.mergeConfigs(userHooks, projectHooks, localHooks);
@@ -788,14 +831,16 @@ export const api = {
    * List all hook files in the hooks directory
    * @returns Promise resolving to array of hook file information
    */
-  async listHookFiles(): Promise<{
-    name: string;
-    path: string;
-    extension: string;
-    description?: string;
-    isEnabled: boolean;
-    eventType?: string;
-  }[]> {
+  async listHookFiles(): Promise<
+    {
+      name: string;
+      path: string;
+      extension: string;
+      description?: string;
+      isEnabled: boolean;
+      eventType?: string;
+    }[]
+  > {
     try {
       return await invoke("list_hook_files");
     } catch (error) {
@@ -953,8 +998,6 @@ export const api = {
     }
   },
 
-
-
   // Clipboard API methods
 
   /**
@@ -1004,7 +1047,6 @@ export const api = {
   /** Queries API Key usage/balance from the provider */
   queryProviderUsage: ProvidersModule.queryProviderUsage,
 
-
   // ============================================================================
   // ACEMCP INTEGRATION
   // ============================================================================
@@ -1027,7 +1069,7 @@ export const api = {
     sessionId?: string,
     projectId?: string,
     maxContextLength?: number,
-    enableMultiRound?: boolean
+    enableMultiRound?: boolean,
   ): Promise<{
     originalPrompt: string;
     enhancedPrompt: string;
@@ -1070,7 +1112,7 @@ export const api = {
     baseUrl: string,
     token: string,
     batchSize?: number,
-    maxLinesPerBlob?: number
+    maxLinesPerBlob?: number,
   ): Promise<void> {
     try {
       return await invoke("save_acemcp_config", {
@@ -1100,8 +1142,8 @@ export const api = {
       console.error("Failed to load acemcp config:", error);
       // 返回默认配置
       return {
-        baseUrl: '',
-        token: '',
+        baseUrl: "",
+        token: "",
         batchSize: 10,
         maxLinesPerBlob: 800,
       };
@@ -1198,7 +1240,11 @@ export const api = {
    * @param model - The model being used
    * @returns Promise resolving when session is registered
    */
-  async registerAutoCompactSession(sessionId: string, projectPath: string, model: string): Promise<void> {
+  async registerAutoCompactSession(
+    sessionId: string,
+    projectPath: string,
+    model: string,
+  ): Promise<void> {
     try {
       return await invoke<void>("register_auto_compact_session", { sessionId, projectPath, model });
     } catch (error) {
@@ -1352,19 +1398,12 @@ export const api = {
     try {
       return await invoke("get_active_sessions");
     } catch (error) {
-      console.error('Failed to get active sessions:', error);
+      console.error("Failed to get active sessions:", error);
       throw error;
     }
   },
 
   // Subagent Management & Specialization API methods
-
-
-
-
-
-
-
 
   // Enhanced Hooks Automation API methods
 
@@ -1406,13 +1445,16 @@ export const api = {
    */
   async executePreCommitReview(
     projectPath: string,
-    config?: import('@/types/enhanced-hooks').PreCommitCodeReviewConfig
-  ): Promise<import('@/types/enhanced-hooks').CommitDecision> {
+    config?: import("@/types/enhanced-hooks").PreCommitCodeReviewConfig,
+  ): Promise<import("@/types/enhanced-hooks").CommitDecision> {
     try {
-      return await invoke<import('@/types/enhanced-hooks').CommitDecision>("execute_pre_commit_review", {
-        projectPath,
-        config
-      });
+      return await invoke<import("@/types/enhanced-hooks").CommitDecision>(
+        "execute_pre_commit_review",
+        {
+          projectPath,
+          config,
+        },
+      );
     } catch (error) {
       console.error("Failed to execute pre-commit review:", error);
       throw error;
@@ -1429,14 +1471,14 @@ export const api = {
     sessionId: string,
     projectId: string,
     projectPath: string,
-    messages: string[]
+    messages: string[],
   ): Promise<void> {
     try {
       return await invoke<void>("track_session_messages", {
         sessionId,
         projectId,
         projectPath,
-        messages
+        messages,
       });
     } catch (error) {
       console.error("Failed to track session messages:", error);
@@ -1459,14 +1501,14 @@ export const api = {
     sessionId: string,
     projectId: string,
     projectPath: string,
-    promptText: string
+    promptText: string,
   ): Promise<number> {
     try {
       return await invoke<number>("record_prompt_sent", {
         sessionId,
         projectId,
         projectPath,
-        promptText
+        promptText,
       });
     } catch (error) {
       console.error("Failed to record prompt:", error);
@@ -1482,20 +1524,20 @@ export const api = {
     projectId: string,
     projectPath: string,
     promptIndex: number,
-    promptText?: string
+    promptText?: string,
   ): Promise<void> {
     try {
       const payload: Record<string, unknown> = {
         sessionId,
         projectId,
         projectPath,
-        promptIndex
+        promptIndex,
       };
       if (promptText !== undefined) {
         payload.promptText = promptText;
       }
       return await invoke<void>("mark_prompt_completed", {
-        ...payload
+        ...payload,
       });
     } catch (error) {
       console.error("Failed to mark prompt completed:", error);
@@ -1511,7 +1553,7 @@ export const api = {
     projectId: string,
     projectPath: string,
     promptIndex: number,
-    mode: RewindMode = "both"
+    mode: RewindMode = "both",
   ): Promise<string> {
     try {
       return await invoke<string>("revert_to_prompt", {
@@ -1519,7 +1561,7 @@ export const api = {
         projectId,
         projectPath,
         promptIndex,
-        mode
+        mode,
       });
     } catch (error) {
       console.error("Failed to revert to prompt:", error);
@@ -1531,14 +1573,11 @@ export const api = {
    * Get list of all prompts for a session
    * Extracts all prompts from .jsonl (single source of truth)
    */
-  async getPromptList(
-    sessionId: string,
-    projectId: string
-  ): Promise<PromptRecord[]> {
+  async getPromptList(sessionId: string, projectId: string): Promise<PromptRecord[]> {
     try {
       return await invoke<PromptRecord[]>("get_prompt_list", {
         sessionId,
-        projectId
+        projectId,
       });
     } catch (error) {
       console.error("Failed to get prompt list:", error);
@@ -1551,14 +1590,11 @@ export const api = {
    * Combines .jsonl prompts (all messages) with git records (hash-based mapping)
    * This includes both project interface prompts (with git records) and CLI prompts (without git records)
    */
-  async getUnifiedPromptList(
-    sessionId: string,
-    projectId: string
-  ): Promise<PromptRecord[]> {
+  async getUnifiedPromptList(sessionId: string, projectId: string): Promise<PromptRecord[]> {
     try {
       return await invoke<PromptRecord[]>("get_unified_prompt_list", {
         sessionId,
-        projectId
+        projectId,
       });
     } catch (error) {
       console.error("Failed to get unified prompt list:", error);
@@ -1573,13 +1609,13 @@ export const api = {
   async checkRewindCapabilities(
     sessionId: string,
     projectId: string,
-    promptIndex: number
+    promptIndex: number,
   ): Promise<RewindCapabilities> {
     try {
       return await invoke<RewindCapabilities>("check_rewind_capabilities", {
         sessionId,
         projectId,
-        promptIndex
+        promptIndex,
       });
     } catch (error) {
       console.error("Failed to check rewind capabilities:", error);
@@ -1697,8 +1733,8 @@ export const api = {
     name: string,
     description: string,
     content: string,
-    scope: 'project' | 'user',
-    projectPath?: string
+    scope: "project" | "user",
+    projectPath?: string,
   ): Promise<{ name: string; path: string; scope: string; description: string; content: string }> {
     try {
       return await invoke("create_subagent", { name, description, content, scope, projectPath });
@@ -1720,8 +1756,8 @@ export const api = {
     name: string,
     description: string,
     content: string,
-    scope: 'project' | 'user',
-    projectPath?: string
+    scope: "project" | "user",
+    projectPath?: string,
   ): Promise<{ name: string; path: string; scope: string; description: string; content: string }> {
     try {
       return await invoke("create_skill", { name, description, content, scope, projectPath });
@@ -1740,9 +1776,9 @@ export const api = {
    */
   async toggleSkill(
     skillName: string,
-    scope: 'project' | 'user',
+    scope: "project" | "user",
     enabled: boolean,
-    projectPath?: string
+    projectPath?: string,
   ): Promise<boolean> {
     try {
       return await invoke("toggle_skill", { skillName, scope, enabled, projectPath });
@@ -1802,7 +1838,7 @@ export const api = {
    * @param options - Codex execution options
    * @returns Promise resolving when execution starts (events are streamed via event listeners)
    */
-  async executeCodex(options: import('@/types/codex').CodexExecutionOptions): Promise<void> {
+  async executeCodex(options: import("@/types/codex").CodexExecutionOptions): Promise<void> {
     try {
       return await invoke("execute_codex", { options });
     } catch (error) {
@@ -1819,7 +1855,7 @@ export const api = {
    */
   async resumeCodex(
     sessionId: string,
-    options: Omit<import('@/types/codex').CodexExecutionOptions, 'sessionId'>
+    options: Omit<import("@/types/codex").CodexExecutionOptions, "sessionId">,
   ): Promise<void> {
     try {
       return await invoke("resume_codex", { sessionId, options });
@@ -1835,7 +1871,7 @@ export const api = {
    * @returns Promise resolving when execution starts
    */
   async resumeLastCodex(
-    options: Omit<import('@/types/codex').CodexExecutionOptions, 'resumeLast'>
+    options: Omit<import("@/types/codex").CodexExecutionOptions, "resumeLast">,
   ): Promise<void> {
     try {
       return await invoke("resume_last_codex", { options });
@@ -1864,17 +1900,17 @@ export const api = {
    * @param forceRefresh - Force refresh the cache
    * @returns Promise resolving to array of Codex sessions
    */
-  async listCodexSessions(forceRefresh?: boolean): Promise<import('@/types/codex').CodexSession[]> {
+  async listCodexSessions(forceRefresh?: boolean): Promise<import("@/types/codex").CodexSession[]> {
     try {
       // Check cache first
       if (!forceRefresh && isCacheValid(SESSION_CACHE.codexSessions)) {
-        console.debug('[api] Using cached Codex sessions');
+        console.debug("[api] Using cached Codex sessions");
         return SESSION_CACHE.codexSessions.data;
       }
 
       // Load from backend
-      console.debug('[api] Loading Codex sessions from backend...');
-      const sessions = await invoke<import('@/types/codex').CodexSession[]>("list_codex_sessions");
+      console.debug("[api] Loading Codex sessions from backend...");
+      const sessions = await invoke<import("@/types/codex").CodexSession[]>("list_codex_sessions");
 
       // Update cache
       SESSION_CACHE.codexSessions = {
@@ -1895,7 +1931,7 @@ export const api = {
    */
   invalidateCodexSessionsCache() {
     SESSION_CACHE.codexSessions = undefined;
-    console.debug('[api] Codex sessions cache invalidated');
+    console.debug("[api] Codex sessions cache invalidated");
   },
 
   /**
@@ -1930,7 +1966,7 @@ export const api = {
       console.error("Failed to check Codex availability:", error);
       return {
         available: false,
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       };
     }
   },
@@ -1944,9 +1980,9 @@ export const api = {
    * @returns Promise resolving to mode configuration info
    */
   async getCodexModeConfig(): Promise<{
-    mode: 'auto' | 'native' | 'wsl';
+    mode: "auto" | "native" | "wsl";
     wslDistro: string | null;
-    actualMode: 'native' | 'wsl';
+    actualMode: "native" | "wsl";
     nativeAvailable: boolean;
     wslAvailable: boolean;
     availableDistros: string[];
@@ -1968,15 +2004,15 @@ export const api = {
    * @returns Promise resolving to success message
    */
   async setCodexModeConfig(
-    mode: 'auto' | 'native' | 'wsl',
+    mode: "auto" | "native" | "wsl",
     wslDistro?: string | null,
-    customCodexPath?: string | null
+    customCodexPath?: string | null,
   ): Promise<string> {
     try {
       return await invoke<string>("set_codex_mode_config", {
         mode,
         wslDistro: wslDistro || null,
-        customCodexPath: customCodexPath || null
+        customCodexPath: customCodexPath || null,
       });
     } catch (error) {
       console.error("Failed to set Codex mode config:", error);
@@ -1993,7 +2029,7 @@ export const api = {
    * @returns Promise resolving to Gemini WSL mode configuration info
    */
   async getGeminiWslModeConfig(): Promise<{
-    mode: 'auto' | 'native' | 'wsl';
+    mode: "auto" | "native" | "wsl";
     wslDistro: string | null;
     wslAvailable: boolean;
     availableDistros: string[];
@@ -2018,13 +2054,13 @@ export const api = {
    * @returns Promise resolving when config is saved
    */
   async setGeminiWslModeConfig(
-    mode: 'auto' | 'native' | 'wsl',
-    wslDistro?: string | null
+    mode: "auto" | "native" | "wsl",
+    wslDistro?: string | null,
   ): Promise<void> {
     try {
       await invoke("set_gemini_wsl_mode_config", {
         mode,
-        wslDistro: wslDistro || null
+        wslDistro: wslDistro || null,
       });
     } catch (error) {
       console.error("Failed to set Gemini WSL mode config:", error);
@@ -2041,7 +2077,7 @@ export const api = {
    * @returns Promise resolving to Claude WSL mode configuration info
    */
   async getClaudeWslModeConfig(): Promise<{
-    mode: 'auto' | 'native' | 'wsl';
+    mode: "auto" | "native" | "wsl";
     wslDistro: string | null;
     wslAvailable: boolean;
     availableDistros: string[];
@@ -2049,7 +2085,7 @@ export const api = {
     wslClaudePath: string | null;
     wslClaudeVersion: string | null;
     nativeAvailable: boolean;
-    actualMode: 'native' | 'wsl';
+    actualMode: "native" | "wsl";
     isWindows: boolean;
   }> {
     try {
@@ -2067,13 +2103,13 @@ export const api = {
    * @returns Promise resolving to success message
    */
   async setClaudeWslModeConfig(
-    mode: 'auto' | 'native' | 'wsl',
-    wslDistro?: string | null
+    mode: "auto" | "native" | "wsl",
+    wslDistro?: string | null,
   ): Promise<string> {
     try {
       return await invoke("set_claude_wsl_mode_config", {
         mode,
-        wslDistro: wslDistro || null
+        wslDistro: wslDistro || null,
       });
     } catch (error) {
       console.error("Failed to set Claude WSL mode config:", error);
@@ -2154,13 +2190,13 @@ export const api = {
   async recordCodexPromptSent(
     sessionId: string,
     projectPath: string,
-    promptText: string
+    promptText: string,
   ): Promise<number> {
     try {
       return await invoke<number>("record_codex_prompt_sent", {
         sessionId,
         projectPath,
-        promptText
+        promptText,
       });
     } catch (error) {
       console.error("Failed to record Codex prompt sent:", error);
@@ -2178,19 +2214,19 @@ export const api = {
     sessionId: string,
     projectPath: string,
     promptIndex: number,
-    promptText?: string
+    promptText?: string,
   ): Promise<void> {
     try {
       const payload: Record<string, unknown> = {
         sessionId,
         projectPath,
-        promptIndex
+        promptIndex,
       };
       if (promptText !== undefined) {
         payload.promptText = promptText;
       }
       await invoke("record_codex_prompt_completed", {
-        ...payload
+        ...payload,
       });
     } catch (error) {
       console.error("Failed to record Codex prompt completed:", error);
@@ -2217,7 +2253,7 @@ export const api = {
    */
   async checkCodexRewindCapabilities(
     sessionId: string,
-    promptIndex: number
+    promptIndex: number,
   ): Promise<RewindCapabilities> {
     try {
       return await invoke<RewindCapabilities>("check_codex_rewind_capabilities", {
@@ -2249,14 +2285,14 @@ export const api = {
     sessionId: string,
     projectPath: string,
     promptIndex: number,
-    mode: RewindMode = "both"
+    mode: RewindMode = "both",
   ): Promise<string> {
     try {
       return await invoke<string>("revert_codex_to_prompt", {
         sessionId,
         projectPath,
         promptIndex,
-        mode
+        mode,
       });
     } catch (error) {
       console.error("Failed to revert Codex to prompt:", error);
@@ -2278,13 +2314,13 @@ export const api = {
   async recordGeminiPromptSent(
     sessionId: string,
     projectPath: string,
-    promptText: string
+    promptText: string,
   ): Promise<number> {
     try {
       return await invoke<number>("record_gemini_prompt_sent", {
         sessionId,
         projectPath,
-        promptText
+        promptText,
       });
     } catch (error) {
       console.error("Failed to record Gemini prompt sent:", error);
@@ -2302,19 +2338,19 @@ export const api = {
     sessionId: string,
     projectPath: string,
     promptIndex: number,
-    promptText?: string
+    promptText?: string,
   ): Promise<void> {
     try {
       const payload: Record<string, unknown> = {
         sessionId,
         projectPath,
-        promptIndex
+        promptIndex,
       };
       if (promptText !== undefined) {
         payload.promptText = promptText;
       }
       await invoke("record_gemini_prompt_completed", {
-        ...payload
+        ...payload,
       });
     } catch (error) {
       console.error("Failed to record Gemini prompt completed:", error);
@@ -2343,7 +2379,7 @@ export const api = {
   async checkGeminiRewindCapabilities(
     sessionId: string,
     projectPath: string,
-    promptIndex: number
+    promptIndex: number,
   ): Promise<RewindCapabilities> {
     try {
       return await invoke<RewindCapabilities>("check_gemini_rewind_capabilities", {
@@ -2376,14 +2412,14 @@ export const api = {
     sessionId: string,
     projectPath: string,
     promptIndex: number,
-    mode: RewindMode = "both"
+    mode: RewindMode = "both",
   ): Promise<string> {
     try {
       return await invoke<string>("revert_gemini_to_prompt", {
         sessionId,
         projectPath,
         promptIndex,
-        mode
+        mode,
       });
     } catch (error) {
       console.error("Failed to revert Gemini to prompt:", error);
@@ -2441,16 +2477,16 @@ export const api = {
    * @param config - The Codex provider configuration to add
    * @returns Promise resolving to success message
    */
-  async addCodexProviderConfig(config: Omit<CodexProviderConfig, 'id'>): Promise<string> {
+  async addCodexProviderConfig(config: Omit<CodexProviderConfig, "id">): Promise<string> {
     // Generate base ID from name
-    let baseId = config.name
+    const baseId = config.name
       .toLowerCase()
-      .replace(/[^a-z0-9]/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
+      .replace(/[^a-z0-9]/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "");
 
     // Check if ID conflicts with built-in presets
-    const builtInIds = codexProviderPresets.map(p => p.id);
+    const builtInIds = codexProviderPresets.map((p) => p.id);
 
     // Get existing custom configurations to check for conflicts
     let existingConfigs: CodexProviderConfig[] = [];
@@ -2459,7 +2495,7 @@ export const api = {
     } catch (error) {
       console.warn("Failed to load existing Codex configs:", error);
     }
-    const existingIds = existingConfigs.map(c => c.id);
+    const existingIds = existingConfigs.map((c) => c.id);
 
     // Generate unique ID by adding suffix if needed
     let id = baseId;
@@ -2545,7 +2581,7 @@ export const api = {
    * @param level - The reasoning level: 'low', 'medium', 'high', or 'xhigh'
    * @returns Promise resolving to success message
    */
-  async updateCodexReasoningLevel(level: 'low' | 'medium' | 'high' | 'xhigh'): Promise<string> {
+  async updateCodexReasoningLevel(level: "low" | "medium" | "high" | "xhigh"): Promise<string> {
     try {
       return await invoke<string>("update_codex_reasoning_level", { level });
     } catch (error) {
@@ -2604,13 +2640,13 @@ export const api = {
    * @param config - The Gemini provider configuration to add
    * @returns Promise resolving to success message
    */
-  async addGeminiProviderConfig(config: Omit<GeminiProviderConfig, 'id'>): Promise<string> {
+  async addGeminiProviderConfig(config: Omit<GeminiProviderConfig, "id">): Promise<string> {
     // Generate ID from name
     const id = config.name
       .toLowerCase()
-      .replace(/[^a-z0-9]/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
+      .replace(/[^a-z0-9]/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "");
 
     const fullConfig: GeminiProviderConfig = {
       ...config,
@@ -2697,9 +2733,9 @@ export const api = {
    */
   async convertSession(
     sessionId: string,
-    targetEngine: 'claude' | 'codex',
+    targetEngine: "claude" | "codex",
     projectId: string,
-    projectPath: string
+    projectPath: string,
   ): Promise<ConversionResult> {
     try {
       return await invoke<ConversionResult>("convert_session", {
@@ -2724,7 +2760,7 @@ export const api = {
   async convertClaudeToCodex(
     sessionId: string,
     projectId: string,
-    projectPath: string
+    projectPath: string,
   ): Promise<ConversionResult> {
     try {
       return await invoke<ConversionResult>("convert_claude_to_codex", {
@@ -2748,7 +2784,7 @@ export const api = {
   async convertCodexToClaude(
     sessionId: string,
     projectId: string,
-    projectPath: string
+    projectPath: string,
   ): Promise<ConversionResult> {
     try {
       return await invoke<ConversionResult>("convert_codex_to_claude", {
@@ -2769,7 +2805,7 @@ export const api = {
    * @param options - Gemini execution options
    * @returns Promise resolving when execution starts (events are streamed via event listeners)
    */
-  async executeGemini(options: import('@/types/gemini').GeminiExecutionOptions): Promise<void> {
+  async executeGemini(options: import("@/types/gemini").GeminiExecutionOptions): Promise<void> {
     try {
       return await invoke("execute_gemini", { options });
     } catch (error) {
@@ -2795,7 +2831,7 @@ export const api = {
    * Checks if Gemini CLI is installed
    * @returns Promise resolving to installation status
    */
-  async checkGeminiInstalled(): Promise<import('@/types/gemini').GeminiInstallStatus> {
+  async checkGeminiInstalled(): Promise<import("@/types/gemini").GeminiInstallStatus> {
     try {
       return await invoke("check_gemini_installed");
     } catch (error) {
@@ -2811,7 +2847,7 @@ export const api = {
    * Gets Gemini CLI configuration
    * @returns Promise resolving to Gemini configuration
    */
-  async getGeminiConfig(): Promise<import('@/types/gemini').GeminiConfig> {
+  async getGeminiConfig(): Promise<import("@/types/gemini").GeminiConfig> {
     try {
       return await invoke("get_gemini_config");
     } catch (error) {
@@ -2824,7 +2860,7 @@ export const api = {
    * Updates Gemini CLI configuration
    * @param config - New configuration to apply
    */
-  async updateGeminiConfig(config: import('@/types/gemini').GeminiConfig): Promise<void> {
+  async updateGeminiConfig(config: import("@/types/gemini").GeminiConfig): Promise<void> {
     try {
       await invoke("update_gemini_config", { config });
     } catch (error) {
@@ -2837,7 +2873,7 @@ export const api = {
    * Gets available Gemini models
    * @returns Promise resolving to array of model information
    */
-  async getGeminiModels(): Promise<import('@/types/gemini').GeminiModelInfo[]> {
+  async getGeminiModels(): Promise<import("@/types/gemini").GeminiModelInfo[]> {
     try {
       return await invoke("get_gemini_models");
     } catch (error) {
@@ -2855,7 +2891,9 @@ export const api = {
    * @param projectPath - Project path to get session logs for
    * @returns Promise resolving to array of session logs
    */
-  async getGeminiSessionLogs(projectPath: string): Promise<import('@/types/gemini').GeminiSessionLog[]> {
+  async getGeminiSessionLogs(
+    projectPath: string,
+  ): Promise<import("@/types/gemini").GeminiSessionLog[]> {
     try {
       return await invoke("get_gemini_session_logs", { projectPath });
     } catch (error) {
@@ -2869,7 +2907,9 @@ export const api = {
    * @param projectPath - Project path to list sessions for
    * @returns Promise resolving to array of session info
    */
-  async listGeminiSessions(projectPath: string): Promise<import('@/types/gemini').GeminiSessionInfo[]> {
+  async listGeminiSessions(
+    projectPath: string,
+  ): Promise<import("@/types/gemini").GeminiSessionInfo[]> {
     try {
       return await invoke("list_gemini_sessions", { projectPath });
     } catch (error) {
@@ -2886,8 +2926,8 @@ export const api = {
    */
   async getGeminiSessionDetail(
     projectPath: string,
-    sessionId: string
-  ): Promise<import('@/types/gemini').GeminiSessionDetail> {
+    sessionId: string,
+  ): Promise<import("@/types/gemini").GeminiSessionDetail> {
     try {
       return await invoke("get_gemini_session_detail", { projectPath, sessionId });
     } catch (error) {
@@ -2999,9 +3039,9 @@ export const api = {
   async createCheckpoint(
     sessionId: string,
     projectPath: string,
-    checkpointType: CheckpointType = 'auto',
+    checkpointType: CheckpointType = "auto",
     name?: string,
-    description?: string
+    description?: string,
   ): Promise<Checkpoint> {
     try {
       return await invoke<Checkpoint>("create_checkpoint", {
@@ -3041,7 +3081,7 @@ export const api = {
   async restoreCheckpoint(
     sessionId: string,
     checkpointId: string,
-    projectPath: string
+    projectPath: string,
   ): Promise<string[]> {
     try {
       return await invoke<string[]>("restore_checkpoint", {
@@ -3122,7 +3162,7 @@ export const api = {
     description?: string,
     priority?: string,
     sessionId?: string,
-    tags?: string[]
+    tags?: string[],
   ): Promise<any> {
     try {
       return await invoke("create_background_task", {
@@ -3333,7 +3373,7 @@ export const api = {
     prompt: string,
     agentType?: any,
     dependencies?: string[],
-    priority?: number
+    priority?: number,
   ): Promise<any> {
     try {
       return await invoke("add_parallel_task", {
@@ -3358,7 +3398,7 @@ export const api = {
     groupId: string,
     name: string,
     agentType?: any,
-    capabilities?: string[]
+    capabilities?: string[],
   ): Promise<any> {
     try {
       return await invoke("add_parallel_agent", { groupId, name, agentType, capabilities });
@@ -3460,7 +3500,7 @@ export const api = {
     fromAgent: string,
     toAgent: string | null,
     messageType: any,
-    payload: any
+    payload: any,
   ): Promise<void> {
     try {
       await invoke("send_agent_message", { groupId, fromAgent, toAgent, messageType, payload });
@@ -3531,5 +3571,4 @@ export const api = {
       return false;
     }
   },
-
 };

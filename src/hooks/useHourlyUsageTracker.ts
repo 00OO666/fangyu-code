@@ -17,10 +17,10 @@
  * }
  */
 
-import { useEffect, useRef } from 'react';
-import type { SessionCostStats } from '@/hooks/useSessionCostCalculation';
+import { useEffect, useRef } from "react";
+import type { SessionCostStats } from "@/hooks/useSessionCostCalculation";
 
-const STORAGE_KEY = 'hourly_usage_tracking';
+const STORAGE_KEY = "hourly_usage_tracking";
 
 export interface HourlyUsageData {
   cost: number;
@@ -41,7 +41,7 @@ export interface HourlyUsageStorage {
  */
 function getCurrentDateHour(): { date: string; hour: number } {
   const now = new Date();
-  const date = now.toISOString().split('T')[0]; // YYYY-MM-DD
+  const date = now.toISOString().split("T")[0]; // YYYY-MM-DD
   const hour = now.getHours(); // 0-23
   return { date, hour };
 }
@@ -54,7 +54,7 @@ function loadHourlyData(): HourlyUsageStorage {
     const stored = localStorage.getItem(STORAGE_KEY);
     return stored ? JSON.parse(stored) : {};
   } catch (error) {
-    console.error('[useHourlyUsageTracker] Failed to load data:', error);
+    console.error("[useHourlyUsageTracker] Failed to load data:", error);
     return {};
   }
 }
@@ -66,7 +66,7 @@ function saveHourlyData(data: HourlyUsageStorage): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   } catch (error) {
-    console.error('[useHourlyUsageTracker] Failed to save data:', error);
+    console.error("[useHourlyUsageTracker] Failed to save data:", error);
   }
 }
 
@@ -126,7 +126,7 @@ function recordUsageDelta(costDelta: number, tokensDelta: number): void {
   // 保存
   saveHourlyData(storage);
 
-  console.log('[useHourlyUsageTracker] 📊 记录增量:', {
+  console.log("[useHourlyUsageTracker] 📊 记录增量:", {
     date,
     hour,
     costDelta,
@@ -159,7 +159,7 @@ export function useHourlyUsageTracker(sessionStats: SessionCostStats | null) {
       prevCostRef.current = currentCost;
       prevTokensRef.current = currentTokens;
       isInitializedRef.current = true;
-      console.log('[useHourlyUsageTracker] 📊 初始化:', {
+      console.log("[useHourlyUsageTracker] 📊 初始化:", {
         cost: currentCost,
         tokens: currentTokens,
       });
@@ -177,7 +177,7 @@ export function useHourlyUsageTracker(sessionStats: SessionCostStats | null) {
     if ((costDelta > 0 || tokensDelta > 0) && isReasonableDelta) {
       recordUsageDelta(costDelta, tokensDelta);
     } else if (!isReasonableDelta && (costDelta > 0 || tokensDelta > 0)) {
-      console.warn('[useHourlyUsageTracker] ⚠️ 异常大的增量，跳过记录:', {
+      console.warn("[useHourlyUsageTracker] ⚠️ 异常大的增量，跳过记录:", {
         costDelta,
         tokensDelta,
       });
@@ -223,14 +223,14 @@ export function getHourlyDataForRange(startDate: string, endDate: string): Hourl
 export function clearAllHourlyData(): void {
   try {
     localStorage.removeItem(STORAGE_KEY);
-    console.log('[useHourlyUsageTracker] ✅ 所有数据已清除');
+    console.log("[useHourlyUsageTracker] ✅ 所有数据已清除");
   } catch (error) {
-    console.error('[useHourlyUsageTracker] Failed to clear data:', error);
+    console.error("[useHourlyUsageTracker] Failed to clear data:", error);
   }
 }
 
 // 🔧 DEBUG: 注册全局函数
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   (window as any).__clearHourlyData = clearAllHourlyData;
   (window as any).__getHourlyData = loadHourlyData;
 }

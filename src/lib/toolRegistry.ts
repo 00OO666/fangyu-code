@@ -5,7 +5,7 @@
  * 支持 MCP 工具的正则匹配和优先级解决
  */
 
-import { FC } from 'react';
+import type { FC } from "react";
 
 /**
  * 工具渲染 Props 统一接口
@@ -79,7 +79,7 @@ class ToolRegistryClass {
    * 批量注册工具
    */
   registerBatch(renderers: ToolRenderer[]): void {
-    renderers.forEach(renderer => this.register(renderer));
+    renderers.forEach((renderer) => this.register(renderer));
   }
 
   /**
@@ -93,7 +93,7 @@ class ToolRegistryClass {
 
     // 从模式列表中移除
     if (renderer?.pattern) {
-      this.patternRenderers = this.patternRenderers.filter(r => r.name !== name);
+      this.patternRenderers = this.patternRenderers.filter((r) => r.name !== name);
     }
   }
 
@@ -104,7 +104,7 @@ class ToolRegistryClass {
    */
   getRenderer(toolName: string | undefined): ToolRenderer | null {
     if (!toolName) {
-      console.warn('[ToolRegistry] Tool name is undefined');
+      console.warn("[ToolRegistry] Tool name is undefined");
       return null;
     }
     const normalizedName = toolName.toLowerCase();

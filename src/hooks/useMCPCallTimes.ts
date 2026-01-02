@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from "react";
 
 /**
  * MCP 调用时间记录
@@ -9,7 +9,7 @@ interface MCPCallTimeRecord {
   };
 }
 
-const STORAGE_KEY = 'mcp_call_times';
+const STORAGE_KEY = "mcp_call_times";
 
 /**
  * 获取所有 MCP 调用时间记录
@@ -19,7 +19,7 @@ function getAllCallTimes(): MCPCallTimeRecord {
     const stored = localStorage.getItem(STORAGE_KEY);
     return stored ? JSON.parse(stored) : {};
   } catch (error) {
-    console.error('Failed to load MCP call times:', error);
+    console.error("Failed to load MCP call times:", error);
     return {};
   }
 }
@@ -31,14 +31,14 @@ function saveAllCallTimes(times: MCPCallTimeRecord): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(times));
   } catch (error) {
-    console.error('Failed to save MCP call times:', error);
+    console.error("Failed to save MCP call times:", error);
   }
 }
 
 /**
  * Hook for managing MCP call times
  */
-export function useMCPCallTimes(engine: 'claude' | 'codex' | 'gemini') {
+export function useMCPCallTimes(engine: "claude" | "codex" | "gemini") {
   const [callTimes, setCallTimes] = useState<Record<string, number>>({});
 
   // 加载该引擎的调用时间
@@ -74,7 +74,7 @@ export function useMCPCallTimes(engine: 'claude' | 'codex' | 'gemini') {
    * 格式化调用时间为相对时间字符串
    */
   const formatCallTime = (timestamp: number | undefined): string => {
-    if (!timestamp) return '从未调用';
+    if (!timestamp) return "从未调用";
 
     const now = Date.now();
     const diff = now - timestamp;
@@ -87,23 +87,23 @@ export function useMCPCallTimes(engine: 'claude' | 'codex' | 'gemini') {
     if (hours > 0) return `${hours}小时前`;
     if (minutes > 0) return `${minutes}分钟前`;
     if (seconds > 0) return `${seconds}秒前`;
-    return '刚刚';
+    return "刚刚";
   };
 
   /**
    * 格式化调用时间为完整日期时间
    */
   const formatCallTimeFull = (timestamp: number | undefined): string => {
-    if (!timestamp) return '';
+    if (!timestamp) return "";
 
     const date = new Date(timestamp);
-    return date.toLocaleString('zh-CN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
+    return date.toLocaleString("zh-CN", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
       hour12: false,
     });
   };

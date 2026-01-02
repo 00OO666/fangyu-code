@@ -4,12 +4,12 @@
  * 统一的消息转换器接口，支持多引擎（Claude、Codex、Gemini）
  */
 
-import type { ClaudeStreamMessage } from '@/types/claude';
+import type { ClaudeStreamMessage } from "@/types/claude";
 
 /**
  * 引擎类型
  */
-export type EngineType = 'claude' | 'codex' | 'gemini' | 'siliconflow';
+export type EngineType = "claude" | "codex" | "gemini" | "siliconflow";
 
 /**
  * 消息转换器接口

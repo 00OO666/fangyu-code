@@ -10,13 +10,13 @@
  * 来源: Claude Code Subagent Execution + Cursor Agent Runtime
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from "react";
 
 // ============================================================
 // 类型定义
 // ============================================================
 
-export type ExecutionStatus = 'pending' | 'running' | 'completed' | 'failed' | 'cancelled';
+export type ExecutionStatus = "pending" | "running" | "completed" | "failed" | "cancelled";
 
 export interface SubagentExecution {
   id: string;
@@ -35,7 +35,7 @@ export interface SubagentExecution {
 
 export interface ExecutionEvent {
   executionId: string;
-  type: 'start' | 'progress' | 'complete' | 'error' | 'cancel';
+  type: "start" | "progress" | "complete" | "error" | "cancel";
   data?: any;
   timestamp: string;
 }
@@ -78,7 +78,7 @@ export function useSubagentExecution(options: UseSubagentExecutionOptions = {}) 
         id,
         subagentName,
         prompt,
-        status: 'pending',
+        status: "pending",
         progress: 0,
         startedAt: new Date().toISOString(),
         metadata,
@@ -89,7 +89,7 @@ export function useSubagentExecution(options: UseSubagentExecutionOptions = {}) 
       // 发送启动事件
       const event: ExecutionEvent = {
         executionId: id,
-        type: 'start',
+        type: "start",
         data: { subagentName, prompt },
         timestamp: new Date().toISOString(),
       };
@@ -99,15 +99,15 @@ export function useSubagentExecution(options: UseSubagentExecutionOptions = {}) 
       // 模拟开始执行
       setTimeout(() => {
         updateExecution(id, {
-          status: 'running',
+          status: "running",
           progress: 10,
-          currentStep: '初始化...',
+          currentStep: "初始化...",
         });
       }, 100);
 
       return id;
     },
-    []
+    [],
   );
 
   /**
@@ -127,7 +127,7 @@ export function useSubagentExecution(options: UseSubagentExecutionOptions = {}) 
         if (updates.progress !== undefined || updates.currentStep) {
           const event: ExecutionEvent = {
             executionId,
-            type: 'progress',
+            type: "progress",
             data: {
               progress: updates.progress,
               currentStep: updates.currentStep,
@@ -141,7 +141,7 @@ export function useSubagentExecution(options: UseSubagentExecutionOptions = {}) 
         return newMap;
       });
     },
-    []
+    [],
   );
 
   /**
@@ -158,7 +158,7 @@ export function useSubagentExecution(options: UseSubagentExecutionOptions = {}) 
 
         const updated: SubagentExecution = {
           ...execution,
-          status: 'completed',
+          status: "completed",
           progress: 100,
           result,
           completedAt,
@@ -171,7 +171,7 @@ export function useSubagentExecution(options: UseSubagentExecutionOptions = {}) 
         // 发送完成事件
         const event: ExecutionEvent = {
           executionId,
-          type: 'complete',
+          type: "complete",
           data: { result, duration },
           timestamp: completedAt,
         };
@@ -195,47 +195,44 @@ export function useSubagentExecution(options: UseSubagentExecutionOptions = {}) 
         return newMap;
       });
     },
-    [autoCleanup, cleanupDelay]
+    [autoCleanup, cleanupDelay],
   );
 
   /**
    * 执行失败
    */
-  const failExecution = useCallback(
-    (executionId: string, error: string) => {
-      setExecutions((prev) => {
-        const execution = prev.get(executionId);
-        if (!execution) return prev;
+  const failExecution = useCallback((executionId: string, error: string) => {
+    setExecutions((prev) => {
+      const execution = prev.get(executionId);
+      if (!execution) return prev;
 
-        const completedAt = new Date().toISOString();
-        const duration = Date.now() - new Date(execution.startedAt).getTime();
+      const completedAt = new Date().toISOString();
+      const duration = Date.now() - new Date(execution.startedAt).getTime();
 
-        const updated: SubagentExecution = {
-          ...execution,
-          status: 'failed',
-          error,
-          completedAt,
-          duration,
-        };
+      const updated: SubagentExecution = {
+        ...execution,
+        status: "failed",
+        error,
+        completedAt,
+        duration,
+      };
 
-        const newMap = new Map(prev);
-        newMap.set(executionId, updated);
+      const newMap = new Map(prev);
+      newMap.set(executionId, updated);
 
-        // 发送错误事件
-        const event: ExecutionEvent = {
-          executionId,
-          type: 'error',
-          data: { error, duration },
-          timestamp: completedAt,
-        };
-        setEvents((prev) => [...prev, event]);
-        emitEvent(executionId, event);
+      // 发送错误事件
+      const event: ExecutionEvent = {
+        executionId,
+        type: "error",
+        data: { error, duration },
+        timestamp: completedAt,
+      };
+      setEvents((prev) => [...prev, event]);
+      emitEvent(executionId, event);
 
-        return newMap;
-      });
-    },
-    []
-  );
+      return newMap;
+    });
+  }, []);
 
   /**
    * 取消执行
@@ -247,7 +244,7 @@ export function useSubagentExecution(options: UseSubagentExecutionOptions = {}) 
 
       const updated: SubagentExecution = {
         ...execution,
-        status: 'cancelled',
+        status: "cancelled",
         completedAt: new Date().toISOString(),
       };
 
@@ -257,7 +254,7 @@ export function useSubagentExecution(options: UseSubagentExecutionOptions = {}) 
       // 发送取消事件
       const event: ExecutionEvent = {
         executionId,
-        type: 'cancel',
+        type: "cancel",
         timestamp: new Date().toISOString(),
       };
       setEvents((prev) => [...prev, event]);
@@ -273,11 +270,11 @@ export function useSubagentExecution(options: UseSubagentExecutionOptions = {}) 
   const retryExecution = useCallback(
     (executionId: string): string | null => {
       const execution = executions.get(executionId);
-      if (!execution || execution.status !== 'failed') return null;
+      if (!execution || execution.status !== "failed") return null;
 
       return startExecution(execution.subagentName, execution.prompt, execution.metadata);
     },
-    [executions, startExecution]
+    [executions, startExecution],
   );
 
   /**
@@ -287,7 +284,7 @@ export function useSubagentExecution(options: UseSubagentExecutionOptions = {}) 
     (executionId: string): SubagentExecution | undefined => {
       return executions.get(executionId);
     },
-    [executions]
+    [executions],
   );
 
   /**
@@ -306,17 +303,17 @@ export function useSubagentExecution(options: UseSubagentExecutionOptions = {}) 
       }
 
       return result.sort(
-        (a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime()
+        (a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime(),
       );
     },
-    [executions]
+    [executions],
   );
 
   /**
    * 获取活跃执行
    */
   const getActiveExecutions = useCallback((): SubagentExecution[] => {
-    return getAllExecutions({ status: 'running' });
+    return getAllExecutions({ status: "running" });
   }, [getAllExecutions]);
 
   /**
@@ -334,7 +331,7 @@ export function useSubagentExecution(options: UseSubagentExecutionOptions = {}) 
         eventListenersRef.current.get(executionId)?.delete(listener);
       };
     },
-    []
+    [],
   );
 
   /**
@@ -347,7 +344,7 @@ export function useSubagentExecution(options: UseSubagentExecutionOptions = {}) 
     }
 
     // 全局监听器
-    const globalListeners = eventListenersRef.current.get('*');
+    const globalListeners = eventListenersRef.current.get("*");
     if (globalListeners) {
       globalListeners.forEach((listener) => listener(event));
     }
@@ -363,9 +360,9 @@ export function useSubagentExecution(options: UseSubagentExecutionOptions = {}) 
 
       for (const [id, execution] of newMap.entries()) {
         if (
-          execution.status === 'completed' ||
-          execution.status === 'failed' ||
-          execution.status === 'cancelled'
+          execution.status === "completed" ||
+          execution.status === "failed" ||
+          execution.status === "cancelled"
         ) {
           const completedTime = execution.completedAt
             ? new Date(execution.completedAt).getTime()
@@ -387,10 +384,10 @@ export function useSubagentExecution(options: UseSubagentExecutionOptions = {}) 
     const all = Array.from(executions.values());
     return {
       total: all.length,
-      running: all.filter((e) => e.status === 'running').length,
-      completed: all.filter((e) => e.status === 'completed').length,
-      failed: all.filter((e) => e.status === 'failed').length,
-      cancelled: all.filter((e) => e.status === 'cancelled').length,
+      running: all.filter((e) => e.status === "running").length,
+      completed: all.filter((e) => e.status === "completed").length,
+      failed: all.filter((e) => e.status === "failed").length,
+      cancelled: all.filter((e) => e.status === "cancelled").length,
     };
   }, [executions]);
 

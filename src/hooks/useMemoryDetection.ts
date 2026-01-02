@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from "react";
 
 /**
  * 记忆匹配结果
@@ -7,7 +7,7 @@ export interface MemoryMatch {
   file: string;
   title: string;
   matched_keywords: string[];
-  priority: 'high' | 'medium' | 'low';
+  priority: "high" | "medium" | "low";
   category: string;
   score: number;
 }
@@ -26,15 +26,8 @@ export interface UseMemoryDetectionOptions {
  *
  * 实时检测用户输入中的关键词，自动匹配相关记忆文件
  */
-export const useMemoryDetection = (
-  inputText: string,
-  options: UseMemoryDetectionOptions = {}
-) => {
-  const {
-    enabled = true,
-    debounceMs = 500,
-    minLength = 3,
-  } = options;
+export const useMemoryDetection = (inputText: string, options: UseMemoryDetectionOptions = {}) => {
+  const { enabled = true, debounceMs = 500, minLength = 3 } = options;
 
   const [matches, setMatches] = useState<MemoryMatch[]>([]);
   const [isDetecting, setIsDetecting] = useState(false);
@@ -63,24 +56,24 @@ export const useMemoryDetection = (
     timerRef.current = setTimeout(async () => {
       try {
         // 动态导入 Tauri API（仅在 Tauri 环境中可用）
-        const tauriModule = await import('@tauri-apps/api/core').catch(() => null);
+        const tauriModule = await import("@tauri-apps/api/core").catch(() => null);
         if (!tauriModule) {
-          console.warn('[useMemoryDetection] Tauri API not available');
+          console.warn("[useMemoryDetection] Tauri API not available");
           setIsDetecting(false);
           return;
         }
 
-        const result = await (tauriModule as any).invoke<MemoryMatch[]>('detect_memory_keywords', {
+        const result = await (tauriModule as any).invoke<MemoryMatch[]>("detect_memory_keywords", {
           text: inputText,
         });
 
         if (!controller.signal.aborted) {
           setMatches(result);
-          console.log('[useMemoryDetection] Detected matches:', result);
+          console.log("[useMemoryDetection] Detected matches:", result);
         }
       } catch (error) {
         if (!controller.signal.aborted) {
-          console.error('[useMemoryDetection] Error:', error);
+          console.error("[useMemoryDetection] Error:", error);
           setMatches([]);
         }
       } finally {

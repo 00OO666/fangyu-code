@@ -23,25 +23,27 @@
  * └─────────────────────────────────────────────────────────────────┘
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { listen, emit, type UnlistenFn } from '@tauri-apps/api/event';
+import { emit, listen, type UnlistenFn } from "@tauri-apps/api/event";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { notify } from "@/services/notificationService";
+import { NotificationTemplates } from "@/types/notification";
 
 // 压缩状态（内部状态，UI 可选择性显示微妙指示器）
 export type CompactStatus =
-  | 'idle'           // 空闲
-  | 'preparing'      // 准备中（收集上下文快照）
-  | 'compacting'     // 压缩中（后台执行，用户继续操作）
-  | 'merging'        // 合并中（合并压缩期间的新消息）
-  | 'switching'      // 切换中（200ms 无缝过渡）
-  | 'error';         // 错误（静默恢复）
+  | "idle" // 空闲
+  | "preparing" // 准备中（收集上下文快照）
+  | "compacting" // 压缩中（后台执行，用户继续操作）
+  | "merging" // 合并中（合并压缩期间的新消息）
+  | "switching" // 切换中（200ms 无缝过渡）
+  | "error"; // 错误（静默恢复）
 
 // 压缩期间捕获的增量消息
 export interface DeltaMessage {
   id: string;
-  type: 'user' | 'assistant' | 'system' | 'tool';
+  type: "user" | "assistant" | "system" | "tool";
   content: string;
   timestamp: number;
-  rawPayload?: string;  // 原始 JSONL，用于完整恢复
+  rawPayload?: string; // 原始 JSONL，用于完整恢复
 }
 
 // Hook 配置
@@ -52,7 +54,7 @@ interface UseBackgroundCompactConfig {
   projectPath?: string;
   /** 触发压缩的阈值（0-1，默认 0.75 = 75%）*/
   compactThreshold?: number;
-  /** 是否启用自动压缩（默认 true） */
+  /** ⚠️ 是否启用自动压缩（默认 false - 后端未实现） */
   autoCompact?: boolean;
   /** 上下文使用率（0-1） */
   contextUsage?: number;
@@ -75,7 +77,7 @@ interface UseBackgroundCompactReturn {
   /** 手动触发压缩（通常不需要，自动触发） */
   triggerCompact: () => Promise<void>;
   /** 捕获新消息到增量队列（压缩期间调用） */
-  captureDeltaMessage: (message: Omit<DeltaMessage, 'id' | 'timestamp'>) => void;
+  captureDeltaMessage: (message: Omit<DeltaMessage, "id" | "timestamp">) => void;
   /** 获取增量消息（用于合并到新会话） */
   getDeltaMessages: () => DeltaMessage[];
   /** 清除增量消息 */
@@ -88,19 +90,21 @@ interface UseBackgroundCompactReturn {
   confirmSwitch: () => void;
 }
 
-export function useBackgroundCompact(config: UseBackgroundCompactConfig): UseBackgroundCompactReturn {
+export function useBackgroundCompact(
+  config: UseBackgroundCompactConfig,
+): UseBackgroundCompactReturn {
   const {
     sessionId,
     projectPath,
-    compactThreshold = 0.75,  // 🎯 75% 阈值
-    autoCompact = true,
+    compactThreshold = 0.75, // 🎯 75% 阈值
+    autoCompact = false, // ⚠️ 默认禁用 - 后端未实现 compact-session-request
     contextUsage = 0,
     maxTokens = 200000,
     currentTokens = 0,
   } = config;
 
   // 状态
-  const [status, setStatus] = useState<CompactStatus>('idle');
+  const [status, setStatus] = useState<CompactStatus>("idle");
   const [progress, setProgress] = useState(0);
   const [deltaMessages, setDeltaMessages] = useState<DeltaMessage[]>([]);
   const [newSessionId, setNewSessionId] = useState<string | undefined>();
@@ -112,26 +116,34 @@ export function useBackgroundCompact(config: UseBackgroundCompactConfig): UseBac
   const isMountedRef = useRef(true);
   const hasTriggeredCompactRef = useRef(false);
   const compactStartTimeRef = useRef<number>(0);
+  const compactNotificationIdRef = useRef<string | null>(null); // 🆕 存储通知 ID
 
   // 计算上下文使用率
   const calculatedUsage = contextUsage || (maxTokens > 0 ? currentTokens / maxTokens : 0);
 
   // 是否正在压缩（用户操作不受影响）
-  const isCompacting = status === 'preparing' || status === 'compacting' || status === 'merging';
+  const isCompacting = status === "preparing" || status === "compacting" || status === "merging";
 
   // 捕获增量消息（压缩期间继续操作产生的新消息）
-  const captureDeltaMessage = useCallback((message: Omit<DeltaMessage, 'id' | 'timestamp'>) => {
-    if (!isCompacting) return;  // 只在压缩期间捕获
+  const captureDeltaMessage = useCallback(
+    (message: Omit<DeltaMessage, "id" | "timestamp">) => {
+      if (!isCompacting) return; // 只在压缩期间捕获
 
-    const deltaMsg: DeltaMessage = {
-      ...message,
-      id: `delta-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-      timestamp: Date.now(),
-    };
+      const deltaMsg: DeltaMessage = {
+        ...message,
+        id: `delta-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        timestamp: Date.now(),
+      };
 
-    setDeltaMessages(prev => [...prev, deltaMsg]);
-    console.log('[BackgroundCompact] 🔄 Captured delta message:', message.type, message.content.slice(0, 50));
-  }, [isCompacting]);
+      setDeltaMessages((prev) => [...prev, deltaMsg]);
+      console.log(
+        "[BackgroundCompact] 🔄 Captured delta message:",
+        message.type,
+        message.content.slice(0, 50),
+      );
+    },
+    [isCompacting],
+  );
 
   // 获取增量消息
   const getDeltaMessages = useCallback(() => deltaMessages, [deltaMessages]);
@@ -141,27 +153,46 @@ export function useBackgroundCompact(config: UseBackgroundCompactConfig): UseBac
     setDeltaMessages([]);
   }, []);
 
+  // ⚠️ 后台压缩功能未完成：Rust 后端尚未实现 compact-session-request 事件监听
+  // 临时禁用自动压缩，避免 UI 卡在"后台压缩中"状态
+  const COMPACT_TIMEOUT_MS = 30000; // 30 秒超时
+
   // 执行压缩（后台，不阻塞用户操作）
   const executeCompact = useCallback(async () => {
     if (!sessionId || compactTaskRef.current) {
       return;
     }
 
-    console.log('[BackgroundCompact] 🚀 Starting background compact for session:', sessionId);
+    console.log("[BackgroundCompact] 🚀 Starting background compact for session:", sessionId);
     compactStartTimeRef.current = Date.now();
-    setStatus('preparing');
+    setStatus("preparing");
     setProgress(0);
-    setDeltaMessages([]);  // 清空之前的增量
+    setDeltaMessages([]); // 清空之前的增量
+
+    // 🆕 显示全局通知 - 后台压缩开始
+    const template = NotificationTemplates.compactStart();
+    const notificationId = notify.info(template.message, template);
+    compactNotificationIdRef.current = notificationId;
 
     const abortController = new AbortController();
     compactTaskRef.current = abortController;
 
+    // ⏱️ 超时计时器 - 如果后端 30 秒内没有响应，自动取消
+    const timeoutId = setTimeout(() => {
+      if (compactTaskRef.current === abortController) {
+        console.error(
+          "[BackgroundCompact] ⏰ Compact timeout after 30s - backend may not be implemented",
+        );
+        abortController.abort();
+      }
+    }, COMPACT_TIMEOUT_MS);
+
     try {
       // 1. 准备阶段：收集当前上下文快照
-      setStatus('compacting');
+      setStatus("compacting");
 
       // 监听压缩进度
-      const progressUnlisten = await listen<number>('compact-progress', (evt) => {
+      const progressUnlisten = await listen<number>("compact-progress", (evt) => {
         if (!isMountedRef.current || abortController.signal.aborted) return;
         setProgress(evt.payload);
       });
@@ -169,22 +200,27 @@ export function useBackgroundCompact(config: UseBackgroundCompactConfig): UseBac
 
       // 监听压缩完成
       const completePromise = new Promise<string>((resolve, reject) => {
-        listen<{ newSessionId: string; summary?: string }>('compact-complete', (evt) => {
+        listen<{ newSessionId: string; summary?: string }>("compact-complete", (evt) => {
           if (!isMountedRef.current || abortController.signal.aborted) {
-            reject(new Error('Aborted'));
+            reject(new Error("Aborted"));
             return;
           }
           resolve(evt.payload.newSessionId);
-        }).then(unlisten => unlistenRefs.current.push(unlisten));
+        }).then((unlisten) => unlistenRefs.current.push(unlisten));
 
-        listen<string>('compact-error', (evt) => {
+        listen<string>("compact-error", (evt) => {
           if (!isMountedRef.current || abortController.signal.aborted) return;
           reject(new Error(evt.payload));
-        }).then(unlisten => unlistenRefs.current.push(unlisten));
+        }).then((unlisten) => unlistenRefs.current.push(unlisten));
+
+        // 🆕 监听 abort 信号，立即 reject Promise
+        abortController.signal.addEventListener("abort", () => {
+          reject(new Error("Aborted"));
+        });
       });
 
       // 触发后端压缩（通过事件）
-      await emit('compact-session-request', {
+      await emit("compact-session-request", {
         sessionId,
         projectPath,
         background: true,
@@ -192,55 +228,95 @@ export function useBackgroundCompact(config: UseBackgroundCompactConfig): UseBac
 
       // 等待压缩完成（期间用户可以继续操作，新消息通过 captureDeltaMessage 捕获）
       const completedSessionId = await completePromise;
+      clearTimeout(timeoutId);
 
-      console.log('[BackgroundCompact] ✅ Compact complete, new session:', completedSessionId);
-      console.log('[BackgroundCompact] 📝 Delta messages captured:', deltaMessages.length);
+      console.log("[BackgroundCompact] ✅ Compact complete, new session:", completedSessionId);
+      console.log("[BackgroundCompact] 📝 Delta messages captured:", deltaMessages.length);
 
       // 2. 合并阶段：将压缩期间的增量消息追加到新会话
       if (deltaMessages.length > 0) {
-        setStatus('merging');
-        console.log('[BackgroundCompact] 🔀 Merging', deltaMessages.length, 'delta messages...');
+        setStatus("merging");
+        console.log("[BackgroundCompact] 🔀 Merging", deltaMessages.length, "delta messages...");
 
         // 发送增量消息到新会话
-        await emit('compact-merge-delta', {
+        await emit("compact-merge-delta", {
           newSessionId: completedSessionId,
           deltaMessages: deltaMessages,
         });
       }
 
       // 3. 切换阶段：无缝过渡到新会话
-      setStatus('switching');
+      setStatus("switching");
       setProgress(100);
       setNewSessionId(completedSessionId);
       setShouldSwitchSession(true);
 
       // 200ms 过渡动画时间
-      await new Promise(r => setTimeout(r, 200));
+      await new Promise((r) => setTimeout(r, 200));
 
-      console.log('[BackgroundCompact] 🎯 Ready for seamless switch');
+      console.log("[BackgroundCompact] 🎯 Ready for seamless switch");
 
+      // 🆕 关闭"后台压缩中"通知，显示"压缩完成"通知
+      if (compactNotificationIdRef.current) {
+        notify.close(compactNotificationIdRef.current);
+        compactNotificationIdRef.current = null;
+      }
+      const completeTemplate = NotificationTemplates.compactComplete();
+      notify.success(completeTemplate.message, completeTemplate);
     } catch (err) {
-      if ((err as Error).message !== 'Aborted') {
-        console.error('[BackgroundCompact] ❌ Compact failed:', err);
-        setStatus('error');
+      const error = err as Error;
 
-        // 静默恢复：5 秒后重试
-        setTimeout(() => {
-          if (isMountedRef.current) {
-            setStatus('idle');
-            hasTriggeredCompactRef.current = false;
-          }
-        }, 5000);
+      // 🆕 清理所有监听器，防止内存泄漏
+      unlistenRefs.current.forEach((fn) => fn());
+      unlistenRefs.current = [];
+
+      if (error.name === "AbortError" || error.message === "Aborted") {
+        // 超时或手动取消
+        console.warn("[BackgroundCompact] ⏱️ Compact aborted - backend not responding");
+        setStatus("idle"); // 🆕 直接设置为 idle，不显示 error 状态
+
+        // 🆕 关闭"后台压缩中"通知，显示错误通知
+        if (compactNotificationIdRef.current) {
+          notify.close(compactNotificationIdRef.current);
+          compactNotificationIdRef.current = null;
+        }
+        const errorTemplate = NotificationTemplates.compactError(
+          "后端未响应（超时 30 秒）",
+          "Rust 后端尚未实现 compact-session-request 事件监听器。\n\n" +
+            "这是一个已知问题，后台压缩功能正在开发中。\n\n" +
+            "建议：暂时禁用自动压缩（autoCompact: false）",
+        );
+        notify.error(errorTemplate.message, errorTemplate);
+
+        // 🆕 立即重置状态，不需要延迟
+        hasTriggeredCompactRef.current = false;
+        setProgress(0);
+      } else {
+        console.error("[BackgroundCompact] ❌ Compact failed:", err);
+        setStatus("idle"); // 🆕 直接设置为 idle
+
+        // 🆕 关闭"后台压缩中"通知，显示错误通知
+        if (compactNotificationIdRef.current) {
+          notify.close(compactNotificationIdRef.current);
+          compactNotificationIdRef.current = null;
+        }
+        const errorTemplate = NotificationTemplates.compactError(error.message || "未知错误");
+        notify.error(errorTemplate.message, errorTemplate);
+
+        // 🆕 立即重置状态
+        hasTriggeredCompactRef.current = false;
+        setProgress(0);
       }
     } finally {
       compactTaskRef.current = null;
+      clearTimeout(timeoutId); // 🆕 清理超时计时器
     }
   }, [sessionId, projectPath, deltaMessages]);
 
   // 手动触发压缩
   const triggerCompact = useCallback(async () => {
     if (isCompacting) {
-      console.warn('[BackgroundCompact] Already compacting, skipping');
+      console.warn("[BackgroundCompact] Already compacting, skipping");
       return;
     }
     hasTriggeredCompactRef.current = true;
@@ -249,9 +325,9 @@ export function useBackgroundCompact(config: UseBackgroundCompactConfig): UseBac
 
   // 确认切换完成
   const confirmSwitch = useCallback(() => {
-    console.log('[BackgroundCompact] ✨ Switch confirmed, cleaning up');
+    console.log("[BackgroundCompact] ✨ Switch confirmed, cleaning up");
     setShouldSwitchSession(false);
-    setStatus('idle');
+    setStatus("idle");
     setProgress(0);
     setDeltaMessages([]);
     setNewSessionId(undefined);
@@ -261,17 +337,29 @@ export function useBackgroundCompact(config: UseBackgroundCompactConfig): UseBac
   // 自动压缩逻辑
   useEffect(() => {
     if (!autoCompact || !sessionId) return;
-    if (isCompacting || status === 'switching') return;
+    if (isCompacting || status === "switching") return;
     if (hasTriggeredCompactRef.current) return;
 
     // 达到 75% 阈值时触发后台压缩
     if (calculatedUsage >= compactThreshold) {
-      console.log(`[BackgroundCompact] 📊 Context usage ${(calculatedUsage * 100).toFixed(1)}% >= ${(compactThreshold * 100).toFixed(1)}% threshold`);
-      console.log('[BackgroundCompact] 🔄 Auto-triggering background compact (user can continue working)');
+      console.log(
+        `[BackgroundCompact] 📊 Context usage ${(calculatedUsage * 100).toFixed(1)}% >= ${(compactThreshold * 100).toFixed(1)}% threshold`,
+      );
+      console.log(
+        "[BackgroundCompact] 🔄 Auto-triggering background compact (user can continue working)",
+      );
       hasTriggeredCompactRef.current = true;
       executeCompact();
     }
-  }, [autoCompact, sessionId, calculatedUsage, compactThreshold, isCompacting, status, executeCompact]);
+  }, [
+    autoCompact,
+    sessionId,
+    calculatedUsage,
+    compactThreshold,
+    isCompacting,
+    status,
+    executeCompact,
+  ]);
 
   // 清理
   useEffect(() => {
@@ -284,7 +372,7 @@ export function useBackgroundCompact(config: UseBackgroundCompactConfig): UseBac
         compactTaskRef.current.abort();
       }
       // 清理所有监听器
-      unlistenRefs.current.forEach(fn => fn());
+      unlistenRefs.current.forEach((fn) => fn());
       unlistenRefs.current = [];
     };
   }, []);

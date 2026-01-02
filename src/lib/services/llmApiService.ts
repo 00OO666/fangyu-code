@@ -7,13 +7,12 @@
  * @module llmApiService
  */
 
-import { fetch as tauriFetch } from '@tauri-apps/plugin-http';
-
+import { fetch as tauriFetch } from "@tauri-apps/plugin-http";
 
 /**
  * LLM API 格式类型
  */
-export type ApiFormat = 'openai' | 'gemini' | 'anthropic';
+export type ApiFormat = "openai" | "gemini" | "anthropic";
 
 /**
  * LLM 提供商配置接口
@@ -100,17 +99,17 @@ class OpenAIStrategy implements ApiStrategy {
     let url = baseUrl.trim();
 
     // 移除末尾斜杠
-    while (url.endsWith('/')) {
+    while (url.endsWith("/")) {
       url = url.slice(0, -1);
     }
 
     // 如果已经包含 /chat/completions，移除它
-    if (url.endsWith('/chat/completions')) {
-      url = url.slice(0, -'/chat/completions'.length);
+    if (url.endsWith("/chat/completions")) {
+      url = url.slice(0, -"/chat/completions".length);
     }
 
     // 如果不包含 /v1，添加它
-    if (!url.endsWith('/v1')) {
+    if (!url.endsWith("/v1")) {
       if (!url.match(/\/v\d+$/)) {
         url = `${url}/v1`;
       }
@@ -127,10 +126,10 @@ class OpenAIStrategy implements ApiStrategy {
     const body: any = {
       model,
       messages: [
-        { role: 'system', content: request.systemPrompt },
-        { role: 'user', content: request.userPrompt }
+        { role: "system", content: request.systemPrompt },
+        { role: "user", content: request.userPrompt },
       ],
-      stream: false
+      stream: false,
     };
 
     if (request.temperature !== undefined && request.temperature !== null) {
@@ -145,8 +144,8 @@ class OpenAIStrategy implements ApiStrategy {
 
   buildHeaders(apiKey: string): Record<string, string> {
     return {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
     };
   }
 
@@ -155,20 +154,20 @@ class OpenAIStrategy implements ApiStrategy {
       if (data.error) {
         throw new Error(`API error: ${JSON.stringify(data.error)}`);
       }
-      throw new Error('API returned no choices');
+      throw new Error("API returned no choices");
     }
 
     const choice = data.choices[0];
     if (!choice.message) {
-      throw new Error('Choice has no message');
+      throw new Error("Choice has no message");
     }
 
     const content = choice.message.content;
-    if (!content || content.trim() === '') {
+    if (!content || content.trim() === "") {
       if (choice.finish_reason) {
         throw new Error(`Content is empty. Finish reason: ${choice.finish_reason}`);
       }
-      throw new Error('API returned empty content');
+      throw new Error("API returned empty content");
     }
 
     return content.trim();
@@ -183,17 +182,17 @@ class AnthropicStrategy implements ApiStrategy {
     let url = baseUrl.trim();
 
     // 移除末尾斜杠
-    while (url.endsWith('/')) {
+    while (url.endsWith("/")) {
       url = url.slice(0, -1);
     }
 
     // 如果已经包含 /messages，移除它
-    if (url.endsWith('/messages')) {
-      url = url.slice(0, -'/messages'.length);
+    if (url.endsWith("/messages")) {
+      url = url.slice(0, -"/messages".length);
     }
 
     // 如果不包含 /v1，添加它
-    if (!url.endsWith('/v1')) {
+    if (!url.endsWith("/v1")) {
       if (!url.match(/\/v\d+$/)) {
         url = `${url}/v1`;
       }
@@ -211,9 +210,7 @@ class AnthropicStrategy implements ApiStrategy {
       model,
       max_tokens: request.maxTokens || 4096,
       system: request.systemPrompt,
-      messages: [
-        { role: 'user', content: request.userPrompt }
-      ],
+      messages: [{ role: "user", content: request.userPrompt }],
     };
 
     if (request.temperature !== undefined && request.temperature !== null) {
@@ -225,9 +222,9 @@ class AnthropicStrategy implements ApiStrategy {
 
   buildHeaders(apiKey: string): Record<string, string> {
     return {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
+      "Content-Type": "application/json",
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
     };
   }
 
@@ -236,12 +233,12 @@ class AnthropicStrategy implements ApiStrategy {
       if (data.error) {
         throw new Error(`Anthropic API error: ${JSON.stringify(data.error)}`);
       }
-      throw new Error('Anthropic API returned no content');
+      throw new Error("Anthropic API returned no content");
     }
 
-    const textContent = data.content.find((c: any) => c.type === 'text');
+    const textContent = data.content.find((c: any) => c.type === "text");
     if (!textContent || !textContent.text) {
-      throw new Error('Anthropic API returned empty text content');
+      throw new Error("Anthropic API returned empty text content");
     }
 
     return textContent.text.trim();
@@ -256,7 +253,7 @@ class GeminiStrategy implements ApiStrategy {
     let url = baseUrl.trim();
 
     // 移除末尾斜杠
-    while (url.endsWith('/')) {
+    while (url.endsWith("/")) {
       url = url.slice(0, -1);
     }
 
@@ -269,11 +266,11 @@ class GeminiStrategy implements ApiStrategy {
 
   buildRequestBody(request: LLMRequest): any {
     const body: any = {
-      contents: [{
-        parts: [
-          { text: `${request.systemPrompt}\n\n${request.userPrompt}` }
-        ]
-      }],
+      contents: [
+        {
+          parts: [{ text: `${request.systemPrompt}\n\n${request.userPrompt}` }],
+        },
+      ],
     };
 
     const generationConfig: any = {};
@@ -293,7 +290,7 @@ class GeminiStrategy implements ApiStrategy {
 
   buildHeaders(): Record<string, string> {
     return {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     };
   }
 
@@ -301,7 +298,7 @@ class GeminiStrategy implements ApiStrategy {
     const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
     if (!content) {
-      throw new Error('Gemini API returned empty response');
+      throw new Error("Gemini API returned empty response");
     }
 
     return content.trim();
@@ -313,11 +310,11 @@ class GeminiStrategy implements ApiStrategy {
  */
 function getApiStrategy(format: ApiFormat): ApiStrategy {
   switch (format) {
-    case 'openai':
+    case "openai":
       return new OpenAIStrategy();
-    case 'anthropic':
+    case "anthropic":
       return new AnthropicStrategy();
-    case 'gemini':
+    case "gemini":
       return new GeminiStrategy();
     default:
       return new OpenAIStrategy(); // 默认使用 OpenAI
@@ -331,20 +328,24 @@ export function detectApiFormat(apiUrl: string): ApiFormat {
   const url = apiUrl.toLowerCase().trim();
 
   // 检测 Gemini
-  if (url.includes('generativelanguage.googleapis.com') ||
-      url.includes('aiplatform.googleapis.com')) {
-    return 'gemini';
+  if (
+    url.includes("generativelanguage.googleapis.com") ||
+    url.includes("aiplatform.googleapis.com")
+  ) {
+    return "gemini";
   }
 
   // 检测 Anthropic
-  if (url.includes('api.anthropic.com') ||
-      url.includes('anthropic.com') ||
-      url.includes('/v1/messages')) {
-    return 'anthropic';
+  if (
+    url.includes("api.anthropic.com") ||
+    url.includes("anthropic.com") ||
+    url.includes("/v1/messages")
+  ) {
+    return "anthropic";
   }
 
   // 默认 OpenAI
-  return 'openai';
+  return "openai";
 }
 
 /**
@@ -362,14 +363,9 @@ export class LLMApiService {
   static async call(
     provider: LLMProvider,
     request: LLMRequest,
-    options: LLMCallOptions = {}
+    options: LLMCallOptions = {},
   ): Promise<LLMResponse> {
-    const {
-      timeout = 30000,
-      maxRetries = 3,
-      retryDelay = 1000,
-      signal: externalSignal,
-    } = options;
+    const { timeout = 30000, maxRetries = 3, retryDelay = 1000, signal: externalSignal } = options;
 
     // 1. 确定 API 格式
     const format = provider.apiFormat || detectApiFormat(provider.apiUrl);
@@ -387,7 +383,7 @@ export class LLMApiService {
         temperature: request.temperature ?? provider.temperature,
         maxTokens: request.maxTokens ?? provider.maxTokens,
       },
-      provider.model
+      provider.model,
     );
 
     // 5. 构建请求头
@@ -403,23 +399,23 @@ export class LLMApiService {
         const timeoutId = setTimeout(() => controller.abort(), timeout);
 
         // 🆕 组合外部信号和超时信号
-        let combinedSignal = controller.signal;
+        const combinedSignal = controller.signal;
         if (externalSignal) {
           // 如果外部信号已中止，立即抛出
           if (externalSignal.aborted) {
-            throw new Error('Request cancelled by user');
+            throw new Error("Request cancelled by user");
           }
 
           // 监听外部信号
-          externalSignal.addEventListener('abort', () => controller.abort());
+          externalSignal.addEventListener("abort", () => controller.abort());
         }
 
         try {
           const response = await tauriFetch(endpoint, {
-            method: 'POST',
+            method: "POST",
             headers,
             body: JSON.stringify(requestBody),
-            // @ts-ignore - Tauri fetch 支持 signal，但类型定义可能缺失
+            // @ts-expect-error - Tauri fetch 支持 signal，但类型定义可能缺失
             signal: combinedSignal,
           });
 
@@ -428,7 +424,7 @@ export class LLMApiService {
           if (!response.ok) {
             const errorText = await response.text();
             throw new Error(
-              `${format} API request failed: ${response.status} ${response.statusText}\n${errorText}`
+              `${format} API request failed: ${response.status} ${response.statusText}\n${errorText}`,
             );
           }
 
@@ -437,27 +433,29 @@ export class LLMApiService {
           const content = strategy.parseResponse(data);
 
           return { content };
-
         } catch (error: any) {
           clearTimeout(timeoutId);
 
           // 🆕 区分错误类型
-          if (error.name === 'AbortError' || error.message?.includes('aborted')) {
+          if (error.name === "AbortError" || error.message?.includes("aborted")) {
             if (externalSignal?.aborted) {
-              throw new Error('Request cancelled by user');
+              throw new Error("Request cancelled by user");
             }
             throw new Error(`Request timeout after ${timeout}ms`);
           }
           throw error;
         }
-
       } catch (error: any) {
         lastError = error;
 
         // 🆕 不可重试的错误（用户取消、超时、4xx 错误）
-        const isUserCancelled = error.message?.includes('cancelled by user');
-        const isTimeout = error.message?.includes('timeout');
-        const is4xxError = error.message?.includes('400') || error.message?.includes('401') || error.message?.includes('403') || error.message?.includes('404');
+        const isUserCancelled = error.message?.includes("cancelled by user");
+        const isTimeout = error.message?.includes("timeout");
+        const is4xxError =
+          error.message?.includes("400") ||
+          error.message?.includes("401") ||
+          error.message?.includes("403") ||
+          error.message?.includes("404");
 
         if (isUserCancelled || is4xxError) {
           console.error(`[LLMApiService] ${format} API call failed (non-retryable):`, error);
@@ -468,23 +466,26 @@ export class LLMApiService {
         const retriesLeft = maxRetries - attempt;
         if (retriesLeft > 0) {
           // 🆕 指数退避延迟（1s, 2s, 4s）
-          const delay = retryDelay * Math.pow(2, attempt);
+          const delay = retryDelay * 2 ** attempt;
           console.warn(
             `[LLMApiService] ${format} API call failed (attempt ${attempt + 1}/${maxRetries + 1}), retrying in ${delay}ms...`,
-            error.message
+            error.message,
           );
-          await new Promise(resolve => setTimeout(resolve, delay));
+          await new Promise((resolve) => setTimeout(resolve, delay));
           continue;
         }
 
         // 🆕 所有重试都失败
-        console.error(`[LLMApiService] ${format} API call failed after ${maxRetries + 1} attempts:`, error);
+        console.error(
+          `[LLMApiService] ${format} API call failed after ${maxRetries + 1} attempts:`,
+          error,
+        );
         throw error;
       }
     }
 
     // 理论上不应该到达这里，但为了类型安全
-    throw lastError || new Error('Unknown error');
+    throw lastError || new Error("Unknown error");
   }
 
   /**
@@ -494,12 +495,16 @@ export class LLMApiService {
     provider: LLMProvider,
     systemPrompt: string,
     userPrompt: string,
-    options?: LLMCallOptions
+    options?: LLMCallOptions,
   ): Promise<string> {
-    const response = await this.call(provider, {
-      systemPrompt,
-      userPrompt,
-    }, options);
+    const response = await LLMApiService.call(
+      provider,
+      {
+        systemPrompt,
+        userPrompt,
+      },
+      options,
+    );
     return response.content;
   }
 }

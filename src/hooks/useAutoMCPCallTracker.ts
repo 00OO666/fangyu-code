@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef } from "react";
 
 /**
  * 自动追踪 MCP 工具调用时间
@@ -11,7 +11,7 @@ interface MCPCallTimeRecord {
   };
 }
 
-const STORAGE_KEY = 'mcp_call_times';
+const STORAGE_KEY = "mcp_call_times";
 
 /**
  * 从 localStorage 获取所有调用时间记录
@@ -21,7 +21,7 @@ function getAllCallTimes(): MCPCallTimeRecord {
     const stored = localStorage.getItem(STORAGE_KEY);
     return stored ? JSON.parse(stored) : {};
   } catch (error) {
-    console.error('Failed to load MCP call times:', error);
+    console.error("Failed to load MCP call times:", error);
     return {};
   }
 }
@@ -33,7 +33,7 @@ function saveAllCallTimes(times: MCPCallTimeRecord): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(times));
   } catch (error) {
-    console.error('Failed to save MCP call times:', error);
+    console.error("Failed to save MCP call times:", error);
   }
 }
 
@@ -49,7 +49,7 @@ function extractServerIdFromToolName(toolName: string): string | null {
 /**
  * 更新 MCP 服务器的调用时间
  */
-function updateMCPCallTime(engine: 'claude' | 'codex' | 'gemini', serverId: string): void {
+function updateMCPCallTime(engine: "claude" | "codex" | "gemini", serverId: string): void {
   const now = Date.now();
   const allTimes = getAllCallTimes();
 
@@ -78,7 +78,7 @@ function checkMCPToolCallsInMessage(message: any): Set<string> {
   // 检查内容数组中的 tool_use 块
   if (Array.isArray(content)) {
     for (const block of content) {
-      if (block.type === 'tool_use' && typeof block.name === 'string') {
+      if (block.type === "tool_use" && typeof block.name === "string") {
         const serverId = extractServerIdFromToolName(block.name);
         if (serverId) {
           mcpServers.add(serverId);
@@ -98,7 +98,7 @@ function checkMCPToolCallsInMessage(message: any): Set<string> {
  */
 export function useAutoMCPCallTracker(
   messages: any[] | undefined,
-  engine: 'claude' | 'codex' | 'gemini'
+  engine: "claude" | "codex" | "gemini",
 ) {
   const processedMessageIds = useRef<Set<string>>(new Set());
 
@@ -125,7 +125,7 @@ export function useAutoMCPCallTracker(
 
       // 更新调用时间
       if (mcpServers.size > 0) {
-        mcpServers.forEach(serverId => {
+        mcpServers.forEach((serverId) => {
           updateMCPCallTime(engine, serverId);
         });
       }

@@ -1,11 +1,11 @@
-import { useState, useEffect, useCallback } from 'react';
-import { listen, UnlistenFn } from '@tauri-apps/api/event';
-import { api } from '@/lib/api';
+import { listen, type UnlistenFn } from "@tauri-apps/api/event";
+import { useCallback, useEffect, useState } from "react";
+import { api } from "@/lib/api";
 
 /**
  * Compaction event types from backend
  */
-export type CompactionEventType = 'started' | 'in_progress' | 'completed' | 'failed';
+export type CompactionEventType = "started" | "in_progress" | "completed" | "failed";
 
 /**
  * Compaction event payload from Tauri
@@ -66,7 +66,9 @@ interface UseAutoCompactStatusOptions {
  * Listens to Tauri events for real-time compaction status updates
  * and provides API methods for manual status queries.
  */
-export const useAutoCompactStatus = (options: UseAutoCompactStatusOptions = {}): AutoCompactStatus & {
+export const useAutoCompactStatus = (
+  options: UseAutoCompactStatusOptions = {},
+): AutoCompactStatus & {
   refresh: () => Promise<void>;
 } => {
   const {
@@ -96,7 +98,7 @@ export const useAutoCompactStatus = (options: UseAutoCompactStatusOptions = {}):
     try {
       const globalStatus = await api.getAutoCompactStatus();
 
-      setStatus(prev => ({
+      setStatus((prev) => ({
         ...prev,
         isEnabled: globalStatus.enabled,
         maxContextTokens: globalStatus.max_context_tokens,
@@ -108,22 +110,22 @@ export const useAutoCompactStatus = (options: UseAutoCompactStatusOptions = {}):
         try {
           const sessionStats = await api.getSessionContextStats(sessionId);
           if (sessionStats) {
-            setStatus(prev => ({
+            setStatus((prev) => ({
               ...prev,
               compactionCount: sessionStats.compaction_count || 0,
               lastCompaction: sessionStats.last_compaction
                 ? new Date(sessionStats.last_compaction)
                 : null,
-              isCompacting: sessionStats.status === 'Compacting',
+              isCompacting: sessionStats.status === "Compacting",
             }));
           }
         } catch (e) {
           // Session might not be registered yet
-          console.debug('Session not found in auto-compact monitoring:', sessionId);
+          console.debug("Session not found in auto-compact monitoring:", sessionId);
         }
       }
     } catch (error) {
-      console.warn('Failed to fetch auto-compact status:', error);
+      console.warn("Failed to fetch auto-compact status:", error);
     }
   }, [sessionId]);
 
@@ -135,7 +137,7 @@ export const useAutoCompactStatus = (options: UseAutoCompactStatusOptions = {}):
 
     const setupListener = async () => {
       try {
-        unlisten = await listen<CompactionEvent>('auto-compact-event', (event) => {
+        unlisten = await listen<CompactionEvent>("auto-compact-event", (event) => {
           const payload = event.payload;
 
           // Only process events for our session (or all if no session specified)
@@ -145,37 +147,37 @@ export const useAutoCompactStatus = (options: UseAutoCompactStatusOptions = {}):
 
           const eventType = payload.event_type;
 
-          setStatus(prev => ({
+          setStatus((prev) => ({
             ...prev,
             eventType,
             progress: payload.progress ?? prev.progress,
             message: payload.message ?? prev.message,
             tokensBefore: payload.tokens_before ?? prev.tokensBefore,
             tokensAfter: payload.tokens_after ?? prev.tokensAfter,
-            isCompacting: eventType === 'started' || eventType === 'in_progress',
+            isCompacting: eventType === "started" || eventType === "in_progress",
           }));
 
           // Trigger callbacks
           switch (eventType) {
-            case 'started':
+            case "started":
               onCompactionStart?.(payload);
               break;
-            case 'completed':
+            case "completed":
               onCompactionComplete?.(payload);
               // Update compaction count
-              setStatus(prev => ({
+              setStatus((prev) => ({
                 ...prev,
                 compactionCount: prev.compactionCount + 1,
                 lastCompaction: new Date(),
               }));
               break;
-            case 'failed':
+            case "failed":
               onCompactionFailed?.(payload);
               break;
           }
         });
       } catch (error) {
-        console.warn('Failed to setup auto-compact event listener:', error);
+        console.warn("Failed to setup auto-compact event listener:", error);
       }
     };
 

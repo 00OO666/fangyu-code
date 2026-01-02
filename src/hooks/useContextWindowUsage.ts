@@ -18,11 +18,15 @@
  * PERCENT_USED = CURRENT_TOKENS * 100 / CONTEXT_SIZE
  */
 
-import { useMemo } from 'react';
-import { getContextWindowSize } from '@/lib/tokenCounter';
-import { normalizeUsageData } from '@/lib/utils';
-import { ContextWindowUsage, ContextUsageLevel, getUsageLevel } from '@/types/contextWindow';
-import type { ClaudeStreamMessage } from '@/types/claude';
+import { useMemo } from "react";
+import { getContextWindowSize } from "@/lib/tokenCounter";
+import { normalizeUsageData } from "@/lib/utils";
+import type { ClaudeStreamMessage } from "@/types/claude";
+import {
+  type ContextUsageLevel,
+  type ContextWindowUsage,
+  getUsageLevel,
+} from "@/types/contextWindow";
 
 export interface UseContextWindowUsageResult extends ContextWindowUsage {
   /** 使用级别 */
@@ -48,9 +52,9 @@ export interface UseContextWindowUsageResult extends ContextWindowUsage {
  */
 function getUsageCandidate(message: any, engine?: string): any | null {
   // Codex: 过滤掉累计 usage 事件（会远超上下文窗口大小，不能用于 Context Window）
-  if (engine === 'codex') {
+  if (engine === "codex") {
     const codexItemType = message?.codexMetadata?.codexItemType;
-    if (codexItemType === 'thread_token_usage_updated') {
+    if (codexItemType === "thread_token_usage_updated") {
       return null;
     }
   }
@@ -58,14 +62,14 @@ function getUsageCandidate(message: any, engine?: string): any | null {
   // Claude: 过滤掉会话结束时的累计统计消息
   // 这类 result 消息包含 totalCostUSD/costUSD/duration_ms/num_turns 等字段（驼峰或下划线）
   // 其 usage 是"会话累计"口径，不能用作 Context Window 快照
-  if (engine === 'claude' && message?.type === 'result') {
+  if (engine === "claude" && message?.type === "result") {
     const hasCumulativeStats =
-      typeof message.total_cost_usd === 'number' ||
-      typeof message.totalCostUSD === 'number' ||
-      typeof message.cost_usd === 'number' ||
-      typeof message.costUSD === 'number' ||
-      typeof message.duration_ms === 'number' ||
-      typeof message.num_turns === 'number';
+      typeof message.total_cost_usd === "number" ||
+      typeof message.totalCostUSD === "number" ||
+      typeof message.cost_usd === "number" ||
+      typeof message.costUSD === "number" ||
+      typeof message.duration_ms === "number" ||
+      typeof message.num_turns === "number";
     if (hasCumulativeStats) {
       return null;
     }
@@ -73,20 +77,20 @@ function getUsageCandidate(message: any, engine?: string): any | null {
 
   // Claude Code statusline / hooks may provide a context_window.current_usage snapshot
   const currentUsage = message?.context_window?.current_usage;
-  if (currentUsage && typeof currentUsage === 'object') return currentUsage;
+  if (currentUsage && typeof currentUsage === "object") return currentUsage;
 
   // Prefer nested message.usage for Claude (runtime may attach non-snapshot usage on top-level)
   const usage = message.message?.usage || message.usage;
-  if (usage && typeof usage === 'object') return usage;
+  if (usage && typeof usage === "object") return usage;
 
   // Codex: fallback to codexMetadata.usage (when available)
   // 注意：token_count 的 codexMetadata.usage 通常是累计 total，不能用于上下文窗口；其 delta 在 message.usage 中。
-  if (engine === 'codex') {
+  if (engine === "codex") {
     const codexItemType = message?.codexMetadata?.codexItemType;
-    if (codexItemType === 'token_count') {
+    if (codexItemType === "token_count") {
       return null;
     }
-    if (message.codexMetadata?.usage && typeof message.codexMetadata.usage === 'object') {
+    if (message.codexMetadata?.usage && typeof message.codexMetadata.usage === "object") {
       return message.codexMetadata.usage;
     }
   }
@@ -109,7 +113,11 @@ function normalizeUsageForIndicator(rawUsage: any): {
   };
 }
 
-function extractCurrentUsage(messages: ClaudeStreamMessage[], engine?: string, contextWindowSize?: number): {
+function extractCurrentUsage(
+  messages: ClaudeStreamMessage[],
+  engine?: string,
+  contextWindowSize?: number,
+): {
   inputTokens: number;
   outputTokens: number;
   cacheCreationTokens: number;
@@ -117,14 +125,16 @@ function extractCurrentUsage(messages: ClaudeStreamMessage[], engine?: string, c
 } | null {
   const isPlausibleSnapshot = (maybeCurrent: number): boolean => {
     if (maybeCurrent <= 0) return false;
-    if (typeof contextWindowSize !== 'number' || contextWindowSize <= 0) return true;
+    if (typeof contextWindowSize !== "number" || contextWindowSize <= 0) return true;
 
     // Codex runtime 事件里可能带“累计 total”，严格过滤；Claude/Gemini 稍微放宽以容忍未知/不完整的窗口配置
-    const overflowMultiplier = engine === 'codex' ? 1.1 : 2;
+    const overflowMultiplier = engine === "codex" ? 1.1 : 2;
     return maybeCurrent <= contextWindowSize * overflowMultiplier;
   };
 
-  const scan = (shouldConsider: (msg: ClaudeStreamMessage) => boolean): {
+  const scan = (
+    shouldConsider: (msg: ClaudeStreamMessage) => boolean,
+  ): {
     inputTokens: number;
     outputTokens: number;
     cacheCreationTokens: number;
@@ -140,7 +150,8 @@ function extractCurrentUsage(messages: ClaudeStreamMessage[], engine?: string, c
       const normalized = normalizeUsageForIndicator(usage);
       // Context Window 只关心“输入 + 缓存”所占用的窗口大小；输出 tokens 不占用上下文窗口。
       // 某些流式/增量消息可能只携带 output_tokens（或其他非快照字段），此时不应作为 Context Window 的数据源。
-      const maybeCurrent = normalized.inputTokens + normalized.cacheCreationTokens + normalized.cacheReadTokens;
+      const maybeCurrent =
+        normalized.inputTokens + normalized.cacheCreationTokens + normalized.cacheReadTokens;
       if (!isPlausibleSnapshot(maybeCurrent)) continue;
       return normalized;
     }
@@ -152,17 +163,17 @@ function extractCurrentUsage(messages: ClaudeStreamMessage[], engine?: string, c
   if (fromExplicitCurrentUsage) return fromExplicitCurrentUsage;
 
   // Claude: 优先从 assistant/result 中提取，避免实时流中混入“累计/会话级”usage 的 system 消息污染统计
-  if (engine === 'claude') {
+  if (engine === "claude") {
     const fromClaudeMainFlow = scan((m) => {
       const t = (m as any)?.type;
-      return t === 'assistant' || t === 'result';
+      return t === "assistant" || t === "result";
     });
     if (fromClaudeMainFlow) return fromClaudeMainFlow;
   }
 
   // Gemini: usage 快照通常挂在 result 消息上
-  if (engine === 'gemini') {
-    const fromGeminiResult = scan((m) => (m as any)?.type === 'result');
+  if (engine === "gemini") {
+    const fromGeminiResult = scan((m) => (m as any)?.type === "result");
     if (fromGeminiResult) return fromGeminiResult;
   }
 
@@ -190,18 +201,18 @@ function extractCurrentUsage(messages: ClaudeStreamMessage[], engine?: string, c
 export function useContextWindowUsage(
   messages: ClaudeStreamMessage[],
   model?: string,
-  engine?: string
+  engine?: string,
 ): UseContextWindowUsageResult {
   return useMemo(() => {
     // 获取上下文窗口大小（根据引擎和模型）
     let contextWindowSize = getContextWindowSize(model, engine);
 
     // Codex: prefer runtime-reported context window when available (token_count events)
-    if (engine === 'codex') {
+    if (engine === "codex") {
       for (let i = messages.length - 1; i >= 0; i--) {
         const maybeCtx = (messages[i] as any)?.codexMetadata?.modelContextWindow;
         // 仅在运行时值更大时采用，避免把“可用窗口/阈值”之类的较小值误当作模型总窗口
-        if (typeof maybeCtx === 'number' && maybeCtx > contextWindowSize) {
+        if (typeof maybeCtx === "number" && maybeCtx > contextWindowSize) {
           contextWindowSize = maybeCtx;
           break;
         }
@@ -209,13 +220,13 @@ export function useContextWindowUsage(
     }
 
     // Claude/Gemini: prefer runtime-reported context window when available (statusline/hook payloads)
-    if (engine === 'claude' || engine === 'gemini') {
+    if (engine === "claude" || engine === "gemini") {
       for (let i = messages.length - 1; i >= 0; i--) {
         const maybeCtx =
           (messages[i] as any)?.context_window?.context_window_size ??
           (messages[i] as any)?.context_window_size;
 
-        if (typeof maybeCtx === 'number' && maybeCtx > contextWindowSize) {
+        if (typeof maybeCtx === "number" && maybeCtx > contextWindowSize) {
           contextWindowSize = maybeCtx;
           break;
         }
@@ -233,9 +244,9 @@ export function useContextWindowUsage(
         cacheCreationTokens: 0,
         cacheReadTokens: 0,
       },
-      level: 'low' as ContextUsageLevel,
+      level: "low" as ContextUsageLevel,
       hasData: false,
-      formattedPercentage: '0%',
+      formattedPercentage: "0%",
       formattedTokens: `0 / ${formatK(contextWindowSize)}`,
     };
 
@@ -255,14 +266,11 @@ export function useContextWindowUsage(
     // CURRENT_TOKENS = input_tokens + cache_creation_input_tokens + cache_read_input_tokens
     // 注意：不包括 output_tokens，因为输出不占用上下文窗口（它是生成的）
     const currentTokens =
-      currentUsage.inputTokens +
-      currentUsage.cacheCreationTokens +
-      currentUsage.cacheReadTokens;
+      currentUsage.inputTokens + currentUsage.cacheCreationTokens + currentUsage.cacheReadTokens;
 
     // 计算百分比
-    const percentage = contextWindowSize > 0
-      ? Math.min((currentTokens / contextWindowSize) * 100, 100)
-      : 0;
+    const percentage =
+      contextWindowSize > 0 ? Math.min((currentTokens / contextWindowSize) * 100, 100) : 0;
 
     // 获取使用级别
     const level = getUsageLevel(percentage);

@@ -348,7 +348,7 @@ export const ControlBar: React.FC<ControlBarProps> = ({
                   <div className="relative h-4 w-16 overflow-hidden">
                     <AnimatePresence initial={false} mode="popLayout">
                       <motion.span
-                        key={showDeltaAnimation && commandDelta > 0 ? 'delta' : 'total'}
+                        key={showDeltaAnimation && commandDelta > 0 ? `delta-${commandDelta.toFixed(4)}` : 'total'}
                         initial={{ y: 16 }}
                         animate={{ y: 0 }}
                         exit={{ y: -16 }}

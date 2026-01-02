@@ -5,17 +5,17 @@
  * 支持自动检测消息类型并路由到对应的转换器
  */
 
-import type { ClaudeStreamMessage } from '@/types/claude';
-import type { MessageConverter, EngineType, ConvertResult } from './types';
-import { ClaudeConverter } from './ClaudeConverter';
-import { CodexEventConverter } from '@/lib/codexConverter';
+import { CodexEventConverter } from "@/lib/codexConverter";
+import type { ClaudeStreamMessage } from "@/types/claude";
+import { ClaudeConverter } from "./ClaudeConverter";
+import type { ConvertResult, EngineType, MessageConverter } from "./types";
 
 /**
  * 转换器注册中心
  */
 class ConverterRegistry {
   private converters: Map<EngineType, MessageConverter> = new Map();
-  private defaultEngine: EngineType = 'claude';
+  private defaultEngine: EngineType = "claude";
 
   constructor() {
     // 注册默认转换器
@@ -89,7 +89,7 @@ class ConverterRegistry {
       message: null,
       engine: this.defaultEngine,
       skipped: true,
-      error: 'No suitable converter found',
+      error: "No suitable converter found",
     };
   }
 
@@ -149,21 +149,30 @@ class ConverterRegistry {
  * 包装现有的 CodexEventConverter 以符合 MessageConverter 接口
  */
 class CodexConverterWrapper implements MessageConverter {
-  readonly engine: EngineType = 'codex';
+  readonly engine: EngineType = "codex";
   private converter = new CodexEventConverter();
 
   canHandle(msg: unknown): boolean {
-    if (!msg || typeof msg !== 'object') return false;
+    if (!msg || typeof msg !== "object") return false;
 
     const obj = msg as Record<string, unknown>;
     const type = obj.type as string;
 
     // Codex 特有的事件类型
     const codexTypes = [
-      'thread.started', 'turn.started', 'turn.completed', 'turn.failed',
-      'item.started', 'item.updated', 'item.completed',
-      'response_item', 'event_msg', 'session_meta', 'turn_context',
-      'thread_token_usage_updated', 'error',
+      "thread.started",
+      "turn.started",
+      "turn.completed",
+      "turn.failed",
+      "item.started",
+      "item.updated",
+      "item.completed",
+      "response_item",
+      "event_msg",
+      "session_meta",
+      "turn_context",
+      "thread_token_usage_updated",
+      "error",
     ];
 
     return codexTypes.includes(type);

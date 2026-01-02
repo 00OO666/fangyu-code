@@ -5,15 +5,15 @@
  * 支持 Claude、Codex、Gemini 引擎
  */
 
-import { listen, type UnlistenFn } from '@tauri-apps/api/event';
-import { AsyncQueue } from './AsyncQueue';
-import { converterRegistry, type EngineType } from './converters';
-import type { ClaudeStreamMessage } from '@/types/claude';
+import { listen, type UnlistenFn } from "@tauri-apps/api/event";
+import type { ClaudeStreamMessage } from "@/types/claude";
+import { AsyncQueue } from "./AsyncQueue";
+import { converterRegistry, type EngineType } from "./converters";
 
 /**
  * 连接状态
  */
-export type ConnectionState = 'disconnected' | 'connecting' | 'connected' | 'error' | 'closed';
+export type ConnectionState = "disconnected" | "connecting" | "connected" | "error" | "closed";
 
 /**
  * 会话连接配置
@@ -63,7 +63,7 @@ export class SessionConnection {
   private messageQueue: AsyncQueue<ClaudeStreamMessage>;
   private rawQueue: AsyncQueue<string>;
   private unlisteners: UnlistenFn[] = [];
-  private state: ConnectionState = 'disconnected';
+  private state: ConnectionState = "disconnected";
   private isSetup = false;
 
   constructor(config: SessionConnectionConfig) {
@@ -98,18 +98,18 @@ export class SessionConnection {
    */
   async connect(): Promise<void> {
     if (this.isSetup) {
-      console.warn('[SessionConnection] Already connected');
+      console.warn("[SessionConnection] Already connected");
       return;
     }
 
-    this.setState('connecting');
+    this.setState("connecting");
 
     try {
       await this.setupListeners();
       this.isSetup = true;
-      this.setState('connected');
+      this.setState("connected");
     } catch (error) {
-      this.setState('error');
+      this.setState("error");
       throw error;
     }
   }
@@ -124,37 +124,31 @@ export class SessionConnection {
     const eventPrefix = this.getEventPrefix(engine);
 
     // 监听消息输出
-    const outputUnlisten = await listen<string>(
-      `${eventPrefix}-output:${sessionId}`,
-      (event) => {
-        try {
-          if (debug) {
-            console.log(`[SessionConnection] Received:`, event.payload);
-          }
-
-          // 存储原始消息
-          this.rawQueue.enqueue(event.payload);
-
-          // 转换消息
-          const result = converterRegistry.convertLine(event.payload, engine);
-          if (result.message) {
-            this.messageQueue.enqueue(result.message);
-          }
-        } catch (error) {
-          console.error('[SessionConnection] Failed to process message:', error);
+    const outputUnlisten = await listen<string>(`${eventPrefix}-output:${sessionId}`, (event) => {
+      try {
+        if (debug) {
+          console.log(`[SessionConnection] Received:`, event.payload);
         }
+
+        // 存储原始消息
+        this.rawQueue.enqueue(event.payload);
+
+        // 转换消息
+        const result = converterRegistry.convertLine(event.payload, engine);
+        if (result.message) {
+          this.messageQueue.enqueue(result.message);
+        }
+      } catch (error) {
+        console.error("[SessionConnection] Failed to process message:", error);
       }
-    );
+    });
     this.unlisteners.push(outputUnlisten);
 
     // 监听错误
-    const errorUnlisten = await listen<string>(
-      `${eventPrefix}-error:${sessionId}`,
-      (event) => {
-        console.error(`[SessionConnection] Error:`, event.payload);
-        this.config.onError?.(event.payload);
-      }
-    );
+    const errorUnlisten = await listen<string>(`${eventPrefix}-error:${sessionId}`, (event) => {
+      console.error(`[SessionConnection] Error:`, event.payload);
+      this.config.onError?.(event.payload);
+    });
     this.unlisteners.push(errorUnlisten);
 
     // 监听完成事件
@@ -164,10 +158,10 @@ export class SessionConnection {
         if (debug) {
           console.log(`[SessionConnection] Complete:`, event.payload);
         }
-        this.setState('closed');
+        this.setState("closed");
         this.config.onComplete?.(event.payload);
         this.close();
-      }
+      },
     );
     this.unlisteners.push(completeUnlisten);
 
@@ -179,12 +173,12 @@ export class SessionConnection {
           if (debug) {
             console.log(`[SessionConnection] State change:`, event.payload);
           }
-          if (event.payload.status === 'stopped') {
-            this.setState('closed');
+          if (event.payload.status === "stopped") {
+            this.setState("closed");
             this.close();
           }
         }
-      }
+      },
     );
     this.unlisteners.push(stateUnlisten);
 
@@ -201,10 +195,10 @@ export class SessionConnection {
                 this.messageQueue.enqueue(result.message);
               }
             } catch (error) {
-              console.error('[SessionConnection] Failed to process global message:', error);
+              console.error("[SessionConnection] Failed to process global message:", error);
             }
           }
-        }
+        },
       );
       this.unlisteners.push(globalUnlisten);
     }
@@ -215,12 +209,12 @@ export class SessionConnection {
    */
   private getEventPrefix(engine: EngineType): string {
     switch (engine) {
-      case 'codex':
-        return 'codex';
-      case 'gemini':
-        return 'gemini';
+      case "codex":
+        return "codex";
+      case "gemini":
+        return "gemini";
       default:
-        return 'claude';
+        return "claude";
     }
   }
 
@@ -237,7 +231,7 @@ export class SessionConnection {
    */
   close(): void {
     this.cleanup();
-    this.setState('closed');
+    this.setState("closed");
   }
 
   /**
@@ -249,7 +243,7 @@ export class SessionConnection {
       try {
         unlisten();
       } catch (error) {
-        console.warn('[SessionConnection] Failed to unlisten:', error);
+        console.warn("[SessionConnection] Failed to unlisten:", error);
       }
     }
     this.unlisteners = [];
@@ -288,7 +282,7 @@ export class ConnectionManager {
     const key = `${config.engine}:${config.sessionId}`;
 
     const existing = this.connections.get(key);
-    if (existing && existing.getState() === 'connected') {
+    if (existing && existing.getState() === "connected") {
       return existing;
     }
 

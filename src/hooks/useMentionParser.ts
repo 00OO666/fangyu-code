@@ -14,14 +14,14 @@
  * 来源: Claude Code @mention + Cursor @ References
  */
 
-import { useState, useEffect, useCallback } from 'react';
-import { api } from '@/lib/api';
+import { useCallback, useEffect, useState } from "react";
+import { api } from "@/lib/api";
 
 // ============================================================
 // 类型定义
 // ============================================================
 
-export type MentionType = 'subagent' | 'skill' | 'file' | 'command';
+export type MentionType = "subagent" | "skill" | "file" | "command";
 
 export interface Mention {
   type: MentionType;
@@ -93,21 +93,21 @@ export function useMentionParser(options: UseMentionParserOptions = {}) {
 
         setSubagents(
           subagentList.map((s: any) => ({
-            type: 'subagent' as MentionType,
+            type: "subagent" as MentionType,
             name: s.name,
             description: s.description,
-          }))
+          })),
         );
 
         setSkills(
           skillList.map((s: any) => ({
-            type: 'skill' as MentionType,
+            type: "skill" as MentionType,
             name: s.name,
             description: s.description,
-          }))
+          })),
         );
       } catch (error) {
-        console.error('加载mention建议失败:', error);
+        console.error("加载mention建议失败:", error);
       } finally {
         setLoading(false);
       }
@@ -139,12 +139,12 @@ export function useMentionParser(options: UseMentionParserOptions = {}) {
       // 验证mentions
       if (enableValidation) {
         for (const mention of mentions) {
-          if (mention.type === 'subagent') {
+          if (mention.type === "subagent") {
             const exists = subagents.some((s) => s.name === mention.name);
             if (!exists && subagents.length > 0) {
               errors.push(`子代理 "${mention.name}" 不存在`);
             }
-          } else if (mention.type === 'skill') {
+          } else if (mention.type === "skill") {
             const exists = skills.some((s) => s.name === mention.name);
             if (!exists && skills.length > 0) {
               errors.push(`技能 "${mention.name}" 不存在`);
@@ -170,7 +170,7 @@ export function useMentionParser(options: UseMentionParserOptions = {}) {
         errors,
       };
     },
-    [enableValidation, subagents, skills]
+    [enableValidation, subagents, skills],
   );
 
   /**
@@ -190,43 +190,41 @@ export function useMentionParser(options: UseMentionParserOptions = {}) {
       // 如果还没输入类型
       if (!typePrefix || typePrefix.length === 0) {
         return [
-          { type: 'subagent', name: 'subagent', description: '调用子代理' },
-          { type: 'skill', name: 'skill', description: '执行技能' },
-          { type: 'file', name: 'file', description: '引用文件' },
-          { type: 'command', name: 'command', description: '执行命令' },
+          { type: "subagent", name: "subagent", description: "调用子代理" },
+          { type: "skill", name: "skill", description: "执行技能" },
+          { type: "file", name: "file", description: "引用文件" },
+          { type: "command", name: "command", description: "执行命令" },
         ];
       }
 
       // 根据类型前缀过滤
-      if ('subagent'.startsWith(typePrefix.toLowerCase())) {
+      if ("subagent".startsWith(typePrefix.toLowerCase())) {
         suggestions = suggestions.concat(
           subagents.map((s) => ({
             ...s,
             name: namePrefix ? s.name : `subagent:${s.name}`,
-          }))
+          })),
         );
       }
 
-      if ('skill'.startsWith(typePrefix.toLowerCase())) {
+      if ("skill".startsWith(typePrefix.toLowerCase())) {
         suggestions = suggestions.concat(
           skills.map((s) => ({
             ...s,
             name: namePrefix ? s.name : `skill:${s.name}`,
-          }))
+          })),
         );
       }
 
       // 如果已经输入了类型，按名称前缀过滤
       if (namePrefix) {
         const lowerPrefix = namePrefix.toLowerCase();
-        suggestions = suggestions.filter((s) =>
-          s.name.toLowerCase().includes(lowerPrefix)
-        );
+        suggestions = suggestions.filter((s) => s.name.toLowerCase().includes(lowerPrefix));
       }
 
       return suggestions.slice(0, 10); // 最多10个建议
     },
-    [subagents, skills]
+    [subagents, skills],
   );
 
   /**
@@ -236,13 +234,13 @@ export function useMentionParser(options: UseMentionParserOptions = {}) {
     (
       prompt: string,
       cursorPosition: number,
-      suggestion: MentionSuggestion
+      suggestion: MentionSuggestion,
     ): { newPrompt: string; newCursorPosition: number } => {
       const textBeforeCursor = prompt.slice(0, cursorPosition);
       const textAfterCursor = prompt.slice(cursorPosition);
 
       // 找到@符号的位置
-      const atIndex = textBeforeCursor.lastIndexOf('@');
+      const atIndex = textBeforeCursor.lastIndexOf("@");
       if (atIndex === -1) {
         return { newPrompt: prompt, newCursorPosition: cursorPosition };
       }
@@ -251,12 +249,12 @@ export function useMentionParser(options: UseMentionParserOptions = {}) {
       const fullMention = `@${suggestion.type}:${suggestion.name}`;
 
       // 替换
-      const newPrompt = textBeforeCursor.slice(0, atIndex) + fullMention + ' ' + textAfterCursor;
+      const newPrompt = textBeforeCursor.slice(0, atIndex) + fullMention + " " + textAfterCursor;
       const newCursorPosition = atIndex + fullMention.length + 1;
 
       return { newPrompt, newCursorPosition };
     },
-    []
+    [],
   );
 
   /**
@@ -269,22 +267,24 @@ export function useMentionParser(options: UseMentionParserOptions = {}) {
   /**
    * 提取所有被引用的子代理
    */
-  const extractSubagents = useCallback((prompt: string): string[] => {
-    const parsed = parsePrompt(prompt);
-    return parsed.mentions
-      .filter((m) => m.type === 'subagent')
-      .map((m) => m.name);
-  }, [parsePrompt]);
+  const extractSubagents = useCallback(
+    (prompt: string): string[] => {
+      const parsed = parsePrompt(prompt);
+      return parsed.mentions.filter((m) => m.type === "subagent").map((m) => m.name);
+    },
+    [parsePrompt],
+  );
 
   /**
    * 提取所有被引用的技能
    */
-  const extractSkills = useCallback((prompt: string): string[] => {
-    const parsed = parsePrompt(prompt);
-    return parsed.mentions
-      .filter((m) => m.type === 'skill')
-      .map((m) => m.name);
-  }, [parsePrompt]);
+  const extractSkills = useCallback(
+    (prompt: string): string[] => {
+      const parsed = parsePrompt(prompt);
+      return parsed.mentions.filter((m) => m.type === "skill").map((m) => m.name);
+    },
+    [parsePrompt],
+  );
 
   return {
     // 状态

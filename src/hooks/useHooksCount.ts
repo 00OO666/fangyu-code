@@ -4,8 +4,8 @@
  * 获取当前配置的 Hooks 数量
  */
 
-import { useState, useEffect } from 'react';
-import { api } from '@/lib/api';
+import { useEffect, useState } from "react";
+import { api } from "@/lib/api";
 
 interface HooksCountResult {
   /** 总 Hook 数量 */
@@ -34,13 +34,13 @@ export function useHooksCount(): HooksCountResult {
         setError(null);
 
         // 获取用户级别的 hooks 配置
-        const config = await api.getHooksConfig('user');
+        const config = await api.getHooksConfig("user");
 
         if (cancelled) return;
 
         // 统计所有事件类型下的 hooks 数量
         let total = 0;
-        if (config && typeof config === 'object') {
+        if (config && typeof config === "object") {
           Object.values(config).forEach((matchers: any) => {
             if (Array.isArray(matchers)) {
               matchers.forEach((matcher: any) => {
@@ -55,8 +55,8 @@ export function useHooksCount(): HooksCountResult {
         setCount(total);
       } catch (err) {
         if (cancelled) return;
-        console.error('Failed to fetch hooks count:', err);
-        setError(err instanceof Error ? err.message : 'Unknown error');
+        console.error("Failed to fetch hooks count:", err);
+        setError(err instanceof Error ? err.message : "Unknown error");
         setCount(0);
       } finally {
         if (!cancelled) {

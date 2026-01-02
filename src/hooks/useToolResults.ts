@@ -1,5 +1,5 @@
 import React from "react";
-import { useMessagesContext, type ToolResultEntry } from "@/contexts/MessagesContext";
+import { type ToolResultEntry, useMessagesContext } from "@/contexts/MessagesContext";
 import type { ClaudeStreamMessage } from "@/types/claude";
 
 type ToolStatus = "pending" | "success" | "error";
@@ -21,7 +21,7 @@ export const useToolResults = (): UseToolResultsReturn => {
       }
       return toolResults.get(toolUseId);
     },
-    [toolResults]
+    [toolResults],
   );
 
   const getResultsForMessage = React.useCallback(
@@ -43,7 +43,7 @@ export const useToolResults = (): UseToolResultsReturn => {
 
       return results;
     },
-    [toolResults]
+    [toolResults],
   );
 
   const getStatusById = React.useCallback(
@@ -59,7 +59,7 @@ export const useToolResults = (): UseToolResultsReturn => {
 
       return result.isError ? "error" : "success";
     },
-    [toolResults]
+    [toolResults],
   );
 
   return {
@@ -69,5 +69,3 @@ export const useToolResults = (): UseToolResultsReturn => {
     getStatusById,
   };
 };
-
-

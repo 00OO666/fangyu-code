@@ -8,7 +8,7 @@
  * - 选区管理
  */
 
-import { useState, useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from "react";
 
 /**
  * 光标位置
@@ -72,31 +72,34 @@ export function useMultiCursor() {
   /**
    * 添加光标
    */
-  const addCursor = useCallback((position: CursorPosition, selection?: SelectionRange) => {
-    const id = generateCursorId();
-    const newCursor: Cursor = {
-      id,
-      position,
-      selection,
-      isPrimary: state.cursors.length === 0,
-    };
+  const addCursor = useCallback(
+    (position: CursorPosition, selection?: SelectionRange) => {
+      const id = generateCursorId();
+      const newCursor: Cursor = {
+        id,
+        position,
+        selection,
+        isPrimary: state.cursors.length === 0,
+      };
 
-    setState(prev => ({
-      ...prev,
-      cursors: [...prev.cursors, newCursor],
-      primaryCursorId: prev.primaryCursorId || id,
-      isMultiCursorMode: true,
-    }));
+      setState((prev) => ({
+        ...prev,
+        cursors: [...prev.cursors, newCursor],
+        primaryCursorId: prev.primaryCursorId || id,
+        isMultiCursorMode: true,
+      }));
 
-    return id;
-  }, [state.cursors.length]);
+      return id;
+    },
+    [state.cursors.length],
+  );
 
   /**
    * 删除光标
    */
   const removeCursor = useCallback((cursorId: string) => {
-    setState(prev => {
-      const newCursors = prev.cursors.filter(c => c.id !== cursorId);
+    setState((prev) => {
+      const newCursors = prev.cursors.filter((c) => c.id !== cursorId);
 
       // 如果删除的是主光标，选择新的主光标
       let newPrimaryId = prev.primaryCursorId;
@@ -118,11 +121,9 @@ export function useMultiCursor() {
    * 更新光标位置
    */
   const updateCursor = useCallback((cursorId: string, updates: Partial<Cursor>) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
-      cursors: prev.cursors.map(c =>
-        c.id === cursorId ? { ...c, ...updates } : c
-      ),
+      cursors: prev.cursors.map((c) => (c.id === cursorId ? { ...c, ...updates } : c)),
     }));
   }, []);
 
@@ -130,9 +131,9 @@ export function useMultiCursor() {
    * 移动所有光标
    */
   const moveAllCursors = useCallback((deltaLine: number, deltaColumn: number) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
-      cursors: prev.cursors.map(c => ({
+      cursors: prev.cursors.map((c) => ({
         ...c,
         position: {
           line: Math.max(0, c.position.line + deltaLine),
@@ -146,7 +147,7 @@ export function useMultiCursor() {
    * 在下一行添加光标（Ctrl+Alt+Down）
    */
   const addCursorBelow = useCallback(() => {
-    const primary = state.cursors.find(c => c.isPrimary);
+    const primary = state.cursors.find((c) => c.isPrimary);
     if (!primary) return;
 
     addCursor({
@@ -159,7 +160,7 @@ export function useMultiCursor() {
    * 在上一行添加光标（Ctrl+Alt+Up）
    */
   const addCursorAbove = useCallback(() => {
-    const primary = state.cursors.find(c => c.isPrimary);
+    const primary = state.cursors.find((c) => c.isPrimary);
     if (!primary || primary.position.line === 0) return;
 
     addCursor({
@@ -175,10 +176,10 @@ export function useMultiCursor() {
     if (!text) return;
 
     // 清除现有光标
-    setState(prev => ({ ...prev, cursors: [], primaryCursorId: null }));
+    setState((prev) => ({ ...prev, cursors: [], primaryCursorId: null }));
 
     // 查找所有匹配项
-    const lines = content.split('\n');
+    const lines = content.split("\n");
     const newCursors: Cursor[] = [];
 
     lines.forEach((line, lineIndex) => {
@@ -214,8 +215,8 @@ export function useMultiCursor() {
    * 清除所有光标（只保留主光标）
    */
   const clearSecondary = useCallback(() => {
-    setState(prev => {
-      const primary = prev.cursors.find(c => c.isPrimary);
+    setState((prev) => {
+      const primary = prev.cursors.find((c) => c.isPrimary);
       return {
         ...prev,
         cursors: primary ? [primary] : [],
@@ -240,9 +241,9 @@ export function useMultiCursor() {
    * 设置主光标
    */
   const setPrimary = useCallback((cursorId: string) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
-      cursors: prev.cursors.map(c => ({
+      cursors: prev.cursors.map((c) => ({
         ...c,
         isPrimary: c.id === cursorId,
       })),
@@ -251,9 +252,9 @@ export function useMultiCursor() {
   }, []);
 
   // 计算属性
-  const primaryCursor = useMemo(() =>
-    state.cursors.find(c => c.isPrimary) || null,
-    [state.cursors]
+  const primaryCursor = useMemo(
+    () => state.cursors.find((c) => c.isPrimary) || null,
+    [state.cursors],
   );
 
   const cursorCount = state.cursors.length;

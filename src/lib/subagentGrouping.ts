@@ -1,13 +1,13 @@
 /**
  * 子代理消息分组逻辑
- * 
+ *
  * 核心思路：
  * 1. 识别 Task 工具调用（子代理启动边界）
  * 2. 收集该 Task 对应的所有子代理消息（有 parent_tool_use_id）
  * 3. 将 Task 调用和相关子代理消息打包成一个消息组
  */
 
-import type { ClaudeStreamMessage } from '@/types/claude';
+import type { ClaudeStreamMessage } from "@/types/claude";
 
 /**
  * 子代理消息组
@@ -32,23 +32,22 @@ export interface SubagentGroup {
 /**
  * 消息组类型（用于渲染）
  */
-export type MessageGroup = 
-  | { type: 'normal'; message: ClaudeStreamMessage; index: number }
-  | { type: 'subagent'; group: SubagentGroup }
-  | { type: 'aggregated'; messages: ClaudeStreamMessage[]; index: number }; // 新增：聚合消息组
+export type MessageGroup =
+  | { type: "normal"; message: ClaudeStreamMessage; index: number }
+  | { type: "subagent"; group: SubagentGroup }
+  | { type: "aggregated"; messages: ClaudeStreamMessage[]; index: number }; // 新增：聚合消息组
 
 /**
  * 检查消息是否包含 Task 工具调用
  */
 export function hasTaskToolCall(message: ClaudeStreamMessage): boolean {
-  if (message.type !== 'assistant') return false;
-  
+  if (message.type !== "assistant") return false;
+
   const content = message.message?.content;
   if (!Array.isArray(content)) return false;
-  
-  return content.some((item: any) => 
-    item.type === 'tool_use' && 
-    item.name?.toLowerCase() === 'task'
+
+  return content.some(
+    (item: any) => item.type === "tool_use" && item.name?.toLowerCase() === "task",
   );
 }
 
@@ -60,7 +59,7 @@ export function extractTaskToolUseIds(message: ClaudeStreamMessage): string[] {
 
   const content = message.message?.content as any[];
   return content
-    .filter((item: any) => item.type === 'tool_use' && item.name?.toLowerCase() === 'task')
+    .filter((item: any) => item.type === "tool_use" && item.name?.toLowerCase() === "task")
     .map((item: any) => item.id)
     .filter(Boolean);
 }
@@ -68,14 +67,16 @@ export function extractTaskToolUseIds(message: ClaudeStreamMessage): string[] {
 /**
  * 从消息中提取 Task 工具的详细信息（包括 subagent_type）
  */
-export function extractTaskToolDetails(message: ClaudeStreamMessage): Map<string, { subagentType?: string }> {
+export function extractTaskToolDetails(
+  message: ClaudeStreamMessage,
+): Map<string, { subagentType?: string }> {
   const details = new Map<string, { subagentType?: string }>();
 
   if (!hasTaskToolCall(message)) return details;
 
   const content = message.message?.content as any[];
   content
-    .filter((item: any) => item.type === 'tool_use' && item.name?.toLowerCase() === 'task')
+    .filter((item: any) => item.type === "tool_use" && item.name?.toLowerCase() === "task")
     .forEach((item: any) => {
       if (item.id) {
         details.set(item.id, {
@@ -93,10 +94,10 @@ export function extractTaskToolDetails(message: ClaudeStreamMessage): Map<string
 export function isSubagentMessage(message: ClaudeStreamMessage): boolean {
   // 检查是否有 parent_tool_use_id
   const hasParent = !!(message as any).parent_tool_use_id;
-  
+
   // 检查是否标记为侧链
   const isSidechain = !!(message as any).isSidechain;
-  
+
   return hasParent || isSidechain;
 }
 
@@ -109,19 +110,19 @@ export function getParentToolUseId(message: ClaudeStreamMessage): string | null 
 
 /**
  * 获取技术性消息的具体聚合类型
- * 
+ *
  * 返回值：
  * - 'tool': 仅包含工具调用或结果
  * - 'thinking': 仅包含思考内容
  * - null: 包含文本或其他不可聚合内容
  */
-function getTechnicalMessageType(message: ClaudeStreamMessage): 'tool' | 'thinking' | null {
+function getTechnicalMessageType(message: ClaudeStreamMessage): "tool" | "thinking" | null {
   // Thinking 类型的消息
-  if (message.type === 'thinking') return 'thinking';
-  
+  if (message.type === "thinking") return "thinking";
+
   // 必须是 assistant 类型
-  if (message.type !== 'assistant') return null;
-  
+  if (message.type !== "assistant") return null;
+
   const content = message.message?.content;
   if (!Array.isArray(content)) return null;
 
@@ -130,11 +131,11 @@ function getTechnicalMessageType(message: ClaudeStreamMessage): 'tool' | 'thinki
   let hasText = false;
 
   content.forEach((item: any) => {
-    if (item.type === 'thinking') {
+    if (item.type === "thinking") {
       hasThinking = true;
-    } else if (item.type === 'tool_use' || item.type === 'tool_result') {
+    } else if (item.type === "tool_use" || item.type === "tool_result") {
       hasTool = true;
-    } else if (item.type === 'text') {
+    } else if (item.type === "text") {
       if (item.text && item.text.trim().length > 0) {
         hasText = true;
       }
@@ -152,7 +153,7 @@ function getTechnicalMessageType(message: ClaudeStreamMessage): 'tool' | 'thinki
   // 如果返回 'tool'，它会和前后的 tool 合并。
   // 如果返回 'thinking'，它会和前后的 thinking 合并。
   // 如果返回 null，它不参与合并。
-  
+
   if (hasThinking && hasTool) {
     // 这是一个复杂的混合消息，为了安全起见，我们暂不将其与其他消息合并，
     // 以免混淆。它自身内部已经包含了 Thinking 和 Tool。
@@ -161,8 +162,8 @@ function getTechnicalMessageType(message: ClaudeStreamMessage): 'tool' | 'thinki
     return null;
   }
 
-  if (hasThinking) return 'thinking';
-  if (hasTool) return 'tool';
+  if (hasThinking) return "thinking";
+  if (hasTool) return "tool";
 
   return null;
 }
@@ -193,7 +194,7 @@ export function groupMessages(messages: ClaudeStreamMessage[]): MessageGroup[] {
       indexToTaskIds.set(index, taskIds);
       // 提取详细信息（包括 subagent_type）
       const details = extractTaskToolDetails(message);
-      taskIds.forEach(taskId => {
+      taskIds.forEach((taskId) => {
         taskToolUseMap.set(taskId, { message, index });
         const detail = details.get(taskId);
         if (detail?.subagentType) {
@@ -262,10 +263,10 @@ export function groupMessages(messages: ClaudeStreamMessage[]): MessageGroup[] {
 
     if (taskIds && taskIds.length > 0) {
       // ✅ FIX: 遍历所有 Task ID，为每个有子代理消息的 Task 创建分组
-      taskIds.forEach(taskId => {
+      taskIds.forEach((taskId) => {
         if (subagentGroups.has(taskId) && !addedTaskGroups.has(taskId)) {
           intermediateGroups.push({
-            type: 'subagent',
+            type: "subagent",
             group: subagentGroups.get(taskId)!,
           });
           addedTaskGroups.add(taskId);
@@ -274,10 +275,10 @@ export function groupMessages(messages: ClaudeStreamMessage[]): MessageGroup[] {
 
       // 如果该消息的所有 Task 都没有子代理消息（可能是正在执行中），
       // 仍然作为普通消息显示
-      const hasAnySubagentGroup = taskIds.some(id => subagentGroups.has(id));
+      const hasAnySubagentGroup = taskIds.some((id) => subagentGroups.has(id));
       if (!hasAnySubagentGroup) {
         intermediateGroups.push({
-          type: 'normal',
+          type: "normal",
           message,
           index,
         });
@@ -285,7 +286,7 @@ export function groupMessages(messages: ClaudeStreamMessage[]): MessageGroup[] {
     } else {
       // 普通消息
       intermediateGroups.push({
-        type: 'normal',
+        type: "normal",
         message,
         index,
       });
@@ -295,20 +296,20 @@ export function groupMessages(messages: ClaudeStreamMessage[]): MessageGroup[] {
   // 第四遍：合并连续的技术性消息（Tools & Thinking）
   // ✅ FIX: 仅允许同类型的技术性消息合并（Thinking 与 Tool 分离）
   const finalGroups: MessageGroup[] = [];
-  let currentAggregation: { 
-    messages: ClaudeStreamMessage[]; 
+  let currentAggregation: {
+    messages: ClaudeStreamMessage[];
     startIndex: number;
-    aggType: 'tool' | 'thinking'; // 记录当前聚合组的类型
+    aggType: "tool" | "thinking"; // 记录当前聚合组的类型
   } | null = null;
 
   for (const group of intermediateGroups) {
     // 如果是子代理组，打断聚合
-    if (group.type === 'subagent') {
+    if (group.type === "subagent") {
       if (currentAggregation) {
         finalGroups.push({
-          type: 'aggregated',
+          type: "aggregated",
           messages: currentAggregation.messages,
-          index: currentAggregation.startIndex
+          index: currentAggregation.startIndex,
         });
         currentAggregation = null;
       }
@@ -317,7 +318,7 @@ export function groupMessages(messages: ClaudeStreamMessage[]): MessageGroup[] {
     }
 
     // 处理普通消息
-    if (group.type === 'normal') {
+    if (group.type === "normal") {
       const msg = group.message;
       const msgType = getTechnicalMessageType(msg);
 
@@ -331,31 +332,31 @@ export function groupMessages(messages: ClaudeStreamMessage[]): MessageGroup[] {
           } else {
             // 类型不一致（例如 Thinking -> Tool），结算上一个聚合，开始新的聚合
             finalGroups.push({
-              type: 'aggregated',
+              type: "aggregated",
               messages: currentAggregation.messages,
-              index: currentAggregation.startIndex
+              index: currentAggregation.startIndex,
             });
-            currentAggregation = { 
-              messages: [msg], 
+            currentAggregation = {
+              messages: [msg],
               startIndex: group.index,
-              aggType: msgType 
+              aggType: msgType,
             };
           }
         } else {
           // 开始新的聚合
-          currentAggregation = { 
-            messages: [msg], 
+          currentAggregation = {
+            messages: [msg],
             startIndex: group.index,
-            aggType: msgType 
+            aggType: msgType,
           };
         }
       } else {
         // 不可聚合的消息（文本等），结算之前的聚合
         if (currentAggregation) {
           finalGroups.push({
-            type: 'aggregated',
+            type: "aggregated",
             messages: currentAggregation.messages,
-            index: currentAggregation.startIndex
+            index: currentAggregation.startIndex,
           });
           currentAggregation = null;
         }
@@ -370,9 +371,9 @@ export function groupMessages(messages: ClaudeStreamMessage[]): MessageGroup[] {
   // 结算最后的聚合
   if (currentAggregation) {
     finalGroups.push({
-      type: 'aggregated',
+      type: "aggregated",
       messages: currentAggregation.messages,
-      index: currentAggregation.startIndex
+      index: currentAggregation.startIndex,
     });
   }
 
@@ -388,9 +389,7 @@ export function shouldHideMessage(message: ClaudeStreamMessage, groups: MessageG
     const parentId = getParentToolUseId(message);
     if (parentId) {
       // 检查是否有对应的子代理组
-      return groups.some(g => 
-        g.type === 'subagent' && g.group.taskToolUseId === parentId
-      );
+      return groups.some((g) => g.type === "subagent" && g.group.taskToolUseId === parentId);
     }
   }
   return false;
@@ -399,18 +398,20 @@ export function shouldHideMessage(message: ClaudeStreamMessage, groups: MessageG
 /**
  * 获取子代理消息的类型标识
  */
-export function getSubagentMessageRole(message: ClaudeStreamMessage): 'user' | 'assistant' | 'system' | 'other' {
+export function getSubagentMessageRole(
+  message: ClaudeStreamMessage,
+): "user" | "assistant" | "system" | "other" {
   // 子代理发送给主代理的提示词被标记为 user 类型，但应该显示为子代理的输出
-  if (message.type === 'user' && isSubagentMessage(message)) {
+  if (message.type === "user" && isSubagentMessage(message)) {
     // 检查是否有文本内容（子代理的提示词）
     const content = message.message?.content;
     if (Array.isArray(content)) {
-      const hasText = content.some((item: any) => item.type === 'text');
+      const hasText = content.some((item: any) => item.type === "text");
       if (hasText) {
-        return 'assistant'; // 子代理的输出
+        return "assistant"; // 子代理的输出
       }
     }
   }
-  
+
   return message.type as any;
 }

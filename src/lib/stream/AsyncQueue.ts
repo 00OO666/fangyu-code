@@ -27,7 +27,7 @@ export class AsyncQueue<T> implements AsyncIterable<T>, AsyncIterator<T> {
    */
   [Symbol.asyncIterator](): AsyncIterator<T> {
     if (this.started) {
-      throw new Error('AsyncQueue can only be iterated once');
+      throw new Error("AsyncQueue can only be iterated once");
     }
     this.started = true;
     return this;
@@ -64,7 +64,7 @@ export class AsyncQueue<T> implements AsyncIterable<T>, AsyncIterator<T> {
    */
   enqueue(value: T): void {
     if (this.isDone) {
-      console.warn('[AsyncQueue] Attempting to enqueue after done');
+      console.warn("[AsyncQueue] Attempting to enqueue after done");
       return;
     }
 

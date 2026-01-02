@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import type { CheckResult } from "../lib/updater";
 import { checkForUpdate, getCurrentVersion } from "../lib/updater";
 
@@ -15,44 +15,47 @@ export function useUpdateCheck(): UseUpdateCheckResult {
   const [lastChecked, setLastChecked] = useState<Date | null>(null);
   const isCheckingRef = useRef(false);
 
-  const checkUpdate = useCallback(async (force: boolean = false): Promise<CheckResult> => {
-    // 如果正在检查，直接返回错误或等待（此处选择直接返回以避免重复调用）
-    if (isCheckingRef.current) {
-      return { status: "error", error: "Update check already in progress" };
-    }
-
-    // 如果不是强制检查，且距离上次检查不足 5 分钟，则跳过
-    if (!force && lastChecked && Date.now() - lastChecked.getTime() < 5 * 60 * 1000) {
-      
-      const currentVersion = await getCurrentVersion();
-      return { status: "up-to-date", currentVersion, skipped: true };
-    }
-
-    isCheckingRef.current = true;
-    setIsChecking(true);
-    setError(null);
-
-    try {
-      const result = await checkForUpdate({ timeout: 30000 });
-      setLastChecked(new Date());
-
-      if (result.status === "error") {
-        setError(result.error);
-      } else {
-        // 如果成功，清除错误
-        setError(null);
+  const checkUpdate = useCallback(
+    async (force: boolean = false): Promise<CheckResult> => {
+      // 如果正在检查，直接返回错误或等待（此处选择直接返回以避免重复调用）
+      if (isCheckingRef.current) {
+        return { status: "error", error: "Update check already in progress" };
       }
 
-      return result;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Unknown error during update check";
-      setError(errorMessage);
-      return { status: "error", error: errorMessage };
-    } finally {
-      setIsChecking(false);
-      isCheckingRef.current = false;
-    }
-  }, [lastChecked]);
+      // 如果不是强制检查，且距离上次检查不足 5 分钟，则跳过
+      if (!force && lastChecked && Date.now() - lastChecked.getTime() < 5 * 60 * 1000) {
+        const currentVersion = await getCurrentVersion();
+        return { status: "up-to-date", currentVersion, skipped: true };
+      }
+
+      isCheckingRef.current = true;
+      setIsChecking(true);
+      setError(null);
+
+      try {
+        const result = await checkForUpdate({ timeout: 30000 });
+        setLastChecked(new Date());
+
+        if (result.status === "error") {
+          setError(result.error);
+        } else {
+          // 如果成功，清除错误
+          setError(null);
+        }
+
+        return result;
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Unknown error during update check";
+        setError(errorMessage);
+        return { status: "error", error: errorMessage };
+      } finally {
+        setIsChecking(false);
+        isCheckingRef.current = false;
+      }
+    },
+    [lastChecked],
+  );
 
   return {
     isChecking,

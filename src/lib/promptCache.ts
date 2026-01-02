@@ -8,8 +8,7 @@
  * - Performance analytics
  */
 
-import { ClaudeMessage, ClaudeResponse } from './claudeSDK';
-
+import type { ClaudeMessage, ClaudeResponse } from "./claudeSDK";
 
 export interface CacheEntry {
   id: string;
@@ -120,10 +119,10 @@ export class IntelligentPromptCache {
     messages: ClaudeMessage[],
     model: string,
     temperature: number,
-    systemPrompt?: string
+    systemPrompt?: string,
   ): string {
-    const content = messages.map(m => `${m.role}:${m.content}`).join('|');
-    const context = `${model}:${temperature}:${systemPrompt || ''}`;
+    const content = messages.map((m) => `${m.role}:${m.content}`).join("|");
+    const context = `${model}:${temperature}:${systemPrompt || ""}`;
     return this.hashString(`${content}:${context}`);
   }
 
@@ -134,7 +133,7 @@ export class IntelligentPromptCache {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash; // Convert to 32-bit integer
     }
     return Math.abs(hash).toString(36);
@@ -150,15 +149,16 @@ export class IntelligentPromptCache {
     const words1 = new Set(prompt1.toLowerCase().split(/\W+/));
     const words2 = new Set(prompt2.toLowerCase().split(/\W+/));
 
-    const intersection = new Set([...words1].filter(word => words2.has(word)));
+    const intersection = new Set([...words1].filter((word) => words2.has(word)));
     const union = new Set([...words1, ...words2]);
 
     const jaccardSimilarity = intersection.size / union.size;
 
     // Boost similarity for similar structure
-    const lengthSimilarity = 1 - Math.abs(prompt1.length - prompt2.length) / Math.max(prompt1.length, prompt2.length);
+    const lengthSimilarity =
+      1 - Math.abs(prompt1.length - prompt2.length) / Math.max(prompt1.length, prompt2.length);
 
-    return (jaccardSimilarity * 0.7) + (lengthSimilarity * 0.3);
+    return jaccardSimilarity * 0.7 + lengthSimilarity * 0.3;
   }
 
   /**
@@ -168,17 +168,20 @@ export class IntelligentPromptCache {
     messages: ClaudeMessage[],
     model: string,
     temperature: number,
-    systemPrompt?: string
+    systemPrompt?: string,
   ): CacheEntry | null {
     if (!this.config.enableFuzzyMatching) return null;
 
-    const currentPrompt = messages.map(m => m.content).join(' ');
+    const currentPrompt = messages.map((m) => m.content).join(" ");
     let bestMatch: CacheEntry | null = null;
     let bestSimilarity = 0;
 
     for (const entry of this.cache.values()) {
       // Only consider entries with same model and similar temperature
-      if (entry.metadata.model !== model || Math.abs(entry.metadata.temperature - temperature) > 0.1) {
+      if (
+        entry.metadata.model !== model ||
+        Math.abs(entry.metadata.temperature - temperature) > 0.1
+      ) {
         continue;
       }
 
@@ -187,7 +190,7 @@ export class IntelligentPromptCache {
         continue;
       }
 
-      const entryPrompt = entry.messages.map(m => m.content).join(' ');
+      const entryPrompt = entry.messages.map((m) => m.content).join(" ");
       const similarity = this.calculateSimilarity(currentPrompt, entryPrompt);
 
       if (similarity > this.config.similarityThreshold && similarity > bestSimilarity) {
@@ -203,32 +206,35 @@ export class IntelligentPromptCache {
    * Extract tags from prompt for categorization
    */
   private extractTags(messages: ClaudeMessage[]): string[] {
-    const content = messages.map(m => m.content).join(' ').toLowerCase();
+    const content = messages
+      .map((m) => m.content)
+      .join(" ")
+      .toLowerCase();
     const tags: string[] = [];
 
     // Programming related
     if (/\b(code|function|class|import|export|async|await)\b/.test(content)) {
-      tags.push('programming');
+      tags.push("programming");
     }
 
     // Translation related
     if (/\b(translate|translation|翻译|语言)\b/.test(content)) {
-      tags.push('translation');
+      tags.push("translation");
     }
 
     // Writing related
     if (/\b(write|essay|article|document|text)\b/.test(content)) {
-      tags.push('writing');
+      tags.push("writing");
     }
 
     // Analysis related
     if (/\b(analyze|analysis|compare|evaluate|review)\b/.test(content)) {
-      tags.push('analysis');
+      tags.push("analysis");
     }
 
     // Question/Answer
     if (/\b(what|how|why|when|where|explain|describe)\b/.test(content)) {
-      tags.push('question');
+      tags.push("question");
     }
 
     return tags;
@@ -285,7 +291,7 @@ export class IntelligentPromptCache {
   private updateAnalytics(isHit: boolean, tokensSaved: number = 0): void {
     if (!this.config.analyticsEnabled) return;
 
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().split("T")[0];
 
     if (!this.analytics.dailyStats[today]) {
       this.analytics.dailyStats[today] = { hits: 0, misses: 0, tokensSaved: 0 };
@@ -314,7 +320,7 @@ export class IntelligentPromptCache {
     messages: ClaudeMessage[],
     model: string,
     temperature: number,
-    systemPrompt?: string
+    systemPrompt?: string,
   ): Promise<CacheEntry | null> {
     this.cleanExpired();
 
@@ -332,12 +338,11 @@ export class IntelligentPromptCache {
       this.updateAccessOrder(key);
       this.updateAnalytics(true, entry.usage.input_tokens + entry.usage.output_tokens);
 
-      
       return entry;
     }
 
     this.updateAnalytics(false);
-    
+
     return null;
   }
 
@@ -350,7 +355,7 @@ export class IntelligentPromptCache {
     model: string,
     temperature: number,
     maxTokens: number,
-    systemPrompt?: string
+    systemPrompt?: string,
   ): Promise<void> {
     const key = this.generateCacheKey(messages, model, temperature, systemPrompt);
     const now = Date.now();
@@ -358,7 +363,7 @@ export class IntelligentPromptCache {
     const entry: CacheEntry = {
       id: key,
       promptHash: key,
-      prompt: messages.map(m => m.content).join(' '),
+      prompt: messages.map((m) => m.content).join(" "),
       messages,
       response,
       metadata: {
@@ -382,8 +387,6 @@ export class IntelligentPromptCache {
     if (this.config.persistToDisk) {
       this.saveToStorage();
     }
-
-    
   }
 
   /**
@@ -396,8 +399,8 @@ export class IntelligentPromptCache {
       ...this.stats,
       totalEntries: this.cache.size,
       cacheSize: JSON.stringify(Array.from(this.cache.entries())).length,
-      oldestEntry: entries.length > 0 ? Math.min(...entries.map(e => e.timestamp)) : undefined,
-      newestEntry: entries.length > 0 ? Math.max(...entries.map(e => e.timestamp)) : undefined,
+      oldestEntry: entries.length > 0 ? Math.min(...entries.map((e) => e.timestamp)) : undefined,
+      newestEntry: entries.length > 0 ? Math.max(...entries.map((e) => e.timestamp)) : undefined,
     };
   }
 
@@ -437,23 +440,27 @@ export class IntelligentPromptCache {
    * Get cache entries by tag
    */
   getEntriesByTag(tag: string): CacheEntry[] {
-    return Array.from(this.cache.values()).filter(entry => entry.tags.includes(tag));
+    return Array.from(this.cache.values()).filter((entry) => entry.tags.includes(tag));
   }
 
   /**
    * Get most popular cached patterns
    */
-  getPopularPatterns(limit: number = 10): Array<{ pattern: string; frequency: number; tokensSaved: number }> {
+  getPopularPatterns(
+    limit: number = 10,
+  ): Array<{ pattern: string; frequency: number; tokensSaved: number }> {
     const patterns = new Map<string, { frequency: number; tokensSaved: number }>();
 
     for (const entry of this.cache.values()) {
       // Extract pattern from first 50 chars of prompt
-      const pattern = entry.prompt.slice(0, 50).trim() + '...';
+      const pattern = entry.prompt.slice(0, 50).trim() + "...";
       const existing = patterns.get(pattern) || { frequency: 0, tokensSaved: 0 };
 
       patterns.set(pattern, {
         frequency: existing.frequency + entry.accessCount,
-        tokensSaved: existing.tokensSaved + (entry.usage.input_tokens + entry.usage.output_tokens) * entry.accessCount,
+        tokensSaved:
+          existing.tokensSaved +
+          (entry.usage.input_tokens + entry.usage.output_tokens) * entry.accessCount,
       });
     }
 
@@ -467,7 +474,7 @@ export class IntelligentPromptCache {
    * Save cache to localStorage
    */
   private saveToStorage(): void {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
 
     try {
       const cacheData = {
@@ -477,9 +484,9 @@ export class IntelligentPromptCache {
         config: this.config,
       };
 
-      localStorage.setItem('claude-prompt-cache', JSON.stringify(cacheData));
+      localStorage.setItem("claude-prompt-cache", JSON.stringify(cacheData));
     } catch (error) {
-      console.warn('[PromptCache] Failed to save to storage:', error);
+      console.warn("[PromptCache] Failed to save to storage:", error);
     }
   }
 
@@ -487,10 +494,10 @@ export class IntelligentPromptCache {
    * Load cache from localStorage
    */
   private loadFromStorage(): void {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
 
     try {
-      const stored = localStorage.getItem('claude-prompt-cache');
+      const stored = localStorage.getItem("claude-prompt-cache");
       if (!stored) return;
 
       const cacheData = JSON.parse(stored);
@@ -506,7 +513,7 @@ export class IntelligentPromptCache {
       // Clean expired entries
       this.cleanExpired();
     } catch (error) {
-      console.warn('[PromptCache] Failed to load from storage:', error);
+      console.warn("[PromptCache] Failed to load from storage:", error);
     }
   }
 }

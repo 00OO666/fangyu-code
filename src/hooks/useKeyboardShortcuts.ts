@@ -5,7 +5,7 @@
  * 处理双击 ESC 和 Shift+Tab 的快捷键检测
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 interface KeyboardShortcutsConfig {
   /** 是否激活（用于多标签管理） */
@@ -47,7 +47,7 @@ export function useKeyboardShortcuts(config: KeyboardShortcutsConfig): void {
     hasDialogOpen = false,
     onNavigateToPreviousPrompt,
     onNavigateToNextPrompt,
-    onToggleUsageDashboard
+    onToggleUsageDashboard,
   } = config;
 
   const [lastEscapeTime, setLastEscapeTime] = useState(0);
@@ -57,7 +57,7 @@ export function useKeyboardShortcuts(config: KeyboardShortcutsConfig): void {
   useEffect(() => {
     const handleEscapeKey = (event: KeyboardEvent) => {
       // Don't handle ESC if a dialog is open (let the dialog handle it)
-      if (event.key === 'Escape' && isActive && !hasDialogOpen) {
+      if (event.key === "Escape" && isActive && !hasDialogOpen) {
         const now = Date.now();
         const isDoubleEscape = now - lastEscapeTime < 300;
 
@@ -69,7 +69,7 @@ export function useKeyboardShortcuts(config: KeyboardShortcutsConfig): void {
           // Shift + Esc + Esc: 快速恢复最新检查点
           if (event.shiftKey || lastEscapeWasShift) {
             if (onRestoreLastCheckpoint) {
-              console.log('🔄 快速恢复最新检查点 (Shift+Esc+Esc)');
+              console.log("🔄 快速恢复最新检查点 (Shift+Esc+Esc)");
               onRestoreLastCheckpoint();
             }
           }
@@ -87,32 +87,39 @@ export function useKeyboardShortcuts(config: KeyboardShortcutsConfig): void {
     };
 
     if (isActive) {
-      document.addEventListener('keydown', handleEscapeKey, { capture: true });
+      document.addEventListener("keydown", handleEscapeKey, { capture: true });
     }
 
     return () => {
-      document.removeEventListener('keydown', handleEscapeKey, { capture: true });
+      document.removeEventListener("keydown", handleEscapeKey, { capture: true });
     };
-  }, [lastEscapeTime, lastEscapeWasShift, isActive, onShowRevertDialog, onRestoreLastCheckpoint, hasDialogOpen]);
+  }, [
+    lastEscapeTime,
+    lastEscapeWasShift,
+    isActive,
+    onShowRevertDialog,
+    onRestoreLastCheckpoint,
+    hasDialogOpen,
+  ]);
 
   // Shift+Tab for Plan Mode toggle (single press, consistent with Claude Code official)
   useEffect(() => {
     const handlePlanModeToggle = (event: KeyboardEvent) => {
-      if (event.key === 'Tab' && event.shiftKey && isActive) {
-          event.preventDefault();
-          event.stopPropagation();
+      if (event.key === "Tab" && event.shiftKey && isActive) {
+        event.preventDefault();
+        event.stopPropagation();
 
         // Toggle Plan Mode (single press, as per official Claude Code)
-          onTogglePlanMode();
+        onTogglePlanMode();
       }
     };
 
     if (isActive) {
-      document.addEventListener('keydown', handlePlanModeToggle, { capture: true });
+      document.addEventListener("keydown", handlePlanModeToggle, { capture: true });
     }
 
     return () => {
-      document.removeEventListener('keydown', handlePlanModeToggle, { capture: true });
+      document.removeEventListener("keydown", handlePlanModeToggle, { capture: true });
     };
   }, [isActive, onTogglePlanMode]);
 
@@ -120,18 +127,18 @@ export function useKeyboardShortcuts(config: KeyboardShortcutsConfig): void {
   useEffect(() => {
     const handlePromptNavigation = (event: KeyboardEvent) => {
       if (!isActive) return;
-      
+
       // PgUp - 上一条用户指令
-      if (event.key === 'PageUp') {
+      if (event.key === "PageUp") {
         event.preventDefault();
         event.stopPropagation();
         if (onNavigateToPreviousPrompt) {
           onNavigateToPreviousPrompt();
         }
       }
-      
+
       // PgDn - 下一条用户指令
-      if (event.key === 'PageDown') {
+      if (event.key === "PageDown") {
         event.preventDefault();
         event.stopPropagation();
         if (onNavigateToNextPrompt) {
@@ -141,11 +148,11 @@ export function useKeyboardShortcuts(config: KeyboardShortcutsConfig): void {
     };
 
     if (isActive) {
-      document.addEventListener('keydown', handlePromptNavigation, { capture: true });
+      document.addEventListener("keydown", handlePromptNavigation, { capture: true });
     }
 
     return () => {
-      document.removeEventListener('keydown', handlePromptNavigation, { capture: true });
+      document.removeEventListener("keydown", handlePromptNavigation, { capture: true });
     };
   }, [isActive, onNavigateToPreviousPrompt, onNavigateToNextPrompt]);
 
@@ -155,7 +162,7 @@ export function useKeyboardShortcuts(config: KeyboardShortcutsConfig): void {
       if (!isActive) return;
 
       // Ctrl+Shift+T - 切换 Usage Dashboard
-      if (event.key === 'T' && event.ctrlKey && event.shiftKey) {
+      if (event.key === "T" && event.ctrlKey && event.shiftKey) {
         event.preventDefault();
         event.stopPropagation();
         if (onToggleUsageDashboard) {
@@ -165,12 +172,11 @@ export function useKeyboardShortcuts(config: KeyboardShortcutsConfig): void {
     };
 
     if (isActive) {
-      document.addEventListener('keydown', handleUsageDashboardToggle, { capture: true });
+      document.addEventListener("keydown", handleUsageDashboardToggle, { capture: true });
     }
 
     return () => {
-      document.removeEventListener('keydown', handleUsageDashboardToggle, { capture: true });
+      document.removeEventListener("keydown", handleUsageDashboardToggle, { capture: true });
     };
   }, [isActive, onToggleUsageDashboard]);
-
 }

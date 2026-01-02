@@ -12,9 +12,15 @@
 // Task 相关类型
 // ============================================
 
-export type TaskStatus = 'pending' | 'queued' | 'in_progress' | 'completed' | 'failed' | 'cancelled';
-export type TaskType = 'sequential' | 'parallel' | 'conditional' | 'loop';
-export type TaskPriority = 'low' | 'medium' | 'high' | 'critical';
+export type TaskStatus =
+  | "pending"
+  | "queued"
+  | "in_progress"
+  | "completed"
+  | "failed"
+  | "cancelled";
+export type TaskType = "sequential" | "parallel" | "conditional" | "loop";
+export type TaskPriority = "low" | "medium" | "high" | "critical";
 
 export interface TaskMetrics {
   startTime?: number;
@@ -58,14 +64,14 @@ export interface TaskResult {
 }
 
 export interface TaskArtifact {
-  type: 'file' | 'directory' | 'url' | 'data';
+  type: "file" | "directory" | "url" | "data";
   path: string;
   description: string;
   size?: number;
 }
 
 export interface TaskCondition {
-  type: 'if' | 'switch' | 'while';
+  type: "if" | "switch" | "while";
   expression: string;
   branches: {
     condition: string;
@@ -82,7 +88,7 @@ export interface WorkflowEdge {
   id: string;
   from: string;
   to: string;
-  type: 'dependency' | 'conditional' | 'loop-back';
+  type: "dependency" | "conditional" | "loop-back";
   condition?: string;
   label?: string;
   animated?: boolean;
@@ -100,7 +106,7 @@ export interface WorkflowMetadata {
   estimatedTotalTime: number; // 分钟
   parallelismLevel: number; // 最大并行数
   criticalPath: string[]; // 关键路径上的任务 ID
-  complexity: 'simple' | 'moderate' | 'complex' | 'extreme';
+  complexity: "simple" | "moderate" | "complex" | "extreme";
 }
 
 export interface WorkflowDAG {
@@ -114,7 +120,7 @@ export interface WorkflowDAG {
 
 export interface WorkflowExecutionState {
   workflowId: string;
-  status: 'idle' | 'running' | 'paused' | 'completed' | 'failed';
+  status: "idle" | "running" | "paused" | "completed" | "failed";
   startTime?: number;
   endTime?: number;
   currentTasks: string[]; // 当前执行中的任务
@@ -127,7 +133,7 @@ export interface WorkflowExecutionState {
 
 export interface WorkflowLog {
   timestamp: number;
-  level: 'info' | 'warn' | 'error' | 'debug';
+  level: "info" | "warn" | "error" | "debug";
   taskId?: string;
   agentId?: string;
   message: string;
@@ -139,18 +145,18 @@ export interface WorkflowLog {
 // ============================================
 
 export type AgentType =
-  | 'orchestrator'  // 总调度
-  | 'planner'       // 任务规划
-  | 'frontend'      // 前端开发
-  | 'backend'       // 后端开发
-  | 'fullstack'     // 全栈开发
-  | 'testing'       // 测试
-  | 'devops'        // DevOps
-  | 'review'        // 代码审查
-  | 'docs'          // 文档
-  | 'general';      // 通用
+  | "orchestrator" // 总调度
+  | "planner" // 任务规划
+  | "frontend" // 前端开发
+  | "backend" // 后端开发
+  | "fullstack" // 全栈开发
+  | "testing" // 测试
+  | "devops" // DevOps
+  | "review" // 代码审查
+  | "docs" // 文档
+  | "general"; // 通用
 
-export type AgentStatus = 'idle' | 'busy' | 'error' | 'offline' | 'cloning';
+export type AgentStatus = "idle" | "busy" | "error" | "offline" | "cloning";
 
 export interface AgentCapabilities {
   languages: string[]; // ['typescript', 'python', 'rust']
@@ -187,8 +193,8 @@ export interface Agent {
 export interface AgentMessage {
   id: string;
   from: string; // Agent ID
-  to: string | 'broadcast'; // Agent ID 或广播
-  type: 'task-assignment' | 'task-result' | 'context-share' | 'status-update' | 'error' | 'request';
+  to: string | "broadcast"; // Agent ID 或广播
+  type: "task-assignment" | "task-result" | "context-share" | "status-update" | "error" | "request";
   payload: any;
   timestamp: number;
   priority: TaskPriority;
@@ -206,7 +212,7 @@ export interface AgentCloneRequest {
 // Sandbox 相关类型
 // ============================================
 
-export type SandboxStatus = 'creating' | 'running' | 'paused' | 'stopped' | 'error';
+export type SandboxStatus = "creating" | "running" | "paused" | "stopped" | "error";
 
 export interface SandboxSpec {
   baseImage: string; // 'node:20-alpine'
@@ -216,14 +222,14 @@ export interface SandboxSpec {
   volumes: SandboxVolume[];
   memoryLimit: string; // '2g'
   cpuLimit: number; // CPU 核数
-  networkMode: 'bridge' | 'host' | 'none';
+  networkMode: "bridge" | "host" | "none";
   capabilities: string[]; // Docker capabilities
 }
 
 export interface SandboxVolume {
   hostPath: string;
   containerPath: string;
-  mode: 'ro' | 'rw'; // 只读或读写
+  mode: "ro" | "rw"; // 只读或读写
 }
 
 export interface Sandbox {
@@ -263,7 +269,7 @@ export interface SandboxFileSystem {
 }
 
 export interface FileChange {
-  type: 'create' | 'modify' | 'delete' | 'rename';
+  type: "create" | "modify" | "delete" | "rename";
   path: string;
   oldPath?: string; // 用于重命名
   timestamp: number;
@@ -292,30 +298,30 @@ export interface SandboxMetrics {
 // ============================================
 
 export type WorkflowEventType =
-  | 'workflow:created'
-  | 'workflow:started'
-  | 'workflow:paused'
-  | 'workflow:resumed'
-  | 'workflow:completed'
-  | 'workflow:failed'
-  | 'task:queued'
-  | 'task:started'
-  | 'task:progress'
-  | 'task:completed'
-  | 'task:failed'
-  | 'task:cancelled'
-  | 'agent:created'
-  | 'agent:cloned'
-  | 'agent:assigned'
-  | 'agent:idle'
-  | 'agent:error'
-  | 'agent:destroyed'
-  | 'sandbox:created'
-  | 'sandbox:started'
-  | 'sandbox:stopped'
-  | 'sandbox:error'
-  | 'message:sent'
-  | 'message:received';
+  | "workflow:created"
+  | "workflow:started"
+  | "workflow:paused"
+  | "workflow:resumed"
+  | "workflow:completed"
+  | "workflow:failed"
+  | "task:queued"
+  | "task:started"
+  | "task:progress"
+  | "task:completed"
+  | "task:failed"
+  | "task:cancelled"
+  | "agent:created"
+  | "agent:cloned"
+  | "agent:assigned"
+  | "agent:idle"
+  | "agent:error"
+  | "agent:destroyed"
+  | "sandbox:created"
+  | "sandbox:started"
+  | "sandbox:stopped"
+  | "sandbox:error"
+  | "message:sent"
+  | "message:received";
 
 export interface WorkflowEvent {
   type: WorkflowEventType;
@@ -347,7 +353,7 @@ export interface WorkflowConfig {
     timeout: number; // 毫秒
   };
   logging: {
-    level: 'debug' | 'info' | 'warn' | 'error';
+    level: "debug" | "info" | "warn" | "error";
     persist: boolean;
     maxLogs: number;
   };
@@ -360,17 +366,17 @@ export const DEFAULT_WORKFLOW_CONFIG: WorkflowConfig = {
   retryPolicy: {
     maxRetries: 3,
     backoffMultiplier: 2,
-    initialDelay: 1000
+    initialDelay: 1000,
   },
   sandbox: {
-    defaultImage: 'node:20-alpine',
-    memoryLimit: '2g',
+    defaultImage: "node:20-alpine",
+    memoryLimit: "2g",
     cpuLimit: 1,
-    timeout: 600000 // 10 分钟
+    timeout: 600000, // 10 分钟
   },
   logging: {
-    level: 'info',
+    level: "info",
     persist: true,
-    maxLogs: 10000
-  }
+    maxLogs: 10000,
+  },
 };

@@ -6,14 +6,14 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import "./assets/shimmer.css";
 import "./styles.css";
 import "./i18n"; // ✅ i18n 必须同步加载（App 立即需要使用）
-import { getCurrentWindow } from '@tauri-apps/api/window';
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import { isSessionWindow } from "./lib/windowManager";
 
 // ⚡ 优化：只异步加载 toolRegistry（可以延迟）
 // import { initializeToolRegistry } from "./lib/toolRegistryInit"; // ❌ 改为异步
 
 // 🆕 懒加载 SessionWindow 组件（仅在需要时加载）
-const SessionWindow = React.lazy(() => import('./pages/SessionWindow'));
+const SessionWindow = React.lazy(() => import("./pages/SessionWindow"));
 
 // 防止窗口闪烁的React包装组件
 const AppWrapper: React.FC = () => {
@@ -24,10 +24,10 @@ const AppWrapper: React.FC = () => {
     // ⚡ 性能优化：异步加载 toolRegistry（可以延迟，不阻塞 UI）
     const initializeToolRegistry = async () => {
       try {
-        const { initializeToolRegistry: init } = await import('./lib/toolRegistryInit');
+        const { initializeToolRegistry: init } = await import("./lib/toolRegistryInit");
         init();
       } catch (error) {
-        console.error('[AppWrapper] ToolRegistry initialization failed:', error);
+        console.error("[AppWrapper] ToolRegistry initialization failed:", error);
       }
     };
 
@@ -38,7 +38,7 @@ const AppWrapper: React.FC = () => {
         await window.show();
         await window.setFocus();
       } catch (error) {
-        console.error('Failed to show window:', error);
+        console.error("Failed to show window:", error);
       }
     };
 

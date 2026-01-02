@@ -11,8 +11,9 @@
  * @version 1.0.0
  */
 
-import React, { useState, useCallback, useRef, createContext, useContext, ReactNode } from 'react';
-import type { ModelType } from '@/components/FloatingPromptInput/types';
+import type React from "react";
+import { createContext, type ReactNode, useCallback, useContext, useRef, useState } from "react";
+import type { ModelType } from "@/components/FloatingPromptInput/types";
 
 // ============================================================================
 // Type Definitions
@@ -24,12 +25,12 @@ import type { ModelType } from '@/components/FloatingPromptInput/types';
  * - interrupt: 立即作为指导/纠正插入（不停止当前任务）
  * - merge: 与其他指令合并成一条发送
  */
-export type PromptSendMode = 'sequential' | 'interrupt' | 'merge';
+export type PromptSendMode = "sequential" | "interrupt" | "merge";
 
 /**
  * 队列项状态
  */
-export type PromptQueueItemStatus = 'pending' | 'sending' | 'sent' | 'revoked' | 'failed';
+export type PromptQueueItemStatus = "pending" | "sending" | "sent" | "revoked" | "failed";
 
 /**
  * 队列项
@@ -139,29 +140,36 @@ export const PromptQueueProvider: React.FC<PromptQueueProviderProps> = ({ childr
   const lastRevokedRef = useRef<string | null>(null);
 
   // 添加到队列
-  const enqueue = useCallback((prompt: string, model: ModelType, mode: PromptSendMode = 'sequential'): PromptQueueItem => {
-    const newItem: PromptQueueItem = {
-      id: generateId(),
-      prompt,
-      model,
-      createdAt: Date.now(),
-      mode,
-      status: 'pending',
-      estimatedTokens: estimateTokens(prompt),
-    };
+  const enqueue = useCallback(
+    (prompt: string, model: ModelType, mode: PromptSendMode = "sequential"): PromptQueueItem => {
+      const newItem: PromptQueueItem = {
+        id: generateId(),
+        prompt,
+        model,
+        createdAt: Date.now(),
+        mode,
+        status: "pending",
+        estimatedTokens: estimateTokens(prompt),
+      };
 
-    setItems(prev => [...prev, newItem]);
-    console.log('[PromptQueue] 添加到队列:', { id: newItem.id, mode, promptPreview: prompt.substring(0, 50) });
+      setItems((prev) => [...prev, newItem]);
+      console.log("[PromptQueue] 添加到队列:", {
+        id: newItem.id,
+        mode,
+        promptPreview: prompt.substring(0, 50),
+      });
 
-    return newItem;
-  }, []);
+      return newItem;
+    },
+    [],
+  );
 
   // 从队列移除
   const dequeue = useCallback((itemId: string): PromptQueueItem | null => {
     let removedItem: PromptQueueItem | null = null;
 
-    setItems(prev => {
-      const index = prev.findIndex(item => item.id === itemId);
+    setItems((prev) => {
+      const index = prev.findIndex((item) => item.id === itemId);
       if (index === -1) return prev;
 
       removedItem = prev[index];
@@ -169,7 +177,7 @@ export const PromptQueueProvider: React.FC<PromptQueueProviderProps> = ({ childr
     });
 
     if (removedItem) {
-      console.log('[PromptQueue] 从队列移除:', itemId);
+      console.log("[PromptQueue] 从队列移除:", itemId);
     }
 
     return removedItem;
@@ -179,14 +187,14 @@ export const PromptQueueProvider: React.FC<PromptQueueProviderProps> = ({ childr
   const revokeToInput = useCallback((itemId: string): string | null => {
     let revokedPrompt: string | null = null;
 
-    setItems(prev => {
-      const index = prev.findIndex(item => item.id === itemId);
+    setItems((prev) => {
+      const index = prev.findIndex((item) => item.id === itemId);
       if (index === -1) return prev;
 
       const item = prev[index];
       // 只能撤回 pending 状态的项
-      if (item.status !== 'pending') {
-        console.warn('[PromptQueue] 无法撤回非 pending 状态的项:', item.status);
+      if (item.status !== "pending") {
+        console.warn("[PromptQueue] 无法撤回非 pending 状态的项:", item.status);
         return prev;
       }
 
@@ -195,12 +203,12 @@ export const PromptQueueProvider: React.FC<PromptQueueProviderProps> = ({ childr
 
       // 更新状态为 revoked 并移除
       const updated = [...prev];
-      updated[index] = { ...item, status: 'revoked' };
-      return updated.filter(i => i.id !== itemId);
+      updated[index] = { ...item, status: "revoked" };
+      return updated.filter((i) => i.id !== itemId);
     });
 
     if (revokedPrompt) {
-      console.log('[PromptQueue] 撤回到输入框:', itemId);
+      console.log("[PromptQueue] 撤回到输入框:", itemId);
     }
 
     return revokedPrompt;
@@ -208,27 +216,29 @@ export const PromptQueueProvider: React.FC<PromptQueueProviderProps> = ({ childr
 
   // 标记为发送中
   const markSending = useCallback((itemId: string) => {
-    setItems(prev => prev.map(item =>
-      item.id === itemId ? { ...item, status: 'sending' as const } : item
-    ));
+    setItems((prev) =>
+      prev.map((item) => (item.id === itemId ? { ...item, status: "sending" as const } : item)),
+    );
     setCurrentItemId(itemId);
     setIsProcessing(true);
   }, []);
 
   // 标记为已发送
   const markSent = useCallback((itemId: string) => {
-    setItems(prev => prev.map(item =>
-      item.id === itemId ? { ...item, status: 'sent' as const } : item
-    ));
+    setItems((prev) =>
+      prev.map((item) => (item.id === itemId ? { ...item, status: "sent" as const } : item)),
+    );
     setCurrentItemId(null);
     setIsProcessing(false);
   }, []);
 
   // 标记为失败
   const markFailed = useCallback((itemId: string, errorMessage: string) => {
-    setItems(prev => prev.map(item =>
-      item.id === itemId ? { ...item, status: 'failed' as const, errorMessage } : item
-    ));
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id === itemId ? { ...item, status: "failed" as const, errorMessage } : item,
+      ),
+    );
     setCurrentItemId(null);
     setIsProcessing(false);
   }, []);
@@ -238,72 +248,72 @@ export const PromptQueueProvider: React.FC<PromptQueueProviderProps> = ({ childr
     setItems([]);
     setCurrentItemId(null);
     setIsProcessing(false);
-    console.log('[PromptQueue] 队列已清空');
+    console.log("[PromptQueue] 队列已清空");
   }, []);
 
   // 获取下一个待发送项（sequential 模式）
   const getNextSequential = useCallback((): PromptQueueItem | null => {
-    return items.find(item => item.status === 'pending' && item.mode === 'sequential') || null;
+    return items.find((item) => item.status === "pending" && item.mode === "sequential") || null;
   }, [items]);
 
   // 获取所有待合并项（merge 模式）
   const getMergeItems = useCallback((): PromptQueueItem[] => {
-    return items.filter(item => item.status === 'pending' && item.mode === 'merge');
+    return items.filter((item) => item.status === "pending" && item.mode === "merge");
   }, [items]);
 
   // 打包合并指令为单条
   const getMergedPrompt = useCallback((): string | null => {
-    const mergeItems = items.filter(item => item.status === 'pending' && item.mode === 'merge');
+    const mergeItems = items.filter((item) => item.status === "pending" && item.mode === "merge");
 
     if (mergeItems.length === 0) return null;
     if (mergeItems.length === 1) return mergeItems[0].prompt;
 
     // 多条指令打包
-    const merged = mergeItems.map((item, index) =>
-      `【任务 ${index + 1}】\n${item.prompt}`
-    ).join('\n\n---\n\n');
+    const merged = mergeItems
+      .map((item, index) => `【任务 ${index + 1}】\n${item.prompt}`)
+      .join("\n\n---\n\n");
 
     return `以下是多个相关任务，请按顺序依次处理：\n\n${merged}`;
   }, [items]);
 
   // 移动队列项位置
   const reorderItem = useCallback((itemId: string, newIndex: number) => {
-    setItems(prev => {
-      const currentIndex = prev.findIndex(item => item.id === itemId);
+    setItems((prev) => {
+      const currentIndex = prev.findIndex((item) => item.id === itemId);
       if (currentIndex === -1 || newIndex < 0 || newIndex >= prev.length) return prev;
 
       const updated = [...prev];
       const [removed] = updated.splice(currentIndex, 1);
       updated.splice(newIndex, 0, removed);
 
-      console.log('[PromptQueue] 移动队列项:', { itemId, from: currentIndex, to: newIndex });
+      console.log("[PromptQueue] 移动队列项:", { itemId, from: currentIndex, to: newIndex });
       return updated;
     });
   }, []);
 
   // 更新队列项模式
   const updateItemMode = useCallback((itemId: string, mode: PromptSendMode) => {
-    setItems(prev => prev.map(item =>
-      item.id === itemId ? { ...item, mode } : item
-    ));
-    console.log('[PromptQueue] 更新模式:', { itemId, mode });
+    setItems((prev) => prev.map((item) => (item.id === itemId ? { ...item, mode } : item)));
+    console.log("[PromptQueue] 更新模式:", { itemId, mode });
   }, []);
 
   // 🆕 更新队列项提示词
   const updateItemPrompt = useCallback((itemId: string, prompt: string) => {
-    setItems(prev => prev.map(item =>
-      item.id === itemId ? { ...item, prompt, estimatedTokens: estimateTokens(prompt) } : item
-    ));
-    console.log('[PromptQueue] 更新提示词:', { itemId, promptPreview: prompt.substring(0, 50) });
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id === itemId ? { ...item, prompt, estimatedTokens: estimateTokens(prompt) } : item,
+      ),
+    );
+    console.log("[PromptQueue] 更新提示词:", { itemId, promptPreview: prompt.substring(0, 50) });
   }, []);
 
   // 获取队列统计
   const getStats = useCallback(() => {
     const stats = {
       total: items.length,
-      pending: items.filter(i => i.status === 'pending').length,
-      sending: items.filter(i => i.status === 'sending').length,
-      sent: items.filter(i => i.status === 'sent').length,
+      pending: items.filter((i) => i.status === "pending").length,
+      sending: items.filter((i) => i.status === "sending").length,
+      sent: items.filter((i) => i.status === "sent").length,
     };
     return stats;
   }, [items]);
@@ -332,11 +342,7 @@ export const PromptQueueProvider: React.FC<PromptQueueProviderProps> = ({ childr
     getStats,
   };
 
-  return (
-    <PromptQueueContext.Provider value={contextValue}>
-      {children}
-    </PromptQueueContext.Provider>
-  );
+  return <PromptQueueContext.Provider value={contextValue}>{children}</PromptQueueContext.Provider>;
 };
 
 // ============================================================================
@@ -349,7 +355,7 @@ export const PromptQueueProvider: React.FC<PromptQueueProviderProps> = ({ childr
 export function usePromptQueue(): PromptQueueContextValue {
   const context = useContext(PromptQueueContext);
   if (!context) {
-    throw new Error('usePromptQueue must be used within a PromptQueueProvider');
+    throw new Error("usePromptQueue must be used within a PromptQueueProvider");
   }
   return context;
 }
@@ -359,7 +365,7 @@ export function usePromptQueue(): PromptQueueContextValue {
  */
 export function usePendingCount(): number {
   const { items } = usePromptQueue();
-  return items.filter(i => i.status === 'pending').length;
+  return items.filter((i) => i.status === "pending").length;
 }
 
 export default usePromptQueue;

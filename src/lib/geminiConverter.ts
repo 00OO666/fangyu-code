@@ -1,5 +1,5 @@
-import type { ClaudeStreamMessage } from '@/types/claude';
-import type { GeminiSessionDetail } from '@/types/gemini';
+import type { ClaudeStreamMessage } from "@/types/claude";
+import type { GeminiSessionDetail } from "@/types/gemini";
 
 type GeminiUsage = {
   input_tokens: number;
@@ -8,8 +8,8 @@ type GeminiUsage = {
 };
 
 function toNumber(value: unknown): number | null {
-  if (typeof value === 'number' && Number.isFinite(value)) return value;
-  if (typeof value === 'string' && value.trim() !== '') {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string" && value.trim() !== "") {
     const parsed = Number(value);
     if (Number.isFinite(parsed)) return parsed;
   }
@@ -25,16 +25,14 @@ function toNumber(value: unknown): number | null {
  * - Simplified stats: input_tokens / output_tokens
  */
 export function extractGeminiUsage(tokens: unknown): GeminiUsage | null {
-  if (!tokens || typeof tokens !== 'object') return null;
+  if (!tokens || typeof tokens !== "object") return null;
   const t = tokens as any;
 
   const inputFromStats = toNumber(t.input_tokens);
   const outputFromStats = toNumber(t.output_tokens);
 
   const prompt =
-    toNumber(t.prompt) ??
-    toNumber(t.promptTokenCount) ??
-    toNumber(t.prompt_token_count);
+    toNumber(t.prompt) ?? toNumber(t.promptTokenCount) ?? toNumber(t.prompt_token_count);
 
   const candidates =
     toNumber(t.candidates) ??
@@ -42,10 +40,7 @@ export function extractGeminiUsage(tokens: unknown): GeminiUsage | null {
     toNumber(t.candidates_token_count);
 
   const thoughts =
-    toNumber(t.thoughts) ??
-    toNumber(t.thoughtsTokenCount) ??
-    toNumber(t.thoughts_token_count) ??
-    0;
+    toNumber(t.thoughts) ?? toNumber(t.thoughtsTokenCount) ?? toNumber(t.thoughts_token_count) ?? 0;
 
   const tool =
     toNumber(t.tool) ??
@@ -86,20 +81,20 @@ export function extractGeminiUsage(tokens: unknown): GeminiUsage | null {
  * - per-turn `result` messages carrying `usage` for cost + context window calculations
  */
 export function convertGeminiSessionDetailToClaudeMessages(
-  detail: GeminiSessionDetail
+  detail: GeminiSessionDetail,
 ): ClaudeStreamMessage[] {
   const converted: ClaudeStreamMessage[] = [];
 
   for (const msg of detail.messages) {
-    if (msg.type === 'user') {
+    if (msg.type === "user") {
       converted.push({
-        type: 'user',
+        type: "user",
         message: {
-          content: msg.content ? [{ type: 'text', text: msg.content }] : [],
-          role: 'user',
+          content: msg.content ? [{ type: "text", text: msg.content }] : [],
+          role: "user",
         },
         timestamp: msg.timestamp,
-        engine: 'gemini',
+        engine: "gemini",
       });
       continue;
     }
@@ -111,7 +106,7 @@ export function convertGeminiSessionDetailToClaudeMessages(
     if (Array.isArray(msg.toolCalls) && msg.toolCalls.length > 0) {
       for (const toolCall of msg.toolCalls) {
         assistantContent.push({
-          type: 'tool_use',
+          type: "tool_use",
           id: toolCall.id,
           name: toolCall.name,
           input: toolCall.args,
@@ -131,50 +126,52 @@ export function convertGeminiSessionDetailToClaudeMessages(
           }
 
           converted.push({
-            type: 'user',
+            type: "user",
             message: {
               content: [
                 {
-                  type: 'tool_result',
+                  type: "tool_result",
                   tool_use_id: toolCall.id,
                   content:
                     toolCall.resultDisplay ||
-                    (typeof resultContent === 'string' ? resultContent : JSON.stringify(resultContent)),
-                  is_error: toolCall.status === 'error',
+                    (typeof resultContent === "string"
+                      ? resultContent
+                      : JSON.stringify(resultContent)),
+                  is_error: toolCall.status === "error",
                 },
               ],
-              role: 'user',
+              role: "user",
             },
             timestamp: toolCall.timestamp || msg.timestamp,
-            engine: 'gemini',
+            engine: "gemini",
           });
         }
       }
     }
 
     if (msg.content) {
-      assistantContent.push({ type: 'text', text: msg.content });
+      assistantContent.push({ type: "text", text: msg.content });
     }
 
     converted.push({
-      type: 'assistant',
+      type: "assistant",
       message: {
-        content: assistantContent.length > 0 ? assistantContent : [{ type: 'text', text: '' }],
-        role: 'assistant',
+        content: assistantContent.length > 0 ? assistantContent : [{ type: "text", text: "" }],
+        role: "assistant",
       },
       timestamp: msg.timestamp,
-      engine: 'gemini',
+      engine: "gemini",
       model: msg.model,
     });
 
     const usage = extractGeminiUsage(msg.tokens);
     if (usage) {
       converted.push({
-        type: 'result',
-        subtype: 'success',
+        type: "result",
+        subtype: "success",
         usage,
         timestamp: msg.timestamp,
-        engine: 'gemini',
+        engine: "gemini",
         model: msg.model,
       });
     }
@@ -182,4 +179,3 @@ export function convertGeminiSessionDetailToClaudeMessages(
 
   return converted;
 }
-

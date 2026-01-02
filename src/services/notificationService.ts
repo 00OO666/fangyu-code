@@ -6,7 +6,12 @@
  * 2. global - 顶部标题栏右侧
  */
 
-import { Notification, NotificationOptions, NotificationType, NotificationPosition } from '@/types/notification';
+import {
+  type Notification,
+  type NotificationOptions,
+  type NotificationPosition,
+  NotificationType,
+} from "@/types/notification";
 
 type NotificationListener = (notification: Notification) => void;
 
@@ -29,10 +34,10 @@ class NotificationService {
   notify(message: string, options?: NotificationOptions): string {
     const notification: Notification = {
       id: `notification-${++this.idCounter}-${Date.now()}`,
-      type: options?.type || 'info',
+      type: options?.type || "info",
       message,
       description: options?.description,
-      position: options?.position || 'chat',
+      position: options?.position || "chat",
       duration: options?.duration ?? 3000,
       timestamp: Date.now(),
       action: options?.action,
@@ -54,29 +59,29 @@ class NotificationService {
   /**
    * 发送成功通知
    */
-  success(message: string, options?: Omit<NotificationOptions, 'type'>): string {
-    return this.notify(message, { ...options, type: 'success' });
+  success(message: string, options?: Omit<NotificationOptions, "type">): string {
+    return this.notify(message, { ...options, type: "success" });
   }
 
   /**
    * 发送错误通知
    */
-  error(message: string, options?: Omit<NotificationOptions, 'type'>): string {
-    return this.notify(message, { ...options, type: 'error' });
+  error(message: string, options?: Omit<NotificationOptions, "type">): string {
+    return this.notify(message, { ...options, type: "error" });
   }
 
   /**
    * 发送信息通知
    */
-  info(message: string, options?: Omit<NotificationOptions, 'type'>): string {
-    return this.notify(message, { ...options, type: 'info' });
+  info(message: string, options?: Omit<NotificationOptions, "type">): string {
+    return this.notify(message, { ...options, type: "info" });
   }
 
   /**
    * 发送警告通知
    */
-  warning(message: string, options?: Omit<NotificationOptions, 'type'>): string {
-    return this.notify(message, { ...options, type: 'warning' });
+  warning(message: string, options?: Omit<NotificationOptions, "type">): string {
+    return this.notify(message, { ...options, type: "warning" });
   }
 
   /**
@@ -101,7 +106,7 @@ class NotificationService {
    * 触发监听器
    */
   private emit(notification: Notification): void {
-    this.listeners.forEach(listener => listener(notification));
+    this.listeners.forEach((listener) => listener(notification));
   }
 
   /**
@@ -115,7 +120,7 @@ class NotificationService {
    * 获取指定位置的活跃通知
    */
   getNotificationsByPosition(position: NotificationPosition): Notification[] {
-    return Array.from(this.notifications.values()).filter(n => n.position === position);
+    return Array.from(this.notifications.values()).filter((n) => n.position === position);
   }
 }
 
@@ -124,13 +129,13 @@ export const notificationService = new NotificationService();
 
 // 便捷方法
 export const notify = {
-  success: (message: string, options?: Omit<NotificationOptions, 'type'>) =>
+  success: (message: string, options?: Omit<NotificationOptions, "type">) =>
     notificationService.success(message, options),
-  error: (message: string, options?: Omit<NotificationOptions, 'type'>) =>
+  error: (message: string, options?: Omit<NotificationOptions, "type">) =>
     notificationService.error(message, options),
-  info: (message: string, options?: Omit<NotificationOptions, 'type'>) =>
+  info: (message: string, options?: Omit<NotificationOptions, "type">) =>
     notificationService.info(message, options),
-  warning: (message: string, options?: Omit<NotificationOptions, 'type'>) =>
+  warning: (message: string, options?: Omit<NotificationOptions, "type">) =>
     notificationService.warning(message, options),
   close: (id: string) => notificationService.close(id),
   closeAll: () => notificationService.closeAll(),

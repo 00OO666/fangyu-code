@@ -4,7 +4,7 @@
  * 提供文本翻译、语言检测和翻译缓存管理功能。
  */
 import { invoke } from "@tauri-apps/api/core";
-import type { TranslationConfig, TranslationCacheStats } from '../types';
+import type { TranslationCacheStats, TranslationConfig } from "../types";
 
 /**
  * Translates text using the translation service

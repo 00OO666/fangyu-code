@@ -8,7 +8,7 @@
  * - 数据持久化到 localStorage
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from "react";
 
 export interface ToolUsageStats {
   /** 工具 ID */
@@ -25,7 +25,7 @@ interface ToolUsageStatsMap {
   [toolId: string]: ToolUsageStats;
 }
 
-const STORAGE_KEY = 'fangyu-code-tool-usage-stats';
+const STORAGE_KEY = "fangyu-code-tool-usage-stats";
 
 /**
  * 从 localStorage 读取使用统计
@@ -35,7 +35,7 @@ function loadStats(): ToolUsageStatsMap {
     const stored = localStorage.getItem(STORAGE_KEY);
     return stored ? JSON.parse(stored) : {};
   } catch (error) {
-    console.error('[useToolUsageStats] Failed to load stats:', error);
+    console.error("[useToolUsageStats] Failed to load stats:", error);
     return {};
   }
 }
@@ -47,7 +47,7 @@ function saveStats(stats: ToolUsageStatsMap): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(stats));
   } catch (error) {
-    console.error('[useToolUsageStats] Failed to save stats:', error);
+    console.error("[useToolUsageStats] Failed to save stats:", error);
   }
 }
 
@@ -66,7 +66,8 @@ function calculateScore(stats: ToolUsageStats): number {
     timeScore = 1.0;
   } else if (hoursSinceLastUse < 24) {
     timeScore = 0.5;
-  } else if (hoursSinceLastUse < 168) { // 7 天
+  } else if (hoursSinceLastUse < 168) {
+    // 7 天
     timeScore = 0.2;
   }
 
@@ -89,7 +90,7 @@ export function useToolUsageStats() {
    * 记录工具使用
    */
   const recordUsage = useCallback((toolId: string) => {
-    setStats(prev => {
+    setStats((prev) => {
       const now = Date.now();
       const existing = prev[toolId];
 
@@ -108,9 +109,12 @@ export function useToolUsageStats() {
   /**
    * 获取工具的使用统计
    */
-  const getStats = useCallback((toolId: string): ToolUsageStats | null => {
-    return stats[toolId] || null;
-  }, [stats]);
+  const getStats = useCallback(
+    (toolId: string): ToolUsageStats | null => {
+      return stats[toolId] || null;
+    },
+    [stats],
+  );
 
   /**
    * 获取所有统计数据
@@ -124,23 +128,26 @@ export function useToolUsageStats() {
    * @param items 要排序的工具列表
    * @returns 排序后的工具列表
    */
-  const sortByUsage = useCallback(<T extends { id: string }>(items: T[]): T[] => {
-    return [...items].sort((a, b) => {
-      const statsA = stats[a.id];
-      const statsB = stats[b.id];
+  const sortByUsage = useCallback(
+    <T extends { id: string }>(items: T[]): T[] => {
+      return [...items].sort((a, b) => {
+        const statsA = stats[a.id];
+        const statsB = stats[b.id];
 
-      // 没有统计的排在后面
-      if (!statsA && !statsB) return 0;
-      if (!statsA) return 1;
-      if (!statsB) return -1;
+        // 没有统计的排在后面
+        if (!statsA && !statsB) return 0;
+        if (!statsA) return 1;
+        if (!statsB) return -1;
 
-      // 根据综合得分排序
-      const scoreA = calculateScore(statsA);
-      const scoreB = calculateScore(statsB);
+        // 根据综合得分排序
+        const scoreA = calculateScore(statsA);
+        const scoreB = calculateScore(statsB);
 
-      return scoreB - scoreA; // 降序
-    });
-  }, [stats]);
+        return scoreB - scoreA; // 降序
+      });
+    },
+    [stats],
+  );
 
   /**
    * 清空所有统计
@@ -154,7 +161,7 @@ export function useToolUsageStats() {
    * 删除单个工具的统计
    */
   const removeStats = useCallback((toolId: string) => {
-    setStats(prev => {
+    setStats((prev) => {
       const next = { ...prev };
       delete next[toolId];
       return next;

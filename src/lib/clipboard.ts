@@ -26,10 +26,7 @@ interface TauriWindow extends Window {
   __TAURI__?: unknown;
 }
 
-let tauriInvoke:
-  | ((command: string, args?: Record<string, any>) => Promise<any>)
-  | null
-  | undefined = undefined;
+let tauriInvoke: ((command: string, args?: Record<string, any>) => Promise<any>) | null | undefined;
 
 /**
  * Detect whether we are running inside a Tauri environment.
@@ -195,8 +192,9 @@ class ClipboardService {
    * Check if clipboard operations are supported
    */
   isSupported(): boolean {
-    return isTauriEnvironment() ||
-           (typeof navigator !== "undefined" && Boolean(navigator.clipboard));
+    return (
+      isTauriEnvironment() || (typeof navigator !== "undefined" && Boolean(navigator.clipboard))
+    );
   }
 }
 

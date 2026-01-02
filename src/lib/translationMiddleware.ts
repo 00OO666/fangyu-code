@@ -1,5 +1,4 @@
-import { api, type TranslationConfig } from './api';
-
+import { api, type TranslationConfig } from "./api";
 
 /**
  * 速率限制配置接口
@@ -45,7 +44,7 @@ export class TranslationMiddleware {
     rpm: 950, // 略低于1,000以留安全余量
     tpm: 75000, // 略低于80,000以留安全余量
     maxConcurrent: 5, // 最大并发请求数
-    batchSize: 10 // 批处理大小
+    batchSize: 10, // 批处理大小
   };
 
   // 速率限制跟踪
@@ -58,7 +57,10 @@ export class TranslationMiddleware {
   private isProcessingQueue = false;
 
   // 智能缓存
-  private translationCache = new Map<string, { result: string; timestamp: number; tokens: number }>();
+  private translationCache = new Map<
+    string,
+    { result: string; timestamp: number; tokens: number }
+  >();
   private maxCacheSize = 1000;
   private cacheHitCount = 0;
   private cacheMissCount = 0;
@@ -88,8 +90,8 @@ export class TranslationMiddleware {
     const oneMinuteAgo = now - 60000;
 
     // 清理过期的请求时间记录
-    this.requestTimes = this.requestTimes.filter(time => time > oneMinuteAgo);
-    this.tokenUsage = this.tokenUsage.filter(usage => usage.timestamp > oneMinuteAgo);
+    this.requestTimes = this.requestTimes.filter((time) => time > oneMinuteAgo);
+    this.tokenUsage = this.tokenUsage.filter((usage) => usage.timestamp > oneMinuteAgo);
 
     // 检查RPM限制
     if (this.requestTimes.length >= this.rateLimitConfig.rpm) {
@@ -170,7 +172,7 @@ export class TranslationMiddleware {
     this.translationCache.set(key, {
       result,
       timestamp: Date.now(),
-      tokens
+      tokens,
     });
   }
 
@@ -200,12 +202,13 @@ export class TranslationMiddleware {
     const expired: string[] = [];
 
     for (const [key, value] of this.translationCache.entries()) {
-      if (now - value.timestamp > 3600000) { // 1小时过期
+      if (now - value.timestamp > 3600000) {
+        // 1小时过期
         expired.push(key);
       }
     }
 
-    expired.forEach(key => this.translationCache.delete(key));
+    expired.forEach((key) => this.translationCache.delete(key));
 
     if (expired.length > 0) {
     }
@@ -250,12 +253,10 @@ export class TranslationMiddleware {
         await this.processBatch(batchItems);
 
         // 从队列中移除已处理的项目
-        this.translationQueue = this.translationQueue.filter(
-          item => !batchItems.includes(item)
-        );
+        this.translationQueue = this.translationQueue.filter((item) => !batchItems.includes(item));
       }
     } catch (error) {
-      console.error('[TranslationMiddleware] Queue processing error:', error);
+      console.error("[TranslationMiddleware] Queue processing error:", error);
     } finally {
       this.isProcessingQueue = false;
     }
@@ -297,26 +298,29 @@ export class TranslationMiddleware {
 
             // 存储到缓存
             if (result) {
-              this.storeToCache(firstItem.text, firstItem.targetLanguage, result, firstItem.estimatedTokens);
+              this.storeToCache(
+                firstItem.text,
+                firstItem.targetLanguage,
+                result,
+                firstItem.estimatedTokens,
+              );
             }
           }
 
           // 解析所有重复的请求
           if (result) {
-            duplicateItems.forEach(item => item.resolve(result!));
+            duplicateItems.forEach((item) => item.resolve(result!));
           } else {
-            duplicateItems.forEach(item => item.reject(new Error('Translation failed')));
+            duplicateItems.forEach((item) => item.reject(new Error("Translation failed")));
           }
-
         } catch (error) {
           // 拒绝所有重复的请求
-          duplicateItems.forEach(item => item.reject(error));
+          duplicateItems.forEach((item) => item.reject(error));
         }
       }
-
     } catch (error) {
       // 拒绝所有项目
-      items.forEach(item => item.reject(error));
+      items.forEach((item) => item.reject(error));
     } finally {
       this.completeRequest();
     }
@@ -328,7 +332,7 @@ export class TranslationMiddleware {
   private async queueTranslation(
     text: string,
     targetLanguage: string,
-    priority: number = 1
+    priority: number = 1,
   ): Promise<string> {
     // 检查缓存
     const cachedResult = this.getFromCache(text, targetLanguage);
@@ -345,7 +349,7 @@ export class TranslationMiddleware {
         estimatedTokens: this.estimateTokens(text),
         timestamp: Date.now(),
         resolve,
-        reject
+        reject,
       };
 
       // 添加到队列
@@ -364,7 +368,7 @@ export class TranslationMiddleware {
   public configureRateLimits(config: Partial<RateLimitConfig>): void {
     this.rateLimitConfig = {
       ...this.rateLimitConfig,
-      ...config
+      ...config,
     };
   }
 
@@ -384,10 +388,10 @@ export class TranslationMiddleware {
     const oneMinuteAgo = now - 60000;
 
     const recentTokenUsage = this.tokenUsage
-      .filter(usage => usage.timestamp > oneMinuteAgo)
+      .filter((usage) => usage.timestamp > oneMinuteAgo)
       .reduce((sum, usage) => sum + usage.tokens, 0);
 
-    const recentRequests = this.requestTimes.filter(time => time > oneMinuteAgo).length;
+    const recentRequests = this.requestTimes.filter((time) => time > oneMinuteAgo).length;
 
     const totalCacheAccess = this.cacheHitCount + this.cacheMissCount;
     const cacheHitRate = totalCacheAccess > 0 ? this.cacheHitCount / totalCacheAccess : 0;
@@ -399,7 +403,7 @@ export class TranslationMiddleware {
       cacheHitRate: Math.round(cacheHitRate * 100) / 100,
       rateLimits: this.rateLimitConfig,
       tokenUsageLastMinute: recentTokenUsage,
-      requestsLastMinute: recentRequests
+      requestsLastMinute: recentRequests,
     };
   }
 
@@ -411,9 +415,9 @@ export class TranslationMiddleware {
       this.config = await api.getTranslationConfig();
       this.initialized = true;
     } catch (error) {
-      console.warn('[TranslationMiddleware] ⚠️ Failed to load saved config, using default:', error);
+      console.warn("[TranslationMiddleware] ⚠️ Failed to load saved config, using default:", error);
       this.config = {
-        enabled: true,  // 🔧 修复：默认启用翻译功能
+        enabled: true, // 🔧 修复：默认启用翻译功能
         api_base_url: "https://api.siliconflow.cn/v1",
         api_key: "sk-ednywbvnfwerfcxnqjkmnhxvgcqoyuhmjvfywrshpxsgjbzm",
         model: "tencent/Hunyuan-MT-7B",
@@ -421,7 +425,6 @@ export class TranslationMiddleware {
         cache_ttl_seconds: 3600,
       };
       this.initialized = true;
-      
     }
   }
 
@@ -449,9 +452,9 @@ export class TranslationMiddleware {
     try {
       return await api.detectTextLanguage(text);
     } catch (error) {
-      console.error('[TranslationMiddleware] Language detection failed:', error);
+      console.error("[TranslationMiddleware] Language detection failed:", error);
       // 使用更强的中英文检测回退
-      return this.detectChineseContent(text) ? 'zh' : 'en';
+      return this.detectChineseContent(text) ? "zh" : "en";
     }
   }
 
@@ -464,7 +467,9 @@ export class TranslationMiddleware {
     }
 
     // 扩展的中文字符范围匹配
-    const chineseChars = text.match(/[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff\u3000-\u303f\uff00-\uffef]/g);
+    const chineseChars = text.match(
+      /[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff\u3000-\u303f\uff00-\uffef]/g,
+    );
 
     if (!chineseChars) {
       return false;
@@ -474,26 +479,24 @@ export class TranslationMiddleware {
     const preprocessedText = text
       // 保留中文标点和全角字符
       // 移除明确的URL
-      .replace(/https?:\/\/[^\s\u4e00-\u9fff]+/g, ' ')
+      .replace(/https?:\/\/[^\s\u4e00-\u9fff]+/g, " ")
       // 移除Windows路径（但保留包含中文的路径）
-      .replace(/[a-zA-Z]:[\\\//](?![\s\S]*[\u4e00-\u9fff])[^\s]+/g, ' ')
+      .replace(/[a-zA-Z]:[\\//](?![\s\S]*[\u4e00-\u9fff])[^\s]+/g, " ")
       // 移除纯英文的错误前缀（但保留包含中文的错误信息）
-      .replace(/^\s*(error|warning|info|debug):\s*(?![\s\S]*[\u4e00-\u9fff])/gmi, ' ')
+      .replace(/^\s*(error|warning|info|debug):\s*(?![\s\S]*[\u4e00-\u9fff])/gim, " ")
       // 移除纯英文代码块
-      .replace(/```(?![\s\S]*[\u4e00-\u9fff])[\s\S]*?```/g, ' ')
+      .replace(/```(?![\s\S]*[\u4e00-\u9fff])[\s\S]*?```/g, " ")
       // 移除纯英文行内代码
-      .replace(/`(?![^`]*[\u4e00-\u9fff])[^`]+`/g, ' ')
+      .replace(/`(?![^`]*[\u4e00-\u9fff])[^`]+`/g, " ")
       // 移除邮箱地址
-      .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, ' ')
-      .replace(/\s+/g, ' ')
+      .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, " ")
+      .replace(/\s+/g, " ")
       .trim();
 
     // 重新计算中文字符
     const finalChineseChars = preprocessedText.match(/[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff]/g);
     const totalLength = preprocessedText.length;
     const chineseCount = finalChineseChars?.length || 0;
-
-    
 
     // 🔧 优化：更宽松的中文检测逻辑
     // 1. 有1个或以上中文字符就可能是中文（适合短文本）
@@ -517,28 +520,28 @@ export class TranslationMiddleware {
 
   /**
    * 检测是否为斜杠命令
-   * 
+   *
    * @param text 输入文本
    * @returns 是否为斜杠命令
    */
   private isSlashCommand(text: string): boolean {
     const trimmedText = text.trim();
-    
+
     // 检查是否以斜杠开头
-    if (!trimmedText.startsWith('/')) {
+    if (!trimmedText.startsWith("/")) {
       return false;
     }
-    
+
     // 排除双斜杠注释（如 // 注释）
-    if (trimmedText.startsWith('//')) {
+    if (trimmedText.startsWith("//")) {
       return false;
     }
-    
+
     // 排除直接的URL（整个字符串是URL）
     if (trimmedText.match(/^https?:\/\/|^ftp:\/\/|^file:\/\/|^\/\//)) {
       return false;
     }
-    
+
     return true;
   }
 
@@ -591,24 +594,20 @@ export class TranslationMiddleware {
       // 检测语言
       const detectedLanguage = await this.detectLanguage(userInput);
       // 改进的中文检测策略：同时使用语言代码检测和内容检测
-      const isChineseByCode = detectedLanguage?.toLowerCase().startsWith('zh');
+      const isChineseByCode = detectedLanguage?.toLowerCase().startsWith("zh");
       const isChineseByContent = this.detectChineseContent(userInput);
 
       // 优先信任内容检测，因为它更准确
       const isAsciiOnly = /^[\u0000-\u007F]*$/.test(userInput);
       const shouldTranslate = isChineseByContent || (isChineseByCode && !isAsciiOnly);
 
-      
-
       // 如果检测到中文，使用队列化翻译为英文
       if (shouldTranslate) {
         try {
-          const translatedText = await this.queueTranslation(userInput, 'en', 3); // 高优先级
+          const translatedText = await this.queueTranslation(userInput, "en", 3); // 高优先级
 
           // 验证翻译结果不为空且不等于原文
           if (translatedText && translatedText.trim() !== userInput.trim()) {
-            
-
             return {
               translatedText,
               originalText: userInput,
@@ -616,10 +615,12 @@ export class TranslationMiddleware {
               detectedLanguage,
             };
           } else {
-            console.warn('[TranslationMiddleware] ⚠️ Translation returned empty or unchanged result, using original text');
+            console.warn(
+              "[TranslationMiddleware] ⚠️ Translation returned empty or unchanged result, using original text",
+            );
           }
         } catch (error) {
-          console.error('[TranslationMiddleware] ❌ Translation failed:', error);
+          console.error("[TranslationMiddleware] ❌ Translation failed:", error);
         }
       }
 
@@ -631,7 +632,7 @@ export class TranslationMiddleware {
         detectedLanguage,
       };
     } catch (error) {
-      console.error('[TranslationMiddleware] Failed to translate user input:', error);
+      console.error("[TranslationMiddleware] Failed to translate user input:", error);
       // 降级策略：翻译失败时返回原文
       const detectedLang = await this.detectLanguage(userInput);
       return {
@@ -656,7 +657,7 @@ export class TranslationMiddleware {
    */
   public async translateClaudeResponse(
     claudeResponse: string,
-    _userInputWasChinese: boolean = false  // 🔧 参数保留用于API兼容性，但当前未使用
+    _userInputWasChinese: boolean = false, // 🔧 参数保留用于API兼容性，但当前未使用
   ): Promise<{
     translatedText: string;
     originalText: string;
@@ -671,18 +672,17 @@ export class TranslationMiddleware {
         translatedText: claudeResponse,
         originalText: claudeResponse,
         wasTranslated: false,
-        detectedLanguage: 'unknown',
+        detectedLanguage: "unknown",
       };
     }
 
     // 🔧 防重复翻译：检查内容是否过短（少于3个字符的内容通常不需要翻译）
     if (claudeResponse.trim().length < 3) {
-      
       return {
         translatedText: claudeResponse,
         originalText: claudeResponse,
         wasTranslated: false,
-        detectedLanguage: 'short',
+        detectedLanguage: "short",
       };
     }
 
@@ -700,42 +700,39 @@ export class TranslationMiddleware {
     try {
       // 检测响应语言
       const detectedLanguage = await this.detectLanguage(claudeResponse);
-      
 
-       // 🔧 优化：只翻译确定为英文的响应
-       if (detectedLanguage === 'en') {
-         try {
-           const translatedText = await this.queueTranslation(claudeResponse, 'zh', 2); // 中等优先级
+      // 🔧 优化：只翻译确定为英文的响应
+      if (detectedLanguage === "en") {
+        try {
+          const translatedText = await this.queueTranslation(claudeResponse, "zh", 2); // 中等优先级
 
-           
+          return {
+            translatedText,
+            originalText: claudeResponse,
+            wasTranslated: true,
+            detectedLanguage,
+          };
+        } catch (translationError) {
+          console.error("[TranslationMiddleware] ❌ Translation queue failed:", translationError);
+          // 翻译失败时返回原文，不抛出错误
+          return {
+            translatedText: claudeResponse,
+            originalText: claudeResponse,
+            wasTranslated: false,
+            detectedLanguage,
+          };
+        }
+      }
 
-           return {
-             translatedText,
-             originalText: claudeResponse,
-             wasTranslated: true,
-             detectedLanguage,
-           };
-         } catch (translationError) {
-           console.error('[TranslationMiddleware] ❌ Translation queue failed:', translationError);
-           // 翻译失败时返回原文，不抛出错误
-           return {
-             translatedText: claudeResponse,
-             originalText: claudeResponse,
-             wasTranslated: false,
-             detectedLanguage,
-           };
-         }
-       }
-
-       // 如果响应已经是中文或其他语言，直接返回原文
-       return {
-         translatedText: claudeResponse,
-         originalText: claudeResponse,
-         wasTranslated: false,
-         detectedLanguage,
-       };
+      // 如果响应已经是中文或其他语言，直接返回原文
+      return {
+        translatedText: claudeResponse,
+        originalText: claudeResponse,
+        wasTranslated: false,
+        detectedLanguage,
+      };
     } catch (error) {
-      console.error('[TranslationMiddleware] ❌ Failed to translate Claude response:', error);
+      console.error("[TranslationMiddleware] ❌ Failed to translate Claude response:", error);
       // 降级策略：翻译失败时返回原文
       const detectedLang = await this.detectLanguage(claudeResponse);
       return {
@@ -751,10 +748,7 @@ export class TranslationMiddleware {
    * 批量翻译文本（用于处理多条消息）- 性能优化版
    * 使用队列化处理和智能去重
    */
-  public async translateBatch(
-    texts: string[],
-    targetLanguage: string = 'zh'
-  ): Promise<string[]> {
+  public async translateBatch(texts: string[], targetLanguage: string = "zh"): Promise<string[]> {
     await this.ensureInitialized();
 
     if (!this.config?.enabled) {
@@ -763,14 +757,14 @@ export class TranslationMiddleware {
 
     try {
       // 过滤空文本
-      const validTexts = texts.filter(text => text && text.trim().length > 0);
+      const validTexts = texts.filter((text) => text && text.trim().length > 0);
 
       if (validTexts.length === 0) {
         return texts;
       }
       // 使用 Promise.all 并行处理，队列系统会自动管理速率限制
-      const translationPromises = validTexts.map((text) =>
-        this.queueTranslation(text, targetLanguage, 1) // 标准优先级
+      const translationPromises = validTexts.map(
+        (text) => this.queueTranslation(text, targetLanguage, 1), // 标准优先级
       );
 
       const translatedTexts = await Promise.all(translationPromises);
@@ -788,9 +782,8 @@ export class TranslationMiddleware {
       }
 
       return results;
-
     } catch (error) {
-      console.error('[TranslationMiddleware] Batch translation failed:', error);
+      console.error("[TranslationMiddleware] Batch translation failed:", error);
       return texts; // 降级策略：返回原文
     }
   }
@@ -803,7 +796,7 @@ export class TranslationMiddleware {
       await api.updateTranslationConfig(config);
       this.config = config;
     } catch (error) {
-      console.error('[TranslationMiddleware] Failed to update configuration:', error);
+      console.error("[TranslationMiddleware] Failed to update configuration:", error);
       throw error;
     }
   }
@@ -834,7 +827,7 @@ export class TranslationMiddleware {
     try {
       await api.clearTranslationCache();
     } catch (error) {
-      console.error('[TranslationMiddleware] Failed to clear cache:', error);
+      console.error("[TranslationMiddleware] Failed to clear cache:", error);
       throw error;
     }
   }
@@ -855,7 +848,7 @@ export class TranslationMiddleware {
         activeEntries: stats.active_entries,
       };
     } catch (error) {
-      console.error('[TranslationMiddleware] Failed to get cache stats:', error);
+      console.error("[TranslationMiddleware] Failed to get cache stats:", error);
       throw error;
     }
   }
@@ -875,14 +868,14 @@ export class TranslationMiddleware {
       // 检测语言，如果是英文则翻译为中文
       const detectedLanguage = await this.detectLanguage(message);
 
-      if (detectedLanguage === 'en') {
-        const result = await this.queueTranslation(message, 'zh', 2); // 中等优先级
+      if (detectedLanguage === "en") {
+        const result = await this.queueTranslation(message, "zh", 2); // 中等优先级
         return result || message;
       }
 
       return message;
     } catch (error) {
-      console.error('[TranslationMiddleware] Failed to translate error message:', error);
+      console.error("[TranslationMiddleware] Failed to translate error message:", error);
       return message; // 失败时返回原消息
     }
   }
@@ -898,13 +891,11 @@ export class TranslationMiddleware {
     }
 
     try {
-      const translationPromises = messages.map(message =>
-        this.translateErrorMessage(message)
-      );
+      const translationPromises = messages.map((message) => this.translateErrorMessage(message));
 
       return await Promise.all(translationPromises);
     } catch (error) {
-      console.error('[TranslationMiddleware] Failed to translate error messages:', error);
+      console.error("[TranslationMiddleware] Failed to translate error messages:", error);
       return messages;
     }
   }
@@ -916,28 +907,28 @@ export const translationMiddleware = new TranslationMiddleware();
 /**
  * 工具函数：检测是否为斜杠命令
  * 可以在其他组件中使用，确保检测逻辑的一致性
- * 
+ *
  * @param text 输入文本
  * @returns 是否为斜杠命令
  */
 export function isSlashCommand(text: string): boolean {
   const trimmedText = text.trim();
-  
+
   // 检查是否以斜杠开头
-  if (!trimmedText.startsWith('/')) {
+  if (!trimmedText.startsWith("/")) {
     return false;
   }
-  
+
   // 排除双斜杠注释（如 // 注释）
-  if (trimmedText.startsWith('//')) {
+  if (trimmedText.startsWith("//")) {
     return false;
   }
-  
+
   // 排除直接的URL（整个字符串是URL）
   if (trimmedText.match(/^https?:\/\/|^ftp:\/\/|^file:\/\/|^\/\//)) {
     return false;
   }
-  
+
   return true;
 }
 

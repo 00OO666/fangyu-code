@@ -66,7 +66,7 @@ export interface UsageStats {
 /**
  * 引擎类型
  */
-export type EngineType = 'claude' | 'codex' | 'gemini';
+export type EngineType = "claude" | "codex" | "gemini";
 
 /**
  * 单引擎统计摘要
@@ -197,7 +197,7 @@ export interface StatsCardData {
   subtitle?: string;
   trend?: {
     value: number;
-    direction: 'up' | 'down' | 'neutral';
+    direction: "up" | "down" | "neutral";
   };
 }
 
@@ -205,16 +205,16 @@ export interface StatsCardData {
  * 引擎图标颜色映射
  */
 export const ENGINE_COLORS: Record<EngineType, string> = {
-  claude: '#D97706',  // orange-500
-  codex: '#3B82F6',   // blue-500
-  gemini: '#8B5CF6',  // purple-500
+  claude: "#D97706", // orange-500
+  codex: "#3B82F6", // blue-500
+  gemini: "#8B5CF6", // purple-500
 };
 
 /**
  * 引擎显示名称映射
  */
 export const ENGINE_LABELS: Record<EngineType, string> = {
-  claude: 'Claude',
-  codex: 'OpenAI Codex',
-  gemini: 'Google Gemini',
+  claude: "Claude",
+  codex: "OpenAI Codex",
+  gemini: "Google Gemini",
 };

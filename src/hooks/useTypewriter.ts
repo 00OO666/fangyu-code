@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface UseTypewriterOptions {
   /** 是否启用打字机效果 */
@@ -33,16 +33,16 @@ interface UseTypewriterReturn {
  */
 export function useTypewriter(
   fullText: string,
-  options: UseTypewriterOptions = {}
+  options: UseTypewriterOptions = {},
 ): UseTypewriterReturn {
   const {
     enabled = true,
     speed = 10, // 默认每字符 10ms，较快的打字速度
     isStreaming = false,
-    onComplete
+    onComplete,
   } = options;
 
-  const [displayedText, setDisplayedText] = useState('');
+  const [displayedText, setDisplayedText] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
 
@@ -166,7 +166,7 @@ export function useTypewriter(
     displayedText,
     isTyping,
     isComplete,
-    skipToEnd
+    skipToEnd,
   };
 }
 
@@ -196,7 +196,7 @@ function findSafeBreakPoint(text: string, start: number, end: number): number {
   // 检查是否在 Markdown 链接语法中间 [...](...)
   // 如果最后一个字符是 [ 或 ]，继续到 ) 结束
   const lastChar = segment[segment.length - 1];
-  if (lastChar === '[' || lastChar === '(') {
+  if (lastChar === "[" || lastChar === "(") {
     return end - 1;
   }
 

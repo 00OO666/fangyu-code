@@ -10,9 +10,9 @@
  * - 防抖机制避免频繁调用
  */
 
-import { useEffect, useRef, useCallback } from 'react';
-import { claudeSDK } from '@/lib/claudeSDK';
-import type { ClaudeStreamMessage } from '@/types/claude';
+import { useCallback, useEffect, useRef } from "react";
+import { claudeSDK } from "@/lib/claudeSDK";
+import type { ClaudeStreamMessage } from "@/types/claude";
 
 // ============================================================================
 // Types
@@ -36,7 +36,7 @@ interface UseSmartTabTitleOptions {
 // ============================================================================
 
 /** AI 标题生成使用的模型 */
-const TITLE_GEN_MODEL = 'claude-haiku-4-5-20251001';
+const TITLE_GEN_MODEL = "claude-haiku-4-5-20251001";
 
 /** AI 标题生成的 System Prompt */
 const TITLE_GEN_SYSTEM_PROMPT = `你是一个会话标题生成器。根据用户的第一条消息和 AI 的回复，生成一个简短、准确的会话标题。
@@ -67,39 +67,39 @@ const TITLE_GEN_SYSTEM_PROMPT = `你是一个会话标题生成器。根据用�
  * 从用户消息中提取文本内容
  */
 function extractUserMessageText(message: ClaudeStreamMessage): string {
-  if (message.type !== 'user') return '';
+  if (message.type !== "user") return "";
 
   const content = message.message?.content;
-  if (typeof content === 'string') return content;
+  if (typeof content === "string") return content;
 
   if (Array.isArray(content)) {
     return content
-      .filter((item: any) => item.type === 'text')
-      .map((item: any) => item.text || '')
-      .join('\n');
+      .filter((item: any) => item.type === "text")
+      .map((item: any) => item.text || "")
+      .join("\n");
   }
 
-  return '';
+  return "";
 }
 
 /**
  * 从 AI 消息中提取文本内容（简化版，只取前 200 字）
  */
 function extractAssistantMessageText(message: ClaudeStreamMessage): string {
-  if (message.type !== 'assistant') return '';
+  if (message.type !== "assistant") return "";
 
   const content = message.message?.content;
-  if (typeof content === 'string') return content.slice(0, 200);
+  if (typeof content === "string") return content.slice(0, 200);
 
   if (Array.isArray(content)) {
     const text = content
-      .filter((item: any) => item.type === 'text')
-      .map((item: any) => item.text || '')
-      .join('\n');
+      .filter((item: any) => item.type === "text")
+      .map((item: any) => item.text || "")
+      .join("\n");
     return text.slice(0, 200);
   }
 
-  return '';
+  return "";
 }
 
 /**
@@ -107,9 +107,9 @@ function extractAssistantMessageText(message: ClaudeStreamMessage): string {
  */
 function cleanText(text: string): string {
   return text
-    .replace(/\n/g, ' ')
-    .replace(/\s+/g, ' ')
-    .replace(/[<>{}[\]]/g, '')
+    .replace(/\n/g, " ")
+    .replace(/\s+/g, " ")
+    .replace(/[<>{}[\]]/g, "")
     .trim();
 }
 
@@ -118,7 +118,7 @@ function cleanText(text: string): string {
  */
 async function generateTitleWithAI(
   userMessage: string,
-  assistantMessage: string
+  assistantMessage: string,
 ): Promise<string | null> {
   try {
     // 构建用于生成标题的对话上下文
@@ -126,29 +126,26 @@ async function generateTitleWithAI(
 
 AI 回复摘要：${assistantMessage.slice(0, 200)}`;
 
-    const response = await claudeSDK.sendMessage(
-      [{ role: 'user', content: contextMessage }],
-      {
-        model: TITLE_GEN_MODEL,
-        maxTokens: 50,
-        temperature: 0.3,
-        systemPrompt: TITLE_GEN_SYSTEM_PROMPT,
-      }
-    );
+    const response = await claudeSDK.sendMessage([{ role: "user", content: contextMessage }], {
+      model: TITLE_GEN_MODEL,
+      maxTokens: 50,
+      temperature: 0.3,
+      systemPrompt: TITLE_GEN_SYSTEM_PROMPT,
+    });
 
     if (response?.content) {
       // 清理 AI 返回的标题
       let title = response.content.trim();
 
       // 移除可能的引号
-      title = title.replace(/^["'「『]|["'」』]$/g, '');
+      title = title.replace(/^["'「『]|["'」』]$/g, "");
 
       // 移除可能的前缀
-      title = title.replace(/^(标题：|Title:\s*)/i, '');
+      title = title.replace(/^(标题：|Title:\s*)/i, "");
 
       // 确保标题不过长
       if (title.length > 25) {
-        title = title.slice(0, 22) + '...';
+        title = title.slice(0, 22) + "...";
       }
 
       return title || null;
@@ -156,7 +153,7 @@ AI 回复摘要：${assistantMessage.slice(0, 200)}`;
 
     return null;
   } catch (error) {
-    console.warn('[useSmartTabTitle] AI title generation failed:', error);
+    console.warn("[useSmartTabTitle] AI title generation failed:", error);
     return null;
   }
 }
@@ -164,8 +161,11 @@ AI 回复摘要：${assistantMessage.slice(0, 200)}`;
 /**
  * 快速命名：智能提取核心主题（回退方案）
  */
-function generateQuickTitle(messages: ClaudeStreamMessage[], maxLength: number = 25): string | null {
-  const userMessage = messages.find(m => m.type === 'user');
+function generateQuickTitle(
+  messages: ClaudeStreamMessage[],
+  maxLength: number = 25,
+): string | null {
+  const userMessage = messages.find((m) => m.type === "user");
   if (!userMessage) return null;
 
   const text = extractUserMessageText(userMessage);
@@ -183,7 +183,7 @@ function generateQuickTitle(messages: ClaudeStreamMessage[], maxLength: number =
 
   for (let i = 0; i < 3; i++) {
     for (const pattern of prefixPatterns) {
-      result = result.replace(pattern, '').trim();
+      result = result.replace(pattern, "").trim();
     }
   }
 
@@ -194,7 +194,7 @@ function generateQuickTitle(messages: ClaudeStreamMessage[], maxLength: number =
   // 按字符截断，支持中文
   const chars = [...final];
   if (chars.length > maxLength) {
-    return chars.slice(0, maxLength).join('') + '...';
+    return chars.slice(0, maxLength).join("") + "...";
   }
 
   return final;
@@ -205,16 +205,14 @@ function generateQuickTitle(messages: ClaudeStreamMessage[], maxLength: number =
  */
 function generateSmartTitle(messages: ClaudeStreamMessage[]): string | null {
   // 收集所有用户消息
-  const userMessages = messages.filter(m => m.type === 'user');
+  const userMessages = messages.filter((m) => m.type === "user");
   if (userMessages.length === 0) return null;
 
   // 只取最近 3 条用户消息，避免第一条粘贴的历史摘要干扰
   const recentUserMessages = userMessages.slice(-3);
 
   // 合并最近用户消息的文本
-  const allText = recentUserMessages
-    .map(m => extractUserMessageText(m))
-    .join(' ');
+  const allText = recentUserMessages.map((m) => extractUserMessageText(m)).join(" ");
 
   if (!allText) return null;
 
@@ -223,20 +221,20 @@ function generateSmartTitle(messages: ClaudeStreamMessage[]): string | null {
   // 关键词模式（优先级从高到低）
   const patterns = [
     // 常见动作词
-    { pattern: /创建\s*([^\s、，。]+)/g, prefix: '创建' },
-    { pattern: /修复\s*([^\s、，。]+)/g, prefix: '修复' },
-    { pattern: /添加\s*([^\s、，。]+)/g, prefix: '添加' },
-    { pattern: /实现\s*([^\s、，。]+)/g, prefix: '实现' },
-    { pattern: /优化\s*([^\s、，。]+)/g, prefix: '优化' },
-    { pattern: /删除\s*([^\s、，。]+)/g, prefix: '删除' },
+    { pattern: /创建\s*([^\s、，。]+)/g, prefix: "创建" },
+    { pattern: /修复\s*([^\s、，。]+)/g, prefix: "修复" },
+    { pattern: /添加\s*([^\s、，。]+)/g, prefix: "添加" },
+    { pattern: /实现\s*([^\s、，。]+)/g, prefix: "实现" },
+    { pattern: /优化\s*([^\s、，。]+)/g, prefix: "优化" },
+    { pattern: /删除\s*([^\s、，。]+)/g, prefix: "删除" },
 
     // 英文动作词
-    { pattern: /create\s+([^\s,\.]+)/gi, prefix: 'Create' },
-    { pattern: /fix\s+([^\s,\.]+)/gi, prefix: 'Fix' },
-    { pattern: /add\s+([^\s,\.]+)/gi, prefix: 'Add' },
-    { pattern: /implement\s+([^\s,\.]+)/gi, prefix: 'Implement' },
-    { pattern: /optimize\s+([^\s,\.]+)/gi, prefix: 'Optimize' },
-    { pattern: /delete\s+([^\s,\.]+)/gi, prefix: 'Delete' },
+    { pattern: /create\s+([^\s,.]+)/gi, prefix: "Create" },
+    { pattern: /fix\s+([^\s,.]+)/gi, prefix: "Fix" },
+    { pattern: /add\s+([^\s,.]+)/gi, prefix: "Add" },
+    { pattern: /implement\s+([^\s,.]+)/gi, prefix: "Implement" },
+    { pattern: /optimize\s+([^\s,.]+)/gi, prefix: "Optimize" },
+    { pattern: /delete\s+([^\s,.]+)/gi, prefix: "Delete" },
   ];
 
   // 尝试匹配动作词
@@ -246,8 +244,8 @@ function generateSmartTitle(messages: ClaudeStreamMessage[]): string | null {
       // 提取关键词（第一个匹配）
       const keywordMatch = matches[0];
       const keyword = keywordMatch
-        .replace(/^(create|fix|add|implement|optimize|delete)\s+/i, '')
-        .replace(/^(创建|修复|添加|实现|优化|删除)\s*/, '')
+        .replace(/^(create|fix|add|implement|optimize|delete)\s+/i, "")
+        .replace(/^(创建|修复|添加|实现|优化|删除)\s*/, "")
         .substring(0, 20)
         .trim();
 
@@ -271,14 +269,14 @@ function generateSmartTitle(messages: ClaudeStreamMessage[]): string | null {
  * 计算用户轮数（不包括系统消息和 AI 回复）
  */
 function countUserRounds(messages: ClaudeStreamMessage[]): number {
-  return messages.filter(m => m.type === 'user').length;
+  return messages.filter((m) => m.type === "user").length;
 }
 
 /**
  * 检查是否有 AI 回复
  */
 function hasAssistantReply(messages: ClaudeStreamMessage[]): boolean {
-  return messages.some(m => m.type === 'assistant');
+  return messages.some((m) => m.type === "assistant");
 }
 
 // ============================================================================
@@ -308,8 +306,8 @@ export function useSmartTabTitle({
     isGeneratingRef.current = true;
 
     try {
-      const userMessage = messages.find(m => m.type === 'user');
-      const assistantMessage = messages.find(m => m.type === 'assistant');
+      const userMessage = messages.find((m) => m.type === "user");
+      const assistantMessage = messages.find((m) => m.type === "assistant");
 
       if (!userMessage || !assistantMessage) {
         isGeneratingRef.current = false;
@@ -324,17 +322,17 @@ export function useSmartTabTitle({
       // 尝试使用 AI 生成标题
       if (useAI && !aiAttemptedRef.current) {
         aiAttemptedRef.current = true;
-        console.log('[useSmartTabTitle] Attempting AI title generation...');
+        console.log("[useSmartTabTitle] Attempting AI title generation...");
         title = await generateTitleWithAI(userText, assistantText);
 
         if (title) {
-          console.log('[useSmartTabTitle] AI generated title:', title);
+          console.log("[useSmartTabTitle] AI generated title:", title);
         }
       }
 
       // 如果 AI 失败，使用回退方案
       if (!title) {
-        console.log('[useSmartTabTitle] Falling back to regex-based title generation');
+        console.log("[useSmartTabTitle] Falling back to regex-based title generation");
         title = generateSmartTitle(messages);
       }
 
@@ -343,7 +341,7 @@ export function useSmartTabTitle({
         lastAppliedTitleRef.current = title;
       }
     } catch (error) {
-      console.error('[useSmartTabTitle] Title generation error:', error);
+      console.error("[useSmartTabTitle] Title generation error:", error);
     } finally {
       isGeneratingRef.current = false;
     }
@@ -371,7 +369,7 @@ export function useSmartTabTitle({
 
       const smartTitle = generateSmartTitle(messages);
       if (smartTitle && smartTitle !== lastAppliedTitleRef.current) {
-        console.log('[useSmartTabTitle] Phase 2 - Keyword-based title:', smartTitle);
+        console.log("[useSmartTabTitle] Phase 2 - Keyword-based title:", smartTitle);
         onTitleUpdate(smartTitle);
         lastAppliedTitleRef.current = smartTitle;
       }
@@ -391,11 +389,11 @@ export function isTitleManuallyEdited(title: string, originalTitle: string): boo
 
   // 如果标题不像自动生成的（不包含 "..." 或常见动作词），可能是手动编辑的
   const autoPatterns = [
-    /\.\.\.$/,  // 以 ... 结尾
+    /\.\.\.$/, // 以 ... 结尾
     /^(create|fix|add|implement|optimize|delete)\s+/i,
     /^(创建|修复|添加|实现|优化|删除)\s*/,
   ];
 
-  const looksAutoGenerated = autoPatterns.some(p => p.test(title));
+  const looksAutoGenerated = autoPatterns.some((p) => p.test(title));
   return !looksAutoGenerated;
 }

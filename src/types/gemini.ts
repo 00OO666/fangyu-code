@@ -95,13 +95,7 @@ export interface GeminiMetadata {
 /**
  * Gemini stream event types
  */
-export type GeminiEventType =
-  | "init"
-  | "message"
-  | "tool_use"
-  | "tool_result"
-  | "error"
-  | "result";
+export type GeminiEventType = "init" | "message" | "tool_use" | "tool_result" | "error" | "result";
 
 /**
  * Raw Gemini stream event from JSONL output

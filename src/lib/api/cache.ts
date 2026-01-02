@@ -10,14 +10,14 @@ interface SessionCacheEntry<T> {
 }
 
 const SESSION_CACHE: {
-  codexSessions?: SessionCacheEntry<import('@/types/codex').CodexSession[]>;
-  geminiSessionsByProject: Map<string, SessionCacheEntry<import('@/types/gemini').GeminiSession[]>>;
+  codexSessions?: SessionCacheEntry<import("@/types/codex").CodexSession[]>;
+  geminiSessionsByProject: Map<string, SessionCacheEntry<import("@/types/gemini").GeminiSession[]>>;
 } = {
   geminiSessionsByProject: new Map(),
 };
 
 const CACHE_TTL = 30 * 24 * 60 * 60 * 1000; // 30 days (像微信一样长期缓存)
-const CACHE_STORAGE_KEY = 'fangyu-sessions-cache';
+const CACHE_STORAGE_KEY = "fangyu-sessions-cache";
 
 // 从 localStorage 恢复缓存（应用启动时）
 function restoreCacheFromStorage() {
@@ -27,11 +27,11 @@ function restoreCacheFromStorage() {
       const parsed = JSON.parse(stored);
       if (parsed.codexSessions && Date.now() - parsed.codexSessions.timestamp < CACHE_TTL) {
         SESSION_CACHE.codexSessions = parsed.codexSessions;
-        console.debug('[api] Restored Codex sessions cache from localStorage');
+        console.debug("[api] Restored Codex sessions cache from localStorage");
       }
     }
   } catch (e) {
-    console.debug('[api] Failed to restore cache from localStorage:', e);
+    console.debug("[api] Failed to restore cache from localStorage:", e);
   }
 }
 
@@ -43,7 +43,7 @@ function saveCacheToStorage() {
     };
     localStorage.setItem(CACHE_STORAGE_KEY, JSON.stringify(toSave));
   } catch (e) {
-    console.debug('[api] Failed to save cache to localStorage:', e);
+    console.debug("[api] Failed to save cache to localStorage:", e);
   }
 }
 

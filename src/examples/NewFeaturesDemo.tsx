@@ -5,23 +5,23 @@
  * 与首次启动弹窗保持同步
  */
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { AnimatePresence, motion } from "framer-motion";
 import {
-  Sparkles,
-  CheckCircle,
-  Zap,
   Bug,
   Calendar,
+  CheckCircle,
   ChevronRight,
-  Star,
   History,
-} from 'lucide-react';
-import { CHANGELOGS, type ChangelogData } from '@/hooks/useFirstLaunchChangelog';
-import { motion, AnimatePresence } from 'framer-motion';
+  Sparkles,
+  Star,
+  Zap,
+} from "lucide-react";
+import React, { useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CHANGELOGS, type ChangelogData } from "@/hooks/useFirstLaunchChangelog";
 
 // 获取所有版本号（从新到旧）
 const versions = Object.keys(CHANGELOGS);
@@ -40,11 +40,13 @@ function VersionCard({ version, isLatest }: { version: string; isLatest: boolean
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <Card className={isLatest ? 'border-primary/50 shadow-lg shadow-primary/10' : ''}>
+      <Card className={isLatest ? "border-primary/50 shadow-lg shadow-primary/10" : ""}>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-lg ${isLatest ? 'bg-gradient-to-br from-purple-500 to-pink-500' : 'bg-primary/10'}`}>
+              <div
+                className={`p-2 rounded-lg ${isLatest ? "bg-gradient-to-br from-purple-500 to-pink-500" : "bg-primary/10"}`}
+              >
                 {isLatest ? (
                   <Star className="h-5 w-5 text-white" />
                 ) : (
@@ -55,7 +57,10 @@ function VersionCard({ version, isLatest }: { version: string; isLatest: boolean
                 <CardTitle className="text-lg flex items-center gap-2">
                   {changelog.title}
                   {isLatest && (
-                    <Badge variant="default" className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0">
+                    <Badge
+                      variant="default"
+                      className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0"
+                    >
                       最新版本
                     </Badge>
                   )}
@@ -160,7 +165,7 @@ function VersionCard({ version, isLatest }: { version: string; isLatest: boolean
  * 主演示组件
  */
 export function NewFeaturesDemo() {
-  const [activeTab, setActiveTab] = useState<'latest' | 'history'>('latest');
+  const [activeTab, setActiveTab] = useState<"latest" | "history">("latest");
 
   return (
     <div className="container mx-auto p-6 max-w-4xl">
@@ -178,13 +183,15 @@ export function NewFeaturesDemo() {
             Fangyu Code v{latestVersion}
           </span>
         </h1>
-        <p className="text-muted-foreground">
-          探索新版本的全新功能与改进
-        </p>
+        <p className="text-muted-foreground">探索新版本的全新功能与改进</p>
       </motion.div>
 
       {/* 标签切换 */}
-      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'latest' | 'history')} className="mb-6">
+      <Tabs
+        value={activeTab}
+        onValueChange={(v) => setActiveTab(v as "latest" | "history")}
+        className="mb-6"
+      >
         <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto">
           <TabsTrigger value="latest" className="flex items-center gap-2">
             <Star className="h-4 w-4" />
@@ -204,11 +211,7 @@ export function NewFeaturesDemo() {
           <ScrollArea className="h-[600px] pr-4">
             <div className="space-y-4">
               {versions.map((version, index) => (
-                <VersionCard
-                  key={version}
-                  version={version}
-                  isLatest={index === 0}
-                />
+                <VersionCard key={version} version={version} isLatest={index === 0} />
               ))}
             </div>
           </ScrollArea>
@@ -227,7 +230,7 @@ export function NewFeaturesDemo() {
           更多功能持续开发中...
         </p>
         <p className="mt-2">
-          提交反馈:{' '}
+          提交反馈:{" "}
           <a
             href="https://github.com/anthropics/claude-code/issues"
             className="text-primary hover:underline inline-flex items-center gap-1"

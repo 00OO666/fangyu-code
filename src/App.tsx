@@ -12,8 +12,11 @@ import { ViewRouter } from "@/components/layout/ViewRouter";
 import { useFirstLaunchChangelog } from "@/hooks/useFirstLaunchChangelog";
 import { FirstLaunchChangelogDialog } from "@/components/FirstLaunchChangelogDialog";
 import { TauriAutoUpdateDialog } from "@/components/TauriAutoUpdateDialog";
+import { TopCenterNotification } from "@/components/notifications";
 import { useDataMigration } from "@/hooks/useDataMigration";
 import { api } from "@/lib/api";
+import { useConsoleMonitor } from "@/hooks/useConsoleMonitor";
+import { ErrorMonitorPanel } from "@/components/ErrorMonitorPanel";
 
 /**
  * 主应用组件 - 管理 Claude 目录浏览器界面
@@ -25,6 +28,13 @@ function App() {
 
   // 首次启动版本更新提醒
   const { showChangelog, changelog, hideChangelog } = useFirstLaunchChangelog();
+
+  // Console 监控（仅开发模式）
+  const { errors, clearErrors, clearError } = useConsoleMonitor({
+    enabled: import.meta.env.DEV,
+    maxErrors: 50,
+    showOriginal: true
+  });
 
   // 全局快捷键监听 - F12 打开开发者工具
   useEffect(() => {
@@ -59,6 +69,16 @@ function App() {
                 />
                 {/* Tauri 自动更新对话框 */}
                 <TauriAutoUpdateDialog />
+                {/* 顶部居中通知 */}
+                <TopCenterNotification />
+                {/* 错误监控面板（仅开发模式） */}
+                {import.meta.env.DEV && (
+                  <ErrorMonitorPanel
+                    errors={errors}
+                    onClearAll={clearErrors}
+                    onClearError={clearError}
+                  />
+                )}
               </PromptQueueProvider>
             </TabProvider>
           </ProjectProvider>

@@ -2,10 +2,14 @@
    🔤 TYPOGRAPHY & PROSE
    ======================================== */
 
-:root, .dark {
+:root,
+.dark {
   /* 🔤 Typography */
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Microsoft YaHei", "微软雅黑", "SimSun", "宋体", "Arial Unicode MS", sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, "Microsoft YaHei Mono", "微软雅黑", monospace;
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Microsoft YaHei", "微软雅黑", "SimSun", "宋体", "Arial Unicode MS", sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo,
+    "Microsoft YaHei Mono", "微软雅黑", monospace;
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem;
@@ -46,7 +50,12 @@
   margin-bottom: 1.2em;
 }
 
-.prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
   margin-top: 0;
   margin-bottom: 0.8888889em;
   font-weight: 600;
@@ -79,7 +88,8 @@
   font-weight: 600;
 }
 
-.prose ol, .prose ul {
+.prose ol,
+.prose ul {
   margin-top: 1.25em;
   margin-bottom: 1.25em;
   padding-left: 1.625em;
@@ -266,11 +276,19 @@
     font-size: 15px;
     line-height: 1.65;
   }
-  
-  .text-xs { font-size: 0.8rem; }
-  .text-sm { font-size: 0.9rem; }
-  .text-base { font-size: 1rem; }
-  .text-lg { font-size: 1.15rem; }
+
+  .text-xs {
+    font-size: 0.8rem;
+  }
+  .text-sm {
+    font-size: 0.9rem;
+  }
+  .text-base {
+    font-size: 1rem;
+  }
+  .text-lg {
+    font-size: 1.15rem;
+  }
 }
 
 /* Windows DPI scaling support */
@@ -284,20 +302,32 @@
 /* Support for Windows Display Scale Settings */
 @media (min-resolution: 144dpi) {
   /* 150% scaling */
-  .text-xs { font-size: 0.8rem; }
-  .text-sm { font-size: 0.9rem; }
+  .text-xs {
+    font-size: 0.8rem;
+  }
+  .text-sm {
+    font-size: 0.9rem;
+  }
 }
 
 @media (min-resolution: 192dpi) {
   /* 200% scaling */
-  .text-xs { font-size: 0.85rem; }
-  .text-sm { font-size: 0.95rem; }
+  .text-xs {
+    font-size: 0.85rem;
+  }
+  .text-sm {
+    font-size: 0.95rem;
+  }
 }
 
 @media (min-resolution: 288dpi) {
   /* 300% scaling */
-  .text-xs { font-size: 0.9rem; }
-  .text-sm { font-size: 1rem; }
+  .text-xs {
+    font-size: 0.9rem;
+  }
+  .text-sm {
+    font-size: 1rem;
+  }
 }
 
 /* Ultra-wide and large displays */
@@ -306,9 +336,13 @@
   body {
     font-size: 15px;
   }
-  
-  .text-xs { font-size: 0.8rem; }
-  .text-sm { font-size: 0.9rem; }
+
+  .text-xs {
+    font-size: 0.8rem;
+  }
+  .text-sm {
+    font-size: 0.9rem;
+  }
 }
 
 @media (min-width: 2560px) {
@@ -316,7 +350,11 @@
   body {
     font-size: 16px;
   }
-  
-  .text-xs { font-size: 0.85rem; }
-  .text-sm { font-size: 0.95rem; }
+
+  .text-xs {
+    font-size: 0.85rem;
+  }
+  .text-sm {
+    font-size: 0.95rem;
+  }
 }

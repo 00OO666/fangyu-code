@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { useTabs } from './useTabs';
+import { useEffect } from "react";
+import { useTabs } from "./useTabs";
 
 export interface GlobalKeyboardShortcutsConfig {
   onOpenSettings?: () => void;
@@ -28,14 +28,14 @@ export function useGlobalKeyboardShortcuts(config: GlobalKeyboardShortcutsConfig
     const handleKeyDown = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement;
       const isInInput =
-        target.tagName === 'INPUT' ||
-        target.tagName === 'TEXTAREA' ||
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
         target.isContentEditable ||
         target.closest('[role="textbox"]') !== null;
 
       // ESC key handling: only blur input fields
       // Note: "Double ESC to revert" functionality is handled by useKeyboardShortcuts hook
-      if (event.key === 'Escape' && !event.ctrlKey && !event.metaKey && !event.altKey) {
+      if (event.key === "Escape" && !event.ctrlKey && !event.metaKey && !event.altKey) {
         if (isInInput) {
           target.blur();
           return;
@@ -62,7 +62,7 @@ export function useGlobalKeyboardShortcuts(config: GlobalKeyboardShortcutsConfig
         return;
       }
 
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
         if (onOpenSearch) {
           onOpenSearch();
@@ -70,7 +70,7 @@ export function useGlobalKeyboardShortcuts(config: GlobalKeyboardShortcutsConfig
         return;
       }
 
-      if ((event.metaKey || event.ctrlKey) && event.key === ',') {
+      if ((event.metaKey || event.ctrlKey) && event.key === ",") {
         event.preventDefault();
         if (onOpenSettings) {
           onOpenSettings();
@@ -79,7 +79,7 @@ export function useGlobalKeyboardShortcuts(config: GlobalKeyboardShortcutsConfig
       }
 
       // Ctrl+R: 打开提示历史搜索
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'r') {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "r") {
         // 阻止浏览器刷新
         event.preventDefault();
         if (onOpenPromptHistory) {
@@ -89,22 +89,30 @@ export function useGlobalKeyboardShortcuts(config: GlobalKeyboardShortcutsConfig
       }
 
       // Ctrl+Shift+P: 打开统一搜索框 (MCP/SKILL/插件/Hooks)
-      if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key.toLowerCase() === 'p') {
+      if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key.toLowerCase() === "p") {
         event.preventDefault();
         if (onOpenUnifiedSearch) {
           onOpenUnifiedSearch();
         } else {
           // Fallback: 触发全局事件，让 TabManager 监听
-          window.dispatchEvent(new CustomEvent('open-unified-search'));
+          window.dispatchEvent(new CustomEvent("open-unified-search"));
         }
         return;
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown, { capture: true });
+    window.addEventListener("keydown", handleKeyDown, { capture: true });
 
     return () => {
-      window.removeEventListener('keydown', handleKeyDown, { capture: true });
+      window.removeEventListener("keydown", handleKeyDown, { capture: true });
     };
-  }, [enabled, onOpenSettings, onOpenSearch, onOpenPromptHistory, onOpenUnifiedSearch, switchToTab, tabs]);
+  }, [
+    enabled,
+    onOpenSettings,
+    onOpenSearch,
+    onOpenPromptHistory,
+    onOpenUnifiedSearch,
+    switchToTab,
+    tabs,
+  ]);
 }

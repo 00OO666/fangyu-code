@@ -10,8 +10,8 @@
  * 来源: Cursor/Windsurf 任务完成通知
  */
 
-import { useEffect, useRef, useCallback } from 'react';
-import { api } from '@/lib/api';
+import { useCallback, useEffect, useRef } from "react";
+import { api } from "@/lib/api";
 
 interface TaskNotificationOptions {
   /** 是否启用系统通知 */
@@ -40,20 +40,20 @@ interface TaskState {
  */
 async function sendSystemNotification(title: string, body: string, icon?: string) {
   // 检查通知权限
-  if (!('Notification' in window)) {
-    console.warn('浏览器不支持通知');
+  if (!("Notification" in window)) {
+    console.warn("浏览器不支持通知");
     return;
   }
 
-  if (Notification.permission === 'denied') {
-    console.warn('通知权限被拒绝');
+  if (Notification.permission === "denied") {
+    console.warn("通知权限被拒绝");
     return;
   }
 
-  if (Notification.permission !== 'granted') {
+  if (Notification.permission !== "granted") {
     const permission = await Notification.requestPermission();
-    if (permission !== 'granted') {
-      console.warn('通知权限请求被拒绝');
+    if (permission !== "granted") {
+      console.warn("通知权限请求被拒绝");
       return;
     }
   }
@@ -61,8 +61,8 @@ async function sendSystemNotification(title: string, body: string, icon?: string
   // 发送通知
   const notification = new Notification(title, {
     body,
-    icon: icon || '/icon.png',
-    tag: 'fangyu-code-task',
+    icon: icon || "/icon.png",
+    tag: "fangyu-code-task",
     requireInteraction: false,
   });
 
@@ -81,7 +81,7 @@ async function sendSystemNotification(title: string, body: string, icon?: string
 /**
  * 播放提示音
  */
-function playNotificationSound(type: 'success' | 'error') {
+function playNotificationSound(type: "success" | "error") {
   try {
     // 使用 Web Audio API 生成简单提示音
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -91,14 +91,14 @@ function playNotificationSound(type: 'success' | 'error') {
     oscillator.connect(gainNode);
     gainNode.connect(audioContext.destination);
 
-    if (type === 'success') {
+    if (type === "success") {
       // 成功音效：上升音调
       oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
       oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // E5
       oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2); // G5
     } else {
       // 失败音效：下降音调
-      oscillator.frequency.setValueAtTime(392.00, audioContext.currentTime); // G4
+      oscillator.frequency.setValueAtTime(392.0, audioContext.currentTime); // G4
       oscillator.frequency.setValueAtTime(329.63, audioContext.currentTime + 0.15); // E4
     }
 
@@ -108,7 +108,7 @@ function playNotificationSound(type: 'success' | 'error') {
     oscillator.start(audioContext.currentTime);
     oscillator.stop(audioContext.currentTime + 0.3);
   } catch (error) {
-    console.warn('播放提示音失败:', error);
+    console.warn("播放提示音失败:", error);
   }
 }
 
@@ -135,47 +135,41 @@ export function useTaskNotifications(options: TaskNotificationOptions = {}) {
       }
 
       // 任务完成
-      if (task.status === 'completed' && previousState.status === 'running') {
+      if (task.status === "completed" && previousState.status === "running") {
         const duration = task.result?.duration_ms
           ? (task.result.duration_ms / 1000).toFixed(1)
-          : '?';
+          : "?";
 
         if (enableSystemNotification) {
-          await sendSystemNotification(
-            '✅ 任务完成',
-            `${task.name} 已完成，耗时 ${duration}秒`
-          );
+          await sendSystemNotification("✅ 任务完成", `${task.name} 已完成，耗时 ${duration}秒`);
         }
 
         if (enableSound) {
-          playNotificationSound('success');
+          playNotificationSound("success");
         }
       }
 
       // 任务失败
-      if (task.status === 'failed' && previousState.status === 'running') {
-        const errorMsg = task.result?.error || '未知错误';
+      if (task.status === "failed" && previousState.status === "running") {
+        const errorMsg = task.result?.error || "未知错误";
 
         if (enableSystemNotification) {
-          await sendSystemNotification(
-            '❌ 任务失败',
-            `${task.name}: ${errorMsg}`
-          );
+          await sendSystemNotification("❌ 任务失败", `${task.name}: ${errorMsg}`);
         }
 
         if (enableSound) {
-          playNotificationSound('error');
+          playNotificationSound("error");
         }
       }
 
       // 任务被取消
-      if (task.status === 'cancelled' && previousState.status === 'running') {
+      if (task.status === "cancelled" && previousState.status === "running") {
         if (enableSystemNotification) {
-          await sendSystemNotification('⚠️ 任务已取消', task.name);
+          await sendSystemNotification("⚠️ 任务已取消", task.name);
         }
       }
     },
-    [enableSystemNotification, enableSound]
+    [enableSystemNotification, enableSound],
   );
 
   // 轮询检查任务状态
@@ -230,23 +224,23 @@ export function useTaskNotifications(options: TaskNotificationOptions = {}) {
   return {
     notifySuccess: (taskName: string, duration?: number) => {
       if (enableSystemNotification) {
-        const durationStr = duration ? `，耗时 ${(duration / 1000).toFixed(1)}秒` : '';
-        sendSystemNotification('✅ 任务完成', `${taskName}${durationStr}`);
+        const durationStr = duration ? `，耗时 ${(duration / 1000).toFixed(1)}秒` : "";
+        sendSystemNotification("✅ 任务完成", `${taskName}${durationStr}`);
       }
       if (enableSound) {
-        playNotificationSound('success');
+        playNotificationSound("success");
       }
     },
     notifyError: (taskName: string, error?: string) => {
       if (enableSystemNotification) {
-        sendSystemNotification('❌ 任务失败', `${taskName}: ${error || '未知错误'}`);
+        sendSystemNotification("❌ 任务失败", `${taskName}: ${error || "未知错误"}`);
       }
       if (enableSound) {
-        playNotificationSound('error');
+        playNotificationSound("error");
       }
     },
     requestPermission: async () => {
-      if ('Notification' in window && Notification.permission === 'default') {
+      if ("Notification" in window && Notification.permission === "default") {
         return await Notification.requestPermission();
       }
       return Notification.permission;

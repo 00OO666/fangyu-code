@@ -11,16 +11,16 @@
  * 来源: Cursor Auto-Commit + Aider Git Integration
  */
 
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState } from "react";
 
 // Git 命令执行辅助函数（简化实现）
 async function executeGitCommand(
   _projectPath: string,
-  _args: string
+  _args: string,
 ): Promise<{ success: boolean; output?: string; error?: string }> {
   // TODO: 实现 Git 命令执行
   // 需要添加对应的 Tauri 命令
-  return { success: false, error: 'Git command not implemented' };
+  return { success: false, error: "Git command not implemented" };
 }
 
 // ============================================================
@@ -66,16 +66,16 @@ const DEFAULT_CONFIG: AutoCommitConfig = {
   enabled: false,
   delay: 30000, // 30秒
   autoPush: false,
-  messagePrefix: '[Auto]',
+  messagePrefix: "[Auto]",
   minFiles: 1,
   ignorePatterns: [
-    'node_modules/**',
-    '.git/**',
-    'dist/**',
-    'build/**',
-    '*.log',
-    '.DS_Store',
-    'Thumbs.db',
+    "node_modules/**",
+    ".git/**",
+    "dist/**",
+    "build/**",
+    "*.log",
+    ".DS_Store",
+    "Thumbs.db",
   ],
 };
 
@@ -122,11 +122,11 @@ export function useGitAutoCommit(options: UseGitAutoCommitOptions) {
   const shouldIgnore = useCallback(
     (filePath: string): boolean => {
       return config.ignorePatterns.some((pattern) => {
-        const regex = new RegExp(pattern.replace(/\*/g, '.*').replace(/\?/g, '.'));
+        const regex = new RegExp(pattern.replace(/\*/g, ".*").replace(/\?/g, "."));
         return regex.test(filePath);
       });
     },
-    [config.ignorePatterns]
+    [config.ignorePatterns],
   );
 
   /**
@@ -135,7 +135,7 @@ export function useGitAutoCommit(options: UseGitAutoCommitOptions) {
   const getChangedFiles = useCallback(async (): Promise<string[]> => {
     try {
       // 通过 git status 获取修改的文件
-      const result = await executeGitCommand(projectPath, 'status --porcelain');
+      const result = await executeGitCommand(projectPath, "status --porcelain");
 
       if (!result.success || !result.output) {
         return [];
@@ -143,7 +143,7 @@ export function useGitAutoCommit(options: UseGitAutoCommitOptions) {
 
       // 解析 git status 输出
       const files = result.output
-        .split('\n')
+        .split("\n")
         .filter((line) => line.trim())
         .map((line) => {
           // Git status 格式: " M file.txt" 或 "?? file.txt"
@@ -154,7 +154,7 @@ export function useGitAutoCommit(options: UseGitAutoCommitOptions) {
 
       return files;
     } catch (error) {
-      console.error('获取修改文件失败:', error);
+      console.error("获取修改文件失败:", error);
       return [];
     }
   }, [projectPath, shouldIgnore]);
@@ -170,10 +170,7 @@ export function useGitAutoCommit(options: UseGitAutoCommitOptions) {
 
       try {
         // 获取 diff 内容
-        const diffResult = await executeGitCommand(
-          projectPath,
-          'diff --cached --stat'
-        );
+        const diffResult = await executeGitCommand(projectPath, "diff --cached --stat");
 
         if (!diffResult.success || !diffResult.output) {
           // 回退到简单消息
@@ -184,37 +181,35 @@ export function useGitAutoCommit(options: UseGitAutoCommitOptions) {
         }
 
         // 分析修改类型
-        const hasNewFiles = files.some((f) =>
-          diffResult.output!.includes(`${f} | 0`)
-        );
-        const hasModifications = files.some((f) =>
-          diffResult.output!.includes(f) && !diffResult.output!.includes(`${f} | 0`)
+        const hasNewFiles = files.some((f) => diffResult.output!.includes(`${f} | 0`));
+        const hasModifications = files.some(
+          (f) => diffResult.output!.includes(f) && !diffResult.output!.includes(`${f} | 0`),
         );
 
-        let action = '更新';
+        let action = "更新";
         if (hasNewFiles && !hasModifications) {
-          action = '添加';
+          action = "添加";
         } else if (hasNewFiles && hasModifications) {
-          action = '添加和更新';
+          action = "添加和更新";
         }
 
         // 提取主要修改的文件类型
         const extensions = files
-          .map((f) => f.split('.').pop())
+          .map((f) => f.split(".").pop())
           .filter((ext): ext is string => Boolean(ext));
         const uniqueExts = [...new Set(extensions)];
 
-        let fileTypeDesc = '';
+        let fileTypeDesc = "";
         if (uniqueExts.length === 1) {
           const extMap: Record<string, string> = {
-            ts: 'TypeScript',
-            tsx: 'React',
-            js: 'JavaScript',
-            jsx: 'React',
-            css: '样式',
-            md: '文档',
-            json: '配置',
-            html: 'HTML',
+            ts: "TypeScript",
+            tsx: "React",
+            js: "JavaScript",
+            jsx: "React",
+            css: "样式",
+            md: "文档",
+            json: "配置",
+            html: "HTML",
           };
           fileTypeDesc = extMap[uniqueExts[0]] || uniqueExts[0];
         }
@@ -229,11 +224,11 @@ export function useGitAutoCommit(options: UseGitAutoCommitOptions) {
 
         return `${config.messagePrefix} ${action} ${files.length} 个文件`;
       } catch (error) {
-        console.error('生成提交消息失败:', error);
+        console.error("生成提交消息失败:", error);
         return `${config.messagePrefix} 更新 ${files.length} 个文件`;
       }
     },
-    [config.messagePrefix, projectPath]
+    [config.messagePrefix, projectPath],
   );
 
   /**
@@ -248,7 +243,7 @@ export function useGitAutoCommit(options: UseGitAutoCommitOptions) {
         if (onBeforeCommit) {
           const shouldProceed = await onBeforeCommit(files, message);
           if (!shouldProceed) {
-            console.log('提交被前置钩子取消');
+            console.log("提交被前置钩子取消");
             return null;
           }
         }
@@ -259,32 +254,26 @@ export function useGitAutoCommit(options: UseGitAutoCommitOptions) {
         }
 
         // 创建提交
-        const commitResult = await executeGitCommand(
-          projectPath,
-          `commit -m "${message}"`
-        );
+        const commitResult = await executeGitCommand(projectPath, `commit -m "${message}"`);
 
         if (!commitResult.success) {
-          throw new Error(commitResult.error || '提交失败');
+          throw new Error(commitResult.error || "提交失败");
         }
 
         // 获取提交信息
         const logResult = await executeGitCommand(
           projectPath,
-          'log -1 --format="%H|%an|%ad" --date=iso'
+          'log -1 --format="%H|%an|%ad" --date=iso',
         );
 
-        const [hash, author, timestamp] = logResult.output?.split('|') || [
-          'unknown',
-          'unknown',
+        const [hash, author, timestamp] = logResult.output?.split("|") || [
+          "unknown",
+          "unknown",
           new Date().toISOString(),
         ];
 
         // 获取统计信息
-        const statsResult = await executeGitCommand(
-          projectPath,
-          'diff --stat HEAD~1 HEAD'
-        );
+        const statsResult = await executeGitCommand(projectPath, "diff --stat HEAD~1 HEAD");
 
         let linesAdded = 0;
         let linesRemoved = 0;
@@ -312,7 +301,7 @@ export function useGitAutoCommit(options: UseGitAutoCommitOptions) {
 
         // 自动推送
         if (config.autoPush) {
-          await executeGitCommand(projectPath, 'push');
+          await executeGitCommand(projectPath, "push");
         }
 
         // 执行提交后回调
@@ -320,14 +309,14 @@ export function useGitAutoCommit(options: UseGitAutoCommitOptions) {
 
         return commit;
       } catch (error) {
-        console.error('执行提交失败:', error);
+        console.error("执行提交失败:", error);
         return null;
       } finally {
         setIsCommitting(false);
         setPendingCommit(null);
       }
     },
-    [projectPath, config.autoPush, onBeforeCommit, onAfterCommit]
+    [projectPath, config.autoPush, onBeforeCommit, onAfterCommit],
   );
 
   /**
@@ -418,7 +407,7 @@ export function useGitAutoCommit(options: UseGitAutoCommitOptions) {
       try {
         const logResult = await executeGitCommand(
           projectPath,
-          `log -${count} --format="%H|%s|%an|%ad" --date=iso --stat`
+          `log -${count} --format="%H|%s|%an|%ad" --date=iso --stat`,
         );
 
         if (!logResult.success || !logResult.output) {
@@ -426,16 +415,16 @@ export function useGitAutoCommit(options: UseGitAutoCommitOptions) {
         }
 
         const commits: CommitInfo[] = [];
-        const lines = logResult.output.split('\n');
+        const lines = logResult.output.split("\n");
         let currentCommit: Partial<CommitInfo> | null = null;
 
         for (const line of lines) {
-          if (line.includes('|')) {
+          if (line.includes("|")) {
             if (currentCommit) {
               commits.push(currentCommit as CommitInfo);
             }
 
-            const [hash, message, author, timestamp] = line.split('|');
+            const [hash, message, author, timestamp] = line.split("|");
             currentCommit = {
               hash,
               message,
@@ -460,11 +449,11 @@ export function useGitAutoCommit(options: UseGitAutoCommitOptions) {
 
         return commits;
       } catch (error) {
-        console.error('获取提交历史失败:', error);
+        console.error("获取提交历史失败:", error);
         return [];
       }
     },
-    [projectPath]
+    [projectPath],
   );
 
   // 清理定时器

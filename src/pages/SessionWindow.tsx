@@ -5,16 +5,21 @@
  * It initializes based on URL parameters passed when the window was created.
  */
 
-import React, { useEffect, useState, useMemo } from 'react';
-import { parseSessionWindowParams, onWindowSyncEvent, emitWindowSyncEvent } from '@/lib/windowManager';
-import { ClaudeCodeSession } from '@/components/ClaudeCodeSession';
-import { MessagesProvider } from '@/contexts/MessagesContext';
-import { PlanModeProvider } from '@/contexts/PlanModeContext';
-import type { Session } from '@/lib/api';
-import { getCurrentWindow } from '@tauri-apps/api/window';
-import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
-import { X, Minus, Square, Copy, PanelLeftClose } from 'lucide-react';
+import { getCurrentWindow } from "@tauri-apps/api/window";
+import { Copy, Minus, PanelLeftClose, Square, X } from "lucide-react";
+import type React from "react";
+import { useEffect, useMemo, useState } from "react";
+import { ClaudeCodeSession } from "@/components/ClaudeCodeSession";
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { MessagesProvider } from "@/contexts/MessagesContext";
+import { PlanModeProvider } from "@/contexts/PlanModeContext";
+import type { Session } from "@/lib/api";
+import {
+  emitWindowSyncEvent,
+  onWindowSyncEvent,
+  parseSessionWindowParams,
+} from "@/lib/windowManager";
 
 interface SessionWindowState {
   isLoading: boolean;
@@ -22,7 +27,7 @@ interface SessionWindowState {
   session: Session | null;
   projectPath: string | null;
   tabId: string | null;
-  engine: 'claude' | 'codex' | null;
+  engine: "claude" | "codex" | null;
 }
 
 /**
@@ -48,10 +53,10 @@ export const SessionWindow: React.FC = () => {
   useEffect(() => {
     const initializeSession = async () => {
       if (!windowParams.isSessionWindow) {
-        setState(prev => ({
+        setState((prev) => ({
           ...prev,
           isLoading: false,
-          error: 'Invalid window type',
+          error: "Invalid window type",
         }));
         return;
       }
@@ -59,7 +64,7 @@ export const SessionWindow: React.FC = () => {
       try {
         // Set basic params including engine
         const engine = windowParams.engine || null;
-        setState(prev => ({
+        setState((prev) => ({
           ...prev,
           tabId: windowParams.tabId || null,
           projectPath: windowParams.projectPath || null,
@@ -71,30 +76,30 @@ export const SessionWindow: React.FC = () => {
           // Create session object - ClaudeCodeSession will handle loading the history
           const session: Session = {
             id: windowParams.sessionId,
-            project_id: windowParams.projectPath.replace(/[^a-zA-Z0-9]/g, '-'),
+            project_id: windowParams.projectPath.replace(/[^a-zA-Z0-9]/g, "-"),
             project_path: windowParams.projectPath,
             created_at: Date.now() / 1000,
             engine: engine || undefined,
           };
 
-          setState(prev => ({
+          setState((prev) => ({
             ...prev,
             session,
             isLoading: false,
           }));
         } else {
           // No session ID - start fresh with just project path
-          setState(prev => ({
+          setState((prev) => ({
             ...prev,
             isLoading: false,
           }));
         }
       } catch (error) {
-        console.error('[SessionWindow] Initialization error:', error);
-        setState(prev => ({
+        console.error("[SessionWindow] Initialization error:", error);
+        setState((prev) => ({
           ...prev,
           isLoading: false,
-          error: 'Failed to initialize session window',
+          error: "Failed to initialize session window",
         }));
       }
     };
@@ -111,11 +116,11 @@ export const SessionWindow: React.FC = () => {
         // Handle relevant events
         if (event.tabId === state.tabId) {
           switch (event.type) {
-            case 'tab_closed':
+            case "tab_closed":
               // Main window closed this tab, close the window
               handleCloseWindow();
               break;
-            case 'session_update':
+            case "session_update":
               // Update session data if needed
               break;
           }
@@ -136,7 +141,7 @@ export const SessionWindow: React.FC = () => {
       // Emit event to notify main window
       if (state.tabId) {
         await emitWindowSyncEvent({
-          type: 'tab_closed',
+          type: "tab_closed",
           tabId: state.tabId,
           sessionId: state.session?.id,
         });
@@ -145,7 +150,7 @@ export const SessionWindow: React.FC = () => {
       const window = getCurrentWindow();
       await window.close();
     } catch (error) {
-      console.error('[SessionWindow] Failed to close window:', error);
+      console.error("[SessionWindow] Failed to close window:", error);
     }
   };
 
@@ -154,7 +159,7 @@ export const SessionWindow: React.FC = () => {
       const window = getCurrentWindow();
       await window.minimize();
     } catch (error) {
-      console.error('[SessionWindow] Failed to minimize window:', error);
+      console.error("[SessionWindow] Failed to minimize window:", error);
     }
   };
 
@@ -168,7 +173,7 @@ export const SessionWindow: React.FC = () => {
         await window.maximize();
       }
     } catch (error) {
-      console.error('[SessionWindow] Failed to toggle maximize:', error);
+      console.error("[SessionWindow] Failed to toggle maximize:", error);
     }
   };
 
@@ -178,13 +183,15 @@ export const SessionWindow: React.FC = () => {
       // Emit attach event to notify main window to create a tab
       if (state.tabId) {
         // Ensure session has engine info when merging back
-        const sessionWithEngine = state.session ? {
-          ...state.session,
-          engine: state.session.engine || state.engine || undefined,
-        } : undefined;
+        const sessionWithEngine = state.session
+          ? {
+              ...state.session,
+              engine: state.session.engine || state.engine || undefined,
+            }
+          : undefined;
 
         await emitWindowSyncEvent({
-          type: 'tab_attached',
+          type: "tab_attached",
           tabId: state.tabId,
           sessionId: state.session?.id,
           projectPath: state.projectPath || undefined,
@@ -200,25 +207,25 @@ export const SessionWindow: React.FC = () => {
         }, 100);
       }
     } catch (error) {
-      console.error('[SessionWindow] Failed to merge to main window:', error);
+      console.error("[SessionWindow] Failed to merge to main window:", error);
     }
   };
 
   // Drag region style for window dragging (Tauri 2.0 requires both data-tauri-drag-region and CSS)
   const dragRegionStyle: React.CSSProperties = {
-    WebkitAppRegion: 'drag',
+    WebkitAppRegion: "drag",
   } as React.CSSProperties;
 
   // No-drag style for interactive elements within drag region
   const noDragStyle: React.CSSProperties = {
-    WebkitAppRegion: 'no-drag',
+    WebkitAppRegion: "no-drag",
   } as React.CSSProperties;
 
   // Handle manual drag start for macOS compatibility
   const handleDragStart = async (e: React.MouseEvent) => {
     // Only trigger if clicking directly on drag region (not on interactive elements)
     const target = e.target as HTMLElement;
-    if (target.closest('[style*="no-drag"]') || target.closest('button')) {
+    if (target.closest('[style*="no-drag"]') || target.closest("button")) {
       return;
     }
 
@@ -227,7 +234,7 @@ export const SessionWindow: React.FC = () => {
       await window.startDragging();
     } catch (error) {
       // Ignore errors - fallback to CSS-based dragging
-      console.debug('[SessionWindow] startDragging fallback:', error);
+      console.debug("[SessionWindow] startDragging fallback:", error);
     }
   };
 
@@ -326,7 +333,10 @@ export const SessionWindow: React.FC = () => {
   }
 
   return (
-    <div className="h-screen w-screen flex flex-col bg-background" style={{ '--sidebar-width': '0px' } as React.CSSProperties}>
+    <div
+      className="h-screen w-screen flex flex-col bg-background"
+      style={{ "--sidebar-width": "0px" } as React.CSSProperties}
+    >
       {/* Custom title bar for detached windows */}
       <div
         className="flex-shrink-0 h-10 flex items-center justify-between px-3 border-b border-border bg-muted/30"
@@ -338,7 +348,7 @@ export const SessionWindow: React.FC = () => {
         <div className="flex items-center gap-2" data-tauri-drag-region style={dragRegionStyle}>
           <Copy className="h-4 w-4 text-muted-foreground" />
           <span className="text-sm font-medium truncate max-w-[300px]">
-            {state.session?.id ? `Session: ${state.session.id.slice(0, 8)}...` : 'New Session'}
+            {state.session?.id ? `Session: ${state.session.id.slice(0, 8)}...` : "New Session"}
           </span>
           {state.projectPath && (
             <span className="text-xs text-muted-foreground truncate max-w-[200px]">
@@ -406,7 +416,7 @@ export const SessionWindow: React.FC = () => {
         <MessagesProvider>
           <PlanModeProvider>
             <ClaudeCodeSession
-              key={state.tabId || 'detached-session'}
+              key={state.tabId || "detached-session"}
               initialProjectPath={state.projectPath || undefined}
               session={state.session || undefined}
               isActive={true}

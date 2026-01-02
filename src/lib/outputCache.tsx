@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
-import type { ClaudeStreamMessage } from '@/types/claude';
+import type React from "react";
+import { createContext, useCallback, useContext, useState } from "react";
+import type { ClaudeStreamMessage } from "@/types/claude";
 
 interface CachedSessionOutput {
   output: string;
@@ -23,7 +24,7 @@ const OutputCacheContext = createContext<OutputCacheContextType | null>(null);
 export function useOutputCache() {
   const context = useContext(OutputCacheContext);
   if (!context) {
-    throw new Error('useOutputCache must be used within an OutputCacheProvider');
+    throw new Error("useOutputCache must be used within an OutputCacheProvider");
   }
   return context;
 }
@@ -36,16 +37,19 @@ export function OutputCacheProvider({ children }: OutputCacheProviderProps) {
   const [cache, setCache] = useState<Map<number, CachedSessionOutput>>(new Map());
   const isPolling = false; // Polling disabled
 
-  const getCachedOutput = useCallback((sessionId: number): CachedSessionOutput | null => {
-    return cache.get(sessionId) || null;
-  }, [cache]);
+  const getCachedOutput = useCallback(
+    (sessionId: number): CachedSessionOutput | null => {
+      return cache.get(sessionId) || null;
+    },
+    [cache],
+  );
 
   const setCachedOutput = useCallback((sessionId: number, data: CachedSessionOutput) => {
-    setCache(prev => new Map(prev.set(sessionId, data)));
+    setCache((prev) => new Map(prev.set(sessionId, data)));
   }, []);
 
   const updateSessionStatus = useCallback((sessionId: number, status: string) => {
-    setCache(prev => {
+    setCache((prev) => {
       const existing = prev.get(sessionId);
       if (existing) {
         const updated = new Map(prev);
@@ -58,7 +62,7 @@ export function OutputCacheProvider({ children }: OutputCacheProviderProps) {
 
   const clearCache = useCallback((sessionId?: number) => {
     if (sessionId) {
-      setCache(prev => {
+      setCache((prev) => {
         const updated = new Map(prev);
         updated.delete(sessionId);
         return updated;
@@ -67,8 +71,6 @@ export function OutputCacheProvider({ children }: OutputCacheProviderProps) {
       setCache(new Map());
     }
   }, []);
-
-  
 
   // Removed agent session polling - no longer supported
   const startBackgroundPolling = useCallback(() => {
@@ -89,9 +91,5 @@ export function OutputCacheProvider({ children }: OutputCacheProviderProps) {
     stopBackgroundPolling,
   };
 
-  return (
-    <OutputCacheContext.Provider value={value}>
-      {children}
-    </OutputCacheContext.Provider>
-  );
+  return <OutputCacheContext.Provider value={value}>{children}</OutputCacheContext.Provider>;
 }

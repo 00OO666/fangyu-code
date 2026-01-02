@@ -9,7 +9,7 @@
  */
 
 import { invoke } from "@tauri-apps/api/core";
-import type { Project, ConversionResult } from '../types';
+import type { ConversionResult, Project } from "../types";
 
 // ============================================================================
 // 项目管理
@@ -32,7 +32,7 @@ export async function listProjects(): Promise<Project[]> {
  */
 export async function deleteProject(projectId: string): Promise<string> {
   try {
-    return await invoke<string>('delete_project', { projectId });
+    return await invoke<string>("delete_project", { projectId });
   } catch (error) {
     console.error("Failed to delete project:", error);
     throw error;
@@ -44,7 +44,7 @@ export async function deleteProject(projectId: string): Promise<string> {
  */
 export async function restoreProject(projectId: string): Promise<string> {
   try {
-    return await invoke<string>('restore_project', { projectId });
+    return await invoke<string>("restore_project", { projectId });
   } catch (error) {
     console.error("Failed to restore project:", error);
     throw error;
@@ -56,7 +56,7 @@ export async function restoreProject(projectId: string): Promise<string> {
  */
 export async function listHiddenProjects(): Promise<string[]> {
   try {
-    return await invoke<string[]>('list_hidden_projects');
+    return await invoke<string[]>("list_hidden_projects");
   } catch (error) {
     console.error("Failed to list hidden projects:", error);
     throw error;
@@ -68,7 +68,7 @@ export async function listHiddenProjects(): Promise<string[]> {
  */
 export async function deleteProjectPermanently(projectId: string): Promise<string> {
   try {
-    return await invoke<string>('delete_project_permanently', { projectId });
+    return await invoke<string>("delete_project_permanently", { projectId });
   } catch (error) {
     console.error("Failed to permanently delete project:", error);
     throw error;
@@ -84,7 +84,7 @@ export async function deleteProjectPermanently(projectId: string): Promise<strin
  */
 export async function deleteSession(sessionId: string, projectId: string): Promise<string> {
   try {
-    return await invoke<string>('delete_session', { sessionId, projectId });
+    return await invoke<string>("delete_session", { sessionId, projectId });
   } catch (error) {
     console.error("Failed to delete session:", error);
     throw error;
@@ -94,9 +94,12 @@ export async function deleteSession(sessionId: string, projectId: string): Promi
 /**
  * 批量删除会话
  */
-export async function deleteSessionsBatch(sessionIds: string[], projectId: string): Promise<string> {
+export async function deleteSessionsBatch(
+  sessionIds: string[],
+  projectId: string,
+): Promise<string> {
   try {
-    return await invoke<string>('delete_sessions_batch', { sessionIds, projectId });
+    return await invoke<string>("delete_sessions_batch", { sessionIds, projectId });
   } catch (error) {
     console.error("Failed to batch delete sessions:", error);
     throw error;
@@ -109,14 +112,14 @@ export async function deleteSessionsBatch(sessionIds: string[], projectId: strin
 export async function loadSessionHistory(
   sessionId: string,
   projectId: string,
-  engine?: 'claude' | 'codex'
+  engine?: "claude" | "codex",
 ): Promise<any[]> {
   // For Codex sessions, read directly from .codex/sessions
-  if (engine === 'codex') {
+  if (engine === "codex") {
     return loadCodexSessionHistory(sessionId);
   }
   // For Claude sessions, use existing backend
-  return await invoke<any[]>('load_session_history', { sessionId, projectId });
+  return await invoke<any[]>("load_session_history", { sessionId, projectId });
 }
 
 /**
@@ -124,7 +127,7 @@ export async function loadSessionHistory(
  */
 export async function loadCodexSessionHistory(sessionId: string): Promise<any[]> {
   try {
-    return await invoke<any[]>('load_codex_session_history', { sessionId });
+    return await invoke<any[]>("load_codex_session_history", { sessionId });
   } catch (error) {
     console.error("Failed to load Codex session history:", error);
     throw error;
@@ -140,14 +143,14 @@ export async function loadCodexSessionHistory(sessionId: string): Promise<any[]>
  */
 export async function convertSession(
   sessionId: string,
-  sourceEngine: 'claude' | 'codex',
-  targetEngine: 'claude' | 'codex',
-  projectPath: string
+  sourceEngine: "claude" | "codex",
+  targetEngine: "claude" | "codex",
+  projectPath: string,
 ): Promise<ConversionResult> {
-  return await invoke<ConversionResult>('convert_session', {
+  return await invoke<ConversionResult>("convert_session", {
     sessionId,
     sourceEngine,
     targetEngine,
-    projectPath
+    projectPath,
   });
 }

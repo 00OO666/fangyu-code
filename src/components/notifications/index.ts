@@ -4,6 +4,7 @@
 
 export { ChatNotification } from './ChatNotification';
 export { GlobalNotification } from './GlobalNotification';
+export { TopCenterNotification } from './TopCenterNotification';
 export { notificationService, notify } from '@/services/notificationService';
 export { useNotify, useGlobalNotify, useChatNotify } from '@/hooks/useNotify';
 export { NotificationTemplates } from '@/types/notification';

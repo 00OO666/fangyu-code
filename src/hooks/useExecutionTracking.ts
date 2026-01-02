@@ -10,10 +10,10 @@
  * - 提供执行恢复接口
  */
 
-import { useEffect, useRef, useContext, createContext } from 'react';
+import { createContext, useContext, useEffect, useRef } from "react";
 
 // 🔧 FIX: 直接从 GlobalExecutionContext 模块导入 Context，避免重复创建 hooks
-import type { TabExecutionState } from '@/contexts/GlobalExecutionContext';
+import type { TabExecutionState } from "@/contexts/GlobalExecutionContext";
 
 // 🔧 FIX: 重新定义一个简化的 Context 访问方式，避免 hook 数量问题
 // 这个 hook 不使用 useGlobalExecution()，而是直接访问 window 上的全局状态
@@ -29,7 +29,7 @@ interface UseExecutionTrackingConfig {
   /** 项目路径 */
   projectPath: string;
   /** 执行引擎 */
-  engine: 'claude' | 'codex' | 'gemini';
+  engine: "claude" | "codex" | "gemini";
   /** Tab 是否激活 */
   isActive: boolean;
   /** 当前提示词（可选） */
@@ -49,7 +49,13 @@ interface UseExecutionTrackingReturn {
 const globalExecutionStore = {
   states: new Map<string, TabExecutionState>(),
 
-  startExecution(tabId: string, sessionId: string | null, projectPath: string, engine: 'claude' | 'codex' | 'gemini', prompt?: string) {
+  startExecution(
+    tabId: string,
+    sessionId: string | null,
+    projectPath: string,
+    engine: "claude" | "codex" | "gemini",
+    prompt?: string,
+  ) {
     const existing = this.states.get(tabId);
     const newState: TabExecutionState = {
       tabId,
@@ -90,12 +96,12 @@ const globalExecutionStore = {
   },
 
   getActiveExecutions(): TabExecutionState[] {
-    return Array.from(this.states.values()).filter(s => s.isStreaming);
+    return Array.from(this.states.values()).filter((s) => s.isStreaming);
   },
 };
 
 // 暴露到 window 以便调试
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   (window as any).__globalExecutionStore = globalExecutionStore;
 }
 
@@ -103,16 +109,10 @@ if (typeof window !== 'undefined') {
  * 执行状态追踪 Hook
  * 🔧 简化版：不使用 React Context，避免 hooks 规则问题
  */
-export function useExecutionTracking(config: UseExecutionTrackingConfig): UseExecutionTrackingReturn {
-  const {
-    tabId,
-    isLoading,
-    sessionId,
-    projectPath,
-    engine,
-    isActive,
-    currentPrompt,
-  } = config;
+export function useExecutionTracking(
+  config: UseExecutionTrackingConfig,
+): UseExecutionTrackingReturn {
+  const { tabId, isLoading, sessionId, projectPath, engine, isActive, currentPrompt } = config;
 
   // 追踪上一次的 isLoading 状态
   const prevIsLoadingRef = useRef(isLoading);
@@ -157,7 +157,9 @@ export function useExecutionTracking(config: UseExecutionTrackingConfig): UseExe
   const isBackgroundExecuting = !isActive && globalExecutionStore.isTabExecuting(tabId);
 
   // 获取后台执行数量
-  const backgroundCount = globalExecutionStore.getActiveExecutions().filter(state => state.tabId !== tabId).length;
+  const backgroundCount = globalExecutionStore
+    .getActiveExecutions()
+    .filter((state) => state.tabId !== tabId).length;
 
   return {
     executionState,
