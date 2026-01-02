@@ -29,7 +29,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { api } from '@/lib/api';
 import { notify } from '@/components/notifications';
@@ -510,8 +510,12 @@ export function UnifiedSearchPanel({
   // 切换启用/禁用
   const handleToggle = async (item: SearchItem, enabled: boolean) => {
     // 防止重复点击
-    if (toggling.has(item.id)) return;
+    if (toggling.has(item.id)) {
+      console.log('[UnifiedSearchPanel] Already toggling:', item.id);
+      return;
+    }
 
+    console.log('[UnifiedSearchPanel] Toggle start:', item.id, enabled);
     setToggling(prev => new Set(prev).add(item.id));
 
     try {
@@ -613,6 +617,7 @@ export function UnifiedSearchPanel({
         }
       );
     } finally {
+      console.log('[UnifiedSearchPanel] Toggle end:', item.id);
       setToggling(prev => {
         const next = new Set(prev);
         next.delete(item.id);
@@ -641,6 +646,7 @@ export function UnifiedSearchPanel({
 
   // 使用 Portal 渲染到 body，避免影响父容器布局
   const panelContent = (
+    <TooltipProvider>
     <AnimatePresence>
       <motion.div
         ref={panelRef}
@@ -758,7 +764,7 @@ export function UnifiedSearchPanel({
                             </Badge>
                           )}
                         </div>
-                        <Tooltip>
+                        <Tooltip delayDuration={300}>
                           <TooltipTrigger asChild>
                             <p className="text-xs text-muted-foreground truncate cursor-help">
                               {item.description || '无描述'}
@@ -768,6 +774,7 @@ export function UnifiedSearchPanel({
                             side="bottom"
                             align="start"
                             className="max-w-[300px] text-xs whitespace-normal"
+                            sideOffset={5}
                           >
                             {item.description || '无描述'}
                           </TooltipContent>
@@ -827,6 +834,7 @@ export function UnifiedSearchPanel({
         </div>
       </motion.div>
     </AnimatePresence>
+    </TooltipProvider>
   );
 
   // 使用 Portal 渲染到 document.body，完全脱离父容器布局
