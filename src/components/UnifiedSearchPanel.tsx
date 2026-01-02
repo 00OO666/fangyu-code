@@ -765,7 +765,7 @@ export function UnifiedSearchPanel({
                             </Badge>
                           )}
                         </div>
-                        <Tooltip delayDuration={300}>
+                        <Tooltip delayDuration={100}>
                           <TooltipTrigger asChild>
                             <p className="text-xs text-muted-foreground truncate cursor-help">
                               {item.description || '无描述'}
@@ -774,10 +774,15 @@ export function UnifiedSearchPanel({
                           <TooltipContent
                             side="bottom"
                             align="start"
-                            className="max-w-[300px] text-xs whitespace-normal"
-                            sideOffset={5}
+                            className="max-w-[400px] text-xs whitespace-pre-wrap break-words"
+                            sideOffset={8}
                           >
-                            {item.description || '无描述'}
+                            <div className="space-y-1">
+                              <div className="font-medium">{item.name}</div>
+                              <div className="text-muted-foreground">
+                                {item.description || '无描述'}
+                              </div>
+                            </div>
                           </TooltipContent>
                         </Tooltip>
                       </div>
@@ -798,18 +803,20 @@ export function UnifiedSearchPanel({
                         )}
 
                         {/* 启用/禁用开关 */}
-                        {isToggling ? (
-                          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                        ) : (
-                          <Switch
-                            checked={item.enabled ?? false}
-                            onCheckedChange={(checked) => {
-                              console.log('[UnifiedSearchPanel] Switch clicked:', item.id, checked);
-                              handleToggle(item, checked);
-                            }}
-                            className="scale-75"
-                          />
-                        )}
+                        <div onClick={(e) => e.stopPropagation()}>
+                          {isToggling ? (
+                            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                          ) : (
+                            <Switch
+                              checked={item.enabled ?? false}
+                              onCheckedChange={(checked) => {
+                                console.log('[UnifiedSearchPanel] Switch clicked:', item.id, checked);
+                                handleToggle(item, checked);
+                              }}
+                              className="scale-75"
+                            />
+                          )}
+                        </div>
                       </div>
                     </div>
                   );

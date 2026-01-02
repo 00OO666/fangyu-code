@@ -704,7 +704,7 @@ export function initializeToolRegistry(): void {
       name: 'askuserquestion',
       pattern: /^ask[-_]?user[-_]?question$/i,
       render: createToolAdapter(AskUserQuestionWidget, (props) => ({
-        questions: props.input?.questions || [],
+        questions: Array.isArray(props.input?.questions) ? props.input.questions : [],
         answers: props.input?.answers || props.result?.content?.answers || {},
         result: props.result,
       })),
