@@ -649,7 +649,7 @@ export function UnifiedSearchPanel({
   const panelContent = (
     <AnimatePresence>
       {open && (
-      <TooltipProvider>
+      <TooltipProvider delayDuration={200} skipDelayDuration={0}>
       <motion.div
         ref={panelRef}
         initial={{ opacity: 0, y: -10, scale: 0.95 }}
@@ -766,21 +766,21 @@ export function UnifiedSearchPanel({
                             </Badge>
                           )}
                         </div>
-                        <Tooltip delayDuration={100}>
+                        <Tooltip>
                           <TooltipTrigger asChild>
-                            <p className="text-xs text-muted-foreground truncate cursor-help">
+                            <div className="text-xs text-muted-foreground truncate cursor-help hover:text-foreground transition-colors">
                               {item.description || '无描述'}
-                            </p>
+                            </div>
                           </TooltipTrigger>
                           <TooltipContent
                             side="bottom"
                             align="start"
-                            className="max-w-[400px] text-xs whitespace-pre-wrap break-words"
-                            sideOffset={8}
+                            className="max-w-[500px] text-sm whitespace-pre-wrap break-words z-[99999]"
+                            sideOffset={5}
                           >
-                            <div className="space-y-1">
-                              <div className="font-medium">{item.name}</div>
-                              <div className="text-muted-foreground">
+                            <div className="space-y-2">
+                              <div className="font-semibold text-foreground">{item.name}</div>
+                              <div className="text-muted-foreground leading-relaxed">
                                 {item.description || '无描述'}
                               </div>
                             </div>
@@ -804,7 +804,10 @@ export function UnifiedSearchPanel({
                         )}
 
                         {/* 启用/禁用开关 */}
-                        <div onClick={(e) => e.stopPropagation()}>
+                        <div
+                          onClick={(e) => e.stopPropagation()}
+                          className="flex items-center"
+                        >
                           {isToggling ? (
                             <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                           ) : (
@@ -815,6 +818,7 @@ export function UnifiedSearchPanel({
                                 handleToggle(item, checked);
                               }}
                               className="scale-75"
+                              disabled={isToggling}
                             />
                           )}
                         </div>
