@@ -17,7 +17,7 @@ import { getVersion } from "@tauri-apps/api/app";
 import { useEffect, useState } from "react";
 
 const STORAGE_KEY = "fangyu-code-last-seen-version";
-const FALLBACK_VERSION = "2.1.0"; // 🔧 Fallback 版本（获取失败时使用）
+const FALLBACK_VERSION = "2.2.0"; // 🔧 Fallback 版本（获取失败时使用）
 
 // 🔧 DEBUG: 全局变量用于强制显示更新日志（调试用）
 declare global {
@@ -29,6 +29,29 @@ declare global {
 
 // 版本更新日志（从新到旧）
 export const CHANGELOGS = {
+  "2.2.0": {
+    title: "v2.2.0 - ⚡ Token 优化系统 Phase 1",
+    date: "2026-01-03",
+    features: [
+      "🎯 功能开关系统 - 灵活控制优化功能的启用/禁用，支持用户自定义配置",
+      "📉 选择性 MCP 上下文加载 - 智能判断哪些 MCP 工具需要加载，减少 10-15% token 消耗",
+      "💾 消息历史懒加载 - 仅加载最近 50 条消息到 API 上下文，节省 10-20% token",
+      "📊 Token 节省统计 - 实时显示优化效果，包括排除的消息数和预估节省的 token",
+      "🔧 优化服务架构 - 创建独立的优化服务层，为 Phase 2-4 打下基础",
+    ],
+    improvements: [
+      "MCP 上下文策略 - 核心工具（github/filesystem）始终加载，其他按需加载",
+      "消息窗口管理 - 智能计算最优窗口大小，平衡性能和上下文完整性",
+      "配置持久化 - 使用 localStorage 保存用户配置，支持运行时调整",
+      "日志增强 - 详细记录优化决策过程，便于调试和性能分析",
+    ],
+    technical: [
+      "featureFlags.ts - 功能开关系统，支持 localStorage 覆盖",
+      "mcpContextManager.ts - MCP 上下文选择性加载服务",
+      "messageContextOptimizer.ts - 消息历史懒加载服务",
+      "Phase 1 目标 - 30-40% token 减少，为后续优化奠定基础",
+    ],
+  },
   "2.1.0": {
     title: "v2.1.0 - 🛡️ 错误监控系统 + 智能调试助手",
     date: "2026-01-03",
