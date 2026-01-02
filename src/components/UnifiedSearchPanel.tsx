@@ -646,8 +646,9 @@ export function UnifiedSearchPanel({
 
   // 使用 Portal 渲染到 body，避免影响父容器布局
   const panelContent = (
-    <TooltipProvider>
     <AnimatePresence>
+      {open && (
+      <TooltipProvider>
       <motion.div
         ref={panelRef}
         initial={{ opacity: 0, y: -10, scale: 0.95 }}
@@ -842,8 +843,9 @@ export function UnifiedSearchPanel({
           </Button>
         </div>
       </motion.div>
+      </TooltipProvider>
+      )}
     </AnimatePresence>
-    </TooltipProvider>
   );
 
   // 使用 Portal 渲染到 document.body，完全脱离父容器布局
