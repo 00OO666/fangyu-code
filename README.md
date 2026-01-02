@@ -6,14 +6,14 @@
 
 **三引擎 · 智能队列 · 实时成本追踪 · 自动上下文管理**
 
-[![Release](https://img.shields.io/github/v/release/anyme123/any-code?style=for-the-badge&color=blue)](https://github.com/anyme123/any-code/releases)
-[![Downloads](https://img.shields.io/github/downloads/anyme123/any-code/total?style=for-the-badge&color=green)](https://github.com/anyme123/any-code/releases)
+[![Release](https://img.shields.io/github/v/release/00OO666/fangyu-code?style=for-the-badge&color=blue)](https://github.com/00OO666/fangyu-code/releases)
+[![Downloads](https://img.shields.io/github/downloads/00OO666/fangyu-code/total?style=for-the-badge&color=green)](https://github.com/00OO666/fangyu-code/releases)
 [![License](https://img.shields.io/badge/License-AGPL--3.0-orange?style=for-the-badge)](LICENSE)
-[![Stars](https://img.shields.io/github/stars/anyme123/any-code?style=for-the-badge&color=yellow)](https://github.com/anyme123/any-code/stargazers)
+[![Stars](https://img.shields.io/github/stars/00OO666/fangyu-code?style=for-the-badge&color=yellow)](https://github.com/00OO666/fangyu-code/stargazers)
 
 <br/>
 
-**[下载安装](#-快速开始)** · **[功能特性](#-核心特性)** · **[使用文档](#-使用指南)** · **[问题反馈](https://github.com/anyme123/any-code/issues)**
+**[下载安装](#-快速开始)** · **[功能特性](#-核心特性)** · **[使用文档](#-使用指南)** · **[问题反馈](https://github.com/00OO666/fangyu-code/issues)**
 
 <br/>
 
@@ -43,9 +43,9 @@
 
 ## 核心特性
 
-### 🚀 v1.4.0 新功能：提示词队列系统
+### 🚀 v2.0.0 新功能：聊天历史回溯系统
 
-**AI 工作时，你也不用停下来**
+**再也不会忘记"上次让你弄的那个功能"**
 
 ```
 你正在等 AI 写代码...
@@ -61,29 +61,29 @@
 <tr>
 <td width="33%" align="center">
 
-**📋 智能排队**
+**📚 FTS5 全文搜索**
 
-AI 工作时继续输入
-指令自动排队等待执行
-支持撤回、编辑、重排序
-
-</td>
-<td width="33%" align="center">
-
-**⚡ 插队模式**
-
-即时发送指导/纠正
-不中断当前任务
-AI 实时收到你的反馈
+输入模糊关键词
+秒速找到历史对话
+支持语义理解
 
 </td>
 <td width="33%" align="center">
 
-**📦 打包发送**
+**💾 自动保存**
 
-多条指令合并为一条
-减少上下文切换
-批量任务更高效
+SQLite WAL 模式
+所有对话自动归档
+Token 使用统计
+
+</td>
+<td width="33%" align="center">
+
+**🎯 一键加载**
+
+点击搜索结果
+立即恢复上下文
+继续未完成的工作
 
 </td>
 </tr>
@@ -178,7 +178,7 @@ AI 实时收到你的反馈
 
 ### 📦 下载安装
 
-从 [Releases](https://github.com/anyme123/any-code/releases) 下载最新版本：
+从 [Releases](https://github.com/00OO666/fangyu-code/releases) 下载最新版本：
 
 | 平台 | 下载 | 说明 |
 |------|------|------|
@@ -271,21 +271,21 @@ AI 实时收到你的反馈
 
 ## 更新日志
 
-### v1.4.0 (2026-01-01)
+### v2.0.0 (2026-01-02)
 
-**🚀 提示词队列系统**
-- 📋 AI 工作时可继续输入，指令自动排队
-- ⚡ 插队模式 - 即时指导，不中断任务
-- 📦 打包模式 - 多条合并，批量处理
-- 🔄 撤回编辑 - 队列指令可撤回修改
-- ↕️ 调整顺序 - 拖拽或按钮重排序
+**🎉 重大更新：聊天历史回溯系统**
+- 📚 FTS5 全文搜索 - 输入关键词找到历史对话
+- 💾 自动保存 - 所有对话存入 SQLite，WAL 模式
+- 📊 会话统计 - Token 使用量、数据库大小一目了然
+- 🎯 上下文加载 - 点击搜索结果立即恢复历史
+- 🔮 Phase 2 规划 - 预留向量 embedding 字段
 
 **⭐ 改进**
-- 默认模型设置优化
-- 队列可视化面板
-- 智能队列按钮
+- 智能排序优化
+- MCP 状态持久化修复
+- 工具推荐算法提升
 
-[查看完整更新日志](https://github.com/anyme123/any-code/releases)
+[查看完整更新日志](https://github.com/00OO666/fangyu-code/releases)(https://github.com/00OO666/fangyu-code/releases)
 
 ---
 
@@ -293,7 +293,7 @@ AI 实时收到你的反馈
 
 ```bash
 # 克隆仓库
-git clone https://github.com/anyme123/any-code.git
+git clone https://github.com/00OO666/fangyu-code.git
 cd any-code
 
 # 安装依赖
@@ -317,9 +317,9 @@ npm run tauri build
 
 遇到问题？
 
-1. 查看 [常见问题](https://github.com/anyme123/any-code/wiki/FAQ)
-2. 搜索 [已有 Issues](https://github.com/anyme123/any-code/issues)
-3. 提交 [新 Issue](https://github.com/anyme123/any-code/issues/new)
+1. 查看 [常见问题](https://github.com/00OO666/fangyu-code/wiki/FAQ)
+2. 搜索 [已有 Issues](https://github.com/00OO666/fangyu-code/issues)
+3. 提交 [新 Issue](https://github.com/00OO666/fangyu-code/issues/new)
 
 提交 Issue 时请包含：
 - 问题描述和复现步骤
@@ -358,7 +358,7 @@ git push origin feature/your-feature
 
 **如果 Fangyu Code 对你有帮助，请给个 Star ⭐**
 
-[![Star History Chart](https://api.star-history.com/svg?repos=anyme123/any-code&type=Date)](https://star-history.com/#anyme123/any-code&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=00OO666/fangyu-code&type=Date)](https://star-history.com/#00OO666/fangyu-code&Date)
 
 </div>
 
@@ -370,6 +370,6 @@ git push origin feature/your-feature
 
 Made with ❤️ by Fangyu
 
-[GitHub](https://github.com/anyme123/any-code) · [下载](https://github.com/anyme123/any-code/releases) · [反馈](https://github.com/anyme123/any-code/issues)
+[GitHub](https://github.com/00OO666/fangyu-code) · [下载](https://github.com/00OO666/fangyu-code/releases) · [反馈](https://github.com/00OO666/fangyu-code/issues)
 
 </div>
