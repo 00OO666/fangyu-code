@@ -53,6 +53,8 @@ import { AutoResumeIndicator } from "./AutoResumeIndicator";
 import { ChatNotification } from "@/components/notifications/ChatNotification";
 import { ToolRecommendationToast } from "./ToolRecommendationToast";
 import { useToolRecommendation } from "@/hooks/useToolRecommendation";
+import { useMessageDeduplication } from "@/hooks/useMessageDeduplication";
+import { useTokenOptimization } from "@/hooks/useTokenOptimization";
 
 import * as SessionHelpers from '@/lib/sessionHelpers';
 
@@ -127,16 +129,45 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   const [projectPath, setProjectPath] = useState(initialProjectPath || session?.project_path || "");
   const [recentProjects, setRecentProjects] = useState<Project[]>([]);
   const {
-    messages,
+    messages: rawMessages = [],
     setMessages,
     isStreaming,
     setIsStreaming,
     filterConfig,
     setFilterConfig
   } = useMessagesContext();
+
+  // 🔥 Token Optimization: Apply message deduplication
+  const { messages: deduplicatedMessages = [], duplicateCount = 0, duplicateRate = 0 } = useMessageDeduplication(rawMessages || [], {
+    debug: true,
+    warningThreshold: 0.05, // Warn if >5% duplicates
+  });
+
+  // 🔥 Token Optimization: Apply message context optimization
+  const { optimizedMessages = [], tokensSaved = 0, reductionPercent = 0 } = useTokenOptimization(deduplicatedMessages || [], {
+    windowSize: 20, // Reduced from default 50 to save more tokens
+    debug: true,
+  });
+
+  // Use optimized messages for all operations
+  const messages = optimizedMessages;
+
   const isLoading = isStreaming;
   const setIsLoading = setIsStreaming;
   const [error, setError] = useState<string | null>(null);
+
+  // 🔥 Token Optimization: Log savings stats
+  useEffect(() => {
+    if (rawMessages?.length > 0) {
+      console.log(`[Token Optimization] 📊 Stats:
+  - Raw messages: ${rawMessages.length}
+  - After deduplication: ${deduplicatedMessages.length} (removed ${duplicateCount} duplicates, ${(duplicateRate * 100).toFixed(1)}%)
+  - After optimization: ${messages.length} (${reductionPercent.toFixed(1)}% reduction)
+  - Estimated tokens saved: ~${tokensSaved.toLocaleString()}
+  - Cost savings: ~$${(tokensSaved * 0.00005).toFixed(3)} per request`);
+    }
+  }, [rawMessages?.length, deduplicatedMessages?.length, messages?.length, duplicateCount, duplicateRate, tokensSaved, reductionPercent]);
+
   const [_rawJsonlOutput, setRawJsonlOutput] = useState<string[]>([]); // Kept for hooks, not directly used
   const [isFirstPrompt, setIsFirstPrompt] = useState(!session); // Key state for session continuation
   const [extractedSessionInfo, setExtractedSessionInfo] = useState<{ sessionId: string; projectId: string; engine?: 'claude' | 'codex' | 'gemini' } | null>(null);
