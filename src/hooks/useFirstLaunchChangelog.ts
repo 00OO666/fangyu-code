@@ -17,7 +17,7 @@ import { getVersion } from "@tauri-apps/api/app";
 import { useEffect, useState } from "react";
 
 const STORAGE_KEY = "fangyu-code-last-seen-version";
-const FALLBACK_VERSION = "2.2.1"; // 🔧 Fallback 版本（获取失败时使用）
+const FALLBACK_VERSION = "2.2.2"; // 🔧 Fallback 版本（获取失败时使用）
 
 // 🔧 DEBUG: 全局变量用于强制显示更新日志（调试用）
 declare global {
@@ -29,6 +29,25 @@ declare global {
 
 // 版本更新日志（从新到旧）
 export const CHANGELOGS = {
+  "2.2.2": {
+    title: "v2.2.2 - 🚨 紧急 Hotfix：修复聊天记录无法加载",
+    date: "2026-01-03",
+    features: [
+      "🚨 修复严重 Bug - v2.2.1 导致所有聊天记录无法加载（显示空白）",
+      "✅ 正确调用优化 Hook - 修复 useTokenOptimization 调用方式错误",
+      "📊 保留优化功能 - Token 优化和消息去重功能正常工作",
+    ],
+    improvements: [
+      "Hook 调用修复 - 使用 optimizeMessages() 函数而非解构不存在的属性",
+      "useMemo 优化 - 避免不必要的重新计算",
+      "类型安全 - 正确处理 OptimizedMessageContext 返回值",
+    ],
+    technical: [
+      "问题根因 - v2.2.1 错误地解构了 useTokenOptimization 返回值",
+      "修复方法 - 调用 optimizeMessages(messages, windowSize) 获取优化结果",
+      "影响范围 - 所有打开的会话都无法显示历史消息",
+    ],
+  },
   "2.2.1": {
     title: "v2.2.1 - 🔥 紧急修复：Token 优化功能激活",
     date: "2026-01-03",

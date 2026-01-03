@@ -143,14 +143,18 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
     warningThreshold: 0.05, // Warn if >5% duplicates
   });
 
+  // 🔥 Token Optimization: Get optimization functions
+  const { optimizeMessages } = useTokenOptimization();
+
   // 🔥 Token Optimization: Apply message context optimization
-  const { optimizedMessages = [], tokensSaved = 0, reductionPercent = 0 } = useTokenOptimization(deduplicatedMessages || [], {
-    windowSize: 20, // Reduced from default 50 to save more tokens
-    debug: true,
-  });
+  const optimizationResult = useMemo(() => {
+    return optimizeMessages(deduplicatedMessages || [], 20);
+  }, [deduplicatedMessages, optimizeMessages]);
 
   // Use optimized messages for all operations
-  const messages = optimizedMessages;
+  const messages = optimizationResult.messages;
+  const tokensSaved = optimizationResult.estimatedTokensSaved;
+  const messagesExcluded = optimizationResult.excludedCount;
 
   const isLoading = isStreaming;
   const setIsLoading = setIsStreaming;
@@ -159,6 +163,9 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   // 🔥 Token Optimization: Log savings stats
   useEffect(() => {
     if (rawMessages?.length > 0) {
+      const reductionPercent = rawMessages.length > 0
+        ? (messagesExcluded / rawMessages.length) * 100
+        : 0;
       console.log(`[Token Optimization] 📊 Stats:
   - Raw messages: ${rawMessages.length}
   - After deduplication: ${deduplicatedMessages.length} (removed ${duplicateCount} duplicates, ${(duplicateRate * 100).toFixed(1)}%)
@@ -166,7 +173,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   - Estimated tokens saved: ~${tokensSaved.toLocaleString()}
   - Cost savings: ~$${(tokensSaved * 0.00005).toFixed(3)} per request`);
     }
-  }, [rawMessages?.length, deduplicatedMessages?.length, messages?.length, duplicateCount, duplicateRate, tokensSaved, reductionPercent]);
+  }, [rawMessages?.length, deduplicatedMessages?.length, messages?.length, duplicateCount, duplicateRate, tokensSaved, messagesExcluded]);
 
   const [_rawJsonlOutput, setRawJsonlOutput] = useState<string[]>([]); // Kept for hooks, not directly used
   const [isFirstPrompt, setIsFirstPrompt] = useState(!session); // Key state for session continuation
