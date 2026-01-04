@@ -507,6 +507,132 @@ export class LLMApiService {
     );
     return response.content;
   }
+
+  /**
+   * 🆕 流式 API 调用方法（适用于 OpenAI 兼容 API）
+   *
+   * @param provider LLM 提供商配置
+   * @param request API 请求参数
+   * @param onChunk 每次收到新内容时的回调
+   * @param options 调用选项
+   * @returns 完整响应内容
+   */
+  static async callStream(
+    provider: LLMProvider,
+    request: LLMRequest,
+    onChunk: (chunk: string, fullContent: string) => void,
+    options: LLMCallOptions = {},
+  ): Promise<LLMResponse> {
+    const { timeout = 60000, signal: externalSignal } = options;
+
+    // 目前只支持 OpenAI 格式的流式调用
+    const format = provider.apiFormat || detectApiFormat(provider.apiUrl);
+    if (format !== "openai") {
+      // 对于非 OpenAI 格式，回退到非流式调用
+      console.warn(`[LLMApiService] Streaming not supported for ${format}, falling back to non-streaming`);
+      const response = await LLMApiService.call(provider, request, options);
+      onChunk(response.content, response.content);
+      return response;
+    }
+
+    const strategy = new OpenAIStrategy();
+    const normalizedUrl = strategy.normalizeUrl(provider.apiUrl);
+    const endpoint = strategy.buildEndpoint(normalizedUrl);
+    const headers = strategy.buildHeaders(provider.apiKey);
+
+    // 构建流式请求体
+    const requestBody = {
+      model: provider.model,
+      messages: [
+        { role: "system", content: request.systemPrompt },
+        { role: "user", content: request.userPrompt },
+      ],
+      stream: true, // 启用流式
+      temperature: request.temperature ?? provider.temperature,
+      max_tokens: request.maxTokens ?? provider.maxTokens,
+    };
+
+    // 创建 AbortController
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+    if (externalSignal) {
+      if (externalSignal.aborted) {
+        clearTimeout(timeoutId);
+        throw new Error("Request cancelled by user");
+      }
+      externalSignal.addEventListener("abort", () => controller.abort());
+    }
+
+    try {
+      const response = await tauriFetch(endpoint, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(requestBody),
+        // @ts-expect-error - Tauri fetch 支持 signal
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`OpenAI API streaming failed: ${response.status} ${response.statusText}\n${errorText}`);
+      }
+
+      // 处理 SSE 流
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error("Response body is not readable");
+      }
+
+      const decoder = new TextDecoder();
+      let fullContent = "";
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+
+        // 按行解析 SSE 数据
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || ""; // 保留未完成的行
+
+        for (const line of lines) {
+          const trimmedLine = line.trim();
+          if (!trimmedLine || trimmedLine === "data: [DONE]") continue;
+
+          if (trimmedLine.startsWith("data: ")) {
+            try {
+              const json = JSON.parse(trimmedLine.slice(6));
+              const delta = json.choices?.[0]?.delta?.content;
+              if (delta) {
+                fullContent += delta;
+                onChunk(delta, fullContent);
+              }
+            } catch (e) {
+              // 忽略解析错误，继续处理
+              console.debug("[LLMApiService] Failed to parse SSE line:", trimmedLine);
+            }
+          }
+        }
+      }
+
+      return { content: fullContent };
+    } catch (error: any) {
+      clearTimeout(timeoutId);
+
+      if (error.name === "AbortError" || error.message?.includes("aborted")) {
+        if (externalSignal?.aborted) {
+          throw new Error("Request cancelled by user");
+        }
+        throw new Error(`Request timeout after ${timeout}ms`);
+      }
+      throw error;
+    }
+  }
 }
 
 /**

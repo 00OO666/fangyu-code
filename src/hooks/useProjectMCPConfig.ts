@@ -18,7 +18,7 @@ interface UseProjectMCPConfigOptions {
   /**
    * 引擎类型
    */
-  engine: "claude" | "codex" | "gemini";
+  engine: "claude" | "codex" | "gemini" | "siliconflow";
   /**
    * 配置作用域（全局 vs 项目）
    */

@@ -20,29 +20,6 @@ interface PromptNavigatorProps {
   onPromptClick: (promptIndex: number) => void;
 }
 
-/** 费用明细项 */
-interface CostDetailItem {
-  /** 消息类型 */
-  type: 'system' | 'tool_call' | 'thinking' | 'assistant' | 'other';
-  /** 描述 */
-  description: string;
-  /** 费用 */
-  cost: number;
-  /** Token 统计 */
-  tokens?: {
-    input: number;
-    output: number;
-    cacheRead: number;
-    cacheWrite: number;
-  };
-  /** 模型 */
-  model?: string;
-  /** 引擎 */
-  engine?: string;
-  /** 消息索引 */
-  messageIndex?: number;
-}
-
 interface PromptItem {
   promptIndex: number;
   content: string;
@@ -71,8 +48,6 @@ interface PromptItem {
   engine?: string;
   /** 模型 */
   model?: string;
-  /** 费用明细列表 */
-  costDetails?: CostDetailItem[];
 }
 
 /**
@@ -251,8 +226,6 @@ export const PromptNavigator: React.FC<PromptNavigatorProps> = ({
           // 注意：每条消息使用自己的模型计费，而不是统一模型！
           // 🔧 FIX: 添加 actualCost 字段以存储 Claude CLI 返回的准确费用
           const messageMap = new Map<string, { tokens: any; engine: string; model: string | undefined; actualCost: number | undefined }>();
-          // 🆕 费用明细记录
-          const costDetails: CostDetailItem[] = [];
 
           // 向后查找该指令对应的所有 assistant/system 消息，直到遇到下一个 user 消息
           let messagesProcessedForThisPrompt = 0;
@@ -290,58 +263,6 @@ export const PromptNavigator: React.FC<PromptNavigatorProps> = ({
 
               if (!existing || totalTokenCount > existingTokenCount) {
                 messageMap.set(key, { tokens: extractedTokens, engine: msgEngine, model: msgModel, actualCost: msgCostUsd });
-
-                // 🆕 记录费用明细（只要有 token 消耗就记录）
-                if (totalTokenCount > 0) {
-                  let detailType: CostDetailItem['type'] = 'other';
-                  let description = '';
-
-                  if (nextType === 'system') {
-                    detailType = 'system';
-                    const subtype = (nextMessage as any).subtype;
-                    description = subtype ? `系统消息 (${subtype})` : '系统消息';
-                  } else if (nextMessage.message?.content) {
-                    const content = Array.isArray(nextMessage.message.content)
-                      ? nextMessage.message.content
-                      : [nextMessage.message.content];
-
-                    const hasThinking = content.some((block: any) => block.type === 'thinking');
-                    const hasToolUse = content.some((block: any) => block.type === 'tool_use');
-
-                    if (hasThinking) {
-                      detailType = 'thinking';
-                      description = 'Claude Code 思考';
-                    } else if (hasToolUse) {
-                      detailType = 'tool_call';
-                      const toolNames = content
-                        .filter((block: any) => block.type === 'tool_use')
-                        .map((block: any) => block.name)
-                        .join(', ');
-                      description = `工具调用: ${toolNames}`;
-                    } else {
-                      detailType = 'assistant';
-                      description = 'AI 回复';
-                    }
-                  }
-
-                  // 计算费用：优先使用 actualCost，否则计算
-                  const messageCost = msgCostUsd || calculateMessageCost(extractedTokens, msgModel, msgEngine);
-
-                  costDetails.push({
-                    type: detailType,
-                    description,
-                    cost: messageCost,
-                    tokens: {
-                      input: extractedTokens.input_tokens,
-                      output: extractedTokens.output_tokens,
-                      cacheRead: extractedTokens.cache_read_tokens,
-                      cacheWrite: extractedTokens.cache_creation_tokens,
-                    },
-                    model: msgModel,
-                    engine: msgEngine,
-                    messageIndex: j,
-                  });
-                }
               }
 
               // 记录引擎和模型（使用第一个消息的信息，用于 UI 显示）
@@ -425,17 +346,8 @@ export const PromptNavigator: React.FC<PromptNavigatorProps> = ({
             thinking: thinkingCount > 0 ? { count: thinkingCount, tokens: thinkingTokens } : undefined,
             cacheHitRate,
             engine: displayEngine,
-            model: displayModel,
-            costDetails: costDetails.length > 0 ? costDetails : undefined
+            model: displayModel
           });
-
-          // 🔧 DEBUG: 打印费用明细
-          console.log(`[PromptNavigator] Prompt #${promptIndex + 1} 费用明细:`, {
-            totalCost: cost,
-            detailsCount: costDetails.length,
-            details: costDetails
-          });
-
           promptIndex++;
         }
       }
@@ -683,37 +595,10 @@ export const PromptNavigator: React.FC<PromptNavigatorProps> = ({
                                 {formatCostUtil(prompt.cost)}
                               </span>
                             </TooltipTrigger>
-                            <TooltipContent side="left" className="text-xs max-w-md">
+                            <TooltipContent side="left" className="text-xs max-w-xs">
                               <div className="space-y-2">
-                                {/* 费用明细 */}
-                                {prompt.costDetails && prompt.costDetails.length > 0 && (
-                                  <div className="space-y-1">
-                                    <div className="text-muted-foreground font-medium border-b pb-1">
-                                      费用明细 (总计: {formatCostUtil(prompt.cost || 0)})
-                                    </div>
-                                    {prompt.costDetails.map((detail, idx) => (
-                                      <div key={idx} className="flex justify-between items-start gap-3 py-0.5 border-b border-border/30 last:border-0">
-                                        <div className="flex-1 min-w-0">
-                                          <div className="font-medium text-foreground text-[11px]">
-                                            {detail.description}
-                                          </div>
-                                          {detail.tokens && (
-                                            <div className="text-muted-foreground mt-0.5 font-mono text-[10px]">
-                                              {detail.tokens.input}/{detail.tokens.output}
-                                              {detail.tokens.cacheRead > 0 && ` (缓存:${detail.tokens.cacheRead})`}
-                                            </div>
-                                          )}
-                                        </div>
-                                        <div className="text-amber-500 dark:text-amber-400 font-mono font-medium whitespace-nowrap text-[11px]">
-                                          ${formatCostUtil(detail.cost)}
-                                        </div>
-                                      </div>
-                                    ))}
-                                  </div>
-                                )}
-
                                 {/* Token 消耗组 */}
-                                <div className="space-y-0.5 border-t pt-1.5">
+                                <div className="space-y-0.5">
                                   <div className="text-muted-foreground font-medium">Token 消耗</div>
                                   <div>输入: {formatTokens(prompt.tokens?.input || 0)}</div>
                                   <div>输出: {formatTokens(prompt.tokens?.output || 0)}</div>
@@ -819,42 +704,10 @@ export const PromptNavigator: React.FC<PromptNavigatorProps> = ({
                                   <span className="font-medium">{formatCostUtil(prompt.cost)}</span>
                                 </div>
                               </TooltipTrigger>
-                              <TooltipContent side="left" className="text-xs max-w-md">
+                              <TooltipContent side="left" className="text-xs max-w-xs">
                                 <div className="space-y-2">
-                                  {/* 费用明细 */}
-                                  {prompt.costDetails && prompt.costDetails.length > 0 && (
-                                    <div className="space-y-1">
-                                      <div className="text-muted-foreground font-medium border-b pb-1">
-                                        费用明细 (总计: {formatCostUtil(prompt.cost || 0)})
-                                      </div>
-                                      {prompt.costDetails.map((detail, idx) => (
-                                        <div key={idx} className="flex justify-between items-start gap-3 py-1 border-b border-border/30 last:border-0">
-                                          <div className="flex-1 min-w-0">
-                                            <div className="font-medium text-foreground">
-                                              {detail.description}
-                                            </div>
-                                            {detail.tokens && (
-                                              <div className="text-muted-foreground mt-0.5 font-mono text-[10px]">
-                                                {detail.tokens.input}/{detail.tokens.output}
-                                                {detail.tokens.cacheRead > 0 && ` (缓存:${detail.tokens.cacheRead})`}
-                                              </div>
-                                            )}
-                                            {detail.model && (
-                                              <div className="text-muted-foreground mt-0.5 text-[10px]">
-                                                {detail.model}
-                                              </div>
-                                            )}
-                                          </div>
-                                          <div className="text-amber-500 dark:text-amber-400 font-mono font-medium whitespace-nowrap">
-                                            ${formatCostUtil(detail.cost)}
-                                          </div>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  )}
-
                                   {/* Token 消耗组 */}
-                                  <div className="space-y-1 border-t pt-1.5">
+                                  <div className="space-y-1">
                                     <div className="text-muted-foreground font-medium">Token 消耗</div>
                                     <div className="flex justify-between gap-3">
                                       <span className="text-muted-foreground">输入:</span>

@@ -272,15 +272,6 @@ export const UserMessage: React.FC<UserMessageProps> = ({
   const engine = (message as any).engine || 'claude';
   const text = extractUserText(message);
 
-  // 🔧 DEBUG: 日志用户消息内容
-  console.log('[UserMessage DEBUG]', {
-    messageType: message.type,
-    rawMessage: message,
-    extractedText: text,
-    textLength: text?.length,
-    contentArray: message.message?.content
-  });
-
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [capabilities, setCapabilities] = useState<RewindCapabilities | null>(null);
   const [isLoadingCapabilities, setIsLoadingCapabilities] = useState(false);

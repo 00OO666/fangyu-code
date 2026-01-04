@@ -1,78 +1,81 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { BrainCircuit, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTypewriter } from "@/hooks/useTypewriter";
 import { useTranslation } from "@/hooks/useTranslation";
+import { MessageContent } from "./MessageContent";
 
 interface ThinkingBlockProps {
-  /** 思考内容 */
   content: string;
-  /** 是否正在流式输出 */
   isStreaming?: boolean;
-  /** 自动收起延迟（毫秒），默认 2500ms */
   autoCollapseDelay?: number;
-  /** 打字机速度（毫秒/字符） */
   typewriterSpeed?: number;
+  // 🆕 受控组件 props
+  messageId?: string;
+  isOpen?: boolean;
+  onToggle?: (isOpen: boolean) => void;
 }
 
-/**
- * 思考块组件
- *
- * 功能：
- * - 打字机效果逐字显示思考内容
- * - 始终保持展开状态（不自动收起）
- * - 支持手动展开/收起
- */
 export const ThinkingBlock: React.FC<ThinkingBlockProps> = ({
   content,
   isStreaming = false,
   autoCollapseDelay = 2500,
-  typewriterSpeed = 5 // 思考内容通常较长，稍快一些
+  typewriterSpeed = 5,
+  messageId,
+  isOpen: controlledIsOpen,
+  onToggle
 }) => {
   const { t } = useTranslation();
-  // 展开/收起状态 - 始终保持展开
-  const [isOpen, setIsOpen] = useState(true);
 
-  // 🔧 FIX: 移除自动收起逻辑，始终保持展开状态
-  // 打字机效果完成回调（不再执行自动收起）
-  const handleTypewriterComplete = useCallback(() => {
-    // 不执行任何操作，保持展开
-  }, []);
+  // 🆕 支持受控和非受控模式
+  const [localIsOpen, setLocalIsOpen] = useState(true);
+  const isControlled = controlledIsOpen !== undefined && onToggle !== undefined;
+  const isOpen = isControlled ? controlledIsOpen : localIsOpen;
 
-  // 使用打字机效果
-  const {
-    displayedText,
-    isTyping,
-    skipToEnd
-  } = useTypewriter(content, {
+  // 🔧 DEBUG: 监控状态变化
+  if (import.meta.env.DEV) {
+    console.log('[ThinkingBlock] Render:', {
+      messageId,
+      isControlled,
+      isOpen,
+      controlledIsOpen,
+      contentLength: content.length,
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  const handleToggle = useCallback(() => {
+    const newState = !isOpen;
+    if (isControlled) {
+      onToggle?.(newState);
+    } else {
+      setLocalIsOpen(newState);
+    }
+  }, [isOpen, isControlled, onToggle]);
+
+  const handleTypewriterComplete = useCallback(() => {}, []);
+
+  const { displayedText, isTyping, skipToEnd } = useTypewriter(content, {
     enabled: isStreaming,
     speed: typewriterSpeed,
     isStreaming,
     onComplete: handleTypewriterComplete
   });
 
-  // 显示的文本内容
   const textToDisplay = isStreaming ? displayedText : content;
-  
-  // 处理分割符：将 ---divider--- 替换为可视化的分割线组件
-  // 如果内容中包含分割符，说明是聚合后的多段思考
+
   const renderContent = () => {
-    // 移除用于打字机计算的分割符干扰（虽然 useTypewriter 可能已经处理了纯文本）
-    // 但在渲染阶段，我们需要将 textToDisplay 按分割符切分
     const parts = textToDisplay.split('---divider---');
-    
+
     if (parts.length === 1) {
       return (
-        <>
-          {textToDisplay}
-          {/* 打字中光标 */}
-          {isTyping && (
-            <span className="inline-block w-1 h-3 ml-0.5 bg-amber-500 animate-pulse rounded-sm" />
-          )}
-        </>
+        <div className="prose prose-sm prose-neutral dark:prose-invert max-w-none">
+          <MessageContent content={textToDisplay} isStreaming={false} enableTypewriter={false} />
+          {isTyping && <span className="inline-block w-1 h-3 ml-0.5 bg-amber-500 animate-pulse rounded-sm" />}
+        </div>
       );
     }
-    
+
     return parts.map((part, index) => (
       <React.Fragment key={index}>
         {index > 0 && (
@@ -82,8 +85,9 @@ export const ThinkingBlock: React.FC<ThinkingBlockProps> = ({
             <div className="h-px bg-amber-500/30 flex-1" />
           </div>
         )}
-        <span>{part.trim()}</span>
-        {/* 只在最后一部分且正在打字时显示光标 */}
+        <div className="prose prose-sm prose-neutral dark:prose-invert max-w-none">
+          <MessageContent content={part.trim()} isStreaming={false} enableTypewriter={false} />
+        </div>
         {index === parts.length - 1 && isTyping && (
           <span className="inline-block w-1 h-3 ml-0.5 bg-amber-500 animate-pulse rounded-sm" />
         )}
@@ -91,64 +95,36 @@ export const ThinkingBlock: React.FC<ThinkingBlockProps> = ({
     ));
   };
 
-  // 🔧 FIX: 移除历史消息默认收起逻辑，始终保持展开
-  // 用户点击切换展开/收起
-  const handleToggle = () => {
-    setIsOpen(prev => !prev);
-  };
-
-  // 双击跳过打字效果
-  const handleDoubleClick = useCallback(() => {
-    if (isTyping) {
-      skipToEnd();
-    }
-  }, [isTyping, skipToEnd]);
+  const handleDoubleClick = useCallback(() => { if (isTyping) skipToEnd(); }, [isTyping, skipToEnd]);
 
   if (!content) return null;
 
   return (
-    <div className="border-l-2 border-amber-500/30 bg-amber-500/5 rounded-md overflow-hidden my-2">
-      {/* Header - 可点击切换 */}
+    <div
+      className="border-l-2 rounded-md overflow-hidden my-2 shadow-sm"
+      style={{
+        borderLeftColor: 'color-mix(in srgb, rgb(245 158 11) 40%, transparent)',
+        background: 'linear-gradient(to right, color-mix(in srgb, rgb(245 158 11) 8%, transparent), transparent)'
+      }}
+    >
       <button
         onClick={handleToggle}
-        className="w-full cursor-pointer px-3 py-2 text-xs text-amber-700 dark:text-amber-300 font-medium hover:bg-amber-500/10 transition-colors select-none flex items-center gap-2 outline-none text-left"
+        className="w-full cursor-pointer px-3 py-2.5 text-xs text-amber-700 dark:text-amber-300 font-medium transition-all duration-200 select-none flex items-center gap-2 outline-none text-left"
+        style={{ backgroundColor: 'transparent' }}
+        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'color-mix(in srgb, rgb(245 158 11) 15%, transparent)'}
+        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
       >
-        <BrainCircuit className="w-3.5 h-3.5 opacity-70" />
-        <span>Thinking Process</span>
-
-        {/* 打字中指示器 */}
-        {isTyping && (
-          <span className="inline-block w-1.5 h-3 bg-amber-500 animate-pulse rounded-full" />
-        )}
-
+        <BrainCircuit className="w-3.5 h-3.5 opacity-80" />
+        <span className="font-semibold">Thinking Process</span>
+        {isTyping && <span className="inline-block w-1.5 h-3 bg-amber-500 animate-pulse rounded-full" />}
         <span className="ml-auto flex items-center gap-2">
-          <span className="text-[10px] opacity-60">
-            {content.length} chars
-          </span>
-          <ChevronDown
-            className={cn(
-              "w-3.5 h-3.5 opacity-60 transition-transform duration-200",
-              isOpen ? "rotate-180" : ""
-            )}
-          />
+          <span className="text-[10px] opacity-70 font-mono">{content.length} chars</span>
+          <ChevronDown className={cn("w-3.5 h-3.5 opacity-70 transition-transform duration-300", isOpen ? "rotate-180" : "")} />
         </span>
       </button>
-
-      {/* Content - 可展开/收起 */}
-      <div
-        className={cn(
-          "overflow-hidden transition-all duration-300 ease-in-out",
-          isOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
-        )}
-      >
-        <div
-          className="px-3 pb-3 pt-1"
-          onDoubleClick={handleDoubleClick}
-          title={isTyping ? t('thinking.doubleClickSkip') : undefined}
-        >
-          <div className="text-xs text-muted-foreground/80 whitespace-pre-wrap font-mono leading-relaxed max-h-[400px] overflow-y-auto">
-            {renderContent()}
-          </div>
+      <div className={cn("overflow-hidden transition-all duration-300 ease-out motion-reduce:transition-none", isOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0")}>
+        <div className="px-3 pb-3 pt-1" onDoubleClick={handleDoubleClick} title={isTyping ? t('thinking.doubleClickSkip') : undefined}>
+          <div className="text-xs leading-relaxed max-h-[400px] overflow-y-auto scrollbar-thin">{renderContent()}</div>
         </div>
       </div>
     </div>

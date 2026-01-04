@@ -301,7 +301,7 @@ export const SessionMessages = forwardRef<SessionMessagesRef, SessionMessagesPro
 
             return (
               <MeasurableItem
-                key={virtualItem.key}
+                key={messageGroup.id}
                 virtualItem={virtualItem}
                 measureElement={rowVirtualizer.measureElement}
                 isStreaming={isStreaming}

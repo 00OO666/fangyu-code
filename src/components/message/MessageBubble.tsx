@@ -35,11 +35,11 @@ const MessageBubbleComponent: React.FC<MessageBubbleProps> = ({
       initial={{ opacity: 0, y: 20, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{
-        duration: 0.3,
-        ease: [0.2, 0, 0, 1] // Emphasized easing
+        duration: 0.25,
+        ease: [0, 0, 0.2, 1] // ease-out for entering
       }}
       className={cn(
-        "flex w-full mb-2", // Reduced spacing for compact layout
+        "flex w-full mb-3 motion-reduce:transition-none", // 优化间距，支持 reduced-motion
         isUser ? "justify-end" : "justify-start",
         className
       )}
@@ -51,27 +51,41 @@ const MessageBubbleComponent: React.FC<MessageBubbleProps> = ({
             {sideContent}
             <div
               className={cn(
-                "rounded-[20px] px-5 py-2.5", // More rounded, slightly tighter padding
-                "bg-secondary text-secondary-foreground", // Use semantic colors
-                "border border-border/50 shadow-sm", // Add subtle border and shadow
-                "break-words text-[15px] leading-relaxed overflow-hidden",
+                "rounded-xl px-4 py-3", // 优化圆角，更专业
+                "text-foreground border shadow-md", // 更明显的边框和阴影
+                "break-words text-sm leading-relaxed overflow-hidden", // 统一字体大小
+                "transition-colors duration-200", // 增强悬停效果
                 bubbleClassName
               )}
-              style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}
+              style={{
+                overflowWrap: 'anywhere',
+                wordBreak: 'break-word',
+                backgroundColor: 'color-mix(in srgb, var(--color-primary) 15%, transparent)',
+                borderColor: 'color-mix(in srgb, var(--color-primary) 30%, transparent)'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'color-mix(in srgb, var(--color-primary) 20%, transparent)'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'color-mix(in srgb, var(--color-primary) 15%, transparent)'}
             >
               {children}
             </div>
           </div>
         </div>
       ) : (
-        // AI Message: Clean Document Style (No Card)
+        // AI Message: Subtle Card Style
         <div className="flex flex-col w-full max-w-full overflow-hidden">
           <div
             className={cn(
-              "w-full pr-4 overflow-hidden", // No border, no background, just spacing
+              "w-full pr-4 overflow-hidden",
+              "border rounded-lg", // 添加边框和圆角
+              "p-4", // 添加内边距
               bubbleClassName
             )}
-            style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}
+            style={{
+              overflowWrap: 'anywhere',
+              wordBreak: 'break-word',
+              backgroundColor: 'color-mix(in srgb, var(--color-muted) 30%, transparent)',
+              borderColor: 'color-mix(in srgb, var(--color-border) 20%, transparent)'
+            }}
           >
              {children}
           </div>

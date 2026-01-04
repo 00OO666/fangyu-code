@@ -1,7 +1,7 @@
 /**
  * 顶部居中通知组件
  *
- * 显示在整个应用界面的顶部居中，层级最高（z-[99999]）
+ * 显示在整个应用界面的顶部居中，层级最高（使用 CSS 变量 --z-notification）
  * 用于：模型切换、Plan 模式切换、设置更改等重要全局通知
  */
 
@@ -82,7 +82,7 @@ export const TopCenterNotification: React.FC<TopCenterNotificationProps> = ({ cl
   const Icon = config.icon;
 
   return (
-    <div className={cn("fixed top-4 left-1/2 -translate-x-1/2 z-[99999]", className)}>
+    <div className={cn("fixed top-4 left-1/2 -translate-x-1/2", className)} style={{ zIndex: 'var(--z-notification)' }}>
       <AnimatePresence>
         {notification && (
           <motion.div

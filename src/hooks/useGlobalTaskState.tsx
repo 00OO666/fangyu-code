@@ -40,7 +40,7 @@ export interface TaskInfo {
   /** 项目路径 */
   projectPath: string;
   /** 执行引擎 */
-  engine: "claude" | "codex" | "gemini";
+  engine: "claude" | "codex" | "gemini" | "siliconflow";
   /** 任务状态 */
   status: TaskStatus;
   /** 进度百分比 (0-100) */
@@ -362,6 +362,50 @@ class GlobalTaskStore {
 
     console.debug("[GlobalTaskState] All tasks cleared");
   };
+
+  /**
+   * 🆕 自动清理过期任务
+   * - 已完成/失败的任务：超过 5 分钟后清理
+   * - 长时间未更新的任务：超过 30 分钟后清理
+   */
+  cleanupStaleTasks = () => {
+    const now = Date.now();
+    const COMPLETED_TASK_TTL = 5 * 60 * 1000; // 5 分钟
+    const STALE_TASK_TTL = 30 * 60 * 1000; // 30 分钟
+    const tasksToRemove: string[] = [];
+
+    this.state.tasks.forEach((task, taskId) => {
+      const age = now - task.updatedAt;
+
+      // 已完成或失败的任务：5 分钟后清理
+      if (
+        (task.status === "completed" || task.status === "failed" || task.status === "cancelled") &&
+        age > COMPLETED_TASK_TTL
+      ) {
+        tasksToRemove.push(taskId);
+        return;
+      }
+
+      // 长时间未更新的任务：30 分钟后清理
+      if (age > STALE_TASK_TTL) {
+        tasksToRemove.push(taskId);
+      }
+    });
+
+    if (tasksToRemove.length > 0) {
+      const tasks = new Map(this.state.tasks);
+      tasksToRemove.forEach((id) => {
+        tasks.delete(id);
+        this.notifyTaskListeners(id, undefined);
+      });
+
+      this.state = { ...this.state, tasks };
+      this.updateActiveCount();
+      this.notify();
+
+      console.debug("[GlobalTaskState] Cleaned up stale tasks:", tasksToRemove.length);
+    }
+  };
 }
 
 // Global singleton store
@@ -401,34 +445,52 @@ export const GlobalTaskStateProvider: React.FC<GlobalTaskStateProviderProps> = (
   );
 
   // 🆕 监听其他窗口的任务状态更新
+  // 🔧 FIX: 重新启用跨窗口同步，此功能不依赖 TabProvider
   useEffect(() => {
-    // ⚠️ 临时禁用：避免在 TabProvider 外部触发问题
-    // TODO: 移动到 TabProvider 内部或使用更安全的初始化方式
-    return;
-
-    /* 原代码暂时注释
     let unlisten: (() => void) | null = null;
+    let isMounted = true;
 
     const setupListener = async () => {
       try {
         unlisten = await onWindowSyncEvent((event) => {
+          // 检查组件是否仍然挂载
+          if (!isMounted) return;
+
           // 只处理 session_update 类型的事件
-          if (event.type === 'session_update' && event.data?.action && event.data?.task) {
+          if (event.type === "session_update" && event.data?.action && event.data?.task) {
             globalTaskStore.handleRemoteTaskUpdate(event.data);
           }
         });
-        console.debug('[GlobalTaskState] Cross-window sync listener initialized');
+        if (isMounted) {
+          console.debug("[GlobalTaskState] Cross-window sync listener initialized");
+        }
       } catch (error) {
-        console.warn('[GlobalTaskState] Failed to setup cross-window listener:', error);
+        // 静默处理错误，避免影响应用启动
+        console.warn("[GlobalTaskState] Failed to setup cross-window listener:", error);
       }
     };
 
     setupListener();
 
     return () => {
+      isMounted = false;
       if (unlisten) unlisten();
     };
-    */
+  }, []);
+
+  // 🆕 定时清理过期任务
+  useEffect(() => {
+    // 每 2 分钟清理一次
+    const cleanupInterval = setInterval(() => {
+      globalTaskStore.cleanupStaleTasks();
+    }, 2 * 60 * 1000);
+
+    // 组件挂载时立即执行一次清理
+    globalTaskStore.cleanupStaleTasks();
+
+    return () => {
+      clearInterval(cleanupInterval);
+    };
   }, []);
 
   const actions: GlobalTaskActions = {
@@ -521,7 +583,7 @@ export const useActiveTaskCount = (): number => {
  * @param engine 执行引擎类型
  * @returns 该引擎的所有任务
  */
-export const useTasksByEngine = (engine: "claude" | "codex" | "gemini"): TaskInfo[] => {
+export const useTasksByEngine = (engine: "claude" | "codex" | "gemini" | "siliconflow"): TaskInfo[] => {
   const { state } = useGlobalTaskState();
   const tasks: TaskInfo[] = [];
   state.tasks.forEach((task) => {

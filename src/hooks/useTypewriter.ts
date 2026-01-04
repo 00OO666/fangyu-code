@@ -9,6 +9,8 @@ interface UseTypewriterOptions {
   isStreaming?: boolean;
   /** 打字完成回调 */
   onComplete?: () => void;
+  /** 超时时间（毫秒），超时后自动完成打字，默认 30000ms (30秒) */
+  timeout?: number;
 }
 
 interface UseTypewriterReturn {
@@ -40,6 +42,7 @@ export function useTypewriter(
     speed = 10, // 默认每字符 10ms，较快的打字速度
     isStreaming = false,
     onComplete,
+    timeout = 30000, // 默认 30 秒超时
   } = options;
 
   const [displayedText, setDisplayedText] = useState("");
@@ -52,6 +55,8 @@ export function useTypewriter(
   const lastTimeRef = useRef<number>(0);
   const previousTextLengthRef = useRef(0);
   const skipRef = useRef(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const startTimeRef = useRef<number>(0);
 
   // 跳过动画
   const skipToEnd = useCallback(() => {
@@ -59,6 +64,10 @@ export function useTypewriter(
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current);
       animationFrameRef.current = null;
+    }
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
     }
     setDisplayedText(fullText);
     currentIndexRef.current = fullText.length;
@@ -105,6 +114,15 @@ export function useTypewriter(
     setIsTyping(true);
     setIsComplete(false);
 
+    // 设置超时定时器
+    startTimeRef.current = Date.now();
+    if (timeout > 0) {
+      timeoutRef.current = setTimeout(() => {
+        console.log('[Typewriter] Timeout reached, skipping to end');
+        skipToEnd();
+      }, timeout);
+    }
+
     const animate = (timestamp: number) => {
       if (skipRef.current) {
         return;
@@ -150,14 +168,21 @@ export function useTypewriter(
         cancelAnimationFrame(animationFrameRef.current);
         animationFrameRef.current = null;
       }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
     };
-  }, [fullText, enabled, speed, isStreaming, onComplete]);
+  }, [fullText, enabled, speed, isStreaming, onComplete, timeout, skipToEnd]);
 
   // 组件卸载时清理
   useEffect(() => {
     return () => {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
+      }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
       }
     };
   }, []);

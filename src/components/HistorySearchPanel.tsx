@@ -297,12 +297,13 @@ export function HistorySearchPanel({
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: -10, scale: 0.98 }}
         transition={{ duration: 0.15 }}
-        className="fixed z-[100] bg-background border rounded-xl shadow-2xl"
+        className="fixed bg-background border rounded-xl shadow-2xl"
         style={{
           top: position.top,
           left: position.left,
           width: '600px',
           maxHeight: '70vh',
+          zIndex: 'var(--z-dropdown)',
         }}
       >
         {/* 头部 */}

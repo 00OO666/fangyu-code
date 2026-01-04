@@ -47,12 +47,13 @@ export const AutoResumeIndicator: React.FC<AutoResumeIndicatorProps> = ({
           exit={{ opacity: 0, y: 20, scale: 0.95 }}
           transition={{ duration: 0.3, type: 'spring', stiffness: 200, damping: 20 }}
           className={cn(
-            'fixed bottom-28 left-1/2 -translate-x-1/2 z-[100]',
+            'fixed bottom-28 left-1/2 -translate-x-1/2',
             'flex items-center gap-3 px-4 py-3 rounded-lg shadow-xl',
             'bg-gradient-to-r from-blue-500/90 to-indigo-500/90',
             'backdrop-blur-md border border-white/20',
             className
           )}
+          style={{ zIndex: 'var(--z-dropdown)' }}
         >
           {/* 左侧图标 + 文本 */}
           <div className="flex items-center gap-2">

@@ -100,12 +100,13 @@ export function FormatHistoryDialog({ open, onClose, initialRecord }: FormatHist
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[10000]"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+            style={{ zIndex: 'var(--z-modal-backdrop)' }}
             onClick={onClose}
           />
 
           {/* 弹窗 */}
-          <div className="fixed inset-0 flex items-center justify-center z-[10001] p-4">
+          <div className="fixed inset-0 flex items-center justify-center p-4" style={{ zIndex: 'var(--z-modal)' }}>
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}

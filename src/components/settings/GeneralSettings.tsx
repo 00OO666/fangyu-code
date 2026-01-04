@@ -458,6 +458,51 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
             />
           </div>
 
+          {/* Hide Startup Warnings */}
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5 flex-1">
+              <Label htmlFor="hideStartupWarnings">隐藏启动警告</Label>
+              <p className="text-xs text-muted-foreground">
+                隐藏系统启动期间的警告消息（如 MCP 初始化日志）
+              </p>
+            </div>
+            <Switch
+              id="hideStartupWarnings"
+              checked={settings?.hideStartupWarnings !== false}
+              onCheckedChange={(checked) => updateSetting("hideStartupWarnings", checked)}
+            />
+          </div>
+
+          {/* Hide Auto Continue Messages */}
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5 flex-1">
+              <Label htmlFor="hideAutoContinue">隐藏自动继续消息</Label>
+              <p className="text-xs text-muted-foreground">
+                隐藏系统自动发送的继续执行消息及其回复
+              </p>
+            </div>
+            <Switch
+              id="hideAutoContinue"
+              checked={settings?.hideAutoContinueMessages !== false}
+              onCheckedChange={(checked) => updateSetting("hideAutoContinueMessages", checked)}
+            />
+          </div>
+
+          {/* Show All Tool Results */}
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5 flex-1">
+              <Label htmlFor="showAllToolResults">显示所有工具结果</Label>
+              <p className="text-xs text-muted-foreground">
+                显示所有工具执行结果，即使有专用的 Widget 显示（用于调试）
+              </p>
+            </div>
+            <Switch
+              id="showAllToolResults"
+              checked={settings?.showAllToolResults === true}
+              onCheckedChange={(checked) => updateSetting("showAllToolResults", checked)}
+            />
+          </div>
+
           {/* Include Co-authored By */}
           <div className="flex items-center justify-between">
             <div className="space-y-0.5 flex-1">

@@ -112,7 +112,7 @@ export async function deleteSessionsBatch(
 export async function loadSessionHistory(
   sessionId: string,
   projectId: string,
-  engine?: "claude" | "codex",
+  engine?: "claude" | "codex" | "siliconflow",
 ): Promise<any[]> {
   // For Codex sessions, read directly from .codex/sessions
   if (engine === "codex") {

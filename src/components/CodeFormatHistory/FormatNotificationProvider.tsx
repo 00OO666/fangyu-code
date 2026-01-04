@@ -60,7 +60,7 @@ export function FormatNotificationProvider() {
   return (
     <>
       {/* 通知区域 - 定位在聊天输入框上方 */}
-      <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-[1000] pointer-events-none">
+      <div className="fixed bottom-20 left-1/2 -translate-x-1/2 pointer-events-none" style={{ zIndex: 'var(--z-toast)' }}>
         <AnimatePresence mode="popLayout">
           {pendingFormats.slice(0, 2).map((record) => (
             <motion.div

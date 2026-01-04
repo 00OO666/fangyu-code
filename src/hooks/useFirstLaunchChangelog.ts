@@ -17,7 +17,7 @@ import { getVersion } from "@tauri-apps/api/app";
 import { useEffect, useState } from "react";
 
 const STORAGE_KEY = "fangyu-code-last-seen-version";
-const FALLBACK_VERSION = "2.2.2"; // 🔧 Fallback 版本（获取失败时使用）
+const FALLBACK_VERSION = "2.2.4"; // 🔧 Fallback 版本（获取失败时使用）
 
 // 🔧 DEBUG: 全局变量用于强制显示更新日志（调试用）
 declare global {
@@ -29,6 +29,46 @@ declare global {
 
 // 版本更新日志（从新到旧）
 export const CHANGELOGS = {
+  "2.2.4": {
+    title: "v2.2.4 - 🚀 功能增强与稳定性优化",
+    date: "2026-01-04",
+    features: [
+      "✨ SiliconFlow 流式输出 - 新增完整的 SSE 流式 API 支持，实时显示生成内容",
+      "🔄 跨窗口同步 - 重新启用任务状态跨窗口同步，支持多窗口协同工作",
+      "🧹 自动清理机制 - 已完成任务 5 分钟后自动清理，过期任务 30 分钟后清理",
+      "🔧 类型系统完善 - 系统性添加 SiliconFlow 引擎类型支持，覆盖 20+ 文件",
+    ],
+    improvements: [
+      "📝 条件化日志 - Debug 日志仅在开发环境输出，减少生产环境噪音",
+      "⚡ 性能优化 - 优化消息更新频率，减少不必要的重渲染",
+      "🛡️ 错误处理 - 跨窗口同步添加完善的错误处理和挂载状态检查",
+    ],
+    technical: [
+      "LLMApiService.callStream() - 实现 OpenAI 兼容的 SSE 流式 API",
+      "GlobalTaskStore.cleanupStaleTasks() - 定时清理过期任务（每 2 分钟）",
+      "useGlobalTaskState - 重新启用跨窗口事件监听器",
+      "TypeScript 类型修复 - 修复 siliconflow 相关类型错误",
+    ],
+  },
+  "2.2.3": {
+    title: "v2.2.3 - 🔧 修复消息显示问题",
+    date: "2026-01-03",
+    features: [
+      "🔧 修复消息显示 - 解决 Token 优化逻辑错误导致的聊天内容被隐藏问题",
+      "✅ 完整对话显示 - 现在能正常显示思考过程、中间输出和工具调用详情",
+      "📊 数据流修正 - 优化后的消息不再错误地应用到 UI 显示层",
+    ],
+    improvements: [
+      "UI 显示修复 - 使用去重后的消息（331条）而非优化后的消息（20条）",
+      "代码清理 - 移除调试日志，保持代码整洁",
+      "版本同步 - 统一更新所有配置文件的版本号",
+    ],
+    technical: [
+      "问题根因 - v2.2.1 将优化后的 20 条消息用于 UI 显示，导致 311 条消息被隐藏",
+      "修复方法 - ClaudeCodeSession.tsx:325 使用 deduplicatedMessages 进行显示",
+      "影响范围 - 用户看不到完整的对话历史、思考块和中间输出",
+    ],
+  },
   "2.2.2": {
     title: "v2.2.2 - 🚨 紧急 Hotfix：修复聊天记录无法加载",
     date: "2026-01-03",

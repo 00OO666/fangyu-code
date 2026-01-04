@@ -59,44 +59,7 @@ function getEngineType(message: ClaudeStreamMessage): string {
 export function aggregateSessionCost(messages: ClaudeStreamMessage[]): SessionCostAggregation {
   const eventMap = new Map<string, MutableBillingEvent>();
 
-  // 🔧 FIX: 去重消息数组（根据 message ID）
-  // 问题：messages 数组中存在大量重复消息，导致重复计费和性能问题
-  // 解决：使用 Map 去重，保留每个 ID 的最后一个版本（最新、最完整）
-  const deduplicatedMessages: ClaudeStreamMessage[] = [];
-  const seenIds = new Map<string, number>(); // id -> index in deduplicatedMessages
-
-  for (const msg of messages) {
-    const id = (msg as any)?.message?.id || (msg as any).id || (msg as any).uuid;
-
-    if (id) {
-      const existingIndex = seenIds.get(id);
-      if (existingIndex !== undefined) {
-        // 替换为最新版本（后面的消息通常更完整）
-        deduplicatedMessages[existingIndex] = msg;
-      } else {
-        seenIds.set(id, deduplicatedMessages.length);
-        deduplicatedMessages.push(msg);
-      }
-    } else {
-      // 没有 ID 的消息直接添加（可能是临时消息）
-      deduplicatedMessages.push(msg);
-    }
-  }
-
-  // 🔧 DEBUG: 报告去重结果
-  const duplicateCount = messages.length - deduplicatedMessages.length;
-  if (duplicateCount > 0) {
-    console.warn(`[SessionCost] 🔧 去重: 原始 ${messages.length} 条 → 去重后 ${deduplicatedMessages.length} 条 (移除 ${duplicateCount} 条重复)`);
-  }
-
-  // 使用去重后的消息进行后续处理
-  messages = deduplicatedMessages;
-
-  // 🔧 DEBUG: 添加详细日志来诊断重复计费问题
-  console.log('[SessionCost] 🔍 开始计算会话费用...');
-  console.log(`[SessionCost] 总消息数: ${messages.length}`);
-
-  // 🔧 FIX: 从 system:init 消息中提取会话级别的默认模型
+  // Extract session default model from system:init messages
   let sessionDefaultModel: string | undefined;
   for (const msg of messages) {
     if ((msg as any).type === "system" && (msg as any).subtype === "init") {
@@ -143,12 +106,9 @@ export function aggregateSessionCost(messages: ClaudeStreamMessage[]): SessionCo
 
     const key = getBillingKey(message, index);
     const { timestamp, timestampMs } = extractTimestamp(message);
-    // 🔧 FIX: 使用会话默认模型作为回退
     const model = getModelName(message, engine, sessionDefaultModel);
 
-    // 🔧 FIX: 优先使用 Claude CLI 返回的 cost_usd（包含完整 Extended Thinking tokens 计费）
-    // 只有在没有 cost_usd 时才自行计算（回退方案）
-    // 注意：Claude CLI 使用驼峰命名 costUSD/totalCostUSD
+    // Prioritize cost_usd from Claude CLI (includes Extended Thinking tokens)
     const actualCostUsd =
       (message as any).costUSD ??
       (message as any).totalCostUSD ??
@@ -159,9 +119,6 @@ export function aggregateSessionCost(messages: ClaudeStreamMessage[]): SessionCo
         ? actualCostUsd
         : calculateMessageCost(tokens, model, engine);
 
-    // 🔧 DEBUG: 记录每条计费消息
-    console.log(`[SessionCost] 💰 消息 #${index}: key="${key}", type=${message.type}, cost=$${cost.toFixed(4)}, tokens=${totalTokenCount}, actualCostUsd=${actualCostUsd}`);
-
     const existing = eventMap.get(key);
     if (
       !existing ||
@@ -169,13 +126,6 @@ export function aggregateSessionCost(messages: ClaudeStreamMessage[]): SessionCo
       (totalTokenCount === existing.totalTokenCount &&
         (timestampMs ?? 0) >= (existing.timestampMs ?? 0))
     ) {
-      // 🔧 DEBUG: 记录是新增还是更新
-      if (existing) {
-        console.log(`[SessionCost] 🔄 更新消息: key="${key}", 旧tokens=${existing.totalTokenCount}, 新tokens=${totalTokenCount}`);
-      } else {
-        console.log(`[SessionCost] ➕ 新增消息: key="${key}"`);
-      }
-
       eventMap.set(key, {
         key,
         tokens,
@@ -228,12 +178,6 @@ export function aggregateSessionCost(messages: ClaudeStreamMessage[]): SessionCo
     totals.totalTokens += calculateTotalTokens(event.tokens);
   });
 
-  // 🔧 DEBUG: 输出最终统计
-  console.log(`[SessionCost] 📊 最终统计:`);
-  console.log(`  - 去重后的计费事件数: ${events.length}`);
-  console.log(`  - 总费用: $${totals.totalCost.toFixed(4)}`);
-  console.log(`  - 总 tokens: ${totals.totalTokens}`);
-
   const timestampValues = events
     .map((event) => event.timestampMs)
     .filter((value): value is number => typeof value === "number" && !Number.isNaN(value));
@@ -282,8 +226,6 @@ function getBillingKey(message: ClaudeStreamMessage, index: number): string {
     return `time:${timestamp}`;
   }
 
-  // 🔧 DEBUG: 警告使用 index 作为 key（不稳定）
-  console.warn(`[SessionCost] ⚠️ 消息 #${index} 使用 index 作为 key（无 id/uuid/timestamp）`);
   return `index:${index}`;
 }
 
@@ -323,7 +265,7 @@ function getModelName(
   const candidates = [
     (message as any).model,
     (message as any)?.message?.model,
-    (message as any)?.codexMetadata?.model, // Codex 可能在 metadata 中存储模型
+    (message as any)?.codexMetadata?.model,
   ];
 
   for (const candidate of candidates) {
@@ -332,12 +274,12 @@ function getModelName(
     }
   }
 
-  // 🔧 FIX: 优先使用会话默认模型
+  // Use session default model if available
   if (sessionDefaultModel) {
     return sessionDefaultModel;
   }
 
-  // 根据引擎返回对应的默认模型
+  // Fallback to engine-specific defaults
   if (engine === "codex") return CODEX_MODEL_FALLBACK;
   if (engine === "gemini") return GEMINI_MODEL_FALLBACK;
   return MODEL_FALLBACK;

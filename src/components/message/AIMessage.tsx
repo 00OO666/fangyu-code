@@ -12,6 +12,7 @@ import { tokenExtractor } from "@/lib/tokenExtractor";
 import { formatTimestamp } from "@/lib/messageUtils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import type { ClaudeStreamMessage } from '@/types/claude';
+import { useSession } from "@/contexts/SessionContext";
 
 interface AIMessageProps {
   /** 消息数据 */
@@ -26,23 +27,29 @@ interface AIMessageProps {
 
 /**
  * 提取AI消息的文本内容
+ *
+ * ✅ FIX: 移除文本中的 <thinking> 标签内容，避免重复显示
  */
 const extractAIText = (message: ClaudeStreamMessage): string => {
   if (!message.message?.content) return '';
-  
+
   const content = message.message.content;
-  
-  // 如果是字符串，直接返回
-  if (typeof content === 'string') return content;
-  
-  // 如果是数组，提取所有text类型的内容
+
+  // 如果是字符串，移除 thinking 标签后返回
+  if (typeof content === 'string') {
+    return content.replace(/<thinking>[\s\S]*?<\/thinking>/g, '').trim();
+  }
+
+  // 如果是数组，提取所有text类型的内容并移除 thinking 标签
   if (Array.isArray(content)) {
-    return content
+    const text = content
       .filter((item: any) => item.type === 'text')
       .map((item: any) => item.text)
       .join('\n\n');
+
+    return text.replace(/<thinking>[\s\S]*?<\/thinking>/g, '').trim();
   }
-  
+
   return '';
 };
 
@@ -65,31 +72,89 @@ const hasToolCalls = (message: ClaudeStreamMessage): boolean => {
 
 /**
  * 检测消息中是否有思考块
+ *
+ * 支持三种格式：
+ * 1. 顶层 thinking 消息（message.type === 'thinking'）- Codex reasoning
+ * 2. 独立的 thinking 块（content item.type === 'thinking'）- Claude native
+ * 3. 文本中的 <thinking> 标签（Claude Code CLI 格式）
  */
 const hasThinkingBlock = (message: ClaudeStreamMessage): boolean => {
+  // 检查顶层 thinking 消息
+  if (message.type === 'thinking') return true;
+
   if (!message.message?.content) return false;
 
   const content = message.message.content;
   if (!Array.isArray(content)) return false;
 
-  return content.some((item: any) => item.type === 'thinking');
+  // 检查是否有独立的 thinking 块
+  const hasThinkingType = content.some((item: any) => item.type === 'thinking');
+  if (hasThinkingType) return true;
+
+  // 检查文本中是否包含 <thinking> 标签
+  const textContent = content
+    .filter((item: any) => item.type === 'text')
+    .map((item: any) => item.text || '')
+    .join('');
+
+  return textContent.includes('<thinking>');
 };
 
 /**
  * 提取思考块内容
- * 
+ *
+ * 支持三种格式：
+ * 1. 顶层 thinking 消息（message.type === 'thinking'）- Codex reasoning
+ * 2. 独立的 thinking 块（content item.type === 'thinking'）- Claude native
+ * 3. 文本中的 <thinking> 标签（Claude Code CLI 格式）
+ *
  * ✅ FIX: 使用特殊的分隔符连接多个思考块，以便 ThinkingBlock 组件能够识别并渲染分割线
  */
 const extractThinkingContent = (message: ClaudeStreamMessage): string => {
+  // 检查顶层 thinking 消息
+  if (message.type === 'thinking') {
+    return (message as any).content || '';
+  }
+
   if (!message.message?.content) return '';
 
   const content = message.message.content;
   if (!Array.isArray(content)) return '';
 
+  // 首先尝试提取独立的 thinking 块
   const thinkingBlocks = content.filter((item: any) => item.type === 'thinking');
-  // 使用特殊的不可见分隔符+换行符，以便 ThinkingBlock 可以识别分割点
-  // 使用 ---divider--- 作为明确的分割标记
-  return thinkingBlocks.map((item: any) => item.thinking || '').join('\n\n---divider---\n\n');
+  if (thinkingBlocks.length > 0) {
+    // 🔧 DEBUG: 检查 thinking 块的实际结构
+    if (import.meta.env.DEV) {
+      console.log('[extractThinkingContent] Found thinking blocks:', thinkingBlocks.map((item: any) => ({
+        type: item.type,
+        hasThinking: !!item.thinking,
+        hasText: !!item.text,
+        hasContent: !!item.content,
+        allKeys: Object.keys(item),
+        thinkingPreview: (item.thinking || item.text || item.content || '').substring(0, 100)
+      })));
+    }
+    // 🔧 FIX: 支持多种字段名（thinking, text, content）
+    return thinkingBlocks.map((item: any) => item.thinking || item.text || item.content || '').join('\n\n---divider---\n\n');
+  }
+
+  // 如果没有独立的 thinking 块，从文本中提取 <thinking> 标签内容
+  const textContent = content
+    .filter((item: any) => item.type === 'text')
+    .map((item: any) => item.text || '')
+    .join('');
+
+  // 使用正则表达式提取所有 <thinking> 标签中的内容
+  const thinkingRegex = /<thinking>([\s\S]*?)<\/thinking>/g;
+  const matches = [];
+  let match;
+
+  while ((match = thinkingRegex.exec(textContent)) !== null) {
+    matches.push(match[1].trim());
+  }
+
+  return matches.join('\n\n---divider---\n\n');
 };
 
 /**
@@ -112,6 +177,53 @@ export const AIMessage: React.FC<AIMessageProps> = ({
   const hasThinking = hasThinkingBlock(message);
   const thinkingContent = hasThinking ? extractThinkingContent(message) : '';
 
+  // 🆕 从 SessionContext 获取 Thinking 状态管理函数
+  const { getThinkingOpenState, onThinkingToggle } = useSession();
+
+  // 获取消息 ID（用于状态管理）
+  const messageId = (message as any).uuid || (message as any).id || '';
+
+  // 🔧 DEBUG: Only log in development mode
+  if (import.meta.env.DEV) {
+    const textBlocks = Array.isArray(message.message?.content)
+      ? message.message.content.filter((item: any) => item.type === 'text')
+      : [];
+
+    const allBlocks = Array.isArray(message.message?.content)
+      ? message.message.content
+      : [];
+
+    const debugInfo = {
+      messageId: (message as any).id || (message as any).uuid,
+      hasThinking,
+      thinkingContent: thinkingContent.substring(0, 100),
+      contentType: Array.isArray(message.message?.content) ? 'array' : typeof message.message?.content,
+      contentLength: Array.isArray(message.message?.content) ? message.message.content.length : 0,
+      contentTypes: Array.isArray(message.message?.content)
+        ? message.message.content.map((item: any) => item.type)
+        : [],
+      allContentBlocks: allBlocks.map((item: any) => ({
+        type: item.type,
+        hasText: !!item.text,
+        hasThinking: !!item.thinking,
+        textPreview: item.text?.substring(0, 100),
+        thinkingPreview: item.thinking?.substring(0, 100),
+        allKeys: Object.keys(item)
+      })),
+      textBlocksPreview: textBlocks.map((item: any) => ({
+        text: item.text?.substring(0, 500),
+        hasThinkingTag: item.text?.includes('<thinking>')
+      }))
+    };
+
+    console.log('[AIMessage] 消息分析:', debugInfo);
+
+    // 🔧 暴露到全局供调试
+    if (typeof window !== 'undefined') {
+      (window as any).__lastAIMessageDebug = debugInfo;
+    }
+  }
+
   // Detect engine type for avatar styling
   const isCodexMessage = (message as any).engine === 'codex';
   const isGeminiMessage = (message as any).geminiMetadata?.provider === 'gemini' || (message as any).engine === 'gemini';
@@ -121,7 +233,9 @@ export const AIMessage: React.FC<AIMessageProps> = ({
   const enableTypewriter = isStreaming;
 
   // 如果既没有文本又没有工具调用又没有思考块，不渲染
-  if (!text && !hasTools && !hasThinking) return null;
+  if (!text && !hasTools && !hasThinking) {
+    return null;
+  }
 
   // 提取 tokens 统计
   const tokenStats = message.message?.usage ? (() => {
@@ -186,7 +300,7 @@ export const AIMessage: React.FC<AIMessageProps> = ({
             {/* Main Content */}
             <div className="space-y-3">
               {text && (
-                <div className="prose prose-neutral dark:prose-invert max-w-none leading-relaxed text-[15px]">
+                <div className="prose prose-neutral dark:prose-invert max-w-none leading-relaxed text-sm">
                   <MessageContent
                     content={text}
                     isStreaming={enableTypewriter && !hasTools && !hasThinking}
@@ -201,6 +315,9 @@ export const AIMessage: React.FC<AIMessageProps> = ({
                   content={thinkingContent}
                   isStreaming={enableTypewriter}
                   autoCollapseDelay={2500}
+                  messageId={messageId}
+                  isOpen={getThinkingOpenState?.(messageId)}
+                  onToggle={(isOpen) => onThinkingToggle?.(messageId, isOpen)}
                 />
               )}
 

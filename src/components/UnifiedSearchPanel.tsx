@@ -651,7 +651,7 @@ export function UnifiedSearchPanel({
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ duration: 0.15, ease: "easeOut" }}
             className={cn(
-              "fixed rounded-xl z-[9999] overflow-hidden",
+              "fixed rounded-xl overflow-hidden",
               "bg-background/95 backdrop-blur-xl backdrop-saturate-150",
               "border border-white/20 dark:border-white/10",
               "shadow-[0_8px_32px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)]",
@@ -661,6 +661,7 @@ export function UnifiedSearchPanel({
               left: `${panelPosition.left}px`,
               width: `${panelPosition.width}px`,
               maxWidth: `${panelPosition.maxWidth}px`,
+              zIndex: 'var(--z-popover)',
             }}
           >
             {/* 搜索框 */}
@@ -771,7 +772,8 @@ export function UnifiedSearchPanel({
                               <TooltipContent
                                 side="bottom"
                                 align="start"
-                                className="max-w-[500px] text-sm whitespace-pre-wrap break-words z-[99999]"
+                                className="max-w-[500px] text-sm whitespace-pre-wrap break-words"
+                                style={{ zIndex: 'var(--z-tooltip)' }}
                                 sideOffset={5}
                               >
                                 <div className="space-y-2">

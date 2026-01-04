@@ -33,9 +33,26 @@ export interface SubagentGroup {
  * 消息组类型（用于渲染）
  */
 export type MessageGroup =
-  | { type: "normal"; message: ClaudeStreamMessage; index: number }
-  | { type: "subagent"; group: SubagentGroup }
-  | { type: "aggregated"; messages: ClaudeStreamMessage[]; index: number }; // 新增：聚合消息组
+  | { type: "normal"; id: string; message: ClaudeStreamMessage; index: number }
+  | { type: "subagent"; id: string; group: SubagentGroup }
+  | { type: "aggregated"; id: string; messages: ClaudeStreamMessage[]; index: number }; // 新增：聚合消息组
+
+/**
+ * 生成消息的稳定 ID
+ */
+function getMessageId(message: ClaudeStreamMessage, index: number): string {
+  return message.uuid || `msg-${index}`;
+}
+
+/**
+ * 生成聚合消息组的稳定 ID
+ */
+function getAggregatedGroupId(messages: ClaudeStreamMessage[], startIndex: number): string {
+  if (messages.length === 0) return `agg-${startIndex}`;
+  const firstId = messages[0].uuid || startIndex;
+  const lastId = messages[messages.length - 1].uuid || (startIndex + messages.length - 1);
+  return `agg-${firstId}-${lastId}`;
+}
 
 /**
  * 检查消息是否包含 Task 工具调用
@@ -265,9 +282,11 @@ export function groupMessages(messages: ClaudeStreamMessage[]): MessageGroup[] {
       // ✅ FIX: 遍历所有 Task ID，为每个有子代理消息的 Task 创建分组
       taskIds.forEach((taskId) => {
         if (subagentGroups.has(taskId) && !addedTaskGroups.has(taskId)) {
+          const group = subagentGroups.get(taskId)!;
           intermediateGroups.push({
             type: "subagent",
-            group: subagentGroups.get(taskId)!,
+            id: `subagent-${group.id}`,
+            group,
           });
           addedTaskGroups.add(taskId);
         }
@@ -279,6 +298,7 @@ export function groupMessages(messages: ClaudeStreamMessage[]): MessageGroup[] {
       if (!hasAnySubagentGroup) {
         intermediateGroups.push({
           type: "normal",
+          id: getMessageId(message, index),
           message,
           index,
         });
@@ -287,6 +307,7 @@ export function groupMessages(messages: ClaudeStreamMessage[]): MessageGroup[] {
       // 普通消息
       intermediateGroups.push({
         type: "normal",
+        id: getMessageId(message, index),
         message,
         index,
       });
@@ -308,6 +329,7 @@ export function groupMessages(messages: ClaudeStreamMessage[]): MessageGroup[] {
       if (currentAggregation) {
         finalGroups.push({
           type: "aggregated",
+          id: getAggregatedGroupId(currentAggregation.messages, currentAggregation.startIndex),
           messages: currentAggregation.messages,
           index: currentAggregation.startIndex,
         });
@@ -333,6 +355,7 @@ export function groupMessages(messages: ClaudeStreamMessage[]): MessageGroup[] {
             // 类型不一致（例如 Thinking -> Tool），结算上一个聚合，开始新的聚合
             finalGroups.push({
               type: "aggregated",
+              id: getAggregatedGroupId(currentAggregation.messages, currentAggregation.startIndex),
               messages: currentAggregation.messages,
               index: currentAggregation.startIndex,
             });
@@ -355,6 +378,7 @@ export function groupMessages(messages: ClaudeStreamMessage[]): MessageGroup[] {
         if (currentAggregation) {
           finalGroups.push({
             type: "aggregated",
+            id: getAggregatedGroupId(currentAggregation.messages, currentAggregation.startIndex),
             messages: currentAggregation.messages,
             index: currentAggregation.startIndex,
           });
@@ -372,6 +396,7 @@ export function groupMessages(messages: ClaudeStreamMessage[]): MessageGroup[] {
   if (currentAggregation) {
     finalGroups.push({
       type: "aggregated",
+      id: getAggregatedGroupId(currentAggregation.messages, currentAggregation.startIndex),
       messages: currentAggregation.messages,
       index: currentAggregation.startIndex,
     });

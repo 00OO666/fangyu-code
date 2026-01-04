@@ -85,12 +85,12 @@ interface ClaudeCodeSessionProps {
   /**
    * 🆕 Callback when execution engine changes (for updating tab icon)
    */
-  onEngineChange?: (engine: 'claude' | 'codex' | 'gemini') => void;
+  onEngineChange?: (engine: 'claude' | 'codex' | 'gemini' | 'siliconflow') => void;
   /**
    * 🔧 FIX: Callback when session info is extracted (for persisting new session to tab)
    * Called when a new session receives its sessionId and projectId from backend
    */
-  onSessionInfoChange?: (info: { sessionId: string; projectId: string; projectPath: string; engine?: 'claude' | 'codex' | 'gemini' }) => void;
+  onSessionInfoChange?: (info: { sessionId: string; projectId: string; projectPath: string; engine?: 'claude' | 'codex' | 'gemini' | 'siliconflow' }) => void;
   /**
    * Whether this session is currently active (for event listener management)
    */

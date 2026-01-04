@@ -30,7 +30,7 @@ export interface Tab {
   // Session data
   projectPath?: string;
   session?: Session;
-  engine?: "claude" | "codex" | "gemini";
+  engine?: "claude" | "codex" | "gemini" | "siliconflow";
 
   // Smart mode flag (智能会话模式)
   smartMode?: boolean;
@@ -532,7 +532,7 @@ export const TabProvider: React.FC<TabProviderProps> = ({ children }) => {
   }, []);
 
   // 🆕 Update tab engine - 更新标签页的执行引擎
-  const updateTabEngine = useCallback((tabId: string, engine: "claude" | "codex" | "gemini") => {
+  const updateTabEngine = useCallback((tabId: string, engine: "claude" | "codex" | "gemini" | "siliconflow") => {
     setTabs((prev) =>
       prev.map((tab) => {
         if (tab.id !== tabId) return tab;
@@ -551,7 +551,7 @@ export const TabProvider: React.FC<TabProviderProps> = ({ children }) => {
         sessionId: string;
         projectId: string;
         projectPath: string;
-        engine?: "claude" | "codex" | "gemini";
+        engine?: "claude" | "codex" | "gemini" | "siliconflow";
       },
     ) => {
       setTabs((prev) =>
@@ -926,7 +926,7 @@ export const useTabSession = (tabId: string) => {
 
   // 🆕 Update engine - 更新执行引擎
   const updateEngine = useCallback(
-    (engine: "claude" | "codex" | "gemini") => {
+    (engine: "claude" | "codex" | "gemini" | "siliconflow") => {
       updateTabEngine(tabId, engine);
     },
     [tabId, updateTabEngine],
@@ -938,7 +938,7 @@ export const useTabSession = (tabId: string) => {
       sessionId: string;
       projectId: string;
       projectPath: string;
-      engine?: "claude" | "codex" | "gemini";
+      engine?: "claude" | "codex" | "gemini" | "siliconflow";
     }) => {
       updateTabSession(tabId, sessionInfo);
     },

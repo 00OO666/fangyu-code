@@ -80,7 +80,7 @@ interface UsePromptExecutionConfig {
   extractedSessionInfo: { sessionId: string; projectId: string } | null;
 
   // 🆕 Execution Engine Integration (Claude/Codex/Gemini)
-  executionEngine?: "claude" | "codex" | "gemini"; // 执行引擎选择 (默认: 'claude')
+  executionEngine?: "claude" | "codex" | "gemini" | "siliconflow"; // 执行引擎选择 (默认: 'claude')
   codexMode?: CodexExecutionMode; // Codex 执行模式
   codexModel?: string; // Codex 模型 (e.g., 'gpt-5.2')
   geminiModel?: string; // Gemini 模型 (e.g., 'gemini-3-flash')
@@ -342,21 +342,10 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
       }
 
       try {
-        // 🔧 CRITICAL FIX: 在发送新请求前强制清理所有旧监听器
-        // 问题：开发模式 HMR 时，旧监听器可能未完全清理，导致接收重复消息
-        // 解决：每次发送新请求时，强制清理并重置状态
-        console.log("[usePromptExecution] 🧹 清理旧监听器，准备发送新请求");
-        unlistenRefs.current.forEach((unlisten) => {
-          try {
-            if (unlisten && typeof unlisten === "function") {
-              unlisten();
-            }
-          } catch (err) {
-            console.warn("[usePromptExecution] Failed to unlisten:", err);
-          }
-        });
-        unlistenRefs.current = [];
-        isListeningRef.current = false;
+        // 🔧 FIX: 移除双重清理逻辑，只在设置监听器前清理一次（见下方代码）
+        // 问题：之前在这里清理并设置 isListeningRef.current = false，
+        //       导致下方的监听器设置条件总是满足，造成状态混乱和可能的重复监听器
+        // 修复：恢复原版 Any-Code 的逻辑，只在设置监听器前清理
 
         setIsLoading(true);
         setError(null);
@@ -2069,25 +2058,57 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
               maxTokens: siliconflowConfig.maxTokens,
             };
 
-            // 调用 SiliconFlow API
-            const response = await LLMApiService.call(provider, request, {
-              timeout: 60000,
-              maxRetries: 2,
+            // 🆕 使用流式调用，逐步更新消息内容
+            // 创建初始的空 assistant 消息（替换 thinking 消息）
+            const assistantMessageId = `siliconflow-${Date.now()}`;
+            let currentContent = "";
+
+            // 移除 thinking 消息，添加空的 assistant 消息
+            setMessages((prev) => {
+              const filtered = prev.filter((msg) => msg !== thinkingMessage);
+              return [
+                ...filtered,
+                {
+                  type: "assistant",
+                  message: {
+                    id: assistantMessageId,
+                    role: "assistant",
+                    content: [{ type: "text", text: "" }],
+                  },
+                  timestamp: new Date().toISOString(),
+                } as ClaudeStreamMessage,
+              ];
             });
 
-            // 移除 thinking 消息
-            setMessages((prev) => prev.filter((msg) => msg !== thinkingMessage));
-
-            // 添加 assistant 响应消息
-            const assistantMessage: ClaudeStreamMessage = {
-              type: "assistant",
-              message: {
-                role: "assistant",
-                content: [{ type: "text", text: response.content }],
+            // 流式调用，逐步更新消息
+            await LLMApiService.callStream(
+              provider,
+              request,
+              (_chunk, fullContent) => {
+                currentContent = fullContent;
+                // 更新消息内容
+                setMessages((prev) =>
+                  prev.map((msg) => {
+                    if (
+                      msg.type === "assistant" &&
+                      (msg.message as any)?.id === assistantMessageId
+                    ) {
+                      return {
+                        ...msg,
+                        message: {
+                          ...(msg.message as any),
+                          content: [{ type: "text", text: fullContent }],
+                        },
+                      };
+                    }
+                    return msg;
+                  }),
+                );
               },
-              timestamp: new Date().toISOString(),
-            };
-            setMessages((prev) => [...prev, assistantMessage]);
+              {
+                timeout: 120000, // 流式调用使用更长的超时时间
+              },
+            );
 
             // 添加结果消息（标记完成）
             const resultMessage: ClaudeStreamMessage = {
@@ -2107,8 +2128,13 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
           } catch (err: any) {
             console.error("[usePromptExecution] SiliconFlow execution failed:", err);
 
-            // 移除 thinking 消息
-            setMessages((prev) => prev.filter((msg) => msg !== thinkingMessage));
+            // 🔧 FIX: 移除流式创建的 assistant 消息（而不是 thinking 消息）
+            setMessages((prev) =>
+              prev.filter(
+                (msg) =>
+                  !(msg.type === "assistant" && (msg.message as any)?.id === assistantMessageId),
+              ),
+            );
 
             // 添加错误消息
             const errorMessage: ClaudeStreamMessage = {

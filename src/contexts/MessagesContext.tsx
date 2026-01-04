@@ -10,6 +10,9 @@ export interface ToolResultEntry {
 
 export interface MessageFilterConfig {
   hideWarmupMessages: boolean;
+  hideStartupWarnings: boolean;
+  hideAutoContinueMessages: boolean;
+  showAllToolResults: boolean;
 }
 
 // ✅ 性能优化: 拆分为数据和操作两个 Context
@@ -63,6 +66,9 @@ interface MessagesProviderProps {
 
 const defaultFilterConfig: MessageFilterConfig = {
   hideWarmupMessages: true,
+  hideStartupWarnings: true,
+  hideAutoContinueMessages: true,
+  showAllToolResults: false,
 };
 
 export const MessagesProvider: React.FC<MessagesProviderProps> = ({
@@ -78,6 +84,18 @@ export const MessagesProvider: React.FC<MessagesProviderProps> = ({
       initialFilterConfig?.hideWarmupMessages !== undefined
         ? initialFilterConfig.hideWarmupMessages
         : defaultFilterConfig.hideWarmupMessages,
+    hideStartupWarnings:
+      initialFilterConfig?.hideStartupWarnings !== undefined
+        ? initialFilterConfig.hideStartupWarnings
+        : defaultFilterConfig.hideStartupWarnings,
+    hideAutoContinueMessages:
+      initialFilterConfig?.hideAutoContinueMessages !== undefined
+        ? initialFilterConfig.hideAutoContinueMessages
+        : defaultFilterConfig.hideAutoContinueMessages,
+    showAllToolResults:
+      initialFilterConfig?.showAllToolResults !== undefined
+        ? initialFilterConfig.showAllToolResults
+        : defaultFilterConfig.showAllToolResults,
   });
 
   const toolResults = React.useMemo(() => buildToolResultMap(messages), [messages]);

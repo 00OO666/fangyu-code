@@ -12,7 +12,7 @@ import type { PromptSuggestion } from "./hooks/usePromptSuggestion";
 import type { SlashCommand } from "./slashCommands";
 
 /** 执行引擎类型 */
-type ExecutionEngine = 'claude' | 'gemini' | 'codex';
+type ExecutionEngine = 'claude' | 'gemini' | 'codex' | 'siliconflow';
 
 interface InputAreaProps {
   prompt: string;

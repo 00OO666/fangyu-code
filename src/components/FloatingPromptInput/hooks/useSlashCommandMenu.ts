@@ -14,7 +14,7 @@ import {
 import { GEMINI_BUILT_IN_SLASH_COMMANDS } from '../geminiSlashCommands';
 
 /** 执行引擎类型 */
-type ExecutionEngine = 'claude' | 'gemini' | 'codex';
+type ExecutionEngine = 'claude' | 'gemini' | 'codex' | 'siliconflow';
 
 interface UseSlashCommandMenuOptions {
   /** 当前输入的文本 */

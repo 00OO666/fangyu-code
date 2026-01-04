@@ -16,6 +16,10 @@ interface DisplayableMessagesOptions {
   hideWarmupMessages?: boolean;
   /** 是否隐藏启动期间的系统警告消息 */
   hideStartupWarnings?: boolean;
+  /** 是否隐藏自动继续消息及其回复 */
+  hideAutoContinueMessages?: boolean;
+  /** 是否显示所有工具结果（即使有专用 Widget） */
+  showAllToolResults?: boolean;
 }
 
 /**
@@ -139,6 +143,10 @@ export function useDisplayableMessages(
   const hideWarmupMessages = options.hideWarmupMessages !== false;
   // 默认隐藏启动警告（undefined 时为 true）
   const hideStartupWarnings = options.hideStartupWarnings !== false;
+  // 默认隐藏自动继续消息（undefined 时为 true）
+  const hideAutoContinueMessages = options.hideAutoContinueMessages !== false;
+  // 默认不显示所有工具结果（undefined 时为 false）
+  const showAllToolResults = options.showAllToolResults === true;
 
   return useMemo(() => {
     // 如果需要隐藏 Warmup，先找到所有 Warmup 消息的索引
@@ -158,25 +166,23 @@ export function useDisplayableMessages(
       });
     }
 
-    // 🆕 隐藏自动继续消息及其回复（始终隐藏，与 hideWarmupMessages 无关）
-    messages.forEach((msg, idx) => {
-      if (isAutoContinueMessage(msg)) {
-        console.log("[useDisplayableMessages] Found auto-continue message at index", idx);
-        autoContinueIndices.add(idx);
-        // 找到紧跟其后的所有消息，直到下一条用户消息（这些都是自动继续的响应）
-        for (let i = idx + 1; i < messages.length; i++) {
-          if (messages[i].type === "user") {
-            // 遇到下一条用户消息，停止
-            break;
-          }
-          autoContinueIndices.add(i);
+    // 🆕 隐藏自动继续消息（可配置）
+    // 🔧 FIX: 只隐藏自动继续消息本身，不隐藏后续的助手回复
+    // 问题：之前的逻辑会隐藏所有后续消息直到下一条用户消息，导致用户看不到 Claude 的输出
+    // 修复：只标记自动继续消息本身，保留所有助手回复
+    if (hideAutoContinueMessages) {
+      messages.forEach((msg, idx) => {
+        if (isAutoContinueMessage(msg)) {
+          autoContinueIndices.add(idx);
+          // ✅ 不再隐藏后续消息，用户可以看到所有 Claude 的输出
         }
-      }
-    });
+      });
+    }
 
     return messages.filter((message, index) => {
-      // 🆕 规则 -1：隐藏自动继续消息及其所有回复（最高优先级）
-      if (autoContinueIndices.has(index)) {
+      // 🆕 规则 -1：隐藏自动继续消息本身（可配置）
+      // 🔧 FIX: 只隐藏标记消息，不影响助手回复
+      if (hideAutoContinueMessages && autoContinueIndices.has(index)) {
         return false;
       }
       // 规则 0：隐藏 Warmup 消息及其回复
@@ -196,43 +202,29 @@ export function useDisplayableMessages(
       if (message.type === "user" && message.message) {
         // 跳过元消息标记的用户消息
         if (message.isMeta) {
-          console.log("[useDisplayableMessages] Filtered out: isMeta user message");
           return false;
         }
 
         const msg = message.message;
 
-        // 🔧 DEBUG: 日志用户消息的 content
-        console.log("[useDisplayableMessages] Processing user message:", {
-          hasContent: !!msg.content,
-          isArray: Array.isArray(msg.content),
-          contentLength: Array.isArray(msg.content) ? msg.content.length : "N/A",
-          content: msg.content,
-        });
-
         // 检查是否有空内容
         if (!msg.content || (Array.isArray(msg.content) && msg.content.length === 0)) {
-          console.log("[useDisplayableMessages] Filtered out: empty content");
           return false;
+        }
+
+        // 🆕 如果启用了显示所有工具结果，跳过工具结果过滤
+        if (showAllToolResults) {
+          return true;
         }
 
         // 检查是否只包含工具结果
         if (Array.isArray(msg.content)) {
           let hasVisibleContent = false;
 
-          // 🔧 DEBUG: 检查每个 content 项
-          msg.content.forEach((content, i) => {
-            console.log(`[useDisplayableMessages] Content item ${i}:`, {
-              type: content.type,
-              text: content.type === "text" ? (content as any).text?.substring(0, 50) : "N/A",
-            });
-          });
-
           for (const content of msg.content) {
             // 如果有文本内容，保留消息
             if (content.type === "text") {
               hasVisibleContent = true;
-              console.log("[useDisplayableMessages] Found text content, will display");
               break;
             }
 
@@ -293,7 +285,6 @@ export function useDisplayableMessages(
 
           // 如果没有可见内容，过滤掉这条消息
           if (!hasVisibleContent) {
-            console.log("[useDisplayableMessages] Filtered out: no visible content");
             return false;
           }
         }
@@ -302,5 +293,5 @@ export function useDisplayableMessages(
       // 其他情况保留消息
       return true;
     });
-  }, [messages, hideWarmupMessages, hideStartupWarnings]);
+  }, [messages, hideWarmupMessages, hideStartupWarnings, hideAutoContinueMessages, showAllToolResults]);
 }

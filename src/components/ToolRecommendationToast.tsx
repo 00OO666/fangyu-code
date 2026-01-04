@@ -110,7 +110,8 @@ export function ToolRecommendationToast({
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 20, scale: 0.95 }}
         transition={{ duration: 0.2 }}
-        className="fixed bottom-4 right-4 z-[9998] w-80 max-w-[calc(100vw-2rem)]"
+        className="fixed bottom-4 right-4 w-80 max-w-[calc(100vw-2rem)]"
+        style={{ zIndex: 'var(--z-toast)' }}
       >
         <div className="bg-background/95 backdrop-blur-xl border rounded-xl shadow-lg overflow-hidden">
           {/* 标题栏 */}

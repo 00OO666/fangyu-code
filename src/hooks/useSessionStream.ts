@@ -122,6 +122,13 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
     onSessionNotFound,
   } = config;
 
+  // 🆕 条件化调试日志（仅在开发环境启用）
+  const debugLog = useCallback((...args: any[]) => {
+    if (import.meta.env.DEV) {
+      console.log(...args);
+    }
+  }, []);
+
   // Internal refs
   const messageQueueRef = useRef<AsyncQueue<ClaudeStreamMessage> | null>(null);
   const loadingSessionIdRef = useRef<string | null>(null);
@@ -417,30 +424,30 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
    * 检查活跃会话
    */
   const checkForActiveSession = useCallback(async () => {
-    console.log("[useSessionStream] 🔍 checkForActiveSession called", { session: session?.id });
+    debugLog("[useSessionStream] 🔍 checkForActiveSession called", { session: session?.id });
 
     if (!session) {
-      console.log("[useSessionStream] ⚠️ No session, skipping check");
+      debugLog("[useSessionStream] ⚠️ No session, skipping check");
       return;
     }
 
     const engine = getEngine();
-    console.log("[useSessionStream] 🔧 Engine:", engine);
+    debugLog("[useSessionStream] 🔧 Engine:", engine);
 
     if (engine === "codex" || engine === "gemini") {
-      console.log("[useSessionStream] ⚠️ Codex/Gemini engine, skipping check");
+      debugLog("[useSessionStream] ⚠️ Codex/Gemini engine, skipping check");
       return;
     }
 
     const currentSessionId = session.id;
 
     try {
-      console.log("[useSessionStream] 📡 Fetching active sessions...");
+      debugLog("[useSessionStream] 📡 Fetching active sessions...");
       const activeSessions = await api.listRunningClaudeSessions();
-      console.log("[useSessionStream] 📊 Active sessions:", activeSessions.length);
+      debugLog("[useSessionStream] 📊 Active sessions:", activeSessions.length);
 
       if (loadingSessionIdRef.current !== currentSessionId) {
-        console.log("[useSessionStream] ⚠️ Session ID mismatch, aborting");
+        debugLog("[useSessionStream] ⚠️ Session ID mismatch, aborting");
         return;
       }
 
@@ -452,18 +459,18 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
       });
 
       if (activeSession) {
-        console.log("[useSessionStream] ✅ Found active session, reconnecting...", activeSession);
+        debugLog("[useSessionStream] ✅ Found active session, reconnecting...", activeSession);
         setClaudeSessionId(session.id);
         await reconnectToSession(session.id);
-        console.log("[useSessionStream] ✅ Reconnected successfully");
+        debugLog("[useSessionStream] ✅ Reconnected successfully");
       } else {
-        console.log("[useSessionStream] ℹ️ No active session found for", session.id);
+        debugLog("[useSessionStream] ℹ️ No active session found for", session.id);
       }
     } catch (err) {
       console.error("[useSessionStream] ❌ Failed to check active sessions:", err);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session, getEngine, setClaudeSessionId]);
+  }, [session, getEngine, setClaudeSessionId, debugLog]);
 
   // 清理（组件卸载时）
   useEffect(() => {

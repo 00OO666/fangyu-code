@@ -39,6 +39,10 @@ interface SessionContextValue {
   onLinkDetected?: (url: string) => void;
   onRevert?: (promptIndex: number, mode: RewindMode) => void;
   getPromptIndexForMessage?: (index: number) => number;
+
+  // 🆕 Thinking Block 状态管理
+  getThinkingOpenState?: (messageId: string) => boolean;
+  onThinkingToggle?: (messageId: string, isOpen: boolean) => void;
 }
 
 const SessionContext = React.createContext<SessionContextValue | undefined>(undefined);
@@ -52,6 +56,8 @@ interface SessionProviderProps {
   onLinkDetected?: (url: string) => void;
   onRevert?: (promptIndex: number, mode: RewindMode) => void;
   getPromptIndexForMessage?: (index: number) => number;
+  getThinkingOpenState?: (messageId: string) => boolean;
+  onThinkingToggle?: (messageId: string, isOpen: boolean) => void;
   children: React.ReactNode;
 }
 
@@ -64,6 +70,8 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
   onLinkDetected,
   onRevert,
   getPromptIndexForMessage,
+  getThinkingOpenState,
+  onThinkingToggle,
   children,
 }) => {
   // ✅ 性能优化: 使用 useMemo 缓存 context 值
@@ -78,6 +86,8 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
       onLinkDetected,
       onRevert,
       getPromptIndexForMessage,
+      getThinkingOpenState,
+      onThinkingToggle,
     }),
     [
       session,
@@ -88,6 +98,8 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
       onLinkDetected,
       onRevert,
       getPromptIndexForMessage,
+      getThinkingOpenState,
+      onThinkingToggle,
     ]
   );
 
