@@ -70,4 +70,9 @@ export default defineConfig(async () => ({
       },
     },
   },
+
+  // Web Worker support
+  worker: {
+    format: "es",
+  },
 }));

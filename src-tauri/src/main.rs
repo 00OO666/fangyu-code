@@ -92,6 +92,11 @@ use commands::window::{
     broadcast_to_session_windows, close_session_window, create_session_window, emit_to_window,
     focus_session_window, list_session_windows, set_titlebar_theme,
 };
+use commands::window_attention::{
+    register_window, update_window_visibility, update_window_focus,
+    delegate_task_to_active_window, report_delegated_task_completion,
+    WindowRegistryState,
+};
 
 use memory_index::{detect_memory_keywords, import_memories};
 
@@ -260,6 +265,11 @@ fn main() {
 
             // Initialize Parallel Agent Manager
             app.manage(GlobalParallelAgentManager(Mutex::new(None)));
+
+            // Initialize Window Registry for attention mechanism
+            app.manage(WindowRegistryState(Mutex::new(
+                commands::window_attention::WindowRegistry::new()
+            )));
 
             // Initialize auto-compact manager for context management
             let auto_compact_manager =
@@ -636,6 +646,12 @@ fn main() {
             emit_to_window,
             broadcast_to_session_windows,
             set_titlebar_theme,
+            // Window Attention Mechanism
+            register_window,
+            update_window_visibility,
+            update_window_focus,
+            delegate_task_to_active_window,
+            report_delegated_task_completion,
             // Google Gemini CLI Integration
             execute_gemini,
             cancel_gemini,

@@ -6,6 +6,7 @@
  */
 
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { invoke } from "@tauri-apps/api/core";
 import { Copy, Minus, PanelLeftClose, Square, X } from "lucide-react";
 import type React from "react";
 import { useEffect, useMemo, useState } from "react";
@@ -20,6 +21,7 @@ import {
   onWindowSyncEvent,
   parseSessionWindowParams,
 } from "@/lib/windowManager";
+import { taskDelegationService } from "@/lib/taskDelegationService";
 
 interface SessionWindowState {
   isLoading: boolean;
@@ -134,6 +136,58 @@ export const SessionWindow: React.FC = () => {
       if (unlisten) unlisten();
     };
   }, [state.tabId]);
+
+  // Register window for attention mechanism
+  useEffect(() => {
+    const window = getCurrentWindow();
+    const windowId = window.label;
+
+    // Register window
+    invoke("register_window", {
+      windowId,
+      sessionId: state.session?.id || null,
+    }).catch(console.error);
+
+    // Update visibility on visibility change
+    const handleVisibilityChange = () => {
+      invoke("update_window_visibility", {
+        windowId,
+        isVisible: !document.hidden,
+      }).catch(console.error);
+    };
+
+    // Update focus on focus/blur
+    const handleFocus = () => {
+      invoke("update_window_focus", {
+        windowId,
+        isFocused: true,
+      }).catch(console.error);
+    };
+
+    const handleBlur = () => {
+      invoke("update_window_focus", {
+        windowId,
+        isFocused: false,
+      }).catch(console.error);
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.listen("focus", handleFocus);
+    window.listen("blur", handleBlur);
+
+    // Listen for delegated tasks
+    const setupTaskListener = async () => {
+      await taskDelegationService.listenForDelegatedTasks((task) => {
+        console.log("[SessionWindow] Received delegated task:", task);
+        // Handle task execution here if needed
+      });
+    };
+    setupTaskListener();
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [state.session?.id]);
 
   // Window control handlers
   const handleCloseWindow = async () => {

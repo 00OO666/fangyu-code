@@ -17,7 +17,7 @@ import { getVersion } from "@tauri-apps/api/app";
 import { useEffect, useState } from "react";
 
 const STORAGE_KEY = "fangyu-code-last-seen-version";
-const FALLBACK_VERSION = "2.2.4"; // 🔧 Fallback 版本（获取失败时使用）
+const FALLBACK_VERSION = "2.2.5"; // 🔧 Fallback 版本（获取失败时使用）
 
 // 🔧 DEBUG: 全局变量用于强制显示更新日志（调试用）
 declare global {
@@ -29,6 +29,27 @@ declare global {
 
 // 版本更新日志（从新到旧）
 export const CHANGELOGS = {
+  "2.2.5": {
+    title: "v2.2.5 - 🎯 多窗口注意力机制",
+    date: "2026-01-04",
+    features: [
+      "🎯 多窗口注意力机制 - 解决后台窗口停止工作的问题",
+      "💓 Web Worker 心跳 - 绕过浏览器 Page Visibility 节流限制",
+      "📡 任务委托系统 - 后台窗口可将任务委托给活跃窗口执行",
+      "🪟 窗口状态指示器 - 实时显示窗口可见性和节流级别",
+    ],
+    improvements: [
+      "🦀 Rust 后端窗口注册表 - 集中管理所有窗口状态",
+      "⚡ 智能任务分发 - 自动选择最活跃的窗口执行任务",
+      "🔍 节流检测 - 三级节流状态（none/light/heavy）精确判断",
+    ],
+    technical: [
+      "windowHeartbeat.worker.ts - Web Worker 心跳检测",
+      "useWindowAttention.ts - 窗口注意力状态 Hook",
+      "taskDelegationService.ts - 跨窗口任务委托服务",
+      "window_attention.rs - Rust 后端窗口管理命令",
+    ],
+  },
   "2.2.4": {
     title: "v2.2.4 - 🚀 功能增强与稳定性优化",
     date: "2026-01-04",

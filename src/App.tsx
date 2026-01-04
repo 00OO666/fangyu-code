@@ -17,6 +17,7 @@ import { useDataMigration } from "@/hooks/useDataMigration";
 import { api } from "@/lib/api";
 import { useConsoleMonitor } from "@/hooks/useConsoleMonitor";
 import { ErrorMonitorPanel } from "@/components/ErrorMonitorPanel";
+import { WindowAttentionIndicator } from "@/components/WindowAttentionIndicator";
 
 /**
  * 主应用组件 - 管理 Claude 目录浏览器界面
@@ -79,6 +80,8 @@ function App() {
                     onClearError={clearError}
                   />
                 )}
+                {/* 窗口注意力状态指示器 */}
+                <WindowAttentionIndicator />
               </PromptQueueProvider>
             </TabProvider>
           </ProjectProvider>
