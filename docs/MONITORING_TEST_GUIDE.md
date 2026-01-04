@@ -116,7 +116,7 @@ testCases.forEach(({ message, expected }) => {
 #### 步骤 1：启动 Fangyu Code
 
 ```bash
-cd F:/Any-Code-Dev
+cd F:/Fangyu-Code-Dev
 npm run tauri:dev
 ```
 
@@ -168,7 +168,7 @@ npm run tauri:dev
 如果要运行单元测试，需要先安装 Vitest：
 
 ```bash
-cd F:/Any-Code-Dev
+cd F:/Fangyu-Code-Dev
 npm install -D vitest @vitest/ui
 ```
 

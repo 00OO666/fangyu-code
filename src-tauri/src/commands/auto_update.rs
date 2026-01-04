@@ -41,7 +41,7 @@ pub fn check_for_updates(app: AppHandle) -> Result<VersionInfo, String> {
     let current_build_time = get_file_modified_time(&current_exe);
 
     // 检测开发目录的最新构建
-    let dev_build_path = PathBuf::from("F:\\Any-Code-Dev\\src-tauri\\target\\debug\\fangyu-code.exe");
+    let dev_build_path = PathBuf::from("F:\\Fangyu-Code-Dev\\src-tauri\\target\\debug\\fangyu-code.exe");
 
     if !dev_build_path.exists() {
         return Ok(VersionInfo {
@@ -76,7 +76,7 @@ pub fn check_for_updates(app: AppHandle) -> Result<VersionInfo, String> {
 /// 重启到新版本
 #[tauri::command]
 pub async fn restart_to_new_version(app: AppHandle) -> Result<(), String> {
-    let dev_build_path = "F:\\Any-Code-Dev\\src-tauri\\target\\debug\\fangyu-code.exe";
+    let dev_build_path = "F:\\Fangyu-Code-Dev\\src-tauri\\target\\debug\\fangyu-code.exe";
 
     if !PathBuf::from(dev_build_path).exists() {
         return Err("开发构建不存在".to_string());
@@ -145,7 +145,7 @@ fn create_desktop_shortcut(target_path: &str) -> Result<(), String> {
         target_path,
         PathBuf::from(target_path)
             .parent()
-            .unwrap_or(&PathBuf::from("F:\\Any-Code-Dev\\src-tauri\\target\\debug"))
+            .unwrap_or(&PathBuf::from("F:\\Fangyu-Code-Dev\\src-tauri\\target\\debug"))
             .to_string_lossy()
     );
 
@@ -188,7 +188,7 @@ fn is_newer_build(current: &Option<String>, latest: &Option<String>) -> bool {
 /// 获取开发版本号
 fn get_dev_version() -> Result<String, String> {
     // 从 tauri.conf.json 读取版本号
-    let config_path = PathBuf::from("F:\\Any-Code-Dev\\src-tauri\\tauri.conf.json");
+    let config_path = PathBuf::from("F:\\Fangyu-Code-Dev\\src-tauri\\tauri.conf.json");
 
     if !config_path.exists() {
         return Err("配置文件不存在".to_string());

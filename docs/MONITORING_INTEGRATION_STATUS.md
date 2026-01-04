@@ -29,7 +29,7 @@
 启动 Fangyu Code 开发模式：
 
 ```bash
-cd F:/Any-Code-Dev
+cd F:/Fangyu-Code-Dev
 npm run tauri:dev
 ```
 
@@ -66,7 +66,7 @@ npm run tauri:dev
 
 ```bash
 # 在项目根目录执行
-cd F:/Any-Code-Dev
+cd F:/Fangyu-Code-Dev
 
 # 检查是否有文件导入了监控服务
 grep -r "useConsoleMonitor" src/ --exclude-dir=node_modules

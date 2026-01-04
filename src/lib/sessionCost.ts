@@ -107,17 +107,7 @@ export function aggregateSessionCost(messages: ClaudeStreamMessage[]): SessionCo
     const key = getBillingKey(message, index);
     const { timestamp, timestampMs } = extractTimestamp(message);
     const model = getModelName(message, engine, sessionDefaultModel);
-
-    // Prioritize cost_usd from Claude CLI (includes Extended Thinking tokens)
-    const actualCostUsd =
-      (message as any).costUSD ??
-      (message as any).totalCostUSD ??
-      (message as any).cost_usd ??
-      (message as any).total_cost_usd;
-    const cost =
-      typeof actualCostUsd === "number" && actualCostUsd > 0
-        ? actualCostUsd
-        : calculateMessageCost(tokens, model, engine);
+    const cost = calculateMessageCost(tokens, model, engine);
 
     const existing = eventMap.get(key);
     if (

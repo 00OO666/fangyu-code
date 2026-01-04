@@ -36,11 +36,11 @@ const STORAGE_KEY = 'fangyu-output-display-settings';
  * 默认显示更多内容，让用户能看到完整的操作过程
  */
 const DEFAULT_SETTINGS: OutputDisplaySettings = {
-  showAllMessages: false,
+  showAllMessages: true,          // ✅ 显示所有消息（包括系统消息、Warmup等）
   showThinkingProcess: true,      // 默认显示思考过程
   showToolResults: true,          // 默认显示工具结果
-  showSystemMessages: false,      // 默认隐藏系统消息
-  showWarmupMessages: false,      // 默认隐藏 Warmup
+  showSystemMessages: true,       // ✅ 显示系统消息
+  showWarmupMessages: true,       // ✅ 显示 Warmup
   showAutoContinueMessages: true, // 🔧 FIX: 默认显示自动继续消息的输出
   showDebugInfo: false,           // 默认隐藏调试信息
   defaultExpandThinking: true,    // 默认展开思考过程

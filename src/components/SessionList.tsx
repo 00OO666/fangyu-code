@@ -492,9 +492,10 @@ export const SessionList: React.FC<SessionListProps> = ({
         aria-live="polite"
       >
         {currentSessions.map((session) => {
+          // 优先显示 first_message 内容，如果没有则显示友好的占位符
           const firstMessagePreview = session.first_message
             ? truncateText(getFirstLine(session.first_message), 80)
-            : session.id;
+            : "未命名会话";  // ✅ 显示友好的占位符而不是 session ID
           const timeDisplay = session.last_message_timestamp
             ? formatISOTimestamp(session.last_message_timestamp)
             : session.message_timestamp

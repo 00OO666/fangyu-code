@@ -162,9 +162,7 @@ export const ClaudeStatusIndicator: React.FC<ClaudeStatusIndicatorProps> = ({
   // Format cost display
   const formatCost = (amount: number): string => {
     if (amount === 0) return '';
-    if (amount < 0.01) {
-      return `$${(amount * 100).toFixed(3)}¢`;
-    }
+    // 统一使用美元符号显示
     return `$${amount.toFixed(4)}`;
   };
 

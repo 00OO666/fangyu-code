@@ -55,6 +55,7 @@ import { ToolRecommendationToast } from "./ToolRecommendationToast";
 import { useToolRecommendation } from "@/hooks/useToolRecommendation";
 import { useMessageDeduplication } from "@/hooks/useMessageDeduplication";
 import { useTokenOptimization } from "@/hooks/useTokenOptimization";
+import { useMessagePersistence } from "@/hooks/useMessagePersistence";
 
 import * as SessionHelpers from '@/lib/sessionHelpers';
 
@@ -143,37 +144,26 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
     warningThreshold: 0.05, // Warn if >5% duplicates
   });
 
-  // 🔥 Token Optimization: Get optimization functions
+  // 🔧 v2.3.1 FIX: 不要在显示层截断消息！
+  // Token 优化应该只在 API 调用时使用，不应该影响显示和保存
+  // 使用完整的去重后消息列表
+  const messages = deduplicatedMessages;
+
+  // 🔥 Token Optimization: Get optimization functions (仅用于 API 调用)
   const { optimizeMessages } = useTokenOptimization();
-
-  // 🔥 Token Optimization: Apply message context optimization
-  const optimizationResult = useMemo(() => {
-    return optimizeMessages(deduplicatedMessages || [], 20);
-  }, [deduplicatedMessages, optimizeMessages]);
-
-  // Use optimized messages for all operations
-  const messages = optimizationResult.messages;
-  const tokensSaved = optimizationResult.estimatedTokensSaved;
-  const messagesExcluded = optimizationResult.excludedCount;
 
   const isLoading = isStreaming;
   const setIsLoading = setIsStreaming;
   const [error, setError] = useState<string | null>(null);
 
-  // 🔥 Token Optimization: Log savings stats
+  // 🔥 Token Optimization: Log deduplication stats
   useEffect(() => {
-    if (rawMessages?.length > 0) {
-      const reductionPercent = rawMessages.length > 0
-        ? (messagesExcluded / rawMessages.length) * 100
-        : 0;
-      console.log(`[Token Optimization] 📊 Stats:
+    if (rawMessages?.length > 0 && duplicateCount > 0) {
+      console.log(`[Token Optimization] 📊 Deduplication Stats:
   - Raw messages: ${rawMessages.length}
-  - After deduplication: ${deduplicatedMessages.length} (removed ${duplicateCount} duplicates, ${(duplicateRate * 100).toFixed(1)}%)
-  - After optimization: ${messages.length} (${reductionPercent.toFixed(1)}% reduction)
-  - Estimated tokens saved: ~${tokensSaved.toLocaleString()}
-  - Cost savings: ~$${(tokensSaved * 0.00005).toFixed(3)} per request`);
+  - After deduplication: ${deduplicatedMessages.length} (removed ${duplicateCount} duplicates, ${(duplicateRate * 100).toFixed(1)}%)`);
     }
-  }, [rawMessages?.length, deduplicatedMessages?.length, messages?.length, duplicateCount, duplicateRate, tokensSaved, messagesExcluded]);
+  }, [rawMessages?.length, deduplicatedMessages?.length, duplicateCount, duplicateRate]);
 
   const [_rawJsonlOutput, setRawJsonlOutput] = useState<string[]>([]); // Kept for hooks, not directly used
   const [isFirstPrompt, setIsFirstPrompt] = useState(!session); // Key state for session continuation
@@ -183,6 +173,13 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   const [sessionNotFound, setSessionNotFound] = useState(false);
   const [claudeSessionId, setClaudeSessionId] = useState<string | null>(null);
   const [codexRateLimits, setCodexRateLimits] = useState<CodexRateLimits | null>(null);
+
+  // 🔧 v2.3.1: 消息持久化 - 解决消息丢失问题
+  const { loadPersistedMessages, persistMessages, clearPersistedMessages } = useMessagePersistence({
+    sessionId: claudeSessionId || '',
+    enabled: !!claudeSessionId,
+    debounceMs: 1000
+  });
 
   // Canvas 实时预览状态
   const [showCanvas, setShowCanvas] = useState(false);
@@ -890,6 +887,26 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
       initializeSession();
     }
   }, [session]); // Remove hasLoadedSession dependency to ensure it runs on mount
+
+  // 🔧 v2.3.1: 自动保存消息到 IndexedDB
+  useEffect(() => {
+    if (messages.length > 0 && claudeSessionId) {
+      persistMessages(messages);
+    }
+  }, [messages, claudeSessionId, persistMessages]);
+
+  // 🔧 v2.3.1: 尝试从 IndexedDB 恢复消息（作为后备方案）
+  // 当 API 加载失败或消息为空时，尝试从本地恢复
+  useEffect(() => {
+    if (claudeSessionId && messages.length === 0) {
+      loadPersistedMessages().then(persistedMessages => {
+        if (persistedMessages.length > 0) {
+          console.log('[MessagePersistence] 从 IndexedDB 恢复了', persistedMessages.length, '条消息');
+          setMessages(persistedMessages);
+        }
+      });
+    }
+  }, [claudeSessionId, messages.length, loadPersistedMessages, setMessages]);
 
   // 🔧 FIX: Reload session history when tab becomes active
   // This fixes the issue where switching between tabs doesn't show messages

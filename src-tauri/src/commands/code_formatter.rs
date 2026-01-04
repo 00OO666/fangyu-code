@@ -10,7 +10,7 @@ use std::process::{Command, Stdio};
 #[tauri::command]
 pub async fn run_biome_format(file_path: String, content: String) -> Result<String, String> {
     let project_root = std::env::var("FANGYU_CODE_PROJECT_ROOT")
-        .unwrap_or_else(|_| "F:\\Any-Code-Dev".to_string());
+        .unwrap_or_else(|_| "F:\\Fangyu-Code-Dev".to_string());
 
     let mut child = Command::new("npx")
         .args(["-y", "@biomejs/biome", "format", "--stdin-file-path", &file_path])

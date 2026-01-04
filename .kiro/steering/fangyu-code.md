@@ -6,7 +6,7 @@ fileMatchPattern: "**/*.{ts,tsx,rs,toml}"
 # Fangyu Code 开发指南
 
 ## 项目信息
-- 项目路径: `F:\Any-Code-Dev`
+- 项目路径: `F:\Fangyu-Code-Dev`
 - 当前版本: v2.2.0
 - GitHub: https://github.com/00OO666/fangyu-code/
 - 技术栈: React 18 + TypeScript + Vite + Tauri 2.x + Rust

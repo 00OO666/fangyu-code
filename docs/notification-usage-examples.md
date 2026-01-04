@@ -73,7 +73,7 @@ function ChatInput() {
 ### 示例 1: MCP 工具开关
 
 ```tsx
-// F:\Any-Code-Dev\src\components\settings\MCPToolsList.tsx
+// F:\Fangyu-Code-Dev\src\components\settings\MCPToolsList.tsx
 import { useGlobalNotify } from '@/hooks/useNotify';
 
 export const MCPToolsList: React.FC = () => {
@@ -106,7 +106,7 @@ export const MCPToolsList: React.FC = () => {
 ### 示例 2: Hook 管理
 
 ```tsx
-// F:\Any-Code-Dev\src\components\settings\HookManager.tsx
+// F:\Fangyu-Code-Dev\src\components\settings\HookManager.tsx
 import { useGlobalNotify } from '@/hooks/useNotify';
 
 export const HookManager: React.FC = () => {
@@ -131,7 +131,7 @@ export const HookManager: React.FC = () => {
 ### 示例 3: 项目记忆创建
 
 ```tsx
-// F:\Any-Code-Dev\src\components\memory\ProjectMemoryPrompt.tsx
+// F:\Fangyu-Code-Dev\src\components\memory\ProjectMemoryPrompt.tsx
 import { useChatNotify } from '@/hooks/useNotify';
 
 export const ProjectMemoryPrompt: React.FC = () => {
@@ -160,7 +160,7 @@ export const ProjectMemoryPrompt: React.FC = () => {
 ### 示例 4: 会话操作
 
 ```tsx
-// F:\Any-Code-Dev\src\components\SessionList.tsx
+// F:\Fangyu-Code-Dev\src\components\SessionList.tsx
 import { useNotify } from '@/hooks/useNotify';
 
 export const SessionList: React.FC = () => {
@@ -230,7 +230,7 @@ export const FileUploader: React.FC = () => {
 ### 示例 1: API 调用
 
 ```tsx
-// F:\Any-Code-Dev\src\lib\api.ts
+// F:\Fangyu-Code-Dev\src\lib\api.ts
 import { notify } from '@/components/notifications';
 
 export async function saveSetting(key: string, value: any) {
@@ -258,7 +258,7 @@ export async function saveSetting(key: string, value: any) {
 ### 示例 2: Tauri 命令调用
 
 ```tsx
-// F:\Any-Code-Dev\src\lib\tauriCommands.ts
+// F:\Fangyu-Code-Dev\src\lib\tauriCommands.ts
 import { invoke } from '@tauri-apps/api/core';
 import { notify } from '@/components/notifications';
 
@@ -281,7 +281,7 @@ export async function selectProjectPath(): Promise<string | null> {
 ### 示例 3: 错误处理器
 
 ```tsx
-// F:\Any-Code-Dev\src\lib\errorHandler.ts
+// F:\Fangyu-Code-Dev\src\lib\errorHandler.ts
 import { notify } from '@/components/notifications';
 
 export function handleApiError(error: any, operation: string) {
@@ -481,7 +481,7 @@ function NotificationDemo() {
 ## 完整示例：设置页面
 
 ```tsx
-// F:\Any-Code-Dev\src\components\settings\SettingsPanel.tsx
+// F:\Fangyu-Code-Dev\src\components\settings\SettingsPanel.tsx
 import React, { useState } from 'react';
 import { useGlobalNotify } from '@/hooks/useNotify';
 import { Button } from '@/components/ui/button';

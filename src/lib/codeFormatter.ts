@@ -75,8 +75,8 @@ async function getProjectRoot(): Promise<string> {
     const cwd = await invoke<string>("get_current_working_directory");
     return cwd;
   } catch {
-    // 备用方案：假设是 Any-Code-Dev 目录
-    return "F:\\Any-Code-Dev";
+    // 备用方案：假设是 Fangyu-Code-Dev 目录
+    return "F:\\Fangyu-Code-Dev";
   }
 }
 

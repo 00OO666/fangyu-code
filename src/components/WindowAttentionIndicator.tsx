@@ -9,7 +9,8 @@ import { useWindowAttention } from '@/hooks/useWindowAttention';
 export function WindowAttentionIndicator() {
   const state = useWindowAttention();
 
-  if (import.meta.env.PROD && state.throttleLevel === 'none') {
+  // 只在有问题时显示（不可见、节流），正常状态不显示
+  if (state.isVisible && state.throttleLevel === 'none') {
     return null;
   }
 
@@ -31,11 +32,6 @@ export function WindowAttentionIndicator() {
     <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2 rounded-lg bg-black/80 px-3 py-2 text-xs text-white backdrop-blur-sm">
       <div className={`h-2 w-2 rounded-full ${getStatusColor()}`} />
       <span>{getStatusText()}</span>
-      {import.meta.env.DEV && (
-        <span className="text-gray-400">
-          ({state.isFocused ? '聚焦' : '失焦'})
-        </span>
-      )}
     </div>
   );
 }

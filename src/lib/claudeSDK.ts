@@ -76,7 +76,7 @@ export class ClaudeSDKService {
   constructor(config: ClaudeSDKConfig = {}) {
     this.config = {
       defaultModel: "claude-3-5-sonnet-20241022",
-      maxTokens: 4000,
+      maxTokens: 8192,  // ✅ 提高到 Claude 的最大输出限制
       temperature: 0.7,
       topP: 1,
       ...config,

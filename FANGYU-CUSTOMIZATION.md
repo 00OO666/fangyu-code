@@ -37,7 +37,7 @@
 - Windows Store 图标系列（30x30 ~ 310x310）
 - `icon-256.png` - 用于生成 ICO
 
-**图标位置**: `F:\Any-Code-Dev\src-tauri\icons\`
+**图标位置**: `F:\Fangyu-Code-Dev\src-tauri\icons\`
 
 ⚠️ **待处理**：
 - `icon.ico` (Windows) - 需要使用在线工具转换或 ImageMagick
@@ -117,7 +117,7 @@
 
 ```bash
 # 1. 进入项目目录
-cd F:\Any-Code-Dev
+cd F:\Fangyu-Code-Dev
 
 # 2. 依赖已安装，无需重新安装
 # npm install  # 已完成
@@ -135,7 +135,7 @@ npm run tauri:build-fast
 ### 构建输出位置
 
 ```
-F:\Any-Code-Dev\src-tauri\target\release\
+F:\Fangyu-Code-Dev\src-tauri\target\release\
 ├── Fangyu Code.exe           # Windows 可执行文件
 └── bundle\
     ├── nsis\
@@ -202,7 +202,7 @@ F:\Any-Code-Dev\src-tauri\target\release\
 
 ## 📦 辅助脚本
 
-**图标生成脚本**: `F:\Any-Code-Dev\generate-icons.mjs`
+**图标生成脚本**: `F:\Fangyu-Code-Dev\generate-icons.mjs`
 - 使用用户 LOGO 生成所有尺寸的 PNG 图标
 - 运行: `node generate-icons.mjs`
 

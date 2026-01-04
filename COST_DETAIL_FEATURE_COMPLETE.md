@@ -53,7 +53,7 @@
 
 1. **启动开发版本**：
    ```bash
-   cd F:\Any-Code-Dev
+   cd F:\Fangyu-Code-Dev
    pnpm tauri dev
    ```
 
@@ -156,10 +156,10 @@ Token 消耗
 
 ## 📚 相关文件
 
-- `F:\Any-Code-Dev\src\components\PromptNavigator.tsx` - 主文件
-- `F:\Any-Code-Dev\apply_cost_detail_patch.py` - 数据结构和逻辑补丁
-- `F:\Any-Code-Dev\apply_tooltip_patch.py` - UI 补丁
-- `F:\Any-Code-Dev\COST_DETAIL_IMPLEMENTATION.md` - 实现指南
+- `F:\Fangyu-Code-Dev\src\components\PromptNavigator.tsx` - 主文件
+- `F:\Fangyu-Code-Dev\apply_cost_detail_patch.py` - 数据结构和逻辑补丁
+- `F:\Fangyu-Code-Dev\apply_tooltip_patch.py` - UI 补丁
+- `F:\Fangyu-Code-Dev\COST_DETAIL_IMPLEMENTATION.md` - 实现指南
 
 ---
 

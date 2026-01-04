@@ -9,7 +9,7 @@
 首先安装所需的 npm 包：
 
 ```bash
-cd F:\Any-Code-Dev
+cd F:\Fangyu-Code-Dev
 
 # 必需依赖
 npm install reactflow dagre uuid framer-motion anser @monaco-editor/react react-markdown react-syntax-highlighter

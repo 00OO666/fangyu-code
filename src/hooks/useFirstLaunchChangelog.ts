@@ -17,7 +17,7 @@ import { getVersion } from "@tauri-apps/api/app";
 import { useEffect, useState } from "react";
 
 const STORAGE_KEY = "fangyu-code-last-seen-version";
-const FALLBACK_VERSION = "2.3.0"; // 🔧 Fallback 版本（获取失败时使用）
+const FALLBACK_VERSION = "2.3.2"; // 🔧 Fallback 版本（获取失败时使用）
 
 // 🔧 DEBUG: 全局变量用于强制显示更新日志（调试用）
 declare global {
@@ -29,6 +29,57 @@ declare global {
 
 // 版本更新日志（从新到旧）
 export const CHANGELOGS = {
+  "2.3.2": {
+    title: "v2.3.2 - 🐛 关键问题修复与调试增强",
+    date: "2026-01-05",
+    features: [
+      "🔍 消息聚合调试 - 添加文本检测调试日志，追踪消息显示问题",
+      "📊 成本显示优化 - 统一使用美元符号格式，修复混合符号显示",
+      "🎯 会话标题优化 - 显示有意义的标题而非技术 ID",
+    ],
+    improvements: [
+      "🔧 修复计费逻辑 - 统一使用本地计算，与 Any Code 保持一致",
+      "🔧 修复任务列表文本重叠 - GFM 复选框样式优化",
+      "🔧 修复输出截断 - maxTokens 提升到 8192（Claude 最大值）",
+      "🔧 优化窗口指示器 - 正常状态不显示浮动指示器",
+      "🔧 优化默认显示 - 所有 Claude Code 输出默认可见",
+    ],
+    technical: [
+      "sessionCost.ts - 移除 API cost 检查，统一本地计算",
+      "typography.css - 添加 GFM task list 样式",
+      "claudeSDK.ts - maxTokens 从 4000 提升到 8192",
+      "ClaudeStatusIndicator.tsx - 统一美元符号格式",
+      "WindowAttentionIndicator.tsx - 只在异常时显示",
+      "SessionList.tsx - 显示 first_message 或\"未命名会话\"",
+      "useOutputDisplaySettings.ts - 默认显示所有内容",
+      "subagentGrouping.ts - 添加文本检测调试日志",
+    ],
+    breaking: [],
+  },
+
+  "2.3.1": {
+    title: "v2.3.1 - 🐛 消息丢失与显示问题修复",
+    date: "2026-01-04",
+    features: [
+      "💾 消息持久化集成 - 修复 v2.3.0 中创建但未集成的 useMessagePersistence Hook",
+      "🔄 自动保存与恢复 - 消息实时保存到 IndexedDB，刷新后自动恢复",
+      "📦 完整保留所有内容 - ThinkingBlock、Tool Results 等所有消息类型完整保存",
+    ],
+    improvements: [
+      "🔧 修复消息丢失问题 - 解决聊天过程中消息突然消失的严重 Bug",
+      "🔧 修复重新进入会话后内容不完整的问题",
+      "⚡ 防抖保存机制 - 1 秒防抖，避免频繁写入影响性能",
+      "🧹 自动清理 - 7 天后自动清理过期会话，节省存储空间",
+    ],
+    technical: [
+      "ClaudeCodeSession.tsx - 集成 useMessagePersistence Hook",
+      "自动保存 - messages 更新时自动保存到 IndexedDB",
+      "自动恢复 - claudeSessionId 变化时尝试从 IndexedDB 恢复",
+      "后备方案 - API 加载失败时从本地恢复消息",
+    ],
+    breaking: [],
+  },
+
   "2.3.0": {
     title: "v2.3.0 - 🎨 输出显示优化与代码重构",
     date: "2026-01-04",

@@ -23,7 +23,7 @@
 ### 步骤 1：启动开发模式
 
 ```bash
-cd F:/Any-Code-Dev
+cd F:/Fangyu-Code-Dev
 npm run tauri:dev
 ```
 
