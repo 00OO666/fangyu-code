@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useTypewriter } from "@/hooks/useTypewriter";
 import { useTranslation } from "@/hooks/useTranslation";
 import { MessageContent } from "./MessageContent";
+import { getGlobalOutputDisplaySettings } from "@/hooks/useOutputDisplaySettings";
 
 interface ThinkingBlockProps {
   content: string;
@@ -27,22 +28,13 @@ export const ThinkingBlock: React.FC<ThinkingBlockProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  // 🆕 支持受控和非受控模式
-  const [localIsOpen, setLocalIsOpen] = useState(true);
+  // 🆕 获取全局设置，控制默认展开状态
+  const globalSettings = getGlobalOutputDisplaySettings();
+
+  // 🆕 支持受控和非受控模式，默认展开状态由全局设置控制
+  const [localIsOpen, setLocalIsOpen] = useState(globalSettings.defaultExpandThinking);
   const isControlled = controlledIsOpen !== undefined && onToggle !== undefined;
   const isOpen = isControlled ? controlledIsOpen : localIsOpen;
-
-  // 🔧 DEBUG: 监控状态变化
-  if (import.meta.env.DEV) {
-    console.log('[ThinkingBlock] Render:', {
-      messageId,
-      isControlled,
-      isOpen,
-      controlledIsOpen,
-      contentLength: content.length,
-      timestamp: new Date().toISOString()
-    });
-  }
 
   const handleToggle = useCallback(() => {
     const newState = !isOpen;
@@ -122,9 +114,9 @@ export const ThinkingBlock: React.FC<ThinkingBlockProps> = ({
           <ChevronDown className={cn("w-3.5 h-3.5 opacity-70 transition-transform duration-300", isOpen ? "rotate-180" : "")} />
         </span>
       </button>
-      <div className={cn("overflow-hidden transition-all duration-300 ease-out motion-reduce:transition-none", isOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0")}>
+      <div className={cn("overflow-hidden transition-all duration-300 ease-out motion-reduce:transition-none", isOpen ? "max-h-none opacity-100" : "max-h-0 opacity-0")}>
         <div className="px-3 pb-3 pt-1" onDoubleClick={handleDoubleClick} title={isTyping ? t('thinking.doubleClickSkip') : undefined}>
-          <div className="text-xs leading-relaxed max-h-[400px] overflow-y-auto scrollbar-thin">{renderContent()}</div>
+          <div className="text-xs leading-relaxed overflow-y-auto scrollbar-thin">{renderContent()}</div>
         </div>
       </div>
     </div>

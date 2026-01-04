@@ -3,15 +3,18 @@
  *
  * 从 ClaudeCodeSession 提取（原 343-403 行）
  * 负责过滤出应该在 UI 中显示的消息
+ *
+ * 🔧 v2.2.6 优化: 支持用户自定义显示设置，让用户能看到完整的大模型输出
  */
 
 import { useMemo } from "react";
 import type { ClaudeStreamMessage } from "@/types/claude";
+import { getGlobalOutputDisplaySettings } from "./useOutputDisplaySettings";
 
 /**
  * 过滤选项
  */
-interface DisplayableMessagesOptions {
+export interface DisplayableMessagesOptions {
   /** 是否隐藏 Warmup 消息及其回复 */
   hideWarmupMessages?: boolean;
   /** 是否隐藏启动期间的系统警告消息 */
@@ -20,6 +23,8 @@ interface DisplayableMessagesOptions {
   hideAutoContinueMessages?: boolean;
   /** 是否显示所有工具结果（即使有专用 Widget） */
   showAllToolResults?: boolean;
+  /** 🆕 是否显示所有消息（覆盖其他过滤规则） */
+  showAllMessages?: boolean;
 }
 
 /**
@@ -139,16 +144,37 @@ export function useDisplayableMessages(
   messages: ClaudeStreamMessage[],
   options: DisplayableMessagesOptions = {},
 ): ClaudeStreamMessage[] {
+  // 🆕 获取全局设置
+  const globalSettings = getGlobalOutputDisplaySettings();
+
+  // 🆕 如果启用了"显示所有消息"，直接返回原始消息（只过滤空消息）
+  const showAllMessages = options.showAllMessages ?? globalSettings.showAllMessages;
+
   // 默认隐藏 Warmup（undefined 时为 true），只有明确设置为 false 时才显示
-  const hideWarmupMessages = options.hideWarmupMessages !== false;
+  // 🔧 FIX: 现在会参考全局设置
+  const hideWarmupMessages = options.hideWarmupMessages ?? !globalSettings.showWarmupMessages;
   // 默认隐藏启动警告（undefined 时为 true）
-  const hideStartupWarnings = options.hideStartupWarnings !== false;
-  // 默认隐藏自动继续消息（undefined 时为 true）
-  const hideAutoContinueMessages = options.hideAutoContinueMessages !== false;
+  const hideStartupWarnings = options.hideStartupWarnings ?? !globalSettings.showSystemMessages;
+  // 🔧 FIX: 默认不隐藏自动继续消息的输出，让用户能看到完整的 AI 响应
+  const hideAutoContinueMessages = options.hideAutoContinueMessages ?? !globalSettings.showAutoContinueMessages;
   // 默认不显示所有工具结果（undefined 时为 false）
-  const showAllToolResults = options.showAllToolResults === true;
+  const showAllToolResults = options.showAllToolResults ?? globalSettings.showToolResults;
 
   return useMemo(() => {
+    // 🆕 如果启用了"显示所有消息"，只过滤空消息
+    if (showAllMessages) {
+      return messages.filter((message) => {
+        // 只过滤完全空的消息
+        if (message.type === "user" && message.message) {
+          const msg = message.message;
+          if (!msg.content || (Array.isArray(msg.content) && msg.content.length === 0)) {
+            return false;
+          }
+        }
+        return true;
+      });
+    }
+
     // 如果需要隐藏 Warmup，先找到所有 Warmup 消息的索引
     const warmupIndices = new Set<number>();
     // 🆕 找到所有自动继续消息的索引
@@ -293,5 +319,5 @@ export function useDisplayableMessages(
       // 其他情况保留消息
       return true;
     });
-  }, [messages, hideWarmupMessages, hideStartupWarnings, hideAutoContinueMessages, showAllToolResults]);
+  }, [messages, showAllMessages, hideWarmupMessages, hideStartupWarnings, hideAutoContinueMessages, showAllToolResults]);
 }

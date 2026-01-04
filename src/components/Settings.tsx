@@ -37,6 +37,7 @@ import { PermissionsSettings } from "./settings/PermissionsSettings";
 import { EnvironmentSettings } from "./settings/EnvironmentSettings";
 import { HooksSettings } from "./settings/HooksSettings";
 import { ConfigManager, ConfigManagerEmbedded } from "./ConfigManager";
+import { OutputDisplaySettings } from "./settings/OutputDisplaySettings";
 
 interface SettingsProps {
   /**
@@ -449,6 +450,7 @@ export const Settings: React.FC<SettingsProps> = ({
             
             {/* General Settings */}
             <TabsContent value="general" className="space-y-6">
+              <OutputDisplaySettings />
               <GeneralSettings
                 settings={settings}
                 updateSetting={updateSetting}

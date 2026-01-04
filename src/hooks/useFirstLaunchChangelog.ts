@@ -17,7 +17,7 @@ import { getVersion } from "@tauri-apps/api/app";
 import { useEffect, useState } from "react";
 
 const STORAGE_KEY = "fangyu-code-last-seen-version";
-const FALLBACK_VERSION = "2.2.5"; // 🔧 Fallback 版本（获取失败时使用）
+const FALLBACK_VERSION = "2.3.0"; // 🔧 Fallback 版本（获取失败时使用）
 
 // 🔧 DEBUG: 全局变量用于强制显示更新日志（调试用）
 declare global {
@@ -29,6 +29,38 @@ declare global {
 
 // 版本更新日志（从新到旧）
 export const CHANGELOGS = {
+  "2.3.0": {
+    title: "v2.3.0 - 🎨 输出显示优化与代码重构",
+    date: "2026-01-04",
+    features: [
+      "👁️ 输出显示控制 - 新增设置面板，完全控制大模型输出的显示方式",
+      "🔓 默认展开所有内容 - ThinkingBlock 和 ToolCallsGroup 默认展开，无高度限制",
+      "💾 消息持久化 - IndexedDB 存储，刷新后自动恢复聊天记录（最多 500 条）",
+      "✂️ 上下文管理 - 智能截断和摘要，优化 Token 消耗（默认 100K tokens）",
+      "📦 代码模块化 - usePromptExecution 拆分为独立模块，降低复杂度",
+    ],
+    improvements: [
+      "🎛️ 8 项显示选项 - 控制思考过程、工具结果、系统消息等的显示",
+      "⚡ localStorage 存储 - 设置即时生效，无需保存到配置文件",
+      "🧹 自动清理 - 7 天后自动清理过期会话，节省存储空间",
+      "📊 Token 估算 - 粗略估算消息 token 数（1 token ≈ 4 字符）",
+      "🔧 类型安全 - 提取类型定义和工具函数，提高代码可维护性",
+    ],
+    technical: [
+      "useOutputDisplaySettings.ts - 输出显示设置 Hook（localStorage 持久化）",
+      "useMessagePersistence.ts - IndexedDB 消息持久化 Hook（防抖保存）",
+      "useContextManager.ts - 上下文截断和摘要 Hook（智能窗口管理）",
+      "OutputDisplaySettings.tsx - 设置面板组件（8 项开关控制）",
+      "usePromptExecution/ - 模块化目录（types.ts + utils.ts + index.ts）",
+      "ThinkingBlock.tsx - 移除 max-h-[500px] 限制，默认展开",
+      "ToolCallsGroup.tsx - 默认展开，支持全局设置控制",
+    ],
+    breaking: [
+      "⚠️ 显示行为变化 - 默认展开所有内容，可能影响滚动体验",
+      "⚠️ 存储占用增加 - IndexedDB 存储最多 500 条消息/会话",
+    ],
+  },
+
   "2.2.5": {
     title: "v2.2.5 - 🎯 多窗口注意力机制",
     date: "2026-01-04",

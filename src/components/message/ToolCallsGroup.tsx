@@ -3,7 +3,7 @@
  *
  * 基于工具注册中心的插件化架构
  * 支持批量管理工具调用，提供折叠/展开功能
- * 当工具数量 >= 3 时默认折叠，显示摘要信息
+ * 🔧 v2.2.6: 默认展开所有工具调用，让用户能看到完整执行过程
  */
 
 import React, { memo, useState, useMemo, useRef, useEffect } from 'react';
@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils';
 import { toolRegistry } from '@/lib/toolRegistry';
 import { useToolResults } from '@/hooks/useToolResults';
 import { useTranslation } from '@/hooks/useTranslation';
+import { getGlobalOutputDisplaySettings } from '@/hooks/useOutputDisplaySettings';
 import type { ClaudeStreamMessage } from '@/types/claude';
 import type { ToolResultEntry } from '@/contexts/MessagesContext';
 
@@ -61,8 +62,11 @@ export const ToolCallsGroup: React.FC<ToolCallsGroupProps> = ({
 
   const { getResultById, getStatusById } = useToolResults();
 
-  // 自动判断是否应该折叠
-  const shouldCollapse = defaultCollapsed ?? toolCalls.length >= collapseThreshold;
+  // 🆕 获取全局设置，决定默认展开状态
+  const globalSettings = getGlobalOutputDisplaySettings();
+
+  // 🔧 v2.2.6: 默认展开工具调用
+  const shouldCollapse = defaultCollapsed ?? (globalSettings.showToolResults ? false : toolCalls.length >= collapseThreshold);
   const [isCollapsed, setIsCollapsed] = useState(shouldCollapse);
 
   // 计算工具执行统计
