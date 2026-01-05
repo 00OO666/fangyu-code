@@ -153,12 +153,18 @@ function getTechnicalMessageType(message: ClaudeStreamMessage): "tool" | "thinki
     } else if (item.type === "tool_use" || item.type === "tool_result") {
       hasTool = true;
     } else if (item.type === "text") {
-      if (item.text && item.text.trim().length > 0) {
+      // 🔧 更激进的文本检测：只有真正有内容的文本才算
+      const text = item.text || '';
+      const trimmedText = text.trim();
+      // 忽略空白、仅包含标签的文本（如 <thinking></thinking>）
+      const hasRealContent = trimmedText.length > 0 &&
+                            !trimmedText.match(/^<\/?[a-z_]+>$/i);
+      if (hasRealContent) {
         hasText = true;
         // 🔍 DEBUG: 记录包含文本的消息
         console.log('[subagentGrouping] Message has text content:', {
           uuid: message.uuid,
-          textPreview: item.text.substring(0, 100),
+          textPreview: trimmedText.substring(0, 100),
           hasThinking,
           hasTool
         });
