@@ -286,9 +286,13 @@ const AIMessageComponent: React.FC<AIMessageProps> = ({
 
 // 使用 React.memo 优化性能，避免不必要的重渲染
 export const AIMessage = React.memo(AIMessageComponent, (prevProps, nextProps) => {
-  // 自定义比较函数：只在关键 props 变化时才重新渲染
+  // 自定义比较函数：返回 true 表示 props 相同，不需要重新渲染
+  // 返回 false 表示 props 不同，需要重新渲染
+  const messageId = (prevProps.message as any).uuid || (prevProps.message as any).id;
+  const nextMessageId = (nextProps.message as any).uuid || (nextProps.message as any).id;
+
   return (
-    prevProps.message === nextProps.message &&
+    messageId === nextMessageId &&
     prevProps.isStreaming === nextProps.isStreaming &&
     prevProps.className === nextProps.className &&
     prevProps.onLinkDetected === nextProps.onLinkDetected
