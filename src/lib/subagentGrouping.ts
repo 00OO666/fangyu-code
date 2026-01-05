@@ -156,26 +156,11 @@ function getTechnicalMessageType(message: ClaudeStreamMessage): "tool" | "thinki
       if (item.text && item.text.trim().length > 0) {
         hasText = true;
       }
-      // 🔧 DEBUG: 记录文本内容
-      if (import.meta.env.DEV && item.text) {
-        console.log('[getTechnicalMessageType] Text content:', {
-          raw: item.text,
-          trimmed: item.text.trim(),
-          length: item.text.length,
-          trimmedLength: item.text.trim().length,
-          hasText
-        });
-      }
     }
   });
 
   // 如果包含可见文本，不可聚合
-  if (hasText) {
-    if (import.meta.env.DEV) {
-      console.log('[getTechnicalMessageType] Message has text, not aggregatable');
-    }
-    return null;
-  }
+  if (hasText) return null;
 
   // 如果既有 Thinking 又有 Tool，作为混合类型（通常优先视为 Tool 组或独立处理，根据需求这里可以返回 tool 以允许合并，或者 null 以打断）
   // 用户希望 Thinking 和 Tool 分离。

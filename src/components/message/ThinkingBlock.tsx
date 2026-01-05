@@ -93,30 +93,40 @@ export const ThinkingBlock: React.FC<ThinkingBlockProps> = ({
 
   return (
     <div
-      className="border-l-2 rounded-md overflow-hidden my-2 shadow-sm"
+      className="inline-block border-l-2 rounded-md overflow-hidden shadow-sm"
       style={{
-        borderLeftColor: 'color-mix(in srgb, rgb(245 158 11) 40%, transparent)',
-        background: 'linear-gradient(to right, color-mix(in srgb, rgb(245 158 11) 8%, transparent), transparent)'
+        borderLeftColor: 'color-mix(in srgb, rgb(245 158 11) 40%, transparent)'
       }}
     >
       <button
         onClick={handleToggle}
-        className="w-full cursor-pointer px-3 py-2.5 text-xs text-amber-700 dark:text-amber-300 font-medium transition-all duration-200 select-none flex items-center gap-2 outline-none text-left"
+        className="cursor-pointer px-2 py-1.5 text-[10px] text-amber-700 dark:text-amber-300 font-medium transition-all duration-200 select-none flex items-center gap-1.5 outline-none text-left rounded-md"
         style={{ backgroundColor: 'transparent' }}
         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'color-mix(in srgb, rgb(245 158 11) 15%, transparent)'}
         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
       >
-        <BrainCircuit className="w-3.5 h-3.5 opacity-80" />
-        <span className="font-semibold">Thinking Process</span>
-        {isTyping && <span className="inline-block w-1.5 h-3 bg-amber-500 animate-pulse rounded-full" />}
-        <span className="ml-auto flex items-center gap-2">
-          <span className="text-[10px] opacity-70 font-mono">{content.length} chars</span>
-          <ChevronDown className={cn("w-3.5 h-3.5 opacity-70 transition-transform duration-300", isOpen ? "rotate-180" : "")} />
-        </span>
+        <BrainCircuit className="w-3 h-3 opacity-80" />
+        <span className="font-medium">Thinking Process</span>
+        {isTyping && (
+          <span className="inline-flex gap-0.5">
+            <span className="inline-block w-1 h-1 bg-amber-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+            <span className="inline-block w-1 h-1 bg-amber-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+            <span className="inline-block w-1 h-1 bg-amber-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+          </span>
+        )}
+        <span className="text-[9px] opacity-70 font-mono">{content.length} chars</span>
+        <ChevronDown className={cn("w-3 h-3 opacity-70 transition-transform duration-300", isOpen ? "rotate-180" : "")} />
       </button>
       <div className={cn("overflow-hidden transition-all duration-300 ease-out motion-reduce:transition-none", isOpen ? "max-h-none opacity-100" : "max-h-0 opacity-0")}>
-        <div className="px-3 pb-3 pt-1" onDoubleClick={handleDoubleClick} title={isTyping ? t('thinking.doubleClickSkip') : undefined}>
-          <div className="text-xs leading-relaxed overflow-y-auto scrollbar-thin">{renderContent()}</div>
+        <div
+          className="px-2 pb-2 pt-0.5"
+          style={{
+            background: 'linear-gradient(to right, color-mix(in srgb, rgb(245 158 11) 8%, transparent), transparent)'
+          }}
+          onDoubleClick={handleDoubleClick}
+          title={isTyping ? t('thinking.doubleClickSkip') : undefined}
+        >
+          <div className="text-[10px] leading-tight overflow-y-auto scrollbar-thin">{renderContent()}</div>
         </div>
       </div>
     </div>

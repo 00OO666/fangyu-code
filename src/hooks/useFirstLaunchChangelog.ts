@@ -17,7 +17,7 @@ import { getVersion } from "@tauri-apps/api/app";
 import { useEffect, useState } from "react";
 
 const STORAGE_KEY = "fangyu-code-last-seen-version";
-const FALLBACK_VERSION = "2.3.2"; // 🔧 Fallback 版本（获取失败时使用）
+const FALLBACK_VERSION = "2.3.3"; // 🔧 Fallback 版本（获取失败时使用）
 
 // 🔧 DEBUG: 全局变量用于强制显示更新日志（调试用）
 declare global {
@@ -29,6 +29,29 @@ declare global {
 
 // 版本更新日志（从新到旧）
 export const CHANGELOGS = {
+  "2.3.3": {
+    title: "v2.3.3 - 🎨 UI 优化与消息显示修复",
+    date: "2026-01-05",
+    features: [
+      "🎨 AI 消息布局重设计 - 单列紧凑布局，Logo + 名称 + 时间同行显示",
+      "✨ Thinking Process 优化 - 自适应宽度，背景分离，更紧凑的显示",
+      "🔧 消息去重修复 - 修复 thinking 内容在流式更新时丢失的问题",
+    ],
+    improvements: [
+      "📐 更紧凑的文本行距 - 从 leading-relaxed 改为 leading-snug",
+      "🎯 按钮交互优化 - Thinking Process 按钮自适应内容宽度",
+      "🎨 背景显示优化 - 折叠时无背景，展开时显示淡黄色渐变",
+      "💫 思考动画 - 添加三个跳动的圆点动画指示思考状态",
+    ],
+    technical: [
+      "AIMessage.tsx - 移除两列布局，改为单列内联 header",
+      "ThinkingBlock.tsx - inline-block 容器，按钮移除 w-full",
+      "useMessageDeduplication.ts - 合并 content 数组保留 thinking 块",
+      "字体大小 - Thinking Process 降至 10px，更紧凑",
+    ],
+    breaking: [],
+  },
+
   "2.3.2": {
     title: "v2.3.2 - 🐛 关键问题修复与调试增强",
     date: "2026-01-05",

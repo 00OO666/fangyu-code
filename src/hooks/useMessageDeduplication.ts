@@ -74,8 +74,35 @@ export function useMessageDeduplication(
       const id = getMessageId(msg);
 
       if (id) {
-        // 有 ID 的消息：使用 Map 去重
-        messageMap.set(id, msg);
+        // 有 ID 的消息：使用 Map 去重，并合并 content
+        const existingMsg = messageMap.get(id);
+
+        if (existingMsg && existingMsg.message?.content && msg.message?.content) {
+          // 🔧 FIX: 合并 content 数组，保留 thinking 块
+          const existingContent = Array.isArray(existingMsg.message.content) ? existingMsg.message.content : [];
+          const newContent = Array.isArray(msg.message.content) ? msg.message.content : [];
+
+          // 检查是否有 thinking 块需要保留
+          const existingThinking = existingContent.filter((item: any) => item.type === 'thinking');
+          const newThinking = newContent.filter((item: any) => item.type === 'thinking');
+
+          // 如果旧消息有 thinking 但新消息没有，需要合并
+          if (existingThinking.length > 0 && newThinking.length === 0) {
+            messageMap.set(id, {
+              ...msg,
+              message: {
+                ...msg.message,
+                content: [...existingThinking, ...newContent]
+              }
+            });
+          } else {
+            // 否则使用新消息（新消息更完整）
+            messageMap.set(id, msg);
+          }
+        } else {
+          // 没有 content 或第一次遇到，直接设置
+          messageMap.set(id, msg);
+        }
       } else {
         // 没有 ID 的消息：直接保留（可能是临时消息）
         messagesWithoutId.push(msg);

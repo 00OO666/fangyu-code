@@ -267,72 +267,60 @@ export const AIMessage: React.FC<AIMessageProps> = ({
   return (
     <div className={cn("relative group", className)}>
       <MessageBubble variant="assistant">
-        <div className="flex gap-4 items-start">
-          {/* Left Column: Avatar with Tooltip */}
-          <TooltipProvider delayDuration={300}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="flex-shrink-0 mt-0.5 select-none cursor-default">
-                  <div className="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-muted/50 transition-colors">
-                    <Icon className={cn(isGeminiMessage || isCodexMessage ? "w-4 h-4" : "w-5 h-5")} />
-                  </div>
-                </div>
-              </TooltipTrigger>
-              {tooltipParts.length > 0 && (
-                <TooltipContent side="right" className="text-[11px]">
-                  <div className="flex flex-col gap-0.5">
-                    <span className="font-medium">{assistantName}</span>
-                    {formattedTime && <span className="text-muted-foreground">{formattedTime}</span>}
-                    {tokenStats && <span className="font-mono text-muted-foreground">{tokenStats}</span>}
-                  </div>
-                </TooltipContent>
-              )}
-            </Tooltip>
-          </TooltipProvider>
-
-          {/* Right Column: Content */}
-          <div className="flex-1 min-w-0 space-y-1 relative">
-            {/* Actions Toolbar - Visible on Hover */}
-            <div className="absolute -top-2 right-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-              <MessageActions content={text || thinkingContent} />
-            </div>
-
-            {/* Main Content */}
-            <div className="space-y-3">
-              {text && (
-                <div className="prose prose-neutral dark:prose-invert max-w-none leading-relaxed text-sm">
-                  <MessageContent
-                    content={text}
-                    isStreaming={enableTypewriter && !hasTools && !hasThinking}
-                    enableTypewriter={enableTypewriter && !hasTools && !hasThinking}
-                  />
-                </div>
-              )}
-
-              {/* Thinking Block */}
-              {hasThinking && thinkingContent && (
-                <ThinkingBlock
-                  content={thinkingContent}
-                  isStreaming={enableTypewriter}
-                  autoCollapseDelay={2500}
-                  messageId={messageId}
-                  isOpen={getThinkingOpenState?.(messageId)}
-                  onToggle={(isOpen) => onThinkingToggle?.(messageId, isOpen)}
-                />
-              )}
-
-              {/* Tool Calls */}
-              {hasTools && (
-                <div className="mt-2">
-                  <ToolCallsGroup
-                    message={message}
-                    onLinkDetected={onLinkDetected}
-                  />
-                </div>
-              )}
-            </div>
-          </div>
+        {/* Header: Logo + Name + Time */}
+        <div className="flex items-center gap-2 mb-2">
+          <Icon className={cn(isGeminiMessage || isCodexMessage ? "w-4 h-4" : "w-5 h-5", "flex-shrink-0")} />
+          <span className="font-semibold text-base">{assistantName}</span>
+          {formattedTime && (
+            <span className="text-xs text-muted-foreground">{formattedTime}</span>
+          )}
         </div>
+
+        {/* Actions Toolbar - Visible on Hover */}
+        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+          <MessageActions content={text || thinkingContent} />
+        </div>
+
+        {/* Content: All left-aligned, no left padding */}
+        <div className="space-y-2">
+          {/* Thinking Block - Compact */}
+          {hasThinking && thinkingContent && (
+            <ThinkingBlock
+              content={thinkingContent}
+              isStreaming={enableTypewriter}
+              autoCollapseDelay={2500}
+              messageId={messageId}
+              isOpen={getThinkingOpenState?.(messageId)}
+              onToggle={(isOpen) => onThinkingToggle?.(messageId, isOpen)}
+            />
+          )}
+
+          {/* Main Text Content - Compact */}
+          {text && (
+            <div className="prose prose-neutral dark:prose-invert max-w-none text-sm leading-snug">
+              <MessageContent
+                content={text}
+                isStreaming={enableTypewriter && !hasTools && !hasThinking}
+                enableTypewriter={enableTypewriter && !hasTools && !hasThinking}
+              />
+            </div>
+          )}
+
+          {/* Tool Calls */}
+          {hasTools && (
+            <ToolCallsGroup
+              message={message}
+              onLinkDetected={onLinkDetected}
+            />
+          )}
+        </div>
+
+        {/* Token Stats - Bottom right corner */}
+        {tokenStats && (
+          <div className="text-[10px] text-muted-foreground font-mono mt-2 text-right">
+            {tokenStats}
+          </div>
+        )}
       </MessageBubble>
     </div>
   );
