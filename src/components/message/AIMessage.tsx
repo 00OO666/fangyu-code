@@ -193,10 +193,11 @@ const AIMessageComponent: React.FC<AIMessageProps> = ({
   // isStreaming=true 表示：当前是最后一条消息 && 会话正在进行中
   const enableTypewriter = isStreaming;
 
-  // 如果既没有文本又没有工具调用又没有思考块，不渲染
-  if (!text && !hasTools && !hasThinking) {
-    return null;
-  }
+  // 🔍 DEBUG: 暂时注释掉空消息过滤，看看是否有消息被误判
+  // if (!text && !hasTools && !hasThinking) {
+  //   console.log('[AIMessage] ⚠️ Skipping empty message:', messageId);
+  //   return null;
+  // }
 
   // 提取 tokens 统计
   const tokenStats = message.message?.usage ? (() => {
