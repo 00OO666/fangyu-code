@@ -166,11 +166,24 @@ const AIMessageComponent: React.FC<AIMessageProps> = ({
   const hasThinking = hasThinkingBlock(message);
   const thinkingContent = hasThinking ? extractThinkingContent(message) : '';
 
+  // 🔍 DEBUG: 记录渲染信息
+  const messageId = (message as any).uuid || (message as any).id || '';
+  if (messageId) {
+    console.log('[AIMessage] Rendering:', {
+      uuid: messageId,
+      hasText: !!text,
+      textLength: text?.length || 0,
+      textPreview: text?.substring(0, 100),
+      hasTools,
+      hasThinking,
+      contentType: typeof message.message?.content,
+      contentIsArray: Array.isArray(message.message?.content),
+      contentLength: Array.isArray(message.message?.content) ? message.message.content.length : 0
+    });
+  }
+
   // 🆕 从 SessionContext 获取 Thinking 状态管理函数
   const { getThinkingOpenState, onThinkingToggle } = useSession();
-
-  // 获取消息 ID（用于状态管理）
-  const messageId = (message as any).uuid || (message as any).id || '';
 
   // Detect engine type for avatar styling
   const isCodexMessage = (message as any).engine === 'codex';
