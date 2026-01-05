@@ -360,6 +360,22 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
           try {
             if (!isMountedRef.current) return;
 
+            // 🔍 DEBUG: 记录原始消息
+            try {
+              const parsed = JSON.parse(event.payload);
+              if (parsed.type === 'assistant' && parsed.message?.content) {
+                const hasText = parsed.message.content.some((item: any) => item.type === 'text');
+                console.log('[useSessionStream] 📨 Received assistant message:', {
+                  uuid: parsed.uuid,
+                  hasText,
+                  contentTypes: parsed.message.content.map((item: any) => item.type),
+                  rawPayload: event.payload.substring(0, 500)
+                });
+              }
+            } catch (e) {
+              // Ignore parsing errors in debug code
+            }
+
             // 使用统一的转换器注册中心
             const result = converterRegistry.convertLine(event.payload, engine);
             if (result.message) {
