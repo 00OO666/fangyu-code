@@ -141,7 +141,15 @@ function getTechnicalMessageType(message: ClaudeStreamMessage): "tool" | "thinki
   if (message.type !== "assistant") return null;
 
   const content = message.message?.content;
-  if (!Array.isArray(content)) return null;
+  if (!Array.isArray(content)) {
+    console.log('[subagentGrouping] ⚠️ Content is not array:', {
+      uuid: message.uuid,
+      type: message.type,
+      contentType: typeof content,
+      content: content
+    });
+    return null;
+  }
 
   let hasThinking = false;
   let hasTool = false;
@@ -218,6 +226,8 @@ function getTechnicalMessageType(message: ClaudeStreamMessage): "tool" | "thinki
  * 当 Claude 在一条消息中并行调用多个子代理时，每个 Task 都应该被正确分组
  */
 export function groupMessages(messages: ClaudeStreamMessage[]): MessageGroup[] {
+  console.log('[subagentGrouping] 🔍 Starting groupMessages with', messages.length, 'messages');
+
   const processedIndices = new Set<number>();
 
   // 第一遍：识别所有 Task 工具调用
