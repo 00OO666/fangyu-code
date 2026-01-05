@@ -17,7 +17,7 @@ import { getVersion } from "@tauri-apps/api/app";
 import { useEffect, useState, useRef } from "react";
 
 const STORAGE_KEY = "fangyu-code-last-seen-version";
-const FALLBACK_VERSION = "2.3.5"; // 🔧 Fallback 版本（获取失败时使用）
+const FALLBACK_VERSION = "2.3.6"; // 🔧 Fallback 版本（获取失败时使用）
 
 // 🔧 DEBUG: 全局变量用于强制显示更新日志（调试用）
 declare global {
@@ -29,6 +29,28 @@ declare global {
 
 // 版本更新日志（从新到旧）
 export const CHANGELOGS = {
+  "2.3.6": {
+    title: "v2.3.6 - 🎨 极致紧凑布局优化",
+    date: "2026-01-05",
+    features: [
+      "🎨 消息间距大幅缩减 - 从 12px 降至 6px，屏幕利用率提升 40-50%",
+      "⚡ 工具调用框超紧凑 - 间距从 6px 降至 2px，几乎紧挨着",
+      "📏 内容块间距优化 - 从 6px 降至 4px，更紧密的排列",
+      "🔧 Thinking Process 更紧凑 - 减少内边距和行高，节省空间",
+    ],
+    improvements: [
+      "🎯 极致空间利用 - 所有元素间距缩到最小，最大化内容显示",
+      "📊 更多内容可见 - 每屏可显示更多消息和工具调用",
+      "✨ 保持可读性 - 在紧凑的同时保持良好的视觉层次",
+    ],
+    technical: [
+      "MessageBubble - mb-3→mb-1.5 (消息间距)",
+      "AIMessage - mb-1.5→mb-1, space-y-1.5→space-y-1",
+      "ToolCallsGroup - my-1.5→my-0.5, space-y-1.5→space-y-1",
+      "ThinkingBlock - px-2→px-1.5, py-1.5→py-1, leading-tight→leading-[1.3]",
+    ],
+    breaking: [],
+  },
   "2.3.5": {
     title: "v2.3.5 - 🔧 版本更新组件优化",
     date: "2026-01-05",
