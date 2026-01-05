@@ -17,7 +17,7 @@ import { getVersion } from "@tauri-apps/api/app";
 import { useEffect, useState } from "react";
 
 const STORAGE_KEY = "fangyu-code-last-seen-version";
-const FALLBACK_VERSION = "2.3.4"; // 🔧 Fallback 版本（获取失败时使用）
+const FALLBACK_VERSION = "2.3.5"; // 🔧 Fallback 版本（获取失败时使用）
 
 // 🔧 DEBUG: 全局变量用于强制显示更新日志（调试用）
 declare global {
@@ -29,6 +29,23 @@ declare global {
 
 // 版本更新日志（从新到旧）
 export const CHANGELOGS = {
+  "2.3.5": {
+    title: "v2.3.5 - 🔧 版本更新组件优化",
+    date: "2026-01-05",
+    features: [
+      "🔧 修复版本更新弹窗重复显示 - 添加 hasCheckedRef 确保只检查一次",
+      "⚡ FirstLaunchChangelogDialog 性能优化 - 添加 React.memo 避免不必要渲染",
+    ],
+    improvements: [
+      "🎯 单次版本检查 - 使用 ref 防止组件重新挂载时重复检查",
+      "📊 减少重复渲染 - 优化对话框组件，提升用户体验",
+    ],
+    technical: [
+      "useFirstLaunchChangelog - 添加 hasCheckedRef 防止重复执行",
+      "FirstLaunchChangelogDialog - 添加 React.memo 包装",
+    ],
+    breaking: [],
+  },
   "2.3.4": {
     title: "v2.3.4 - ⚡ 性能优化 - 修复无限重渲染",
     date: "2026-01-05",
@@ -651,12 +668,20 @@ export const useFirstLaunchChangelog = () => {
   const [changelog, setChangelog] = useState<ChangelogData | null>(null);
   const [currentVersion, setCurrentVersion] = useState<string>(FALLBACK_VERSION);
 
+  // 使用 ref 确保只检查一次
+  const hasCheckedRef = useRef(false);
+
   useEffect(() => {
+    // 防止重复检查
+    if (hasCheckedRef.current) return;
+    hasCheckedRef.current = true;
+
     checkFirstLaunch();
 
     // 🔧 DEBUG: 注册全局函数用于调试
     window.__resetChangelogVersion = () => {
       localStorage.removeItem(STORAGE_KEY);
+      hasCheckedRef.current = false;
       console.log("[Changelog] Reset complete. Reload page to test.");
     };
   }, []);

@@ -31,7 +31,7 @@ interface FirstLaunchChangelogDialogProps {
   changelog: ChangelogData | null;
 }
 
-export const FirstLaunchChangelogDialog: React.FC<FirstLaunchChangelogDialogProps> = ({
+export const FirstLaunchChangelogDialog: React.FC<FirstLaunchChangelogDialogProps> = React.memo(({
   open,
   onClose,
   changelog,
@@ -141,6 +141,6 @@ export const FirstLaunchChangelogDialog: React.FC<FirstLaunchChangelogDialogProp
       </DialogContent>
     </Dialog>
   );
-};
+});
 
 export default FirstLaunchChangelogDialog;
