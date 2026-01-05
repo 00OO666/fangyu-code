@@ -17,7 +17,7 @@ import { getVersion } from "@tauri-apps/api/app";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const STORAGE_KEY = "fangyu-code-last-seen-version";
-const FALLBACK_VERSION = "2.4.0"; // 🔧 Fallback 版本（获取失败时使用）
+const FALLBACK_VERSION = "2.4.1"; // 🔧 Fallback 版本（获取失败时使用）
 
 // 🔧 DEBUG: 全局变量用于强制显示更新日志（调试用）
 declare global {
@@ -29,6 +29,25 @@ declare global {
 
 // 版本更新日志（从新到旧）
 export const CHANGELOGS = {
+  "2.4.1": {
+    title: "v2.4.1 - 🔧 样式修复与统计增强",
+    date: "2026-01-06",
+    features: [
+      "🔧 修复 styles.css 导入问题 - 从 git stash 恢复样式文件",
+      "📊 提示词导航底部统计增强 - 显示提示词总数、提示词总费用、会话总费用",
+      "💰 提示词费用计算优化 - 包含用户消息本身的 token 费用",
+    ],
+    improvements: [
+      "✅ 样式系统恢复正常 - Tailwind CSS 和模块化样式正确加载",
+      "✅ 费用统计更准确 - 每条提示词费用包含发送和响应的完整成本",
+      "✅ 底部统计信息完整 - 一目了然查看会话费用概况",
+    ],
+    technical: [
+      "恢复 src/styles.css 文件（包含 Tailwind 和模块化样式导入）",
+      "在 PromptNavigator 中添加 promptsTotalCost 和 sessionTotalCost 计算",
+      "使用 aggregateSessionCost 统一计算会话总费用",
+    ],
+  },
   "2.4.0": {
     title: "v2.4.0 - 🎯 代码质量全面提升",
     date: "2026-01-06",

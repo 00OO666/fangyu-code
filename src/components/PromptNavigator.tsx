@@ -6,6 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { calculateMessageCost, formatCost as formatCostUtil } from "@/lib/pricing";
+import { aggregateSessionCost } from "@/lib/sessionCost";
 import { tokenExtractor } from "@/lib/tokenExtractor";
 import type { ClaudeStreamMessage } from "@/types/claude";
 
@@ -451,6 +452,17 @@ export const PromptNavigator: React.FC<PromptNavigatorProps> = ({
     // 倒序排列：最新的指令排在最上方
     return items.reverse();
   }, [messages, lastMessagesCostSignal]);  // 🔧 FIX: 使用 lastMessagesCostSignal 追踪最新消息费用变化
+
+  // 计算提示词总费用和会话总费用
+  const promptsTotalCost = useMemo(() => {
+    return prompts.reduce((sum, item) => sum + (item.cost || 0), 0);
+  }, [prompts]);
+
+  const sessionTotalCost = useMemo(() => {
+    if (messages.length === 0) return 0;
+    const aggregation = aggregateSessionCost(messages);
+    return aggregation.totals.totalCost;
+  }, [messages]);
 
   // 过滤后的提示词
   const filteredPrompts = useMemo(() => {
@@ -993,11 +1005,15 @@ export const PromptNavigator: React.FC<PromptNavigatorProps> = ({
               </div>
 
               {/* 统计信息 */}
-              <div className="text-xs text-muted-foreground">
+              <div className="text-xs text-muted-foreground flex items-center gap-3">
                 {searchQuery ? (
                   <span>找到 {filteredPrompts.length} 条</span>
                 ) : (
-                  <span>共 {prompts.length} 个提示词</span>
+                  <>
+                    <span>共 {prompts.length} 个提示词</span>
+                    <span>提示词 ${promptsTotalCost.toFixed(4)}</span>
+                    <span>会话 ${sessionTotalCost.toFixed(4)}</span>
+                  </>
                 )}
               </div>
             </div>

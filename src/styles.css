@@ -23,8 +23,8 @@
 
 /* Ensure container is centered on all platforms */
 .container {
-  margin-left: auto !important;
-  margin-right: auto !important;
+  margin-left: auto;
+  margin-right: auto;
   width: 100%;
   max-width: 1280px; /* 确保有最大宽度 */
   padding-left: 1.5rem;
