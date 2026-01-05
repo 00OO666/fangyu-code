@@ -100,7 +100,7 @@ export const ThinkingBlock: React.FC<ThinkingBlockProps> = ({
     >
       <button
         onClick={handleToggle}
-        className="cursor-pointer px-2 py-1.5 text-[10px] text-amber-700 dark:text-amber-300 font-medium transition-all duration-200 select-none flex items-center gap-1.5 outline-none text-left rounded-md"
+        className="cursor-pointer px-1.5 py-1 text-[10px] text-amber-700 dark:text-amber-300 font-medium transition-all duration-200 select-none flex items-center gap-1 outline-none text-left rounded-md"
         style={{ backgroundColor: 'transparent' }}
         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'color-mix(in srgb, rgb(245 158 11) 15%, transparent)'}
         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
@@ -119,14 +119,14 @@ export const ThinkingBlock: React.FC<ThinkingBlockProps> = ({
       </button>
       <div className={cn("overflow-hidden transition-all duration-300 ease-out motion-reduce:transition-none", isOpen ? "max-h-none opacity-100" : "max-h-0 opacity-0")}>
         <div
-          className="px-2 pb-2 pt-0.5"
+          className="px-1.5 pb-1.5 pt-0.5"
           style={{
             background: 'linear-gradient(to right, color-mix(in srgb, rgb(245 158 11) 8%, transparent), transparent)'
           }}
           onDoubleClick={handleDoubleClick}
           title={isTyping ? t('thinking.doubleClickSkip') : undefined}
         >
-          <div className="text-[10px] leading-tight overflow-y-auto scrollbar-thin">{renderContent()}</div>
+          <div className="text-[10px] leading-[1.3] overflow-y-auto scrollbar-thin">{renderContent()}</div>
         </div>
       </div>
     </div>

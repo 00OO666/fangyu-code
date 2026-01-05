@@ -112,7 +112,7 @@ export const ToolCallsGroup: React.FC<ToolCallsGroupProps> = ({
   if (toolCalls.length === 1) {
     const tool = toolCalls[0];
     return (
-      <div className={cn('tool-single-call my-2', className)}>
+      <div className={cn('tool-single-call my-1.5', className)}>
         <SingleToolCall
           tool={tool}
           result={getResultById(tool.id)}
@@ -124,11 +124,11 @@ export const ToolCallsGroup: React.FC<ToolCallsGroupProps> = ({
   }
 
   return (
-    <div className={cn('tool-calls-group my-2 border border-border rounded-lg overflow-hidden', className)}>
+    <div className={cn('tool-calls-group my-1.5 border border-border rounded-lg overflow-hidden', className)}>
       {/* 折叠/展开头部 */}
       <button
         onClick={toggleCollapse}
-        className="flex items-center gap-2 w-full px-4 py-3 text-left bg-muted/30 hover:bg-muted/50 transition-colors"
+        className="flex items-center gap-2 w-full px-3 py-2 text-left bg-muted/30 hover:bg-muted/50 transition-colors"
       >
         {isCollapsed ? <ChevronRight className="w-4 h-4 shrink-0" /> : <ChevronDown className="w-4 h-4 shrink-0" />}
         <Wrench className="w-4 h-4 text-blue-500 shrink-0" />
@@ -166,7 +166,7 @@ export const ToolCallsGroup: React.FC<ToolCallsGroupProps> = ({
           getStatusById={getStatusById}
         />
       ) : (
-        <div className="space-y-2 p-4 bg-background">
+        <div className="space-y-1.5 p-3 bg-background">
           {toolCalls.map((tool, index) => (
             <SingleToolCall
               key={tool.id}
@@ -195,7 +195,7 @@ interface CollapsedSummaryProps {
 const CollapsedSummary: React.FC<CollapsedSummaryProps> = ({ toolCalls, getStatusById }) => {
   const { t } = useTranslation();
   return (
-    <div className="px-4 py-3 bg-background/50 border-t border-border space-y-2">
+    <div className="px-3 py-2 bg-background/50 border-t border-border space-y-1.5">
       {/* 显示前3个工具 */}
       {toolCalls.slice(0, 3).map((tool, idx) => {
         const status = getStatusById(tool.id);
