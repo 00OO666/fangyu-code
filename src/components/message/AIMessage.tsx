@@ -215,12 +215,15 @@ const AIMessageComponent: React.FC<AIMessageProps> = ({
   return (
     <div className={cn("relative group", className)}>
       <MessageBubble variant="assistant">
-        {/* Header: Logo + Name + Time */}
+        {/* Header: Logo + Name + Time + Token Stats */}
         <div className="flex items-center gap-2 mb-1">
           <Icon className={cn(isGeminiMessage || isCodexMessage ? "w-4 h-4" : "w-5 h-5", "flex-shrink-0")} />
           <span className="font-semibold text-base">{assistantName}</span>
           {formattedTime && (
             <span className="text-xs text-muted-foreground">{formattedTime}</span>
+          )}
+          {tokenStats && (
+            <span className="text-[10px] text-muted-foreground font-mono ml-auto">{tokenStats}</span>
           )}
         </div>
 
@@ -262,13 +265,6 @@ const AIMessageComponent: React.FC<AIMessageProps> = ({
             />
           )}
         </div>
-
-        {/* Token Stats - Bottom right corner */}
-        {tokenStats && (
-          <div className="text-[10px] text-muted-foreground font-mono mt-2 text-right">
-            {tokenStats}
-          </div>
-        )}
       </MessageBubble>
     </div>
   );
