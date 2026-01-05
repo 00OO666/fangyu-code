@@ -124,18 +124,7 @@ const extractThinkingContent = (message: ClaudeStreamMessage): string => {
   // 首先尝试提取独立的 thinking 块
   const thinkingBlocks = content.filter((item: any) => item.type === 'thinking');
   if (thinkingBlocks.length > 0) {
-    // 🔧 DEBUG: 检查 thinking 块的实际结构
-    if (import.meta.env.DEV) {
-      console.log('[extractThinkingContent] Found thinking blocks:', thinkingBlocks.map((item: any) => ({
-        type: item.type,
-        hasThinking: !!item.thinking,
-        hasText: !!item.text,
-        hasContent: !!item.content,
-        allKeys: Object.keys(item),
-        thinkingPreview: (item.thinking || item.text || item.content || '').substring(0, 100)
-      })));
-    }
-    // 🔧 FIX: 支持多种字段名（thinking, text, content）
+    // 支持多种字段名（thinking, text, content）
     return thinkingBlocks.map((item: any) => item.thinking || item.text || item.content || '').join('\n\n---divider---\n\n');
   }
 
@@ -166,7 +155,7 @@ const extractThinkingContent = (message: ClaudeStreamMessage): string => {
  * - isStreaming 由 SessionMessages 组件传入，表示当前是最后一条消息且会话正在进行
  * - 历史消息加载时 isStreaming=false，不会触发打字机效果
  */
-export const AIMessage: React.FC<AIMessageProps> = ({
+const AIMessageComponent: React.FC<AIMessageProps> = ({
   message,
   isStreaming = false,
   className,
@@ -182,47 +171,6 @@ export const AIMessage: React.FC<AIMessageProps> = ({
 
   // 获取消息 ID（用于状态管理）
   const messageId = (message as any).uuid || (message as any).id || '';
-
-  // 🔧 DEBUG: Only log in development mode
-  if (import.meta.env.DEV) {
-    const textBlocks = Array.isArray(message.message?.content)
-      ? message.message.content.filter((item: any) => item.type === 'text')
-      : [];
-
-    const allBlocks = Array.isArray(message.message?.content)
-      ? message.message.content
-      : [];
-
-    const debugInfo = {
-      messageId: (message as any).id || (message as any).uuid,
-      hasThinking,
-      thinkingContent: thinkingContent.substring(0, 100),
-      contentType: Array.isArray(message.message?.content) ? 'array' : typeof message.message?.content,
-      contentLength: Array.isArray(message.message?.content) ? message.message.content.length : 0,
-      contentTypes: Array.isArray(message.message?.content)
-        ? message.message.content.map((item: any) => item.type)
-        : [],
-      allContentBlocks: allBlocks.map((item: any) => ({
-        type: item.type,
-        hasText: !!item.text,
-        hasThinking: !!item.thinking,
-        textPreview: item.text?.substring(0, 100),
-        thinkingPreview: item.thinking?.substring(0, 100),
-        allKeys: Object.keys(item)
-      })),
-      textBlocksPreview: textBlocks.map((item: any) => ({
-        text: item.text?.substring(0, 500),
-        hasThinkingTag: item.text?.includes('<thinking>')
-      }))
-    };
-
-    console.log('[AIMessage] 消息分析:', debugInfo);
-
-    // 🔧 暴露到全局供调试
-    if (typeof window !== 'undefined') {
-      (window as any).__lastAIMessageDebug = debugInfo;
-    }
-  }
 
   // Detect engine type for avatar styling
   const isCodexMessage = (message as any).engine === 'codex';
@@ -325,3 +273,14 @@ export const AIMessage: React.FC<AIMessageProps> = ({
     </div>
   );
 };
+
+// 使用 React.memo 优化性能，避免不必要的重渲染
+export const AIMessage = React.memo(AIMessageComponent, (prevProps, nextProps) => {
+  // 自定义比较函数：只在关键 props 变化时才重新渲染
+  return (
+    prevProps.message === nextProps.message &&
+    prevProps.isStreaming === nextProps.isStreaming &&
+    prevProps.className === nextProps.className &&
+    prevProps.onLinkDetected === nextProps.onLinkDetected
+  );
+});

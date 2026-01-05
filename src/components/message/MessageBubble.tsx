@@ -39,7 +39,7 @@ const MessageBubbleComponent: React.FC<MessageBubbleProps> = ({
         ease: [0, 0, 0.2, 1] // ease-out for entering
       }}
       className={cn(
-        "flex w-full mb-3 motion-reduce:transition-none", // 优化间距，支持 reduced-motion
+        "flex w-full mb-6 motion-reduce:transition-none", // 增加间距到 mb-6 (24px)
         isUser ? "justify-end" : "justify-start",
         className
       )}
@@ -76,15 +76,11 @@ const MessageBubbleComponent: React.FC<MessageBubbleProps> = ({
           <div
             className={cn(
               "w-full pr-4 overflow-hidden",
-              "border rounded-lg", // 添加边框和圆角
-              "p-4", // 添加内边距
               bubbleClassName
             )}
             style={{
               overflowWrap: 'anywhere',
               wordBreak: 'break-word',
-              backgroundColor: 'color-mix(in srgb, var(--color-muted) 30%, transparent)',
-              borderColor: 'color-mix(in srgb, var(--color-border) 20%, transparent)'
             }}
           >
              {children}

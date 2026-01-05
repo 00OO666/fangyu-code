@@ -115,49 +115,49 @@ export const SessionMessages = forwardRef<SessionMessagesRef, SessionMessagesPro
     estimateSize: (index) => {
       // ✅ Dynamic height estimation based on message group type
       const messageGroup = messageGroups[index];
-      if (!messageGroup) return 200;
+      if (!messageGroup) return 250; // 增加默认高度
 
       // For subagent groups, estimate larger height
       if (messageGroup.type === 'subagent') {
-        return 400; // Subagent groups are typically larger
+        return 450; // 增加 subagent 组高度估算
       }
 
       // For aggregated groups, estimate height based on content
       if (messageGroup.type === 'aggregated') {
-        // Base height for bubble padding etc
-        let height = 60;
+        // Base height for bubble padding etc (增加基础高度)
+        let height = 80;
         messageGroup.messages.forEach(msg => {
             // Add height for thinking blocks
             if (msg.type === 'thinking' || (msg.message?.content && Array.isArray(msg.message.content) && msg.message.content.some((c:any) => c.type === 'thinking'))) {
-                height += 100;
+                height += 120; // 增加 thinking 块高度估算
             }
             // Add height for tool calls
             if (msg.message?.content && Array.isArray(msg.message.content)) {
                 const toolCalls = msg.message.content.filter((c:any) => c.type === 'tool_use');
-                height += toolCalls.length * 60;
-                
+                height += toolCalls.length * 80; // 增加工具调用高度估算
+
                 // Add height for tool results (if visible)
                 const toolResults = msg.message.content.filter((c:any) => c.type === 'tool_result');
-                height += toolResults.length * 40;
+                height += toolResults.length * 60; // 增加工具结果高度估算
             }
         });
-        return Math.max(height, 100);
+        return Math.max(height, 120); // 增加最小高度
       }
 
       // For normal messages, estimate based on message type
       const message = messageGroup.message;
-      if (!message) return 200;
+      if (!message) return 250; // 增加默认高度
 
       // Estimate different heights for different message types
-      if (message.type === 'system') return 80;  // System messages are smaller
-      if (message.type === 'user') return 150;   // User prompts are medium
+      if (message.type === 'system') return 100;  // 增加 system 消息高度
+      if (message.type === 'user') return 180;   // 增加 user 消息高度
       if (message.type === 'assistant') {
         // Assistant messages with code blocks are larger
         const hasCodeBlock = message.content && typeof message.content === 'string' &&
                             message.content.includes('```');
-        return hasCodeBlock ? 300 : 200;
+        return hasCodeBlock ? 350 : 250; // 增加 assistant 消息高度
       }
-      return 200; // Default fallback
+      return 250; // 增加默认高度
     },
     overscan: 12, // ✅ OPTIMIZED: Increased to 12 to prevent blank areas during fast scrolling
     measureElement: (element) => {

@@ -213,17 +213,22 @@ const FloatingPromptInputInner = (
     if (externalEngineConfig && externalEngineConfig.engine !== state.executionEngineConfig.engine) {
       dispatch({ type: "SET_EXECUTION_ENGINE_CONFIG", payload: externalEngineConfig });
     }
-  }, [externalEngineConfig]);
+  }, [externalEngineConfig, state.executionEngineConfig.engine]);
 
-  // Persist execution engine config
+  // Persist execution engine config (使用 ref 避免循环依赖)
+  const onExecutionEngineConfigChangeRef = useRef(onExecutionEngineConfigChange);
+  useEffect(() => {
+    onExecutionEngineConfigChangeRef.current = onExecutionEngineConfigChange;
+  }, [onExecutionEngineConfigChange]);
+
   useEffect(() => {
     try {
       localStorage.setItem('execution_engine_config', JSON.stringify(state.executionEngineConfig));
-      onExecutionEngineConfigChange?.(state.executionEngineConfig);
+      onExecutionEngineConfigChangeRef.current?.(state.executionEngineConfig);
     } catch (error) {
       console.error('[ExecutionEngine] Failed to save config to localStorage:', error);
     }
-  }, [state.executionEngineConfig, onExecutionEngineConfigChange]);
+  }, [state.executionEngineConfig]);
 
   // Dynamic model list
   const [availableModels, setAvailableModels] = useState<ModelConfig[]>(MODELS);

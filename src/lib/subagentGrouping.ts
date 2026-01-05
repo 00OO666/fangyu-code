@@ -155,12 +155,22 @@ function getTechnicalMessageType(message: ClaudeStreamMessage): "tool" | "thinki
     } else if (item.type === "text") {
       if (item.text && item.text.trim().length > 0) {
         hasText = true;
+        // 🔍 DEBUG: 记录包含文本的消息
+        console.log('[subagentGrouping] Message has text content:', {
+          uuid: message.uuid,
+          textPreview: item.text.substring(0, 100),
+          hasThinking,
+          hasTool
+        });
       }
     }
   });
 
   // 如果包含可见文本，不可聚合
-  if (hasText) return null;
+  if (hasText) {
+    console.log('[subagentGrouping] Message NOT aggregatable (has text):', message.uuid);
+    return null;
+  }
 
   // 如果既有 Thinking 又有 Tool，作为混合类型（通常优先视为 Tool 组或独立处理，根据需求这里可以返回 tool 以允许合并，或者 null 以打断）
   // 用户希望 Thinking 和 Tool 分离。
@@ -176,11 +186,18 @@ function getTechnicalMessageType(message: ClaudeStreamMessage): "tool" | "thinki
     // 以免混淆。它自身内部已经包含了 Thinking 和 Tool。
     // 但是，如果后续还有 Tool，用户可能希望合并后续的 Tool。
     // 让我们保守一点，将其视为 'mixed'，不参与外部聚合。
+    console.log('[subagentGrouping] Message NOT aggregatable (mixed thinking+tool):', message.uuid);
     return null;
   }
 
-  if (hasThinking) return "thinking";
-  if (hasTool) return "tool";
+  if (hasThinking) {
+    console.log('[subagentGrouping] Message aggregatable as thinking:', message.uuid);
+    return "thinking";
+  }
+  if (hasTool) {
+    console.log('[subagentGrouping] Message aggregatable as tool:', message.uuid);
+    return "tool";
+  }
 
   return null;
 }
