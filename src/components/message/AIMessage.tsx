@@ -216,7 +216,7 @@ const AIMessageComponent: React.FC<AIMessageProps> = ({
     <div className={cn("relative group", className)}>
       <MessageBubble variant="assistant">
         {/* Header: Logo + Name + Time */}
-        <div className="flex items-center gap-2 mb-1.5">
+        <div className="flex items-center gap-2 mb-1">
           <Icon className={cn(isGeminiMessage || isCodexMessage ? "w-4 h-4" : "w-5 h-5", "flex-shrink-0")} />
           <span className="font-semibold text-base">{assistantName}</span>
           {formattedTime && (
@@ -230,7 +230,7 @@ const AIMessageComponent: React.FC<AIMessageProps> = ({
         </div>
 
         {/* Content: All left-aligned, no left padding */}
-        <div className="space-y-1.5">
+        <div className="space-y-1">
           {/* Thinking Block - Compact */}
           {hasThinking && thinkingContent && (
             <ThinkingBlock

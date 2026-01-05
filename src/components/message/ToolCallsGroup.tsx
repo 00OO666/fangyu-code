@@ -112,7 +112,7 @@ export const ToolCallsGroup: React.FC<ToolCallsGroupProps> = ({
   if (toolCalls.length === 1) {
     const tool = toolCalls[0];
     return (
-      <div className={cn('tool-single-call my-1.5', className)}>
+      <div className={cn('tool-single-call my-0.5', className)}>
         <SingleToolCall
           tool={tool}
           result={getResultById(tool.id)}
@@ -124,7 +124,7 @@ export const ToolCallsGroup: React.FC<ToolCallsGroupProps> = ({
   }
 
   return (
-    <div className={cn('tool-calls-group my-1.5 border border-border rounded-lg overflow-hidden', className)}>
+    <div className={cn('tool-calls-group my-0.5 border border-border rounded-lg overflow-hidden', className)}>
       {/* 折叠/展开头部 */}
       <button
         onClick={toggleCollapse}
@@ -166,7 +166,7 @@ export const ToolCallsGroup: React.FC<ToolCallsGroupProps> = ({
           getStatusById={getStatusById}
         />
       ) : (
-        <div className="space-y-1.5 p-3 bg-background">
+        <div className="space-y-1 p-3 bg-background">
           {toolCalls.map((tool, index) => (
             <SingleToolCall
               key={tool.id}
@@ -195,7 +195,7 @@ interface CollapsedSummaryProps {
 const CollapsedSummary: React.FC<CollapsedSummaryProps> = ({ toolCalls, getStatusById }) => {
   const { t } = useTranslation();
   return (
-    <div className="px-3 py-2 bg-background/50 border-t border-border space-y-1.5">
+    <div className="px-3 py-2 bg-background/50 border-t border-border space-y-1">
       {/* 显示前3个工具 */}
       {toolCalls.slice(0, 3).map((tool, idx) => {
         const status = getStatusById(tool.id);

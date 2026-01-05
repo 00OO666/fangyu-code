@@ -39,7 +39,7 @@ const MessageBubbleComponent: React.FC<MessageBubbleProps> = ({
         ease: [0, 0, 0.2, 1] // ease-out for entering
       }}
       className={cn(
-        "flex w-full mb-3 motion-reduce:transition-none", // 减少间距到 mb-3 (12px)
+        "flex w-full mb-1.5 motion-reduce:transition-none", // 极小间距 mb-1.5 (6px)
         isUser ? "justify-end" : "justify-start",
         className
       )}
