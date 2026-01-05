@@ -402,7 +402,7 @@ export function groupMessages(messages: ClaudeStreamMessage[]): MessageGroup[] {
           uuid: msg.uuid,
           type: msg.type,
           hasContent: !!msg.message?.content,
-          contentPreview: JSON.stringify(msg.message?.content).substring(0, 200)
+          contentPreview: msg.message?.content ? JSON.stringify(msg.message.content).substring(0, 200) : 'no content'
         });
         if (currentAggregation) {
           finalGroups.push({
