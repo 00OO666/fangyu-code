@@ -14,10 +14,10 @@
  */
 
 import { getVersion } from "@tauri-apps/api/app";
-import { useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const STORAGE_KEY = "fangyu-code-last-seen-version";
-const FALLBACK_VERSION = "2.3.6"; // 🔧 Fallback 版本（获取失败时使用）
+const FALLBACK_VERSION = "2.4.0"; // 🔧 Fallback 版本（获取失败时使用）
 
 // 🔧 DEBUG: 全局变量用于强制显示更新日志（调试用）
 declare global {
@@ -29,6 +29,50 @@ declare global {
 
 // 版本更新日志（从新到旧）
 export const CHANGELOGS = {
+  "2.4.0": {
+    title: "v2.4.0 - 🎯 代码质量全面提升",
+    date: "2026-01-06",
+    features: [
+      "🔧 修复 TypeScript 变量声明顺序错误 - 修复 33 个文件，约 60 处错误",
+      "🎨 修复 Canvas 代码高亮类型问题 - Canvas 功能恢复正常",
+      "🧹 清理未使用的变量和函数 - 清理 12 个文件，42 个未使用变量",
+      "✨ 添加 ESLint 自动修复配置 - 完整的代码规范工具链",
+      "💅 配置 Prettier 代码格式化 - 统一代码风格",
+    ],
+    improvements: [
+      "✅ TypeScript 错误减少 44 个（30.3%）- 从 145 个降至 101 个",
+      "✅ 所有变量声明顺序错误已修复（0 个错误）",
+      "✅ 所有未使用变量错误已清零（0 个错误）",
+      "✅ 新增 4 个 npm 脚本 - lint, lint:fix, format, format:check",
+    ],
+    technical: [
+      "修复 Block-scoped variable used before declaration 错误",
+      "使用类型断言解决 react-markdown 类型不匹配",
+      "采用下划线前缀标记未使用变量，符合 TypeScript 规范",
+      "配置 ESLint + Prettier 工具链",
+    ],
+  },
+  "2.3.7": {
+    title: "v2.3.7 - 🐛 重大 Bug 修复版本",
+    date: "2026-01-05",
+    features: [
+      "🔥 修复上下文断裂问题 - 每条指令不再被拆成新会话，Claude 可以记住之前的对话",
+      "💰 Token 消耗优化分析 - 发现并分析了 Token 暴增的根本原因",
+      "🔧 会话连续性修复 - 消息去重 Set 和会话 ID 提升到组件级别",
+    ],
+    improvements: [
+      "✅ 上下文连续 - 同一会话内的所有消息共享同一个消息去重 Set",
+      "✅ Token 统计准确 - 会话 ID 持久化，后端可以正确累计 token",
+      "✅ 会话隔离 - 新的用户输入会清理旧消息，避免跨会话污染",
+    ],
+    technical: [
+      "添加持久化 Ref - processedMessagesRef, persistentSessionIdRef",
+      "修复监听器重建时消息去重 Set 被重置的问题",
+      "修复完成后会话 ID 被重置导致无法关联的问题",
+      "在新用户输入时清理旧消息，避免跨会话污染",
+    ],
+    breaking: [],
+  },
   "2.3.6": {
     title: "v2.3.6 - 🎨 极致紧凑布局优化",
     date: "2026-01-05",
@@ -133,7 +177,7 @@ export const CHANGELOGS = {
       "claudeSDK.ts - maxTokens 从 4000 提升到 8192",
       "ClaudeStatusIndicator.tsx - 统一美元符号格式",
       "WindowAttentionIndicator.tsx - 只在异常时显示",
-      "SessionList.tsx - 显示 first_message 或\"未命名会话\"",
+      'SessionList.tsx - 显示 first_message 或"未命名会话"',
       "useOutputDisplaySettings.ts - 默认显示所有内容",
       "subagentGrouping.ts - 添加文本检测调试日志",
     ],
@@ -693,22 +737,32 @@ export const useFirstLaunchChangelog = () => {
   // 使用 ref 确保只检查一次
   const hasCheckedRef = useRef(false);
 
-  useEffect(() => {
-    // 防止重复检查
-    if (hasCheckedRef.current) return;
-    hasCheckedRef.current = true;
+  const showChangelogForVersion = useCallback((version: string) => {
+    // 查找该版本的更新日志
+    const changelogData = CHANGELOGS[version as keyof typeof CHANGELOGS];
 
-    checkFirstLaunch();
+    if (changelogData) {
+      setChangelog({
+        version,
+        ...changelogData,
+      });
+      setShowChangelog(true);
+    } else {
+      // 🆕 如果没有对应版本的日志，显示最新版本的日志
+      const latestVersion = Object.keys(CHANGELOGS)[0];
+      const latestChangelog = CHANGELOGS[latestVersion as keyof typeof CHANGELOGS];
+      if (latestChangelog) {
+        setChangelog({
+          version: latestVersion,
+          ...latestChangelog,
+        });
+        setShowChangelog(true);
+        console.log(`[Changelog] No changelog for ${version}, showing ${latestVersion}`);
+      }
+    }
+  }, [setChangelog, setShowChangelog]);
 
-    // 🔧 DEBUG: 注册全局函数用于调试
-    window.__resetChangelogVersion = () => {
-      localStorage.removeItem(STORAGE_KEY);
-      hasCheckedRef.current = false;
-      console.log("[Changelog] Reset complete. Reload page to test.");
-    };
-  }, []);
-
-  const checkFirstLaunch = async () => {
+  const checkFirstLaunch = useCallback(async () => {
     try {
       // 🆕 从 Tauri API 获取真实版本号
       let version = FALLBACK_VERSION;
@@ -742,32 +796,22 @@ export const useFirstLaunchChangelog = () => {
     } catch (error) {
       console.error("[useFirstLaunchChangelog] Error checking first launch:", error);
     }
-  };
+  }, [setCurrentVersion, showChangelogForVersion]);
 
-  const showChangelogForVersion = (version: string) => {
-    // 查找该版本的更新日志
-    const changelogData = CHANGELOGS[version as keyof typeof CHANGELOGS];
+  useEffect(() => {
+    // 防止重复检查
+    if (hasCheckedRef.current) return;
+    hasCheckedRef.current = true;
 
-    if (changelogData) {
-      setChangelog({
-        version,
-        ...changelogData,
-      });
-      setShowChangelog(true);
-    } else {
-      // 🆕 如果没有对应版本的日志，显示最新版本的日志
-      const latestVersion = Object.keys(CHANGELOGS)[0];
-      const latestChangelog = CHANGELOGS[latestVersion as keyof typeof CHANGELOGS];
-      if (latestChangelog) {
-        setChangelog({
-          version: latestVersion,
-          ...latestChangelog,
-        });
-        setShowChangelog(true);
-        console.log(`[Changelog] No changelog for ${version}, showing ${latestVersion}`);
-      }
-    }
-  };
+    checkFirstLaunch();
+
+    // 🔧 DEBUG: 注册全局函数用于调试
+    window.__resetChangelogVersion = () => {
+      localStorage.removeItem(STORAGE_KEY);
+      hasCheckedRef.current = false;
+      console.log("[Changelog] Reset complete. Reload page to test.");
+    };
+  }, [checkFirstLaunch]);
 
   const hideChangelog = () => {
     setShowChangelog(false);
