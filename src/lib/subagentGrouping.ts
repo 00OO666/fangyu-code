@@ -398,6 +398,12 @@ export function groupMessages(messages: ClaudeStreamMessage[]): MessageGroup[] {
         }
       } else {
         // 不可聚合的消息（文本等），结算之前的聚合
+        console.log('[subagentGrouping] Non-aggregatable message (has text), adding as normal group:', {
+          uuid: msg.uuid,
+          type: msg.type,
+          hasContent: !!msg.message?.content,
+          contentPreview: JSON.stringify(msg.message?.content).substring(0, 200)
+        });
         if (currentAggregation) {
           finalGroups.push({
             type: "aggregated",
