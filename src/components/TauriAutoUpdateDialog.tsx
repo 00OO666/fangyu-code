@@ -1,10 +1,15 @@
 /**
- * Tauri 自动更新对话框
+ * Tauri 自动更新对话框 - v2.0 增强版
  *
- * 显示更新提示、下载进度、安装进度
+ * 功能：
+ * - 显示更新提示、下载进度、安装进度
+ * - 支持跳过特定版本
+ * - 支持暂时关闭更新提示
+ * - 支持重试失败的检查
+ * - 更好的用户体验
  */
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useTauriAutoUpdate } from '@/hooks/useTauriAutoUpdate';
 import {
   AlertDialog,
@@ -16,8 +21,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Download, RefreshCw, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
+import { Download, RefreshCw, AlertCircle, X, SkipForward } from 'lucide-react';
 
 export const TauriAutoUpdateDialog: React.FC = () => {
   const {
@@ -27,14 +33,18 @@ export const TauriAutoUpdateDialog: React.FC = () => {
     installing,
     error,
     downloadProgress,
+    isDismissed,
     installUpdate,
+    skipVersion,
+    dismissUpdate,
+    retryCheck,
   } = useTauriAutoUpdate({
     checkOnMount: true,
-    autoCheckInterval: 60, // 每小时检查一次
+    autoCheckInterval: 0, // 关闭自动检查，改为手动触发
   });
 
-  // 是否显示对话框
-  const showDialog = updateInfo?.available && !downloading && !installing;
+  // 是否显示对话框（有更新且未被暂时关闭）
+  const showDialog = updateInfo?.available && !isDismissed && !downloading && !installing;
 
   return (
     <>
@@ -75,13 +85,42 @@ export const TauriAutoUpdateDialog: React.FC = () => {
               {error && (
                 <div className="flex items-start gap-2 p-3 bg-destructive/10 text-destructive rounded-md text-sm">
                   <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                  <span>{error}</span>
+                  <div className="flex-1">
+                    <div>{error}</div>
+                    <Button
+                      variant="link"
+                      size="sm"
+                      className="h-auto p-0 text-destructive underline mt-1"
+                      onClick={retryCheck}
+                    >
+                      重试
+                    </Button>
+                  </div>
                 </div>
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>稍后更新</AlertDialogCancel>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+            <div className="flex gap-2 flex-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={skipVersion}
+                className="flex-1"
+              >
+                <SkipForward className="h-4 w-4 mr-2" />
+                跳过此版本
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={dismissUpdate}
+                className="flex-1"
+              >
+                <X className="h-4 w-4 mr-2" />
+                稍后提醒
+              </Button>
+            </div>
             <AlertDialogAction onClick={installUpdate} className="bg-green-600 hover:bg-green-700">
               <Download className="h-4 w-4 mr-2" />
               立即更新
@@ -97,7 +136,7 @@ export const TauriAutoUpdateDialog: React.FC = () => {
             <AlertDialogTitle className="flex items-center gap-2">
               {downloading && (
                 <>
-                  <Loader2 className="h-5 w-5 animate-spin text-blue-500" />
+                  <Download className="h-5 w-5 animate-pulse text-blue-500" />
                   正在下载更新...
                 </>
               )}
@@ -120,8 +159,26 @@ export const TauriAutoUpdateDialog: React.FC = () => {
               )}
 
               {installing && (
-                <div className="text-center text-sm text-muted-foreground">
-                  更新即将完成，应用将自动重启...
+                <div className="text-center text-sm text-muted-foreground space-y-2">
+                  <p>更新即将完成，应用将自动重启...</p>
+                  <p className="text-xs">重启后将显示更新公告</p>
+                </div>
+              )}
+
+              {error && (
+                <div className="flex items-start gap-2 p-3 bg-destructive/10 text-destructive rounded-md text-sm">
+                  <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                  <div className="flex-1">
+                    <div>{error}</div>
+                    <Button
+                      variant="link"
+                      size="sm"
+                      className="h-auto p-0 text-destructive underline mt-1"
+                      onClick={retryCheck}
+                    >
+                      重试
+                    </Button>
+                  </div>
                 </div>
               )}
             </AlertDialogDescription>

@@ -1,16 +1,21 @@
 /**
- * Tauri 自动更新 Hook
+ * Tauri 自动更新 Hook - v2.0 增强版
  *
  * 功能：
  * 1. 应用启动时自动检查更新
  * 2. 下载并验证更新包
  * 3. 安装后自动重启
  * 4. 支持手动触发检查
+ * 5. 支持跳过特定版本
+ * 6. 支持暂时关闭更新提示
  */
 
 import { relaunch } from "@tauri-apps/plugin-process";
 import { check, type Update } from "@tauri-apps/plugin-updater";
 import { useCallback, useEffect, useState } from "react";
+
+const STORAGE_KEY_SKIPPED = "fangyu-code-skipped-version";
+const STORAGE_KEY_DISMISSED = "fangyu-code-dismissed-update";
 
 export interface UpdateInfo {
   available: boolean;
@@ -27,8 +32,13 @@ export interface UseAutoUpdateReturn {
   installing: boolean;
   error: string | null;
   downloadProgress: number;
-  checkForUpdates: () => Promise<void>;
+  isDismissed: boolean;
+  checkForUpdates: (force?: boolean) => Promise<void>;
   installUpdate: () => Promise<void>;
+  skipVersion: () => void;
+  dismissUpdate: () => void;
+  showUpdate: () => void;
+  retryCheck: () => Promise<void>;
 }
 
 export function useTauriAutoUpdate(
@@ -37,7 +47,7 @@ export function useTauriAutoUpdate(
     autoCheckInterval?: number; // 分钟
   } = {},
 ): UseAutoUpdateReturn {
-  const { checkOnMount = true, autoCheckInterval = 60 } = options;
+  const { checkOnMount = true, autoCheckInterval = 0 } = options; // 默认关闭自动检查
 
   const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(null);
   const [checking, setChecking] = useState(false);
@@ -46,9 +56,30 @@ export function useTauriAutoUpdate(
   const [error, setError] = useState<string | null>(null);
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [pendingUpdate, setPendingUpdate] = useState<Update | null>(null);
+  const [isDismissed, setIsDismissed] = useState(false);
+
+  // 检查版本是否被跳过
+  const isVersionSkipped = useCallback((version: string): boolean => {
+    try {
+      const skipped = localStorage.getItem(STORAGE_KEY_SKIPPED);
+      return skipped === version;
+    } catch {
+      return false;
+    }
+  }, []);
+
+  // 检查更新是否被暂时关闭
+  const isUpdateDismissed = useCallback((version: string): boolean => {
+    try {
+      const dismissed = localStorage.getItem(STORAGE_KEY_DISMISSED);
+      return dismissed === version;
+    } catch {
+      return false;
+    }
+  }, []);
 
   // 检查更新
-  const checkForUpdates = useCallback(async () => {
+  const checkForUpdates = useCallback(async (force: boolean = false) => {
     if (checking) return;
 
     setChecking(true);
@@ -60,6 +91,17 @@ export function useTauriAutoUpdate(
 
       if (update) {
         console.log("[Auto Update] Update available:", update);
+
+        // 检查是否被跳过或暂时关闭
+        const skipped = !force && isVersionSkipped(update.version);
+        const dismissed = !force && isUpdateDismissed(update.version);
+
+        if (skipped) {
+          console.log("[Auto Update] Version skipped by user:", update.version);
+          setUpdateInfo(null);
+          return;
+        }
+
         setUpdateInfo({
           available: true,
           currentVersion: update.currentVersion,
@@ -68,11 +110,12 @@ export function useTauriAutoUpdate(
           date: update.date,
         });
         setPendingUpdate(update);
+        setIsDismissed(dismissed);
       } else {
         console.log("[Auto Update] No update available");
         setUpdateInfo({
           available: false,
-          currentVersion: "", // Tauri 会自动填充
+          currentVersion: "",
           latestVersion: "",
         });
       }
@@ -83,7 +126,7 @@ export function useTauriAutoUpdate(
     } finally {
       setChecking(false);
     }
-  }, [checking]);
+  }, [checking, isVersionSkipped, isUpdateDismissed]);
 
   // 下载并安装更新
   const installUpdate = useCallback(async () => {
@@ -107,21 +150,17 @@ export function useTauriAutoUpdate(
             setDownloadProgress(0);
             break;
           case "Progress": {
-            // 🔧 FIX: 安全计算进度，避免 NaN 和 Infinity
             const downloaded = event.data.downloaded ?? 0;
             const total = event.data.contentLength ?? 0;
             let progress = 0;
 
             if (total > 0) {
               progress = Math.round((downloaded / total) * 100);
-              // 确保进度在 0-100 范围内
               progress = Math.max(0, Math.min(100, progress));
             } else if (downloaded > 0) {
-              // 如果无法获取总大小，显示已下载大小（MB）
-              progress = Math.min(99, Math.floor(downloaded / 1024 / 1024)); // 每 MB 加 1%
+              progress = Math.min(99, Math.floor(downloaded / 1024 / 1024));
             }
 
-            // 确保不是 NaN
             if (isNaN(progress)) {
               progress = 0;
               console.warn("[Auto Update] Progress calculation resulted in NaN");
@@ -145,7 +184,7 @@ export function useTauriAutoUpdate(
 
       // 安装完成，准备重启
       console.log("[Auto Update] Installing update and restarting...");
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // 短暂延迟让用户看到进度
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // 重启应用
       await relaunch();
@@ -158,10 +197,53 @@ export function useTauriAutoUpdate(
     }
   }, [pendingUpdate]);
 
+  // 跳过此版本
+  const skipVersion = useCallback(() => {
+    if (updateInfo?.latestVersion) {
+      try {
+        localStorage.setItem(STORAGE_KEY_SKIPPED, updateInfo.latestVersion);
+        console.log("[Auto Update] Version skipped:", updateInfo.latestVersion);
+        setUpdateInfo(null);
+        setPendingUpdate(null);
+      } catch (err) {
+        console.error("[Auto Update] Failed to skip version:", err);
+      }
+    }
+  }, [updateInfo]);
+
+  // 暂时关闭更新提示
+  const dismissUpdate = useCallback(() => {
+    if (updateInfo?.latestVersion) {
+      try {
+        localStorage.setItem(STORAGE_KEY_DISMISSED, updateInfo.latestVersion);
+        console.log("[Auto Update] Update dismissed:", updateInfo.latestVersion);
+        setIsDismissed(true);
+      } catch (err) {
+        console.error("[Auto Update] Failed to dismiss update:", err);
+      }
+    }
+  }, [updateInfo]);
+
+  // 重新显示更新提示
+  const showUpdate = useCallback(() => {
+    try {
+      localStorage.removeItem(STORAGE_KEY_DISMISSED);
+      setIsDismissed(false);
+      console.log("[Auto Update] Update shown again");
+    } catch (err) {
+      console.error("[Auto Update] Failed to show update:", err);
+    }
+  }, []);
+
+  // 重试检查
+  const retryCheck = useCallback(async () => {
+    setError(null);
+    await checkForUpdates(true);
+  }, [checkForUpdates]);
+
   // 启动时检查更新
   useEffect(() => {
     if (checkOnMount) {
-      // 延迟 5 秒检查，避免影响启动速度
       const timer = setTimeout(() => {
         checkForUpdates();
       }, 5000);
@@ -170,9 +252,9 @@ export function useTauriAutoUpdate(
     }
   }, [checkOnMount, checkForUpdates]);
 
-  // 定时检查更新
+  // 定时检查更新（默认关闭）
   useEffect(() => {
-    if (!autoCheckInterval) return;
+    if (!autoCheckInterval || autoCheckInterval <= 0) return;
 
     const interval = setInterval(
       () => {
@@ -191,7 +273,12 @@ export function useTauriAutoUpdate(
     installing,
     error,
     downloadProgress,
+    isDismissed,
     checkForUpdates,
     installUpdate,
+    skipVersion,
+    dismissUpdate,
+    showUpdate,
+    retryCheck,
   };
 }
