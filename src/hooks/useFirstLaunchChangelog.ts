@@ -17,7 +17,7 @@ import { getVersion } from "@tauri-apps/api/app";
 import { useEffect, useState } from "react";
 
 const STORAGE_KEY = "fangyu-code-last-seen-version";
-const FALLBACK_VERSION = "2.3.3"; // 🔧 Fallback 版本（获取失败时使用）
+const FALLBACK_VERSION = "2.3.4"; // 🔧 Fallback 版本（获取失败时使用）
 
 // 🔧 DEBUG: 全局变量用于强制显示更新日志（调试用）
 declare global {
@@ -29,6 +29,27 @@ declare global {
 
 // 版本更新日志（从新到旧）
 export const CHANGELOGS = {
+  "2.3.4": {
+    title: "v2.3.4 - ⚡ 性能优化 - 修复无限重渲染",
+    date: "2026-01-05",
+    features: [
+      "⚡ 修复 FloatingPromptInput 无限重渲染 - 从 1600+ 次降至 <10 次",
+      "🚀 AIMessage 组件性能优化 - 添加 React.memo 避免不必要渲染",
+      "🧹 移除过度日志输出 - 大幅减少控制台输出，提升运行时性能",
+    ],
+    improvements: [
+      "🔧 useEffect 循环依赖修复 - 使用 ref 存储回调函数",
+      "📊 自定义 memo 比较函数 - 只在关键 props 变化时重新渲染",
+      "🎯 精确控制更新时机 - 添加 engine 到依赖数组",
+    ],
+    technical: [
+      "FloatingPromptInput - 修复 onExecutionEngineConfigChange 循环依赖",
+      "AIMessage - 添加 React.memo 和自定义比较函数",
+      "移除开发模式调试日志 - extractThinkingContent, AIMessage",
+      "性能提升 - 渲染次数大幅减少，Token 消耗降低",
+    ],
+    breaking: [],
+  },
   "2.3.3": {
     title: "v2.3.3 - 🎨 UI 优化与消息显示修复",
     date: "2026-01-05",
