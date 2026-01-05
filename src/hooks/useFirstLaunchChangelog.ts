@@ -14,7 +14,7 @@
  */
 
 import { getVersion } from "@tauri-apps/api/app";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 const STORAGE_KEY = "fangyu-code-last-seen-version";
 const FALLBACK_VERSION = "2.3.5"; // 🔧 Fallback 版本（获取失败时使用）
