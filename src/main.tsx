@@ -78,8 +78,16 @@ const AppWrapper: React.FC = () => {
   );
 };
 
+// 🔧 FIX: 在开发模式下禁用 StrictMode，避免双重渲染导致的 UI 重叠问题
+// StrictMode 在开发模式下会故意双重渲染组件以检测副作用，但会导致视觉问题
+const isDev = import.meta.env.DEV;
+
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <React.StrictMode>
+  isDev ? (
     <AppWrapper />
-  </React.StrictMode>,
+  ) : (
+    <React.StrictMode>
+      <AppWrapper />
+    </React.StrictMode>
+  ),
 );
