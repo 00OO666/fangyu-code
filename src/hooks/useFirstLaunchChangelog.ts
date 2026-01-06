@@ -17,7 +17,7 @@ import { getVersion } from "@tauri-apps/api/app";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const STORAGE_KEY = "fangyu-code-last-seen-version";
-const FALLBACK_VERSION = "2.4.1"; // 🔧 Fallback 版本（获取失败时使用）
+const FALLBACK_VERSION = "2.4.2"; // 🔧 Fallback 版本（获取失败时使用）
 
 // 🔧 DEBUG: 全局变量用于强制显示更新日志（调试用）
 declare global {
@@ -29,6 +29,28 @@ declare global {
 
 // 版本更新日志（从新到旧）
 export const CHANGELOGS = {
+  "2.4.2": {
+    title: "v2.4.2 - 🔄 更新系统全面优化",
+    date: "2026-01-06",
+    features: [
+      "✨ 跳过版本功能 - 永久跳过不想安装的版本",
+      "⏰ 稍后提醒功能 - 暂时关闭更新提示，下次启动再提醒",
+      "🔄 重试机制 - 更新失败时可点击重试",
+      "🔍 手动检查更新 - 在设置页面添加检查更新按钮",
+    ],
+    improvements: [
+      "✅ 关闭自动检查 - 默认不再每小时自动检查，减少干扰",
+      "✅ 改进对话框布局 - 更清晰的按钮布局和操作选项",
+      "✅ 更新后提示 - 安装时提示重启后将显示更新公告",
+      "✅ 更好的错误处理 - 显示错误信息和重试选项",
+    ],
+    technical: [
+      "useTauriAutoUpdate.ts - 添加跳过版本和暂时关闭功能",
+      "TauriAutoUpdateDialog.tsx - 重新设计对话框UI",
+      "GeneralSettings.tsx - 添加手动检查更新按钮",
+      "localStorage 存储 - 记录跳过和暂时关闭的版本",
+    ],
+  },
   "2.4.1": {
     title: "v2.4.1 - 🔧 样式修复与统计增强",
     date: "2026-01-06",
