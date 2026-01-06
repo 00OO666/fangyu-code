@@ -34,12 +34,12 @@ export const TauriAutoUpdateDialog: React.FC = () => {
     error,
     downloadProgress,
     isDismissed,
+    checkForUpdates,
     installUpdate,
     skipVersion,
     dismissUpdate,
     retryCheck,
   } = useTauriAutoUpdate({
-    checkForUpdates,
     checkOnMount: true,
     autoCheckInterval: 0, // 关闭自动检查，改为手动触发
   });
