@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { AlertCircle, Loader2, RotateCcw, HelpCircle, Sparkles } from "lucide-react";
+import { AlertCircle, Loader2, RotateCcw, HelpCircle, Sparkles, Download, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,6 +26,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useTranslation } from "@/hooks/useTranslation";
 import { api, type ClaudeSettings } from "@/lib/api";
 import type { HooksConfiguration } from "@/types/hooks";
+import { useTauriAutoUpdate } from "@/hooks/useTauriAutoUpdate";
 
 interface GeneralSettingsProps {
   settings: ClaudeSettings | null;
@@ -823,6 +824,32 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
                   </motion.div>
                 )}
               </AnimatePresence>
+            </div>
+          </div>
+
+          {/* Check for Updates */}
+          <div className="border-t pt-6 mt-6">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <Label className="text-sm font-medium">检查更新</Label>
+                <p className="text-xs text-muted-foreground">
+                  手动检查 Fangyu Code 的最新版本
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const { checkForUpdates } = (window as any).__updateHook || {};
+                  if (checkForUpdates) {
+                    checkForUpdates(true);
+                  }
+                }}
+                className="gap-2"
+              >
+                <Download className="h-4 w-4" />
+                检查更新
+              </Button>
             </div>
           </div>
 

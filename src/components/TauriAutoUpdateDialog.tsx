@@ -39,12 +39,25 @@ export const TauriAutoUpdateDialog: React.FC = () => {
     dismissUpdate,
     retryCheck,
   } = useTauriAutoUpdate({
+    checkForUpdates,
     checkOnMount: true,
     autoCheckInterval: 0, // 关闭自动检查，改为手动触发
   });
 
   // 是否显示对话框（有更新且未被暂时关闭）
   const showDialog = updateInfo?.available && !isDismissed && !downloading && !installing;
+  // 暴露更新检查函数到 window 对象，供设置页面调用
+  React.useEffect(() => {
+    (window as any).__updateHook = {
+      checkForUpdates,
+      updateInfo,
+      checking,
+    };
+
+    return () => {
+      delete (window as any).__updateHook;
+    };
+  }, [checkForUpdates, updateInfo, checking]);
 
   return (
     <>
