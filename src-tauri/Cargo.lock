@@ -1332,7 +1332,7 @@ checksum = "7360491ce676a36bf9bb3c56c1aa791658183a54d2744120f27285738d90465a"
 
 [[package]]
 name = "fangyu-code"
-version = "2.4.2"
+version = "2.4.3"
 dependencies = [
  "anyhow",
  "arboard",

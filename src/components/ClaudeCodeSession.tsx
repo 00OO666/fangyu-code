@@ -56,6 +56,8 @@ import { useToolRecommendation } from "@/hooks/useToolRecommendation";
 import { useMessageDeduplication } from "@/hooks/useMessageDeduplication";
 import { useTokenOptimization } from "@/hooks/useTokenOptimization";
 import { useMessagePersistence } from "@/hooks/useMessagePersistence";
+import { useSessionThresholdMonitor } from "@/hooks/useSessionThresholdMonitor";
+import { SessionSummaryDialog } from "@/components/SessionSummaryDialog";
 
 import * as SessionHelpers from '@/lib/sessionHelpers';
 
@@ -569,6 +571,27 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
     executionEngineConfig.codexModel || 'sonnet',
     executionEngineConfig.engine
   );
+
+  // 🆕 会话阈值监控（80%/90% 警告 + 摘要对话框）
+  const {
+    status: thresholdStatus,
+    summary: thresholdSummary,
+    generateSummary: generateThresholdSummary,
+  } = useSessionThresholdMonitor({
+    messages,
+    maxTokens: contextUsage.contextWindowSize || 200000,
+    warningThreshold: 0.8,  // 80% 警告
+    criticalThreshold: 0.9, // 90% 生成摘要
+    onWarning: () => {
+      console.log('[ClaudeCodeSession] ⚠️ 80% threshold warning');
+    },
+    onCritical: () => {
+      console.log('[ClaudeCodeSession] 🚨 90% threshold critical');
+    },
+    onSummaryGenerated: (summary) => {
+      console.log('[ClaudeCodeSession] 📝 Summary generated:', summary.slice(0, 200));
+    },
+  });
 
   // 🆕 智能会话续接（替代压缩功能 - 新窗口注入摘要）
   const {
@@ -1799,6 +1822,25 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
           engine={executionEngineConfig.engine}
         />
       )}
+
+      {/* 🆕 会话阈值摘要对话框 - 80%/90% 警告 + 一键复制 */}
+      <SessionSummaryDialog
+        isOpen={thresholdStatus.isCritical && !!thresholdSummary}
+        summary={thresholdSummary || ''}
+        tokenPercentage={thresholdStatus.percentage}
+        onClose={() => {
+          // 关闭对话框后重置状态
+          console.log('[ClaudeCodeSession] Summary dialog closed');
+        }}
+        onStartNewSession={() => {
+          // TODO: 创建新会话
+          console.log('[ClaudeCodeSession] Start new session');
+        }}
+        onContinueAnyway={() => {
+          // 继续当前会话
+          console.log('[ClaudeCodeSession] Continue anyway');
+        }}
+      />
 
     </div>
   );

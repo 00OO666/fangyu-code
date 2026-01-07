@@ -17,7 +17,7 @@ import { getVersion } from "@tauri-apps/api/app";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const STORAGE_KEY = "fangyu-code-last-seen-version";
-const FALLBACK_VERSION = "2.4.2"; // 🔧 Fallback 版本（获取失败时使用）
+const FALLBACK_VERSION = "2.4.3"; // 🔧 Fallback 版本（获取失败时使用）
 
 // 🔧 DEBUG: 全局变量用于强制显示更新日志（调试用）
 declare global {
@@ -29,6 +29,28 @@ declare global {
 
 // 版本更新日志（从新到旧）
 export const CHANGELOGS = {
+  "2.4.3": {
+    title: "v2.4.3 - 🎯 会话阈值监控与智能摘要",
+    date: "2026-01-07",
+    features: [
+      "✨ 80%/90% 阈值警告 - 当会话上下文使用率达到 80% 时显示警告，90% 时自动生成摘要",
+      "📝 智能摘要对话框 - 自动生成会话摘要，支持一键复制",
+      "🔄 会话管理选项 - 提供开始新会话或继续当前会话的选择",
+      "🤖 后端 LLM 集成 - 使用 Claude Haiku 模型生成高质量摘要",
+    ],
+    improvements: [
+      "✅ 实时监控上下文使用率 - 基于消息内容动态计算 token 使用量",
+      "✅ 成本优化 - 使用 Haiku 模型生成摘要，每次仅需 $0.001-0.002",
+      "✅ 用户体验提升 - 在达到阈值前主动提醒，避免突然中断",
+      "✅ 完整的错误处理 - API 调用失败时提供友好的错误提示",
+    ],
+    technical: [
+      "useSessionThresholdMonitor.ts - 会话阈值监控 hook",
+      "SessionSummaryDialog.tsx - 摘要对话框组件",
+      "src-tauri/src/commands/llm.rs - LLM 文本生成命令",
+      "集成到 ClaudeCodeSession 组件 - 完整的功能集成",
+    ],
+  },
   "2.4.2": {
     title: "v2.4.2 - 🔄 更新系统全面优化",
     date: "2026-01-06",
