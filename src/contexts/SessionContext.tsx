@@ -39,6 +39,7 @@ interface SessionContextValue {
   onLinkDetected?: (url: string) => void;
   onRevert?: (promptIndex: number, mode: RewindMode) => void;
   getPromptIndexForMessage?: (index: number) => number;
+  displayableToMessagesIndexMap?: Map<number, number>; // 🔧 FIX: displayableMessages 索引到 messages 索引的映射
 
   // 🆕 Thinking Block 状态管理
   getThinkingOpenState?: (messageId: string) => boolean;
@@ -56,6 +57,7 @@ interface SessionProviderProps {
   onLinkDetected?: (url: string) => void;
   onRevert?: (promptIndex: number, mode: RewindMode) => void;
   getPromptIndexForMessage?: (index: number) => number;
+  displayableToMessagesIndexMap?: Map<number, number>; // 🔧 FIX
   getThinkingOpenState?: (messageId: string) => boolean;
   onThinkingToggle?: (messageId: string, isOpen: boolean) => void;
   children: React.ReactNode;
@@ -70,6 +72,7 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
   onLinkDetected,
   onRevert,
   getPromptIndexForMessage,
+  displayableToMessagesIndexMap, // 🔧 FIX
   getThinkingOpenState,
   onThinkingToggle,
   children,
@@ -86,6 +89,7 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
       onLinkDetected,
       onRevert,
       getPromptIndexForMessage,
+      displayableToMessagesIndexMap, // 🔧 FIX
       getThinkingOpenState,
       onThinkingToggle,
     }),
@@ -98,6 +102,7 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
       onLinkDetected,
       onRevert,
       getPromptIndexForMessage,
+      displayableToMessagesIndexMap, // 🔧 FIX
       getThinkingOpenState,
       onThinkingToggle,
     ]

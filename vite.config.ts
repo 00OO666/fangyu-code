@@ -7,7 +7,15 @@ const host = process.env.TAURI_DEV_HOST;
 
 // https://vitejs.dev/config/
 export default defineConfig(async () => ({
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    react(),
+    tailwindcss(),
+  ],
+
+  // Use lightningcss for CSS processing (fixes Tailwind 4 unicode issues)
+  css: {
+    transformer: 'lightningcss',
+  },
 
   // Path resolution
   resolve: {
@@ -20,16 +28,16 @@ export default defineConfig(async () => ({
   //
   // 1. prevent vite from obscuring rust errors
   clearScreen: false,
-  // 2. prefer port 1420, but auto-increment if occupied (prevents port conflicts)
+  // 2. prefer port 5173, but auto-increment if occupied (prevents port conflicts)
   server: {
-    port: 1420,
+    port: 5173,
     strictPort: false,
-    host: host || false,
+    host: host || '127.0.0.1',
     hmr: host
       ? {
           protocol: "ws",
           host,
-          port: 1421,
+          port: 5174,
         }
       : undefined,
     watch: {

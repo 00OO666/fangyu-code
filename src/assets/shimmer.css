@@ -54,27 +54,27 @@
 
 @keyframes symbol-rotate {
   0% {
-    content: '◐';
+    content: '';
     opacity: 1;
     transform: translateY(0) scale(1);
   }
   25% {
-    content: '◓';
+    content: '';
     opacity: 1;
     transform: translateY(0) scale(1);
   }
   50% {
-    content: '◑';
+    content: '';
     opacity: 1;
     transform: translateY(0) scale(1);
   }
   75% {
-    content: '◒';
+    content: '';
     opacity: 1;
     transform: translateY(0) scale(1);
   }
   100% {
-    content: '◐';
+    content: '';
     opacity: 1;
     transform: translateY(0) scale(1);
   }
@@ -112,7 +112,7 @@
 }
 
 .rotating-symbol::before {
-  content: '◐';
+  content: '';
   display: inline-block;
   animation: symbol-rotate 2s linear infinite;
   font-size: inherit;

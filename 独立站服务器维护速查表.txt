@@ -1,0 +1,107 @@
+CC更新： npm update -g @anthropic-ai/claude-code
+
+
+ 远程连接命令 ]
+ssh root@8.136.42.225
+
+
+TJZqwer1234@
+
+[ VS Code 连接步骤 ]
+1. 点击左下角 >< 图标 -> Connect to Host
+2. 选择 IP: 8.136.42.225
+3. 选择系统: Linux
+4. 输入密码: TJZqwer1234@
+
+
+PbootCMS 数据库：
+
+Host: 127.0.0.1
+User: fangyu
+Password: 123456
+Database: fangyu
+产品表: ay_content
+
+
+  |---------------|---------------------------------------|
+  | 询盘管理后台  | http://8.136.42.225/inquiry-admin.php |
+  | 密码          | fangyu2024                            |
+  | PbootCMS 后台 | http://8.136.42.225/oskj_admin.php 
+
+----------------------------------------------------------------
+2. 网站访问信息
+----------------------------------------------------------------
+[ 前台地址 ]
+http://8.136.42.225
+
+[ 后台管理地址 ]
+http://8.136.42.225/oskj_admin.php
+
+[ 后台账号密码 ]
+账号：guest
+密码：guest001
+
+后台管理员账号密码：
+admin
+admin123
+
+----------------------------------------------------------------
+3. 数据库信息 (MySQL)
+----------------------------------------------------------------
+数据库名：web_data
+用户名  ：admin
+密码    ：123456
+
+[ 进入数据库命令 ]
+mysql -u admin -p
+(回车后输入密码 123456)
+
+[ 导入数据命令 ]
+sudo mysql web_data < /var/www/html/fangyudb.sql
+
+----------------------------------------------------------------
+4. 常用维护命令 (复制即用)
+----------------------------------------------------------------
+[ 场景A：修改配置后重启服务 ]
+sudo systemctl restart nginx
+sudo systemctl restart php8.1-fpm
+
+[ 场景B：后台无法上传图片/权限不足 ]
+sudo chown -R www-data:www-data /var/www/html
+sudo chmod -R 755 /var/www/html
+
+[ 场景C：VS Code 连不上/一直卡住 ]
+rm -rf ~/.vscode-server
+
+[ 场景D：查看文件列表 ]
+ls -la /var/www/html/
+
+----------------------------------------------------------------
+5. 关键文件路径
+----------------------------------------------------------------
+[ 网站根目录 ]
+/var/www/html/
+
+[ 数据库配置文件 ]
+/var/www/html/config/database.php
+
+[ Nginx 配置文件 ]
+/etc/nginx/sites-available/default
+
+[ 模板文件目录 (修改页面外观) ]
+/var/www/html/template/
+
+
+  fangyu.com 域名查询结果
+
+  很遗憾，该域名已被注册。
+
+  | 信息      | 值                                    |
+  |-----------|---------------------------------------|
+  | 域名      | FANGYU.COM                            |
+  | 状态      | 已注册 ✗                              |
+  | 注册日期  | 2005-09-23（已近20年）                |
+  | 到期日期  | 2026-09-23                            |
+  | 注册商    | 新网 (Xin Net Technology Corporation) |
+  | 域名状态  | ok（正常）                            |
+  | DNS服务器 | NS1.BODIS.COM, NS2.BODIS.COM          |

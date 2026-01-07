@@ -366,6 +366,18 @@ impl AutoCompactManager {
         project_path: &str,
         instructions: &str,
     ) -> Result<(), String> {
+        // ⚠️ IMPORTANT: Claude CLI does not support /compact command
+        // This feature is not yet implemented in the official Claude CLI
+        // Returning an error to inform the user
+        return Err(
+            "压缩功能暂未实现：Claude CLI 不支持 /compact 命令。\n\n\
+            建议使用「会话续接」功能代替，它可以自动优化上下文。\n\n\
+            如需手动管理上下文，请使用 Claude CLI 的 --continue 参数。"
+                .to_string(),
+        );
+
+        // Original implementation (disabled):
+        /*
         // Find Claude CLI binary
         let claude_path = crate::claude_binary::find_claude_binary(app)?;
 
@@ -411,6 +423,7 @@ impl AutoCompactManager {
         }
 
         Ok(())
+        */
     }
 
     /// Start background monitoring

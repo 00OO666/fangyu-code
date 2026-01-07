@@ -94,8 +94,10 @@ pub async fn restart_to_new_version(app: AppHandle) -> Result<(), String> {
     // 启动新版本
     #[cfg(target_os = "windows")]
     {
+        use std::os::windows::process::CommandExt;
         Command::new("cmd")
             .args(&["/C", "start", "", dev_build_path])
+            .creation_flags(0x08000000) // CREATE_NO_WINDOW
             .spawn()
             .map_err(|e| format!("无法启动新版本: {}", e))?;
     }
@@ -117,13 +119,18 @@ pub async fn restart_to_new_version(app: AppHandle) -> Result<(), String> {
 /// 创建桌面快捷方式（Windows）
 #[cfg(target_os = "windows")]
 fn create_desktop_shortcut(target_path: &str) -> Result<(), String> {
+    use std::os::windows::process::CommandExt;
+    const CREATE_NO_WINDOW: u32 = 0x08000000;
+
     // 使用 PowerShell 获取真实的桌面路径（支持重定向到 E:\Desktop）
     let desktop_path_output = Command::new("powershell")
         .args(&[
             "-NoProfile",
+            "-WindowStyle", "Hidden",
             "-Command",
             "[Environment]::GetFolderPath('Desktop')",
         ])
+        .creation_flags(CREATE_NO_WINDOW)
         .output()
         .map_err(|e| format!("无法获取桌面路径: {}", e))?;
 
@@ -150,7 +157,8 @@ fn create_desktop_shortcut(target_path: &str) -> Result<(), String> {
     );
 
     let output = Command::new("powershell")
-        .args(&["-NoProfile", "-Command", &ps_script])
+        .args(&["-NoProfile", "-WindowStyle", "Hidden", "-Command", &ps_script])
+        .creation_flags(CREATE_NO_WINDOW)
         .output()
         .map_err(|e| format!("PowerShell 执行失败: {}", e))?;
 

@@ -1,5 +1,5 @@
 /* ========================================
-   🧩 COMPONENT STYLES
+    COMPONENT STYLES
    ======================================== */
 
 /* Markdown Editor Dark Mode Styles - Medium Gray */
@@ -236,8 +236,6 @@ code:hover::-webkit-scrollbar-thumb,
 }
 
 /* Layout improvements for better UI separation */
-/* ✅ 重构布局: 移除固定 padding-bottom，因为输入框不再使用 fixed 定位 */
-/* 消息区域和输入区域现在通过 Flexbox 自然分离 */
 .chat-container {
   min-height: 100vh;
 }
@@ -254,19 +252,16 @@ code:hover::-webkit-scrollbar-thumb,
 
 /* Responsive layout adjustments */
 @media (max-width: 768px) {
-  /* ✅ 重构布局: 移除 chat-container 的固定 padding-bottom */
 
   .floating-input-container {
     padding: 12px;
   }
 
-  /* ✅ 重构布局: 导航箭头现在相对于消息区域定位 */
   .navigation-arrows {
     bottom: 12px !important;
     right: 12px !important;
   }
 
-  /* ✅ 重构布局: token counter 不再需要固定的 bottom 偏移 */
   .token-counter {
     bottom: 12px !important;
   }

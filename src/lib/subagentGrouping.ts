@@ -142,12 +142,12 @@ function getTechnicalMessageType(message: ClaudeStreamMessage): "tool" | "thinki
 
   const content = message.message?.content;
   if (!Array.isArray(content)) {
-    console.log('[subagentGrouping] ⚠️ Content is not array:', {
-      uuid: message.uuid,
-      type: message.type,
-      contentType: typeof content,
-      content: content
-    });
+    // console.log('[subagentGrouping] ⚠️ Content is not array:', {
+    //   uuid: message.uuid,
+    //   type: message.type,
+    //   contentType: typeof content,
+    //   content: content
+    // });
     return null;
   }
 
@@ -170,19 +170,19 @@ function getTechnicalMessageType(message: ClaudeStreamMessage): "tool" | "thinki
       if (hasRealContent) {
         hasText = true;
         // 🔍 DEBUG: 记录包含文本的消息
-        console.log('[subagentGrouping] Message has text content:', {
-          uuid: message.uuid,
-          textPreview: trimmedText.substring(0, 100),
-          hasThinking,
-          hasTool
-        });
+        // console.log('[subagentGrouping] Message has text content:', {
+        //   uuid: message.uuid,
+        //   textPreview: trimmedText.substring(0, 100),
+        //   hasThinking,
+        //   hasTool
+        // });
       }
     }
   });
 
   // 如果包含可见文本，不可聚合
   if (hasText) {
-    console.log('[subagentGrouping] Message NOT aggregatable (has text):', message.uuid);
+    // console.log('[subagentGrouping] Message NOT aggregatable (has text):', message.uuid);
     return null;
   }
 
@@ -200,16 +200,16 @@ function getTechnicalMessageType(message: ClaudeStreamMessage): "tool" | "thinki
     // 以免混淆。它自身内部已经包含了 Thinking 和 Tool。
     // 但是，如果后续还有 Tool，用户可能希望合并后续的 Tool。
     // 让我们保守一点，将其视为 'mixed'，不参与外部聚合。
-    console.log('[subagentGrouping] Message NOT aggregatable (mixed thinking+tool):', message.uuid);
+    // console.log('[subagentGrouping] Message NOT aggregatable (mixed thinking+tool):', message.uuid);
     return null;
   }
 
   if (hasThinking) {
-    console.log('[subagentGrouping] Message aggregatable as thinking:', message.uuid);
+    // console.log('[subagentGrouping] Message aggregatable as thinking:', message.uuid);
     return "thinking";
   }
   if (hasTool) {
-    console.log('[subagentGrouping] Message aggregatable as tool:', message.uuid);
+    // console.log('[subagentGrouping] Message aggregatable as tool:', message.uuid);
     return "tool";
   }
 
@@ -226,7 +226,7 @@ function getTechnicalMessageType(message: ClaudeStreamMessage): "tool" | "thinki
  * 当 Claude 在一条消息中并行调用多个子代理时，每个 Task 都应该被正确分组
  */
 export function groupMessages(messages: ClaudeStreamMessage[]): MessageGroup[] {
-  console.log('[subagentGrouping] 🔍 Starting groupMessages with', messages.length, 'messages');
+  // console.log('[subagentGrouping] 🔍 Starting groupMessages with', messages.length, 'messages');
 
   const processedIndices = new Set<number>();
 
@@ -408,12 +408,12 @@ export function groupMessages(messages: ClaudeStreamMessage[]): MessageGroup[] {
         }
       } else {
         // 不可聚合的消息（文本等），结算之前的聚合
-        console.log('[subagentGrouping] Non-aggregatable message (has text), adding as normal group:', {
-          uuid: msg.uuid,
-          type: msg.type,
-          hasContent: !!msg.message?.content,
-          contentPreview: msg.message?.content ? JSON.stringify(msg.message.content).substring(0, 200) : 'no content'
-        });
+        // console.log('[subagentGrouping] Non-aggregatable message (has text), adding as normal group:', {
+        //   uuid: msg.uuid,
+        //   type: msg.type,
+        //   hasContent: !!msg.message?.content,
+        //   contentPreview: msg.message?.content ? JSON.stringify(msg.message.content).substring(0, 200) : 'no content'
+        // });
         if (currentAggregation) {
           finalGroups.push({
             type: "aggregated",

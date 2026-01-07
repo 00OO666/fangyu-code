@@ -1,9 +1,9 @@
 /* ========================================
-   🎬 ANIMATIONS & TRANSITIONS
+    ANIMATIONS & TRANSITIONS
    ======================================== */
 
 :root, .dark {
-  /* ⚡ Transitions - Smooth & expressive (Material 3 Motion) */
+  /*  Transitions - Smooth & expressive (Material 3 Motion) */
   --duration-instant: 75ms;
   --duration-fast: 150ms;
   --duration-normal: 250ms;

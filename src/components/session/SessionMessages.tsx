@@ -105,7 +105,7 @@ export const SessionMessages = forwardRef<SessionMessagesRef, SessionMessagesPro
   onCancel
 }, ref) => {
   // ✅ 从 SessionContext 获取配置和回调，避免 Props Drilling
-  const { settings, sessionId, projectId, projectPath, onLinkDetected, onRevert, getPromptIndexForMessage } = useSession();
+  const { settings, sessionId, projectId, projectPath, onLinkDetected, onRevert, getPromptIndexForMessage, displayableToMessagesIndexMap } = useSession();
   /**
    * ✅ OPTIMIZED: Virtual list configuration for improved performance
    */
@@ -187,79 +187,107 @@ export const SessionMessages = forwardRef<SessionMessagesRef, SessionMessagesPro
       }, 100);
     },
     scrollToPrompt: (promptIndex: number) => {
-      // 🚀 改进方案：先定位到虚拟列表索引，再通过 DOM 精准滚动
+      console.log(`[scrollToPrompt] 🎯 直接通过 DOM 查找 promptIndex=${promptIndex}`);
 
-      // 1. 找到 promptIndex 对应的消息在 messageGroups 中的索引
-      let currentPromptIndex = 0;
-      let targetGroupIndex = -1;
+      // 🔧 NEW APPROACH: 直接通过 data-prompt-index 查找 DOM 元素
+      // 不再遍历 messageGroups，避免索引不匹配问题
+      const promptElement = document.querySelector(`[data-prompt-index="${promptIndex}"]`);
 
-      for (let i = 0; i < messageGroups.length; i++) {
-        const group = messageGroups[i];
+      if (promptElement) {
+        console.log(`[scrollToPrompt] ✅ 找到 DOM 元素，开始滚动`);
 
-        if (group.type === 'normal') {
-          const message = group.message;
-          const messageType = (message as any).type || (message.message as any)?.role;
+        // 使用 scrollIntoView 滚动到元素
+        promptElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+          inline: 'nearest'
+        });
 
-          if (messageType === 'user') {
-            if (currentPromptIndex === promptIndex) {
-              targetGroupIndex = i;
-              break;
+        // 增加偏移量，确保标题和上方留白完全可见
+        setTimeout(() => {
+          if (parentRef.current) {
+            parentRef.current.scrollTop = Math.max(0, parentRef.current.scrollTop - 60);
+          }
+        }, 300);
+      } else {
+        console.warn(`[scrollToPrompt] ❌ 未找到 DOM 元素 [data-prompt-index="${promptIndex}"]`);
+        console.log(`[scrollToPrompt] 💡 元素可能在虚拟列表之外，尝试通过 messageGroups 查找...`);
+
+        // 回退方案：遍历 messageGroups 查找对应的消息
+        let currentPromptIndex = 0;
+        let targetGroupIndex = -1;
+
+        for (let i = 0; i < messageGroups.length; i++) {
+          const group = messageGroups[i];
+
+          if (group.type === 'normal') {
+            const message = group.message;
+            const messageType = (message as any).type || (message.message as any)?.role;
+
+            if (messageType === 'user') {
+              const content = message.message?.content;
+              let text = '';
+
+              if (typeof content === 'string') {
+                text = content;
+              } else if (Array.isArray(content)) {
+                text = content
+                  .filter((item: any) => item.type === 'text')
+                  .map((item: any) => item.text || '')
+                  .join('\n');
+              }
+
+              if (text.includes('\\')) {
+                text = text
+                  .replace(/\\\\n/g, '\n')
+                  .replace(/\\\\r/g, '\r')
+                  .replace(/\\\\t/g, '\t')
+                  .replace(/\\\\"/g, '"')
+                  .replace(/\\\\'/g, "'")
+                  .replace(/\\\\\\\\/g, '\\');
+              }
+
+              if (text.trim()) {
+                if (currentPromptIndex === promptIndex) {
+                  targetGroupIndex = i;
+                  break;
+                }
+                currentPromptIndex++;
+              }
             }
-            currentPromptIndex++;
           }
         }
-      }
 
-      if (targetGroupIndex === -1) {
-        console.warn(`[Prompt Navigation] Prompt #${promptIndex} not found`);
-        return;
-      }
-
-      console.log(`[Prompt Navigation] Scrolling to prompt #${promptIndex} at group index ${targetGroupIndex}`);
-
-      // 2. 🚀 强制虚拟列表立即跳转到目标索引（确保元素渲染）
-      // 🔧 FIX: 使用 'center' 对齐，确保目标出现在可视区域中央而非底部
-      rowVirtualizer.scrollToIndex(targetGroupIndex, {
-        align: 'center',
-        behavior: 'auto',
-      });
-
-      // 3. 🚀 等待虚拟列表渲染完成，再通过 DOM 元素精准定位到顶部
-      // 🔧 FIX: 增加延迟到 150ms，确保虚拟列表完全渲染
-      setTimeout(() => {
-        if (!parentRef.current) return;
-
-        // 尝试找到对应的 DOM 元素
-        const promptElement = document.querySelector(`[data-prompt-index="${promptIndex}"]`);
-
-        if (promptElement) {
-          // 🔧 FIX: 使用 scrollIntoView 并强制定位到顶部
-          promptElement.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start',
-            inline: 'nearest'
-          });
-
-          // 🔧 FIX: 增加偏移量到 60px，确保标题、时间戳和上方留白完全可见
-          setTimeout(() => {
-            if (parentRef.current) {
-              parentRef.current.scrollTop = Math.max(0, parentRef.current.scrollTop - 60);
-            }
-          }, 50);
-        } else {
-          // 方案 B：虚拟列表元素可能还没渲染，使用计算位置
-          console.warn(`[Prompt Navigation] DOM element not found, using virtualizer offset`);
-
-          // 获取虚拟列表计算的偏移量
-          const items = rowVirtualizer.getVirtualItems();
-          const targetItem = items.find(item => item.index === targetGroupIndex);
-
-          if (targetItem && parentRef.current) {
-            // 🔧 FIX: 增加偏移量
-            parentRef.current.scrollTop = Math.max(0, targetItem.start - 60);
-          }
+        if (targetGroupIndex === -1) {
+          console.error(`[scrollToPrompt] ❌ 在 messageGroups 中也未找到 promptIndex=${promptIndex}`);
+          return;
         }
-      }, 150);
+
+        console.log(`[scrollToPrompt] 📍 找到 targetGroupIndex=${targetGroupIndex}，滚动到虚拟列表位置`);
+
+        // 滚动到虚拟列表位置
+        rowVirtualizer.scrollToIndex(targetGroupIndex, {
+          align: 'start',
+          behavior: 'auto',
+        });
+
+        // 等待渲染后再次尝试查找 DOM 元素
+        setTimeout(() => {
+          const element = document.querySelector(`[data-prompt-index="${promptIndex}"]`);
+          if (element) {
+            element.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start',
+              inline: 'nearest'
+            });
+            setTimeout(() => {
+              if (parentRef.current) {
+                parentRef.current.scrollTop = Math.max(0, parentRef.current.scrollTop - 60);
+              }
+            }, 50);
+          }
+        }, 300);
+      }
     }
   }));
 
@@ -293,8 +321,12 @@ export const SessionMessages = forwardRef<SessionMessagesRef, SessionMessagesPro
 
             const message = messageGroup.type === 'normal' ? messageGroup.message : null;
             const originalIndex = messageGroup.type === 'normal' ? messageGroup.index : undefined;
-            const promptIndex = message && message.type === 'user' && originalIndex !== undefined && getPromptIndexForMessage
-              ? getPromptIndexForMessage(originalIndex)
+            // 🔧 FIX: 将 displayableMessages 的索引转换为 messages 的索引
+            const messagesIndex = originalIndex !== undefined && displayableToMessagesIndexMap
+              ? displayableToMessagesIndexMap.get(originalIndex)
+              : undefined;
+            const promptIndex = message && message.type === 'user' && messagesIndex !== undefined && getPromptIndexForMessage
+              ? getPromptIndexForMessage(messagesIndex)
               : undefined;
 
             const isStreaming = virtualItem.index === messageGroups.length - 1 && isLoading;
