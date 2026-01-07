@@ -3571,4 +3571,21 @@ export const api = {
       return false;
     }
   },
+
+  // ==================== LLM Text Generation (文本生成) ====================
+
+  /**
+   * 使用 LLM 生成文本（用于摘要、翻译等）
+   * @param prompt 提示词
+   * @param model 模型类型 ("haiku" | "sonnet" | "opus")
+   * @returns 生成的文本
+   */
+  async generateTextWithLLM(prompt: string, model: "haiku" | "sonnet" | "opus" = "haiku"): Promise<string> {
+    try {
+      return await invoke<string>("generate_text_with_llm", { prompt, model });
+    } catch (error) {
+      console.error("Failed to generate text with LLM:", error);
+      throw error;
+    }
+  },
 };

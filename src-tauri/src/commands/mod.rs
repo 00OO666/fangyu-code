@@ -17,6 +17,7 @@ pub mod extensions;
 pub mod file_operations;
 pub mod gemini; // Google Gemini CLI integration
 pub mod git_stats;
+pub mod llm; // LLM 文本生成 - 用于摘要、翻译等
 pub mod mcp;
 pub mod permission_config;
 pub mod prompt_tracker;

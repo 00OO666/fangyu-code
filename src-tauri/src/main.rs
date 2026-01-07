@@ -513,6 +513,8 @@ fn main() {
             get_translation_cache_stats,
             detect_text_language,
             init_translation_service_command,
+            // LLM Text Generation (文本生成)
+            commands::llm::generate_text_with_llm,
             // Auto-Compact Context Management
             commands::context_commands::init_auto_compact_manager,
             commands::context_commands::register_auto_compact_session,
