@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ✨ REFACTORED: useFirstLaunchChangelog Hook (Phase 2 - Task 6)
  *
  * 检测首次启动新版本，显示更新日志
@@ -17,7 +17,7 @@ import { getVersion } from "@tauri-apps/api/app";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const STORAGE_KEY = "fangyu-code-last-seen-version";
-const FALLBACK_VERSION = "2.4.3"; // 🔧 Fallback 版本（获取失败时使用）
+const FALLBACK_VERSION = "2.4.5"; // 🔧 Fallback 版本（获取失败时使用）
 
 // 🔧 DEBUG: 全局变量用于强制显示更新日志（调试用）
 declare global {
@@ -29,6 +29,46 @@ declare global {
 
 // 版本更新日志（从新到旧）
 export const CHANGELOGS = {
+  "2.4.5": {
+    title: "v2.4.5 - 🔍 全面代码审查与质量提升",
+    date: "2026-01-08",
+    features: [
+      "🔍 全面代码审查 - 扫描 725 个文件，约 151,000 行代码",
+      "📊 性能分析 - 识别 useCallback(527)、useMemo(102)、React.memo(6) 使用情况",
+      "🎨 UI 组件检查 - 确认 30 个 shadcn 风格组件已集成",
+      "🌓 主题系统验证 - 深色/浅色主题使用 oklch 色彩空间完整配置",
+    ],
+    improvements: [
+      "✅ TypeScript 类型检查 - 识别并记录 255 个类型问题待优化",
+      "✅ TODO 清理 - 发现约 20 个真实 TODO 项目需要处理",
+      "✅ 错误处理完善 - 850 个 try-catch 块，ErrorBoundary 已配置",
+      "✅ 代码规范 - ESLint 配置完整，无严重错误",
+    ],
+    technical: [
+      "项目备份 - F:\\Fangyu-Code-Dev-backup-2026-01-08.zip (4.73 MB)",
+      "组件分析 - 248 个 React 组件，200+ Tauri 命令",
+      "依赖检查 - 识别大型依赖（monaco-editor、shiki 等）",
+      "性能优化建议 - 识别需要优化的组件（ExecutionEngineSelector 等）",
+    ],
+  },
+  "2.4.4": {
+    title: "v2.4.4 - 🎯 提示词导航修复",
+    date: "2026-01-07",
+    features: [
+      "🔧 修复提示词导航索引偏移问题 - 点击提示词现在能精准跳转到对应位置",
+      "🔧 解决控制台日志暴涨问题 - 注释掉 subagentGrouping 调试日志",
+    ],
+    improvements: [
+      "✅ 创建索引映射机制 - displayableMessages 索引到 messages 索引的转换",
+      "✅ 优化导航体验 - 提示词导航现在完全准确",
+    ],
+    technical: [
+      "ClaudeCodeSession.tsx - 创建 displayableToMessagesIndexMap",
+      "SessionContext.tsx - 添加索引映射到 context",
+      "SessionMessages.tsx - 使用映射转换索引",
+      "subagentGrouping.ts - 注释掉所有 console.log",
+    ],
+  },
   "2.4.3": {
     title: "v2.4.3 - 🎯 会话阈值监控与智能摘要",
     date: "2026-01-07",

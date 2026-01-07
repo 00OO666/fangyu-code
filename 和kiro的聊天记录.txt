@@ -1,0 +1,1917 @@
+项目是PbootCMS网站，以下是聊天记录：Including Steering Documents
+
+skills-index.md
+
+global-rules.md
+
+好的，我继续处理导航栏的 UI 和布局问题。让我先读取相关文件来了解当前的结构和样式。
+
+Command
+
+ssh root@8.136.42.225 "cat /www/wwwroot/8.136.42.225/template/default/htmls/head.html"
+
+root/8.136.42.225/template/default/htmls/head.html"       Warning: Permanently added '8.136.42.225' (ED25519) to the
+
+ list of known hosts.                                     <!DOCTYPE html>                                           
+
+<html lang="en">
+
+<head>
+
+    <!-- Google Analytics -->
+
+    <script async src="https://www.googletagmanager.com/gt
+
+ag/js?id=G-PL0FZ55LNV"></script>                              <script>                                              
+
+        window.dataLayer = window.dataLayer || [];        
+
+        function gtag(){dataLayer.push(arguments);}       
+
+        gtag("js", new Date());
+
+        gtag("config", "G-PL0FZ55LNV");
+
+    </script>
+
+    <!-- Resource Hints for Performance -->
+
+    <link rel="preconnect" href="https://cdn.bootcdn.net" 
+
+crossorigin>                                                  <link rel="preconnect" href="https://www.googletagmana
+
+ger.com" crossorigin>                                         <link rel="dns-prefetch" href="https://translate.googl
+
+e.com">                                                       <link rel="dns-prefetch" href="https://cdn.bootcdn.net
+
+">                                                            <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, ini
+
+tial-scale=1, shrink-to-fit=no,  user-scalable=yes, viewport-fit=cover">                                                <meta http-equiv="X-UA-Compatible" content="IE=edge,ch
+
+rome=1">                                                      <meta name="renderer" content="webkit">
+
+    <title>{pboot:if(0=={sort:scode})}Fangyu Machine - Ind
+
+ustrial Machinery Manufacturer | Press Brake and Shearing Machine{/pboot:if}{pboot:if(0!={sort:scode})}{sort:name} | Fangyu Machine{/pboot:if}</title>                            <meta name="keywords" content="{pboot:if(0=={sort:scod
+
+e})}press brake, shearing machine, laser cutting machine, CNC press brake, hydraulic shearing machine, industrial machinery, Fangyu Machine, sheet metal machinery{/pboot:if}{pboot:if(0!={sort:scode})}{pboot:pagekeywords}{/pboot:if}">                                                             <meta name="description" content="{pboot:if(0=={sort:s
+
+code})}Fangyu Machine is a leading manufacturer of industrial machinery including CNC press brakes, hydraulic shearing machines, laser cutting machines. Professional sheet metal fabrication equipment for global customers.{/pboot:if}{pboot:if(0!={sort:scode})}{pboot:pagedescription}{/pboot:if}">                                                     
+
+    <!-- Open Graph Meta Tags (社交分享优化) -->
+
+    <meta property="og:type" content="website">
+
+    <meta property="og:title" content="{pboot:if(0=={sort:
+
+scode})}Fangyu Machine - Industrial Machinery Manufacturer | Press Brake and Shearing Machine{/pboot:if}{pboot:if(0!={sort:scode})}{sort:name}{/pboot:if}">                       <meta property="og:description" content="{pboot:if(0==
+
+{sort:scode})}Fangyu Machine is a leading manufacturer of industrial machinery including CNC press brakes, hydraulic shearing machines, laser cutting machines. Professional sheet metal fabrication equipment for global customers.{/pboot:if}{pboot:if(0!={sort:scode})}{pboot:pagedescription}{/pboot:if}">                                                  <meta property="og:url" content="{pboot:httpurl}/">   
+
+    <meta property="og:image" content="{pboot:httpurl}/sta
+
+tic/upload/image/20251112/1762927785213959.png">              <meta property="og:site_name" content="Fangyu Machine"
+
+>                                                             <meta property="og:locale" content="en_US">
+
+    <!-- About Section (Deep Space Theme) -->
+
+    <link rel="stylesheet" href="static/css/about-deep-spa
+
+ce.css?v=1765937026">                                     
+
+    <!-- Twitter Card Meta Tags -->
+
+    <meta name="twitter:card" content="summary_large_image
+
+">                                                            <meta name="twitter:title" content="{pboot:if(0=={sort
+
+:scode})}Fangyu Machine - Industrial Machinery Manufacturer | Press Brake and Shearing Machine{/pboot:if}{pboot:if(0!={sort:scode})}{sort:name}{/pboot:if}">                      <meta name="twitter:description" content="{pboot:if(0=
+
+={sort:scode})}Fangyu Machine is a leading manufacturer of industrial machinery including CNC press brakes, hydraulic shearing machines, laser cutting machines. Professional sheet metal fabrication equipment for global customers.{/pboot:if}{pboot:if(0!={sort:scode})}{pboot:pagedescription}{/pboot:if}">                                                 <meta name="twitter:image" content="{pboot:httpurl}/st
+
+atic/upload/image/20251112/1762927785213959.png">         
+
+    <!-- Canonical URL -->
+
+    <link rel="canonical" href="{pboot:httpurl}/">        
+
+    <!-- DNS 预解析 -->
+
+    <link rel="dns-prefetch" href="//fonts.googleapis.com"
+
+>                                                         
+
+    <!-- 关键 CSS (同步加载) - 首屏必需 -->
+
+    <!-- Bootstrap CDN with local fallback -->
+
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/a
+
+jax/libs/twitter-bootstrap/4.6.2/css/bootstrap.min.css" onerror="this.onerror=null;this.href='static/css/bootstrap.min.css'">                                                     <!-- Design System -->
+
+    <link rel="stylesheet" href="static/css/design-system.
+
+min.css?v=1.0">                                               <link rel="stylesheet" href="static/css/style.min.css?
+
+v=1765128635">                                                <link rel="stylesheet" href="static/css/category-showc
+
+ase.min.css?v=1765128111">                                    <link rel="stylesheet" href="static/css/iconfont.css">
+
+    <!-- 产品导航重新设计 - 深空主题 -->
+
+    <!-- <link rel="stylesheet" href="static/css/nav-produ
+
+ct-redesign.css"> -->                                         <!-- <link rel="stylesheet" href="static/css/nav-produ
+
+ct-cards-mini.css"> -->                                       <!-- 颜色系统统一 - 蓝色主题 -->
+
+    <link rel="stylesheet" href="static/css/color-system-u
+
+nified.css">                                                  <!-- 导航栏产品展示 - 深空工业主题 -->
+
+    <link rel="stylesheet" href="static/css/nav-product-sh
+
+owcase-dark.css">                                             <link rel="stylesheet" href="static/css/hide-pboot-pro
+
+duct-cards.css">                                              <!-- 玻璃拟态导航栏 UI -->
+
+    <!-- News 模块重设计 - 暗色主题优化 -->
+
+    <link rel="stylesheet" href="static/css/index-news-red
+
+esign.css">                                                   <!-- News 高级样式 - View All按钮 & 文章列表页 -->    
+
+    <link rel="stylesheet" href="static/css/news-advanced.
+
+css">                                                         <!-- UI/UX 改进 - 焦点状态/加载动画/按钮/移动端优化 --
+
+>                                                             <link rel="stylesheet" href="static/css/ui-improvement
+
+s.css">                                                       <!-- 玻璃拟态导航栏 UI (最高优先级) -->
+
+    <link rel="stylesheet" href="static/css/nav-glassmorph
+
+ism.min.css?v=1765131333">                                    <!-- Responsive Unified (Override) -->
+
+    <link rel="stylesheet" href="static/css/floating-unifi
+
+ed.css?v=1.0">                                                <link rel="stylesheet" href="static/css/responsive-bas
+
+e.css?v=1.0">                                                 <link rel="stylesheet" href="static/css/responsive-uni
+
+fied.css?v=1.0?v=1765131333">                                 <link rel="stylesheet" href="static/css/mobile-bottom-
+
+nav-enhanced.css?v=1766251164">                               <!-- 次要 CSS (异步加载) - 渐进增强 -->
+
+    <link rel="preload" href="static/css/animate.min.css" 
+
+as="style" onload="this.onload=null;this.rel='stylesheet'">                                                             <link rel="stylesheet" href="static/css/ui-fixes-20251
+
+224.css?v=2">                                                 <link rel="preload" href="static/css/xinjia.css" as="s
+
+tyle" onload="this.onload=null;this.rel='stylesheet'">        <link rel="preload" href="static/css/phone.css" as="st
+
+yle" onload="this.onload=null;this.rel='stylesheet'">         <link rel="preload" href="static/css/ui-enhancement.cs
+
+s" as="style" onload="this.onload=null;this.rel='stylesheet'">                                                          <link rel="stylesheet" href="static/css/translate-lang
+
+.css?v=16.0.1">                                           
+
+    <!-- 可选 CSS (延迟加载) -->
+
+    <link rel="preload" href="static/css/slick.css" as="st
+
+yle" onload="this.onload=null;this.rel='stylesheet'">         <link rel="preload" href="static/css/jquery.fancybox.m
+
+in.css" as="style" onload="this.onload=null;this.rel='stylesheet'">                                                     <link rel="preload" href="static/css/fileinput.min.css
+
+" as="style" onload="this.onload=null;this.rel='stylesheet'">                                                           <link rel="preload" href="static/css/swiper-bundle.min
+
+.css" as="style" onload="this.onload=null;this.rel='stylesheet'">                                                       <link rel="preload" href="static/css/fluidplayer.min.c
+
+ss" as="style" onload="this.onload=null;this.rel='stylesheet'">                                                     
+
+    <!-- DNS 预解析和预连接 -->
+
+    <link rel="preload" href="static/js/jquery.min.js" as=
+
+"script">                                                     <link rel="stylesheet" href="/static/css/pagination.cs
+
+s?v=200">                                                     <!-- Google Translate 中文翻译修复 -->
+
+    <link rel="stylesheet" href="static/css/google-transla
+
+te-fix.css?v=1766379586">                                 </head>
+
+<body id="body" class="hsm-content homepage-dark">        
+
+    <div class="header">
+
+        <div class="top d-none d-xl-block">
+
+            <div class="d-flex align-items-center justify-
+
+content-between container container-lg">                                  <div class="follow-box">
+
+                    <span>follow us:</span>
+
+                    <a class="iconfont icon-twitter" href=
+
+"https://x.com/Stonmachinery" rel="noreferrer noopener nofollow" target="_blank" aria-label="twitter" title=""></a>                     <a class="iconfont icon-instagram3" hr
+
+ef="https://www.instagram.com/" rel="noreferrer noopener nofollow" target="_blank" aria-label="instagram" title=""></a>                                                                           <a class="iconfont icon-facebook" href
+
+="https://www.facebook.com/profile.php?id=61579105751432" rel="noreferrer noopener nofollow" target="_blank" aria-label="facebook" title=""></a>                                              </div>
+
+                <div class="d-flex align-items-center info
+
+"> <span class="mail">E-mail:<a href="mailto:{pboot:companyemail}" rel="noreferrer noopener nofollow" title="{pboot:companyemail}">{pboot:companyemail}</a></span> </div>                 </div>
+
+        </div>
+
+        <div class="header-box">
+
+            <div class="container container-lg">
+
+                <div class="logo d-flex align-items-center
+
+ jinglitong">                                                                 <a class="pic" href="/" title="logo"> 
+
+                        <img src="{pboot:sitelogo}" alt="F
+
+angyu Machine Logo" width="90" height="88">                                   </a>
+
+                </div>
+
+                <div class="nav">
+
+                    <div class="nav-box">
+
+                        <div class="tbl">
+
+                            <div class="tbl-cell">        
+
+                                <ul class="nav-list1">    
+
+                                    <li class="{pboot:if(0
+
+=={sort:scode})}active{/pboot:if} ">                                                              <span> <a href="/"
+
+ title="Home"><span>Home</span></a> </span>                                                   </li>
+
+                                    {pboot:nav parent=0}  
+
+                                    {pboot:if([nav:scode]=
+
+=1)}                                                                                          <li class="{pboot:2if(
+
+[nav:scode]=={sort:tcode})} active {/pboot:2if} nav-product">                                                                                               <span class="ignor
+
+e"> <a href="[nav:link]" title="[nav:name]"><span class="nav-text">[nav:name]</span></a> </span>                                                            <ul class="nav-lis
+
+t2 d-xl-none">                                                                                        {pboot:2nav pa
+
+rent=[nav:scode]}                                                                                     <li>
+
+                                                <span>    
+
+                                                    <a hre
+
+f="[2nav:link]" title="[2nav:name]"><span class="nav-text">[2nav:name]</span></a>                                                                                   </span>   
+
+                                            </li>
+
+                                            {/pboot:2nav} 
+
+                                        </ul>
+
+                                    </li>
+
+                                    {else}
+
+                                    <li class="{pboot:2if(
+
+[nav:scode]=={sort:tcode})} active {/pboot:2if}">                                                 <span class="ignor
+
+e"> <a href="[nav:link]" title="[nav:name]"><span class="nav-text">[nav:name]</span></a> </span>                                                        </li>
+
+                                    {/pboot:if}
+
+                                    {/pboot:nav}
+
+                                </ul>
+
+                            </div>
+
+                        </div>
+
+                        <button class="nav-collapse nav-co
+
+llapse-1" aria-label="menu"> <span class="btn-line"></span> <span class="btn-line"></span> <span class="btn-line"></span> </button>                                                               </div>
+
+                </div>
+
+                <div class="header-r">
+
+                                        <!-- 新版搜索+语言
+
+切换组件 -->                                                                  <div class="nav-tools ignore">        
+
+                        <!-- 左向展开搜索组件 -->
+
+                        <form class="search-box-compact" a
+
+ction="javascript:void(0);" method="get" onsubmit="return false;">                                                                              <input type="text" class="sear
+
+ch-input" name="keyword" placeholder="Search products...">                            <button type="submit" class="s
+
+earch-btn" aria-label="Search">                                                           <svg width="18" height="18
+
+" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>                                            </button>
+
+                        </form>
+
+                        <!-- 分割线 -->
+
+                        <div class="nav-tools-divider"></d
+
+iv>                                                       
+
+                        <!-- 动态代码语言组件 -->
+
+                        <div class="lang-dropdown" id="lan
+
+gDropdown">                                                                           <button class="lang-current" i
+
+d="langTrigger" aria-haspopup="listbox" aria-expanded="false"><svg class="globe-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>                                                        <span id="currentLangCode"
+
+>EN</span>                                                                                <svg class="arrow-icon" wi
+
+dth="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>                               </button>
+
+                            <div class="lang-list" id="lan
+
+gList"></div>                                                                     </div>
+
+                    </div>
+
+<!-- Contact Us Button - Independent -->                  
+
+  <button class="nav-contact-btn" onclick="openQuoteModal(
+
+)" title="Request Quote">                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>                        <span>Contact</span>                    </button>
+
+                    <div class="search-wrap">
+
+                        <form class="search-box" action="j
+
+avascript:void(0);" method="get" onsubmit="return false;">                            <input class="input-text" plac
+
+eholder="Search..." type="text" name="keyword" required>                              <button type="submit" class="s
+
+ubmit" aria-label="submit"></button>                                              </form>
+
+                    </div>
+
+                    <button class="nav-collapse nav-collap
+
+se-xs d-xl-none" aria-label="menu"> <span class="btn-line"></span> <span class="btn-line"></span> <span class="btn-line"></span> </button>                                                    </div>
+
+            </div>
+
+            <div class="pro-xl-list">
+
+                <div class="container d-flex">
+
+                    <!-- 产品导航展示区域 -->
+
+                    <div class="nav-products-display"></di
+
+v>                                                                            <ul class="list-name list-name1">     
+
+                        {pboot:nav parent=1}
+
+                        <li class="{pboot:if([nav:i]==1)}a
+
+ctive{/pboot:if}">                                                                    <a href="[nav:link]" title="[n
+
+av:name]"><span>[nav:name]</span></a>                                                 <div class="list-intro">      
+
+                                <ul class="row g-5">      
+
+                                    {pboot:list scode=[nav
+
+:scode] num=12}                                                                               <li>
+
+                                        <div class="item">
+
+                                            <div class="pi
+
+c">                                                                                                       <a href="[
+
+list:link]" class="img-box" title="[list:title]">                                                             <img c
+
+lass="lazy" data-src="[list:ico]" alt="[list:title]" width="854" height="538" src="[list:ico]" decoding="async">                                                    </a>      
+
+                                            </div>        
+
+                                            <div class="na
+
+me"><a href="[list:link]" title="[list:title]">[list:title]</a></div>                                                                                           <div class="tx
+
+t">                                                                                                       <p><a href
+
+="[list:link]" title="">[list:subtitle]</a></p>                                                       </div>        
+
+                                        </div>
+
+                                    </li>
+
+                                    {/pboot:list}
+
+                                </ul>
+
+                            </div>
+
+                        </li>
+
+                        {/pboot:nav}
+
+                    </ul>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="hide-seo">
+
+        <h1>{pboot:companyname}</h1>
+
+    </div>
+
+现在让我查看导航栏的 CSS 样式：
+
+Command
+
+ssh root@8.136.42.225 "cat /www/wwwroot/8.136.42.225/static/css/nav-glassmorphism.min.css"
+
+root/8.136.42.225/static/css/nav-glassmorphism.min.css"   Warning: Permanently added '8.136.42.225' (ED25519) to the
+
+ list of known hosts.                                     body.hsm-content.homepage-dark .pro-xl-list .list-name1{ba
+
+ckground:rgba(255,255,255,.08)!important;backdrop-filter:blur(24px) saturate(180%)!important;-webkit-backdrop-filter:blur(24px) saturate(180%)!important;border-right:1px solid rgba(255,255,255,.2)!important;box-shadow:0 8px 32px 0 rgba(0,0,0,.4),inset 0 1px 0 0 rgba(255,255,255,.1)!important}body.hsm-content.homepage-dark .pro-xl-list .list-name1>li{border-top:1px solid rgba(255,255,255,.08)!important;transition:all .4s cubic-bezier(.4,0,.2,1)!important;position:relative!important;overflow:hidden!important}body.hsm-content.homepage-dark .pro-xl-list .list-name1>li::before{content:""!important;position:absolute!important;top:0!important;left:-100%!important;width:100%!important;height:100%!important;background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent)!important;transition:left .6s ease!important}body.hsm-content.homepage-dark .pro-xl-list .list-name1>li:hover::before{left:100%!important}body.hsm-content.homepage-dark .pro-xl-list .list-name1>li:hover{background:rgba(59,130,246,.15)!important;backdrop-filter:blur(16px)!important;border-right:3px solid rgba(59,130,246,.6)!important;box-shadow:inset 0 0 20px rgba(59,130,246,.1),0 0 30px rgba(59,130,246,.2)!important}body.hsm-content.homepage-dark .pro-xl-list .list-name1>li>a{color:rgba(255,255,255,.85)!important;font-weight:500!important;letter-spacing:.5px!important;text-shadow:0 2px 4px rgba(0,0,0,.3)!important;transition:all .3s ease!important}body.hsm-content.homepage-dark .pro-xl-list .list-name1>li:hover>a{color:#fff!important;text-shadow:0 0 10px rgba(59,130,246,.5),0 2px 4px rgba(0,0,0,.5)!important;transform:translateX(4px)!important}body.hsm-content.homepage-dark .pro-xl-list .list-name1>li.active{background:rgba(59,130,246,.25)!important;backdrop-filter:blur(20px)!important;border-right:4px solid #3b82f6!important;box-shadow:inset 0 0 30px rgba(59,130,246,.2),0 0 40px rgba(59,130,246,.3)!important}body.hsm-content.homepage-dark .pro-xl-list .list-name1>li.active>a{color:#fff!important;font-weight:600!important;text-shadow:0 0 15px rgba(59,130,246,.8),0 2px 4px rgba(0,0,0,.6)!important}body.hsm-content.homepage-dark .pro-xl-list{background:rgba(10,15,30,.85)!important;backdrop-filter:blur(30px)!important;box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 100px rgba(59,130,246,.1)!important;border:1px solid rgba(255,255,255,.1)!important;border-radius:0 0 16px 16px!important}@media (max-width:1199.98px){body.hsm-content.homepage-dark .pro-xl-list .list-name1{backdrop-filter:blur(16px)!important}}@supports not (backdrop-filter:blur(20px)){body.hsm-content.homepage-dark .pro-xl-list .list-name1{background:rgba(30,41,59,.9)!important}}.header-r .nav-contact-btn{display:flex;align-items:center;gap:6px;padding:8px 16px;margin-left:12px;background:linear-gradient(135deg,#3b82f6 0,#2563eb 100%);border:0;border-radius:20px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;transition:all .3s ease;white-space:nowrap;box-shadow:0 2px 8px rgba(59,130,246,.3)}.header-r .nav-contact-btn:hover{background:linear-gradient(135deg,#2563eb 0,#1d4ed8 100%);transform:translateY(-2px);box-shadow:0 4px 16px rgba(59,130,246,.4)}.header-r .nav-contact-btn svg{flex-shrink:0}@media (max-width:1199px){.header-r .nav-contact-btn{font-size:12px;padding:8px;border-radius:50%}.header-r .nav-contact-btn span{display:none}}.search-box-compact{position:relative}.search-autocomplete-list{position:absolute;top:calc(100% + 8px);left:0;right:0;min-width:320px;max-height:400px;overflow-y:auto;background:rgba(15,23,42,.98);border:1px solid rgba(59,130,246,.2);border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.4);z-index:10000;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}.search-item{display:flex;align-items:center;gap:12px;padding:12px 16px;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.05);transition:background .2s ease}.search-item-active,.search-item:hover{background:rgba(59,130,246,.15)}.search-item img{width:48px;height:48px;object-fit:cover;border-radius:8px;background:rgba(255,255,255,.1)}.search-item-info{flex:1;min-width:0}.search-item-title{color:#e2e8f0;font-size:13px;font-weight:500;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.search-item-title mark{background:rgba(59,130,246,.3);color:#93c5fd;padding:0 2px;border-radius:2px}.search-view-all{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;color:#60a5fa;font-size:13px;font-weight:600;text-decoration:none;transition:all .2s ease}.search-view-all:hover{background:rgba(59,130,246,.1);color:#93c5fd}.search-no-results{padding:24px 16px;text-align:center}.search-no-results p{color:#64748b;font-size:13px;margin:0}             
+
+让我截图看看当前导航栏的实际效果：
+
+Called MCP tool
+
+puppeteer_navigate
+
+Called MCP tool
+
+puppeteer_screenshot
+
+我看到问题了！导航栏右侧的三个按钮（搜索、语言切换、Contact）确实与深空主题格格不入：
+
+搜索按钮 - 蓝色圆形，太突兀
+
+语言切换 - 白色背景，与暗色主题冲突
+
+Contact 按钮 - 白色背景蓝色文字，不协调
+
+让我创建一个新的 CSS 文件来修复这些问题，使它们融入深空主题：
+
+Command
+
+ssh root@8.136.42.225 "cat > /www/wwwroot/8.136.42.225/static/css/nav-tools-dark.css << 'EOF'
+
+/* 导航工具栏深空主题优化 v1.0 */
+
+/* 修复搜索、语言切换、Contact按钮与深空主题不协调的问题 */
+
+/* ===== 工具栏容器 ===== */
+
+.header-r .nav-tools {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+}
+
+/* ===== 搜索按钮 - 深空玻璃态 ===== */
+
+.header-r .search-box-compact .search-btn {
+
+    width: 42px;
+
+    height: 42px;
+
+    border-radius: 12px;
+
+    background: rgba(255, 255, 255, 0.08) !important;
+
+    backdrop-filter: blur(12px);
+
+    -webkit-backdrop-filter: blur(12px);
+
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+
+    color: rgba(255, 255, 255, 0.8) !important;
+
+    cursor: pointer;
+
+    transition: all 0.3s ease;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+
+}
+
+.header-r .search-box-compact .search-btn:hover {
+
+    background: rgba(59, 130, 246, 0.2) !important;
+
+    border-color: rgba(59, 130, 246, 0.4) !important;
+
+    color: #fff !important;
+
+    transform: translateY(-2px);
+
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.25);
+
+}
+
+.header-r .search-box-compact .search-btn svg {
+
+    stroke: currentColor;
+
+}
+
+/* 搜索输入框展开时 */
+
+.header-r .search-box-compact .search-input {
+
+    background: rgba(15, 23, 42, 0.9) !important;
+
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+
+    color: #fff !important;
+
+    border-radius: 12px;
+
+}
+
+.header-r .search-box-compact .search-input::placeholder {
+
+    color: rgba(255, 255, 255, 0.5);
+
+}
+
+/* ===== 分割线 ===== */
+
+.header-r .nav-tools-divider {
+
+    width: 1px;
+
+    height: 24px;
+
+    background: rgba(255, 255, 255, 0.15);
+
+    margin: 0 4px;
+
+}
+
+/* ===== 语言切换 - 深空玻璃态 ===== */
+
+.header-r .lang-dropdown .lang-current {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    padding: 8px 14px;
+
+    height: 42px;
+
+    border-radius: 12px;
+
+    background: rgba(255, 255, 255, 0.08) !important;
+
+    backdrop-filter: blur(12px);
+
+    -webkit-backdrop-filter: blur(12px);
+
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+
+    color: rgba(255, 255, 255, 0.85) !important;
+
+    font-size: 13px;
+
+    font-weight: 500;
+
+    cursor: pointer;
+
+    transition: all 0.3s ease;
+
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+
+}
+
+.header-r .lang-dropdown .lang-current:hover {
+
+    background: rgba(59, 130, 246, 0.15) !important;
+
+    border-color: rgba(59, 130, 246, 0.3) !important;
+
+    color: #fff !important;
+
+}
+
+.header-r .lang-dropdown .lang-current .globe-icon {
+
+    width: 18px;
+
+    height: 18px;
+
+    stroke: currentColor;
+
+    opacity: 0.8;
+
+}
+
+.header-r .lang-dropdown .lang-current .arrow-icon {
+
+    opacity: 0.6;
+
+    transition: transform 0.3s ease;
+
+}
+
+.header-r .lang-dropdown.active .lang-current .arrow-icon {
+
+    transform: rotate(180deg);
+
+}
+
+/* 语言下拉列表 */
+
+.header-r .lang-dropdown .lang-list {
+
+    background: rgba(15, 23, 42, 0.95) !important;
+
+    backdrop-filter: blur(20px);
+
+    -webkit-backdrop-filter: blur(20px);
+
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+
+    border-radius: 12px;
+
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+
+    overflow: hidden;
+
+}
+
+.header-r .lang-dropdown .lang-list .lang-item {
+
+    color: rgba(255, 255, 255, 0.8) !important;
+
+    padding: 10px 16px;
+
+    transition: all 0.2s ease;
+
+}
+
+.header-r .lang-dropdown .lang-list .lang-item:hover {
+
+    background: rgba(59, 130, 246, 0.2) !important;
+
+    color: #fff !important;
+
+}
+
+/* ===== Contact 按钮 - 深空渐变 ===== */
+
+.header-r .nav-contact-btn {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 10px 20px;
+
+    margin-left: 8px;
+
+    height: 42px;
+
+    border-radius: 12px;
+
+    /* 深空渐变背景 */
+
+    background: linear-gradient(135deg, 
+
+        rgba(59, 130, 246, 0.3) 0%, 
+
+        rgba(99, 102, 241, 0.25) 50%,
+
+        rgba(139, 92, 246, 0.2) 100%) !important;
+
+    backdrop-filter: blur(12px);
+
+    -webkit-backdrop-filter: blur(12px);
+
+    border: 1px solid rgba(99, 102, 241, 0.3) !important;
+
+    color: rgba(255, 255, 255, 0.95) !important;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    letter-spacing: 0.3px;
+
+    cursor: pointer;
+
+    transition: all 0.3s ease;
+
+    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2),
+
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+    white-space: nowrap;
+
+}
+
+.header-r .nav-contact-btn:hover {
+
+    background: linear-gradient(135deg, 
+
+        rgba(59, 130, 246, 0.45) 0%, 
+
+        rgba(99, 102, 241, 0.4) 50%,
+
+        rgba(139, 92, 246, 0.35) 100%) !important;
+
+    border-color: rgba(99, 102, 241, 0.5) !important;
+
+    transform: translateY(-2px);
+
+    box-shadow: 0 8px 30px rgba(99, 102, 241, 0.35),
+
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+
+}
+
+.header-r .nav-contact-btn svg {
+
+    width: 16px;
+
+    height: 16px;
+
+    stroke: currentColor;
+
+    flex-shrink: 0;
+
+}
+
+/* ===== 响应式 ===== */
+
+@media (max-width: 1199px) {
+
+    .header-r .nav-contact-btn {
+
+        padding: 10px;
+
+        border-radius: 12px;
+
+        width: 42px;
+
+        justify-content: center;
+
+    }
+
+    
+
+    .header-r .nav-contact-btn span {
+
+        display: none;
+
+    }
+
+    
+
+    .header-r .nav-tools-divider {
+
+        display: none;
+
+    }
+
+}
+
+/* ===== 深色主题强制覆盖 ===== */
+
+body.homepage-dark .header-r .search-box-compact .search-btn,
+
+body.homepage-dark .header-r .lang-dropdown .lang-current,
+
+body.homepage-dark .header-r .nav-contact-btn {
+
+    /* 确保在深色主题下生效 */
+
+}
+
+EOF"
+
+Warning: Permanently added '8.136.42.225' (ED25519) to the
+
+ list of known hosts.                                     
+
+现在把这个新 CSS 文件添加到 head.html 中：
+
+Command
+
+ssh root@8.136.42.225 "sed -i 's|<link rel=\"stylesheet\" href=\"static/css/nav-glassmorphism.min.css?v=1765131333\">|<link rel=\"stylesheet\" href=\"static/css/nav-glassmorphism.min.css?v=1765131333\">\n    <!-- 导航工具栏深空主题 -->\n    <link rel=\"stylesheet\" href=\"static/css/nav-tools-dark.css?v=1766380001\">|' /www/wwwroot/8.136.42.225/template/default/htmls/head.html"
+
+/wwwroot/8.136.42.225/template/default/htmls/head.html"   Warning: Permanently added '8.136.42.225' (ED25519) to the
+
+ list of known hosts.                                     
+
+清除 PbootCMS 缓存让更改生效：
+
+Command
+
+ssh root@8.136.42.225 "rm -rf /www/wwwroot/8.136.42.225/runtime/cache/* /www/wwwroot/8.136.42.225/runtime/complile/*"
+
+.225/runtime/complile/*"                                  Warning: Permanently added '8.136.42.225' (ED25519) to the
+
+ list of known hosts.                                     
+
+刷新页面看看效果：
+
+Called MCP tool
+
+puppeteer_navigate
+
+Called MCP tool
+
+puppeteer_screenshot
+
+看起来样式还没完全生效，按钮还是原来的样子。让我检查一下 CSS 是否正确加载，并增强样式的优先级：
+
+Command
+
+ssh root@8.136.42.225 "cat > /www/wwwroot/8.136.42.225/static/css/nav-tools-dark.css << 'CSSEOF'
+
+/* 导航工具栏深空主题优化 v1.1 - 高优先级覆盖 */
+
+/* ===== 搜索按钮 - 深空玻璃态 ===== */
+
+.header .header-r .nav-tools .search-box-compact .search-btn,
+
+.header-r .search-box-compact .search-btn,
+
+.search-box-compact .search-btn {
+
+    width: 42px !important;
+
+    height: 42px !important;
+
+    border-radius: 12px !important;
+
+    background: rgba(255, 255, 255, 0.08) !important;
+
+    backdrop-filter: blur(12px) !important;
+
+    -webkit-backdrop-filter: blur(12px) !important;
+
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+
+    color: rgba(255, 255, 255, 0.8) !important;
+
+    cursor: pointer !important;
+
+    transition: all 0.3s ease !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    justify-content: center !important;
+
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+
+    padding: 0 !important;
+
+}
+
+.header .header-r .nav-tools .search-box-compact .search-btn:hover,
+
+.header-r .search-box-compact .search-btn:hover,
+
+.search-box-compact .search-btn:hover {
+
+    background: rgba(59, 130, 246, 0.2) !important;
+
+    border-color: rgba(59, 130, 246, 0.4) !important;
+
+    color: #fff !important;
+
+    transform: translateY(-2px) !important;
+
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.25) !important;
+
+}
+
+/* ===== 语言切换 - 深空玻璃态 ===== */
+
+.header .header-r .nav-tools .lang-dropdown .lang-current,
+
+.header-r .nav-tools .lang-dropdown .lang-current,
+
+.lang-dropdown .lang-current,
+
+#langTrigger {
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    gap: 6px !important;
+
+    padding: 8px 14px !important;
+
+    height: 42px !important;
+
+    border-radius: 12px !important;
+
+    background: rgba(255, 255, 255, 0.08) !important;
+
+    backdrop-filter: blur(12px) !important;
+
+    -webkit-backdrop-filter: blur(12px) !important;
+
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+
+    color: rgba(255, 255, 255, 0.85) !important;
+
+    font-size: 13px !important;
+
+    font-weight: 500 !important;
+
+    cursor: pointer !important;
+
+    transition: all 0.3s ease !important;
+
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+
+}
+
+.header .header-r .nav-tools .lang-dropdown .lang-current:hover,
+
+.header-r .nav-tools .lang-dropdown .lang-current:hover,
+
+.lang-dropdown .lang-current:hover,
+
+#langTrigger:hover {
+
+    background: rgba(59, 130, 246, 0.15) !important;
+
+    border-color: rgba(59, 130, 246, 0.3) !important;
+
+    color: #fff !important;
+
+}
+
+/* ===== Contact 按钮 - 深空渐变玻璃态 ===== */
+
+.header .header-r .nav-contact-btn,
+
+.header-r .nav-contact-btn,
+
+.nav-contact-btn {
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    gap: 8px !important;
+
+    padding: 10px 20px !important;
+
+    margin-left: 8px !important;
+
+    height: 42px !important;
+
+    border-radius: 12px !important;
+
+    background: rgba(255, 255, 255, 0.08) !important;
+
+    backdrop-filter: blur(12px) !important;
+
+    -webkit-backdrop-filter: blur(12px) !important;
+
+    border: 1px solid rgba(99, 102, 241, 0.25) !important;
+
+    color: rgba(255, 255, 255, 0.9) !important;
+
+    font-size: 13px !important;
+
+    font-weight: 500 !important;
+
+    letter-spacing: 0.3px !important;
+
+    cursor: pointer !important;
+
+    transition: all 0.3s ease !important;
+
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+
+    white-space: nowrap !important;
+
+}
+
+.header .header-r .nav-contact-btn:hover,
+
+.header-r .nav-contact-btn:hover,
+
+.nav-contact-btn:hover {
+
+    background: rgba(99, 102, 241, 0.2) !important;
+
+    border-color: rgba(99, 102, 241, 0.4) !important;
+
+    color: #fff !important;
+
+    transform: translateY(-2px) !important;
+
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.25) !important;
+
+}
+
+/* ===== 分割线 ===== */
+
+.header-r .nav-tools-divider {
+
+    width: 1px !important;
+
+    height: 24px !important;
+
+    background: rgba(255, 255, 255, 0.15) !important;
+
+    margin: 0 4px !important;
+
+}
+
+/* ===== 响应式 ===== */
+
+@media (max-width: 1199px) {
+
+    .header .header-r .nav-contact-btn,
+
+    .header-r .nav-contact-btn,
+
+    .nav-contact-btn {
+
+        padding: 10px !important;
+
+        width: 42px !important;
+
+        justify-content: center !important;
+
+    }
+
+    
+
+    .header .header-r .nav-contact-btn span,
+
+    .header-r .nav-contact-btn span,
+
+    .nav-contact-btn span {
+
+        display: none !important;
+
+    }
+
+}
+
+CSSEOF"
+
+Warning: Permanently added '8.136.42.225' (ED25519) to the
+
+ list of known hosts.                                     
+
+Command
+
+ssh root@8.136.42.225 "rm -rf /www/wwwroot/8.136.42.225/runtime/cache/* /www/wwwroot/8.136.42.225/runtime/complile/*"
+
+.225/runtime/complile/*"                                  Warning: Permanently added '8.136.42.225' (ED25519) to the
+
+ list of known hosts.                                     
+
+Called MCP tool
+
+puppeteer_navigate
+
+Called MCP tool
+
+puppeteer_screenshot
+
+样式还是没变化，可能是 CSS 文件没被正确引入或者有缓存。让我检查一下 head.html 是否正确添加了引用：
+
+Command
+
+ssh root@8.136.42.225 "grep -n 'nav-tools-dark' /www/wwwroot/8.136.42.225/template/default/htmls/head.html"
+
+Warning: Permanently added '8.136.42.225' (ED25519) to the list of known hosts.
+
+CSS 引用没有成功添加。让我手动添加：
+
+Command
+
+ssh root@8.136.42.225 "grep -n 'nav-glassmorphism' /www/wwwroot/8.136.42.225/template/default/htmls/head.html"
+
+Warning: Permanently added '8.136.42.225' (ED25519) to the list of known hosts.
+
+73:    <link rel="stylesheet" href="static/css/nav-glassmorphism.min.css?v=1765131333"
+
+Command
+
+ssh root@8.136.42.225 "sed -i '73a\    <!-- 导航工具栏深空主题 -->\n    <link rel=\"stylesheet\" href=\"static/css/nav-tools-dark.css?v=1766380002\">' /www/wwwroot/8.136.42.225/template/default/htmls/head.html"
+
+"                                                         Warning: Permanently added '8.136.42.225' (ED25519) to the
+
+ list of known hosts.                                     
+
+Command
+
+ssh root@8.136.42.225 "grep -n 'nav-tools-dark' /www/wwwroot/8.136.42.225/template/default/htmls/head.html"
+
+mls/head.html"                                            Warning: Permanently added '8.136.42.225' (ED25519) to the
+
+ list of known hosts.                                     75:    <link rel= stylesheet href=static/css/nav-tools-dar
+
+k.css?v=1766380002>                                       
+
+引号被吃掉了，让我修复：
+
+Command
+
+ssh root@8.136.42.225 "sed -i '74,75d' /www/wwwroot/8.136.42.225/template/default/htmls/head.html"
+
+html"                                                     Warning: Permanently added '8.136.42.225' (ED25519) to the
+
+ list of known hosts.                                     
+
+让我用另一种方式添加 CSS 引用：
+
+Command
+
+ssh root@8.136.42.225 "sed -i '/nav-glassmorphism.min.css/a\    <link rel=\"stylesheet\" href=\"static/css/nav-tools-dark.css?v=1766380003\">' /www/wwwroot/8.136.42.225/template/default/htmls/head.html"
+
+root/8.136.42.225/template/default/htmls/head.html"       Warning: Permanently added '8.136.42.225' (ED25519) to the
+
+ list of known hosts.                                     
+
+Command
+
+ssh root@8.136.42.225 "grep -n 'nav-tools-dark\|nav-glassmorphism' /www/wwwroot/8.136.42.225/template/default/htmls/head.html"
+
+Warning: Permanently added '8.136.42.225' (ED25519) to the list of known hosts.
+
+73:    <link rel="stylesheet" href="static/css/nav-glassmorphism.min.css?v=1765131333">
+
+74:    <link rel= stylesheet href=static/css/nav-tools-dark.css?v=1766380003
+
+引号还是有问题。让我直接修复这行：
+
+Command
+
+ssh root@8.136.42.225 "sed -i '74s/.*/    <link rel=\"stylesheet\" href=\"static\/css\/nav-tools-dark.css?v=1766380003\">/' /www/wwwroot/8.136.42.225/template/default/htmls/head.html"
+
+Warning: Permanently added '8.136.42.225' (ED25519) to the list of known hosts.
+
+Command
+
+ssh root@8.136.42.225 "sed -n '73,75p' /www/wwwroot/8.136.42.225/template/default/htmls/head.html"
+
+html"                                                     Warning: Permanently added '8.136.42.225' (ED25519) to the
+
+ list of known hosts.                                         <link rel="stylesheet" href="static/css/nav-glassmorph
+
+ism.min.css?v=1765131333">                                    <link rel= stylesheet href=static/css/nav-tools-dark.c
+
+ss?v=1766380003>                                              <!-- Responsive Unified (Override) -->
+
+sed 替换没生效。让我用 Python 来修复：
+
+Command
+
+ssh root@8.136.42.225 "python3 -c \"
+
+import re
+
+with open('/www/wwwroot/8.136.42.225/template/default/htmls/head.html', 'r') as f:
+
+    content = f.read()
+
+# 修复损坏的行
+
+content = re.sub(r'<link rel= stylesheet href=static/css/nav-tools-dark\.css\?v=\d+>', '<link rel=\"stylesheet\" href=\"static/css/nav-tools-dark.css?v=1766380004\">', content)
+
+with open('/www/wwwroot/8.136.42.225/template/default/htmls/head.html', 'w') as f:
+
+    f.write(content)
+
+print('Fixed!')
+
+\""
+
+PS F:\Fangyu-Code-Dev> with open('/www/wwwroot/8.136.42.22
+
+5/template/default/htmls/head.html', 'r') as f:           with: The term 'with' is not recognized as a name of a cmd
+
+let, function, script file, or executable program.        Check the spelling of the name, or if a path was included,
+
+ verify that the path is correct and try again.           
+
+PowerShell 解析问题。让我用不同的方式：
+
+Command
+
+ssh root@8.136.42.225 'python3 << PYEOF
+
+import re
+
+with open("/www/wwwroot/8.136.42.225/template/default/htmls/head.html", "r") as f:
+
+    content = f.read()
+
+content = re.sub(r"<link rel= stylesheet href=static/css/nav-tools-dark\.css\?v=\d+>", "<link rel=\"stylesheet\" href=\"static/css/nav-tools-dark.css?v=1766380004\">", content)
+
+with open("/www/wwwroot/8.136.42.225/template/default/htmls/head.html", "w") as f:
+
+    f.write(content)
+
+print("Fixed!")
+
+PYEOF'
+
+Warning: Permanently added '8.136.42.225' (ED25519) to the
+
+ list of known hosts.                                     Fixed!
+
+Command
+
+ssh root@8.136.42.225 "sed -n '73,75p' /www/wwwroot/8.136.42.225/template/default/htmls/head.html"
+
+html"                                                     Warning: Permanently added '8.136.42.225' (ED25519) to the
+
+ list of known hosts.                                         <link rel="stylesheet" href="static/css/nav-glassmorph
+
+ism.min.css?v=1765131333">                                    <link rel="stylesheet" href="static/css/nav-tools-dark
+
+.css?v=1766380004">                                           <!-- Responsive Unified (Override) -->
+
+CSS 引用修复好了。现在清除缓存并测试：
+
+Command
+
+ssh root@8.136.42.225 "rm -rf /www/wwwroot/8.136.42.225/runtime/cache/* /www/wwwroot/8.136.42.225/runtime/complile/*"
+
+.225/runtime/complile/*"                                  Warning: Permanently added '8.136.42.225' (ED25519) to the
+
+ list of known hosts.                                     
+
+Called MCP tool
+
+puppeteer_navigate
+
+Called MCP tool
+
+puppeteer_screenshot
+
+搜索按钮变成了深空玻璃态风格，但语言切换和 Contact 按钮还是白色背景。让我检查一下这些元素的实际 CSS 选择器，可能需要更精确的定位：
+
+Called MCP tool
+
+puppeteer_evaluate
+
+CSS 样式实际上已经生效了！rgba(255, 255, 255, 0.08) 就是我设置的深空玻璃态背景。但截图看起来还是白色，可能是浏览器缓存问题。让我强制刷新：
+
+Called MCP tool
+
+puppeteer_evaluate
+
+Called MCP tool
+
+puppeteer_screenshot
+
+语言切换和 Contact 按钮还是白色背景。让我检查是否有其他 CSS 文件覆盖了我的样式：
+
+Command
+
+ssh root@8.136.42.225 "grep -r 'lang-current\|nav-contact-btn' /www/wwwroot/8.136.42.225/static/css/*.css | grep -v nav-tools-dark"
+
+ic/css/*.css | grep -v nav-tools-dark"                    Warning: Permanently added '8.136.42.225' (ED25519) to the
+
+ list of known hosts.                                     /www/wwwroot/8.136.42.225/static/css/category-showcase.css
+
+:body.homepage-dark .translate-lang .lang-current,        /www/wwwroot/8.136.42.225/static/css/category-showcase.min
+
+.css:@keyframes pulse-glow{0%{box-shadow:0 0 0 0 rgba(59,130,246,.4)}70%{box-shadow:0 0 0 15px transparent}to{box-shadow:0 0 0 0 transparent}}@keyframes scroll-brands{0%{transform:translateX(0)}to{transform:translateX(-50%)}}:root{--fy-blue:#1a56db;--fy-cyan:#3b82f6;--bg-deep:#020617;--card-bg:rgba(30, 41, 59, 0.4);--cs-text-main:#ffffff;--cs-text-sub:#94a3b8}body.homepage-dark{background-color:var(--bg-deep);background-image:radial-gradient(circle at 50%0,#1e293b 0,#020617 60%);--dark-text-primary:#ffffff;--dark-text-secondary:#e2e8f0;--dark-text-muted:#94a3b8;background:linear-gradient(to bottom,#0f172a 0,#020617 60%)!important;--text-primary:#ffffff;--text-secondary:#e2e8f0;--text-muted:#94a3b8;--text-link:#60a5fa;--text-link-hover:#93c5fd}#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}.category-section{position:relative;z-index:1;padding:80px 0}.category-header{text-align:center;margin-bottom:70px}.category-header h2{font-size:42px;font-weight:800;letter-spacing:-1px;background:linear-gradient(to right,#fff,#94a3b8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:10px}.category-header p{color:var(--cs-text-sub);font-size:16px;max-width:600px;margin:0 auto}.category-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:60px 30px;padding-top:40px;max-width:1200px;margin:0 auto;padding-left:20px;padding-right:20px}.cat-card{position:relative;background:var(--card-bg);border-radius:20px;border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:0 24px 30px;text-align:center;transition:all .4s cubic-bezier(.34,1.56,.64,1);cursor:pointer;display:flex;flex-direction:column;justify-content:flex-end;height:360px;box-shadow:0 20px 40px -10px rgba(0,0,0,.5)}.cat-img-box{position:absolute;top:-50px;left:50%;transform:translateX(-50%);width:110%;height:240px;z-index:10;transition:transform .4s cubic-bezier(.34,1.56,.64,1);filter:drop-shadow(0 15px 20px rgba(0,0,0,.4))}.cat-img-box img{width:100%;height:100%;object-fit:contain}.cat-content{position:relative;z-index:20;display:flex;flex-direction:column;align-items:center}.cat-title{font-size:22px;font-weight:700;color:#fff;margin-bottom:6px}.cat-desc{font-size:13px;color:var(--cs-text-sub);line-height:1.4}.btn-icon,.btn-text,.cat-btn{transition:all .4s cubic-bezier(.25,1,.5,1);position:relative}.cat-btn{display:flex;align-items:center;justify-content:center;height:46px;width:46px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:#fff;text-decoration:none;overflow:hidden}.btn-icon,.btn-text{z-index:2}.btn-text{max-width:0;opacity:0;font-size:13px;font-weight:600;letter-spacing:.5px;white-space:nowrap;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.3);transform:translateX(-10px)}.btn-icon{justify-content:center;width:46px;height:46px;flex-shrink:0}.btn-icon svg{width:20px;height:20px;stroke-width:2}.cat-card:hover{transform:translateY(-10px);border-color:rgba(59,130,246,.5);background:rgba(30,41,59,.7);box-shadow:0 30px 50px -12px rgba(0,0,0,.7),0 0 25px rgba(59,130,246,.15)}.cat-card:hover .cat-img-box{transform:translateX(-50%) translateY(-15px) scale(1.1);filter:drop-shadow(0 30px 40px rgba(0,0,0,.6))}.cat-card:hover .cat-btn{width:auto;padding:0 24px;gap:10px;border-radius:8px;background:linear-gradient(135deg,rgba(30,58,138,.95)0,rgba(29,78,216,.9) 50%,rgba(37,99,235,.85) 100%);border:1px solid rgba(96,165,250,.5);box-shadow:0 6px 20px rgba(30,64,175,.5),0 3px 6px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.15)}.cat-card:hover .cat-btn::before{content:"";position:absolute;top:0;left:20px;right:20px;height:1px;background:linear-gradient(90deg,transparent 0,rgba(255,255,255,.4) 50%,transparent 100%)}.cat-card:hover .btn-text{max-width:300px;opacity:1;transform:translateX(0);margin-right:4px}.cat-card:hover .btn-icon{width:18px;height:18px}.cat-card:hover .btn-icon svg{width:16px;height:16px;stroke-width:2.5}.cat-btn:hover{background:linear-gradient(135deg,rgba(37,99,235,.98)0,rgba(59,130,246,.95) 50%,rgba(96,165,250,.9) 100%);border-color:rgba(147,197,253,.7);box-shadow:0 8px 28px rgba(37,99,235,.6),0 4px 10px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.2);transform:translateY(-2px)}.cat-card:hover .cat-btn:hover .btn-icon{transform:translateX(4px)}.cat-btn:active{transform:translateY(0);box-shadow:0 2px 10px rgba(37,99,235,.4),0 1px 3px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.1)}.ai-container,.ai-fab,.btn-icon{display:flex;align-items:center}.ai-container{position:fixed;bottom:80px;right:20px;z-index:100;flex-direction:row-reverse;gap:8px}.ai-fab{width:60px;height:60px;border-radius:30px;background:linear-gradient(135deg,var(--fy-blue),var(--fy-cyan));color:#fff;justify-content:center;cursor:pointer;box-shadow:0 10px 30px rgba(59,130,246,.5);transition:all .3s cubic-bezier(.175,.885,.32,1.275);animation:pulse-glow 3s infinite;position:relative;font-size:24px;border:0}.ai-modal-overlay,.ai-tooltip{backdrop-filter:blur(8px);opacity:0}.ai-tooltip{background:rgba(15,23,42,.9);border:1px solid rgba(59,130,246,.4);padding:8px 16px;border-radius:12px;color:#fff;font-size:13px;font-weight:500;white-space:nowrap;visibility:hidden;transform:translateX(10px);transition:all .3s cubic-bezier(.34,1.56,.64,1);box-shadow:0 5px 15px rgba(0,0,0,.3);position:relative}.ai-container:hover .ai-tooltip{opacity:1;visibility:visible;transform:translateX(0)}.ai-tooltip::after{content:"";position:absolute;right:-6px;top:50%;transform:translateY(-50%);border-width:6px 0 6px 6px;border-style:solid;border-color:transparent transparent transparent rgba(59,130,246,.4)}.ai-fab:hover{transform:scale(1.05) rotate(5deg)}.ai-modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(2,6,23,.8);z-index:200;display:none;align-items:center;justify-content:center;transition:opacity .3s ease}.ai-input-area textarea,.ai-modal{border:1px solid rgba(255,255,255,.1)}.ai-modal{background:rgba(30,41,59,.9);border-radius:24px;width:90%;max-width:500px;padding:30px;box-shadow:0 25px 50px -12px rgba(0,0,0,.7);transform:translateY(20px);transition:transform .3s cubic-bezier(.175,.885,.32,1.275)}.ai-modal.active{transform:translateY(0)}.ai-header,.ai-title{display:flex;align-items:center}.ai-header{justify-content:space-between;margin-bottom:20px}.ai-title{font-size:20px;font-weight:700;color:#fff;gap:10px}.ai-close{background:0 0;border:0;color:var(--cs-text-sub);cursor:pointer;font-size:24px;transition:color .3s}.ai-close:hover,.ai-result strong{color:#fff}.ai-input-area textarea{width:100%;height:100px;background:rgba(0,0,0,.3);border-radius:12px;padding:15px;color:#fff;font-family:inherit;resize:none;margin-bottom:15px;font-size:14px;box-sizing:border-box}.ai-input-area textarea:focus{outline:0;border-color:var(--fy-blue)}.ai-input-area textarea::placeholder{color:var(--cs-text-sub)}.ai-submit-btn{width:100%;padding:12px;border-radius:12px;background:var(--fy-blue);color:#fff;border:0;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:.3s;font-size:14px}.ai-submit-btn:hover{background:var(--fy-cyan)}.ai-submit-btn:disabled{opacity:.7;cursor:not-allowed}.ai-result,.partners-header p{color:var(--cs-text-sub);font-size:14px}.ai-result{margin-top:20px;padding:15px;background:rgba(255,255,255,.05);border-radius:12px;line-height:1.6;display:none}@media (max-width:1024px){.category-grid{grid-template-columns:repeat(2,1fr)}.category-header h2{font-size:32px}}@media (max-width:768px){.category-section{padding:60px 0}.category-header{margin-bottom:50px}.category-header h2{font-size:28px}.cat-card{height:320px}.cat-img-box{height:200px}}@media (max-width:640px){.category-grid{grid-template-columns:1fr;gap:70px}.cat-img-box{width:80%}.ai-container{bottom:80px;right:20px}.ai-fab{width:60px;height:60px;font-size:20px}}.index-gc,.slick-partners .pic .img-box{position:relative;padding:80px 0;overflow:hidden}.partners-header{text-align:center;margin-bottom:50px}.partners-header h2{font-size:32px;font-weight:700;background:linear-gradient(to right,#fff,#94a3b8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:10px}.partners-header p{opacity:.8}.slick-partners{display:flex;align-items:center;gap:30px;padding:20px 0}.slick-partners .pic{flex-shrink:0}.slick-partners .pic .img-box{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:25px 35px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:all .4s cubic-bezier(.34,1.56,.64,1)}.slick-partners .pic .img-box::before{content:"";position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent);transition:left .6s ease}.slick-partners .pic .img-box:hover::before{left:100%}.slick-partners .pic .img-box:hover{background:rgba(255,255,255,.08);border-color:rgba(59,130,246,.3);transform:translateY(-5px);box-shadow:0 20px 40px -10px rgba(0,0,0,.4),0 0 20px rgba(59,130,246,.1)}.slick-partners .pic .img-box img{height:45px;width:auto;object-fit:contain;filter:brightness(0) invert(1);opacity:.7;transition:all .3s ease}.slick-partners .pic .img-box:hover img,body.homepage-dark .slick-partners .pic .img-box:hover img{opacity:1;filter:brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,.3))}.slick-partners.scrolling{animation:scroll-brands 30s linear infinite}.slick-partners.scrolling:hover{animation-play-state:paused}.index-gc::after,.index-gc::before{content:"";position:absolute;top:0;bottom:0;width:150px;z-index:10;pointer-events:none}.index-gc::before{left:0;background:linear-gradient(to right,var(--bg-deep),transparent)}.index-gc::after{right:0;background:linear-gradient(to left,var(--bg-deep),transparent)}@media (max-width:768px){.index-gc{padding:50px 0}.slick-partners .pic .img-box{padding:20px 25px}.slick-partners .pic .img-box img{height:35px}.partners-header h2{font-size:24px}}.header,.header-box{position:relative;z-index:50!important}body.homepage-dark .header-r .nav-tools{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15)}body.homepage-dark .nav-tools .search-input::placeholder{color:rgba(255,255,255,.5)}@media (max-width:640px){.category-section{padding:40px 15px}.category-header{margin-bottom:40px;padding:0 10px}.category-header h2{font-size:22px;text-align:center}.category-header p{font-size:13px;padding:0;text-align:center}.category-grid{padding-left:15px;padding-right:15px;gap:60px}.cat-card{height:280px;margin-top:30px}.cat-img-box{top:-35px;height:150px;width:75%}.cat-content{margin-top:100px}.cat-title{font-size:18px}.cat-desc{font-size:12px;min-height:auto;margin-bottom:15px}.cat-btn{height:40px;padding:0 20px;gap:8px;border-radius:6px}.cat-btn .btn-text,.partners-header p{font-size:12px}.btn-icon{width:16px;height:16px}.btn-icon svg{width:14px;height:14px}.ai-container{top:75%!important;bottom:auto!important;right:20px!important;transform:translateY(-50%)!important;flex-direction:column;gap:10px}.ai-fab{width:56px;height:56px;font-size:22px}.ai-tooltip{display:none}.partners-header h2{font-size:20px}.index-gc{padding:50px 15px}}@media (max-width:375px){.category-header h2{font-size:20px}.cat-card{height:260px}.cat-img-box{height:130px;width:70%}.cat-content{margin-top:85px}.cat-title{font-size:16px}.ai-fab{width:60px;height:60px;font-size:20px}}@media (max-width:767px){.hsm-content .xs-online{background:rgba(15,23,42,.85)!important;backdrop-filter:blur(20px) saturate(180%)!important;-webkit-backdrop-filter:blur(20px) saturate(180%)!important;border-top:1px solid rgba(255,255,255,.1)!important;box-shadow:0-4px 30px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.05)!important}.hsm-content .xs-online ul{padding:0;margin:0}.hsm-content .xs-online ul li{border-left:1px solid rgba(255,255,255,.08)!important;position:relative;overflow:hidden;transition:all .3s ease!important}.hsm-content .xs-online ul li:first-child{border-left:none!important}.hsm-content .xs-online ul li::before{content:"";position:absolute;top:50%;left:50%;width:0;height:0;background:radial-gradient(circle,rgba(59,130,246,.4)0,transparent 70%);border-radius:50%;transform:translate(-50%,-50%);transition:width .5s ease,height .5s ease,opacity .5s ease;opacity:0;z-index:0}.hsm-content .xs-online ul li:active::before{width:200px;height:200px;opacity:1}.hsm-content .xs-online ul li>a{color:rgba(255,255,255,.85)!important;padding:10px 0 8px!important;position:relative;z-index:1;transition:all .3s cubic-bezier(.34,1.56,.64,1)!important}.hsm-content .xs-online ul li>a:before{color:rgba(255,255,255,.9)!important;font-size:1.5em!important;transition:all .3s cubic-bezier(.34,1.56,.64,1)!important;display:block;margin-bottom:2px}.hsm-content .xs-online ul li>a span{font-size:10px!important;font-weight:500!important;letter-spacing:.3px;color:rgba(255,255,255,.75)!important;transition:all .3s ease!important}.hsm-content .xs-online ul li:active>a:before,.hsm-content .xs-online ul li:hover>a:before{transform:scale(1.2) translateY(-2px);color:#3b82f6!important;text-shadow:0 0 20px rgba(59,130,246,.6)}.hsm-content .xs-online ul li:active>a span,.hsm-content .xs-online ul li:hover>a span{color:#fff!important}.hsm-content .xs-online ul li.whatsapp:active>a:before,.hsm-content .xs-online ul li.whatsapp:hover>a:before{color:#25d366!important;text-shadow:0 0 20px rgba(37,211,102,.6)}.hsm-content .xs-online::before{content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);width:40px;height:4px;background:rgba(255,255,255,.2);border-radius:2px;margin-top:-8px}}@media (max-width:1024px){.category-grid{grid-template-columns:repeat(2,1fr);gap:50px 25px}}@media (max-width:640px){.category-grid{grid-template-columns:1fr;gap:70px 0;padding-left:15px;padding-right:15px}.category-section{padding:50px 0}.category-header h2{font-size:24px}.cat-card{height:300px;margin-top:25px}.cat-img-box{width:80%;height:170px;top:-40px}.cat-btn{width:115px;height:40px;background:var(--fy-blue);border-color:var(--fy-blue)}.cat-btn .btn-text{max-width:75px;opacity:1;transform:translateX(0);margin-left:10px}.ai-container{bottom:20px!important;right:20px!important}}@media (max-width:375px){.category-header h2{font-size:22px}.cat-card{height:280px}.cat-btn{width:100px}}body.homepage-dark .index-gc{background:0 0;position:relative}body.homepage-dark .slick-partners{position:relative;z-index:1}body.homepage-dark .slick-partners .pic .img-box{background:rgba(255,255,255,.03)!important;border:1px solid rgba(255,255,255,.08)!important;border-radius:16px;padding:25px 35px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:all .4s cubic-bezier(.34,1.56,.64,1)}body.homepage-dark .slick-partners .pic .img-box:hover{background:rgba(255,255,255,.08)!important;border-color:rgba(59,130,246,.3);transform:translateY(-5px);box-shadow:0 20px 40px -10px rgba(0,0,0,.4),0 0 20px rgba(59,130,246,.1)}body.homepage-dark .slick-partners .pic .img-box img{filter:brightness(0) invert(1);opacity:.7;transition:all .3s ease}body.homepage-dark .partners-header h2{color:var(--cs-text-main, #ffffff)!important;background:0 0;-webkit-text-fill-color:var(--cs-text-main, #ffffff)}body.homepage-dark .partners-header p{color:var(--cs-text-sub, #94a3b8)!important}body.homepage-dark .index-gc::before{background:linear-gradient(to right,var(--bg-deep),transparent)}body.homepage-dark .index-gc::after{background:linear-gradient(to left,var(--bg-deep),transparent)}body.homepage-dark .index-about{background:rgba(15,23,42,.6)!important;position:relative;z-index:1}body.homepage-dark .intro-box .intro{background:0 0!important}body.homepage-dark .intro .title h2,body.homepage-dark .intro-box .intro{color:var(--cs-text-main, #ffffff)!important}body.homepage-dark .intro .txt,body.homepage-dark .news-box .txt p a{color:var(--cs-text-sub, #94a3b8)!important}body.homepage-dark .intro .link-box{background:var(--fy-blue)!important;border-color:var(--fy-blue)!important;color:#fff!important}body.homepage-dark .intro .link-box:hover{background:var(--fy-cyan)!important}body.homepage-dark .index-news{background:0 0!important;position:relative;z-index:1}body.homepage-dark .news-box{position:relative}body.homepage-dark .news-box .bg img{opacity:.1;filter:brightness(0)}body.homepage-dark .news-box .item{background:rgba(30,41,59,.4)!important;border:1px solid rgba(255,255,255,.08)!important;border-radius:16px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:all .3s ease}body.homepage-dark .index-social .item:hover,body.homepage-dark .news-box .item:hover{transform:translateY(-5px);background:rgba(30,41,59,.6)!important;border-color:rgba(59,130,246,.3);box-shadow:0 20px 40px -10px rgba(0,0,0,.4),0 0 20px rgba(59,130,246,.1)}body.homepage-dark .follow-name a,body.homepage-dark .news-box .tit a{color:#fff!important}body.homepage-dark .news-box .more{background:var(--fy-blue)!important}body.homepage-dark .index-box .title h2,body.homepage-dark .index-news .title h2,body.homepage-dark .index-social .title h2{color:var(--cs-text-main, #ffffff)!important;background:0 0;-webkit-text-fill-color:var(--cs-text-main, #ffffff)}body.homepage-dark .index-social{background:rgba(15,23,42,.4)!important;position:relative;z-index:1}body.homepage-dark .index-social .item{background:rgba(30,41,59,.4)!important;border:1px solid rgba(255,255,255,.08)!important;border-radius:16px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:all .3s ease;overflow:hidden}body.homepage-dark h1,body.homepage-dark h2,body.homepage-dark h3,body.homepage-dark h4,body.homepage-dark h5,body.homepage-dark h6{color:var(--dark-text-primary, #ffffff)!important;color:var(--text-primary)!important}body.homepage-dark .footer p,body.homepage-dark .footer span,body.homepage-dark .index-about p,body.homepage-dark .index-about span,body.homepage-dark .index-box p,body.homepage-dark .index-box span,body.homepage-dark .index-news p,body.homepage-dark .index-news span{color:var(--dark-text-secondary, #e2e8f0)}body.homepage-dark a{color:#3b82f6;color:var(--text-link)!important;text-decoration:none}body.homepage-dark a:hover{color:#60a5fa}body.homepage-dark .index-date{color:var(--dark-text-muted, #94a3b8)!important}body.homepage-dark .cnzz img{filter:brightness(1.5)!important}body.homepage-dark .follow-box .iconfont,body.homepage-dark .follow-box a,body.homepage-dark .online a,body.homepage-dark .xs-online ul li:active>a,body.homepage-dark .xs-online ul li:hover>a,body.homepage-dark [style*="color: #000"],body.homepage-dark [style*="color: #222"],body.homepage-dark [style*="color: #333"],body.homepage-dark [style*="color:#000"],body.homepage-dark [style*="color:#222"],body.homepage-dark [style*="color:#333"]{color:#fff!important}body.homepage-dark .follow-box .iconfont:hover,body.homepage-dark .follow-box a:hover,body.homepage-dark .online a:hover{color:#3b82f6!important}body.homepage-dark .form_email input,body.homepage-dark input,body.homepage-dark textarea{background:rgba(30,41,59,.6)!important;border:1px solid rgba(255,255,255,.1)!important;color:#fff!important}body.homepage-dark .form_email input::placeholder,body.homepage-dark .hsm-content .search-box-compact .search-input::placeholder,body.homepage-dark input::placeholder,body.homepage-dark textarea::placeholder{color:#94a3b8!important}body.homepage-dark .container,body.homepage-dark .header{background:0 0!important}body.homepage-dark .advantage .item:hover{box-shadow:0 20px 40px -10px rgba(0,0,0,.4)}body.homepage-dark .advantage .item:hover,body.homepage-dark .featured-box .item:hover{transform:translateY(-5px);background:rgba(30,41,59,.6)!important;border-color:rgba(59,130,246,.3)}body.homepage-dark .footer-contact{border-top:1px solid rgba(255,255,255,.08)}body.homepage-dark .advantage .item,body.homepage-dark .featured-box .item,body.homepage-dark .footer-contact .item{transition:all .3s ease}body.homepage-dark .footer-contact .item:hover{background:rgba(30,41,59,.6)!important;border-color:#3b82f6}body.homepage-dark .online-wrap{background:rgba(15,23,42,.9)!important;backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.08)}body.homepage-dark .xs-online{background:rgba(15,23,42,.95)!important;backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.1)}body.homepage-dark .xs-online ul li>a{color:rgba(255,255,255,.85)!important}body.homepage-dark .form-subscribe{background:0 0!important}body.homepage-dark .form_email button{background:#3b82f6!important;border-color:#3b82f6!important;color:#fff!important}body.homepage-dark .form_email button:hover{background:#2563eb!important}body.homepage-dark .top{background:rgba(15,23,42,.8)!important;backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.08)}body.homepage-dark .advantage .item,body.homepage-dark .featured-box .item{background:rgba(30,41,59,.4)!important;border:1px solid rgba(255,255,255,.08);border-radius:16px;backdrop-filter:blur(12px)}body.homepage-dark .footer-contact{background:rgba(15,23,42,.8)!important;backdrop-filter:blur(12px)}body.homepage-dark .footer-contact .item{background:rgba(30,41,59,.4)!important;border:1px solid rgba(255,255,255,.08);border-radius:12px}body.homepage-dark .copyright,body.homepage-dark footer{background:rgba(15,23,42,.9)!important;border-top:1px solid rgba(255,255,255,.08)}body.homepage-dark .video-box,body.homepage-dark [style*="background-color: #ffffff"],body.homepage-dark [style*="background: #ffffff"]{background:0 0!important}body.homepage-dark .product-card,body.homepage-dark .product-item{background:rgba(30,41,59,.4)!important}body.homepage-dark .product-item{border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(12px)}body.homepage-dark .nav-tabs,body.homepage-dark .tab-content{background:0 0!important}body.homepage-dark .nav-link{background:rgba(30,41,59,.4)!important;border:1px solid rgba(255,255,255,.08);color:#fff!important}body.homepage-dark .nav-link.active,body.homepage-dark .nav-link:hover{background:rgba(59,130,246,.3)!important;border-color:#3b82f6!important}body.homepage-dark .btn,body.homepage-dark button{background:#3b82f6!important;border-color:#3b82f6!important;color:#fff!important}body.homepage-dark .btn:hover,body.homepage-dark button:hover{background:#2563eb!important}body.homepage-dark .iconfont{color:#fff!important}body.homepage-dark .iconfont:hover{color:#3b82f6!important}body.homepage-dark .lazy,body.homepage-dark .wow{background:0 0!important}body.homepage-dark *,body.homepage-dark .first-img,body.homepage-dark .slick-track,body.homepage-dark .swiper-wrapper,body.homepage-dark iframe,body.homepage-dark img,body.homepage-dark video{background-color:initial!important}body.homepage-dark .index-box,body.homepage-dark .index-featured,body.homepage-dark .slick-list,body.homepage-dark .slick-track,body.homepage-dark .wrap-advantage,body.homepage-dark .wrapper{background:0 0!important}body.homepage-dark .ai-modal,body.homepage-dark .banner,body.homepage-dark .cat-card,body.homepage-dark .copyright,body.homepage-dark .footer-contact,body.homepage-dark .header{background-color:initial!important}body.homepage-dark [style*="background-color: #fff"],body.homepage-dark [style*="background-color: rgb(255"],body.homepage-dark [style*="background-color: white"],body.homepage-dark [style*="background-color:#fff"],body.homepage-dark [style*="background: #fff"],body.homepage-dark [style*="background: rgb(255"],body.homepage-dark [style*="background: white"],body.homepage-dark [style*="background:#fff"]{background:0 0!important;background-color:transparent!important}body.homepage-dark .bg-gray,body.homepage-dark .bg-light,body.homepage-dark .bg-white{background-color:transparent!important}body.homepage-dark .content-box,body.homepage-dark .info-box,body.homepage-dark .list-box,body.homepage-dark .section,body.homepage-dark .section-wrap{background:0 0!important}body.homepage-dark .top .mail,body.homepage-dark .top .mail a,body.homepage-dark div,body.homepage-dark p,body.homepage-dark span{color:var(--text-secondary)!important}body.homepage-dark a:hover{color:var(--text-link-hover)!important}body.homepage-dark .advantage .item .title,body.homepage-dark .advantage .item h3,body.homepage-dark .follow-box a,body.homepage-dark .nav a,body.homepage-dark .title h2,body.homepage-dark .title h3{color:var(--text-primary)!important}body.homepage-dark .nav a:hover{color:var(--text-link)!important}body.homepage-dark .index-date,body.homepage-dark .title p,body.homepage-dark .xs-online ul li>a span{color:var(--text-muted)!important}body.homepage-dark .advantage .item .txt,body.homepage-dark .advantage .item p,body.homepage-dark .copyright .info-box,body.homepage-dark .copyright .info-box span,body.homepage-dark .form-subscribe .txt p,body.homepage-dark .news-box .txt p,body.homepage-dark .online-wrap .online .show-num p,body.homepage-dark .xs-online ul li>a{color:var(--text-secondary)!important}body.homepage-dark .btn span,body.homepage-dark .f-tit,body.homepage-dark .follow-name a,body.homepage-dark .iconfont,body.homepage-dark .news-box .tit a,body.homepage-dark button span{color:var(--text-primary)!important}body.homepage-dark .copyright a,body.homepage-dark .follow-name a:hover,body.homepage-dark .iconfont:hover{color:var(--text-link)!important}body.homepage-dark .online-wrap .online a,body.homepage-dark .xs-online ul li>a:before,body.homepage-dark [style*="color: #000"],body.homepage-dark [style*="color: #000000"],body.homepage-dark [style*="color: #222"],body.homepage-dark [style*="color: #333"],body.homepage-dark [style*="color: black"],body.homepage-dark [style*="color:#000"],body.homepage-dark [style*="color:#000000"],body.homepage-dark [style*="color:#222"],body.homepage-dark [style*="color:#333"],body.homepage-dark [style*="color:black"]{color:var(--text-primary)!important}body.homepage-dark .product-card img,body.homepage-dark img{filter:none!important;opacity:1!important}body.homepage-dark [style*="color: #666"],body.homepage-dark [style*="color: #777"],body.homepage-dark [style*="color: #888"],body.homepage-dark [style*="color: #999"]{color:var(--text-secondary)!important}body.homepage-dark .hsm-content .header-r .nav-tools,body.homepage-dark .hsm-content .lang-box,body.homepage-dark .hsm-content .translate-dropdown,body.homepage-dark .hsm-content .translate-wrapper{background:rgba(15,23,42,.95)!important;border:1px solid rgba(255,255,255,.1)!important;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}body.homepage-dark .dropdown a,body.homepage-dark .dropdown-menu a,body.homepage-dark .hsm-content .lang-box a,body.homepage-dark .hsm-content .translate-dropdown a,body.homepage-dark .options a,body.homepage-dark .select-box a{color:#fff!important}body.homepage-dark .hsm-content .lang-box a:hover,body.homepage-dark .hsm-content .translate-dropdown a:hover{background:rgba(59,130,246,.2)!important;color:#60a5fa!important}body.homepage-dark .hsm-content .search-box-compact{background:rgba(30,41,59,.6)!important;border:1px solid rgba(255,255,255,.1)!important}body.homepage-dark .hsm-content .search-box-compact .search-input{background:0 0!important;color:#fff!important}body.homepage-dark .cat-title{color:#fff!important;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,.3)}body.homepage-dark .cat-desc{color:#e2e8f0!important;font-weight:500}body.homepage-dark .cat-btn .btn-text{color:#fff!important;font-weight:600}body.homepage-dark .category-header h2,body.homepage-dark .partners-header h2{color:#fff!important;text-shadow:0 2px 4px rgba(0,0,0,.3)}body.homepage-dark .partners-header p{color:#e2e8f0!important}body.homepage-dark .dropdown,body.homepage-dark .dropdown-menu,body.homepage-dark .options,body.homepage-dark .select-box,body.homepage-dark .translate-lang .lang-current,body.homepage-dark .translate-lang .lang-list{background:rgba(15,23,42,.95)!important;border:1px solid rgba(255,255,255,.1)!important}body.homepage-dark .category-header h2{font-weight:800}body.homepage-dark .category-header p{color:#cbd5e1!important;font-weight:500}body.homepage-dark .nav .dropdown,body.homepage-dark .nav .mega-menu,body.homepage-dark .nav .nav-dropdown,body.homepage-dark .nav .product-nav,body.homepage-dark .nav .subnav,body.homepage-dark .product-nav-list,body.homepage-dark .product-nav-wrap{background:rgba(0,0,0,.9)!important;border:1px solid rgba(255,255,255,.1)!important;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 10px 30px rgba(0,0,0,.5)!important}body.homepage-dark .nav .dropdown a,body.homepage-dark .nav .mega-menu a,body.homepage-dark .nav .nav-dropdown a,body.homepage-dark .nav .subnav a{color:#000!important;background:#fff!important;border:1px solid rgba(0,0,0,.1)!important;border-radius:4px;margin:4px 0;padding:10px 15px!important;font-weight:500;transition:all .3s ease!important}body.homepage-dark .product-nav a,body.homepage-dark .product-nav-item a{background:#fff!important;border:1px solid rgba(0,0,0,.1)!important;border-radius:4px;margin:4px 0;transition:all .3s ease!important}body.homepage-dark .product-nav-item a{color:#000!important;padding:10px 15px!important;font-weight:500}body.homepage-dark .nav .dropdown a:hover,body.homepage-dark .nav .mega-menu a:hover,body.homepage-dark .nav .nav-dropdown a:hover,body.homepage-dark .nav .subnav a:hover{color:#fff!important;background:#1a56db!important;border-color:#1a56db!important}body.homepage-dark .product-nav a:hover,body.homepage-dark .product-nav-item a:hover{background:#1a56db!important;border-color:#1a56db!important}body.homepage-dark .product-nav-item a:hover{color:#fff!important}body.homepage-dark .nav .dropdown a.active,body.homepage-dark .nav .mega-menu a.active,body.homepage-dark .nav .nav-dropdown a.active,body.homepage-dark .nav .subnav a.active{color:#fff!important;background:#3b82f6!important;border-color:#3b82f6!important}body.homepage-dark .product-nav a.active,body.homepage-dark .product-nav-item.active a{background:#3b82f6!important;border-color:#3b82f6!important}body.homepage-dark .product-nav-item.active a{color:#fff!important}body.homepage-dark .nav .dropdown-title,body.homepage-dark .nav .nav-title,body.homepage-dark .product-nav .title,body.homepage-dark .product-nav h3,body.homepage-dark .product-nav-title{color:#fff!important;font-weight:700;font-size:16px}body.homepage-dark .nav .dropdown-desc,body.homepage-dark .nav .nav-desc,body.homepage-dark .nav .subnav-desc,body.homepage-dark .product-nav-desc{color:#fff!important;font-size:14px;margin-top:5px}body.homepage-dark .nav-list1,body.homepage-dark .product-nav{background:rgba(15,23,42,.7)!important;border:1px solid rgba(255,255,255,.1)!important;border-radius:16px;backdrop-filter:blur(12px);padding:16px!important;box-shadow:0 8px 32px rgba(0,0,0,.3)!important}body.homepage-dark .nav-list1 li,body.homepage-dark .product-nav li{list-style:none!important;margin-bottom:8px!important;background:rgba(30,41,59,.5)!important;border:1px solid rgba(255,255,255,.05)!important;border-radius:10px;transition:all .3s cubic-bezier(.34,1.56,.64,1)}body.homepage-dark .nav-list1 a,body.homepage-dark .product-nav a{display:block;padding:14px 16px!important;color:#e2e8f0!important;font-size:15px!important;font-weight:500!important;border-left:3px solid transparent!important;transition:all .3s cubic-bezier(.34,1.56,.64,1)}body.homepage-dark .nav-list1 a:hover,body.homepage-dark .product-nav a:hover{color:#fff!important;background:rgba(59,130,246,.2)!important;border-left-color:#3b82f6!important;transform:translateX(4px)!important;padding-left:20px!important}body.homepage-dark .nav-list1 a.active,body.homepage-dark .nav-list1 li.active>a,body.homepage-dark .product-nav a.active,body.homepage-dark .product-nav li.active>a{color:#fff!important;background:linear-gradient(135deg,rgba(59,130,246,.3)0,rgba(59,130,246,.1) 100%)!important;border-left-color:#3b82f6!important;font-weight:600!important;box-shadow:inset 0 0 20px rgba(59,130,246,.1)!important}body.homepage-dark .product-card{background:rgba(30,41,59,.5)!important;border:1px solid rgba(255,255,255,.08)!important;border-radius:16px;backdrop-filter:blur(12px);overflow:hidden;transition:all .4s cubic-bezier(.34,1.56,.64,1);box-shadow:0 8px 32px rgba(0,0,0,.2)!important}body.homepage-dark .product-card:hover{transform:translateY(-8px);background:rgba(30,41,59,.7)!important;border-color:rgba(59,130,246,.3)!important;box-shadow:0 20px 40px rgba(0,0,0,.4),0 0 20px rgba(59,130,246,.2)!important}body.homepage-dark .product-card img{transition:transform .4s ease}body.homepage-dark .product-card:hover img{transform:scale(1.05)}body.homepage-dark .product-card-title,body.homepage-dark .product-card-title a{color:#fff!important;font-size:16px!important;font-weight:700!important;text-shadow:0 1px 2px rgba(0,0,0,.3)}body.homepage-dark .hsm-content .pro-xl-list .list-name1>li:hover>a,body.homepage-dark .product-card-title a:hover{color:#60a5fa!important}body.homepage-dark .product-card-desc{color:#cbd5e1!important;font-size:14px!important}body.homepage-dark .product-card-price{color:#3b82f6!important;font-weight:700!important}body.homepage-dark .product-card-tags{background:rgba(59,130,246,.2)!important;border:1px solid rgba(59,130,246,.4)!important;color:#60a5fa!important;padding:4px 12px!important;border-radius:20px}body.homepage-dark .btn-view-detail,body.homepage-dark .product-card-footer a{padding:10px 12px!important;background:#3b82f6!important;color:#fff!important;border:1px solid #3b82f6!important;border-radius:8px;font-weight:600!important;transition:all .3s ease}body.homepage-dark .btn-view-detail:hover,body.homepage-dark .product-card-footer a:hover{background:#2563eb!important;border-color:#2563eb!important;transform:translateY(-2px);box-shadow:0 4px 12px rgba(59,130,246,.3)}body.homepage-dark .hsm-content .pro-xl-list{background-color:#0a0f1e!important}body.homepage-dark .hsm-content .pro-xl-list .container{background-color:transparent!important}body.homepage-dark .hsm-content .pro-xl-list .list-name1{background:linear-gradient(to right,#111827 0,#1e293b 100%)!important;color:#f1f5f9!important}body.homepage-dark .hsm-content .pro-xl-list .list-name1>li{border-top-color:rgba(255,255,255,.05)!important;border-bottom-color:rgba(255,255,255,.05)!important}body.homepage-dark .hsm-content .pro-xl-list .list-name1>li>a{color:#94a3b8!important}body.homepage-dark .hsm-content .pro-xl-list .list-name1>li:hover{background:rgba(59,130,246,.1)!important}body.homepage-dark .hsm-content .pro-xl-list .list-intro{background:linear-gradient(135deg,#0f172a 0,#1e293b 100%)!important}body.homepage-dark .hsm-content .pro-xl-list .list-intro .item{background:rgba(30,41,59,.6)!important;border:1px solid rgba(59,130,246,.15)!important;border-radius:16px!important;padding:20px!important}body.homepage-dark .hsm-content .pro-xl-list .list-intro .item:hover{transform:translateY(-4px)!important;border-color:#3b82f6!important;box-shadow:0 12px 24px rgba(0,0,0,.4),0 0 40px rgba(59,130,246,.2)!important}body.homepage-dark .hsm-content .pro-xl-list .list-intro .pic{border:1px solid rgba(59,130,246,.1)!important;border-radius:12px!important;background:linear-gradient(135deg,#1e293b 0,#0f172a 100%)!important}body.homepage-dark .hsm-content .pro-xl-list .list-intro .name a{color:#f1f5f9!important}body.homepage-dark .hsm-content .pro-xl-list .list-intro .item:hover .name a{color:#60a5fa!important;text-decoration:none!important}body.homepage-dark .hsm-content .pro-xl-list .list-intro .txt a,body.homepage-dark .hsm-content .pro-xl-list .list-intro .txt p{color:#94a3b8!important}@media (max-width:768px){.category-header,.category-section{padding:40px 15px!important}}@media (max-width:480px){.category-header,.category-section{padding:30px 15px!important}.category-header h2{font-size:18px!important;margin-bottom:15px!important}}.cat-content{margin-top:200px!important}.cat-btn,.cat-title{margin-top:10px}@media (max-width:768px){.cat-card{height:300px;padding-bottom:20px}.cat-img-box{top:-30px;height:160px}.cat-content{margin-top:140px!important}.cat-title{font-size:16px}.cat-desc{font-size:12px;min-height:28px;margin-bottom:12px}}@media (max-width:480px){.cat-card{height:280px}.cat-img-box{top:-20px;height:140px;width:85%}.cat-content{margin-top:130px!important}}.cat-content{}.cat-desc{text-align:center;margin-bottom:25px;min-height:40px}@media (max-width:640px){.cat-content{margin-top:120px}.cat-desc{min-height:30px;margin-bottom:18px;font-size:12px}.cat-btn{height:40px;padding:0 20px;gap:8px;border-radius:6px}.cat-btn .btn-text{font-size:12px}.btn-icon{width:16px;height:16px}.btn-icon svg{width:14px;height:14px}}@media (max-width:375px){.cat-content{margin-top:100px}.cat-btn{height:36px;padding:0 16px;gap:6px;border-radius:6px}.cat-btn .btn-text{font-size:11px}.btn-icon{width:14px;height:14px}.btn-icon svg{width:12px;height:12px}}                       /www/wwwroot/8.136.42.225/static/css/mobile-responsive-opt
+
+imization.css:    .lang-dropdown .lang-current {          /www/wwwroot/8.136.42.225/static/css/mobile-responsive-opt
+
+imization.css:    .lang-dropdown .lang-current {          /www/wwwroot/8.136.42.225/static/css/nav-glassmorphism.css
+
+:.header-r .nav-contact-btn {                             /www/wwwroot/8.136.42.225/static/css/nav-glassmorphism.css
+
+:.header-r .nav-contact-btn:hover {                       /www/wwwroot/8.136.42.225/static/css/nav-glassmorphism.css
+
+:.header-r .nav-contact-btn svg {                         /www/wwwroot/8.136.42.225/static/css/nav-glassmorphism.css
+
+:    .header-r .nav-contact-btn {                         /www/wwwroot/8.136.42.225/static/css/nav-glassmorphism.css
+
+:    .header-r .nav-contact-btn span {                    /www/wwwroot/8.136.42.225/static/css/nav-glassmorphism.css
+
+:    .header-r .nav-contact-btn {                         /www/wwwroot/8.136.42.225/static/css/nav-glassmorphism.min
+
+.css:body.hsm-content.homepage-dark .pro-xl-list .list-name1{background:rgba(255,255,255,.08)!important;backdrop-filter:blur(24px) saturate(180%)!important;-webkit-backdrop-filter:blur(24px) saturate(180%)!important;border-right:1px solid rgba(255,255,255,.2)!important;box-shadow:0 8px 32px 0 rgba(0,0,0,.4),inset 0 1px 0 0 rgba(255,255,255,.1)!important}body.hsm-content.homepage-dark .pro-xl-list .list-name1>li{border-top:1px solid rgba(255,255,255,.08)!important;transition:all .4s cubic-bezier(.4,0,.2,1)!important;position:relative!important;overflow:hidden!important}body.hsm-content.homepage-dark .pro-xl-list .list-name1>li::before{content:""!important;position:absolute!important;top:0!important;left:-100%!important;width:100%!important;height:100%!important;background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent)!important;transition:left .6s ease!important}body.hsm-content.homepage-dark .pro-xl-list .list-name1>li:hover::before{left:100%!important}body.hsm-content.homepage-dark .pro-xl-list .list-name1>li:hover{background:rgba(59,130,246,.15)!important;backdrop-filter:blur(16px)!important;border-right:3px solid rgba(59,130,246,.6)!important;box-shadow:inset 0 0 20px rgba(59,130,246,.1),0 0 30px rgba(59,130,246,.2)!important}body.hsm-content.homepage-dark .pro-xl-list .list-name1>li>a{color:rgba(255,255,255,.85)!important;font-weight:500!important;letter-spacing:.5px!important;text-shadow:0 2px 4px rgba(0,0,0,.3)!important;transition:all .3s ease!important}body.hsm-content.homepage-dark .pro-xl-list .list-name1>li:hover>a{color:#fff!important;text-shadow:0 0 10px rgba(59,130,246,.5),0 2px 4px rgba(0,0,0,.5)!important;transform:translateX(4px)!important}body.hsm-content.homepage-dark .pro-xl-list .list-name1>li.active{background:rgba(59,130,246,.25)!important;backdrop-filter:blur(20px)!important;border-right:4px solid #3b82f6!important;box-shadow:inset 0 0 30px rgba(59,130,246,.2),0 0 40px rgba(59,130,246,.3)!important}body.hsm-content.homepage-dark .pro-xl-list .list-name1>li.active>a{color:#fff!important;font-weight:600!important;text-shadow:0 0 15px rgba(59,130,246,.8),0 2px 4px rgba(0,0,0,.6)!important}body.hsm-content.homepage-dark .pro-xl-list{background:rgba(10,15,30,.85)!important;backdrop-filter:blur(30px)!important;box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 100px rgba(59,130,246,.1)!important;border:1px solid rgba(255,255,255,.1)!important;border-radius:0 0 16px 16px!important}@media (max-width:1199.98px){body.hsm-content.homepage-dark .pro-xl-list .list-name1{backdrop-filter:blur(16px)!important}}@supports not (backdrop-filter:blur(20px)){body.hsm-content.homepage-dark .pro-xl-list .list-name1{background:rgba(30,41,59,.9)!important}}.header-r .nav-contact-btn{display:flex;align-items:center;gap:6px;padding:8px 16px;margin-left:12px;background:linear-gradient(135deg,#3b82f6 0,#2563eb 100%);border:0;border-radius:20px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;transition:all .3s ease;white-space:nowrap;box-shadow:0 2px 8px rgba(59,130,246,.3)}.header-r .nav-contact-btn:hover{background:linear-gradient(135deg,#2563eb 0,#1d4ed8 100%);transform:translateY(-2px);box-shadow:0 4px 16px rgba(59,130,246,.4)}.header-r .nav-contact-btn svg{flex-shrink:0}@media (max-width:1199px){.header-r .nav-contact-btn{font-size:12px;padding:8px;border-radius:50%}.header-r .nav-contact-btn span{display:none}}.search-box-compact{position:relative}.search-autocomplete-list{position:absolute;top:calc(100% + 8px);left:0;right:0;min-width:320px;max-height:400px;overflow-y:auto;background:rgba(15,23,42,.98);border:1px solid rgba(59,130,246,.2);border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.4);z-index:10000;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}.search-item{display:flex;align-items:center;gap:12px;padding:12px 16px;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.05);transition:background .2s ease}.search-item-active,.search-item:hover{background:rgba(59,130,246,.15)}.search-item img{width:48px;height:48px;object-fit:cover;border-radius:8px;background:rgba(255,255,255,.1)}.search-item-info{flex:1;min-width:0}.search-item-title{color:#e2e8f0;font-size:13px;font-weight:500;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.search-item-title mark{background:rgba(59,130,246,.3);color:#93c5fd;padding:0 2px;border-radius:2px}.search-view-all{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;color:#60a5fa;font-size:13px;font-weight:600;text-decoration:none;transition:all .2s ease}.search-view-all:hover{background:rgba(59,130,246,.1);color:#93c5fd}.search-no-results{padding:24px 16px;text-align:center}.search-no-results p{color:#64748b;font-size:13px;margin:0}        /www/wwwroot/8.136.42.225/static/css/nav-mobile-fix.css:  
+
+  .lang-dropdown .lang-current {                          /www/wwwroot/8.136.42.225/static/css/translate-lang.css:.l
+
+ang-current {                                             /www/wwwroot/8.136.42.225/static/css/translate-lang.css:.l
+
+ang-current:hover {                                       /www/wwwroot/8.136.42.225/static/css/translate-lang.css:.l
+
+ang-current .globe-icon {                                 /www/wwwroot/8.136.42.225/static/css/translate-lang.css:.l
+
+ang-current .arrow-icon {                                 /www/wwwroot/8.136.42.225/static/css/translate-lang.css:.n
+
+av-contact-btn {                                          /www/wwwroot/8.136.42.225/static/css/translate-lang.css:.n
+
+av-contact-btn:hover {                                    /www/wwwroot/8.136.42.225/static/css/translate-lang.css:.n
+
+av-contact-btn svg {                                      /www/wwwroot/8.136.42.225/static/css/translate-lang.css:  
+
+  .nav-contact-btn {                                      /www/wwwroot/8.136.42.225/static/css/translate-lang.css:  
+
+  .nav-contact-btn span {                                 /www/wwwroot/8.136.42.225/static/css/translate-lang.css:  
+
+  .nav-contact-btn {                                      /www/wwwroot/8.136.42.225/static/css/translate-lang.css:  
+
+  .lang-current {                                         /www/wwwroot/8.136.42.225/static/css/translate-lang.css:  
+
+  .lang-current .globe-icon {                             /www/wwwroot/8.136.42.225/static/css/ui-improvements.css:.
+
+lang-current {                                            /www/wwwroot/8.136.42.225/static/css/ui-improvements.css:.
+
+lang-current:hover {                                      /www/wwwroot/8.136.42.225/static/css/ui-improvements.css:.
+
+lang-current:active {                                     
+
+找到问题了！translate-lang.css 文件定义了 .lang-current 和 .nav-contact-btn 的样式，而且它在 head.html 中加载顺序可能在我的 CSS 之后。让我检查加载顺序：
+
+Command
+
+ssh root@8.136.42.225 "grep -n 'translate-lang.css\|nav-tools-dark' /www/wwwroot/8.136.42.225/template/default/htmls/head.html"
+
+/template/default/htmls/head.html"                        Warning: Permanently added '8.136.42.225' (ED25519) to the
+
+ list of known hosts.                                     74:    <link rel="stylesheet" href="static/css/nav-tools-d
+
+ark.css?v=1766380004">                                    86:    <link rel="stylesheet" href="static/css/translate-l
+
+ang.css?v=16.0.1">                                        
+
+问题找到了！translate-lang.css 在第 86 行加载，在我的 nav-tools-dark.css（第 74 行）之后，所以它覆盖了我的样式。我需要把我的 CSS 移到最后，或者直接修改 translate-lang.css。
+
+让我查看 translate-lang.css 中的相关样式：
+
+Command
+
+ssh root@8.136.42.225 "grep -A5 '.lang-current {' /www/wwwroot/8.136.42.225/static/css/translate-lang.css | head -30"
+
+ate-lang.css | head -30"                                  Warning: Permanently added '8.136.42.225' (ED25519) to the
+
+ list of known hosts.                                     .lang-current {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    padding: 6px 12px;
+
+    background: rgba(255, 255, 255, 0.08);
+
+--                                                        
+
+    .lang-current {
+
+        padding: 5px 10px;
+
+        font-size: 12px;
+
+        gap: 5px;
+
+    }
+
+    .lang-current .globe-icon {
+
+Command
+
+ssh root@8.136.42.225 "grep -A10 '.nav-contact-btn {' /www/wwwroot/8.136.42.225/static/css/translate-lang.css | head -40"
+
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+
+    color: white;                                         
+
+    border: none;
+
+    border-radius: 8px;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+--
+
+    .nav-contact-btn {
+
+        padding: 6px 12px;
+
+        font-size: 12px;
+
+    }
+
+    .nav-contact-btn span {
+
+        display: none;
+
+    }
+
+}
+
+@media (max-width: 991px) {
+
+    .nav-tools {
+
+--
+
+    .nav-contact-btn {
+
+        display: none;
+
+    }
+
+    .nav-tools .search-box-compact,
+
+    .nav-tools .nav-tools-divider {
+
+        display: none;
+
+    }
+
+    .nav-tools {
+
+        gap: 6px;
+
+        padding: 4px 8px;
+
+    }
+
+我看到 translate-lang.css 中的 .nav-contact-btn 使用了蓝色渐变背景。最简单的方法是直接修改 translate-lang.css 来应用深空主题样式：
+
+Command
+
+ssh root@8.136.42.225 'python3 << PYEOF
+
+import re
+
+with open("/www/wwwroot/8.136.42.225/static/css/translate-lang.css", "r") as f:
+
+    content = f.read()
+
+# 替换 .lang-current 样式
+
+old_lang = """.lang-current {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    padding: 6px 12px;
+
+    background: rgba(255, 255, 255, 0.08);"""
+
+new_lang = """.lang-current {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    padding: 8px 14px;
+
+    height: 42px;
+
+    border-radius: 12px;
+
+    background: rgba(255, 255, 255, 0.08);
+
+    backdrop-filter: blur(12px);
+
+    -webkit-backdrop-filter: blur(12px);
+
+    border: 1px solid rgba(255, 255, 255, 0.15);"""
+
+content = content.replace(old_lang, new_lang)
+
+# 替换 .nav-contact-btn 样式
+
+old_contact = """    background: linear-gradient(135deg, #3b82f6, #2563eb);
+
+    color: white;
+
+    border: none;
+
+    border-radius: 8px;"""
+
+new_contact = """    background: rgba(255, 255, 255, 0.08);
+
+    backdrop-filter: blur(12px);
+
+    -webkit-backdrop-filter: blur(12px);
+
+    color: rgba(255, 255, 255, 0.9);
+
+    border: 1px solid rgba(99, 102, 241, 0.25);
+
+    border-radius: 12px;
+
+    height: 42px;"""
+
+content = content.replace(old_contact, new_contact)
+
+with open("/www/wwwroot/8.136.42.225/static/css/translate-lang.css", "w") as f:
+
+    f.write(content)
+
+print("Updated translate-lang.css!")
+
+PYEOF'
+
+Warning: Permanently added '8.136.42.225' (ED25519) to the
+
+ list of known hosts.                                     Updated translate-lang.css!
+
+更新版本号让浏览器加载新的 CSS：
+
+Command
+
+ssh root@8.136.42.225 'python3 << PYEOF
+
+import re
+
+with open("/www/wwwroot/8.136.42.225/template/default/htmls/head.html", "r") as f:
+
+    content = f.read()
+
+# 更新 translate-lang.css 版本号
+
+content = re.sub(r"translate-lang\.css\?v=[\d.]+", "translate-lang.css?v=16.0.2", content)
+
+with open("/www/wwwroot/8.136.42.225/template/default/htmls/head.html", "w") as f:
+
+    f.write(content)
+
+print("Updated version!")
+
+PYEOF'
+
+Warning: Permanently added '8.136.42.225' (ED25519) to the
+
+ list of known hosts.                                     Updated version!
+
+Command
+
+ssh root@8.136.42.225 "rm -rf /www/wwwroot/8.136.42.225/runtime/cache/* /www/wwwroot/8.136.42.225/runtime/complile/*"
+
+.225/runtime/complile/*"                                  Warning: Permanently added '8.136.42.225' (ED25519) to the
+
+ list of known hosts.                                     
+
+Called MCP tool
+
+puppeteer_navigate
+
+Called MCP tool
+
+puppeteer_screenshot
+
+语言切换和 Contact 按钮还是白色背景。让我检查一下实际加载的 CSS：
+
+Called MCP tool
+
+puppeteer_evaluate
+
+版本号已更新。让我检查实际的 CSS 内容：
+
+Command
+
+ssh root@8.136.42.225 "grep -A15 '.nav-contact-btn {' /www/wwwroot/8.136.42.225/static/css/translate-lang.css | head -20"
+
+anslate-lang.css | head -20"                              Warning: Permanently added '8.136.42.225' (ED25519) to the
+
+ list of known hosts.                                     .nav-contact-btn {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    padding: 8px 16px;
+
+    background: rgba(255, 255, 255, 0.08);
+
+    backdrop-filter: blur(12px);                          
+
+    -webkit-backdrop-filter: blur(12px);
+
+    color: rgba(255, 255, 255, 0.9);
+
+    border: 1px solid rgba(99, 102, 241, 0.25);
+
+    border-radius: 12px;
+
+    height: 42px;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: 0.3s;
+
+--
+
+    .nav-contact-btn {
+
+        padding: 6px 12px;
+
+        font-size: 12px;
+
+CSS 已经更新了！但浏览器可能还在用缓存。让我用 JS 强制检查实际计算样式：
+
+Called MCP tool
+
+puppeteer_evaluate
+
+Called MCP tool
+
+puppeteer_screenshot
+
+还是白色背景。让我检查一下是否有内联样式或其他 CSS 覆盖：
+
+Called MCP tool
+
+puppeteer_evaluate
+
+CSS 实际上已经生效了！rgba(255, 255, 255, 0.08) 是正确的半透明背景，backdrop-filter: blur(12px) 也生效了。
+
+问题是这个背景在深色背景上看起来还是偏白。这是因为 rgba(255, 255, 255, 0.08) 虽然是 8% 透明度的白色，但在深色背景上配合 backdrop-filter: blur() 会产生一种"磨砂玻璃"效果，看起来比较亮。
+
+让我调整为更深的颜色：
+
+Command
+
+ssh root@8.136.42.225 'python3 << PYEOF
+
+import re
+
+with open("/www/wwwroot/8.136.42.225/static/css/translate-lang.css", "r") as f:
+
+    content = f.read()
+
+# 将 .lang-current 和 .nav-contact-btn 的背景改为更深的颜色
+
+# 从 rgba(255, 255, 255, 0.08) 改为 rgba(15, 23, 42, 0.8) - 深蓝色
+
+content = content.replace(
+
+    "background: rgba(255, 255, 255, 0.08);",
+
+    "background: rgba(15, 23, 42, 0.7);"
+
+)
+
+with open("/www/wwwroot/8.136.42.225/static/css/translate-lang.css", "w") as f:
+
+    f.write(content)
+
+print("Updated to darker background!")
+
+PYEOF'
+
+Warning: Permanently added '8.136.42.225' (ED25519) to the
+
+ list of known hosts.                                     Updated to darker background!
+
+Failed to call MCP tool
+
+puppeteer_evaluate
+
+Called MCP tool
+
+puppeteer_navigate
+
+Called MCP tool
+
+puppeteer_screenshot
+
+还是白色。问题可能是浏览器缓存太强了。让我检查一下 .nav-tools 容器是否有背景色覆盖：
+
+Called MCP tool
+
+puppeteer_evaluate
+
+我看到问题了！CSS 文件的更改没有被浏览器加载。langCurrent 和 contactBtn 的背景还是 rgba(255, 255, 255, 0.08)，而不是我改的 rgba(15, 23, 42, 0.7)。
+
+这是因为 Nginx 的 7 天缓存。让我更新 CSS 文件的版本号：
+
+Command
+
+ssh root@8.136.42.225 'python3 << PYEOF
+
+with open("/www/wwwroot/8.136.42.225/template/default/htmls/head.html", "r") as f:
+
+    content = f.read()
+
+# 更新 translate-lang.css 版本号为时间戳
+
+import time
+
+ts = int(time.time())
+
+import re
+
+content = re.sub(r"translate-lang\.css\?v=[\d.]+", f"translate-lang.css?v={ts}", content)
+
+with open("/www/wwwroot/8.136.42.225/template/default/htmls/head.html", "w") as f:
+
+    f.write(content)
+
+print(f"Updated to v={ts}")
+
+PYEOF'
+
+Warning: Permanently added '8.136.42.225' (ED25519) to the
+
+ list of known hosts.                                     Updated to v=1767663921
+
+Command
+
+ssh root@8.136.42.225 "rm -rf /www/wwwroot/8.136.42.225/runtime/cache/* /www/wwwroot/8.136.42.225/runtime/complile/*"
+
+.225/runtime/complile/*"                                  Warning: Permanently added '8.136.42.225' (ED25519) to the
+
+ list of known hosts.                                     
+
+Called MCP tool
+
+puppeteer_navigate
+
+Called MCP tool
+
+puppeteer_screenshot
+
+还是白色背景。让我检查实际加载的 CSS 版本和内容：
+
+Called MCP tool
+
+puppeteer_evaluate
+
+版本号已更新。让我直接检查服务器上的 CSS 文件内容：
+
+Command
+
+ssh root@8.136.42.225 "grep 'background:' /www/wwwroot/8.136.42.225/static/css/translate-lang.css | head -10"
+
+.css | head -10"                                          Warning: Permanently added '8.136.42.225' (ED25519) to the
+
+ list of known hosts.                                         background: rgba(255, 255, 255, 0.05);
+
+    background: none;
+
+    background: none;
+
+    background: rgba(255, 255, 255, 0.15);
+
+    background: rgba(15, 23, 42, 0.7);
+
+    background: rgba(255, 255, 255, 0.12);
+
+    background: rgba(15, 23, 42, 0.98);                   
+
+    background: rgba(59, 130, 246, 0.12);
+
+    background: rgba(59, 130, 246, 0.2);
+
+    background: transparent;
+
+我看到 rgba(15, 23, 42, 0.7) 存在，但可能不是在正确的选择器下。让我检查 .lang-current 的完整样式：
+
+Command
+
+ssh root@8.136.42.225 "grep -A20 '^\.lang-current {' /www/wwwroot/8.136.42.225/static/css/translate-lang.css"
+
+nslate-lang.css"                                          Warning: Permanently added '8.136.42.225' (ED25519) to the
+
+ list of known hosts.                                     .lang-current {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    padding: 8px 14px;
+
+    height: 42px;
+
+    border-radius: 12px;                                  
+
+    background: rgba(15, 23, 42, 0.7);
+
+    backdrop-filter: blur(12px);
+
+    -webkit-backdrop-filter: blur(12px);
+
+    border: 1px solid rgba(255, 255, 255, 0.15);
+
+    border: 1px solid rgba(255, 255, 255, 0.15);
+
+    color: #fff;
+
+    font-size: 13px;
+
+    font-weight: 500;
+
+    cursor: pointer;
+
+    border-radius: 8px;
+
+    transition: all 0.2s ease;
+
+}
+
+.lang-current:hover {
+
+CSS 文件是正确的！但浏览器显示的还是 rgba(255, 255, 255, 0.08)。这说明有其他 CSS 文件在后面覆盖了这个样式。让我检查所有 CSS 文件的加载顺序：
+
+Failed to call MCP tool
+
+puppeteer_evaluate
+
+让我刷新页面重新检查：
+
+Called MCP tool
+
+puppeteer_navigate
+
+Called MCP tool
+
+puppeteer_evaluate
+
+我看到 translate-lang.css 在第 23 位，但后面还有很多 CSS 文件。让我检查是否有其他文件覆盖了 .lang-current 样式：
+
+Command
+
+ssh root@8.136.42.225 "grep -l 'lang-current' /www/wwwroot/8.136.42.225/static/css/*.css"

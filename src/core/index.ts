@@ -22,3 +22,10 @@ export { AgentSwarmManager, DEFAULT_SWARM_CONFIG } from './agents/AgentSwarmMana
 // 沙箱模块
 // ============================================
 export { SandboxManager, DEFAULT_SANDBOX_CONFIG } from './sandbox/SandboxManager';
+
+// ============================================
+// Skills 模块
+// ============================================
+export * from './skills';
+export { skillManager, SkillManager, DEFAULT_SKILL_MANAGER_CONFIG } from './skills';
+export type { SkillManagerConfig } from './skills';

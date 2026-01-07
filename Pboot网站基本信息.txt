@@ -1,0 +1,150 @@
+# 方宇钣金网站 - 完整信息文档
+
+> 更新时间: 2026-01-08
+> 网站地址: https://fangyucnc.com
+
+---
+
+## 一、服务器信息
+
+### 腾讯云轻量服务器（当前使用）
+| 项目 | 信息 |
+|-----|------|
+| 云服务商 | 腾讯云轻量应用服务器 |
+| 地区 | 新加坡 |
+| 公网 IP | 43.133.41.111 |
+| 操作系统 | Ubuntu Server 24.04 LTS 64bit |
+| 配置 | 2核 4G |
+
+### SSH 登录
+```
+ssh ubuntu@43.133.41.111
+密码: ~86y;T?(XG#M-cB
+```
+
+### 宝塔面板
+| 项目 | 信息 |
+|-----|------|
+| 面板地址 | http://43.133.41.111:29526/1e971c01 |
+| 用户名 | djojwidl |
+| 密码 | 30e8a225 |
+
+---
+
+## 二、网站信息
+
+### 域名
+| 项目 | 信息 |
+|-----|------|
+| 主域名 | fangyucnc.com |
+| www域名 | www.fangyucnc.com |
+| DNS托管 | Cloudflare |
+
+### Cloudflare 账号
+| 项目 | 信息 |
+|-----|------|
+| 账号邮箱 | Uumm2024@gmail.com |
+| SSL模式 | Flexible |
+
+### 网站目录
+```
+/www/wwwroot/fangyucnc.com/
+```
+
+### PbootCMS 后台
+| 项目 | 信息 |
+|-----|------|
+| 后台地址 | https://fangyucnc.com/oskj_admin.php |
+| 管理员账号 | admin |
+| 管理员密码 | admin123 |
+| 普通账号 | guest |
+| 普通密码 | guest001 |
+
+### 询盘管理后台
+| 项目 | 信息 |
+|-----|------|
+| 地址 | https://fangyucnc.com/inquiry-admin.php |
+| 密码 | fangyu2024 |
+
+---
+
+## 三、数据库信息
+
+### MySQL (腾讯云)
+| 项目 | 信息 |
+|-----|------|
+| 数据库名 | fangyu |
+| 用户名 | fangyu |
+| 密码 | 123456 |
+| Host | 127.0.0.1 |
+| 端口 | 3306 |
+| 表前缀 | ay_ |
+
+### 主要数据表
+| 表名 | 说明 |
+|------|------|
+| ay_content | 产品/文章内容 |
+| ay_content_sort | 分类管理 |
+| ay_slide | 幻灯片 |
+| ay_config | 系统配置 |
+| ay_message | 留言/询盘 |
+
+---
+
+## 四、技术栈
+
+| 组件 | 版本 |
+|------|------|
+| CMS框架 | PbootCMS 3.2.12 |
+| Web服务器 | Nginx 1.26 |
+| PHP | 8.1 (FPM) |
+| 数据库 | MySQL 5.7 |
+| 前端框架 | Bootstrap 4 + jQuery |
+| CDN/SSL | Cloudflare |
+
+---
+
+## 五、常用维护命令
+
+### 重启服务
+```bash
+sudo systemctl restart nginx
+sudo systemctl restart php-fpm-81
+```
+
+### 修复权限
+```bash
+sudo chown -R www:www /www/wwwroot/fangyucnc.com
+sudo chmod -R 755 /www/wwwroot/fangyucnc.com
+```
+
+### 清除缓存
+```bash
+rm -rf /www/wwwroot/fangyucnc.com/runtime/cache/*
+rm -rf /www/wwwroot/fangyucnc.com/runtime/complile/*
+```
+
+---
+
+## 六、备份信息
+
+### 阿里云旧服务器（已弃用）
+| 项目 | 信息 |
+|-----|------|
+| IP | 8.136.42.225 |
+| SSH | root / TJZqwer1234@ |
+| 宝塔面板 | https://8.136.42.225:21171/86c1c877 |
+| 宝塔账号 | ao8bld8y / fangyu2024 |
+| 状态 | 数据已迁移，可关闭 |
+
+---
+
+## 七、关键文件路径
+
+| 文件 | 路径 |
+|------|------|
+| 网站根目录 | /www/wwwroot/fangyucnc.com/ |
+| 数据库配置 | /www/wwwroot/fangyucnc.com/config/database.php |
+| 模板目录 | /www/wwwroot/fangyucnc.com/template/default/htmls/ |
+| 静态资源 | /www/wwwroot/fangyucnc.com/static/ |
+| 上传文件 | /www/wwwroot/fangyucnc.com/uploads/ |

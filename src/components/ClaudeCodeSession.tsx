@@ -319,6 +319,22 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
     hideWarmupMessages: filterConfig.hideWarmupMessages
   });
 
+  // 🔧 FIX: 创建 displayableMessages 索引到 messages 索引的映射
+  // 用于修复提示词导航的索引偏移问题
+  const displayableToMessagesIndexMap = useMemo(() => {
+    const map = new Map<number, number>();
+
+    displayableMessages.forEach((displayableMsg, displayableIndex) => {
+      // 在 messages 中找到对应的消息索引
+      const messagesIndex = messages.findIndex(msg => msg === displayableMsg);
+      if (messagesIndex !== -1) {
+        map.set(displayableIndex, messagesIndex);
+      }
+    });
+
+    return map;
+  }, [messages, displayableMessages]);
+
   // 🆕 将消息分组（处理子代理消息）
   const messageGroups = useGroupedMessages(displayableMessages, {
     enableSubagentGrouping: true
@@ -1163,12 +1179,12 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
 
   // 🆕 辅助函数：计算用户消息对应的 promptIndex
   // 只计算真实用户输入，排除系统消息和工具结果
-  const getPromptIndexForMessage = useCallback((displayableIndex: number): number => {
-    // 找到 displayableMessages[displayableIndex] 在 messages 中的实际位置
-    const displayableMessage = displayableMessages[displayableIndex];
-    const actualIndex = messages.findIndex(m => m === displayableMessage);
-    
-    if (actualIndex === -1) return -1;
+  // 🔧 FIX: 参数实际上是 messages 数组的索引，而不是 displayableMessages 的索引
+  const getPromptIndexForMessage = useCallback((messagesIndex: number): number => {
+    // 🔧 FIX: 直接使用传入的 messagesIndex，不需要再查找
+    const actualIndex = messagesIndex;
+
+    if (actualIndex === -1 || actualIndex >= messages.length) return -1;
     
     // 计算这是第几条真实用户消息（排除 Warmup/System 和纯工具结果消息）
     // 这个逻辑必须和后端 prompt_tracker.rs 完全一致！
@@ -1227,7 +1243,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
         return !isWarmupMessage && !isSkillMessage;
       })
       .length - 1;
-  }, [messages, displayableMessages]);
+  }, [messages]); // 🔧 FIX: 移除 displayableMessages 依赖，因为不再使用
 
 
   // 🆕 撤回处理函数 - 支持三种撤回模式
@@ -1346,6 +1362,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
       onLinkDetected={handleLinkDetected}
       onRevert={handleRevert}
       getPromptIndexForMessage={getPromptIndexForMessage}
+      displayableToMessagesIndexMap={displayableToMessagesIndexMap}
     >
       <SessionMessages
         ref={sessionMessagesRef}
@@ -1790,6 +1807,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
       </div>
 
       {/* Prompt Navigator - Quick navigation to any user prompt */}
+      {/* 🔧 REVERT: 改回使用 messages，避免 displayableMessages 导致无限渲染 */}
       <PromptNavigator
         messages={messages}
         isOpen={showPromptNavigator}

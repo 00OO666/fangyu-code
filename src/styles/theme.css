@@ -1,11 +1,11 @@
 /* ========================================
-   🎨 MODERN DESIGN SYSTEM - Material 3 Inspired
+    MODERN DESIGN SYSTEM - Material 3 Inspired
    ======================================== */
 
 /* Default (Dark) theme configuration - Medium Gray */
 :root,
 .dark {
-  /* 🎨 Primary Colors - Medium gray for comfortable viewing */
+  /*  Primary Colors - Medium gray for comfortable viewing */
   --color-background: oklch(0.23 0.003 260);
   --color-foreground: oklch(0.93 0.003 260);
   --color-card: oklch(0.27 0.004 260);
@@ -13,28 +13,28 @@
   --color-popover: oklch(0.25 0.003 260);
   --color-popover-foreground: oklch(0.93 0.003 260);
 
-  /* 🌟 Brand Colors - Vibrant blue accent */
+  /*  Brand Colors - Vibrant blue accent */
   --color-primary: oklch(0.62 0.2 250);
   --color-primary-hover: oklch(0.67 0.22 250);
   --color-primary-active: oklch(0.57 0.18 250);
   --color-primary-foreground: oklch(0.98 0.003 260);
 
-  /* 📦 Secondary Colors */
+  /*  Secondary Colors */
   --color-secondary: oklch(0.3 0.004 260);
   --color-secondary-hover: oklch(0.34 0.005 260);
   --color-secondary-foreground: oklch(0.92 0.003 260);
 
-  /* 🔇 Muted Colors */
+  /*  Muted Colors */
   --color-muted: oklch(0.28 0.003 260);
   --color-muted-hover: oklch(0.32 0.004 260);
   --color-muted-foreground: oklch(0.6 0.005 260);
 
-  /* ✨ Accent Colors */
+  /*  Accent Colors */
   --color-accent: oklch(0.32 0.006 260);
   --color-accent-hover: oklch(0.36 0.008 260);
   --color-accent-foreground: oklch(0.93 0.003 260);
 
-  /* ⚠️ Status Colors */
+  /*  Status Colors */
   --color-destructive: oklch(0.6 0.22 25);
   --color-destructive-hover: oklch(0.55 0.25 25);
   --color-destructive-foreground: oklch(0.98 0.003 260);
@@ -49,13 +49,13 @@
   --color-info-hover: oklch(0.57 0.22 250);
   --color-info-foreground: oklch(0.98 0.003 250);
 
-  /* 🎨 UI Elements */
+  /*  UI Elements */
   --color-border: oklch(0.36 0.005 260);
   --color-border-hover: oklch(0.42 0.006 260);
   --color-input: oklch(0.28 0.003 260);
   --color-ring: oklch(0.5 0.08 260); /* Muted gray-blue for subtle focus indicator */
 
-  /* 🌫️ Glassmorphism Variables (Dark) - Medium Gray */
+  /*  Glassmorphism Variables (Dark) - Medium Gray */
   --glass-border: oklch(0.93 0.003 260 / 0.12);
   --glass-bg: oklch(0.23 0.003 260 / 0.8);
   --glass-blur: 12px;
@@ -65,7 +65,7 @@
   --color-green-500: oklch(0.68 0.18 142);
   --color-green-600: oklch(0.6 0.2 142);
 
-  /* 📐 Border Radius */
+  /*  Border Radius */
   --radius-xs: 0.375rem;
   --radius-sm: 0.5rem;
   --radius-md: 0.75rem;
@@ -74,7 +74,7 @@
   --radius-2xl: 2rem;
   --radius-full: 9999px;
 
-  /* 🎭 Shadows */
+  /*  Shadows */
   --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.15), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
@@ -82,7 +82,7 @@
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.25), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
   --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
 
-  /* 📊 Z-Index Layers - Unified management */
+  /*  Z-Index Layers - Unified management */
   --z-base: 0;
   --z-dropdown: 100;
   --z-sticky: 200;
@@ -97,10 +97,10 @@
 }
 
 /* ========================================
-   🌞 LIGHT THEME - Clean & Modern
+    LIGHT THEME - Clean & Modern
    ======================================== */
 .light {
-  /* 🎨 Primary Colors */
+  /*  Primary Colors */
   --color-background: oklch(0.985 0.002 240); /* Slightly warmer white */
   --color-foreground: oklch(0.12 0.015 240);
   --color-card: oklch(1 0 0); /* Pure white cards */
@@ -108,34 +108,34 @@
   --color-popover: oklch(1 0 0);
   --color-popover-foreground: oklch(0.12 0.015 240);
 
-  /* 🌟 Brand Colors */
+  /*  Brand Colors */
   --color-primary: oklch(0.55 0.24 250);
   --color-primary-hover: oklch(0.5 0.26 250);
   --color-primary-active: oklch(0.45 0.22 250);
   --color-primary-foreground: oklch(1 0 0);
 
-  /* 📦 Secondary Colors */
+  /*  Secondary Colors */
   --color-secondary: oklch(0.96 0.005 240);
   --color-secondary-hover: oklch(0.92 0.008 240);
   --color-secondary-foreground: oklch(0.12 0.015 240);
 
-  /* 🔇 Muted Colors */
+  /*  Muted Colors */
   --color-muted: oklch(0.96 0.005 240);
   --color-muted-hover: oklch(0.93 0.008 240);
   --color-muted-foreground: oklch(0.4 0.015 240); /* Increased contrast */
 
-  /* ✨ Accent Colors */
+  /*  Accent Colors */
   --color-accent: oklch(0.94 0.01 250);
   --color-accent-hover: oklch(0.91 0.015 250);
   --color-accent-foreground: oklch(0.12 0.015 240);
 
-  /* 🎨 UI Elements */
+  /*  UI Elements */
   --color-border: oklch(0.89 0.005 240);
   --color-border-hover: oklch(0.8 0.01 240);
   --color-input: oklch(0.96 0.005 240);
   --color-ring: oklch(0.55 0.24 250);
 
-  /* 🌫️ Glassmorphism Variables (Light) - OPTIMIZED */
+  /*  Glassmorphism Variables (Light) - OPTIMIZED */
   /* Increased opacity (0.85) and added saturation for cleaner look */
   --glass-border: oklch(0.12 0.015 240 / 0.06); /* Sharper border */
   --glass-bg: oklch(1 0 0 / 0.85); /* Higher opacity for better contrast */
@@ -225,7 +225,7 @@ button:disabled,
 }
 
 /* ========================================
-   ♿ ACCESSIBILITY - Reduced Motion Support
+    ACCESSIBILITY - Reduced Motion Support
    ======================================== */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -243,7 +243,7 @@ button:disabled,
 }
 
 /* ========================================
-   🎯 DEVELOPER TOOL SPECIFIC STYLES
+    DEVELOPER TOOL SPECIFIC STYLES
    ======================================== */
 
 /* Code block styling - Developer-focused */

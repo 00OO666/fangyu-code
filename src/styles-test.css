@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+/* Minimal test */
+body {
+  background: black;
+  color: white;
+}

@@ -202,10 +202,6 @@ export const PromptNavigator: React.FC<PromptNavigatorProps> = ({
     let promptIndex = 0;
     const items: PromptItem[] = [];
 
-    // 🔧 DEBUG: 诊断费用差异
-    console.log('[PromptNavigator] 💰 开始费用诊断...');
-    console.log(`[PromptNavigator] 总消息数: ${messages.length}`);
-
     // 🔧 FIX: 从 system:init 消息中提取会话级别的默认模型
     // 这样即使单条消息没有模型信息，也能使用正确的定价
     let sessionDefaultModel: string | undefined;
@@ -213,7 +209,6 @@ export const PromptNavigator: React.FC<PromptNavigatorProps> = ({
       if ((msg as any).type === 'system' && (msg as any).subtype === 'init') {
         sessionDefaultModel = (msg as any).model;
         if (sessionDefaultModel) {
-          console.log(`[PromptNavigator] 📌 从 system:init 检测到会话模型: ${sessionDefaultModel}`);
           break;
         }
       }
@@ -263,7 +258,6 @@ export const PromptNavigator: React.FC<PromptNavigatorProps> = ({
 
             // 遇到下一个用户消息，停止统计
             if (nextType === 'user') {
-              console.log(`[PromptNavigator] Prompt #${promptIndex + 1}: 处理了 ${messagesProcessedForThisPrompt} 条消息 (终止原因: 遇到下一个 user 消息)`);
               break;
             }
 
@@ -408,13 +402,13 @@ export const PromptNavigator: React.FC<PromptNavigatorProps> = ({
             : undefined;
 
           // 🔧 DEBUG: 记录每个 prompt 的详细信息（包括多模型诊断）
-          const modelsInfo = modelsUsed.size > 0 ? Array.from(modelsUsed).join(', ') : 'unknown (default pricing used!)';
-          console.log(`[PromptNavigator] Prompt #${promptIndex + 1}: 💰 $${cost.toFixed(4)}, 🎯 models=[${modelsInfo}], 📊 消息数=${messagesProcessedForThisPrompt}, tokens=${totalTokens}`);
-          if (modelsUsed.size === 0) {
-            console.warn(`[PromptNavigator] ⚠️ Prompt #${promptIndex + 1}: 所有消息都没有模型信息，使用了默认 Sonnet 定价！`);
-          } else if (modelsUsed.size > 1) {
-            console.log(`[PromptNavigator] 📊 Prompt #${promptIndex + 1}: 检测到多模型场景 (${modelsUsed.size} 个不同模型)`);
-          }
+          // const modelsInfo = modelsUsed.size > 0 ? Array.from(modelsUsed).join(', ') : 'unknown (default pricing used!)';
+          // console.log(`[PromptNavigator] Prompt #${promptIndex + 1}: 💰 $${cost.toFixed(4)}, 🎯 models=[${modelsInfo}], 📊 消息数=${messagesProcessedForThisPrompt}, tokens=${totalTokens}`);
+          // if (modelsUsed.size === 0) {
+          //   console.warn(`[PromptNavigator] ⚠️ Prompt #${promptIndex + 1}: 所有消息都没有模型信息，使用了默认 Sonnet 定价！`);
+          // } else if (modelsUsed.size > 1) {
+          //   console.log(`[PromptNavigator] 📊 Prompt #${promptIndex + 1}: 检测到多模型场景 (${modelsUsed.size} 个不同模型)`);
+          // }
 
           items.push({
             promptIndex,
@@ -431,11 +425,11 @@ export const PromptNavigator: React.FC<PromptNavigatorProps> = ({
           });
 
           // 🔧 DEBUG: 打印费用明细
-          console.log(`[PromptNavigator] Prompt #${promptIndex + 1} 费用明细:`, {
-            totalCost: cost,
-            detailsCount: costDetails.length,
-            details: costDetails
-          });
+          // console.log(`[PromptNavigator] Prompt #${promptIndex + 1} 费用明细:`, {
+          //   totalCost: cost,
+          //   detailsCount: costDetails.length,
+          //   details: costDetails
+          // });
 
           promptIndex++;
         }
@@ -443,11 +437,11 @@ export const PromptNavigator: React.FC<PromptNavigatorProps> = ({
     }
 
     // 🔧 DEBUG: 打印总费用统计
-    const navigatorTotalCost = items.reduce((sum, item) => sum + (item.cost || 0), 0);
-    console.log(`[PromptNavigator] 📊 统计汇总:`);
-    console.log(`  - 总 prompt 数: ${items.length}`);
-    console.log(`  - PromptNavigator 计算总费用: $${navigatorTotalCost.toFixed(4)}`);
-    console.log(`  - 提示：如果与 SessionCost 差异大，可能是模型识别错误或遗漏消息`);
+    // const navigatorTotalCost = items.reduce((sum, item) => sum + (item.cost || 0), 0);
+    // console.log(`[PromptNavigator] 📊 统计汇总:`);
+    // console.log(`  - 总 prompt 数: ${items.length}`);
+    // console.log(`  - PromptNavigator 计算总费用: $${navigatorTotalCost.toFixed(4)}`);
+    // console.log(`  - 提示：如果与 SessionCost 差异大，可能是模型识别错误或遗漏消息`);
 
     // 倒序排列：最新的指令排在最上方
     return items.reverse();
@@ -670,7 +664,14 @@ export const PromptNavigator: React.FC<PromptNavigatorProps> = ({
                 filteredPrompts.map((prompt) => (
                   <div
                     key={prompt.promptIndex}
-                    onClick={() => onPromptClick(prompt.promptIndex)}
+                    onClick={() => {
+                      console.log(`[PromptNavigator] 点击提示词 #${prompt.promptIndex + 1}:`, {
+                        promptIndex: prompt.promptIndex,
+                        content: prompt.content.substring(0, 50) + '...',
+                        timestamp: prompt.timestamp
+                      });
+                      onPromptClick(prompt.promptIndex);
+                    }}
                     className={cn(
                       "rounded-lg border cursor-pointer transition-all",
                       "hover:bg-accent hover:border-primary/50",
