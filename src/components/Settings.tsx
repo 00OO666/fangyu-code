@@ -38,6 +38,7 @@ import { EnvironmentSettings } from "./settings/EnvironmentSettings";
 import { HooksSettings } from "./settings/HooksSettings";
 import { ConfigManager, ConfigManagerEmbedded } from "./ConfigManager";
 import { OutputDisplaySettings } from "./settings/OutputDisplaySettings";
+import { SuperAgentSettings } from "./settings/SuperAgentSettings";
 
 interface SettingsProps {
   /**
@@ -436,7 +437,7 @@ export const Settings: React.FC<SettingsProps> = ({
       ) : (
         <div className="flex-1 overflow-y-auto p-4">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid grid-cols-9 w-full">
+            <TabsList className="grid grid-cols-10 w-full">
               <TabsTrigger value="general">{t('settings.general')}</TabsTrigger>
               <TabsTrigger value="permissions">{t('settings.permissions')}</TabsTrigger>
               <TabsTrigger value="environment">{t('settings.environment')}</TabsTrigger>
@@ -445,6 +446,7 @@ export const Settings: React.FC<SettingsProps> = ({
               <TabsTrigger value="prompt-api">{t('settings.promptApi')}</TabsTrigger>
               <TabsTrigger value="provider">{t('settings.provider')}</TabsTrigger>
               <TabsTrigger value="storage">{t('settings.storage')}</TabsTrigger>
+              <TabsTrigger value="super-agent" className="text-primary">Super Agent</TabsTrigger>
               <TabsTrigger value="config" className="text-orange-500">配置管理</TabsTrigger>
             </TabsList>
             
@@ -523,6 +525,11 @@ export const Settings: React.FC<SettingsProps> = ({
             {/* Storage Tab */}
             <TabsContent value="storage">
               <StorageTab />
+            </TabsContent>
+
+            {/* Super Agent Tab - Super Agent 配置 */}
+            <TabsContent value="super-agent">
+              <SuperAgentSettings />
             </TabsContent>
 
             {/* Config Manager Tab - 配置管理中心 */}

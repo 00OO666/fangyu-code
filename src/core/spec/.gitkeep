@@ -1,0 +1,6 @@
+# Spec Executor
+# This directory contains spec-driven development:
+# - Requirements generation (EARS patterns)
+# - Design document generation
+# - Task list generation
+# - Todo Enforcer

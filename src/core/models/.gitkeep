@@ -1,0 +1,6 @@
+# Model Router
+# This directory contains multi-model support:
+# - Provider routing (Anthropic, OpenAI, Google, xAI)
+# - Model fallback
+# - Token statistics
+# - Health monitoring

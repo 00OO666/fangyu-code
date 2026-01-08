@@ -1,0 +1,5 @@
+# Precise File Operations
+# This directory contains file operation utilities:
+# - strReplace with unique match validation
+# - Encoding preservation
+# - Batch file operations

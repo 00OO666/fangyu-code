@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { NavigationProvider } from "./contexts/NavigationContext";
 import "./assets/shimmer.css";
 import "./styles.css";
 import "./i18n"; // ✅ i18n 必须同步加载（App 立即需要使用）
@@ -55,15 +56,17 @@ const AppWrapper: React.FC = () => {
     return (
       <ErrorBoundary>
         <ThemeProvider>
-          <React.Suspense
-            fallback={
-              <div className="h-screen w-screen flex items-center justify-center bg-background">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-              </div>
-            }
-          >
-            <SessionWindow />
-          </React.Suspense>
+          <NavigationProvider>
+            <React.Suspense
+              fallback={
+                <div className="h-screen w-screen flex items-center justify-center bg-background">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+                </div>
+              }
+            >
+              <SessionWindow />
+            </React.Suspense>
+          </NavigationProvider>
         </ThemeProvider>
       </ErrorBoundary>
     );

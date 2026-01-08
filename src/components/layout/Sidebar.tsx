@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   FolderOpen, Settings, BarChart2, Terminal, Layers, FileText, Package,
   FileCode, ChevronLeft, ChevronRight, HelpCircle, Sparkles, Puzzle, Zap,
-  Activity, Search,
+  Activity, Search, Bot,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { View } from '@/types/navigation';
@@ -80,13 +80,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const mainNavItems: NavItem[] = [
     { view: 'projects', icon: FolderOpen, label: t('common.ccProjectsTitle'), shortcut: '1' },
     { view: 'claude-tab-manager', icon: Terminal, label: t('sidebar.sessionManagement'), shortcut: '2' },
-    { view: 'editor', icon: FileText, label: t('sidebar.claudePrompts'), shortcut: '3' },
-    { view: 'codex-editor', icon: FileCode, label: t('sidebar.codexPrompts'), shortcut: '4' },
-    { view: 'gemini-editor', icon: Sparkles, label: t('sidebar.geminiPrompts'), shortcut: '5' },
-    { view: 'usage-dashboard', icon: BarChart2, label: t('sidebar.usageStats'), shortcut: '6' },
-    { view: 'diagnostics', icon: Activity, label: '配置诊断', shortcut: '7' },
-    { view: 'mcp', icon: Layers, label: t('sidebar.mcpTools'), shortcut: '8' },
-    { view: 'claude-extensions', icon: Package, label: t('sidebar.extensions'), shortcut: '9' },
+    { view: 'super-agent', icon: Bot, label: 'Super Agent', shortcut: '3' },
+    { view: 'editor', icon: FileText, label: t('sidebar.claudePrompts'), shortcut: '4' },
+    { view: 'codex-editor', icon: FileCode, label: t('sidebar.codexPrompts'), shortcut: '5' },
+    { view: 'gemini-editor', icon: Sparkles, label: t('sidebar.geminiPrompts'), shortcut: '6' },
+    { view: 'usage-dashboard', icon: BarChart2, label: t('sidebar.usageStats'), shortcut: '7' },
+    { view: 'diagnostics', icon: Activity, label: '配置诊断', shortcut: '8' },
+    { view: 'mcp', icon: Layers, label: t('sidebar.mcpTools'), shortcut: '9' },
+    { view: 'claude-extensions', icon: Package, label: t('sidebar.extensions') },
     { view: 'hook-manager', icon: Zap, label: 'Hook 管理' },
     { view: 'plugins', icon: Puzzle, label: '插件系统' },
   ];

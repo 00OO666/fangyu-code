@@ -1,0 +1,6 @@
+# Smart Context Manager
+# This directory contains intelligent context management with:
+# - Multi-model token limit support
+# - 70%/85% threshold monitoring
+# - Automatic compaction
+# - Reference resolution (#File, #Folder, etc.)

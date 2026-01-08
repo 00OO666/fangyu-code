@@ -1,0 +1,6 @@
+# Autonomy Controller
+# This directory contains autonomy mode management:
+# - Autopilot mode
+# - Supervised mode
+# - Operation confirmation
+# - Undo capability

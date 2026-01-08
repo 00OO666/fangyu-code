@@ -1,31 +1,83 @@
 /**
- * Fangyu Code 2.0 - 多代理系统核心模块导出
+ * Super AI Agent Desktop - Core Module Exports
+ * 
+ * 统一导出所有核心模块
  */
 
-// ============================================
-// 类型导出
-// ============================================
-export * from './types/workflow';
+// =============================================================================
+// Agents
+// =============================================================================
+export {
+  AGENT_ROLES,
+  DEFAULT_MODELS,
+  PREMIUM_MODELS,
+  getAgentRole,
+  getAllAgentRoles,
+  getAgentsByCapability,
+  getBestAgentForTaskType,
+  hasToolPermission,
+} from './agents/AgentRoles';
+export { UnifiedAgentOrchestrator } from './agents/UnifiedAgentOrchestrator';
+export { BackgroundAgentManager } from './agents/BackgroundAgentManager';
+export { TaskQueue } from './agents/TaskQueue';
 
-// ============================================
-// 规划模块
-// ============================================
-export { TaskPlanner, DEFAULT_PLANNER_CONFIG } from './planning/TaskPlanner';
-export type { TaskPlannerConfig, PlanningContext, PlanningResult } from './planning/TaskPlanner';
+// =============================================================================
+// Hooks
+// =============================================================================
+export { EnhancedHookEngine } from './hooks/EnhancedHookEngine';
+export { SteeringLoader } from './hooks/SteeringLoader';
+export { ClaudeCodeCompat } from './hooks/ClaudeCodeCompat';
 
-// ============================================
-// 代理模块
-// ============================================
-export { AgentSwarmManager, DEFAULT_SWARM_CONFIG } from './agents/AgentSwarmManager';
+// =============================================================================
+// Context
+// =============================================================================
+export { SmartContextManager } from './context/SmartContextManager';
+export { ReferenceResolver } from './context/ReferenceResolver';
 
-// ============================================
-// 沙箱模块
-// ============================================
-export { SandboxManager, DEFAULT_SANDBOX_CONFIG } from './sandbox/SandboxManager';
+// =============================================================================
+// Tools
+// =============================================================================
+export { IDEToolchain } from './tools/IDEToolchain';
+export { PowersManager } from './tools/PowersManager';
+export { ASTGrepTools } from './tools/ASTGrepTools';
+export { LSPTools } from './tools/LSPTools';
 
-// ============================================
-// Skills 模块
-// ============================================
-export * from './skills';
-export { skillManager, SkillManager, DEFAULT_SKILL_MANAGER_CONFIG } from './skills';
-export type { SkillManagerConfig } from './skills';
+// =============================================================================
+// Security
+// =============================================================================
+export { SecurityGuard } from './security/SecurityGuard';
+
+// =============================================================================
+// Process
+// =============================================================================
+export { ProcessManager } from './process/ProcessManager';
+
+// =============================================================================
+// Files
+// =============================================================================
+export { PreciseFileOps } from './files/PreciseFileOps';
+
+// =============================================================================
+// Spec
+// =============================================================================
+export { SpecExecutor } from './spec/SpecExecutor';
+
+// =============================================================================
+// Models
+// =============================================================================
+export { ModelRouter } from './models/ModelRouter';
+
+// =============================================================================
+// Autonomy
+// =============================================================================
+export { AutonomyController } from './autonomy/AutonomyController';
+
+// =============================================================================
+// Tauri Bridge
+// =============================================================================
+export { SuperAgentBridge } from './tauri/SuperAgentBridge';
+
+// =============================================================================
+// Types
+// =============================================================================
+export * from './types/unified-agent';

@@ -1,0 +1,5 @@
+# Process Manager
+# This directory contains process management:
+# - Background process control
+# - Long-running command detection
+# - Process output capture

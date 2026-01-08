@@ -15,7 +15,8 @@ export type View =
   | "hook-manager"
   | "claude-extensions"
   | "plugins"
-  | "new-features"; // v1.2.0 新功能演示
+  | "new-features" // v1.2.0 新功能演示
+  | "super-agent"; // v2.4.0 Super Agent 控制中心
 
 export interface NavigationState {
   currentView: View;

@@ -165,7 +165,7 @@ export const SILICONFLOW_API = {
  * 默认配置
  */
 export const DEFAULT_SILICONFLOW_CONFIG: SiliconFlowConfig = {
-  apiKey: 'sk-efqlihqdhvzijxehzlgralkzuxpedhuiqlfllfbacxgbenha',
+  apiKey: '',
   baseUrl: SILICONFLOW_API.BASE_URL,
   selectedModel: 'deepseek-ai/DeepSeek-V3',
   temperature: 0.7,
@@ -230,3 +230,4 @@ export function loadSiliconFlowConfig(): SiliconFlowConfig {
   }
   return { ...DEFAULT_SILICONFLOW_CONFIG };
 }
+

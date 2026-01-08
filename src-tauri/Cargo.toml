@@ -1,6 +1,6 @@
 [package]
 name = "fangyu-code"
-version = "2.4.6"
+version = "2.4.8"
 description = "Fangyu Code - Fangyu 专属 AI 开发工具"
 authors = ["Fangyu"]
 license = "AGPL-3.0"
@@ -90,3 +90,4 @@ opt-level = "z"     # Optimize all dependencies for size
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!
 custom-protocol = ["tauri/custom-protocol"]
+
