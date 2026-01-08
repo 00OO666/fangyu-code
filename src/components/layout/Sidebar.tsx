@@ -1,32 +1,15 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  FolderOpen,
-  Settings,
-  BarChart2,
-  Terminal,
-  Layers,
-  FileText,
-  Package,
-  FileCode,
-  ChevronLeft,
-  ChevronRight,
-  HelpCircle,
-  Sparkles,
-  Puzzle,
-  Zap,
-  GripVertical,
-  Activity
+  FolderOpen, Settings, BarChart2, Terminal, Layers, FileText, Package,
+  FileCode, ChevronLeft, ChevronRight, HelpCircle, Sparkles, Puzzle, Zap,
+  Activity, Search,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { View } from '@/types/navigation';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { UnifiedEngineStatus } from '@/components/UnifiedEngineStatus';
 import { UpdateBadge } from '@/components/common/UpdateBadge';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
@@ -48,63 +31,36 @@ interface NavItem {
 
 const STORAGE_KEY_EXPANDED = 'sidebar_expanded';
 const STORAGE_KEY_WIDTH = 'sidebar_width';
-const MIN_WIDTH = 180; // 最小宽度 180px
-const MAX_WIDTH = 320; // 最大宽度 320px
-const DEFAULT_WIDTH = 220; // 默认宽度 220px
+const MIN_WIDTH = 180;
+const MAX_WIDTH = 320;
+const DEFAULT_WIDTH = 220;
 
 export const Sidebar: React.FC<SidebarProps> = ({
-  currentView,
-  onNavigate,
-  className,
-  onAboutClick,
-  onUpdateClick
+  currentView, onNavigate, className, onAboutClick, onUpdateClick
 }) => {
   const { t } = useTranslation();
-
-  // 展开/收起状态，默认展开
   const [isExpanded, setIsExpanded] = useState(() => {
     const stored = localStorage.getItem(STORAGE_KEY_EXPANDED);
     return stored !== null ? stored === 'true' : true;
   });
-
-  // 侧边栏宽度，从 localStorage 读取
   const [width, setWidth] = useState(() => {
     const stored = localStorage.getItem(STORAGE_KEY_WIDTH);
     return stored ? parseInt(stored, 10) : DEFAULT_WIDTH;
   });
-
-  // 拖拽状态
   const [isDragging, setIsDragging] = useState(false);
+  const [hoveredItem, setHoveredItem] = useState<View | null>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
 
-  // 持久化展开状态到 localStorage
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY_EXPANDED, String(isExpanded));
-  }, [isExpanded]);
+  useEffect(() => { localStorage.setItem(STORAGE_KEY_EXPANDED, String(isExpanded)); }, [isExpanded]);
+  useEffect(() => { localStorage.setItem(STORAGE_KEY_WIDTH, String(width)); }, [width]);
 
-  // 持久化宽度到 localStorage
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY_WIDTH, String(width));
-  }, [width]);
-
-  // 处理拖拽
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  }, []);
-
+  const handleMouseDown = useCallback((e: React.MouseEvent) => { e.preventDefault(); setIsDragging(true); }, []);
   const handleMouseMove = useCallback((e: MouseEvent) => {
     if (!isDragging) return;
-
     const newWidth = e.clientX;
-    if (newWidth >= MIN_WIDTH && newWidth <= MAX_WIDTH) {
-      setWidth(newWidth);
-    }
+    if (newWidth >= MIN_WIDTH && newWidth <= MAX_WIDTH) setWidth(newWidth);
   }, [isDragging]);
-
-  const handleMouseUp = useCallback(() => {
-    setIsDragging(false);
-  }, []);
+  const handleMouseUp = useCallback(() => { setIsDragging(false); }, []);
 
   useEffect(() => {
     if (isDragging) {
@@ -112,7 +68,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
       document.addEventListener('mouseup', handleMouseUp);
       document.body.style.cursor = 'ew-resize';
       document.body.style.userSelect = 'none';
-
       return () => {
         document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
@@ -123,208 +78,102 @@ export const Sidebar: React.FC<SidebarProps> = ({
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
   const mainNavItems: NavItem[] = [
-    { view: 'projects', icon: FolderOpen, label: t('common.ccProjectsTitle') },
-    { view: 'claude-tab-manager', icon: Terminal, label: t('sidebar.sessionManagement') },
-    { view: 'editor', icon: FileText, label: t('sidebar.claudePrompts') },
-    { view: 'codex-editor', icon: FileCode, label: t('sidebar.codexPrompts') },
-    { view: 'gemini-editor', icon: Sparkles, label: t('sidebar.geminiPrompts') },
-    { view: 'usage-dashboard', icon: BarChart2, label: t('sidebar.usageStats') },
-    { view: 'diagnostics', icon: Activity, label: '配置诊断' },
-    { view: 'mcp', icon: Layers, label: t('sidebar.mcpTools') },
-    { view: 'claude-extensions', icon: Package, label: t('sidebar.extensions') },
+    { view: 'projects', icon: FolderOpen, label: t('common.ccProjectsTitle'), shortcut: '1' },
+    { view: 'claude-tab-manager', icon: Terminal, label: t('sidebar.sessionManagement'), shortcut: '2' },
+    { view: 'editor', icon: FileText, label: t('sidebar.claudePrompts'), shortcut: '3' },
+    { view: 'codex-editor', icon: FileCode, label: t('sidebar.codexPrompts'), shortcut: '4' },
+    { view: 'gemini-editor', icon: Sparkles, label: t('sidebar.geminiPrompts'), shortcut: '5' },
+    { view: 'usage-dashboard', icon: BarChart2, label: t('sidebar.usageStats'), shortcut: '6' },
+    { view: 'diagnostics', icon: Activity, label: '配置诊断', shortcut: '7' },
+    { view: 'mcp', icon: Layers, label: t('sidebar.mcpTools'), shortcut: '8' },
+    { view: 'claude-extensions', icon: Package, label: t('sidebar.extensions'), shortcut: '9' },
     { view: 'hook-manager', icon: Zap, label: 'Hook 管理' },
     { view: 'plugins', icon: Puzzle, label: '插件系统' },
-    // "新功能" 已移至 AboutDialog（版本更新页面）
   ];
-
   const bottomNavItems: NavItem[] = [
     { view: 'settings', icon: Settings, label: t('navigation.settings') },
   ];
 
   const NavButton = ({ item }: { item: NavItem }) => {
     const isActive = currentView === item.view;
-
+    const isHovered = hoveredItem === item.view;
     const buttonContent = (
       <Button
         variant={isActive ? "secondary" : "ghost"}
         className={cn(
-          "rounded-lg mb-1 transition-all duration-200",
-          isExpanded ? "w-full justify-start px-2.5 h-9" : "w-9 h-9",
-          isActive
-            ? "bg-primary/15 text-primary hover:bg-primary/20 shadow-sm"
-            : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+          "relative rounded-lg mb-1 transition-all duration-300 ease-out group overflow-hidden",
+          isExpanded ? "w-full justify-start px-3 h-10" : "w-10 h-10",
+          isActive ? "bg-primary/15 text-primary shadow-lg shadow-primary/20" : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
         )}
         onClick={() => onNavigate(item.view)}
+        onMouseEnter={() => setHoveredItem(item.view)}
+        onMouseLeave={() => setHoveredItem(null)}
       >
-        <item.icon className="w-4 h-4 flex-shrink-0" strokeWidth={isActive ? 2.5 : 2} />
-        {isExpanded && (
-          <span className="ml-2.5 text-sm font-medium whitespace-nowrap overflow-hidden text-ellipsis">
-            {item.label}
-          </span>
-        )}
+        <div className={cn("absolute inset-0 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent opacity-0 transition-opacity duration-300", (isHovered || isActive) && "opacity-100")} />
+        {isActive && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full" />}
+        <item.icon className={cn("w-4 h-4 flex-shrink-0 transition-transform duration-300 relative z-10", isActive && "scale-110", isHovered && !isActive && "scale-105")} strokeWidth={isActive ? 2.5 : 2} />
+        {isExpanded && <span className={cn("ml-3 text-sm font-medium whitespace-nowrap overflow-hidden text-ellipsis relative z-10 transition-all duration-300", isActive && "font-semibold")}>{item.label}</span>}
+        {isExpanded && item.shortcut && <span className="ml-auto text-xs text-muted-foreground/60 bg-muted/50 px-1.5 py-0.5 rounded relative z-10">⌘{item.shortcut}</span>}
         {!isExpanded && <span className="sr-only">{item.label}</span>}
       </Button>
     );
-
-    // 收起模式显示 Tooltip
     if (!isExpanded) {
       return (
         <TooltipProvider delayDuration={0}>
           <Tooltip>
             <TooltipTrigger asChild>{buttonContent}</TooltipTrigger>
-            <TooltipContent side="right" className="flex items-center gap-2 px-3 py-1.5">
+            <TooltipContent side="right" className="flex items-center gap-2 px-3 py-2 bg-popover/95 backdrop-blur-sm">
               <span className="font-medium">{item.label}</span>
-              {item.shortcut && (
-                <span className="text-xs text-muted-foreground bg-muted px-1 rounded border">
-                  {item.shortcut}
-                </span>
-              )}
+              {item.shortcut && <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded border">⌘{item.shortcut}</span>}
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
       );
     }
-
     return buttonContent;
   };
 
   return (
-    <div
-      ref={sidebarRef}
-      className={cn(
-        "relative flex flex-col py-3 h-full transition-all duration-300 ease-[cubic-bezier(0.2,0,0,1)]",
-        "bg-[var(--glass-bg)] backdrop-blur-[var(--glass-blur)] border-r border-[var(--glass-border)]",
-        isExpanded ? "px-2.5" : "items-center",
-        className
-      )}
-      style={{
-        width: isExpanded ? `${width}px` : '56px',
-      }}
-    >
-      {/* Logo 区域 (Removed) */}
-      
+    <div ref={sidebarRef} className={cn("relative flex flex-col py-3 h-full transition-all duration-300 ease-[cubic-bezier(0.2,0,0,1)]", "bg-[var(--glass-bg)] backdrop-blur-[var(--glass-blur)] border-r border-[var(--glass-border)]", isExpanded ? "px-3" : "items-center px-2", className)} style={{ width: isExpanded ? `${width}px` : '60px' }}>
+      {/* 用户头像区域 */}
+      <div className={cn("flex items-center gap-3 mb-4 pb-3 border-b border-[var(--glass-border)]", !isExpanded && "justify-center")}>
+        <Avatar className={cn("transition-all duration-300 ring-2 ring-primary/20 ring-offset-2 ring-offset-background", isExpanded ? "h-10 w-10" : "h-8 w-8")}>
+          <AvatarImage src="/avatars/fangyu.png" alt="Fangyu" />
+          <AvatarFallback className="bg-gradient-to-br from-primary/80 to-primary text-primary-foreground font-bold">FY</AvatarFallback>
+        </Avatar>
+        {isExpanded && <div className="flex-1 min-w-0"><p className="text-sm font-semibold truncate">Fangyu</p><p className="text-xs text-muted-foreground truncate">开发者</p></div>}
+      </div>
+      {/* 快捷搜索按钮 */}
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="outline" className={cn("mb-4 transition-all duration-300 bg-muted/30 border-muted-foreground/20 hover:bg-muted/50", isExpanded ? "w-full justify-start px-3 h-9" : "w-10 h-10")} onClick={() => { const event = new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true }); document.dispatchEvent(event); }}>
+              <Search className="w-4 h-4 text-muted-foreground" />
+              {isExpanded && <><span className="ml-2 text-sm text-muted-foreground">搜索...</span><span className="ml-auto text-xs text-muted-foreground/60 bg-muted/50 px-1.5 py-0.5 rounded">⌘K</span></>}
+            </Button>
+          </TooltipTrigger>
+          {!isExpanded && <TooltipContent side="right"><p>搜索 (⌘K)</p></TooltipContent>}
+        </Tooltip>
+      </TooltipProvider>
       {/* 主导航区域 */}
-      <div className={cn("flex-1 flex flex-col w-full", isExpanded ? "space-y-1" : "items-center space-y-2")}>
-        {mainNavItems.map((item) => (
-          <NavButton key={item.view} item={item} />
-        ))}
+      <div className={cn("flex-1 flex flex-col w-full", isExpanded ? "space-y-0.5" : "items-center space-y-1")}>
+        {mainNavItems.map((item) => <NavButton key={item.view} item={item} />)}
       </div>
 
       {/* 底部状态区域 */}
-      <div className={cn(
-        "flex flex-col w-full mt-auto pt-2.5 border-t border-[var(--glass-border)]",
-        isExpanded ? "space-y-2" : "items-center"
-      )}>
-        {/* 多引擎状态指示器 */}
-        <div className={cn(isExpanded ? "w-full" : "flex justify-center w-full")}>
-          <UnifiedEngineStatus
-            compact={!isExpanded}
-          />
+      <div className={cn("flex flex-col w-full mt-auto pt-3 border-t border-[var(--glass-border)]", isExpanded ? "space-y-2" : "items-center space-y-2")}>
+        <div className={cn(isExpanded ? "w-full" : "flex justify-center w-full")}><UnifiedEngineStatus compact={!isExpanded} /></div>
+        {isExpanded && <div className="px-1"><UpdateBadge onClick={onUpdateClick} /></div>}
+        <div className={cn("flex items-center gap-1", isExpanded ? "justify-around px-1" : "flex-col")}>
+          <TooltipProvider><Tooltip><TooltipTrigger asChild><div><ThemeToggle size="sm" className="w-8 h-8" /></div></TooltipTrigger>{!isExpanded && <TooltipContent side="right"><p>{t('sidebar.themeToggle')}</p></TooltipContent>}</Tooltip></TooltipProvider>
+          {onAboutClick && <TooltipProvider><Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" onClick={onAboutClick} className="w-8 h-8 text-muted-foreground hover:text-foreground" aria-label={t('sidebar.about')}><HelpCircle className="w-4 h-4" /></Button></TooltipTrigger>{!isExpanded && <TooltipContent side="right"><p>{t('sidebar.about')}</p></TooltipContent>}</Tooltip></TooltipProvider>}
         </div>
-
-        {/* 更新徽章（展开模式） */}
-        {isExpanded && (
-          <div className="px-1">
-            <UpdateBadge onClick={onUpdateClick} />
-          </div>
-        )}
-
-        {/* 操作按钮行 */}
-        <div className={cn(
-          "flex items-center gap-0.5",
-          isExpanded ? "justify-around px-1" : "flex-col"
-        )}>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div>
-                  <ThemeToggle size="sm" className="w-7 h-7" />
-                </div>
-              </TooltipTrigger>
-              {!isExpanded && (
-                <TooltipContent side="right">
-                  <p>{t('sidebar.themeToggle')}</p>
-                </TooltipContent>
-              )}
-            </Tooltip>
-          </TooltipProvider>
-
-          {onAboutClick && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={onAboutClick}
-                    className="w-7 h-7 text-muted-foreground hover:text-foreground"
-                    aria-label={t('sidebar.about')}
-                  >
-                    <HelpCircle className="w-3.5 h-3.5" />
-                  </Button>
-                </TooltipTrigger>
-                {!isExpanded && (
-                  <TooltipContent side="right">
-                    <p>{t('sidebar.about')}</p>
-                  </TooltipContent>
-                )}
-              </Tooltip>
-            </TooltipProvider>
-          )}
-        </div>
-
-        {/* 设置和展开/收起按钮 */}
-        <div className={cn(
-          "flex items-center gap-0.5 pt-2 border-t border-[var(--glass-border)]",
-          isExpanded ? "justify-between px-1" : "flex-col"
-        )}>
-          {bottomNavItems.map((item) => (
-            <NavButton key={item.view} item={item} />
-          ))}
-
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setIsExpanded(!isExpanded)}
-                  className="w-7 h-7 text-muted-foreground hover:text-foreground"
-                  aria-label={isExpanded ? t('sidebar.collapseSidebar') : t('sidebar.expandSidebar')}
-                >
-                  {isExpanded ? (
-                    <ChevronLeft className="w-3.5 h-3.5" />
-                  ) : (
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  )}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="right">
-                <p>{isExpanded ? t('sidebar.collapseSidebar') : t('sidebar.expandSidebar')}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+        <div className={cn("flex items-center gap-1 pt-2 border-t border-[var(--glass-border)]", isExpanded ? "justify-between px-1" : "flex-col")}>
+          {bottomNavItems.map((item) => <NavButton key={item.view} item={item} />)}
+          <TooltipProvider><Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" onClick={() => setIsExpanded(!isExpanded)} className="w-8 h-8 text-muted-foreground hover:text-foreground transition-transform duration-300" aria-label={isExpanded ? t('sidebar.collapseSidebar') : t('sidebar.expandSidebar')}>{isExpanded ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}</Button></TooltipTrigger><TooltipContent side="right"><p>{isExpanded ? t('sidebar.collapseSidebar') : t('sidebar.expandSidebar')}</p></TooltipContent></Tooltip></TooltipProvider>
         </div>
       </div>
-
-      {/* 拖拽调整宽度的手柄（仅展开模式显示） */}
-      {isExpanded && (
-        <div
-          className={cn(
-            "absolute top-0 right-0 w-1.5 h-full cursor-ew-resize group",
-            "hover:bg-primary/20 active:bg-primary/30 transition-colors",
-            isDragging && "bg-primary/30"
-          )}
-          onMouseDown={handleMouseDown}
-        >
-          {/* 可视化的拖拽指示器 */}
-          <div className={cn(
-            "absolute top-1/2 right-0 -translate-y-1/2 w-1 h-8 rounded-full",
-            "bg-muted-foreground/20 group-hover:bg-primary/50 transition-colors",
-            isDragging && "bg-primary/50"
-          )} />
-        </div>
-      )}
+      {isExpanded && <div className={cn("absolute right-0 top-0 bottom-0 w-1 cursor-ew-resize transition-colors hover:bg-primary/30", isDragging && "bg-primary/50")} onMouseDown={handleMouseDown} />}
     </div>
   );
 };
