@@ -5,7 +5,6 @@ import { TabProvider } from "@/hooks/useTabs";
 import { UpdateProvider } from "@/contexts/UpdateContext";
 import { OutputCacheProvider } from "@/lib/outputCache";
 import { GlobalTaskStateProvider } from "@/hooks/useGlobalTaskState";
-// 🔧 FIX: 移除 GlobalExecutionProvider，改用全局对象避免 hooks 规则问题
 import { PromptQueueProvider } from "@/hooks/usePromptQueue";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ViewRouter } from "@/components/layout/ViewRouter";
@@ -18,6 +17,7 @@ import { api } from "@/lib/api";
 import { useConsoleMonitor } from "@/hooks/useConsoleMonitor";
 import { ErrorMonitorPanel } from "@/components/ErrorMonitorPanel";
 import { WindowAttentionIndicator } from "@/components/WindowAttentionIndicator";
+import { CommandPalette } from "@/components/CommandPalette";
 
 /**
  * 主应用组件 - 管理 Claude 目录浏览器界面
@@ -56,36 +56,44 @@ function App() {
       <GlobalTaskStateProvider>
         <OutputCacheProvider>
           <NavigationProvider>
-          <ProjectProvider>
-            <TabProvider>
-              <PromptQueueProvider>
-                <AppLayout>
-                  <ViewRouter />
-                </AppLayout>
-                {/* 版本更新提醒对话框 */}
-                <FirstLaunchChangelogDialog
-                  open={showChangelog}
-                  onClose={hideChangelog}
-                  changelog={changelog}
-                />
-                {/* Tauri 自动更新对话框 */}
-                <TauriAutoUpdateDialog />
-                {/* 顶部居中通知 */}
-                <TopCenterNotification />
-                {/* 错误监控面板（仅开发模式） */}
-                {import.meta.env.DEV && (
-                  <ErrorMonitorPanel
-                    errors={errors}
-                    onClearAll={clearErrors}
-                    onClearError={clearError}
+            <ProjectProvider>
+              <TabProvider>
+                <PromptQueueProvider>
+                  <AppLayout>
+                    <ViewRouter />
+                  </AppLayout>
+                  
+                  {/* 🎨 全局命令面板 Ctrl+K */}
+                  <CommandPalette />
+                  
+                  {/* 版本更新提醒对话框 */}
+                  <FirstLaunchChangelogDialog
+                    open={showChangelog}
+                    onClose={hideChangelog}
+                    changelog={changelog}
                   />
-                )}
-                {/* 窗口注意力状态指示器 */}
-                <WindowAttentionIndicator />
-              </PromptQueueProvider>
-            </TabProvider>
-          </ProjectProvider>
-        </NavigationProvider>
+                  
+                  {/* Tauri 自动更新对话框 */}
+                  <TauriAutoUpdateDialog />
+                  
+                  {/* 顶部居中通知 */}
+                  <TopCenterNotification />
+                  
+                  {/* 错误监控面板（仅开发模式） */}
+                  {import.meta.env.DEV && (
+                    <ErrorMonitorPanel
+                      errors={errors}
+                      onClearAll={clearErrors}
+                      onClearError={clearError}
+                    />
+                  )}
+                  
+                  {/* 窗口注意力状态指示器 */}
+                  <WindowAttentionIndicator />
+                </PromptQueueProvider>
+              </TabProvider>
+            </ProjectProvider>
+          </NavigationProvider>
         </OutputCacheProvider>
       </GlobalTaskStateProvider>
     </UpdateProvider>

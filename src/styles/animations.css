@@ -149,3 +149,143 @@
 .image-move-to-input {
   animation: moveToInput 0.8s ease-in-out forwards;
 }
+/* ✨ 炫酷 UI 动画效果 - v2.4.6 */
+
+/* 脉冲光晕效果 */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 5px var(--primary), 0 0 10px transparent; }
+  50% { box-shadow: 0 0 15px var(--primary), 0 0 30px var(--primary); }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* 渐变边框动画 */
+@keyframes gradient-border {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-gradient-border {
+  background: linear-gradient(90deg, var(--primary), var(--accent), var(--primary));
+  background-size: 200% 200%;
+  animation: gradient-border 3s ease infinite;
+}
+
+/* 悬浮效果 */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* 闪烁效果 */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* 弹性缩放 */
+@keyframes bounce-scale {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.hover-bounce-scale:hover {
+  animation: bounce-scale 0.3s ease;
+}
+
+/* 滑入效果 */
+@keyframes slide-in-right {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slide-in-left {
+  from { transform: translateX(-100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slide-in-up {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.animate-slide-in-right { animation: slide-in-right 0.3s ease-out; }
+.animate-slide-in-left { animation: slide-in-left 0.3s ease-out; }
+.animate-slide-in-up { animation: slide-in-up 0.3s ease-out; }
+
+/* 旋转进入 */
+@keyframes spin-in {
+  from { transform: rotate(-180deg) scale(0); opacity: 0; }
+  to { transform: rotate(0) scale(1); opacity: 1; }
+}
+
+.animate-spin-in { animation: spin-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+
+/* 模糊进入 */
+@keyframes blur-in {
+  from { filter: blur(10px); opacity: 0; }
+  to { filter: blur(0); opacity: 1; }
+}
+
+.animate-blur-in { animation: blur-in 0.4s ease-out; }
+
+/* 交互式按钮效果 */
+.btn-interactive {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-interactive::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.btn-interactive:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* 卡片悬浮效果 */
+.card-hover {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px -12px rgba(0, 0, 0, 0.3);
+}
+
+/* 霓虹文字效果 */
+.text-neon {
+  text-shadow: 
+    0 0 5px var(--primary),
+    0 0 10px var(--primary),
+    0 0 20px var(--primary);
+}
+
+/* 玻璃态增强 */
+.glass-enhanced {
+  background: rgba(var(--background), 0.7);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}

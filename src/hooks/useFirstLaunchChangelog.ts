@@ -17,7 +17,7 @@ import { getVersion } from "@tauri-apps/api/app";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const STORAGE_KEY = "fangyu-code-last-seen-version";
-const FALLBACK_VERSION = "2.4.5"; // 🔧 Fallback 版本（获取失败时使用）
+const FALLBACK_VERSION = "2.4.6"; // 🔧 Fallback 版本（获取失败时使用）
 
 // 🔧 DEBUG: 全局变量用于强制显示更新日志（调试用）
 declare global {
@@ -29,6 +29,28 @@ declare global {
 
 // 版本更新日志（从新到旧）
 export const CHANGELOGS = {
+    "2.4.6": {
+    title: "v2.4.6 - ✨ 炫酷 UI 改造",
+    date: "2026-01-08",
+    features: [
+      "🎨 全局命令面板 - Ctrl+K 快速搜索和导航",
+      "👤 用户头像区域 - 侧边栏顶部显示用户信息",
+      "🔍 快捷搜索按钮 - 侧边栏集成搜索入口",
+      "✨ 导航悬停动画 - 光效、缩放、指示器效果",
+    ],
+    improvements: [
+      "✅ 侧边栏升级 - 更现代的视觉设计",
+      "✅ 快捷键提示 - 导航项显示对应快捷键",
+      "✅ 动画效果增强 - 脉冲光晕、渐变边框、悬浮效果",
+      "✅ 玻璃态增强 - 更强的毛玻璃视觉效果",
+    ],
+    technical: [
+      "新增 Command 组件 (cmdk) - 命令面板基础",
+      "新增 Avatar 组件 - 用户头像显示",
+      "新增 CommandPalette 组件 - 全局命令面板",
+      "animations.css 增强 - 多种炫酷动画效果",
+    ],
+  },
   "2.4.5": {
     title: "v2.4.5 - 🔍 全面代码审查与质量提升",
     date: "2026-01-08",
