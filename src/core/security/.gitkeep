@@ -1,0 +1,6 @@
+# Security Guard
+# This directory contains security mechanisms:
+# - Path validation
+# - Dangerous command detection
+# - Sensitive info redaction
+# - Audit logging

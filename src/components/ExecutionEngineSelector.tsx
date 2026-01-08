@@ -1,12 +1,15 @@
 /**
- * ExecutionEngineSelector Component
+ * ExecutionEngineSelector Component - v2.0 重构版
  *
- * Allows users to switch between Claude Code, Codex, and Gemini CLI execution engines
- * with appropriate configuration options for each.
+ * 支持 Claude Code、Codex、Gemini、SiliconFlow 四种执行引擎
+ * 提供统一的配置入口和状态显示
  */
 
 import React, { useState } from 'react';
-import { Settings, Zap, Check, Monitor, Terminal, Sparkles, Cpu } from 'lucide-react';
+import { 
+  Settings, Zap, Check, Monitor, Terminal, Sparkles, Cpu, 
+  ChevronRight, ExternalLink, AlertCircle 
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -17,32 +20,32 @@ import {
 } from '@/components/ui/select';
 import { Popover } from '@/components/ui/popover';
 import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
 import { api } from '@/lib/api';
 import { relaunchApp } from '@/lib/updater';
 import { ask, message } from '@tauri-apps/plugin-dialog';
 import { useEngineStatus } from '@/hooks/useEngineStatus';
+import { loadSiliconFlowConfig } from '@/config/siliconflowConfig';
+import { SiliconFlowModelSelector } from '@/components/FloatingPromptInput/SiliconFlowModelSelector';
 import type { CodexExecutionMode } from '@/types/codex';
 
-// ============================================================================
+// ====================================================================
 // Type Definitions
-// ============================================================================
+// ====================================================================
 
 export type ExecutionEngine = 'claude' | 'codex' | 'gemini' | 'siliconflow';
 export type CodexRuntimeMode = 'auto' | 'native' | 'wsl';
 export type ClaudeRuntimeMode = 'auto' | 'native' | 'wsl';
+export type GeminiRuntimeMode = 'auto' | 'native' | 'wsl';
 
 export interface ExecutionEngineConfig {
   engine: ExecutionEngine;
-  // Codex-specific config
   codexMode?: CodexExecutionMode;
   codexModel?: string;
   codexApiKey?: string;
-  /** Codex reasoning effort level: low, medium, high, xhigh */
   codexReasoningLevel?: 'low' | 'medium' | 'high' | 'xhigh';
-  // Gemini-specific config
   geminiModel?: string;
   geminiApprovalMode?: 'auto_edit' | 'yolo' | 'default';
-  // 🆕 SiliconFlow-specific config
   siliconflowModel?: string;
   siliconflowApiKey?: string;
 }
@@ -57,9 +60,6 @@ interface CodexModeConfig {
   isWindows: boolean;
 }
 
-// Gemini WSL mode configuration (similar to Codex)
-export type GeminiRuntimeMode = 'auto' | 'native' | 'wsl';
-
 interface GeminiWslModeConfig {
   mode: GeminiRuntimeMode;
   wslDistro: string | null;
@@ -72,7 +72,6 @@ interface GeminiWslModeConfig {
   isWindows: boolean;
 }
 
-// Claude WSL mode configuration
 interface ClaudeWslModeConfig {
   mode: ClaudeRuntimeMode;
   wslDistro: string | null;
@@ -92,9 +91,48 @@ interface ExecutionEngineSelectorProps {
   className?: string;
 }
 
-// ============================================================================
+// ====================================================================
+// 引擎配置
+// ====================================================================
+
+const ENGINE_CONFIG = {
+  claude: {
+    id: 'claude' as const,
+    name: 'Claude Code',
+    icon: Zap,
+    color: 'text-orange-500',
+    bgColor: 'bg-orange-500/10',
+    borderColor: 'border-orange-500/30',
+  },
+  codex: {
+    id: 'codex' as const,
+    name: 'Codex',
+    icon: Terminal,
+    color: 'text-green-500',
+    bgColor: 'bg-green-500/10',
+    borderColor: 'border-green-500/30',
+  },
+  gemini: {
+    id: 'gemini' as const,
+    name: 'Gemini',
+    icon: Sparkles,
+    color: 'text-blue-500',
+    bgColor: 'bg-blue-500/10',
+    borderColor: 'border-blue-500/30',
+  },
+  siliconflow: {
+    id: 'siliconflow' as const,
+    name: 'SiliconFlow',
+    icon: Cpu,
+    color: 'text-purple-500',
+    bgColor: 'bg-purple-500/10',
+    borderColor: 'border-purple-500/30',
+  },
+};
+
+// ====================================================================
 // Component
-// ============================================================================
+// ====================================================================
 
 export const ExecutionEngineSelector: React.FC<ExecutionEngineSelectorProps> = ({
   value,
@@ -103,8 +141,9 @@ export const ExecutionEngineSelector: React.FC<ExecutionEngineSelectorProps> = (
 }) => {
   const [showSettings, setShowSettings] = useState(false);
   const [savingConfig, setSavingConfig] = useState(false);
+  const [showSiliconFlowSelector, setShowSiliconFlowSelector] = useState(false);
 
-  // 使用全局缓存的引擎状态（包括模式配置）
+  // 使用全局缓存的引擎状态
   const {
     codexAvailable,
     codexVersion,
@@ -117,834 +156,387 @@ export const ExecutionEngineSelector: React.FC<ExecutionEngineSelectorProps> = (
     claudeWslModeConfig: cachedClaudeWslModeConfig,
   } = useEngineStatus();
 
-  // 本地状态用于跟踪用户修改（保存后立即更新 UI）
+  // SiliconFlow 配置状态
+  const siliconflowConfig = loadSiliconFlowConfig();
+  const siliconflowConfigured = !!siliconflowConfig.apiKey && siliconflowConfig.apiKey.length > 10;
+
+  // 本地状态
   const [localCodexModeConfig, setLocalCodexModeConfig] = useState<CodexModeConfig | null>(null);
   const [localGeminiWslModeConfig, setLocalGeminiWslModeConfig] = useState<GeminiWslModeConfig | null>(null);
   const [localClaudeWslModeConfig, setLocalClaudeWslModeConfig] = useState<ClaudeWslModeConfig | null>(null);
 
-  // 使用本地修改的值，如果没有则使用缓存的值
-  const codexModeConfig: CodexModeConfig | null = localCodexModeConfig || cachedCodexModeConfig || null;
-  const geminiWslModeConfig: GeminiWslModeConfig | null = localGeminiWslModeConfig || cachedGeminiWslModeConfig || null;
-  const claudeWslModeConfig: ClaudeWslModeConfig | null = localClaudeWslModeConfig || cachedClaudeWslModeConfig || null;
+  const codexModeConfig = localCodexModeConfig || cachedCodexModeConfig || null;
+  const geminiWslModeConfig = localGeminiWslModeConfig || cachedGeminiWslModeConfig || null;
+  const claudeWslModeConfig = localClaudeWslModeConfig || cachedClaudeWslModeConfig || null;
 
-  const handleCodexRuntimeModeChange = async (mode: CodexRuntimeMode) => {
-    if (!codexModeConfig) return;
-
-    setSavingConfig(true);
-    try {
-      await api.setCodexModeConfig(mode, codexModeConfig.wslDistro);
-      setLocalCodexModeConfig({ ...codexModeConfig, mode });
-      // 使用 Tauri 原生对话框询问用户是否重启
-      const shouldRestart = await ask('配置已保存。是否立即重启应用以使更改生效？', {
-        title: '重启应用',
-        kind: 'info',
-        okLabel: '立即重启',
-        cancelLabel: '稍后重启',
-      });
-      if (shouldRestart) {
-        try {
-          await relaunchApp();
-        } catch (restartError) {
-          console.error('[ExecutionEngineSelector] Failed to restart:', restartError);
-          await message('配置已保存，但自动重启失败。请手动重启应用以使更改生效。', {
-            title: '提示',
-            kind: 'warning',
-          });
-        }
-      }
-    } catch (error) {
-      console.error('[ExecutionEngineSelector] Failed to save Codex mode config:', error);
-      await message('保存配置失败: ' + (error instanceof Error ? error.message : String(error)), {
-        title: '错误',
-        kind: 'error',
-      });
-    } finally {
-      setSavingConfig(false);
-    }
-  };
-
-  const handleWslDistroChange = async (distro: string) => {
-    if (!codexModeConfig) return;
-
-    const newDistro = distro === '__default__' ? null : distro;
-    setSavingConfig(true);
-    try {
-      await api.setCodexModeConfig(codexModeConfig.mode, newDistro);
-      setLocalCodexModeConfig({ ...codexModeConfig, wslDistro: newDistro });
-      // 使用 Tauri 原生对话框询问用户是否重启
-      const shouldRestart = await ask('配置已保存。是否立即重启应用以使更改生效？', {
-        title: '重启应用',
-        kind: 'info',
-        okLabel: '立即重启',
-        cancelLabel: '稍后重启',
-      });
-      if (shouldRestart) {
-        try {
-          await relaunchApp();
-        } catch (restartError) {
-          console.error('[ExecutionEngineSelector] Failed to restart:', restartError);
-          await message('配置已保存，但自动重启失败。请手动重启应用以使更改生效。', {
-            title: '提示',
-            kind: 'warning',
-          });
-        }
-      }
-    } catch (error) {
-      console.error('[ExecutionEngineSelector] Failed to save WSL distro:', error);
-      await message('保存配置失败: ' + (error instanceof Error ? error.message : String(error)), {
-        title: '错误',
-        kind: 'error',
-      });
-    } finally {
-      setSavingConfig(false);
-    }
-  };
-
-  const handleGeminiRuntimeModeChange = async (mode: GeminiRuntimeMode) => {
-    if (!geminiWslModeConfig) return;
-
-    setSavingConfig(true);
-    try {
-      await api.setGeminiWslModeConfig(mode, geminiWslModeConfig.wslDistro);
-      setLocalGeminiWslModeConfig({ ...geminiWslModeConfig, mode });
-      // 使用 Tauri 原生对话框询问用户是否重启
-      const shouldRestart = await ask('配置已保存。是否立即重启应用以使更改生效？', {
-        title: '重启应用',
-        kind: 'info',
-        okLabel: '立即重启',
-        cancelLabel: '稍后重启',
-      });
-      if (shouldRestart) {
-        try {
-          await relaunchApp();
-        } catch (restartError) {
-          console.error('[ExecutionEngineSelector] Failed to restart:', restartError);
-          await message('配置已保存，但自动重启失败。请手动重启应用以使更改生效。', {
-            title: '提示',
-            kind: 'warning',
-          });
-        }
-      }
-    } catch (error) {
-      console.error('[ExecutionEngineSelector] Failed to save Gemini WSL mode config:', error);
-      await message('保存配置失败: ' + (error instanceof Error ? error.message : String(error)), {
-        title: '错误',
-        kind: 'error',
-      });
-    } finally {
-      setSavingConfig(false);
-    }
-  };
-
-  const handleGeminiWslDistroChange = async (distro: string) => {
-    if (!geminiWslModeConfig) return;
-
-    const newDistro = distro === '__default__' ? null : distro;
-    setSavingConfig(true);
-    try {
-      await api.setGeminiWslModeConfig(geminiWslModeConfig.mode, newDistro);
-      setLocalGeminiWslModeConfig({ ...geminiWslModeConfig, wslDistro: newDistro });
-      // 使用 Tauri 原生对话框询问用户是否重启
-      const shouldRestart = await ask('配置已保存。是否立即重启应用以使更改生效？', {
-        title: '重启应用',
-        kind: 'info',
-        okLabel: '立即重启',
-        cancelLabel: '稍后重启',
-      });
-      if (shouldRestart) {
-        try {
-          await relaunchApp();
-        } catch (restartError) {
-          console.error('[ExecutionEngineSelector] Failed to restart:', restartError);
-          await message('配置已保存，但自动重启失败。请手动重启应用以使更改生效。', {
-            title: '提示',
-            kind: 'warning',
-          });
-        }
-      }
-    } catch (error) {
-      console.error('[ExecutionEngineSelector] Failed to save Gemini WSL distro:', error);
-      await message('保存配置失败: ' + (error instanceof Error ? error.message : String(error)), {
-        title: '错误',
-        kind: 'error',
-      });
-    } finally {
-      setSavingConfig(false);
-    }
-  };
-
-  const handleClaudeRuntimeModeChange = async (mode: ClaudeRuntimeMode) => {
-    if (!claudeWslModeConfig) return;
-
-    setSavingConfig(true);
-    try {
-      await api.setClaudeWslModeConfig(mode, claudeWslModeConfig.wslDistro);
-      setLocalClaudeWslModeConfig({ ...claudeWslModeConfig, mode });
-      // 使用 Tauri 原生对话框询问用户是否重启
-      const shouldRestart = await ask('配置已保存。是否立即重启应用以使更改生效？', {
-        title: '重启应用',
-        kind: 'info',
-        okLabel: '立即重启',
-        cancelLabel: '稍后重启',
-      });
-      if (shouldRestart) {
-        try {
-          await relaunchApp();
-        } catch (restartError) {
-          console.error('[ExecutionEngineSelector] Failed to restart:', restartError);
-          await message('配置已保存，但自动重启失败。请手动重启应用以使更改生效。', {
-            title: '提示',
-            kind: 'warning',
-          });
-        }
-      }
-    } catch (error) {
-      console.error('[ExecutionEngineSelector] Failed to save Claude WSL mode config:', error);
-      await message('保存配置失败: ' + (error instanceof Error ? error.message : String(error)), {
-        title: '错误',
-        kind: 'error',
-      });
-    } finally {
-      setSavingConfig(false);
-    }
-  };
-
-  const handleClaudeWslDistroChange = async (distro: string) => {
-    if (!claudeWslModeConfig) return;
-
-    const newDistro = distro === '__default__' ? null : distro;
-    setSavingConfig(true);
-    try {
-      await api.setClaudeWslModeConfig(claudeWslModeConfig.mode, newDistro);
-      setLocalClaudeWslModeConfig({ ...claudeWslModeConfig, wslDistro: newDistro });
-      // 使用 Tauri 原生对话框询问用户是否重启
-      const shouldRestart = await ask('配置已保存。是否立即重启应用以使更改生效？', {
-        title: '重启应用',
-        kind: 'info',
-        okLabel: '立即重启',
-        cancelLabel: '稍后重启',
-      });
-      if (shouldRestart) {
-        try {
-          await relaunchApp();
-        } catch (restartError) {
-          console.error('[ExecutionEngineSelector] Failed to restart:', restartError);
-          await message('配置已保存，但自动重启失败。请手动重启应用以使更改生效。', {
-            title: '提示',
-            kind: 'warning',
-          });
-        }
-      }
-    } catch (error) {
-      console.error('[ExecutionEngineSelector] Failed to save Claude WSL distro:', error);
-      await message('保存配置失败: ' + (error instanceof Error ? error.message : String(error)), {
-        title: '错误',
-        kind: 'error',
-      });
-    } finally {
-      setSavingConfig(false);
-    }
-  };
+  // ====================================================================
+  // Handlers
+  // ====================================================================
 
   const handleEngineChange = (engine: ExecutionEngine) => {
     if (engine === 'codex' && !codexAvailable) {
-      alert('Codex CLI 未安装或不可用。请先安装 Codex CLI。');
+      alert('Codex CLI 未安装。请先安装 Codex CLI。');
       return;
     }
-
     if (engine === 'gemini' && !geminiAvailable) {
-      alert('Gemini CLI 未安装或不可用。请运行 npm install -g @google/gemini-cli 安装。');
+      alert('Gemini CLI 未安装。请运行 npm install -g @google/gemini-cli 安装。');
       return;
     }
-
-    onChange({
-      ...value,
-      engine,
-    });
+    onChange({ ...value, engine });
   };
 
   const handleCodexModeChange = (mode: CodexExecutionMode) => {
-    onChange({
-      ...value,
-      codexMode: mode,
-    });
+    onChange({ ...value, codexMode: mode });
   };
 
   const handleGeminiApprovalModeChange = (mode: 'auto_edit' | 'yolo' | 'default') => {
-    onChange({
-      ...value,
-      geminiApprovalMode: mode,
-    });
+    onChange({ ...value, geminiApprovalMode: mode });
   };
 
-  // Get display name for current engine
-  const getEngineDisplayName = () => {
-    switch (value.engine) {
-      case 'claude':
-        return 'Claude Code';
-      case 'codex':
-        return 'Codex';
-      case 'gemini':
-        return 'Gemini';
-      default:
-        return 'Claude Code';
+  const handleRuntimeModeChange = async (
+    engine: 'claude' | 'codex' | 'gemini',
+    mode: string,
+    currentConfig: any,
+    setLocalConfig: (config: any) => void,
+    apiCall: (mode: string, distro: string | null) => Promise<void>
+  ) => {
+    if (!currentConfig) return;
+    setSavingConfig(true);
+    try {
+      await apiCall(mode, currentConfig.wslDistro);
+      setLocalConfig({ ...currentConfig, mode });
+      const shouldRestart = await ask('配置已保存。是否立即重启应用以使更改生效？', {
+        title: '重启应用',
+        kind: 'info',
+        okLabel: '立即重启',
+        cancelLabel: '稍后重启',
+      });
+      if (shouldRestart) {
+        try {
+          await relaunchApp();
+        } catch (e) {
+          await message('配置已保存，但自动重启失败。请手动重启应用。', { title: '提示', kind: 'warning' });
+        }
+      }
+    } catch (error) {
+      await message('保存配置失败: ' + (error instanceof Error ? error.message : String(error)), { title: '错误', kind: 'error' });
+    } finally {
+      setSavingConfig(false);
     }
   };
 
-  return (
-    <Popover
-      open={showSettings}
-      onOpenChange={setShowSettings}
-      trigger={
-        <Button
-          variant="outline"
-          size="sm"
-          role="combobox"
-          aria-expanded={showSettings}
-          className={`h-8 justify-between border-border/50 bg-background/50 hover:bg-accent/50 ${className}`}
+  const handleClaudeRuntimeModeChange = (mode: ClaudeRuntimeMode) => {
+    handleRuntimeModeChange('claude', mode, claudeWslModeConfig, setLocalClaudeWslModeConfig, api.setClaudeWslModeConfig);
+  };
+
+  const handleCodexRuntimeModeChange = (mode: CodexRuntimeMode) => {
+    handleRuntimeModeChange('codex', mode, codexModeConfig, setLocalCodexModeConfig, api.setCodexModeConfig);
+  };
+
+  const handleGeminiRuntimeModeChange = (mode: GeminiRuntimeMode) => {
+    handleRuntimeModeChange('gemini', mode, geminiWslModeConfig, setLocalGeminiWslModeConfig, api.setGeminiWslModeConfig);
+  };
+
+  // ====================================================================
+  // Render Helpers
+  // ====================================================================
+
+  const getEngineDisplayName = () => {
+    return ENGINE_CONFIG[value.engine]?.name || 'Claude Code';
+  };
+
+  const getCurrentEngineConfig = () => ENGINE_CONFIG[value.engine];
+
+  const renderEngineStatus = (
+    engine: ExecutionEngine,
+    installed: boolean,
+    version?: string,
+    configured?: boolean
+  ) => {
+    const isApiEngine = engine === 'siliconflow';
+    const statusOk = isApiEngine ? configured : installed;
+    const statusText = isApiEngine 
+      ? (configured ? 'API 已配置' : 'API 未配置')
+      : (installed ? '已安装' : '未安装');
+
+    return (
+      <div className="flex items-center gap-2 text-xs">
+        <div className={`h-2 w-2 rounded-full ${statusOk ? 'bg-green-500' : 'bg-red-500'}`} />
+        <span className={statusOk ? 'text-foreground' : 'text-muted-foreground'}>{statusText}</span>
+        {version && <span className="text-muted-foreground">• {version}</span>}
+      </div>
+    );
+  };
+
+  const renderRuntimeSelector = (
+    config: ClaudeWslModeConfig | CodexModeConfig | GeminiWslModeConfig | null,
+    onChangeHandler: (mode: any) => void,
+    label: string
+  ) => {
+    if (!config || (!config.nativeAvailable && !config.wslAvailable)) return null;
+
+    return (
+      <div className="space-y-2">
+        <Label className="text-xs font-medium flex items-center gap-2">
+          <Terminal className="h-3 w-3" />
+          {label}
+        </Label>
+        <Select
+          value={config.isWindows ? config.mode : 'native'}
+          onValueChange={onChangeHandler}
+          disabled={savingConfig}
         >
-          <div className="flex items-center gap-2">
-            {value.engine === 'gemini' ? (
-              <Sparkles className="h-4 w-4" />
-            ) : (
-              <Zap className="h-4 w-4" />
+          <SelectTrigger className="h-8 text-xs">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {config.isWindows && (
+              <SelectItem value="auto">
+                <span className="text-xs">自动检测</span>
+              </SelectItem>
             )}
-            <span>{getEngineDisplayName()}</span>
-            {value.engine === 'codex' && value.codexMode && (
-              <span className="text-xs text-muted-foreground">
-                ({value.codexMode === 'read-only' ? '只读' : value.codexMode === 'full-auto' ? '编辑' : '完全访问'})
-              </span>
+            <SelectItem value="native" disabled={!config.nativeAvailable}>
+              <div className="flex items-center gap-2">
+                <Monitor className="h-3 w-3" />
+                <span className="text-xs">{config.isWindows ? 'Windows 原生' : 'Linux 原生'}</span>
+              </div>
+            </SelectItem>
+            {config.isWindows && (
+              <SelectItem value="wsl" disabled={!config.wslAvailable}>
+                <div className="flex items-center gap-2">
+                  <Terminal className="h-3 w-3" />
+                  <span className="text-xs">WSL</span>
+                </div>
+              </SelectItem>
             )}
-            {value.engine === 'gemini' && value.geminiApprovalMode && (
-              <span className="text-xs text-muted-foreground">
-                ({value.geminiApprovalMode === 'yolo' ? 'YOLO' : value.geminiApprovalMode === 'auto_edit' ? '自动编辑' : '默认'})
-              </span>
-            )}
-          </div>
-          <Settings className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      }
-      content={
-        <div className="space-y-4 p-4">
-          {/* Engine Selection */}
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">执行引擎</Label>
-            <div className="grid grid-cols-4 gap-2">
-              <Button
-                variant={value.engine === 'claude' ? 'default' : 'outline'}
-                className="justify-start"
-                onClick={() => handleEngineChange('claude')}
-              >
-                <Check className={`mr-2 h-4 w-4 ${value.engine === 'claude' ? 'opacity-100' : 'opacity-0'}`} />
-                Claude
-              </Button>
-              <Button
-                variant={value.engine === 'codex' ? 'default' : 'outline'}
-                className="justify-start"
-                onClick={() => handleEngineChange('codex')}
-                disabled={!codexAvailable}
-              >
-                <Check className={`mr-2 h-4 w-4 ${value.engine === 'codex' ? 'opacity-100' : 'opacity-0'}`} />
-                Codex
-              </Button>
-              <Button
-                variant={value.engine === 'gemini' ? 'default' : 'outline'}
-                className="justify-start"
-                onClick={() => handleEngineChange('gemini')}
-                disabled={!geminiAvailable}
-              >
-                <Check className={`mr-2 h-4 w-4 ${value.engine === 'gemini' ? 'opacity-100' : 'opacity-0'}`} />
-                Gemini
-              </Button>
-              {/* 🆕 SiliconFlow 引擎选项 */}
-              <Button
-                variant={value.engine === 'siliconflow' ? 'default' : 'outline'}
-                className="justify-start"
-                onClick={() => handleEngineChange('siliconflow')}
-              >
-                <Check className={`mr-2 h-4 w-4 ${value.engine === 'siliconflow' ? 'opacity-100' : 'opacity-0'}`} />
-                SiliconFlow
-              </Button>
+          </SelectContent>
+        </Select>
+      </div>
+    );
+  };
+
+  // ====================================================================
+  // Render
+  // ====================================================================
+
+  const currentEngine = getCurrentEngineConfig();
+  const EngineIcon = currentEngine.icon;
+
+  return (
+    <>
+      <Popover
+        open={showSettings}
+        onOpenChange={setShowSettings}
+        trigger={
+          <Button
+            variant="outline"
+            size="sm"
+            role="combobox"
+            aria-expanded={showSettings}
+            className={`h-8 justify-between border-border/50 bg-background/50 hover:bg-accent/50 ${className}`}
+          >
+            <div className="flex items-center gap-2">
+              <EngineIcon className={`h-4 w-4 ${currentEngine.color}`} />
+              <span>{getEngineDisplayName()}</span>
+            </div>
+            <Settings className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        }
+        content={
+          <div className="w-80 space-y-4 p-4">
+            {/* 引擎选择 - 2x2 网格 */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">执行引擎</Label>
+              <div className="grid grid-cols-2 gap-2">
+                {Object.values(ENGINE_CONFIG).map((engine) => {
+                  const Icon = engine.icon;
+                  const isSelected = value.engine === engine.id;
+                  const isDisabled = 
+                    (engine.id === 'codex' && !codexAvailable) ||
+                    (engine.id === 'gemini' && !geminiAvailable);
+
+                  return (
+                    <Button
+                      key={engine.id}
+                      variant={isSelected ? 'default' : 'outline'}
+                      size="sm"
+                      className={`h-auto py-2 px-3 justify-start ${isSelected ? '' : 'hover:bg-accent/50'}`}
+                      onClick={() => handleEngineChange(engine.id)}
+                      disabled={isDisabled}
+                    >
+                      <div className="flex items-center gap-2 w-full">
+                        <Icon className={`h-4 w-4 ${isSelected ? '' : engine.color}`} />
+                        <span className="text-xs font-medium">{engine.name}</span>
+                        {isSelected && <Check className="h-3 w-3 ml-auto" />}
+                      </div>
+                    </Button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* 当前引擎配置区域 */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium flex items-center gap-2">
+                  <currentEngine.icon className={`h-4 w-4 ${currentEngine.color}`} />
+                  {currentEngine.name} 配置
+                </Label>
+                {value.engine === 'siliconflow' && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 text-xs"
+                    onClick={() => setShowSiliconFlowSelector(true)}
+                  >
+                    配置 <ChevronRight className="h-3 w-3 ml-1" />
+                  </Button>
+                )}
+              </div>
+
+              {/* Claude 配置 */}
+              {value.engine === 'claude' && (
+                <div className="space-y-3">
+                  <div className={`rounded-md border p-2 ${currentEngine.bgColor} ${currentEngine.borderColor}`}>
+                    {renderEngineStatus('claude', claudeInstalled, claudeVersion)}
+                  </div>
+                  {renderRuntimeSelector(claudeWslModeConfig, handleClaudeRuntimeModeChange, '运行环境')}
+                  <p className="text-xs text-muted-foreground">
+                    更多配置请前往设置页面
+                  </p>
+                </div>
+              )}
+
+              {/* Codex 配置 */}
+              {value.engine === 'codex' && (
+                <div className="space-y-3">
+                  <div className={`rounded-md border p-2 ${currentEngine.bgColor} ${currentEngine.borderColor}`}>
+                    {renderEngineStatus('codex', codexAvailable, codexVersion)}
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label className="text-xs font-medium">执行模式</Label>
+                    <Select value={value.codexMode || 'read-only'} onValueChange={handleCodexModeChange}>
+                      <SelectTrigger className="h-8 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="read-only">
+                          <span className="text-xs">只读模式</span>
+                        </SelectItem>
+                        <SelectItem value="full-auto">
+                          <span className="text-xs">自动编辑</span>
+                        </SelectItem>
+                        <SelectItem value="full-access">
+                          <span className="text-xs text-destructive">完全访问</span>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {renderRuntimeSelector(codexModeConfig, handleCodexRuntimeModeChange, '运行环境')}
+                </div>
+              )}
+
+              {/* Gemini 配置 */}
+              {value.engine === 'gemini' && (
+                <div className="space-y-3">
+                  <div className={`rounded-md border p-2 ${currentEngine.bgColor} ${currentEngine.borderColor}`}>
+                    {renderEngineStatus('gemini', geminiAvailable, geminiVersion)}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs font-medium">审批模式</Label>
+                    <Select value={value.geminiApprovalMode || 'auto_edit'} onValueChange={handleGeminiApprovalModeChange}>
+                      <SelectTrigger className="h-8 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="default">
+                          <span className="text-xs">默认（每次确认）</span>
+                        </SelectItem>
+                        <SelectItem value="auto_edit">
+                          <span className="text-xs">自动编辑</span>
+                        </SelectItem>
+                        <SelectItem value="yolo">
+                          <span className="text-xs text-destructive">YOLO 模式</span>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {renderRuntimeSelector(geminiWslModeConfig, handleGeminiRuntimeModeChange, '运行环境')}
+                </div>
+              )}
+
+              {/* SiliconFlow 配置 */}
+              {value.engine === 'siliconflow' && (
+                <div className="space-y-3">
+                  <div className={`rounded-md border p-2 ${currentEngine.bgColor} ${currentEngine.borderColor}`}>
+                    {renderEngineStatus('siliconflow', false, undefined, siliconflowConfigured)}
+                  </div>
+
+                  {siliconflowConfigured ? (
+                    <>
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">当前模型</Label>
+                        <div className="text-sm font-medium">
+                          {siliconflowConfig.selectedModel?.split('/').pop() || '未选择'}
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">API Key</Label>
+                        <div className="text-xs font-mono text-muted-foreground">
+                          {siliconflowConfig.apiKey.slice(0, 8)}...{siliconflowConfig.apiKey.slice(-4)}
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex items-center gap-2 text-xs text-amber-600">
+                      <AlertCircle className="h-3 w-3" />
+                      <span>请先配置 API Key</span>
+                    </div>
+                  )}
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full h-8 text-xs"
+                    onClick={() => setShowSiliconFlowSelector(true)}
+                  >
+                    <Settings className="h-3 w-3 mr-2" />
+                    配置模型和 API Key
+                  </Button>
+
+                  <a
+                    href="https://siliconflow.cn/account/ak"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 text-xs text-primary hover:underline"
+                  >
+                    获取 API Key <ExternalLink className="h-3 w-3" />
+                  </a>
+                </div>
+              )}
             </div>
           </div>
+        }
+        className="w-80"
+        align="start"
+        side="top"
+      />
 
-          {/* Codex-specific settings */}
-          {value.engine === 'codex' && (
-            <>
-              <div className="h-px bg-border" />
-
-              {/* Execution Mode */}
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">执行模式</Label>
-                <Select
-                  value={value.codexMode || 'read-only'}
-                  onValueChange={(v) => handleCodexModeChange(v as CodexExecutionMode)}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="read-only">
-                      <div>
-                        <div className="font-medium">只读模式</div>
-                        <div className="text-xs text-muted-foreground">安全模式，只能读取文件</div>
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="full-auto">
-                      <div>
-                        <div className="font-medium">编辑模式</div>
-                        <div className="text-xs text-muted-foreground">允许编辑文件</div>
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="danger-full-access">
-                      <div>
-                        <div className="font-medium text-destructive">完全访问模式</div>
-                        <div className="text-xs text-muted-foreground">⚠️ 允许网络访问</div>
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Status */}
-              <div className="rounded-md border p-2 bg-muted/50">
-                <div className="flex items-center gap-2 text-xs">
-                  <div className={`h-2 w-2 rounded-full ${codexAvailable ? 'bg-green-500' : 'bg-red-500'}`} />
-                  <span>{codexAvailable ? '已安装' : '未安装'}</span>
-                  {codexVersion && <span className="text-muted-foreground">• {codexVersion}</span>}
-                </div>
-              </div>
-
-              {/* WSL Mode Configuration (Windows only) */}
-              {codexModeConfig && (codexModeConfig.nativeAvailable || codexModeConfig.wslAvailable) && (
-                <>
-                  <div className="h-px bg-border" />
-
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium flex items-center gap-2">
-                      <Terminal className="h-4 w-4" />
-                      运行环境
-                    </Label>
-                    <Select
-                      value={codexModeConfig.mode}
-                      onValueChange={(v) => handleCodexRuntimeModeChange(v as CodexRuntimeMode)}
-                      disabled={savingConfig}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {codexModeConfig.isWindows && (
-                          <SelectItem value="auto">
-                            <div>
-                              <div className="font-medium">自动检测</div>
-                              <div className="text-xs text-muted-foreground">原生优先，WSL 后备</div>
-                            </div>
-                          </SelectItem>
-                        )}
-                        <SelectItem value="native" disabled={!codexModeConfig.nativeAvailable}>
-                          <div className="flex items-center gap-2">
-                            <Monitor className="h-3 w-3" />
-                            <div>
-                              <div className="font-medium">{codexModeConfig.isWindows ? 'Windows 原生' : 'Linux 原生'}</div>
-                              <div className="text-xs text-muted-foreground">
-                                {codexModeConfig.nativeAvailable ? (codexModeConfig.isWindows ? '使用 Windows 版 Codex' : '使用本机 Codex') : '未安装'}
-                              </div>
-                            </div>
-                          </div>
-                        </SelectItem>
-                        {codexModeConfig.isWindows && (
-                          <SelectItem value="wsl" disabled={!codexModeConfig.wslAvailable}>
-                            <div className="flex items-center gap-2">
-                              <Terminal className="h-3 w-3" />
-                              <div>
-                                <div className="font-medium">WSL</div>
-                                <div className="text-xs text-muted-foreground">
-                                  {codexModeConfig.wslAvailable ? '使用 WSL 中的 Codex' : '未安装'}
-                                </div>
-                              </div>
-                            </div>
-                          </SelectItem>
-                        )}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* WSL Distro Selection (Windows only) */}
-                  {codexModeConfig.isWindows && codexModeConfig.mode === 'wsl' && codexModeConfig.availableDistros.length > 0 && (
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium">WSL 发行版</Label>
-                      <Select
-                        value={codexModeConfig.wslDistro || '__default__'}
-                        onValueChange={handleWslDistroChange}
-                        disabled={savingConfig}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="__default__">
-                            <div className="text-muted-foreground">默认（自动选择）</div>
-                          </SelectItem>
-                          {codexModeConfig.availableDistros.map((distro) => (
-                            <SelectItem key={distro} value={distro}>
-                              {distro}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-
-                  {/* Current Runtime Status */}
-                  <div className="rounded-md border p-2 bg-muted/30 text-xs">
-                    <div className="flex items-center gap-2">
-                      <span className="text-muted-foreground">当前运行环境:</span>
-                      <span className="font-medium">
-                        {codexModeConfig.actualMode === 'wsl' ? (
-                          <span className="flex items-center gap-1">
-                            <Terminal className="h-3 w-3" />
-                            WSL
-                          </span>
-                        ) : (
-                          <span className="flex items-center gap-1">
-                            <Monitor className="h-3 w-3" />
-                            {codexModeConfig.isWindows ? 'Windows 原生' : 'Linux 原生'}
-                          </span>
-                        )}
-                      </span>
-                    </div>
-                  </div>
-                </>
-              )}
-            </>
-          )}
-
-          {/* Gemini-specific settings */}
-          {value.engine === 'gemini' && (
-            <>
-              <div className="h-px bg-border" />
-
-              {/* Approval Mode */}
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">审批模式</Label>
-                <Select
-                  value={value.geminiApprovalMode || 'auto_edit'}
-                  onValueChange={(v) => handleGeminiApprovalModeChange(v as 'auto_edit' | 'yolo' | 'default')}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="default">
-                      <div>
-                        <div className="font-medium">默认</div>
-                        <div className="text-xs text-muted-foreground">每次操作需确认</div>
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="auto_edit">
-                      <div>
-                        <div className="font-medium">自动编辑</div>
-                        <div className="text-xs text-muted-foreground">自动批准文件编辑</div>
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="yolo">
-                      <div>
-                        <div className="font-medium text-destructive">YOLO 模式</div>
-                        <div className="text-xs text-muted-foreground">⚠️ 自动批准所有操作</div>
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Status */}
-              <div className="rounded-md border p-2 bg-muted/50">
-                <div className="flex items-center gap-2 text-xs">
-                  <Sparkles className="h-3 w-3" />
-                  <div className={`h-2 w-2 rounded-full ${geminiAvailable ? 'bg-green-500' : 'bg-red-500'}`} />
-                  <span>{geminiAvailable ? '已安装' : '未安装'}</span>
-                  {geminiVersion && <span className="text-muted-foreground">• {geminiVersion}</span>}
-                </div>
-              </div>
-
-              {/* WSL Mode Configuration (Windows only) */}
-              {geminiWslModeConfig && (geminiWslModeConfig.nativeAvailable || geminiWslModeConfig.wslAvailable) && (
-                <>
-                  <div className="h-px bg-border" />
-
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium flex items-center gap-2">
-                      <Terminal className="h-4 w-4" />
-                      运行环境
-                    </Label>
-                    <Select
-                      value={geminiWslModeConfig.isWindows ? geminiWslModeConfig.mode : 'native'}
-                      onValueChange={(v) => handleGeminiRuntimeModeChange(v as GeminiRuntimeMode)}
-                      disabled={savingConfig}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {geminiWslModeConfig.isWindows && (
-                          <SelectItem value="auto">
-                            <div>
-                              <div className="font-medium">自动检测</div>
-                              <div className="text-xs text-muted-foreground">原生优先，WSL 后备</div>
-                            </div>
-                          </SelectItem>
-                        )}
-                        <SelectItem value="native" disabled={!geminiWslModeConfig.nativeAvailable}>
-                          <div className="flex items-center gap-2">
-                            <Monitor className="h-3 w-3" />
-                            <div>
-                              <div className="font-medium">{geminiWslModeConfig.isWindows ? 'Windows 原生' : 'Linux 原生'}</div>
-                              <div className="text-xs text-muted-foreground">
-                                {geminiWslModeConfig.nativeAvailable ? (geminiWslModeConfig.isWindows ? '使用 Windows 版 Gemini' : '使用本机 Gemini') : '未安装'}
-                              </div>
-                            </div>
-                          </div>
-                        </SelectItem>
-                        {geminiWslModeConfig.isWindows && (
-                          <SelectItem value="wsl" disabled={!geminiWslModeConfig.wslAvailable}>
-                            <div className="flex items-center gap-2">
-                              <Terminal className="h-3 w-3" />
-                              <div>
-                                <div className="font-medium">WSL</div>
-                                <div className="text-xs text-muted-foreground">
-                                  {geminiWslModeConfig.wslAvailable ? '使用 WSL 中的 Gemini' : '未安装'}
-                                </div>
-                              </div>
-                            </div>
-                          </SelectItem>
-                        )}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* WSL Distro Selection (Windows only) */}
-                  {geminiWslModeConfig.isWindows && geminiWslModeConfig.mode === 'wsl' && geminiWslModeConfig.availableDistros.length > 0 && (
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium">WSL 发行版</Label>
-                      <Select
-                        value={geminiWslModeConfig.wslDistro || '__default__'}
-                        onValueChange={handleGeminiWslDistroChange}
-                        disabled={savingConfig}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="__default__">
-                            <div className="text-muted-foreground">默认（自动选择）</div>
-                          </SelectItem>
-                          {geminiWslModeConfig.availableDistros.map((distro) => (
-                            <SelectItem key={distro} value={distro}>
-                              {distro}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-
-                  {/* Current Runtime Status */}
-                  <div className="rounded-md border p-2 bg-muted/30 text-xs">
-                    <div className="flex items-center gap-2">
-                      <span className="text-muted-foreground">当前运行环境:</span>
-                      <span className="font-medium">
-                        {geminiWslModeConfig.wslEnabled ? (
-                          <span className="flex items-center gap-1">
-                            <Terminal className="h-3 w-3" />
-                            WSL
-                            {geminiWslModeConfig.wslGeminiVersion && (
-                              <span className="text-muted-foreground ml-1">({geminiWslModeConfig.wslGeminiVersion})</span>
-                            )}
-                          </span>
-                        ) : (
-                          <span className="flex items-center gap-1">
-                            <Monitor className="h-3 w-3" />
-                            {geminiWslModeConfig.isWindows ? 'Windows 原生' : 'Linux 原生'}
-                          </span>
-                        )}
-                      </span>
-                    </div>
-                  </div>
-                </>
-              )}
-            </>
-          )}
-
-          {/* SiliconFlow-specific settings */}
-          {value.engine === 'siliconflow' && (
-            <>
-              <div className="h-px bg-border" />
-
-              {/* Current Model Display */}
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">当前模型</Label>
-                <div className="rounded-md border p-2 bg-muted/50">
-                  <div className="flex items-center gap-2 text-xs">
-                    <Cpu className="h-3 w-3 text-cyan-500" />
-                    <span className="font-medium">
-                      {value.siliconflowModel?.split('/').pop() || '未选择'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* API Key Status */}
-              {value.siliconflowApiKey && (
-                <div className="rounded-md border p-2 bg-muted/50">
-                  <div className="flex items-center gap-2 text-xs">
-                    <div className="h-2 w-2 rounded-full bg-green-500" />
-                    <span>API Key 已配置</span>
-                    <span className="text-muted-foreground ml-auto font-mono">
-                      {value.siliconflowApiKey.slice(0, 8)}...{value.siliconflowApiKey.slice(-4)}
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              {/* Configuration Link */}
-              <div className="text-xs text-muted-foreground">
-                <p>请在聊天界面右下角点击 SiliconFlow 按钮配置模型和 API Key。</p>
-              </div>
-            </>
-          )}
-
-          {/* Claude-specific settings */}
-          {value.engine === 'claude' && (
-            <>
-              {/* Status */}
-              <div className="rounded-md border p-2 bg-muted/50">
-                <div className="flex items-center gap-2 text-xs">
-                  <Zap className="h-3 w-3" />
-                  <div className={`h-2 w-2 rounded-full ${claudeInstalled ? 'bg-green-500' : 'bg-red-500'}`} />
-                  <span>{claudeInstalled ? '已安装' : '未安装'}</span>
-                  {claudeVersion && <span className="text-muted-foreground">• {claudeVersion}</span>}
-                </div>
-              </div>
-
-              {/* WSL Mode Configuration (Windows only) */}
-              {claudeWslModeConfig && (claudeWslModeConfig.nativeAvailable || claudeWslModeConfig.wslAvailable) && (
-                <>
-                  <div className="h-px bg-border" />
-
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium flex items-center gap-2">
-                      <Terminal className="h-4 w-4" />
-                      运行环境
-                    </Label>
-                    <Select
-                      value={claudeWslModeConfig.isWindows ? claudeWslModeConfig.mode : 'native'}
-                      onValueChange={(v) => handleClaudeRuntimeModeChange(v as ClaudeRuntimeMode)}
-                      disabled={savingConfig}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {claudeWslModeConfig.isWindows && (
-                          <SelectItem value="auto">
-                            <div>
-                              <div className="font-medium">自动检测</div>
-                              <div className="text-xs text-muted-foreground">原生优先，WSL 后备</div>
-                            </div>
-                          </SelectItem>
-                        )}
-                        <SelectItem value="native" disabled={!claudeWslModeConfig.nativeAvailable}>
-                          <div className="flex items-center gap-2">
-                            <Monitor className="h-3 w-3" />
-                            <div>
-                              <div className="font-medium">{claudeWslModeConfig.isWindows ? 'Windows 原生' : 'Linux 原生'}</div>
-                              <div className="text-xs text-muted-foreground">
-                                {claudeWslModeConfig.nativeAvailable ? (claudeWslModeConfig.isWindows ? '使用 Windows 版 Claude' : '使用本机 Claude') : '未安装'}
-                              </div>
-                            </div>
-                          </div>
-                        </SelectItem>
-                        {claudeWslModeConfig.isWindows && (
-                          <SelectItem value="wsl" disabled={!claudeWslModeConfig.wslAvailable}>
-                            <div className="flex items-center gap-2">
-                              <Terminal className="h-3 w-3" />
-                              <div>
-                                <div className="font-medium">WSL</div>
-                                <div className="text-xs text-muted-foreground">
-                                  {claudeWslModeConfig.wslAvailable ? '使用 WSL 中的 Claude' : '未安装'}
-                                </div>
-                              </div>
-                            </div>
-                          </SelectItem>
-                        )}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* WSL Distro Selection (Windows only) */}
-                  {claudeWslModeConfig.isWindows && claudeWslModeConfig.mode === 'wsl' && claudeWslModeConfig.availableDistros.length > 0 && (
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium">WSL 发行版</Label>
-                      <Select
-                        value={claudeWslModeConfig.wslDistro || '__default__'}
-                        onValueChange={handleClaudeWslDistroChange}
-                        disabled={savingConfig}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="__default__">
-                            <div className="text-muted-foreground">默认（自动选择）</div>
-                          </SelectItem>
-                          {claudeWslModeConfig.availableDistros.map((distro) => (
-                            <SelectItem key={distro} value={distro}>
-                              {distro}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-
-                  {/* Current Runtime Status */}
-                  <div className="rounded-md border p-2 bg-muted/30 text-xs">
-                    <div className="flex items-center gap-2">
-                      <span className="text-muted-foreground">当前运行环境:</span>
-                      <span className="font-medium">
-                        {claudeWslModeConfig.actualMode === 'wsl' ? (
-                          <span className="flex items-center gap-1">
-                            <Terminal className="h-3 w-3" />
-                            WSL
-                            {claudeWslModeConfig.wslClaudeVersion && (
-                              <span className="text-muted-foreground ml-1">({claudeWslModeConfig.wslClaudeVersion})</span>
-                            )}
-                          </span>
-                        ) : (
-                          <span className="flex items-center gap-1">
-                            <Monitor className="h-3 w-3" />
-                            {claudeWslModeConfig.isWindows ? 'Windows 原生' : 'Linux 原生'}
-                          </span>
-                        )}
-                      </span>
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {/* Link to settings page */}
-              <div className="text-xs text-muted-foreground">
-                <p>更多 Claude Code 配置请前往设置页面。</p>
-              </div>
-            </>
-          )}
-        </div>
-      }
-      className="w-96"
-      align="start"
-      side="top"
-    />
+      {/* SiliconFlow 模型选择器弹窗 */}
+      <SiliconFlowModelSelector
+        open={showSiliconFlowSelector}
+        onOpenChange={setShowSiliconFlowSelector}
+        onModelSelected={(modelId) => {
+          onChange({ ...value, siliconflowModel: modelId });
+        }}
+      />
+    </>
   );
 };
 

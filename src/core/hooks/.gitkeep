@@ -1,0 +1,5 @@
+# Enhanced Hook Engine
+# This directory contains the unified hook system combining:
+# - Kiro Steering rules
+# - OpenCode lifecycle hooks
+# - Fangyu HookChain

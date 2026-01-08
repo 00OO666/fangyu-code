@@ -25,6 +25,7 @@ import { EnhancedHooksManager } from '@/components/EnhancedHooksManager';
 import { ClaudeExtensionsManager } from '@/components/ClaudeExtensionsManager';
 import { PluginManager } from '@/components/PluginManager';
 import { HookToggleManager } from '@/components/HookToggleManager';
+import { SuperAgentCenter } from '@/components/SuperAgentCenter';
 import NewFeaturesDemo from '@/examples/NewFeaturesDemo';
 // import { ProjectCardSkeleton, SessionListItemSkeleton } from '@/components/ui/skeleton'; // Unused in new GlobalSessionCenter
 import { GlobalSessionCenter } from '@/components/GlobalSessionCenter';
@@ -291,6 +292,9 @@ export const ViewRouter: React.FC = () => {
             </div>
           </div>
         );
+
+      case "super-agent":
+        return <SuperAgentCenter onBack={goBack} />;
 
       case "project-settings":
         if (viewParams.project) {

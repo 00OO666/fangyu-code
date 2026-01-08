@@ -1,0 +1,6 @@
+# IDE Toolchain
+# This directory contains IDE-level tools:
+# - LSP integration
+# - AST-Grep tools
+# - Powers manager
+# - Skills integration

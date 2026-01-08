@@ -1,7 +1,7 @@
 {
   "name": "fangyu-code",
   "private": true,
-  "version": "2.4.6",
+  "version": "2.4.8",
   "description": "Fangyu 专属 AI 开发工具",
   "author": "Fangyu",
   "license": "AGPL-3.0",
@@ -22,7 +22,13 @@
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "eslint src --ext .ts,.tsx --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx,json,css,md}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx,json,css,md}\""
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,json,css,md}\"",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
+    "test:unit": "vitest run --exclude '**/*.property.test.ts'",
+    "test:property": "vitest run --include '**/*.property.test.ts'"
   },
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "^0.1.30",
@@ -93,20 +99,26 @@
     "@typescript-eslint/eslint-plugin": "^8.52.0",
     "@typescript-eslint/parser": "^8.52.0",
     "@vitejs/plugin-react": "^4.3.4",
+    "@vitest/coverage-v8": "^2.1.0",
+    "@vitest/ui": "^2.1.0",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",
+    "fast-check": "^3.22.0",
+    "jsdom": "^25.0.0",
     "lightningcss": "^1.30.2",
     "png-to-ico": "^3.0.1",
     "prettier": "^3.7.4",
     "sharp": "^0.34.4",
     "typescript": "^5.9.3",
-    "vite": "^6.0.3"
+    "vite": "^6.0.3",
+    "vitest": "^2.1.0"
   },
   "trustedDependencies": [
     "@parcel/watcher",
     "@tailwindcss/oxide"
   ]
 }
+

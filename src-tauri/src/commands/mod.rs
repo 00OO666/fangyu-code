@@ -26,6 +26,7 @@ pub mod session_continue; // 智能会话续接 - 自动创建新会话并注入
 pub mod simple_git;
 pub mod smart_project; // 智能项目管理 - 自动创建/命名项目
 pub mod storage;
+pub mod super_agent; // Super AI Agent Desktop - 统一 Agent 系统
 pub mod translator;
 pub mod url_utils; // API URL 规范化工具
 pub mod usage;

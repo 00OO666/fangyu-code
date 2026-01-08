@@ -17,7 +17,7 @@ import { getVersion } from "@tauri-apps/api/app";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const STORAGE_KEY = "fangyu-code-last-seen-version";
-const FALLBACK_VERSION = "2.4.6"; // 🔧 Fallback 版本（获取失败时使用）
+const FALLBACK_VERSION = "2.4.8"; // 🔧 Fallback 版本（获取失败时使用）
 
 // 🔧 DEBUG: 全局变量用于强制显示更新日志（调试用）
 declare global {
@@ -29,6 +29,29 @@ declare global {
 
 // 版本更新日志（从新到旧）
 export const CHANGELOGS = {
+  "2.4.8": {
+    title: "v2.4.8 - 🤖 Super Agent 控制中心",
+    date: "2026-01-09",
+    features: [
+      "🤖 Super Agent 控制中心 - 全新的多 Agent 编排系统入口",
+      "📊 Agent 仪表盘 - 实时查看 Agent 池状态和任务队列",
+      "📋 Spec 工作流面板 - 管理和执行 Spec 驱动的开发任务",
+      "📈 上下文监控 - 实时监控 Token 使用量和阈值状态",
+      "🧩 Powers 管理面板 - 配置和管理 Kiro Powers",
+    ],
+    improvements: [
+      "✅ 侧边栏新增 Super Agent 入口 - 快捷键 ⌘3",
+      "✅ 设置页面新增 Super Agent 配置 - Agent 系统、上下文、安全配置",
+      "✅ 自治模式切换 - 支持监督模式和自动驾驶模式",
+      "✅ 安全防护配置 - 危险命令拦截、审计日志开关",
+    ],
+    technical: [
+      "新增 SuperAgentCenter 组件 - 整合 4 个核心面板",
+      "新增 SuperAgentSettings 组件 - Agent 系统配置界面",
+      "集成 16 个核心模块 - UnifiedAgentOrchestrator、BackgroundAgentManager 等",
+      "240 个测试用例全部通过 - 包括属性测试",
+    ],
+  },
     "2.4.6": {
     title: "v2.4.6 - ✨ 炫酷 UI 改造",
     date: "2026-01-08",
@@ -951,3 +974,5 @@ export const useFirstLaunchChangelog = () => {
 };
 
 export default useFirstLaunchChangelog;
+
+
