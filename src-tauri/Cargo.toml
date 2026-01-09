@@ -1,6 +1,6 @@
 [package]
 name = "fangyu-code"
-version = "2.5.1"
+version = "2.5.2"
 description = "Fangyu Code - Fangyu 专属 AI 开发工具"
 authors = ["Fangyu"]
 license = "AGPL-3.0"

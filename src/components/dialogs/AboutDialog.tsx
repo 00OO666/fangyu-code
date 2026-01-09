@@ -18,11 +18,10 @@ import { CHANGELOGS } from "@/hooks/useFirstLaunchChangelog";
 interface AboutDialogProps {
   open: boolean;
   onClose: () => void;
-  onCheckUpdate: () => void;
   onViewNewFeatures?: () => void;
 }
 
-export function AboutDialog({ open, onClose, onCheckUpdate, onViewNewFeatures }: AboutDialogProps) {
+export function AboutDialog({ open, onClose, onViewNewFeatures }: AboutDialogProps) {
   const { t } = useTranslation();
   const [appVersion, setAppVersion] = useState<string>(t('messages.loading'));
   const PROJECT_URL = "https://github.com/anyme123/Any-code";

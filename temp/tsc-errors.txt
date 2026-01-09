@@ -1,0 +1,450 @@
+src/App.tsx(85,23): error TS2322: Type '{ errors: ConsoleError[]; onClearAll: () => void; onClearError: (errorId: string) => void; }' is not assignable to type 'IntrinsicAttributes & ErrorMonitorPanelProps'.
+  Property 'errors' does not exist on type 'IntrinsicAttributes & ErrorMonitorPanelProps'.
+src/components/canvas/CanvasRenderer.tsx(30,1): error TS6192: All imports in import declaration are unused.
+src/components/canvas/CanvasRenderer.tsx(231,28): error TS2339: Property 'inline' does not exist on type 'ClassAttributes<HTMLElement> & HTMLAttributes<HTMLElement> & ExtraProps'.
+src/components/canvas/CanvasRenderer.tsx(234,20): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(props: SyntaxHighlighterProps): SyntaxHighlighter', gave the following error.
+    Type '{ children: string; ref?: LegacyRef<HTMLElement> | undefined; key?: Key | null | undefined; defaultChecked?: boolean | undefined; defaultValue?: string | number | readonly string[] | undefined; ... 261 more ...; PreTag: "div"; }' is not assignable to type 'IntrinsicClassAttributes<SyntaxHighlighter>'.
+      Types of property 'ref' are incompatible.
+        Type 'LegacyRef<HTMLElement> | undefined' is not assignable to type 'LegacyRef<SyntaxHighlighter> | undefined'.
+          Type '(instance: HTMLElement | null) => void' is not assignable to type 'LegacyRef<SyntaxHighlighter> | undefined'.
+            Type '(instance: HTMLElement | null) => void' is not assignable to type '(instance: SyntaxHighlighter | null) => void'.
+              Types of parameters 'instance' and 'instance' are incompatible.
+                Type 'SyntaxHighlighter | null' is not assignable to type 'HTMLElement | null'.
+                  Type 'Component<SyntaxHighlighterProps, {}, any>' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, autocorrect, and 314 more.
+  Overload 2 of 2, '(props: SyntaxHighlighterProps, context: any): SyntaxHighlighter', gave the following error.
+    Type '{ children: string; ref?: LegacyRef<HTMLElement> | undefined; key?: Key | null | undefined; defaultChecked?: boolean | undefined; defaultValue?: string | number | readonly string[] | undefined; ... 261 more ...; PreTag: "div"; }' is not assignable to type 'IntrinsicClassAttributes<SyntaxHighlighter>'.
+      Types of property 'ref' are incompatible.
+        Type 'LegacyRef<HTMLElement> | undefined' is not assignable to type 'LegacyRef<SyntaxHighlighter> | undefined'.
+          Type '(instance: HTMLElement | null) => void' is not assignable to type 'LegacyRef<SyntaxHighlighter> | undefined'.
+            Type '(instance: HTMLElement | null) => void' is not assignable to type '(instance: SyntaxHighlighter | null) => void'.
+              Types of parameters 'instance' and 'instance' are incompatible.
+                Type 'SyntaxHighlighter | null' is not assignable to type 'HTMLElement | null'.
+                  Type 'Component<SyntaxHighlighterProps, {}, any>' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, autocorrect, and 314 more.
+src/components/ClaudeCodeSession.tsx(593,5): error TS2339: Property 'summary' does not exist on type '{ status: ThresholdStatus; generateSummary: () => Promise<string>; }'.
+src/components/ClaudeCodeSession.tsx(596,5): error TS2353: Object literal may only specify known properties, and 'maxTokens' does not exist in type 'UseSessionThresholdMonitorOptions'.
+src/components/copilot/CopilotSidebar.tsx(24,3): error TS6133: 'RefreshCw' is declared but its value is never read.
+src/components/copilot/CopilotSidebar.tsx(27,3): error TS6133: 'ChevronDown' is declared but its value is never read.
+src/components/copilot/CopilotSidebar.tsx(28,3): error TS6133: 'ChevronRight' is declared but its value is never read.
+src/components/copilot/CopilotSidebar.tsx(35,3): error TS6133: 'Lightbulb' is declared but its value is never read.
+src/components/copilot/CopilotSidebar.tsx(37,3): error TS6133: 'Plus' is declared but its value is never read.
+src/components/copilot/CopilotSidebar.tsx(38,3): error TS6133: 'Settings' is declared but its value is never read.
+src/components/copilot/CopilotSidebar.tsx(40,3): error TS6133: 'Bot' is declared but its value is never read.
+src/components/copilot/CopilotSidebar.tsx(48,1): error TS6133: 'Input' is declared but its value is never read.
+src/components/copilot/CopilotSidebar.tsx(59,1): error TS6192: All imports in import declaration are unused.
+src/components/copilot/CopilotSidebar.tsx(66,1): error TS6192: All imports in import declaration are unused.
+src/components/copilot/CopilotSidebar.tsx(68,3): error TS2305: Module '"@/components/ui/popover"' has no exported member 'PopoverContent'.
+src/components/copilot/CopilotSidebar.tsx(69,3): error TS2305: Module '"@/components/ui/popover"' has no exported member 'PopoverTrigger'.
+src/components/dialogs/AboutDialog.tsx(25,46): error TS6133: 'onCheckUpdate' is declared but its value is never read.
+src/components/editor/MonacoDiffEditor.tsx(12,48): error TS6133: 'useEffect' is declared but its value is never read.
+src/components/editor/MonacoDiffEditor.tsx(191,9): error TS6133: 'handleModifiedChange' is declared but its value is never read.
+src/components/ErrorMonitorPanel.tsx(258,67): error TS6133: 'errs' is declared but its value is never read.
+src/components/ExecutionEngineSelector.tsx(197,5): error TS6133: 'engine' is declared but its value is never read.
+src/components/ExecutionEngineSelector.tsx(229,95): error TS2345: Argument of type '(mode: "auto" | "native" | "wsl", wslDistro?: string | null | undefined) => Promise<string>' is not assignable to parameter of type '(mode: string, distro: string | null) => Promise<void>'.
+  Types of parameters 'mode' and 'mode' are incompatible.
+    Type 'string' is not assignable to type '"auto" | "native" | "wsl"'.
+src/components/ExecutionEngineSelector.tsx(233,86): error TS2345: Argument of type '(mode: "auto" | "native" | "wsl", wslDistro?: string | null | undefined, customCodexPath?: string | null | undefined) => Promise<string>' is not assignable to parameter of type '(mode: string, distro: string | null) => Promise<void>'.
+  Types of parameters 'mode' and 'mode' are incompatible.
+    Type 'string' is not assignable to type '"auto" | "native" | "wsl"'.
+src/components/ExecutionEngineSelector.tsx(237,95): error TS2345: Argument of type '(mode: "auto" | "native" | "wsl", wslDistro?: string | null | undefined) => Promise<void>' is not assignable to parameter of type '(mode: string, distro: string | null) => Promise<void>'.
+  Types of parameters 'mode' and 'mode' are incompatible.
+    Type 'string' is not assignable to type '"auto" | "native" | "wsl"'.
+src/components/explorer/FileTreeExplorer.tsx(40,3): error TS6133: 'Check' is declared but its value is never read.
+src/components/explorer/FileTreeExplorer.tsx(741,77): error TS2345: Argument of type 'FileNode' is not assignable to parameter of type 'FileNode[]'.
+  Type 'FileNode' is missing the following properties from type 'FileNode[]': length, pop, push, concat, and 29 more.
+src/components/explorer/FileTreeExplorer.tsx(745,79): error TS2345: Argument of type 'FileNode' is not assignable to parameter of type 'FileNode[]'.
+  Type 'FileNode' is missing the following properties from type 'FileNode[]': length, pop, push, concat, and 29 more.
+src/components/FloatingPromptInput/ControlBar.tsx(119,3): error TS6133: 'compactStatus' is declared but its value is never read.
+src/components/FloatingPromptInput/ControlBar.tsx(120,3): error TS6133: 'isCompacting' is declared but its value is never read.
+src/components/FloatingPromptInput/ControlBar.tsx(121,3): error TS6133: 'compactProgress' is declared but its value is never read.
+src/components/FloatingPromptInput/ControlBar.tsx(122,3): error TS6133: 'deltaMessagesCount' is declared but its value is never read.
+src/components/FloatingPromptInput/index.tsx(676,51): error TS6133: 'itemId' is declared but its value is never read.
+src/components/FloatingPromptInput/index.tsx(684,13): error TS2554: Expected 1 arguments, but got 0.
+src/components/FloatingPromptInput/PromptQueuePanel.tsx(388,3): error TS6133: 'isProcessing' is declared but its value is never read.
+src/components/FloatingPromptInput/PromptQueuePanel.tsx(389,3): error TS6133: 'currentItemId' is declared but its value is never read.
+src/components/FloatingPromptInput/PromptQueuePanel.tsx(390,3): error TS6133: 'autoMerge' is declared but its value is never read.
+src/components/FloatingPromptInput/PromptQueuePanel.tsx(399,3): error TS6133: 'onSetAutoMerge' is declared but its value is never read.
+src/components/HookToggleManager.tsx(166,33): error TS2339: Property 'getClaudeDir' does not exist on type '{ listProjects: () => Promise<Project[]>; getProjectSessions(projectId: string, projectPath?: string | undefined): Promise<Session[]>; deleteSession: (sessionId: string, projectId: string) => Promise<...>; ... 258 more ...; generateTextWithLLM(prompt: string, model?: "haiku" | ... 1 more ... | "opus"): Promise<...>; }'.
+src/components/input/MultiModalInput.tsx(20,3): error TS6133: 'Scissors' is declared but its value is never read.
+src/components/input/MultiModalInput.tsx(24,3): error TS6133: 'Maximize2' is declared but its value is never read.
+src/components/input/MultiModalInput.tsx(25,3): error TS6133: 'Minimize2' is declared but its value is never read.
+src/components/input/MultiModalInput.tsx(27,3): error TS6133: 'CheckCircle' is declared but its value is never read.
+src/components/input/MultiModalInput.tsx(33,3): error TS6133: 'Edit2' is declared but its value is never read.
+src/components/input/MultiModalInput.tsx(171,27): error TS6133: 'imageUrl' is declared but its value is never read.
+src/components/input/MultiModalInput.tsx(284,15): error TS2322: Type '{ children: Element[]; defaultValue: string; className: string; }' is not assignable to type 'IntrinsicAttributes & TabsProps'.
+  Property 'defaultValue' does not exist on type 'IntrinsicAttributes & TabsProps'.
+src/components/input/MultiModalInput.tsx(618,29): error TS7009: 'new' expression, whose target lacks a construct signature, implicitly has an 'any' type.
+src/components/input/MultiModalInput.tsx(618,46): error TS2554: Expected 1 arguments, but got 3.
+src/components/MCPEnginePanel.tsx(103,21): error TS2339: Property 'toLowerCase' does not exist on type 'MCPDescription'.
+src/components/MCPEnginePanel.tsx(250,52): error TS6133: 'index' is declared but its value is never read.
+src/components/MemoryImportSuggestion.tsx(65,28): error TS2347: Untyped function calls may not accept type arguments.
+src/components/message/AIMessage.tsx(13,1): error TS6192: All imports in import declaration are unused.
+src/components/message/AIMessage.tsx(40,20): error TS2339: Property 'replace' does not exist on type 'never'.
+src/components/message/ThinkingBlock.tsx(23,3): error TS6133: 'autoCollapseDelay' is declared but its value is never read.
+src/components/message/ThinkingBlock.tsx(25,3): error TS6133: 'messageId' is declared but its value is never read.
+src/components/new-features/index.ts(10,10): error TS2305: Module '"../canvas"' has no exported member 'CanvasRenderer'.
+src/components/new-features/index.ts(11,15): error TS2305: Module '"../canvas"' has no exported member 'CanvasMode'.
+src/components/new-features/index.ts(11,27): error TS2305: Module '"../canvas"' has no exported member 'CanvasLanguage'.
+src/components/new-features/index.ts(11,43): error TS2305: Module '"../canvas"' has no exported member 'CanvasRendererProps'.
+src/components/new-features/index.ts(56,3): error TS2724: '"../workflow"' has no exported member named 'DAGVisualizerProps'. Did you mean 'DAGVisualizer'?
+src/components/new-features/index.ts(57,3): error TS2724: '"../workflow"' has no exported member named 'WorkflowControlPanelProps'. Did you mean 'WorkflowControlPanel'?
+src/components/output/SmartOutputParser.tsx(15,38): error TS6133: 'Package' is declared but its value is never read.
+src/components/output/SmartOutputParser.tsx(513,12): error TS2304: Cannot find name 'Button'.
+src/components/output/SmartOutputParser.tsx(520,13): error TS2304: Cannot find name 'Button'.
+src/components/ProjectMCPQuickConfig.tsx(9,18): error TS6133: 'AnimatePresence' is declared but its value is never read.
+src/components/ProjectMCPQuickConfig.tsx(13,3): error TS6133: 'X' is declared but its value is never read.
+src/components/ProjectMCPQuickConfig.tsx(15,3): error TS6133: 'Settings' is declared but its value is never read.
+src/components/ProjectMCPQuickConfig.tsx(38,36): error TS6133: 'MCPConfigScope' is declared but its value is never read.
+src/components/ProjectMCPQuickConfig.tsx(39,75): error TS6133: 'isOfficialMCP' is declared but its value is never read.
+src/components/ProjectMCPQuickConfig.tsx(41,20): error TS6133: 'ExternalLink' is declared but its value is never read.
+src/components/ProjectMCPQuickConfig.tsx(177,9): error TS2322: Type 'MCPServerSpec' is not assignable to type 'MCPServerConfig'.
+  Types of property 'command' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/components/ProjectMCPQuickConfig.tsx(215,11): error TS2322: Type 'MCPServerSpec' is not assignable to type 'MCPServerConfig'.
+  Types of property 'command' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/components/ProjectMCPQuickConfig.tsx(382,9): error TS2322: Type '{ [x: string]: MCPServerSpec | MCPServerConfig; }' is not assignable to type 'Record<string, MCPServerConfig>'.
+  'string' index signatures are incompatible.
+    Type 'MCPServerSpec | MCPServerConfig' is not assignable to type 'MCPServerConfig'.
+      Type 'MCPServerSpec' is not assignable to type 'MCPServerConfig'.
+        Types of property 'command' are incompatible.
+          Type 'string | undefined' is not assignable to type 'string'.
+            Type 'undefined' is not assignable to type 'string'.
+src/components/SessionList.tsx(156,45): error TS2345: Argument of type 'Session[]' is not assignable to parameter of type 'ValidatableSession[]'.
+  Type 'Session' is not assignable to type 'ValidatableSession'.
+    Types of property 'engine' are incompatible.
+      Type '"gemini" | "claude" | "codex" | "siliconflow" | undefined' is not assignable to type '"gemini" | "claude" | "codex" | undefined'.
+        Type '"siliconflow"' is not assignable to type '"gemini" | "claude" | "codex" | undefined'.
+src/components/SessionList.tsx(183,21): error TS2339: Property 'last_message_timestamp' does not exist on type 'ValidatableSession'.
+src/components/SessionList.tsx(184,20): error TS2339: Property 'last_message_timestamp' does not exist on type 'ValidatableSession'.
+src/components/SessionList.tsx(185,11): error TS2339: Property 'message_timestamp' does not exist on type 'ValidatableSession'.
+src/components/SessionList.tsx(186,20): error TS2339: Property 'message_timestamp' does not exist on type 'ValidatableSession'.
+src/components/SessionList.tsx(187,11): error TS2339: Property 'created_at' does not exist on type 'ValidatableSession'.
+src/components/SessionList.tsx(190,21): error TS2339: Property 'last_message_timestamp' does not exist on type 'ValidatableSession'.
+src/components/SessionList.tsx(191,20): error TS2339: Property 'last_message_timestamp' does not exist on type 'ValidatableSession'.
+src/components/SessionList.tsx(192,11): error TS2339: Property 'message_timestamp' does not exist on type 'ValidatableSession'.
+src/components/SessionList.tsx(193,20): error TS2339: Property 'message_timestamp' does not exist on type 'ValidatableSession'.
+src/components/SessionList.tsx(194,11): error TS2339: Property 'created_at' does not exist on type 'ValidatableSession'.
+src/components/SessionList.tsx(499,39): error TS2339: Property 'last_message_timestamp' does not exist on type 'ValidatableSession'.
+src/components/SessionList.tsx(500,42): error TS2339: Property 'last_message_timestamp' does not exist on type 'ValidatableSession'.
+src/components/SessionList.tsx(501,23): error TS2339: Property 'message_timestamp' does not exist on type 'ValidatableSession'.
+src/components/SessionList.tsx(502,42): error TS2339: Property 'message_timestamp' does not exist on type 'ValidatableSession'.
+src/components/SessionList.tsx(503,43): error TS2339: Property 'created_at' does not exist on type 'ValidatableSession'.
+src/components/SessionList.tsx(513,25): error TS2339: Property 'todo_data' does not exist on type 'ValidatableSession'.
+src/components/SessionList.tsx(533,38): error TS2345: Argument of type 'ValidatableSession' is not assignable to parameter of type 'Session'.
+  Type 'ValidatableSession' is missing the following properties from type 'Session': project_id, project_path, created_at
+src/components/SessionList.tsx(575,43): error TS2339: Property 'last_message_timestamp' does not exist on type 'ValidatableSession'.
+src/components/SessionList.tsx(575,77): error TS2339: Property 'message_timestamp' does not exist on type 'ValidatableSession'.
+src/components/SessionList.tsx(575,115): error TS2339: Property 'created_at' does not exist on type 'ValidatableSession'.
+src/components/SessionList.tsx(585,55): error TS2345: Argument of type 'ValidatableSession' is not assignable to parameter of type 'Session'.
+  Type 'ValidatableSession' is missing the following properties from type 'Session': project_id, project_path, created_at
+src/components/SessionList.tsx(597,54): error TS2345: Argument of type 'ValidatableSession' is not assignable to parameter of type 'Session'.
+  Type 'ValidatableSession' is missing the following properties from type 'Session': project_id, project_path, created_at
+src/components/Settings.tsx(39,10): error TS6133: 'ConfigManager' is declared but its value is never read.
+src/components/settings/APIConfigPanel.tsx(16,3): error TS6133: 'getProviderDisplayName' is declared but its value is never read.
+src/components/settings/APIConfigPanel.tsx(17,3): error TS6133: 'getSupportedProviders' is declared but its value is never read.
+src/components/settings/GeneralSettings.tsx(3,75): error TS6133: 'RefreshCw' is declared but its value is never read.
+src/components/settings/GeneralSettings.tsx(29,1): error TS6133: 'useTauriAutoUpdate' is declared but its value is never read.
+src/components/settings/OutputDisplaySettings.tsx(9,15): error TS6133: 'EyeOff' is declared but its value is never read.
+src/components/settings/OutputDisplaySettings.tsx(18,9): error TS6133: 't' is declared but its value is never read.
+src/components/skills/SkillsPanel.tsx(166,9): error TS6133: 't' is declared but its value is never read.
+src/components/TauriAutoUpdateDialog.tsx(17,3): error TS6133: 'AlertDialogCancel' is declared but its value is never read.
+src/components/ToolRecommendationToast.tsx(81,18): error TS2339: Property 'global' does not exist on type '{ success: (message: string, options?: Omit<NotificationOptions, "type"> | undefined) => string; error: (message: string, options?: Omit<NotificationOptions, "type"> | undefined) => string; info: (message: string, options?: Omit<...> | undefined) => string; warning: (message: string, options?: Omit<...> | undefined)...'.
+src/components/ToolRecommendationToast.tsx(87,16): error TS2339: Property 'global' does not exist on type '{ success: (message: string, options?: Omit<NotificationOptions, "type"> | undefined) => string; error: (message: string, options?: Omit<NotificationOptions, "type"> | undefined) => string; info: (message: string, options?: Omit<...> | undefined) => string; warning: (message: string, options?: Omit<...> | undefined)...'.
+src/components/ToolRecommendationToast.tsx(91,14): error TS2339: Property 'global' does not exist on type '{ success: (message: string, options?: Omit<NotificationOptions, "type"> | undefined) => string; error: (message: string, options?: Omit<NotificationOptions, "type"> | undefined) => string; info: (message: string, options?: Omit<...> | undefined) => string; warning: (message: string, options?: Omit<...> | undefined)...'.
+src/components/UsageDashboard.tsx(57,10): error TS6133: 'hourlyData' is declared but its value is never read.
+src/components/UsageDashboard.tsx(57,22): error TS6133: 'setHourlyData' is declared but its value is never read.
+src/components/workflow/DAGVisualizer.tsx(34,3): error TS6133: 'useReactFlow' is declared but its value is never read.
+src/components/workflow/DAGVisualizer.tsx(47,3): error TS6133: 'AlertTriangle' is declared but its value is never read.
+src/components/workflow/DAGVisualizer.tsx(438,3): error TS6133: 'liveUpdate' is declared but its value is never read.
+src/components/workflow/DAGVisualizer.tsx(440,3): error TS6133: 'onTaskRetry' is declared but its value is never read.
+src/components/workflow/DAGVisualizer.tsx(441,3): error TS6133: 'onTaskCancel' is declared but its value is never read.
+src/components/workflow/DAGVisualizer.tsx(449,10): error TS6133: 'selectedTask' is declared but its value is never read.
+src/components/workflow/DAGVisualizer.tsx(480,40): error TS6133: 'event' is declared but its value is never read.
+src/components/workflow/WorkflowControlPanel.tsx(14,40): error TS6133: 'useEffect' is declared but its value is never read.
+src/components/workflow/WorkflowControlPanel.tsx(15,1): error TS6192: All imports in import declaration are unused.
+src/components/workflow/WorkflowControlPanel.tsx(20,3): error TS6133: 'RefreshCw' is declared but its value is never read.
+src/components/workflow/WorkflowControlPanel.tsx(23,3): error TS6133: 'Settings' is declared but its value is never read.
+src/components/workflow/WorkflowControlPanel.tsx(25,3): error TS6133: 'FileCode' is declared but its value is never read.
+src/components/workflow/WorkflowControlPanel.tsx(29,3): error TS6133: 'Clock' is declared but its value is never read.
+src/components/workflow/WorkflowControlPanel.tsx(34,3): error TS6133: 'ChevronDown' is declared but its value is never read.
+src/components/workflow/WorkflowControlPanel.tsx(35,3): error TS6133: 'ChevronRight' is declared but its value is never read.
+src/components/workflow/WorkflowControlPanel.tsx(36,3): error TS6133: 'Copy' is declared but its value is never read.
+src/components/workflow/WorkflowControlPanel.tsx(37,3): error TS6133: 'Download' is declared but its value is never read.
+src/components/workflow/WorkflowControlPanel.tsx(38,3): error TS6133: 'Upload' is declared but its value is never read.
+src/components/workflow/WorkflowControlPanel.tsx(66,1): error TS6192: All imports in import declaration are unused.
+src/components/workflow/WorkflowControlPanel.tsx(84,3): error TS6196: 'Task' is declared but never used.
+src/components/workflow/WorkflowControlPanel.tsx(105,6): error TS6196: 'PanelView' is declared but never used.
+src/components/workflow/WorkflowControlPanel.tsx(383,3): error TS6133: 'config' is declared but its value is never read.
+src/components/workflow/WorkflowControlPanel.tsx(384,3): error TS6133: 'projectPath' is declared but its value is never read.
+src/components/workflow/WorkflowControlPanel.tsx(722,8): error TS2304: Cannot find name 'ResizablePanelGroup'.
+src/components/workflow/WorkflowControlPanel.tsx(724,10): error TS2304: Cannot find name 'ResizablePanel'.
+src/components/workflow/WorkflowControlPanel.tsx(808,11): error TS2304: Cannot find name 'ResizablePanel'.
+src/components/workflow/WorkflowControlPanel.tsx(810,10): error TS2304: Cannot find name 'ResizableHandle'.
+src/components/workflow/WorkflowControlPanel.tsx(813,10): error TS2304: Cannot find name 'ResizablePanel'.
+src/components/workflow/WorkflowControlPanel.tsx(835,11): error TS2304: Cannot find name 'ResizablePanel'.
+src/components/workflow/WorkflowControlPanel.tsx(836,9): error TS2304: Cannot find name 'ResizablePanelGroup'.
+src/config/featureFlags.test.ts(81,51): error TS6133: 'key' is declared but its value is never read.
+src/config/mcpRecommendations.ts(331,41): error TS6133: 'projectPath' is declared but its value is never read.
+src/core/agents/AgentRoles.ts(12,8): error TS2307: Cannot find module '@core/types/unified-agent' or its corresponding type declarations.
+src/core/agents/AgentSwarmManager.ts(22,3): error TS6196: 'AgentStatus' is declared but never used.
+src/core/agents/AgentSwarmManager.ts(370,13): error TS6133: 'assignments' is declared but its value is never read.
+src/core/agents/AgentSwarmManager.ts(791,46): error TS6133: 'capabilities' is declared but its value is never read.
+src/core/agents/BackgroundAgentManager.ts(246,17): error TS6133: 'startTask' is declared but its value is never read.
+src/core/agents/BackgroundAgentManager.ts(391,9): error TS2367: This comparison appears to be unintentional because the types '"cancelled"' and '"in_progress"' have no overlap.
+src/core/agents/TaskQueue.property.test.ts(23,3): error TS6133: 'priorityComparator' is declared but its value is never read.
+src/core/agents/TaskQueue.property.test.ts(24,3): error TS6133: 'fifoComparator' is declared but its value is never read.
+src/core/agents/TaskQueue.property.test.ts(330,13): error TS6133: 'dequeued' is declared but its value is never read.
+src/core/agents/UnifiedAgentOrchestrator.property.test.ts(15,52): error TS2307: Cannot find module '@core/types/unified-agent' or its corresponding type declarations.
+src/core/agents/UnifiedAgentOrchestrator.property.test.ts(207,37): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/core/agents/UnifiedAgentOrchestrator.ts(17,3): error TS6196: 'TaskStatus' is declared but never used.
+src/core/agents/UnifiedAgentOrchestrator.ts(22,8): error TS2307: Cannot find module '@core/types/unified-agent' or its corresponding type declarations.
+src/core/agents/UnifiedAgentOrchestrator.ts(23,10): error TS6133: 'AGENT_ROLES' is declared but its value is never read.
+src/core/agents/UnifiedAgentOrchestrator.ts(227,37): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/core/agents/UnifiedAgentOrchestrator.ts(417,11): error TS6133: 'agent' is declared but its value is never read.
+src/core/api/APIConfigManager.property.test.ts(49,7): error TS6133: 'partialConfigArb' is declared but its value is never read.
+src/core/api/APIConfigManager.ts(14,3): error TS6133: 'secureStorage' is declared but its value is never read.
+src/core/api/APIConfigManager.ts(374,7): error TS2322: Type 'Record<APIProvider, ProviderConfig>' is not assignable to type 'Record<APIProvider, Omit<ProviderConfig, "apiKey"> & { hasApiKey: boolean; }>'.
+  Types of property 'custom' are incompatible.
+    Type 'ProviderConfig' is not assignable to type 'Omit<ProviderConfig, "apiKey"> & { hasApiKey: boolean; }'.
+      Property 'hasApiKey' is missing in type 'ProviderConfig' but required in type '{ hasApiKey: boolean; }'.
+src/core/api/RealAPIClient.property.test.ts(22,25): error TS2614: Module '"./StreamHandler"' has no exported member 'StreamChunk'. Did you mean to use 'import StreamChunk from "./StreamHandler"' instead?
+src/core/api/TokenTracker.property.test.ts(52,7): error TS6133: 'costArb' is declared but its value is never read.
+src/core/api/TokenTracker.property.test.ts(407,19): error TS6133: 'model' is declared but its value is never read.
+src/core/context/ReferenceResolver.property.test.ts(13,3): error TS6133: 'ResolvedReference' is declared but its value is never read.
+src/core/context/ReferenceResolver.property.test.ts(144,7): error TS6133: 'refTypeArb' is declared but its value is never read.
+src/core/context/ReferenceResolver.ts(59,18): error TS6133: 'path' is declared but its value is never read.
+src/core/context/ReferenceResolver.ts(64,17): error TS6133: 'path' is declared but its value is never read.
+src/core/context/ReferenceResolver.ts(68,14): error TS6133: 'path' is declared but its value is never read.
+src/core/context/ReferenceResolver.ts(72,16): error TS6133: 'path' is declared but its value is never read.
+src/core/context/ReferenceResolver.ts(191,11): error TS6133: 'maxTokens' is declared but its value is never read.
+src/core/context/ReferenceResolver.ts(284,49): error TS6133: 'options' is declared but its value is never read.
+src/core/context/ReferenceResolver.ts(334,49): error TS6133: 'options' is declared but its value is never read.
+src/core/context/SmartContextManager.property.test.ts(16,3): error TS6133: 'UsageStats' is declared but its value is never read.
+src/core/context/SmartContextManager.property.test.ts(40,7): error TS6133: 'manager' is declared but its value is never read.
+src/core/context/SmartContextManager.property.test.ts(302,21): error TS6133: 'retainedMinPriority' is declared but its value is never read.
+src/core/context/SmartContextManager.property.test.ts(303,21): error TS6133: 'removedMaxPriority' is declared but its value is never read.
+src/core/context/SmartContextManager.ts(306,11): error TS6133: 'mustRetain' is declared but its value is never read.
+src/core/files/PreciseFileOps.property.test.ts(165,20): error TS18048: 'newContent' is possibly 'undefined'.
+src/core/files/PreciseFileOps.property.test.ts(241,38): error TS2345: Argument of type '{ encoding: string; bom: boolean; lineEnding: string; }' is not assignable to parameter of type 'FileEncoding'.
+  Types of property 'encoding' are incompatible.
+    Type 'string' is not assignable to type 'BufferEncoding'.
+src/core/files/PreciseFileOps.ts(404,5): error TS6133: 'newStr' is declared but its value is never read.
+src/core/hooks/ClaudeCodeCompat.ts(204,7): error TS6133: 'indent' is declared but its value is never read.
+src/core/hooks/EnhancedHookEngine.property.test.ts(18,3): error TS6133: 'HookResult' is declared but its value is never read.
+src/core/hooks/EnhancedHookEngine.property.test.ts(79,7): error TS6133: 'engine' is declared but its value is never read.
+src/core/hooks/EnhancedHookEngine.property.test.ts(165,19): error TS6133: 'sortedHooks' is declared but its value is never read.
+src/core/hooks/EnhancedHookEngine.ts(111,37): error TS6133: 'context' is declared but its value is never read.
+src/core/hooks/SteeringLoader.ts(316,39): error TS6133: 'match' is declared but its value is never read.
+src/core/models/ModelRouter.property.test.ts(5,7): error TS7034: Variable 'router' implicitly has type 'any' in some locations where its type cannot be determined.
+src/core/models/ModelRouter.property.test.ts(13,7): error TS7005: Variable 'router' implicitly has an 'any' type.
+src/core/models/ModelRouter.property.test.ts(19,22): error TS7005: Variable 'router' implicitly has an 'any' type.
+src/core/models/ModelRouter.property.test.ts(25,7): error TS7005: Variable 'router' implicitly has an 'any' type.
+src/core/models/ModelRouter.property.test.ts(31,22): error TS7005: Variable 'router' implicitly has an 'any' type.
+src/core/models/ModelRouter.property.test.ts(34,7): error TS7005: Variable 'router' implicitly has an 'any' type.
+src/core/models/ModelRouter.property.test.ts(35,27): error TS7005: Variable 'router' implicitly has an 'any' type.
+src/core/models/ModelRouter.property.test.ts(41,7): error TS7005: Variable 'router' implicitly has an 'any' type.
+src/core/models/ModelRouter.property.test.ts(42,7): error TS7005: Variable 'router' implicitly has an 'any' type.
+src/core/models/ModelRouter.property.test.ts(43,18): error TS7005: Variable 'router' implicitly has an 'any' type.
+src/core/models/ModelRouter.property.test.ts(45,25): error TS7005: Variable 'router' implicitly has an 'any' type.
+src/core/models/ModelRouter.property.test.ts(50,7): error TS7005: Variable 'router' implicitly has an 'any' type.
+src/core/models/ModelRouter.property.test.ts(51,14): error TS7005: Variable 'router' implicitly has an 'any' type.
+src/core/models/ModelRouter.property.test.ts(57,20): error TS7005: Variable 'router' implicitly has an 'any' type.
+src/core/models/ModelRouter.property.test.ts(62,7): error TS7005: Variable 'router' implicitly has an 'any' type.
+src/core/models/ModelRouter.property.test.ts(63,21): error TS7005: Variable 'router' implicitly has an 'any' type.
+src/core/models/ModelRouter.property.test.ts(69,7): error TS7005: Variable 'router' implicitly has an 'any' type.
+src/core/models/ModelRouter.property.test.ts(70,21): error TS7005: Variable 'router' implicitly has an 'any' type.
+src/core/models/ModelRouter.property.test.ts(72,7): error TS7005: Variable 'router' implicitly has an 'any' type.
+src/core/models/ModelRouter.property.test.ts(73,26): error TS7005: Variable 'router' implicitly has an 'any' type.
+src/core/models/ModelRouter.property.test.ts(78,14): error TS7005: Variable 'router' implicitly has an 'any' type.
+src/core/models/ModelRouter.property.test.ts(84,7): error TS7005: Variable 'router' implicitly has an 'any' type.
+src/core/models/ModelRouter.property.test.ts(85,7): error TS7005: Variable 'router' implicitly has an 'any' type.
+src/core/models/ModelRouter.property.test.ts(86,14): error TS7005: Variable 'router' implicitly has an 'any' type.
+src/core/models/ModelRouter.property.test.ts(90,7): error TS7005: Variable 'router' implicitly has an 'any' type.
+src/core/models/ModelRouter.property.test.ts(91,22): error TS7005: Variable 'router' implicitly has an 'any' type.
+src/core/models/ModelRouter.property.test.ts(96,14): error TS7005: Variable 'router' implicitly has an 'any' type.
+src/core/models/ModelRouter.property.test.ts(102,7): error TS7005: Variable 'router' implicitly has an 'any' type.
+src/core/models/ModelRouter.property.test.ts(103,7): error TS7005: Variable 'router' implicitly has an 'any' type.
+src/core/models/ModelRouter.property.test.ts(104,23): error TS7005: Variable 'router' implicitly has an 'any' type.
+src/core/planning/TaskPlanner.ts(24,3): error TS6196: 'WorkflowConfig' is declared but never used.
+src/core/process/ProcessManager.ts(67,34): error TS6133: 'options' is declared but its value is never read.
+src/core/process/ProcessManager.ts(83,32): error TS6133: 'options' is declared but its value is never read.
+src/core/sandbox/SandboxManager.property.test.ts(40,11): error TS6133: 'containerCounter' is declared but its value is never read.
+src/core/sandbox/SandboxManager.property.test.ts(125,52): error TS6133: 'sandboxId' is declared but its value is never read.
+src/core/sandbox/SandboxManager.property.test.ts(181,56): error TS6133: 'sandboxId' is declared but its value is never read.
+src/core/sandbox/SandboxManager.ts(24,3): error TS6196: 'SandboxStatus' is declared but never used.
+src/core/sandbox/SandboxManager.ts(207,11): error TS6133: 'buildDockerCommand' is declared but its value is never read.
+src/core/sandbox/SandboxManager.ts(516,13): error TS6133: 'escapedContent' is declared but its value is never read.
+src/core/sandbox/SandboxManager.ts(714,13): error TS6133: 'result' is declared but its value is never read.
+src/core/security/SecurityGuard.property.test.ts(13,3): error TS6133: 'DEFAULT_SENSITIVE_PATTERNS' is declared but its value is never read.
+src/core/security/SecurityGuard.ts(313,62): error TS18048: 'options.since' is possibly 'undefined'.
+src/core/skills/SkillManager.ts(16,3): error TS6196: 'DEFAULT_SKILL_LOCATIONS' is declared but never used.
+src/core/skills/SkillParser.ts(52,7): error TS6133: 'currentKey' is declared but its value is never read.
+src/core/skills/SkillParser.ts(296,9): error TS6133: 'titles' is declared but its value is never read.
+src/core/spec/SpecExecutor.property.test.ts(11,49): error TS6133: 'DesignDoc' is declared but its value is never read.
+src/core/spec/SpecExecutor.property.test.ts(295,14): error TS2769: No overload matches this call.
+  Overload 1 of 3, '(max: number): Arbitrary<number>', gave the following error.
+    Argument of type '{ min: number; max: number; }' is not assignable to parameter of type 'number'.
+  Overload 2 of 3, '(constraints: NatConstraints): Arbitrary<number>', gave the following error.
+    Object literal may only specify known properties, and 'min' does not exist in type 'NatConstraints'.
+src/core/spec/SpecExecutor.property.test.ts(345,14): error TS2769: No overload matches this call.
+  Overload 1 of 3, '(max: number): Arbitrary<number>', gave the following error.
+    Argument of type '{ min: number; max: number; }' is not assignable to parameter of type 'number'.
+  Overload 2 of 3, '(constraints: NatConstraints): Arbitrary<number>', gave the following error.
+    Object literal may only specify known properties, and 'min' does not exist in type 'NatConstraints'.
+src/core/spec/SpecExecutor.property.test.ts(354,21): error TS6133: 'completedIds' is declared but its value is never read.
+src/core/spec/SpecExecutor.property.test.ts(377,14): error TS2769: No overload matches this call.
+  Overload 1 of 3, '(max: number): Arbitrary<number>', gave the following error.
+    Argument of type '{ min: number; max: number; }' is not assignable to parameter of type 'number'.
+  Overload 2 of 3, '(constraints: NatConstraints): Arbitrary<number>', gave the following error.
+    Object literal may only specify known properties, and 'min' does not exist in type 'NatConstraints'.
+src/core/tools/ASTGrepTools.property.test.ts(15,3): error TS6133: 'ReplaceResult' is declared but its value is never read.
+src/core/tools/ASTGrepTools.property.test.ts(17,20): error TS6133: 'Range' is declared but its value is never read.
+src/core/tools/ASTGrepTools.ts(115,5): error TS6133: 'original' is declared but its value is never read.
+src/core/tools/IDEToolchain.ts(15,3): error TS6133: 'DiagnosticSeverity' is declared but its value is never read.
+src/core/tools/IDEToolchain.ts(16,3): error TS6133: 'HoverInfo' is declared but its value is never read.
+src/core/tools/LSPTools.ts(15,3): error TS6133: 'DiagnosticSeverity' is declared but its value is never read.
+src/core/tools/LSPTools.ts(80,11): error TS6133: 'initialized' is declared but its value is never read.
+src/core/tools/LSPTools.ts(87,20): error TS6133: 'workspaceRoot' is declared but its value is never read.
+src/core/tools/PowersManager.property.test.ts(14,3): error TS6133: 'PowerInfo' is declared but its value is never read.
+src/core/tools/PowersManager.property.test.ts(46,7): error TS6133: 'powerToolArb' is declared but its value is never read.
+src/examples/NewFeaturesDemo.tsx(8,10): error TS6133: 'AnimatePresence' is declared but its value is never read.
+src/examples/NewFeaturesDemo.tsx(19,8): error TS6133: 'React' is declared but its value is never read.
+src/examples/NewFeaturesDemo.tsx(24,27): error TS6133: 'ChangelogData' is declared but its value is never read.
+src/examples/NewFeaturesDemo.tsx(79,22): error TS2339: Property 'features' does not exist on type '{ title: string; date: string; features: string[]; improvements: string[]; technical: string[]; } | { title: string; date: string; features: string[]; improvements: string[]; technical: string[]; } | { title: string; date: string; features: string[]; improvements: string[]; technical: string[]; } | ... 38 more ... |...'.
+  Property 'features' does not exist on type '{ title: string; date: string; bugFixes: string[]; improvements: string[]; }'.
+src/examples/NewFeaturesDemo.tsx(79,44): error TS2339: Property 'features' does not exist on type '{ title: string; date: string; features: string[]; improvements: string[]; technical: string[]; } | { title: string; date: string; features: string[]; improvements: string[]; technical: string[]; } | { title: string; date: string; features: string[]; improvements: string[]; technical: string[]; } | ... 38 more ... |...'.
+  Property 'features' does not exist on type '{ title: string; date: string; bugFixes: string[]; improvements: string[]; }'.
+src/examples/NewFeaturesDemo.tsx(85,30): error TS2339: Property 'features' does not exist on type '{ title: string; date: string; features: string[]; improvements: string[]; technical: string[]; } | { title: string; date: string; features: string[]; improvements: string[]; technical: string[]; } | { title: string; date: string; features: string[]; improvements: string[]; technical: string[]; } | ... 38 more ... |...'.
+  Property 'features' does not exist on type '{ title: string; date: string; bugFixes: string[]; improvements: string[]; }'.
+src/examples/NewFeaturesDemo.tsx(89,28): error TS2339: Property 'features' does not exist on type '{ title: string; date: string; features: string[]; improvements: string[]; technical: string[]; } | { title: string; date: string; features: string[]; improvements: string[]; technical: string[]; } | { title: string; date: string; features: string[]; improvements: string[]; technical: string[]; } | ... 38 more ... |...'.
+  Property 'features' does not exist on type '{ title: string; date: string; bugFixes: string[]; improvements: string[]; }'.
+src/examples/NewFeaturesDemo.tsx(89,42): error TS7006: Parameter 'feature' implicitly has an 'any' type.
+src/examples/NewFeaturesDemo.tsx(89,51): error TS7006: Parameter 'index' implicitly has an 'any' type.
+src/examples/NewFeaturesDemo.tsx(106,22): error TS2339: Property 'improvements' does not exist on type '{ title: string; date: string; features: string[]; improvements: string[]; technical: string[]; } | { title: string; date: string; features: string[]; improvements: string[]; technical: string[]; } | { title: string; date: string; features: string[]; improvements: string[]; technical: string[]; } | ... 38 more ... |...'.
+  Property 'improvements' does not exist on type '{ title: string; date: string; bugFixes: string[]; }'.
+src/examples/NewFeaturesDemo.tsx(106,48): error TS2339: Property 'improvements' does not exist on type '{ title: string; date: string; features: string[]; improvements: string[]; technical: string[]; } | { title: string; date: string; features: string[]; improvements: string[]; technical: string[]; } | { title: string; date: string; features: string[]; improvements: string[]; technical: string[]; } | ... 38 more ... |...'.
+  Property 'improvements' does not exist on type '{ title: string; date: string; bugFixes: string[]; }'.
+src/examples/NewFeaturesDemo.tsx(112,30): error TS2339: Property 'improvements' does not exist on type '{ title: string; date: string; features: string[]; improvements: string[]; technical: string[]; } | { title: string; date: string; features: string[]; improvements: string[]; technical: string[]; } | { title: string; date: string; features: string[]; improvements: string[]; technical: string[]; } | ... 38 more ... |...'.
+  Property 'improvements' does not exist on type '{ title: string; date: string; bugFixes: string[]; }'.
+src/examples/NewFeaturesDemo.tsx(116,28): error TS2339: Property 'improvements' does not exist on type '{ title: string; date: string; features: string[]; improvements: string[]; technical: string[]; } | { title: string; date: string; features: string[]; improvements: string[]; technical: string[]; } | { title: string; date: string; features: string[]; improvements: string[]; technical: string[]; } | ... 38 more ... |...'.
+  Property 'improvements' does not exist on type '{ title: string; date: string; bugFixes: string[]; }'.
+src/examples/NewFeaturesDemo.tsx(116,46): error TS7006: Parameter 'improvement' implicitly has an 'any' type.
+src/examples/NewFeaturesDemo.tsx(116,59): error TS7006: Parameter 'index' implicitly has an 'any' type.
+src/examples/NewFeaturesDemo.tsx(133,22): error TS2339: Property 'bugFixes' does not exist on type '{ title: string; date: string; features: string[]; improvements: string[]; technical: string[]; } | { title: string; date: string; features: string[]; improvements: string[]; technical: string[]; } | { title: string; date: string; features: string[]; improvements: string[]; technical: string[]; } | ... 38 more ... |...'.
+  Property 'bugFixes' does not exist on type '{ title: string; date: string; features: string[]; improvements: string[]; technical: string[]; }'.
+src/examples/NewFeaturesDemo.tsx(133,44): error TS2339: Property 'bugFixes' does not exist on type '{ title: string; date: string; features: string[]; improvements: string[]; technical: string[]; } | { title: string; date: string; features: string[]; improvements: string[]; technical: string[]; } | { title: string; date: string; features: string[]; improvements: string[]; technical: string[]; } | ... 38 more ... |...'.
+  Property 'bugFixes' does not exist on type '{ title: string; date: string; features: string[]; improvements: string[]; technical: string[]; }'.
+src/examples/NewFeaturesDemo.tsx(139,30): error TS2339: Property 'bugFixes' does not exist on type '{ title: string; date: string; features: string[]; improvements: string[]; technical: string[]; } | { title: string; date: string; features: string[]; improvements: string[]; technical: string[]; } | { title: string; date: string; features: string[]; improvements: string[]; technical: string[]; } | ... 38 more ... |...'.
+  Property 'bugFixes' does not exist on type '{ title: string; date: string; features: string[]; improvements: string[]; technical: string[]; }'.
+src/examples/NewFeaturesDemo.tsx(143,28): error TS2339: Property 'bugFixes' does not exist on type '{ title: string; date: string; features: string[]; improvements: string[]; technical: string[]; } | { title: string; date: string; features: string[]; improvements: string[]; technical: string[]; } | { title: string; date: string; features: string[]; improvements: string[]; technical: string[]; } | ... 38 more ... |...'.
+  Property 'bugFixes' does not exist on type '{ title: string; date: string; features: string[]; improvements: string[]; technical: string[]; }'.
+src/examples/NewFeaturesDemo.tsx(143,42): error TS7006: Parameter 'fix' implicitly has an 'any' type.
+src/examples/NewFeaturesDemo.tsx(143,47): error TS7006: Parameter 'index' implicitly has an 'any' type.
+src/hooks/agents/useWorkflowOrchestrator.ts(67,8): error TS1361: 'DEFAULT_WORKFLOW_CONFIG' cannot be used as a value because it was imported using 'import type'.
+src/hooks/agents/useWorkflowOrchestrator.ts(143,28): error TS6133: 'ultrathink' is declared but its value is never read.
+src/hooks/agents/useWorkflowOrchestrator.ts(239,56): error TS6133: 'event' is declared but its value is never read.
+src/hooks/agents/useWorkflowOrchestrator.ts(365,5): error TS2322: Type '(prompt: string, ultrathink?: boolean) => Promise<WorkflowDAG>' is not assignable to type '(prompt: string, ultrathink?: boolean | undefined) => Promise<void>'.
+  Type 'Promise<WorkflowDAG>' is not assignable to type 'Promise<void>'.
+    Type 'WorkflowDAG' is not assignable to type 'void'.
+src/hooks/useApiHealthCheck.ts(300,27): error TS2339: Property 'apiKey' does not exist on type 'CurrentProviderConfig'.
+src/hooks/useApiHealthCheck.ts(304,42): error TS2339: Property 'name' does not exist on type 'CurrentProviderConfig'.
+src/hooks/useContextManager.ts(40,22): error TS2339: Property 'length' does not exist on type 'never'.
+src/hooks/useContextManager.ts(102,9): error TS6133: 'assistantMessages' is declared but its value is never read.
+src/hooks/useContextManager.ts(109,48): error TS2339: Property 'length' does not exist on type 'never'.
+src/hooks/useContextManager.ts(111,27): error TS2339: Property 'slice' does not exist on type 'never'.
+src/hooks/useExecutionTracking.ts(13,10): error TS6133: 'createContext' is declared but its value is never read.
+src/hooks/useExecutionTracking.ts(13,25): error TS6133: 'useContext' is declared but its value is never read.
+src/hooks/useGlobalTaskState.tsx(19,3): error TS6133: 'useCallback' is declared but its value is never read.
+src/hooks/useGlobalTaskState.tsx(22,3): error TS6133: 'useRef' is declared but its value is never read.
+src/hooks/useGroupedMessages.ts(35,3): error TS2322: Type 'MessageGroup[] | { type: "normal"; message: ClaudeStreamMessage; index: number; }[]' is not assignable to type 'MessageGroup[]'.
+  Type '{ type: "normal"; message: ClaudeStreamMessage; index: number; }[]' is not assignable to type 'MessageGroup[]'.
+    Type '{ type: "normal"; message: ClaudeStreamMessage; index: number; }' is not assignable to type 'MessageGroup'.
+      Property 'id' is missing in type '{ type: "normal"; message: ClaudeStreamMessage; index: number; }' but required in type '{ type: "normal"; id: string; message: ClaudeStreamMessage; index: number; }'.
+src/hooks/useMemoryDetection.ts(66,30): error TS2347: Untyped function calls may not accept type arguments.
+src/hooks/useProjectMCPConfig.ts(65,24): error TS6133: 'engine' is declared but its value is never read.
+src/hooks/useProjectMCPConfig.ts(146,9): error TS2322: Type 'MCPServerSpec' is not assignable to type 'MCPServerConfig'.
+  Types of property 'command' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/hooks/usePromptExecution.ts(2064,17): error TS6133: 'currentContent' is declared but its value is never read.
+src/hooks/usePromptExecution.ts(2135,78): error TS2304: Cannot find name 'assistantMessageId'.
+src/hooks/useSessionCache.ts(156,51): error TS2345: Argument of type 'Session[]' is not assignable to parameter of type 'ValidatableSession[]'.
+  Type 'Session' is not assignable to type 'ValidatableSession'.
+    Types of property 'engine' are incompatible.
+      Type '"gemini" | "claude" | "codex" | "siliconflow" | undefined' is not assignable to type '"gemini" | "claude" | "codex" | undefined'.
+        Type '"siliconflow"' is not assignable to type '"gemini" | "claude" | "codex" | undefined'.
+src/hooks/useSessionCache.ts(157,45): error TS2345: Argument of type 'ValidatableSession[]' is not assignable to parameter of type 'Session[]'.
+  Type 'ValidatableSession' is missing the following properties from type 'Session': project_id, project_path, created_at
+src/hooks/useSessionCache.ts(170,42): error TS2345: Argument of type 'ValidatableSession[]' is not assignable to parameter of type 'Session[]'.
+  Type 'ValidatableSession' is missing the following properties from type 'Session': project_id, project_path, created_at
+src/hooks/useSessionCache.ts(170,62): error TS2345: Argument of type 'Session[]' is not assignable to parameter of type 'ValidatableSession[]'.
+  Type 'Session' is not assignable to type 'ValidatableSession'.
+    Types of property 'engine' are incompatible.
+      Type '"gemini" | "claude" | "codex" | "siliconflow" | undefined' is not assignable to type '"gemini" | "claude" | "codex" | undefined'.
+        Type '"siliconflow"' is not assignable to type '"gemini" | "claude" | "codex" | undefined'.
+src/hooks/useSessionThresholdMonitor.ts(105,21): error TS18048: 'msg.message' is possibly 'undefined'.
+src/hooks/useSessionThresholdMonitor.ts(113,21): error TS18048: 'msg.message' is possibly 'undefined'.
+src/hooks/useSmartTabTitle.ts(92,51): error TS2339: Property 'slice' does not exist on type 'never'.
+src/hooks/useTabs.tsx(930,30): error TS2345: Argument of type '"gemini" | "claude" | "codex" | "siliconflow"' is not assignable to parameter of type '"gemini" | "claude" | "codex"'.
+  Type '"siliconflow"' is not assignable to type '"gemini" | "claude" | "codex"'.
+src/hooks/useTabs.tsx(943,31): error TS2345: Argument of type '{ sessionId: string; projectId: string; projectPath: string; engine?: "gemini" | "claude" | "codex" | "siliconflow" | undefined; }' is not assignable to parameter of type '{ sessionId: string; projectId: string; projectPath: string; engine?: "gemini" | "claude" | "codex" | undefined; }'.
+  Types of property 'engine' are incompatible.
+    Type '"gemini" | "claude" | "codex" | "siliconflow" | undefined' is not assignable to type '"gemini" | "claude" | "codex" | undefined'.
+      Type '"siliconflow"' is not assignable to type '"gemini" | "claude" | "codex" | undefined'.
+src/hooks/useTauriAutoUpdate.ts(153,43): error TS2339: Property 'downloaded' does not exist on type '{ chunkLength: number; }'.
+src/hooks/useTauriAutoUpdate.ts(154,38): error TS2339: Property 'contentLength' does not exist on type '{ chunkLength: number; }'.
+src/hooks/useTokenOptimization.ts(31,3): error TS6133: 'getOptimizationStats' is declared but its value is never read.
+src/lib/api.ts(90,3): error TS6196: 'AddServerResult' is declared but never used.
+src/lib/api.ts(91,3): error TS6196: 'ApiKeyUsage' is declared but never used.
+src/lib/api.ts(104,3): error TS6196: 'CurrentProviderConfig' is declared but never used.
+src/lib/api.ts(107,3): error TS6196: 'GitFileChange' is declared but never used.
+src/lib/api.ts(108,3): error TS6196: 'ImportResult' is declared but never used.
+src/lib/api.ts(109,3): error TS6196: 'MCPProjectConfig' is declared but never used.
+src/lib/api.ts(110,3): error TS6196: 'MCPServer' is declared but never used.
+src/lib/api.ts(111,3): error TS6196: 'MCPServerSpec' is declared but never used.
+src/lib/api.ts(112,3): error TS6196: 'McpApps' is declared but never used.
+src/lib/api.ts(113,3): error TS6196: 'McpServer' is declared but never used.
+src/lib/api.ts(114,3): error TS6196: 'McpServerWithStatus' is declared but never used.
+src/lib/api.ts(115,3): error TS6196: 'McpStatus' is declared but never used.
+src/lib/api.ts(116,3): error TS6196: 'Project' is declared but never used.
+src/lib/api.ts(117,3): error TS6196: 'ProjectUsage' is declared but never used.
+src/lib/api.ts(119,3): error TS6196: 'ProviderConfig' is declared but never used.
+src/lib/api.ts(120,3): error TS6196: 'ResetSafetyInfo' is declared but never used.
+src/lib/api.ts(124,3): error TS6196: 'ServerStatus' is declared but never used.
+src/lib/api.ts(126,3): error TS6196: 'SessionCacheTokens' is declared but never used.
+src/lib/api.ts(129,3): error TS6196: 'TranslationCacheStats' is declared but never used.
+src/lib/api.ts(130,3): error TS6196: 'TranslationConfig' is declared but never used.
+src/lib/api.ts(131,3): error TS6196: 'UsageStats' is declared but never used.
+src/lib/api/retryWrapper.ts(31,10): error TS6133: 'isTauriErrorRetryable' is declared but its value is never read.
+src/lib/codeFormatter.ts(23,10): error TS6133: 'parseBiomeOutput' is declared but its value is never read.
+src/lib/secureStorage.property.test.ts(13,32): error TS6133: 'beforeEach' is declared but its value is never read.
+src/lib/secureStorage.property.test.ts(13,44): error TS6133: 'afterEach' is declared but its value is never read.
+src/lib/secureStorage.property.test.ts(13,55): error TS6133: 'vi' is declared but its value is never read.
+src/lib/secureStorage.property.test.ts(156,13): error TS6133: 'testCases' is declared but its value is never read.
+src/lib/services/llmApiService.ts(418,13): error TS2578: Unused '@ts-expect-error' directive.
+src/lib/services/llmApiService.ts(453,15): error TS6133: 'isTimeout' is declared but its value is never read.
+src/lib/services/llmApiService.ts(572,9): error TS2578: Unused '@ts-expect-error' directive.
+src/lib/userFriendlyErrors.property.test.ts(24,8): error TS6133: 'UserFriendlyError' is declared but its value is never read.
+src/services/devToolsAutoMonitor.ts(154,13): error TS6133: 'result' is declared but its value is never read.
+src/services/messageContextOptimizer.ts(35,7): error TS6133: 'RECENT_MESSAGES_FULL' is declared but its value is never read.
+src/services/notificationService.ts(13,3): error TS6133: 'NotificationType' is declared but its value is never read.
+src/services/notificationService.ts(50,9): error TS18048: 'notification.duration' is possibly 'undefined'.
+src/tests/e2e/agent-flow.e2e.test.ts(7,1): error TS6133: 'UnifiedAgentOrchestrator' is declared but its value is never read.
+src/tests/e2e/agent-flow.e2e.test.ts(75,13): error TS6138: Property 'taskQueue' is declared but its value is never read.
+src/tests/e2e/agent-flow.e2e.test.ts(76,13): error TS6138: Property 'contextManager' is declared but its value is never read.
+src/tests/e2e/agent-flow.e2e.test.ts(162,25): error TS2345: Argument of type '{ id: string; type: "code-review"; priority: number; payload: { file: string; }; status: "pending"; }' is not assignable to parameter of type 'Task'.
+  Type '{ id: string; type: "code-review"; priority: number; payload: { file: string; }; status: "pending"; }' is missing the following properties from type 'Task': description, dependencies, createdAt, isBackground
+src/tests/e2e/agent-flow.e2e.test.ts(173,9): error TS2322: Type '"code-review"' is not assignable to type 'TaskType'.
+src/tests/e2e/agent-flow.e2e.test.ts(181,9): error TS2322: Type '"code-review"' is not assignable to type 'TaskType'.
+src/tests/e2e/agent-flow.e2e.test.ts(189,9): error TS2322: Type '"code-review"' is not assignable to type 'TaskType'.
+src/tests/e2e/agent-flow.e2e.test.ts(346,11): error TS2322: Type '"batch"' is not assignable to type 'TaskType'.
+src/tests/generators.ts(24,8): error TS2307: Cannot find module '@core/types/unified-agent' or its corresponding type declarations.
+src/tests/monitoring.test.ts(7,32): error TS6133: 'beforeEach' is declared but its value is never read.
+src/tests/monitoring.test.ts(7,44): error TS6133: 'afterEach' is declared but its value is never read.
+src/tests/monitoring.test.ts(8,10): error TS6133: 'useMessageDeduplication' is declared but its value is never read.
+src/tests/setup.ts(62,1): error TS2304: Cannot find name 'beforeEach'.
+src/tests/setup.ts(67,1): error TS2304: Cannot find name 'afterEach'.
+src/tests/test-utils.ts(15,8): error TS2307: Cannot find module '@core/types/unified-agent' or its corresponding type declarations.

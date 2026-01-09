@@ -17,7 +17,7 @@ import { getVersion } from "@tauri-apps/api/app";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const STORAGE_KEY = "fangyu-code-last-seen-version";
-const FALLBACK_VERSION = "2.5.1"; // 🔧 Fallback 版本（获取失败时使用）
+const FALLBACK_VERSION = "2.5.2"; // 🔧 Fallback 版本（获取失败时使用）
 
 // 🔧 DEBUG: 全局变量用于强制显示更新日志（调试用）
 declare global {
@@ -29,6 +29,24 @@ declare global {
 
 // 版本更新日志（从新到旧）
 export const CHANGELOGS = {
+  "2.5.2": {
+    title: "v2.5.2 - 🔐 安全更新与依赖升级",
+    date: "2026-01-10",
+    features: [
+      "🔐 更新 Tauri 签名密钥 - 重新生成签名密钥对，确保更新包安全性",
+      "📦 升级 Anthropic SDK - claude-agent-sdk 0.1.30 → 0.2.2, sdk 0.68.0 → 0.71.2",
+      "🔧 修复构建失败 - 添加缺失的 keyring 依赖，修复 GitHub Actions 构建",
+    ],
+    improvements: [
+      "✅ 完善安全存储功能 - 支持系统密钥环存储敏感数据",
+      "✅ 优化发布流程 - 修复 Release workflow 配置",
+    ],
+    technical: [
+      "添加 keyring = \"3.6\" 依赖到 Cargo.toml",
+      "更新 tauri.conf.json 中的 updater pubkey",
+      "修复 error[E0432]: unresolved import `keyring` 编译错误",
+    ],
+  },
   "2.5.1": {
     title: "v2.5.1 - 🧹 代码质量审计与清理",
     date: "2026-01-09",
