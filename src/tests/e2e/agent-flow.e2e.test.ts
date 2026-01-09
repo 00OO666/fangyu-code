@@ -4,7 +4,6 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { UnifiedAgentOrchestrator } from '../../core/agents/UnifiedAgentOrchestrator';
 import { TaskQueue } from '../../core/agents/TaskQueue';
 import { mockServer } from './MockAPIServer';
 
@@ -72,8 +71,8 @@ interface TestTask {
 class TestOrchestrator {
   constructor(
     private registry: TestAgentRegistry,
-    private taskQueue: TaskQueue,
-    private contextManager: TestContextManager
+    _taskQueue: TaskQueue,
+    _contextManager: TestContextManager
   ) {}
 
   async assignTask(task: TestTask): Promise<{ success: boolean; result?: unknown; error?: string }> {
@@ -153,10 +152,14 @@ describe('E2E: Agent Flow', () => {
     it('应该能够添加和获取任务', () => {
       const task = {
         id: 'task-1',
-        type: 'code-review' as const,
+        description: 'Code review task',
+        type: 'review' as const,
         priority: 1,
-        payload: { file: 'test.ts' },
-        status: 'pending' as const
+        status: 'pending' as const,
+        dependencies: [],
+        createdAt: Date.now(),
+        isBackground: false,
+        metadata: { file: 'test.ts' }
       };
 
       taskQueue.enqueue(task);
@@ -170,26 +173,35 @@ describe('E2E: Agent Flow', () => {
       // TaskQueue 默认使用 fifoComparator，高优先级数字 = 高优先级
       taskQueue.enqueue({
         id: 'low-priority',
-        type: 'code-review',
+        description: 'Low priority task',
+        type: 'review' as const,
         priority: 1,  // 低优先级
-        payload: {},
-        status: 'pending'
+        status: 'pending' as const,
+        dependencies: [],
+        createdAt: Date.now(),
+        isBackground: false
       });
 
       taskQueue.enqueue({
         id: 'high-priority',
-        type: 'code-review',
+        description: 'High priority task',
+        type: 'review' as const,
         priority: 10,  // 高优先级
-        payload: {},
-        status: 'pending'
+        status: 'pending' as const,
+        dependencies: [],
+        createdAt: Date.now(),
+        isBackground: false
       });
 
       taskQueue.enqueue({
         id: 'medium-priority',
-        type: 'code-review',
+        description: 'Medium priority task',
+        type: 'review' as const,
         priority: 5,  // 中优先级
-        payload: {},
-        status: 'pending'
+        status: 'pending' as const,
+        dependencies: [],
+        createdAt: Date.now(),
+        isBackground: false
       });
 
       const first = taskQueue.dequeue();
@@ -343,10 +355,13 @@ describe('E2E: Agent Flow', () => {
       for (let i = 0; i < 5; i++) {
         taskQueue.enqueue({
           id: `batch-task-${i}`,
-          type: 'batch' as const,
+          description: `Batch task ${i}`,
+          type: 'general' as const,
           priority: i,
-          payload: {},
-          status: 'pending' as const
+          status: 'pending' as const,
+          dependencies: [],
+          createdAt: Date.now(),
+          isBackground: false
         });
       }
 

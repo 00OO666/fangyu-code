@@ -20,9 +20,9 @@ interface ThinkingBlockProps {
 export const ThinkingBlock: React.FC<ThinkingBlockProps> = ({
   content,
   isStreaming = false,
-  autoCollapseDelay = 2500,
+  autoCollapseDelay: _autoCollapseDelay = 2500,
   typewriterSpeed = 5,
-  messageId,
+  messageId: _messageId,
   isOpen: controlledIsOpen,
   onToggle
 }) => {

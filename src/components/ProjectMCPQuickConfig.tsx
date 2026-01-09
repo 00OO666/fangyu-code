@@ -6,13 +6,11 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import {
   Network,
-  X,
   RefreshCw,
-  Settings,
   Globe,
   Folder,
   Copy,
@@ -35,10 +33,10 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { api, type MCPServerSpec, type McpServerWithStatus, type MCPProjectConfig } from '@/lib/api';
 import { getMCPDescription, getCategoryLabel, getCategoryColor } from '@/lib/mcpDescriptions';
-import { useProjectMCPConfig, type MCPConfigScope } from '@/hooks/useProjectMCPConfig';
-import { getMCPRecommendations, type ProjectType, type MCPRecommendation, isOfficialMCP, getOfficialMCPDefault } from '@/config/mcpRecommendations';
+import { useProjectMCPConfig } from '@/hooks/useProjectMCPConfig';
+import { getMCPRecommendations, type ProjectType, type MCPRecommendation, getOfficialMCPDefault } from '@/config/mcpRecommendations';
 import { ClaudeIcon } from './icons/ClaudeIcon';
-import { Sparkles, ExternalLink, Wand2 } from 'lucide-react';
+import { Sparkles, Wand2 } from 'lucide-react';
 import { useNavigation } from '@/contexts/NavigationContext';
 
 interface ProjectMCPQuickConfigProps {

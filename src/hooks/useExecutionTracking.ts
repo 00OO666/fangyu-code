@@ -10,7 +10,7 @@
  * - 提供执行恢复接口
  */
 
-import { createContext, useContext, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 // 🔧 FIX: 直接从 GlobalExecutionContext 模块导入 Context，避免重复创建 hooks
 import type { TabExecutionState } from "@/contexts/GlobalExecutionContext";

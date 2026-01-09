@@ -32,7 +32,6 @@ export interface OptimizedMessageContext {
 }
 
 const DEFAULT_WINDOW_SIZE = 50; // Include last 50 messages by default
-const RECENT_MESSAGES_FULL = 10; // Always include last 10 in full
 
 /**
  * Get optimized message context for API calls

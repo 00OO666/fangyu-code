@@ -415,7 +415,6 @@ export class LLMApiService {
             method: "POST",
             headers,
             body: JSON.stringify(requestBody),
-            // @ts-expect-error - Tauri fetch 支持 signal，但类型定义可能缺失
             signal: combinedSignal,
           });
 
@@ -450,7 +449,6 @@ export class LLMApiService {
 
         // 🆕 不可重试的错误（用户取消、超时、4xx 错误）
         const isUserCancelled = error.message?.includes("cancelled by user");
-        const isTimeout = error.message?.includes("timeout");
         const is4xxError =
           error.message?.includes("400") ||
           error.message?.includes("401") ||
@@ -569,7 +567,6 @@ export class LLMApiService {
         method: "POST",
         headers,
         body: JSON.stringify(requestBody),
-        // @ts-expect-error - Tauri fetch 支持 signal
         signal: controller.signal,
       });
 

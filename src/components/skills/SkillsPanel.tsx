@@ -5,7 +5,6 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 import { 
   Sparkles, 
   Search, 
@@ -163,7 +162,6 @@ export const SkillsPanel: React.FC<SkillsPanelProps> = ({
   onSkillSelect,
   onSkillActivate
 }) => {
-  const { t } = useTranslation();
   const { skills, loading, error, refresh, generatePrompt, stats } = useSkills(projectPath);
   
   const [searchQuery, setSearchQuery] = useState('');

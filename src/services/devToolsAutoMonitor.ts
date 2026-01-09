@@ -151,7 +151,7 @@ export class DevToolsAutoMonitor {
   private async startRealtimeMonitoring(duration: number): Promise<void> {
     try {
       // 使用 monitor_console_live 工具
-      const result = await invoke("call_mcp_tool", {
+      await invoke("call_mcp_tool", {
         server: "chrome-devtools",
         tool: "monitor_console_live",
         args: {

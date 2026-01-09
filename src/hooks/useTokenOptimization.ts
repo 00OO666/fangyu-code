@@ -28,7 +28,6 @@ import {
 } from "@/services/mcpContextManager";
 import {
   getOptimizedMessageContext,
-  getOptimizationStats,
   type OptimizedMessageContext,
 } from "@/services/messageContextOptimizer";
 import type { ClaudeStreamMessage } from "@/types/claude";

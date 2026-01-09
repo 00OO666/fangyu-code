@@ -4,8 +4,8 @@
  * 测试所有监控服务的功能
  */
 
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { useMessageDeduplication, createIdempotencyKey } from "@/hooks/useMessageDeduplication";
+import { describe, it, expect } from "vitest";
+import { createIdempotencyKey } from "@/hooks/useMessageDeduplication";
 import type { ClaudeStreamMessage } from "@/types/claude";
 
 describe("useMessageDeduplication", () => {

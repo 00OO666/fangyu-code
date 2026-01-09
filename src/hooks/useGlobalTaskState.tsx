@@ -16,10 +16,8 @@
 import {
   createContext,
   type ReactNode,
-  useCallback,
   useContext,
   useEffect,
-  useRef,
   useSyncExternalStore,
 } from "react";
 import { emitWindowSyncEvent, onWindowSyncEvent } from "@/lib/windowManager";

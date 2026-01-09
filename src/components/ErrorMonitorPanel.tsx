@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { useConsoleMonitor, type ConsoleError } from "@/hooks/useConsoleMonitor";
+import { type ConsoleError } from "@/hooks/useConsoleMonitor";
 
 interface ErrorMonitorPanelProps {
   /** 错误列表 */

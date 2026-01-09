@@ -62,7 +62,7 @@ export const MemoryImportSuggestion: React.FC<MemoryImportSuggestionProps> = ({
         throw new Error('Tauri API not available');
       }
 
-      const result = await (tauriModule as any).invoke<string>('import_memories', {
+      const result = await (tauriModule as { invoke: <T>(cmd: string, args: Record<string, unknown>) => Promise<T> }).invoke<string>('import_memories', {
         project_path: projectPath,
         memory_files: Array.from(selectedFiles),
       });

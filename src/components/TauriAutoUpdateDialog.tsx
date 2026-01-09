@@ -14,7 +14,6 @@ import { useTauriAutoUpdate } from '@/hooks/useTauriAutoUpdate';
 import {
   AlertDialog,
   AlertDialogAction,
-  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,

@@ -12,9 +12,10 @@
  */
 
 import React, { useMemo } from 'react';
-import { FileJson, Table, GitBranch, Package, Activity, CheckCircle, XCircle, Terminal } from 'lucide-react';
+import { FileJson, Table, GitBranch, Activity, CheckCircle, XCircle, Terminal } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Table as UITable,

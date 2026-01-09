@@ -17,7 +17,7 @@ import { getVersion } from "@tauri-apps/api/app";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const STORAGE_KEY = "fangyu-code-last-seen-version";
-const FALLBACK_VERSION = "2.5.2"; // 🔧 Fallback 版本（获取失败时使用）
+const FALLBACK_VERSION = "2.5.3"; // 🔧 Fallback 版本（获取失败时使用）
 
 // 🔧 DEBUG: 全局变量用于强制显示更新日志（调试用）
 declare global {
@@ -29,6 +29,20 @@ declare global {
 
 // 版本更新日志（从新到旧）
 export const CHANGELOGS = {
+  "2.5.3": {
+    title: "v2.5.3 - 🔧 修复 Windows 构建问题",
+    date: "2026-01-10",
+    features: [
+      "🔧 修复 GitHub Actions 构建失败 - 启用 keyring 的 windows-native feature",
+    ],
+    improvements: [
+      "✅ Windows Credential Manager 支持 - keyring 现在正确使用 Windows 凭据管理器",
+    ],
+    technical: [
+      "keyring 依赖从 \"3.6\" 改为 { version = \"3.6\", features = [\"windows-native\"] }",
+      "修复 v2.5.2 构建失败的根本原因：keyring 默认不启用任何平台后端",
+    ],
+  },
   "2.5.2": {
     title: "v2.5.2 - 🔐 安全更新与依赖升级",
     date: "2026-01-10",
@@ -119,7 +133,7 @@ export const CHANGELOGS = {
       "240 个测试用例全部通过 - 包括属性测试",
     ],
   },
-    "2.4.6": {
+  "2.4.6": {
     title: "v2.4.6 - ✨ 炫酷 UI 改造",
     date: "2026-01-08",
     features: [

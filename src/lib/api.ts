@@ -87,8 +87,6 @@ export { OutputFormat, PermissionMode } from "./api/types";
 
 // Import types locally for use in api object
 import type {
-  AddServerResult,
-  ApiKeyUsage,
   AutoCompactConfig,
   AutoCompactStatus,
   Checkpoint,
@@ -101,34 +99,16 @@ import type {
   ConversionResult,
   CurrentCodexConfig,
   CurrentGeminiProviderConfig,
-  CurrentProviderConfig,
   FileEntry,
   GeminiProviderConfig,
-  GitFileChange,
-  ImportResult,
-  MCPProjectConfig,
-  MCPServer,
   MCPServerSpec,
-  McpApps,
-  McpServer,
-  McpServerWithStatus,
-  McpStatus,
-  Project,
-  ProjectUsage,
   PromptRecord,
-  ProviderConfig,
-  ResetSafetyInfo,
   RewindCapabilities,
   RewindMode,
   SavedImageResult,
-  ServerStatus,
   Session,
-  SessionCacheTokens,
   SessionContext,
   SmartProjectResult,
-  TranslationCacheStats,
-  TranslationConfig,
-  UsageStats,
 } from "./api/types";
 
 /**

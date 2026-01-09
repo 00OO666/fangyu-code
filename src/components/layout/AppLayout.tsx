@@ -29,6 +29,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       await message('当前已是最新版本', { title: '检查更新', kind: 'info' });
     }
   };
+  // 🔧 handleCheckUpdate 保留用于未来功能
+  void handleCheckUpdate;
 
   return (
     <div className="h-screen w-screen overflow-hidden bg-background flex text-foreground selection:bg-primary/20 selection:text-primary relative">
@@ -69,7 +71,6 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       <AboutDialog
         open={showAboutDialog}
         onClose={() => setShowAboutDialog(false)}
-        onCheckUpdate={handleCheckUpdate}
         onViewNewFeatures={() => navigateTo('new-features')}
       />
     </div>

@@ -21,7 +21,6 @@ import {
   formatErrorForDisplay,
   createErrorSummary,
   FriendlyError,
-  type UserFriendlyError,
   type ErrorCategory,
 } from './userFriendlyErrors';
 

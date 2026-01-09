@@ -10,7 +10,7 @@
  * - 提供商映射
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
 import {
   maskAPIKey,
@@ -153,15 +153,6 @@ describe('SecureStorage Property Tests', () => {
 
   describe('密钥遮罩边界情况', () => {
     it('不同长度的密钥应正确遮罩', () => {
-      const testCases = [
-        { key: 'a', expected: '••••••••' },
-        { key: 'ab', expected: '••••••••' },
-        { key: 'abcdefgh', expected: '••••••••' },
-        { key: 'abcdefghi', expected: 'abcd•hijk'.replace('hijk', 'fghi') }, // 9 chars
-        { key: 'abcdefghij', expected: 'abcd••ghij' },
-        { key: 'abcdefghijklmnop', expected: 'abcd••••••••mnop' },
-      ];
-
       // 测试边界情况
       expect(maskAPIKey('a')).toBe('••••••••');
       expect(maskAPIKey('abcdefgh')).toBe('••••••••');

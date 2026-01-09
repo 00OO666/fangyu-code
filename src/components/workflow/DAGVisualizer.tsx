@@ -31,7 +31,6 @@ import ReactFlow, {
   Position,
   NodeProps,
   ConnectionMode,
-  useReactFlow
 } from 'reactflow';
 import dagre from 'dagre';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -44,7 +43,6 @@ import {
   Clock,
   Users,
   Zap,
-  AlertTriangle,
   ChevronDown,
   ChevronRight,
   MoreHorizontal,
@@ -435,10 +433,10 @@ const getLayoutedElements = (
 export const DAGVisualizer: React.FC<DAGVisualizerProps> = ({
   workflow,
   agents = [],
-  liveUpdate = true,
+  liveUpdate: _liveUpdate = true,
   onTaskClick,
-  onTaskRetry,
-  onTaskCancel,
+  onTaskRetry: _onTaskRetry,
+  onTaskCancel: _onTaskCancel,
   onTogglePause,
   isPaused = false,
   onFullscreen,
@@ -446,7 +444,7 @@ export const DAGVisualizer: React.FC<DAGVisualizerProps> = ({
 }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [_selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   // 计算统计数据
   const stats = useMemo(() => {
@@ -477,7 +475,7 @@ export const DAGVisualizer: React.FC<DAGVisualizerProps> = ({
   }, [workflow, agents, setNodes, setEdges]);
 
   // 节点点击处理
-  const handleNodeClick = useCallback((event: React.MouseEvent, node: Node<TaskNodeData>) => {
+  const handleNodeClick = useCallback((_event: React.MouseEvent, node: Node<TaskNodeData>) => {
     const task = workflow.tasks.find(t => t.id === node.id);
     if (task) {
       setSelectedTask(task);

@@ -12,7 +12,7 @@ import type {
   TaskStatus,
   ContextSource,
   SteeringRule,
-} from '@core/types/unified-agent';
+} from '@/core/types/unified-agent';
 
 // ============================================================================
 // Factory Functions

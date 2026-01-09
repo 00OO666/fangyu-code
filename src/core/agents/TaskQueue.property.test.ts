@@ -20,8 +20,6 @@ import {
   createPriorityQueue,
   createFifoQueue,
   createDeadlineQueue,
-  priorityComparator,
-  fifoComparator,
 } from './TaskQueue';
 import type { Task } from '../types/unified-agent';
 

@@ -62,7 +62,7 @@ interface UseProjectMCPConfigReturn {
 export function useProjectMCPConfig(
   options: UseProjectMCPConfigOptions,
 ): UseProjectMCPConfigReturn {
-  const { projectPath, engine, scope } = options;
+  const { projectPath, engine: _engine, scope } = options;
 
   const [projectConfig, setProjectConfig] = useState<MCPProjectConfig | null>(null);
   const [loading, setLoading] = useState(false);

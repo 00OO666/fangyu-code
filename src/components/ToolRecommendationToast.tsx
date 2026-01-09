@@ -78,17 +78,17 @@ export function ToolRecommendationToast({
 
         if (server?.spec) {
           await api.mcpToggleEngineServer(engine, serverId, server.spec, true);
-          notify.global.success(`已启用 ${rec.toolName}`, { duration: 2000 });
+          notify.success(`已启用 ${rec.toolName}`, { duration: 2000 });
           onRemove(rec.toolId);
         } else {
           throw new Error(`未找到 ${rec.toolName} 的配置`);
         }
       } else {
-        notify.global.warning(`暂不支持自动启用 ${rec.toolType.toUpperCase()} 类型工具`, { duration: 3000 });
+        notify.warning(`暂不支持自动启用 ${rec.toolType.toUpperCase()} 类型工具`, { duration: 3000 });
       }
     } catch (error) {
       console.error('[ToolRecommendationToast] Failed to enable tool:', error);
-      notify.global.error(`启用 ${rec.toolName} 失败`, {
+      notify.error(`启用 ${rec.toolName} 失败`, {
         description: error instanceof Error ? error.message : '未知错误',
         duration: 4000,
       });

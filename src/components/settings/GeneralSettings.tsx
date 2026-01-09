@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { AlertCircle, Loader2, RotateCcw, HelpCircle, Sparkles, Download, RefreshCw } from "lucide-react";
+import { AlertCircle, Loader2, RotateCcw, HelpCircle, Sparkles, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,7 +26,6 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useTranslation } from "@/hooks/useTranslation";
 import { api, type ClaudeSettings } from "@/lib/api";
 import type { HooksConfiguration } from "@/types/hooks";
-import { useTauriAutoUpdate } from "@/hooks/useTauriAutoUpdate";
 
 interface GeneralSettingsProps {
   settings: ClaudeSettings | null;

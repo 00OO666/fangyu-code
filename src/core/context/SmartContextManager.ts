@@ -303,7 +303,7 @@ export class SmartContextManager {
     }
     
     // 保留高优先级的 system 和 steering 类型
-    const mustRetain = sortedItems.filter(item => 
+    const _mustRetain = sortedItems.filter(item => 
       item.type === 'system' || (item.type === 'steering' && item.priority <= 10)
     );
     const canRemove = sortedItems.filter(item => 
