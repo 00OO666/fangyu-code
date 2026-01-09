@@ -9,7 +9,7 @@
  * 5. 错误捕获和展示
  */
 
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Code,
@@ -18,17 +18,15 @@ import {
   Maximize2,
   Minimize2,
   Play,
-  RefreshCw,
   Download,
   Copy,
   Check,
   AlertCircle,
-  X,
   Settings
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Select,
   SelectContent,

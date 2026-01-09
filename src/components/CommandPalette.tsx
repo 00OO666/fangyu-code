@@ -12,7 +12,6 @@ import {
   Puzzle,
   Zap,
   Activity,
-  Search,
   Moon,
   Sun,
   RefreshCw,

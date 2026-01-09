@@ -17,6 +17,7 @@
 
 import { EventEmitter } from 'events';
 import { v4 as uuidv4 } from 'uuid';
+import { invoke } from '@tauri-apps/api/core';
 import type {
   Sandbox,
   SandboxSpec,
@@ -91,12 +92,17 @@ export class SandboxManager extends EventEmitter {
    */
   private async checkDockerAvailability(): Promise<void> {
     try {
-      // 在实际实现中，这里会检查 Docker 是否运行
-      // 使用 Tauri 的 shell API 执行 docker info
-      this.isDockerAvailable = true; // 占位
-      console.log('[SandboxManager] Docker availability check: OK');
+      // 使用 Tauri 调用 Docker info 检查可用性
+      const result = await invoke<{ available: boolean; version?: string }>('docker_check_availability');
+      this.isDockerAvailable = result.available;
+      if (result.available) {
+        console.log(`[SandboxManager] Docker available, version: ${result.version}`);
+      } else {
+        console.warn('[SandboxManager] Docker not available, using simulation mode');
+      }
     } catch (error) {
-      console.warn('[SandboxManager] Docker not available, using simulation mode');
+      // Tauri 命令不存在时，回退到模拟模式
+      console.warn('[SandboxManager] Docker check failed, using simulation mode:', error);
       this.isDockerAvailable = false;
     }
   }
@@ -172,14 +178,27 @@ export class SandboxManager extends EventEmitter {
    * 创建 Docker 容器
    */
   private async createDockerContainer(sandbox: Sandbox): Promise<void> {
-    // TODO: 使用 Tauri 调用 Docker API
-    // 这里是占位实现
+    try {
+      // 使用 Tauri 调用 Docker API 创建容器
+      const result = await invoke<{ containerId: string }>('docker_create_container', {
+        name: `sandbox-${sandbox.id.slice(0, 12)}`,
+        image: sandbox.spec.baseImage,
+        memoryLimit: sandbox.spec.memoryLimit,
+        cpuLimit: sandbox.spec.cpuLimit,
+        workspaceDir: sandbox.spec.workspaceDir,
+        envVars: sandbox.spec.environmentVars,
+        volumes: sandbox.spec.volumes,
+        exposedPorts: sandbox.spec.exposedPorts,
+        networkMode: sandbox.spec.networkMode,
+      });
 
-    const createCommand = this.buildDockerCommand(sandbox.spec);
-    console.log(`[SandboxManager] Docker command: ${createCommand}`);
-
-    // 模拟容器 ID
-    sandbox.containerId = `container-${sandbox.id.slice(0, 12)}`;
+      sandbox.containerId = result.containerId;
+      console.log(`[SandboxManager] Created Docker container: ${result.containerId}`);
+    } catch (error) {
+      // Tauri 命令不存在时，使用模拟容器 ID
+      console.warn('[SandboxManager] Docker create failed, using simulation:', error);
+      sandbox.containerId = `sim-container-${sandbox.id.slice(0, 12)}`;
+    }
   }
 
   /**
@@ -254,8 +273,13 @@ export class SandboxManager extends EventEmitter {
    * 销毁 Docker 容器
    */
   private async destroyDockerContainer(containerId: string): Promise<void> {
-    // TODO: 使用 Tauri 调用 docker stop && docker rm
-    console.log(`[SandboxManager] Destroying container ${containerId}`);
+    try {
+      // 使用 Tauri 调用 docker stop && docker rm
+      await invoke('docker_destroy_container', { containerId });
+      console.log(`[SandboxManager] Destroyed Docker container: ${containerId}`);
+    } catch (error) {
+      console.warn(`[SandboxManager] Failed to destroy container ${containerId}:`, error);
+    }
   }
 
   // ============================================
@@ -366,18 +390,29 @@ export class SandboxManager extends EventEmitter {
   ): Promise<CommandResult> {
     const startTime = Date.now();
 
-    // TODO: 使用 Tauri 调用 docker exec
-    // docker exec -w {cwd} {containerId} /bin/sh -c "{command}"
+    try {
+      // 使用 Tauri 调用 docker exec
+      const result = await invoke<{ stdout: string; stderr: string; exitCode: number }>(
+        'docker_exec_command',
+        {
+          containerId,
+          command,
+          cwd,
+          timeout: timeout || 30000,
+        }
+      );
 
-    // 占位实现
-    await this.sleep(100);
-
-    return {
-      stdout: `[Simulated] Executed: ${command}`,
-      stderr: '',
-      exitCode: 0,
-      duration: Date.now() - startTime
-    };
+      return {
+        stdout: result.stdout,
+        stderr: result.stderr,
+        exitCode: result.exitCode,
+        duration: Date.now() - startTime,
+      };
+    } catch (error) {
+      // Tauri 命令不存在时，回退到模拟执行
+      console.warn('[SandboxManager] Docker exec failed, using simulation:', error);
+      return this.simulateExecution(command);
+    }
   }
 
   /**

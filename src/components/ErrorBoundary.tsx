@@ -1,18 +1,26 @@
 import React, { Component, ReactNode } from "react";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, RefreshCw, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  toUserFriendlyError,
+  type UserFriendlyError,
+} from "@/lib/userFriendlyErrors";
 
 interface ErrorBoundaryProps {
   children: ReactNode;
   fallback?: (error: Error, reset: () => void) => ReactNode;
   /** Optional callback when an error is caught */
   onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
+  /** Show detailed error info (for development) */
+  showDetails?: boolean;
 }
 
 interface ErrorBoundaryState {
   hasError: boolean;
   error: Error | null;
+  friendlyError: UserFriendlyError | null;
+  showTechnicalDetails: boolean;
 }
 
 /**
@@ -23,6 +31,10 @@ interface ErrorBoundaryState {
  * - Supports custom fallback UI
  * - Optional error callback for logging/monitoring
  * - Built-in retry functionality
+ * - User-friendly error messages with suggestions
+ * - Recovery options
+ *
+ * _Requirements: 2.3_
  *
  * @example
  * <ErrorBoundary onError={(error) => logToMonitoring(error)}>
@@ -32,12 +44,18 @@ interface ErrorBoundaryState {
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = {
+      hasError: false,
+      error: null,
+      friendlyError: null,
+      showTechnicalDetails: false,
+    };
   }
 
-  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+  static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
     // Update state so the next render will show the fallback UI
-    return { hasError: true, error };
+    const friendlyError = toUserFriendlyError(error);
+    return { hasError: true, error, friendlyError };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
@@ -49,45 +67,98 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   }
 
   reset = () => {
-    this.setState({ hasError: false, error: null });
+    this.setState({
+      hasError: false,
+      error: null,
+      friendlyError: null,
+      showTechnicalDetails: false,
+    });
+  };
+
+  toggleTechnicalDetails = () => {
+    this.setState((prev) => ({
+      showTechnicalDetails: !prev.showTechnicalDetails,
+    }));
   };
 
   render() {
-    if (this.state.hasError && this.state.error) {
+    if (this.state.hasError && this.state.error && this.state.friendlyError) {
       // Use custom fallback if provided
       if (this.props.fallback) {
         return this.props.fallback(this.state.error, this.reset);
       }
 
-      // Default error UI
+      const { friendlyError, showTechnicalDetails } = this.state;
+
+      // Enhanced error UI with user-friendly messages
       return (
         <div className="flex items-center justify-center min-h-[200px] p-4">
           <Card className="max-w-md w-full">
             <CardContent className="p-6">
               <div className="flex items-start gap-4">
                 <AlertCircle className="h-8 w-8 text-destructive flex-shrink-0 mt-0.5" />
-                <div className="flex-1 space-y-2">
-                  <h3 className="text-lg font-semibold">Something went wrong</h3>
+                <div className="flex-1 space-y-3">
+                  {/* 用户友好的标题 */}
+                  <h3 className="text-lg font-semibold">{friendlyError.title}</h3>
+
+                  {/* 用户友好的描述 */}
                   <p className="text-sm text-muted-foreground">
-                    An error occurred while rendering this component.
+                    {friendlyError.description}
                   </p>
-                  {this.state.error.message && (
-                    <details className="mt-2">
-                      <summary className="text-sm cursor-pointer text-muted-foreground hover:text-foreground">
-                        Error details
-                      </summary>
-                      <pre className="mt-2 text-xs bg-muted p-2 rounded overflow-auto">
-                        {this.state.error.message}
-                      </pre>
-                    </details>
+
+                  {/* 建议解决方案 */}
+                  {friendlyError.suggestions.length > 0 && (
+                    <div className="mt-3 p-3 bg-muted/50 rounded-md">
+                      <p className="text-xs font-medium text-muted-foreground mb-2">
+                        建议：
+                      </p>
+                      <ul className="text-xs text-muted-foreground space-y-1">
+                        {friendlyError.suggestions.map((suggestion, index) => (
+                          <li key={index} className="flex items-start gap-2">
+                            <span className="text-primary">•</span>
+                            <span>{suggestion}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   )}
-                  <Button
-                    onClick={this.reset}
-                    size="sm"
-                    className="mt-4"
-                  >
-                    Try again
-                  </Button>
+
+                  {/* 操作按钮 */}
+                  <div className="flex items-center gap-2 mt-4">
+                    {friendlyError.retryable && (
+                      <Button onClick={this.reset} size="sm" className="gap-2">
+                        <RefreshCw className="h-4 w-4" />
+                        重试
+                      </Button>
+                    )}
+                    {!friendlyError.retryable && (
+                      <Button onClick={this.reset} size="sm" variant="outline">
+                        关闭
+                      </Button>
+                    )}
+                  </div>
+
+                  {/* 技术详情（可选） */}
+                  {this.props.showDetails && this.state.error.message && (
+                    <div className="mt-4 pt-4 border-t">
+                      <button
+                        onClick={this.toggleTechnicalDetails}
+                        className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {showTechnicalDetails ? (
+                          <ChevronUp className="h-3 w-3" />
+                        ) : (
+                          <ChevronDown className="h-3 w-3" />
+                        )}
+                        技术详情
+                      </button>
+                      {showTechnicalDetails && (
+                        <pre className="mt-2 text-xs bg-muted p-2 rounded overflow-auto max-h-32">
+                          {this.state.error.message}
+                        </pre>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </CardContent>

@@ -4,10 +4,20 @@
  * 管理多个 AI 提供商的 API 配置
  * 支持 HiAPI、Anthropic、OpenAI、Google 等
  * 
- * Requirements: 2.1, 2.2, 2.3, 2.4, 2.5
+ * Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 7.1
+ * 
+ * 安全存储：API 密钥使用 Tauri 安全存储，其他配置使用 localStorage
  */
 
 import { RealAPIClient, APIClientConfig, createHiAPIClient, createOpenAIClient } from './RealAPIClient';
+import {
+  secureStorage,
+  saveAPIKey,
+  getAPIKey,
+  removeAPIKey,
+  maskAPIKey,
+  type APIKeyProvider as SecureAPIKeyProvider,
+} from '../../lib/secureStorage';
 
 // =============================================================================
 // 类型定义
@@ -36,10 +46,10 @@ export interface ProviderConfig {
   models?: string[];
 }
 
-/** 配置存储 */
+/** 配置存储（不包含 API 密钥） */
 export interface APIConfigStore {
   activeProvider: APIProvider;
-  providers: Record<APIProvider, ProviderConfig>;
+  providers: Record<APIProvider, Omit<ProviderConfig, 'apiKey'> & { hasApiKey: boolean }>;
   defaultModel: string;
   lastUpdated: number;
 }
@@ -380,44 +390,142 @@ export class APIConfigManager {
   }
 
   /**
-   * 保存到本地存储
+   * 保存到本地存储（API 密钥使用安全存储）
+   * Requirements: 7.1
    */
-  saveToStorage(): void {
+  async saveToStorage(): Promise<void> {
     try {
-      const config = this.exportConfig();
-      // 移除敏感信息（API 密钥）用于日志
-      const safeConfig = { ...config };
-      for (const provider of Object.keys(safeConfig.providers)) {
-        const p = provider as APIProvider;
-        if (safeConfig.providers[p]) {
-          safeConfig.providers[p] = {
-            ...safeConfig.providers[p],
-            apiKey: safeConfig.providers[p].apiKey ? '***' : '',
-          };
+      // 保存 API 密钥到安全存储
+      for (const [provider, config] of this.configs) {
+        if (config.apiKey) {
+          const secureProvider = this.mapToSecureProvider(provider);
+          if (secureProvider) {
+            await saveAPIKey(secureProvider, config.apiKey);
+          }
         }
       }
-      
-      localStorage.setItem(this.storageKey, JSON.stringify(config));
-    } catch {
-      // 忽略存储错误
+
+      // 保存其他配置到 localStorage（不包含 API 密钥）
+      const configStore: APIConfigStore = {
+        activeProvider: this.activeProvider,
+        providers: {} as APIConfigStore['providers'],
+        defaultModel: this.defaultModel,
+        lastUpdated: Date.now(),
+      };
+
+      for (const [provider, config] of this.configs) {
+        const { apiKey, ...rest } = config;
+        configStore.providers[provider] = {
+          ...rest,
+          hasApiKey: !!apiKey,
+        };
+      }
+
+      localStorage.setItem(this.storageKey, JSON.stringify(configStore));
+    } catch (error) {
+      console.error('[APIConfigManager] Failed to save config:', error);
     }
   }
 
   /**
-   * 从本地存储加载
+   * 从本地存储加载（API 密钥从安全存储加载）
+   * Requirements: 7.1
    */
-  loadFromStorage(): boolean {
+  async loadFromStorage(): Promise<boolean> {
+    try {
+      const stored = localStorage.getItem(this.storageKey);
+      if (!stored) return false;
+
+      const configStore = JSON.parse(stored) as APIConfigStore;
+      this.activeProvider = configStore.activeProvider;
+      this.defaultModel = configStore.defaultModel;
+
+      // 加载配置并从安全存储获取 API 密钥
+      for (const [provider, config] of Object.entries(configStore.providers)) {
+        const apiProvider = provider as APIProvider;
+        const secureProvider = this.mapToSecureProvider(apiProvider);
+        
+        let apiKey = '';
+        if (secureProvider && config.hasApiKey) {
+          apiKey = await getAPIKey(secureProvider) || '';
+        }
+
+        this.configureProvider(apiProvider, {
+          ...config,
+          apiKey,
+        });
+      }
+
+      return true;
+    } catch (error) {
+      console.error('[APIConfigManager] Failed to load config:', error);
+      return false;
+    }
+  }
+
+  /**
+   * 同步版本的加载（用于初始化，不加载 API 密钥）
+   * @deprecated 使用 loadFromStorage() 代替
+   */
+  loadFromStorageSync(): boolean {
     try {
       const stored = localStorage.getItem(this.storageKey);
       if (stored) {
-        const config = JSON.parse(stored) as APIConfigStore;
-        this.importConfig(config);
+        const configStore = JSON.parse(stored) as APIConfigStore;
+        this.activeProvider = configStore.activeProvider;
+        this.defaultModel = configStore.defaultModel;
+
+        for (const [provider, config] of Object.entries(configStore.providers)) {
+          this.configureProvider(provider as APIProvider, {
+            ...config,
+            apiKey: '', // API 密钥需要异步加载
+          });
+        }
         return true;
       }
     } catch {
       // 忽略加载错误
     }
     return false;
+  }
+
+  /**
+   * 映射 APIProvider 到 SecureAPIKeyProvider
+   */
+  private mapToSecureProvider(provider: APIProvider): SecureAPIKeyProvider | null {
+    const mapping: Partial<Record<APIProvider, SecureAPIKeyProvider>> = {
+      hiapi: 'hiapi',
+      openai: 'openai',
+      anthropic: 'claude',
+      google: 'gemini',
+      custom: 'other',
+    };
+    return mapping[provider] || null;
+  }
+
+  /**
+   * 获取遮罩后的 API 密钥（用于显示）
+   */
+  getMaskedApiKey(provider: APIProvider): string {
+    const config = this.configs.get(provider);
+    if (!config?.apiKey) return '';
+    return maskAPIKey(config.apiKey);
+  }
+
+  /**
+   * 删除提供商的 API 密钥
+   */
+  async removeApiKey(provider: APIProvider): Promise<void> {
+    const config = this.configs.get(provider);
+    if (config) {
+      config.apiKey = '';
+      this.clients.delete(provider);
+
+      const secureProvider = this.mapToSecureProvider(provider);
+      if (secureProvider) {
+        await removeAPIKey(secureProvider);
+      }
+    }
   }
 
   /**
