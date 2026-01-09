@@ -588,8 +588,8 @@ fn validate_command(command: &str) -> SecurityValidation {
 pub fn super_agent_redact_sensitive(text: String) -> String {
     let mut result = text;
     
-    // API Keys
-    let api_key_pattern = regex::Regex::new(r"(?i)(api[_-]?key|apikey|api_secret)[=:]\s*['\"]?([a-zA-Z0-9_-]{20,})['\"]?").unwrap();
+    // API Keys - 使用 (?:...) 避免字符类中的引号问题
+    let api_key_pattern = regex::Regex::new(r#"(?i)(api[_-]?key|apikey|api_secret)[=:]\s*['"]?([a-zA-Z0-9_-]{20,})['"]?"#).unwrap();
     result = api_key_pattern.replace_all(&result, "$1=[REDACTED]").to_string();
     
     // Bearer tokens
@@ -597,7 +597,7 @@ pub fn super_agent_redact_sensitive(text: String) -> String {
     result = bearer_pattern.replace_all(&result, "Bearer [REDACTED]").to_string();
     
     // Passwords
-    let password_pattern = regex::Regex::new(r"(?i)(password|passwd|pwd)[=:]\s*['\"]?[^'\"\s]+['\"]?").unwrap();
+    let password_pattern = regex::Regex::new(r#"(?i)(password|passwd|pwd)[=:]\s*['"]?[^'"\s]+['"]?"#).unwrap();
     result = password_pattern.replace_all(&result, "$1=[REDACTED]").to_string();
     
     // AWS keys
