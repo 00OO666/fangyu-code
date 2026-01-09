@@ -23,7 +23,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-  DialogDescription,
 } from '@/components/ui/dialog';
 import {
   AlertDialog,
@@ -125,7 +124,7 @@ interface ConfigManagerEmbeddedProps {
 // ============================================================
 
 export function ConfigManager({ open, onOpenChange }: ConfigManagerProps) {
-  const { t } = useTranslation();
+  useTranslation(); // 保留 hook 调用以支持未来国际化
   const [activeTab, setActiveTab] = useState('health');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -190,7 +189,7 @@ export function ConfigManager({ open, onOpenChange }: ConfigManagerProps) {
   // 清理单个项目缓存
   const cleanProjectCache = async (projectName: string) => {
     try {
-      const freed = await invoke<number>('clean_project_cache', { projectName });
+      await invoke<number>('clean_project_cache', { projectName });
       await loadProjectCaches();
       await loadHealthReport();
     } catch (err) {

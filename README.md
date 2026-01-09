@@ -249,6 +249,8 @@ Cache: 78% ↑
 
 ## 🏗️ 技术架构
 
+> 详细架构文档请参阅 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+
 ```
 ┌─────────────────────────────────────────────────────┐
 │                   Fangyu Code                        │

@@ -220,8 +220,11 @@ export const APIConfigPanel: React.FC<APIConfigPanelProps> = ({
 
   // 加载配置
   useEffect(() => {
-    manager.loadFromStorage();
-    refreshConfigs();
+    const loadConfig = async () => {
+      await manager.loadFromStorage();
+      refreshConfigs();
+    };
+    loadConfig();
   }, [manager]);
 
   const refreshConfigs = useCallback(() => {
@@ -230,9 +233,9 @@ export const APIConfigPanel: React.FC<APIConfigPanelProps> = ({
     setDefaultModel(manager.getDefaultModel());
   }, [manager]);
 
-  const handleUpdateProvider = useCallback((provider: APIProvider, update: Partial<ProviderConfig>) => {
+  const handleUpdateProvider = useCallback(async (provider: APIProvider, update: Partial<ProviderConfig>) => {
     manager.configureProvider(provider, update);
-    manager.saveToStorage();
+    await manager.saveToStorage();
     refreshConfigs();
     onConfigChange?.(manager);
   }, [manager, refreshConfigs, onConfigChange]);
@@ -252,10 +255,10 @@ export const APIConfigPanel: React.FC<APIConfigPanelProps> = ({
     }
   }, [manager]);
 
-  const handleSetActive = useCallback((provider: APIProvider) => {
+  const handleSetActive = useCallback(async (provider: APIProvider) => {
     try {
       manager.setActiveProvider(provider);
-      manager.saveToStorage();
+      await manager.saveToStorage();
       refreshConfigs();
       onConfigChange?.(manager);
     } catch (error) {
@@ -263,10 +266,10 @@ export const APIConfigPanel: React.FC<APIConfigPanelProps> = ({
     }
   }, [manager, refreshConfigs, onConfigChange]);
 
-  const handleDefaultModelChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleDefaultModelChange = useCallback(async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const model = e.target.value;
     manager.setDefaultModel(model);
-    manager.saveToStorage();
+    await manager.saveToStorage();
     setDefaultModel(model);
     onConfigChange?.(manager);
   }, [manager, onConfigChange]);

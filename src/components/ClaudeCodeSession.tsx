@@ -49,7 +49,6 @@ import { ProjectMCPQuickConfig } from "@/components/ProjectMCPQuickConfig";
 import { useCanvasExtractor } from "@/hooks/useCanvasExtractor";
 import { useAutoMCPCallTracker } from "@/hooks/useAutoMCPCallTracker";
 import { useAutoResume } from "@/hooks/useAutoResume";
-import { AutoResumeIndicator } from "./AutoResumeIndicator";
 import { ChatNotification } from "@/components/notifications/ChatNotification";
 import { ToolRecommendationToast } from "./ToolRecommendationToast";
 import { useToolRecommendation } from "@/hooks/useToolRecommendation";
@@ -151,8 +150,8 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   // 使用完整的去重后消息列表
   const messages = deduplicatedMessages;
 
-  // 🔥 Token Optimization: Get optimization functions (仅用于 API 调用)
-  const { optimizeMessages } = useTokenOptimization();
+  // 🔥 Token Optimization: Hook 保留以支持未来 API 调用优化
+  useTokenOptimization();
 
   const isLoading = isStreaming;
   const setIsLoading = setIsStreaming;
@@ -177,7 +176,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   const [codexRateLimits, setCodexRateLimits] = useState<CodexRateLimits | null>(null);
 
   // 🔧 v2.3.1: 消息持久化 - 解决消息丢失问题
-  const { loadPersistedMessages, persistMessages, clearPersistedMessages } = useMessagePersistence({
+  const { loadPersistedMessages, persistMessages } = useMessagePersistence({
     sessionId: claudeSessionId || '',
     enabled: !!claudeSessionId,
     debounceMs: 1000
@@ -592,7 +591,6 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   const {
     status: thresholdStatus,
     summary: thresholdSummary,
-    generateSummary: generateThresholdSummary,
   } = useSessionThresholdMonitor({
     messages,
     maxTokens: contextUsage.contextWindowSize || 200000,
@@ -660,11 +658,6 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   // 🆕 自动继续任务（Cost-Effective UX - 自动发送"继续"，节省 token 费用）
   const {
     shouldResume,
-    countdown: autoResumeCountdown,
-    cancel: cancelAutoResume,
-    resume: manualResume,
-    isCancelled: isAutoResumeCancelled,
-    remainingAttempts,
   } = useAutoResume({
     sessionId: effectiveSession?.id,
     messages,

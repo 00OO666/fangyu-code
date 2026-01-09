@@ -6,6 +6,7 @@ pub mod checkpoint_manager; // Checkpoint 检查点系统
 pub mod config_manager; // 配置管理中心 - 全局管控配置
 pub mod devtools; // 开发者工具 - F12 打开控制台
 pub mod diagnostics; // 诊断工具 - 检查配置健全性、Token消耗优化
+pub mod docker; // Docker 容器管理 - 沙箱环境
 pub mod parallel_agents; // 并行代理系统 - Claude Code Task风格
 pub mod claude;
 pub mod clipboard;
@@ -22,6 +23,7 @@ pub mod mcp;
 pub mod permission_config;
 pub mod prompt_tracker;
 pub mod provider;
+pub mod secure_storage; // 安全存储 - API 密钥加密存储
 pub mod session_continue; // 智能会话续接 - 自动创建新会话并注入摘要
 pub mod simple_git;
 pub mod smart_project; // 智能项目管理 - 自动创建/命名项目

@@ -728,6 +728,13 @@ fn main() {
             get_chat_history_stats,
             // Smart Session Continue (智能会话续接系统)
             commands::session_continue::create_continued_session,
+            // Docker Container Management (Docker 容器管理 - 沙箱环境)
+            commands::docker::docker_check_availability,
+            commands::docker::docker_create_container,
+            commands::docker::docker_destroy_container,
+            commands::docker::docker_exec_command,
+            commands::docker::docker_container_status,
+            commands::docker::docker_container_stats,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -9,7 +9,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Code, Eye, Maximize2, Minimize2, RefreshCw, Download, Copy, Check, ExternalLink } from 'lucide-react';
+import { X, Code, Eye, Maximize2, Minimize2, RefreshCw, Copy, Check, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import Editor from '@monaco-editor/react';

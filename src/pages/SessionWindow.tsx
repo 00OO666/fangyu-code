@@ -22,6 +22,7 @@ import {
   parseSessionWindowParams,
 } from "@/lib/windowManager";
 import { taskDelegationService } from "@/lib/taskDelegationService";
+import { useEventCleanup } from "@/hooks/useEventCleanup";
 
 interface SessionWindowState {
   isLoading: boolean;
@@ -47,6 +48,9 @@ export const SessionWindow: React.FC = () => {
     tabId: null,
     engine: null,
   });
+
+  // Use centralized event cleanup hook for Tauri listeners
+  const { registerWindowListener } = useEventCleanup();
 
   // Parse URL parameters on mount
   const windowParams = useMemo(() => parseSessionWindowParams(), []);
@@ -172,8 +176,10 @@ export const SessionWindow: React.FC = () => {
     };
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
-    window.listen("focus", handleFocus);
-    window.listen("blur", handleBlur);
+    
+    // Setup Tauri window listeners using centralized cleanup hook
+    registerWindowListener("focus", handleFocus);
+    registerWindowListener("blur", handleBlur);
 
     // Listen for delegated tasks
     const setupTaskListener = async () => {
@@ -186,8 +192,11 @@ export const SessionWindow: React.FC = () => {
 
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
+      // Note: Tauri window listeners are automatically cleaned up by useEventCleanup hook
+      // Unregister window from attention mechanism
+      invoke("unregister_window", { windowId }).catch(console.error);
     };
-  }, [state.session?.id]);
+  }, [state.session?.id, registerWindowListener]);
 
   // Window control handlers
   const handleCloseWindow = async () => {

@@ -17,7 +17,7 @@ import { getVersion } from "@tauri-apps/api/app";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const STORAGE_KEY = "fangyu-code-last-seen-version";
-const FALLBACK_VERSION = "2.5.0"; // 🔧 Fallback 版本（获取失败时使用）
+const FALLBACK_VERSION = "2.5.1"; // 🔧 Fallback 版本（获取失败时使用）
 
 // 🔧 DEBUG: 全局变量用于强制显示更新日志（调试用）
 declare global {
@@ -29,6 +29,29 @@ declare global {
 
 // 版本更新日志（从新到旧）
 export const CHANGELOGS = {
+  "2.5.1": {
+    title: "v2.5.1 - 🧹 代码质量审计与清理",
+    date: "2026-01-09",
+    features: [
+      "📚 架构文档 - 新增 docs/ARCHITECTURE.md，完整记录项目架构",
+      "🧪 VirtualList 单元测试 - 26 个测试用例覆盖核心虚拟滚动逻辑",
+      "🧹 代码清理 - 移除 6 个文件中的未使用导入和变量",
+      "✅ 488 个测试全部通过 - 包括单元测试和属性测试",
+    ],
+    improvements: [
+      "✅ ClaudeCodeSession 清理 - 移除 autoResume 相关未使用代码",
+      "✅ CanvasRenderer 清理 - 移除 useMemo、RefreshCw、X、TabsContent",
+      "✅ CommandPalette 清理 - 移除未使用的 Search 导入",
+      "✅ ConfigManager 清理 - 移除 DialogDescription、t、freed",
+      "✅ FormatNotificationProvider 清理 - 移除 AlertCircle、FileText",
+    ],
+    technical: [
+      "完成 Fangyu Code v2.5.0 审计 Spec 全部任务",
+      "完成 API Integration v2.5 Spec 全部任务",
+      "完成 Super AI Agent Desktop Spec 全部任务",
+      "README.md 添加架构文档链接",
+    ],
+  },
   "2.5.0": {
     title: "v2.5.0 - 🚀 真实 API 集成完成！告别 Mock，拥抱真实 AI",
     date: "2026-01-09",
