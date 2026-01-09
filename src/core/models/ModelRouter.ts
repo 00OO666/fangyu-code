@@ -7,6 +7,8 @@
  */
 
 import { ModelProvider, ModelConfig } from '../types/unified-agent';
+import { RealAPIClient, createHiAPIClient, createOpenAIClient, APIClientConfig } from '../api/RealAPIClient';
+import { TokenTracker } from '../api/TokenTracker';
 
 // 模型健康状态
 export interface ModelHealth {
@@ -110,6 +112,8 @@ export class ModelRouter {
   private health: Map<string, ModelHealth> = new Map();
   private usage: Map<string, ModelUsageStats> = new Map();
   private clients: Map<ModelProvider, ModelAPIClient> = new Map();
+  private realClients: Map<string, RealAPIClient> = new Map();
+  private tokenTracker: TokenTracker;
   private fallbackChain: Record<ModelProvider, ModelProvider[]>;
   private maxRetries: number = 3;
   private retryDelay: number = 1000;
@@ -124,6 +128,7 @@ export class ModelRouter {
   }) {
     this.fallbackChain = options?.fallbackChain ?? DEFAULT_FALLBACK_CHAIN;
     this.maxRetries = options?.maxRetries ?? 3;
+    this.tokenTracker = new TokenTracker();
     this.healthMonitorConfig = {
       checkInterval: options?.healthMonitor?.checkInterval ?? 60000,
       unhealthyThreshold: options?.healthMonitor?.unhealthyThreshold ?? 3,
@@ -131,6 +136,66 @@ export class ModelRouter {
       maxRecoveryAttempts: options?.healthMonitor?.maxRecoveryAttempts ?? 5,
       circuitBreakerTimeout: options?.healthMonitor?.circuitBreakerTimeout ?? 30000,
     };
+  }
+
+  // ==========================================================================
+  // RealAPIClient 集成
+  // Requirements: 2.4
+  // ==========================================================================
+
+  /**
+   * 注册 RealAPIClient 作为默认客户端
+   */
+  registerRealClient(
+    provider: ModelProvider,
+    config: APIClientConfig
+  ): void {
+    const client = new RealAPIClient(config);
+    this.realClients.set(provider, client);
+    
+    // 同时注册为 ModelAPIClient
+    this.clients.set(provider, client);
+  }
+
+  /**
+   * 使用 HiAPI 中转服务
+   */
+  useHiAPI(apiKey: string, options?: Partial<APIClientConfig>): void {
+    const client = createHiAPIClient(apiKey, options);
+    
+    // HiAPI 支持多个提供商，注册为默认
+    this.realClients.set('hiapi' as ModelProvider, client);
+    
+    // 为所有提供商注册同一个客户端（HiAPI 中转）
+    const providers: ModelProvider[] = ['anthropic', 'openai', 'google', 'xai'];
+    for (const provider of providers) {
+      if (!this.clients.has(provider)) {
+        this.clients.set(provider, client);
+      }
+    }
+  }
+
+  /**
+   * 使用 OpenAI 直连
+   */
+  useOpenAI(apiKey: string, options?: Partial<APIClientConfig>): void {
+    const client = createOpenAIClient(apiKey, options);
+    this.realClients.set('openai', client);
+    this.clients.set('openai', client);
+  }
+
+  /**
+   * 获取 RealAPIClient
+   */
+  getRealClient(provider: ModelProvider): RealAPIClient | undefined {
+    return this.realClients.get(provider);
+  }
+
+  /**
+   * 获取 Token 追踪器
+   */
+  getTokenTracker(): TokenTracker {
+    return this.tokenTracker;
   }
 
   // ==========================================================================
@@ -259,6 +324,14 @@ export class ModelRouter {
 
       // 更新使用统计
       this.updateUsage(healthKey, result.usage.inputTokens, result.usage.outputTokens, cost, latency);
+
+      // 记录到 TokenTracker
+      this.tokenTracker.recordUsage({
+        promptTokens: result.usage.inputTokens,
+        completionTokens: result.usage.outputTokens,
+        totalTokens,
+        model: config.model,
+      });
 
       return {
         content: result.content,

@@ -17,7 +17,7 @@ import { getVersion } from "@tauri-apps/api/app";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const STORAGE_KEY = "fangyu-code-last-seen-version";
-const FALLBACK_VERSION = "2.4.8"; // 🔧 Fallback 版本（获取失败时使用）
+const FALLBACK_VERSION = "2.5.0"; // 🔧 Fallback 版本（获取失败时使用）
 
 // 🔧 DEBUG: 全局变量用于强制显示更新日志（调试用）
 declare global {
@@ -29,6 +29,32 @@ declare global {
 
 // 版本更新日志（从新到旧）
 export const CHANGELOGS = {
+  "2.5.0": {
+    title: "v2.5.0 - 🚀 真实 API 集成完成！告别 Mock，拥抱真实 AI",
+    date: "2026-01-09",
+    features: [
+      "🔌 真实 API 集成 - 支持 HiAPI 中转服务（49+ 模型可用）",
+      "🤖 多提供商支持 - HiAPI、OpenAI、Anthropic、Google、Azure 一键切换",
+      "⚙️ API 配置面板 - 设置 → API 配置，可视化管理所有 API 密钥",
+      "✅ 一键验证 - 配置后点击验证，确认 API 连接正常",
+      "📊 实时 Token 追踪 - 每次请求显示 Token 使用量和费用",
+      "🔄 智能重试 - 网络错误自动重试，指数退避策略",
+    ],
+    improvements: [
+      "✅ HiAPI 正确配置 - Base URL: https://hiapi.online/v1",
+      "✅ 流式响应 - SSE 实时输出，打字机效果",
+      "✅ 错误处理 - 结构化错误码，清晰的错误提示",
+      "✅ 模型映射 - claude-3.5-sonnet、gpt-4o 等简写自动转换",
+      "✅ 19 个 E2E 测试 - 完整的端到端测试覆盖",
+    ],
+    technical: [
+      "RealAPIClient - OpenAI 兼容的 API 客户端",
+      "APIConfigManager - 多提供商配置管理器",
+      "APIConfigPanel - API 配置 UI 组件",
+      "StreamHandler - SSE 流式响应处理",
+      "完整文档 - docs/API_CONFIG_GUIDE.md",
+    ],
+  },
   "2.4.8": {
     title: "v2.4.8 - 🤖 Super Agent 控制中心",
     date: "2026-01-09",
