@@ -3,7 +3,7 @@
  * 配置 Agent 系统、自治模式、Powers 等
  */
 import React, { useState } from 'react';
-import { Bot, Shield, Zap, Settings2, AlertTriangle } from 'lucide-react';
+import { Bot, Shield, Zap, Settings2, AlertTriangle, Key } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -11,6 +11,7 @@ import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { APIConfigPanel } from './APIConfigPanel';
 
 export const SuperAgentSettings: React.FC = () => {
   // Agent 配置状态
@@ -270,6 +271,22 @@ export const SuperAgentSettings: React.FC = () => {
             <li>监控上下文使用量</li>
             <li>配置和管理 Powers</li>
           </ul>
+        </CardContent>
+      </Card>
+
+      {/* API 配置 */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Key className="h-5 w-5 text-purple-500" />
+            API 配置
+          </CardTitle>
+          <CardDescription>
+            配置 AI 模型提供商和 API 密钥
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <APIConfigPanel />
         </CardContent>
       </Card>
     </div>
