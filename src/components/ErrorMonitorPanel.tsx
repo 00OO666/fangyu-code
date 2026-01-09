@@ -13,10 +13,12 @@ import { cn } from "@/lib/utils";
 import { useConsoleMonitor, type ConsoleError } from "@/hooks/useConsoleMonitor";
 
 interface ErrorMonitorPanelProps {
-  /** 是否显示面板 */
-  isOpen: boolean;
-  /** 关闭面板回调 */
-  onClose: () => void;
+  /** 错误列表 */
+  errors: ConsoleError[];
+  /** 清空所有错误回调 */
+  onClearAll: () => void;
+  /** 清除单个错误回调 */
+  onClearError: (errorId: string) => void;
 }
 
 /**
@@ -160,20 +162,25 @@ const ErrorItem: React.FC<{
  * 错误监控面板组件
  */
 export const ErrorMonitorPanel: React.FC<ErrorMonitorPanelProps> = ({
-  isOpen,
-  onClose,
+  errors,
+  onClearAll,
+  onClearError,
 }) => {
-  const {
-    errors,
-    errorCount,
-    warnCount,
-    totalCount,
-    errorsByCategory,
-    clearErrors,
-    clearError,
-  } = useConsoleMonitor({ enabled: isOpen });
-
   const [filter, setFilter] = useState<"all" | "error" | "warn">("all");
+
+  // 计算统计数据
+  const errorCount = errors.filter(e => e.type === 'error').length;
+  const warnCount = errors.filter(e => e.type === 'warn').length;
+  const totalCount = errors.reduce((sum, e) => sum + e.count, 0);
+
+  // 按类别分组
+  const errorsByCategory = errors.reduce((acc, error) => {
+    if (!acc[error.category]) {
+      acc[error.category] = [];
+    }
+    acc[error.category].push(error);
+    return acc;
+  }, {} as Record<ConsoleError["category"], ConsoleError[]>);
 
   const filteredErrors = errors.filter((error) => {
     if (filter === "all") return true;
@@ -183,12 +190,16 @@ export const ErrorMonitorPanel: React.FC<ErrorMonitorPanelProps> = ({
   return (
     <div
       className={cn(
-        "h-full bg-background flex flex-col transition-all duration-300 ease-in-out border-l shadow-lg",
-        isOpen ? "w-96" : "w-0"
+        "fixed bottom-4 right-4 bg-background flex flex-col transition-all duration-300 ease-in-out border shadow-lg rounded-lg z-50",
+        errors.length > 0 ? "w-96 max-h-[500px]" : "w-auto"
       )}
-      style={{ overflow: "hidden" }}
     >
-      {isOpen && (
+      {errors.length === 0 ? (
+        <div className="p-3 text-sm text-muted-foreground flex items-center gap-2">
+          <Bug className="h-4 w-4" />
+          暂无错误 ✨
+        </div>
+      ) : (
         <>
           {/* 头部 */}
           <div className="flex items-center justify-between p-3 border-b flex-shrink-0">
@@ -205,20 +216,12 @@ export const ErrorMonitorPanel: React.FC<ErrorMonitorPanelProps> = ({
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={clearErrors}
+                onClick={onClearAll}
                 className="h-7 px-2 text-xs"
                 disabled={errors.length === 0}
               >
                 <Trash2 className="h-3 w-3 mr-1" />
                 清空
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onClose}
-                className="h-7 w-7 p-0"
-              >
-                <X className="h-3.5 w-3.5" />
               </Button>
             </div>
           </div>
@@ -255,7 +258,7 @@ export const ErrorMonitorPanel: React.FC<ErrorMonitorPanelProps> = ({
             {/* 按类别统计 */}
             {Object.keys(errorsByCategory).length > 0 && (
               <div className="flex flex-wrap gap-1">
-                {Object.entries(errorsByCategory).map(([category, errs]) => (
+                {Object.entries(errorsByCategory).map(([category, _categoryErrors]) => (
                   <CategoryBadge
                     key={category}
                     category={category as ConsoleError["category"]}
@@ -266,7 +269,7 @@ export const ErrorMonitorPanel: React.FC<ErrorMonitorPanelProps> = ({
           </div>
 
           {/* 错误列表 */}
-          <ScrollArea className="flex-1">
+          <ScrollArea className="flex-1 max-h-[300px]">
             <div className="p-3 space-y-2">
               {filteredErrors.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground text-sm">
@@ -279,7 +282,7 @@ export const ErrorMonitorPanel: React.FC<ErrorMonitorPanelProps> = ({
                   <ErrorItem
                     key={error.id}
                     error={error}
-                    onClear={() => clearError(error.id)}
+                    onClear={() => onClearError(error.id)}
                   />
                 ))
               )}

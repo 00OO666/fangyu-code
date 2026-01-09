@@ -193,17 +193,17 @@ export const ExecutionEngineSelector: React.FC<ExecutionEngineSelectorProps> = (
     onChange({ ...value, geminiApprovalMode: mode });
   };
 
-  const handleRuntimeModeChange = async (
-    engine: 'claude' | 'codex' | 'gemini',
-    mode: string,
+  const handleRuntimeModeChange = async <T extends string>(
+    _engine: 'claude' | 'codex' | 'gemini',
+    mode: T,
     currentConfig: any,
     setLocalConfig: (config: any) => void,
-    apiCall: (mode: string, distro: string | null) => Promise<void>
+    apiCall: (mode: T, distro: string | null, customPath?: string | null) => Promise<string | void>
   ) => {
     if (!currentConfig) return;
     setSavingConfig(true);
     try {
-      await apiCall(mode, currentConfig.wslDistro);
+      await apiCall(mode, currentConfig.wslDistro, currentConfig.customCodexPath);
       setLocalConfig({ ...currentConfig, mode });
       const shouldRestart = await ask('配置已保存。是否立即重启应用以使更改生效？', {
         title: '重启应用',

@@ -21,8 +21,7 @@ import {
   Download,
   Copy,
   Check,
-  AlertCircle,
-  Settings
+  AlertCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -228,14 +227,14 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({ code, language, onError }) 
         <div className="prose prose-neutral dark:prose-invert max-w-none p-6">
           <ReactMarkdown
             components={{
-              code({ node, inline, className, children, ...props }) {
+              code({ className, children, ...props }) {
                 const match = /language-(\w+)/.exec(className || '');
-                return !inline && match ? (
+                const isInline = !match;
+                return !isInline && match ? (
                   <SyntaxHighlighter
                     style={vscDarkPlus as any}
                     language={match[1]}
                     PreTag="div"
-                    {...props}
                   >
                     {String(children).replace(/\n$/, '')}
                   </SyntaxHighlighter>

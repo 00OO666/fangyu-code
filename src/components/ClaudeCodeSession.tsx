@@ -590,12 +590,14 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   // 🆕 会话阈值监控（80%/90% 警告 + 摘要对话框）
   const {
     status: thresholdStatus,
-    summary: thresholdSummary,
+    generateSummary: generateThresholdSummary,
   } = useSessionThresholdMonitor({
     messages,
-    maxTokens: contextUsage.contextWindowSize || 200000,
-    warningThreshold: 0.8,  // 80% 警告
-    criticalThreshold: 0.9, // 90% 生成摘要
+    config: {
+      maxContextTokens: contextUsage.contextWindowSize || 200000,
+      warningThreshold: 0.8,  // 80% 警告
+      criticalThreshold: 0.9, // 90% 生成摘要
+    },
     onWarning: () => {
       console.log('[ClaudeCodeSession] ⚠️ 80% threshold warning');
     },

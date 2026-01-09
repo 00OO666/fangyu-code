@@ -21,23 +21,16 @@ import {
   FileText,
   Wand2,
   TestTube,
-  RefreshCw,
   MessageSquare,
   X,
-  ChevronDown,
-  ChevronRight,
   Copy,
   Check,
   Loader2,
   BookOpen,
   Bug,
   Zap,
-  Lightbulb,
   Trash2,
-  Plus,
-  Settings,
   User,
-  Bot,
   Maximize2,
   Minimize2,
   Pin,
@@ -45,7 +38,6 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -63,11 +55,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 // ============================================
