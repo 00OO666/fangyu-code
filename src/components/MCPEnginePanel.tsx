@@ -89,18 +89,18 @@ export const MCPEnginePanel: React.FC<MCPEnginePanelProps> = ({
     });
   }, [servers, callTimes]);
 
-  // 过滤后的服务器列表
-  const filteredServers = useMemo(() => {
+    const filteredServers = useMemo(() => {
     if (!searchQuery) return sortedServers;
 
     const query = searchQuery.toLowerCase();
     return sortedServers.filter(server => {
       const description = getMCPDescription(server.id);
+      const descText = typeof description === 'string' ? description : description.description || '';
       return (
         server.id.toLowerCase().includes(query) ||
         server.spec.command?.toLowerCase().includes(query) ||
         server.spec.url?.toLowerCase().includes(query) ||
-        description.toLowerCase().includes(query)
+        descText.toLowerCase().includes(query)
       );
     });
   }, [sortedServers, searchQuery]);
@@ -247,7 +247,7 @@ export const MCPEnginePanel: React.FC<MCPEnginePanelProps> = ({
   /**
    * 渲染单个服务器项
    */
-  const renderServerItem = (server: MCPServerItem, index: number) => {
+  const renderServerItem = (server: MCPServerItem, _index: number) => {
     const isExpanded = expandedServers.has(server.id);
     const isCopied = copiedServer === server.id;
 

@@ -10,7 +10,6 @@ import {
   type Notification,
   type NotificationOptions,
   type NotificationPosition,
-  NotificationType,
 } from "@/types/notification";
 
 type NotificationListener = (notification: Notification) => void;
@@ -47,7 +46,7 @@ class NotificationService {
     this.emit(notification);
 
     // 自动关闭
-    if (notification.duration > 0) {
+    if (notification.duration && notification.duration > 0) {
       setTimeout(() => {
         this.close(notification.id);
       }, notification.duration);

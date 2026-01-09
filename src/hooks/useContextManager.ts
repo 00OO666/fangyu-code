@@ -99,7 +99,7 @@ const findTruncationIndex = (
  */
 const generateSummary = (messages: ClaudeStreamMessage[]): string => {
   const userMessages = messages.filter(m => m.message?.role === 'user');
-  const assistantMessages = messages.filter(m => m.message?.role === 'assistant');
+  const _assistantMessages = messages.filter(m => m.message?.role === 'assistant');
 
   const topics: string[] = [];
 

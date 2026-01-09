@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { ModelRouter } from './ModelRouter';
 
 describe('ModelRouter Property Tests', () => {
-  let router;
+  let router: ModelRouter;
 
   beforeEach(() => {
     router = new ModelRouter({ maxRetries: 2 });

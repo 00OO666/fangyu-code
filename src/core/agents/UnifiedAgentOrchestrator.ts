@@ -14,13 +14,12 @@ import type {
   AgentMetrics,
   Task,
   TaskType,
-  TaskStatus,
   TaskResult,
   ConcurrencyConfig,
   PoolStatus,
   BackgroundTaskStatus,
-} from '@core/types/unified-agent';
-import { AGENT_ROLES, getAgentRole, getBestAgentForTaskType } from './AgentRoles';
+} from '@/core/types/unified-agent';
+import { getAgentRole, getBestAgentForTaskType } from './AgentRoles';
 
 // ============================================================================
 // Default Configuration
@@ -392,11 +391,15 @@ export class UnifiedAgentOrchestrator {
 
       if (agent) {
         this.taskQueue.shift();
-        this.assignTask(item.task).then(item.resolve).catch(item.reject);
+        this.assignTask(item.task)
+          .then(() => this.executeTask(item.task))
+          .then(item.resolve)
+          .catch(item.reject);
       } else if (this.canCreateAgent(bestRole)) {
         this.taskQueue.shift();
         this.createAgent(bestRole)
           .then(() => this.assignTask(item.task))
+          .then(() => this.executeTask(item.task))
           .then(item.resolve)
           .catch(item.reject);
       } else {
@@ -414,7 +417,7 @@ export class UnifiedAgentOrchestrator {
    */
   async spawnBackground(roleType: AgentRoleType, prompt: string): Promise<string> {
     const taskId = uuidv4();
-    const agent = await this.createAgent(roleType);
+    const _agent = await this.createAgent(roleType);
 
     const task: Task = {
       id: taskId,

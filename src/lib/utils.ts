@@ -88,7 +88,14 @@ export function calculateTotalTokens(usage: UsageData): number {
 export interface ValidatableSession {
   id: string;
   first_message?: string;
-  engine?: "claude" | "codex" | "gemini";
+  engine?: "claude" | "codex" | "gemini" | "siliconflow";
+  // Optional fields from Session interface for sorting/display
+  project_id?: string;
+  project_path?: string;
+  created_at?: number;
+  last_message_timestamp?: string;
+  message_timestamp?: string;
+  todo_data?: unknown;
 }
 
 /**

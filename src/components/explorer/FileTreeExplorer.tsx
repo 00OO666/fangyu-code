@@ -37,7 +37,6 @@ import {
   ExternalLink,
   MoreVertical,
   X,
-  Check,
   FolderTree,
   Eye,
   EyeOff,
@@ -561,7 +560,10 @@ export const FileTreeExplorer: React.FC<FileTreeExplorerProps> = ({
     if (root.children) {
       return {
         ...root,
-        children: root.children.map(child => updateNode(child, path, updates) as FileNode)
+        children: root.children.map(child => {
+          const updated = updateNode(child, path, updates);
+          return updated || child;
+        })
       };
     }
 
@@ -738,11 +740,11 @@ export const FileTreeExplorer: React.FC<FileTreeExplorerProps> = ({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onContextAction?.('newFile', tree!)}>
+              <DropdownMenuItem onClick={() => tree && onContextAction?.('newFile', [tree])}>
                 <FilePlus className="w-4 h-4 mr-2" />
                 新建文件
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onContextAction?.('newFolder', tree!)}>
+              <DropdownMenuItem onClick={() => tree && onContextAction?.('newFolder', [tree])}>
                 <FolderPlus className="w-4 h-4 mr-2" />
                 新建文件夹
               </DropdownMenuItem>

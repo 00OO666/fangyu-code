@@ -187,11 +187,6 @@ export const MonacoDiffEditor: React.FC<MonacoDiffEditorProps> = ({
     });
   }, [readOnly]);
 
-  // 修改后的代码变更
-  const handleModifiedChange = useCallback((value: string | undefined) => {
-    setCurrentModified(value || '');
-  }, []);
-
   // 接受修改
   const handleAccept = useCallback(() => {
     onAccept?.(currentModified);

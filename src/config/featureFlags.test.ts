@@ -78,7 +78,7 @@ describe('Feature Flags', () => {
     });
 
     it('每个标志应该有完整的元数据', () => {
-      Object.entries(FEATURE_FLAG_INFO).forEach(([key, info]) => {
+      Object.entries(FEATURE_FLAG_INFO).forEach(([_key, info]) => {
         expect(info.id).toBeDefined();
         expect(info.name).toBeDefined();
         expect(info.description).toBeDefined();

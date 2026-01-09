@@ -18,8 +18,9 @@ import {
   MODEL_MAPPING,
   createHiAPIClient,
   createOpenAIClient,
+  StreamChunk,
 } from './RealAPIClient';
-import { StreamHandler, StreamChunk } from './StreamHandler';
+import { StreamHandler } from './StreamHandler';
 
 // =============================================================================
 // 测试生成器

@@ -383,12 +383,15 @@ export class BackgroundAgentManager {
       item.reject(new Error('Task cancelled'));
     }
 
+    // Update counters if was running (check before changing status)
+    const wasInProgress = task.status === 'in_progress';
+
     // Update status
     task.status = 'cancelled';
     task.completedAt = Date.now();
 
     // Update counters if was running
-    if (task.status === 'in_progress') {
+    if (wasInProgress) {
       this.runningByProvider.set(
         task.provider,
         Math.max(0, (this.runningByProvider.get(task.provider) || 1) - 1)

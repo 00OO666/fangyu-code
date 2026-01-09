@@ -54,7 +54,8 @@ export const UsageDashboard: React.FC<UsageDashboardProps> = ({ onBack }) => {
   // 选中的日期（用于查看小时级别数据）
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   // 小时级别数据（从 sessionStats 计算）
-  const [hourlyData, setHourlyData] = useState<{ hour: number; cost: number; tokens: number; count: number }[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_hourlyData, _setHourlyData] = useState<{ hour: number; cost: number; tokens: number; count: number }[]>([]);
 
   // Multi-engine state
   const [selectedEngine, setSelectedEngine] = useState<EngineType | "all">("all");

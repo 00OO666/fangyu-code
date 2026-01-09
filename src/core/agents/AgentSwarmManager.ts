@@ -19,7 +19,6 @@ import { v4 as uuidv4 } from 'uuid';
 import type {
   Agent,
   AgentType,
-  AgentStatus,
   AgentCapabilities,
   AgentMessage,
   AgentCloneRequest,
@@ -367,7 +366,7 @@ export class AgentSwarmManager extends EventEmitter {
       }
 
       // 并行分配任务
-      const assignments = await Promise.all(
+      const _assignments = await Promise.all(
         readyTasks.slice(0, this.config.maxConcurrentTasks).map(async task => {
           try {
             await this.assignAndExecuteTask(task);
@@ -788,7 +787,7 @@ export class AgentSwarmManager extends EventEmitter {
   /**
    * 查找匹配的现有代理
    */
-  private findMatchingAgent(type: AgentType, capabilities: AgentCapabilities): Agent | null {
+  private findMatchingAgent(type: AgentType, _capabilities: AgentCapabilities): Agent | null {
     for (const agent of this.pool.agents.values()) {
       if (agent.type === type) {
         return agent;

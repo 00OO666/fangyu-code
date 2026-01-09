@@ -328,7 +328,7 @@ export const MCP_RECOMMENDATIONS: Record<ProjectType, MCPRecommendation[]> = {
 /**
  * 根据项目特征检测项目类型
  */
-export async function detectProjectType(projectPath: string): Promise<{
+export async function detectProjectType(_projectPath: string): Promise<{
   type: ProjectType;
   rule: ProjectTypeRule;
   confidence: 'high' | 'medium' | 'low';

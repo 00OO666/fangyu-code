@@ -65,10 +65,11 @@ const FloatingPromptInputInner = (
     onToggleUsageDashboard,
     showUsageDashboard,
     onToggleMCPConfig,
-    compactStatus,
-    isCompacting,
-    compactProgress,
-    deltaMessagesCount,
+    // 🔧 以下属性已弃用，保留接口兼容性但不使用
+    compactStatus: _compactStatus,
+    isCompacting: _isCompacting,
+    compactProgress: _compactProgress,
+    deltaMessagesCount: _deltaMessagesCount,
   }: FloatingPromptInputProps,
   ref: React.Ref<FloatingPromptInputRef>,
 ) => {
@@ -673,15 +674,23 @@ const FloatingPromptInputInner = (
   }, [promptQueue, state.selectedModel]);
 
   // 🆕 优化提示词（调用 prompt enhancement API）
-  const handleOptimizePrompt = useCallback(async (itemId: string, originalPrompt: string): Promise<string | null> => {
+  const handleOptimizePrompt = useCallback(async (_itemId: string, originalPrompt: string): Promise<string | null> => {
     try {
       console.log('[FloatingPromptInput] 优化提示词:', originalPrompt.substring(0, 50));
       // 调用 handleEnhancePromptWithAPI（需要临时设置 prompt）
       const savedPrompt = state.prompt;
       dispatch({ type: "SET_PROMPT", payload: originalPrompt });
 
-      // 等待优化完成（这里需要 handleEnhancePromptWithAPI 支持返回优化后的文本）
-      await handleEnhancePromptWithAPI();
+      // 获取第一个可用的 provider
+      const providers = getEnabledProviders();
+      if (providers.length === 0) {
+        console.warn('[FloatingPromptInput] 没有可用的优化 provider');
+        dispatch({ type: "SET_PROMPT", payload: savedPrompt });
+        return null;
+      }
+
+      // 等待优化完成
+      await handleEnhancePromptWithAPI(providers[0].id);
 
       // 获取优化后的文本
       const optimizedPrompt = state.prompt;
@@ -694,7 +703,7 @@ const FloatingPromptInputInner = (
       console.error('[FloatingPromptInput] 优化失败:', error);
       return null;
     }
-  }, [state.prompt, handleEnhancePromptWithAPI]);
+  }, [state.prompt, handleEnhancePromptWithAPI, getEnabledProviders]);
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
@@ -882,10 +891,6 @@ const FloatingPromptInputInner = (
             onToggleUsageDashboard={onToggleUsageDashboard}
             showUsageDashboard={showUsageDashboard}
             onToggleMCPConfig={onToggleMCPConfig}
-            compactStatus={compactStatus}
-            isCompacting={isCompacting}
-            compactProgress={compactProgress}
-            deltaMessagesCount={deltaMessagesCount}
             // 🆕 队列相关
             pendingQueueCount={pendingCount}
             queueItems={promptQueue.items}

@@ -67,10 +67,6 @@ interface ControlBarProps {
   onToggleUsageDashboard?: () => void;  // 切换 Usage Dashboard
   showUsageDashboard?: boolean;  // Usage Dashboard 显示状态
   onToggleMCPConfig?: () => void;  // 切换项目级 MCP 配置对话框
-  compactStatus?: import("@/hooks/useBackgroundCompact").CompactStatus;
-  isCompacting?: boolean;
-  compactProgress?: number;
-  deltaMessagesCount?: number;
   // 🆕 队列相关
   pendingQueueCount?: number;
   queueItems?: any[];  // 队列项列表（用于悬停预览）
@@ -116,10 +112,6 @@ export const ControlBar: React.FC<ControlBarProps> = ({
   onToggleUsageDashboard,
   showUsageDashboard,
   onToggleMCPConfig,
-  compactStatus,
-  isCompacting,
-  compactProgress,
-  deltaMessagesCount,
   pendingQueueCount = 0,
   queueItems = [],
   showQueuePanel,

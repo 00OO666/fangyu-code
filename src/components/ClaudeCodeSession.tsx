@@ -590,7 +590,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   // 🆕 会话阈值监控（80%/90% 警告 + 摘要对话框）
   const {
     status: thresholdStatus,
-    generateSummary: generateThresholdSummary,
+    generateSummary: _generateThresholdSummary,
   } = useSessionThresholdMonitor({
     messages,
     config: {
@@ -1838,8 +1838,8 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
 
       {/* 🆕 会话阈值摘要对话框 - 80%/90% 警告 + 一键复制 */}
       <SessionSummaryDialog
-        isOpen={thresholdStatus.isCritical && !!thresholdSummary}
-        summary={thresholdSummary || ''}
+        isOpen={thresholdStatus.isCritical}
+        summary={''}
         tokenPercentage={thresholdStatus.percentage}
         onClose={() => {
           // 关闭对话框后重置状态

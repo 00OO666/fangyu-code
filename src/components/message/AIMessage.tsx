@@ -10,7 +10,6 @@ import { MessageActions } from "./MessageActions";
 import { cn } from "@/lib/utils";
 import { tokenExtractor } from "@/lib/tokenExtractor";
 import { formatTimestamp } from "@/lib/messageUtils";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import type { ClaudeStreamMessage } from '@/types/claude';
 import { useSession } from "@/contexts/SessionContext";
 
@@ -33,7 +32,7 @@ interface AIMessageProps {
 const extractAIText = (message: ClaudeStreamMessage): string => {
   if (!message.message?.content) return '';
 
-  const content = message.message.content;
+  const content = message.message.content as string | unknown[];
 
   // 如果是字符串，移除 thinking 标签后返回
   if (typeof content === 'string') {
@@ -43,8 +42,8 @@ const extractAIText = (message: ClaudeStreamMessage): string => {
   // 如果是数组，提取所有text类型的内容并移除 thinking 标签
   if (Array.isArray(content)) {
     const text = content
-      .filter((item: any) => item.type === 'text')
-      .map((item: any) => item.text)
+      .filter((item: unknown) => (item as { type?: string }).type === 'text')
+      .map((item: unknown) => (item as { text?: string }).text || '')
       .join('\n\n');
 
     return text.replace(/<thinking>[\s\S]*?<\/thinking>/g, '').trim();

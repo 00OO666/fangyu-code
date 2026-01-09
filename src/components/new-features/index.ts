@@ -7,8 +7,8 @@
 // ========================================
 // Canvas 实时渲染
 // ========================================
-export { CanvasRenderer } from '../canvas';
-export type { CanvasMode, CanvasLanguage, CanvasRendererProps } from '../canvas';
+export { CanvasPanel, CanvasFloatingWindow } from '../canvas';
+export type { CanvasPanelProps } from '../canvas';
 
 // ========================================
 // AI Copilot 侧边栏
@@ -51,8 +51,4 @@ export type { OutputType, SmartOutputParserProps } from '../output';
 export {
   DAGVisualizer,
   WorkflowControlPanel
-} from '../workflow';
-export type {
-  DAGVisualizerProps,
-  WorkflowControlPanelProps
 } from '../workflow';

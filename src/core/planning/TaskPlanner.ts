@@ -21,7 +21,6 @@ import type {
   WorkflowDAG,
   WorkflowEdge,
   WorkflowMetadata,
-  WorkflowConfig
 } from '../types/workflow';
 
 // ============================================

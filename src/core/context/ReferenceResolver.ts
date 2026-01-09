@@ -56,20 +56,20 @@ export interface CodebaseProvider {
 
 // 默认文件系统实现（Node.js 风格，实际使用时需要 Tauri 实现）
 export class DefaultFileSystem implements FileSystem {
-  async readFile(path: string): Promise<string> {
+  async readFile(_path: string): Promise<string> {
     // 在浏览器/Tauri 环境中，这需要通过 IPC 调用
     throw new Error('FileSystem not implemented. Use Tauri IPC.');
   }
   
-  async readDir(path: string): Promise<string[]> {
+  async readDir(_path: string): Promise<string[]> {
     throw new Error('FileSystem not implemented. Use Tauri IPC.');
   }
   
-  async stat(path: string): Promise<{ isDirectory: boolean; size: number }> {
+  async stat(_path: string): Promise<{ isDirectory: boolean; size: number }> {
     throw new Error('FileSystem not implemented. Use Tauri IPC.');
   }
   
-  async exists(path: string): Promise<boolean> {
+  async exists(_path: string): Promise<boolean> {
     throw new Error('FileSystem not implemented. Use Tauri IPC.');
   }
 }
@@ -188,7 +188,7 @@ export class ReferenceResolver {
    * 解析 Reference 对象
    */
   async resolveReference(ref: Reference, options?: ResolveOptions): Promise<ResolvedReference | null> {
-    const maxTokens = options?.maxTokens ?? 10000;
+    const _maxTokens = options?.maxTokens ?? 10000;
     
     switch (ref.type) {
       case 'file':
@@ -281,7 +281,7 @@ export class ReferenceResolver {
   /**
    * 解析 #Problems 引用
    */
-  private async resolveProblems(target: string, options?: ResolveOptions): Promise<ResolvedReference> {
+  private async resolveProblems(target: string, _options?: ResolveOptions): Promise<ResolvedReference> {
     if (!this.diagnostics) {
       return {
         type: 'problems',
@@ -331,7 +331,7 @@ export class ReferenceResolver {
   /**
    * 解析 #Terminal 引用
    */
-  private async resolveTerminal(target: string, options?: ResolveOptions): Promise<ResolvedReference> {
+  private async resolveTerminal(target: string, _options?: ResolveOptions): Promise<ResolvedReference> {
     if (!this.terminal) {
       return {
         type: 'terminal',

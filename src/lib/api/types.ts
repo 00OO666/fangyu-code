@@ -586,7 +586,7 @@ export interface ServerStatus {
  * MCP configuration for project scope (.mcp.json)
  */
 export interface MCPProjectConfig {
-  mcpServers: Record<string, MCPServerConfig>;
+  mcpServers: Record<string, MCPServerSpec>;
 }
 
 /**

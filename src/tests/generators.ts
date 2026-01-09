@@ -21,7 +21,7 @@ import type {
   Reference,
   OperationType,
   Operation,
-} from '@core/types/unified-agent';
+} from '@/core/types/unified-agent';
 
 // ============================================================================
 // Agent Generators

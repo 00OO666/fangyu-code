@@ -12,7 +12,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import * as fc from 'fast-check';
 import { UnifiedAgentOrchestrator, resetOrchestrator } from './UnifiedAgentOrchestrator';
 import { getBestAgentForTaskType } from './AgentRoles';
-import type { Task, TaskType, AgentRoleType } from '@core/types/unified-agent';
+import type { Task, TaskType, AgentRoleType } from '@/core/types/unified-agent';
 import { taskTypeArb } from '@/tests/generators';
 
 // Fast-check configuration to prevent infinite loops

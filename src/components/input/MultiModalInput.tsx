@@ -17,20 +17,14 @@ import {
   Image as ImageIcon,
   FileText,
   X,
-  Scissors,
   Eye,
   Download,
   Copy,
-  Maximize2,
-  Minimize2,
   AlertCircle,
-  CheckCircle,
   Loader2,
   Camera,
   ClipboardPaste,
-  File,
   Trash2,
-  Edit2,
   ZoomIn,
   ZoomOut,
   RotateCw
@@ -168,7 +162,7 @@ const extractPDFText = async (file: File): Promise<string> => {
 /**
  * OCR 识别（模拟）
  */
-const performOCR = async (imageUrl: string): Promise<string> => {
+const performOCR = async (_imageUrl: string): Promise<string> => {
   // 实际应该调用 Tesseract.js 或云端 OCR API
   await new Promise(resolve => setTimeout(resolve, 1500));
   return `[OCR 识别结果]\n这里是图片中识别出的文本内容...`;
@@ -190,6 +184,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({ file, onClose, onDelete, enab
   const [isOCRing, setIsOCRing] = useState(false);
   const [zoom, setZoom] = useState(100);
   const [rotation, setRotation] = useState(0);
+  const [activeTab, setActiveTab] = useState('preview');
 
   const handleOCR = useCallback(async () => {
     if (file.type !== 'image') return;
@@ -215,7 +210,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({ file, onClose, onDelete, enab
     if (file.extractedText || ocrText) {
       await navigator.clipboard.writeText(file.extractedText || ocrText || '');
     }
-  }, [file, ocrText]);
+  }, [file.extractedText, ocrText]);
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
@@ -281,7 +276,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({ file, onClose, onDelete, enab
           </div>
         </DialogHeader>
 
-        <Tabs defaultValue="preview" className="mt-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-4">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="preview">预览</TabsTrigger>
             <TabsTrigger value="text" disabled={!file.extractedText && !ocrText}>
@@ -621,9 +616,20 @@ export const MultiModalInput: React.FC<MultiModalInputProps> = ({
       }
 
       if (imageItems.length > 0) {
-        const dataTransfer = new DataTransfer();
-        imageItems.forEach(file => dataTransfer.items.add(file));
-        handleFiles(dataTransfer.files);
+        // 直接处理文件数组，避免 DataTransfer 兼容性问题
+        const fileList = {
+          length: imageItems.length,
+          item: (i: number) => imageItems[i],
+          [Symbol.iterator]: function* () {
+            for (let i = 0; i < imageItems.length; i++) {
+              yield imageItems[i];
+            }
+          }
+        } as unknown as FileList;
+        for (let i = 0; i < imageItems.length; i++) {
+          (fileList as unknown as Record<number, File>)[i] = imageItems[i];
+        }
+        handleFiles(fileList);
       }
     };
 

@@ -6,16 +6,14 @@
  */
 
 import React from "react";
-import { Eye, EyeOff, Brain, Wrench, RotateCcw } from "lucide-react";
+import { Eye, Brain, Wrench, RotateCcw } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useOutputDisplaySettings } from "@/hooks/useOutputDisplaySettings";
-import { useTranslation } from "@/hooks/useTranslation";
 
 export const OutputDisplaySettings: React.FC = () => {
-  const { t } = useTranslation();
   const { settings, toggleSetting, resetSettings } = useOutputDisplaySettings();
 
   return (

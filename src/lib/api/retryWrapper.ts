@@ -26,14 +26,6 @@ const RETRYABLE_TAURI_ERRORS = [
 ];
 
 /**
- * 判断 Tauri 错误是否可重试
- */
-function isTauriErrorRetryable(error: unknown): boolean {
-  const errorString = String(error).toLowerCase();
-  return RETRYABLE_TAURI_ERRORS.some((pattern) => errorString.includes(pattern.toLowerCase()));
-}
-
-/**
  * 带重试的 Tauri invoke 调用
  *
  * @param cmd Tauri 命令名

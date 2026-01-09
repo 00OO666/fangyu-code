@@ -11,7 +11,6 @@
 
 import { RealAPIClient, APIClientConfig, createHiAPIClient, createOpenAIClient } from './RealAPIClient';
 import {
-  secureStorage,
   saveAPIKey,
   getAPIKey,
   removeAPIKey,
@@ -363,10 +362,11 @@ export class APIConfigManager {
    * 导出配置
    */
   exportConfig(): APIConfigStore {
-    const providers: Record<APIProvider, ProviderConfig> = {} as Record<APIProvider, ProviderConfig>;
+    const providers: Record<APIProvider, Omit<ProviderConfig, 'apiKey'> & { hasApiKey: boolean }> = {} as Record<APIProvider, Omit<ProviderConfig, 'apiKey'> & { hasApiKey: boolean }>;
     
     for (const [provider, config] of this.configs) {
-      providers[provider] = { ...config };
+      const { apiKey, ...rest } = config;
+      providers[provider] = { ...rest, hasApiKey: !!apiKey };
     }
 
     return {

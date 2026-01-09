@@ -36,7 +36,7 @@ import { GeneralSettings } from "./settings/GeneralSettings";
 import { PermissionsSettings } from "./settings/PermissionsSettings";
 import { EnvironmentSettings } from "./settings/EnvironmentSettings";
 import { HooksSettings } from "./settings/HooksSettings";
-import { ConfigManager, ConfigManagerEmbedded } from "./ConfigManager";
+import { ConfigManagerEmbedded } from "./ConfigManager";
 import { OutputDisplaySettings } from "./settings/OutputDisplaySettings";
 import { SuperAgentSettings } from "./settings/SuperAgentSettings";
 

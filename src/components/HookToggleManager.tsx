@@ -163,7 +163,7 @@ export const HookToggleManager: React.FC<HookToggleManagerProps> = ({
   // 打开 Hooks 目录
   const openHooksDirectory = async () => {
     try {
-      const homeDir = await api.getClaudeDir?.() || 'C:\\Users\\666\\.claude';
+      const homeDir = 'C:\\Users\\666\\.claude';
       const hooksDir = `${homeDir}\\hooks`;
       await open(hooksDir);
     } catch (err) {

@@ -11,31 +11,21 @@
  * 5. 日志和调试
  */
 
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   Play,
   Pause,
   Square,
-  RefreshCw,
   Maximize2,
   Minimize2,
-  Settings,
   Terminal,
-  FileCode,
   Users,
   Workflow,
   Zap,
-  Clock,
   AlertTriangle,
   CheckCircle,
   XCircle,
   Loader2,
-  ChevronDown,
-  ChevronRight,
-  Copy,
-  Download,
-  Upload,
   Sparkles,
   Brain,
   GitBranch,
@@ -63,25 +53,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-// Resizable components temporarily disabled
-// import {
-//   ResizableHandle,
-//   ResizablePanel,
-//   ResizablePanelGroup,
-// } from '@/components/ui/resizable';
 
 import { DAGVisualizer } from './DAGVisualizer';
 import type {
   WorkflowDAG,
-  Task,
   Agent,
   WorkflowLog,
   WorkflowConfig
@@ -102,7 +77,6 @@ interface WorkflowControlPanelProps {
   className?: string;
 }
 
-type PanelView = 'planning' | 'execution' | 'monitoring';
 type ExecutionStatus = 'idle' | 'planning' | 'running' | 'paused' | 'completed' | 'failed';
 
 // ============================================
@@ -380,8 +354,8 @@ const StatsPanel: React.FC<{ workflow: WorkflowDAG | null; agents: Agent[] }> = 
 // ============================================
 
 export const WorkflowControlPanel: React.FC<WorkflowControlPanelProps> = ({
-  config,
-  projectPath,
+  config: _config,
+  projectPath: _projectPath,
   onClose,
   className
 }) => {
@@ -719,9 +693,9 @@ export const WorkflowControlPanel: React.FC<WorkflowControlPanelProps> = ({
       </div>
 
       {/* 主内容区 */}
-      <ResizablePanelGroup direction="horizontal" className="flex-1">
+      <div className="flex flex-1 overflow-hidden">
         {/* 左侧面板 */}
-        <ResizablePanel defaultSize={25} minSize={20} maxSize={40}>
+        <div className="w-[25%] min-w-[250px] max-w-[400px] flex-shrink-0">
           <div className="flex flex-col h-full border-r">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
               <TabsList className="w-full justify-start rounded-none border-b px-2">
@@ -805,12 +779,10 @@ export const WorkflowControlPanel: React.FC<WorkflowControlPanelProps> = ({
               <LogPanel logs={state.logs} />
             </div>
           </div>
-        </ResizablePanel>
-
-        <ResizableHandle withHandle />
+        </div>
 
         {/* 右侧 - DAG 可视化 */}
-        <ResizablePanel defaultSize={75}>
+        <div className="flex-1">
           {state.workflow ? (
             <DAGVisualizer
               workflow={state.workflow}
@@ -832,8 +804,8 @@ export const WorkflowControlPanel: React.FC<WorkflowControlPanelProps> = ({
               </p>
             </div>
           )}
-        </ResizablePanel>
-      </ResizablePanelGroup>
+        </div>
+      </div>
     </div>
   );
 };

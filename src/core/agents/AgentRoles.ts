@@ -9,7 +9,7 @@ import type {
   AgentRole,
   AgentRoleType,
   ModelProvider,
-} from '@core/types/unified-agent';
+} from '@/core/types/unified-agent';
 
 // ============================================================================
 // Default Model Configurations

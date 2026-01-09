@@ -385,9 +385,10 @@ const QueueItem: React.FC<{
 
 export const PromptQueuePanel: React.FC<PromptQueuePanelProps> = ({
   items,
-  isProcessing,
-  currentItemId,
-  autoMerge,
+  // 🔧 已弃用的属性（保留接口兼容性）
+  isProcessing: _isProcessing,
+  currentItemId: _currentItemId,
+  autoMerge: _autoMerge,
   onRevokeToInput,
   onSendImmediate,
   onDelete,
@@ -396,7 +397,7 @@ export const PromptQueuePanel: React.FC<PromptQueuePanelProps> = ({
   onUpdatePrompt,
   onSendMerged,
   onClearQueue,
-  onSetAutoMerge,
+  onSetAutoMerge: _onSetAutoMerge,
   onClose,
   isLoading = false,
   onQueueSubmit,
