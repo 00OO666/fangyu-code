@@ -629,7 +629,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   const {
     status: sessionContinueStatus,
     shouldContinue,
-    summary: sessionSummary,
+    summary: continueSummary,
     newSessionId: continuedSessionId,
     continueTo, // TODO: 用于手动触发会话续接
     cancel: cancelSessionContinue, // TODO: 用于取消会话续接
@@ -691,7 +691,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   useEffect(() => {
     if (shouldContinue && continuedSessionId) {
       console.log('[ClaudeCodeSession] 🎉 Smart session continue - switching to:', continuedSessionId);
-      console.log('[ClaudeCodeSession] 📝 Summary:', sessionSummary?.summaryText.slice(0, 200) + '...');
+      console.log('[ClaudeCodeSession] 📝 Summary:', continueSummary?.summaryText.slice(0, 200) + '...');
 
       // TODO: 打开新窗口并加载新会话
       // 目前先更新当前会话ID
@@ -708,7 +708,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
         });
       }
     }
-  }, [shouldContinue, continuedSessionId, sessionSummary, loadSessionHistory, onSessionInfoChange, projectPath, effectiveSession?.project_id, executionEngineConfig.engine]);
+  }, [shouldContinue, continuedSessionId, continueSummary, loadSessionHistory, onSessionInfoChange, projectPath, effectiveSession?.project_id, executionEngineConfig.engine]);
 
   // 🆕 当后台压缩完成时，自动切换到新会话（降级方案）
   useEffect(() => {
