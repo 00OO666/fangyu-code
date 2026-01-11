@@ -15,7 +15,7 @@
  * - Devin 的隔离环境
  */
 
-import { EventEmitter } from 'events';
+import { BrowserEventEmitter } from '../../lib/BrowserEventEmitter';
 import { v4 as uuidv4 } from 'uuid';
 import { invoke } from '@tauri-apps/api/core';
 import type {
@@ -76,7 +76,7 @@ const DEFAULT_SANDBOX_SPEC: SandboxSpec = {
 // SandboxManager 类
 // ============================================
 
-export class SandboxManager extends EventEmitter {
+export class SandboxManager extends BrowserEventEmitter {
   private sandboxes: Map<string, Sandbox> = new Map();
   private config: WorkflowConfig;
   private isDockerAvailable: boolean = false;

@@ -14,7 +14,7 @@
  * - Swarms 框架的 DAG 编排
  */
 
-import { EventEmitter } from 'events';
+import { BrowserEventEmitter } from '../../lib/BrowserEventEmitter';
 import { v4 as uuidv4 } from 'uuid';
 import type {
   Agent,
@@ -172,7 +172,7 @@ const AGENT_TEMPLATES: Record<AgentType, Partial<Agent>> = {
 // AgentSwarmManager 类
 // ============================================
 
-export class AgentSwarmManager extends EventEmitter {
+export class AgentSwarmManager extends BrowserEventEmitter {
   private pool: AgentPool;
   private scheduler: SchedulerState;
   private config: WorkflowConfig;
