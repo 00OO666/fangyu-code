@@ -17,7 +17,7 @@ import { getVersion } from "@tauri-apps/api/app";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const STORAGE_KEY = "fangyu-code-last-seen-version";
-const FALLBACK_VERSION = "2.6.0"; // 🔧 Fallback 版本（获取失败时使用）
+const FALLBACK_VERSION = "2.7.1"; // 🔧 Fallback 版本（获取失败时使用）
 
 // 🔧 DEBUG: 全局变量用于强制显示更新日志（调试用）
 declare global {
@@ -29,6 +29,53 @@ declare global {
 
 // 版本更新日志（从新到旧）
 export const CHANGELOGS = {
+  "2.7.1": {
+    title: "v2.7.1 - 🔧 自动更新修复与稳定性提升",
+    date: "2026-01-11",
+    features: [
+      "🔄 自动更新修复 - 修复旧版本无法通过自动更新升级的问题",
+      "📦 完整发布流程 - 确保 GitHub Releases 包含 latest.json 更新清单",
+    ],
+    improvements: [
+      "✅ 变量名冲突修复 - 修复 sessionSummary 变量名冲突导致的构建失败",
+      "✅ 代码稳定性提升 - 优化 useSmartSessionContinue 返回值命名",
+    ],
+    bugfixes: [
+      "🐛 修复 sessionSummary 与 continueSummary 变量名冲突",
+      "🐛 修复自动更新检测不到新版本的问题",
+    ],
+    technical: [
+      "ClaudeCodeSession.tsx - 将 summary 重命名为 continueSummary",
+      "GitHub Actions - 确保 Release workflow 正确生成更新清单",
+    ],
+  },
+  "2.7.0": {
+    title: "v2.7.0 - 🎨 多模态升级：AI 图像生成 + 文件拖拽",
+    date: "2026-01-11",
+    features: [
+      "🎨 AI 图像生成 (Nano Banana) - 集成 Google Gemini 图像生成 API",
+      "📎 多模态文件拖拽 - 输入框支持拖拽图片/PDF/Word/Excel/PPT",
+      "🖼️ 文生图 - 输入描述即可生成高质量图片",
+      "✏️ 图生图 - 上传参考图片进行 AI 编辑",
+      "📄 智能文档解析 - 自动提取 PDF/Word/Excel 文本内容",
+    ],
+    improvements: [
+      "✅ 图像生成对话框 - 支持模型选择（Flash 快速/Pro 高质量）",
+      "✅ 文件预览 - 上传文件显示缩略图和解析状态",
+      "✅ 剪贴板粘贴 - Ctrl+V 直接粘贴截图到输入框",
+    ],
+    bugfixes: [
+      "🐛 修复 APIConfigManager 配置持久化测试",
+      "🐛 修复 agent-flow 批量任务处理测试",
+    ],
+    technical: [
+      "新增 geminiImageService.ts - Gemini 图像生成服务",
+      "新增 fileParserService.ts - 多格式文件解析服务",
+      "新增 ImageGenerateDialog 组件 - 图像生成 UI",
+      "新增 FileDropZone 组件 - 文件拖拽区域",
+      "依赖: @google/genai, pdfjs-dist, mammoth, xlsx",
+    ],
+  },
   "2.6.0": {
     title: "v2.6.0 - ⚡ 性能优化与体验提升",
     date: "2026-01-11",
