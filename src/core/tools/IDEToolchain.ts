@@ -12,8 +12,6 @@ import { ASTGrepTools, ASTGrepExecutor, MockASTGrepExecutor } from './ASTGrepToo
 import { PowersManager, PowerStorage, MCPClient, MockPowerStorage, MockMCPClient } from './PowersManager';
 import {
   Diagnostic,
-  DiagnosticSeverity,
-  HoverInfo,
   Location,
   Range,
   ASTMatch,
@@ -72,26 +70,26 @@ export class IDEToolchain {
   private ast: ASTGrepTools;
   private powers: PowersManager;
   private workspaceRoot: string;
-  
+
   constructor(config: ToolchainConfig) {
     this.workspaceRoot = config.workspaceRoot;
-    
+
     this.lsp = new LSPTools(
       config.workspaceRoot,
       config.lspClient ?? new MockLSPClient()
     );
-    
+
     this.ast = new ASTGrepTools(
       config.workspaceRoot,
       config.astExecutor ?? new MockASTGrepExecutor()
     );
-    
+
     this.powers = new PowersManager(
       config.powerStorage ?? new MockPowerStorage(),
       config.mcpClient ?? new MockMCPClient()
     );
   }
-  
+
   /**
    * 分析代码
    * Requirements: 3.5
@@ -103,9 +101,9 @@ export class IDEToolchain {
     options: AnalyzeOptions = {}
   ): Promise<CodeAnalysis> {
     const result: CodeAnalysis = {};
-    
+
     const tasks: Promise<void>[] = [];
-    
+
     // 获取 hover 信息
     if (options.includeHover !== false) {
       tasks.push(
@@ -114,7 +112,7 @@ export class IDEToolchain {
           .catch(() => { /* ignore */ })
       );
     }
-    
+
     // 获取定义位置
     if (options.includeDefinition) {
       tasks.push(
@@ -123,7 +121,7 @@ export class IDEToolchain {
           .catch(() => { /* ignore */ })
       );
     }
-    
+
     // 获取引用
     if (options.includeReferences) {
       tasks.push(
@@ -132,7 +130,7 @@ export class IDEToolchain {
           .catch(() => { /* ignore */ })
       );
     }
-    
+
     // 获取诊断信息
     if (options.includeDiagnostics !== false) {
       tasks.push(
@@ -141,25 +139,25 @@ export class IDEToolchain {
           .catch(() => { /* ignore */ })
       );
     }
-    
+
     await Promise.all(tasks);
-    
+
     return result;
   }
-  
+
   /**
    * 验证语法
    * Requirements: 3.6
    */
   async validateSyntax(file: string): Promise<SyntaxValidationResult> {
     const diagnostics = await this.lsp.diagnostics(file);
-    
+
     const errors = diagnostics.filter(d => d.severity === 'error');
     const warnings = diagnostics.filter(d => d.severity === 'warning');
     const hints = diagnostics.filter(d => d.severity === 'hint' || d.severity === 'info');
-    
+
     const valid = errors.length === 0;
-    
+
     let summary: string;
     if (valid && warnings.length === 0) {
       summary = 'No issues found';
@@ -168,7 +166,7 @@ export class IDEToolchain {
     } else {
       summary = `${errors.length} error(s), ${warnings.length} warning(s)`;
     }
-    
+
     return {
       valid,
       errors,
@@ -177,7 +175,7 @@ export class IDEToolchain {
       summary
     };
   }
-  
+
   /**
    * 搜索代码模式
    */
@@ -187,7 +185,7 @@ export class IDEToolchain {
     path?: string
   ): Promise<CodeSearchResult> {
     const matches = await this.ast.search(pattern, language, path);
-    
+
     return {
       pattern,
       language,
@@ -195,7 +193,7 @@ export class IDEToolchain {
       totalCount: matches.length
     };
   }
-  
+
   /**
    * 替换代码模式
    */
@@ -212,7 +210,7 @@ export class IDEToolchain {
       language
     );
   }
-  
+
   /**
    * 获取符号的所有引用
    */
@@ -223,7 +221,7 @@ export class IDEToolchain {
   ): Promise<Location[]> {
     return this.lsp.references(file, line, character);
   }
-  
+
   /**
    * 重命名符号
    */
@@ -235,7 +233,7 @@ export class IDEToolchain {
   ) {
     return this.lsp.rename(file, line, character, newName);
   }
-  
+
   /**
    * 获取代码补全
    */
@@ -246,65 +244,65 @@ export class IDEToolchain {
   ) {
     return this.lsp.completion(file, line, character);
   }
-  
+
   /**
    * 推断文件语言
    */
   inferLanguage(file: string): string | null {
     return this.ast.inferLanguage(file);
   }
-  
+
   /**
    * 检查语言是否支持 AST 搜索
    */
   isASTSupported(language: string): boolean {
     return this.ast.isLanguageSupported(language);
   }
-  
+
   /**
    * 获取支持的语言列表
    */
   getSupportedLanguages(): string[] {
     return this.ast.supportedLanguages();
   }
-  
+
   /**
    * 获取 Powers 管理器
    */
   getPowersManager(): PowersManager {
     return this.powers;
   }
-  
+
   /**
    * 获取 LSP 工具
    */
   getLSPTools(): LSPTools {
     return this.lsp;
   }
-  
+
   /**
    * 获取 AST-Grep 工具
    */
   getASTTools(): ASTGrepTools {
     return this.ast;
   }
-  
+
   /**
    * 批量验证多个文件
    */
   async validateMultiple(files: string[]): Promise<Map<string, SyntaxValidationResult>> {
     const results = new Map<string, SyntaxValidationResult>();
-    
+
     await Promise.all(
       files.map(async file => {
         const result = await this.validateSyntax(file);
         results.set(file, result);
       })
     );
-    
+
     return results;
   }
-  
+
   /**
    * 获取工作区诊断摘要
    */
@@ -315,20 +313,20 @@ export class IDEToolchain {
     filesWithErrors: string[];
   }> {
     const validations = await this.validateMultiple(files);
-    
+
     let totalErrors = 0;
     let totalWarnings = 0;
     const filesWithErrors: string[] = [];
-    
+
     for (const [file, result] of validations) {
       totalErrors += result.errors.length;
       totalWarnings += result.warnings.length;
-      
+
       if (result.errors.length > 0) {
         filesWithErrors.push(file);
       }
     }
-    
+
     return {
       totalErrors,
       totalWarnings,

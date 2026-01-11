@@ -33,10 +33,12 @@ import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import {
   Select,
   SelectContent,
@@ -507,8 +509,8 @@ function ExecutionStatus({ execution }: ExecutionStatusProps) {
     execution.status === 'running'
       ? Loader2
       : execution.status === 'completed'
-      ? CheckCircle2
-      : AlertCircle;
+        ? CheckCircle2
+        : AlertCircle;
 
   return (
     <div className="flex items-center gap-2 p-2 rounded bg-background text-xs">
@@ -563,6 +565,9 @@ function SubagentEditor({ open, onOpenChange, subagent, onSave }: SubagentEditor
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{subagent ? '编辑子代理' : '创建子代理'}</DialogTitle>
+          <VisuallyHidden.Root>
+            <DialogDescription>配置子代理的名称、描述、系统提示词和模型参数</DialogDescription>
+          </VisuallyHidden.Root>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -677,6 +682,9 @@ function TemplateMarketDialog({
             <Globe className="h-5 w-5" />
             子代理模板市场
           </DialogTitle>
+          <VisuallyHidden.Root>
+            <DialogDescription>浏览和选择预设的子代理模板</DialogDescription>
+          </VisuallyHidden.Root>
         </DialogHeader>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -710,7 +718,7 @@ function TemplateMarketDialog({
             </div>
           ))}
         </div>
-      </DialogContent>
-    </Dialog>
+      </DialogContent >
+    </Dialog >
   );
 }

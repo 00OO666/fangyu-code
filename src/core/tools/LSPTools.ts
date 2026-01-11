@@ -12,7 +12,6 @@ import {
   Range,
   HoverInfo,
   Diagnostic,
-  DiagnosticSeverity
 } from '../types/unified-agent';
 
 // 补全项
@@ -66,7 +65,7 @@ export interface TextEdit {
 export interface LSPClient {
   initialize(workspaceRoot: string): Promise<void>;
   shutdown(): Promise<void>;
-  
+
   textDocumentHover(file: string, position: Position): Promise<HoverInfo | null>;
   textDocumentDefinition(file: string, position: Position): Promise<Location | null>;
   textDocumentReferences(file: string, position: Position): Promise<Location[]>;
@@ -83,68 +82,68 @@ export class MockLSPClient implements LSPClient {
   private referencesResults: Map<string, Location[]> = new Map();
   private completionResults: Map<string, CompletionItem[]> = new Map();
   private diagnosticsResults: Map<string, Diagnostic[]> = new Map();
-  
+
   async initialize(workspaceRoot: string): Promise<void> {
     this.initialized = true;
   }
-  
+
   async shutdown(): Promise<void> {
     this.initialized = false;
   }
-  
+
   setHoverResult(file: string, line: number, char: number, result: HoverInfo): void {
     this.hoverResults.set(`${file}:${line}:${char}`, result);
   }
-  
+
   setDefinitionResult(file: string, line: number, char: number, result: Location): void {
     this.definitionResults.set(`${file}:${line}:${char}`, result);
   }
-  
+
   setReferencesResult(file: string, line: number, char: number, results: Location[]): void {
     this.referencesResults.set(`${file}:${line}:${char}`, results);
   }
-  
+
   setCompletionResult(file: string, line: number, char: number, results: CompletionItem[]): void {
     this.completionResults.set(`${file}:${line}:${char}`, results);
   }
-  
+
   setDiagnosticsResult(file: string, results: Diagnostic[]): void {
     this.diagnosticsResults.set(file, results);
   }
-  
+
   // 别名方法（用于测试兼容性）
   setHover(file: string, line: number, char: number, result: HoverInfo): void {
     this.setHoverResult(file, line, char, result);
   }
-  
+
   setDefinition(file: string, line: number, char: number, result: Location): void {
     this.setDefinitionResult(file, line, char, result);
   }
-  
+
   setReferences(file: string, line: number, char: number, results: Location[]): void {
     this.setReferencesResult(file, line, char, results);
   }
-  
+
   setDiagnostics(file: string, results: Diagnostic[]): void {
     this.setDiagnosticsResult(file, results);
   }
-  
+
   async textDocumentHover(file: string, position: Position): Promise<HoverInfo | null> {
     return this.hoverResults.get(`${file}:${position.line}:${position.character}`) ?? null;
   }
-  
+
   async textDocumentDefinition(file: string, position: Position): Promise<Location | null> {
     return this.definitionResults.get(`${file}:${position.line}:${position.character}`) ?? null;
   }
-  
+
   async textDocumentReferences(file: string, position: Position): Promise<Location[]> {
     return this.referencesResults.get(`${file}:${position.line}:${position.character}`) ?? [];
   }
-  
+
   async textDocumentRename(file: string, position: Position, newName: string): Promise<WorkspaceEdit | null> {
     const refs = await this.textDocumentReferences(file, position);
     if (refs.length === 0) return null;
-    
+
     const changes: Record<string, TextEdit[]> = {};
     for (const ref of refs) {
       if (!changes[ref.file]) {
@@ -155,14 +154,14 @@ export class MockLSPClient implements LSPClient {
         newText: newName
       });
     }
-    
+
     return { changes };
   }
-  
+
   async textDocumentCompletion(file: string, position: Position): Promise<CompletionItem[]> {
     return this.completionResults.get(`${file}:${position.line}:${position.character}`) ?? [];
   }
-  
+
   async textDocumentDiagnostics(file: string): Promise<Diagnostic[]> {
     return this.diagnosticsResults.get(file) ?? [];
   }
@@ -175,12 +174,12 @@ export class LSPTools {
   private client: LSPClient;
   private workspaceRoot: string;
   private initialized = false;
-  
+
   constructor(workspaceRoot: string, client?: LSPClient) {
     this.workspaceRoot = workspaceRoot;
     this.client = client ?? new MockLSPClient();
   }
-  
+
   /**
    * 初始化 LSP
    */
@@ -189,7 +188,7 @@ export class LSPTools {
     await this.client.initialize(this.workspaceRoot);
     this.initialized = true;
   }
-  
+
   /**
    * 关闭 LSP
    */
@@ -198,7 +197,7 @@ export class LSPTools {
     await this.client.shutdown();
     this.initialized = false;
   }
-  
+
   /**
    * 获取悬停信息
    */
@@ -209,7 +208,7 @@ export class LSPTools {
       { line, character }
     );
   }
-  
+
   /**
    * 重命名符号
    */
@@ -226,7 +225,7 @@ export class LSPTools {
       newName
     );
   }
-  
+
   /**
    * 查找引用
    */
@@ -237,7 +236,7 @@ export class LSPTools {
       { line, character }
     );
   }
-  
+
   /**
    * 跳转到定义
    */
@@ -248,7 +247,7 @@ export class LSPTools {
       { line, character }
     );
   }
-  
+
   /**
    * 获取诊断信息（单个文件）
    */
@@ -259,18 +258,18 @@ export class LSPTools {
   async diagnostics(files: string[]): Promise<Diagnostic[]>;
   async diagnostics(fileOrFiles: string | string[]): Promise<Diagnostic[]> {
     await this.ensureInitialized();
-    
+
     const files = Array.isArray(fileOrFiles) ? fileOrFiles : [fileOrFiles];
     const allDiagnostics: Diagnostic[] = [];
-    
+
     for (const file of files) {
       const diags = await this.client.textDocumentDiagnostics(this.resolvePath(file));
       allDiagnostics.push(...diags);
     }
-    
+
     return allDiagnostics;
   }
-  
+
   /**
    * 获取补全建议
    */
@@ -281,7 +280,7 @@ export class LSPTools {
       { line, character }
     );
   }
-  
+
   /**
    * 确保已初始化
    */
@@ -290,7 +289,7 @@ export class LSPTools {
       await this.initialize();
     }
   }
-  
+
   /**
    * 解析路径
    */

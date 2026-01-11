@@ -1,0 +1,15 @@
+{
+    "name": "kiro-mcp-server",
+    "version": "1.0.0",
+    "description": "MCP Server for Kiro CLI integration with Claude Code",
+    "main": "index.js",
+    "type": "module",
+    "scripts": {
+        "start": "node index.js"
+    },
+    "dependencies": {
+        "@modelcontextprotocol/sdk": "^1.0.0"
+    },
+    "author": "Fangyu",
+    "license": "MIT"
+}

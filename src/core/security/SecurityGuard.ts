@@ -91,7 +91,7 @@ export class SecurityGuard {
   private config: SecurityConfig;
   private auditLog: AuditEntry[] = [];
   private operationCounter = 0;
-  
+
   constructor(config: Partial<SecurityConfig> = {}) {
     this.config = {
       workspaceBoundary: config.workspaceBoundary ?? process.cwd(),
@@ -100,7 +100,7 @@ export class SecurityGuard {
       commandWhitelist: config.commandWhitelist
     };
   }
-  
+
   /**
    * 验证路径是否在工作区内
    * Requirements: 12.1, 12.2
@@ -109,7 +109,7 @@ export class SecurityGuard {
     // 规范化路径
     const normalizedPath = this.normalizePath(path);
     const normalizedBoundary = this.normalizePath(this.config.workspaceBoundary);
-    
+
     // 检查路径遍历攻击
     if (this.hasPathTraversal(path)) {
       return {
@@ -118,7 +118,7 @@ export class SecurityGuard {
         severity: 'error'
       };
     }
-    
+
     // 检查是否在工作区边界内
     if (!this.isWithinWorkspace(normalizedPath, normalizedBoundary)) {
       return {
@@ -127,7 +127,7 @@ export class SecurityGuard {
         severity: 'error'
       };
     }
-    
+
     // 检查敏感系统路径
     if (this.isSensitiveSystemPath(normalizedPath)) {
       return {
@@ -136,27 +136,27 @@ export class SecurityGuard {
         severity: 'error'
       };
     }
-    
+
     return { valid: true };
   }
-  
+
   /**
    * 检查路径是否在工作区内
    */
   isWithinWorkspace(path: string, boundary?: string): boolean {
     const normalizedPath = this.normalizePath(path);
     const normalizedBoundary = this.normalizePath(boundary ?? this.config.workspaceBoundary);
-    
+
     // 确保边界以 / 结尾进行比较，避免 /workspaceother 被误判为在 /workspace 内
-    const boundaryWithSlash = normalizedBoundary.endsWith('/') 
-      ? normalizedBoundary 
+    const boundaryWithSlash = normalizedBoundary.endsWith('/')
+      ? normalizedBoundary
       : normalizedBoundary + '/';
-    
+
     // 路径完全等于边界，或者路径以边界+/开头
-    return normalizedPath === normalizedBoundary || 
-           normalizedPath.startsWith(boundaryWithSlash);
+    return normalizedPath === normalizedBoundary ||
+      normalizedPath.startsWith(boundaryWithSlash);
   }
-  
+
   /**
    * 验证命令是否安全
    * Requirements: 12.3, 12.6
@@ -164,14 +164,14 @@ export class SecurityGuard {
   validateCommand(command: string): ValidationResult {
     // 检查是否在白名单中
     if (this.config.commandWhitelist) {
-      const isWhitelisted = this.config.commandWhitelist.some(pattern => 
+      const isWhitelisted = this.config.commandWhitelist.some(pattern =>
         command.startsWith(pattern) || new RegExp(pattern).test(command)
       );
       if (isWhitelisted) {
         return { valid: true };
       }
     }
-    
+
     // 检查是否是危险命令
     if (this.isDangerousCommand(command)) {
       return {
@@ -180,7 +180,7 @@ export class SecurityGuard {
         severity: 'error'
       };
     }
-    
+
     // 检查命令注入
     if (this.hasCommandInjection(command)) {
       return {
@@ -189,38 +189,38 @@ export class SecurityGuard {
         severity: 'error'
       };
     }
-    
+
     return { valid: true };
   }
-  
+
   /**
    * 检查是否是危险命令
    * Requirements: 12.7
    */
   isDangerousCommand(command: string): boolean {
     const lowerCommand = command.toLowerCase();
-    
+
     return this.config.dangerousCommands.some(dangerous => {
       const lowerDangerous = dangerous.toLowerCase();
       return lowerCommand.includes(lowerDangerous) ||
-             lowerCommand.startsWith(lowerDangerous.split(' ')[0]);
+        lowerCommand.startsWith(lowerDangerous.split(' ')[0]);
     });
   }
-  
+
   /**
    * 检测敏感信息
    * Requirements: 12.4
    */
   detectSensitiveInfo(text: string): SensitiveMatch[] {
     const matches: SensitiveMatch[] = [];
-    
+
     for (let i = 0; i < this.config.sensitivePatterns.length; i++) {
       const pattern = this.config.sensitivePatterns[i];
       const type = this.getPatternType(i);
-      
+
       // 重置正则表达式状态
       pattern.lastIndex = 0;
-      
+
       let match: RegExpExecArray | null;
       while ((match = pattern.exec(text)) !== null) {
         matches.push({
@@ -231,33 +231,33 @@ export class SecurityGuard {
         });
       }
     }
-    
+
     // 按位置排序并去重
     return this.deduplicateMatches(matches);
   }
-  
+
   /**
    * 脱敏敏感信息
    * Requirements: 12.4
    */
   redactSensitiveInfo(text: string): string {
     const matches = this.detectSensitiveInfo(text);
-    
+
     if (matches.length === 0) {
       return text;
     }
-    
+
     // 从后向前替换，避免位置偏移
     let result = text;
     const sortedMatches = [...matches].sort((a, b) => b.start - a.start);
-    
+
     for (const match of sortedMatches) {
       result = result.slice(0, match.start) + match.redacted + result.slice(match.end);
     }
-    
+
     return result;
   }
-  
+
   /**
    * 记录操作到审计日志
    * Requirements: 12.5
@@ -275,17 +275,17 @@ export class SecurityGuard {
       duration,
       error
     };
-    
+
     this.auditLog.push(entry);
-    
+
     // 限制日志大小
     if (this.auditLog.length > 10000) {
       this.auditLog = this.auditLog.slice(-5000);
     }
-    
+
     return entry;
   }
-  
+
   /**
    * 获取审计日志
    */
@@ -297,36 +297,37 @@ export class SecurityGuard {
     since?: number;
   }): AuditEntry[] {
     let entries = [...this.auditLog];
-    
+
     // 按类型过滤
     if (options?.type) {
       entries = entries.filter(e => e.operation.type === options.type);
     }
-    
+
     // 按结果过滤
     if (options?.result) {
       entries = entries.filter(e => e.result === options.result);
     }
-    
+
     // 按时间过滤
     if (options?.since) {
-      entries = entries.filter(e => e.operation.timestamp >= options.since);
+      const sinceTime = options.since;
+      entries = entries.filter(e => e.operation.timestamp >= sinceTime);
     }
-    
+
     // 分页
     const offset = options?.offset ?? 0;
     const limit = options?.limit ?? entries.length;
-    
+
     return entries.slice(offset, offset + limit);
   }
-  
+
   /**
    * 清除审计日志
    */
   clearAuditLog(): void {
     this.auditLog = [];
   }
-  
+
   /**
    * 获取审计统计
    */
@@ -344,19 +345,19 @@ export class SecurityGuard {
       blocked: 0,
       byType: {} as Record<OperationType, number>
     };
-    
+
     for (const entry of this.auditLog) {
       if (entry.result === 'success') stats.success++;
       else if (entry.result === 'failure') stats.failure++;
       else if (entry.result === 'blocked') stats.blocked++;
-      
+
       const type = entry.operation.type;
       stats.byType[type] = (stats.byType[type] ?? 0) + 1;
     }
-    
+
     return stats;
   }
-  
+
   /**
    * 更新配置
    */
@@ -374,40 +375,40 @@ export class SecurityGuard {
       this.config.commandWhitelist = config.commandWhitelist;
     }
   }
-  
+
   /**
    * 获取当前配置
    */
   getConfig(): SecurityConfig {
     return { ...this.config };
   }
-  
+
   // ============================================================================
   // 私有方法
   // ============================================================================
-  
+
   private normalizePath(path: string): string {
     // 统一路径分隔符
     let normalized = path.replace(/\\/g, '/');
-    
+
     // 移除末尾斜杠
     while (normalized.endsWith('/') && normalized.length > 1) {
       normalized = normalized.slice(0, -1);
     }
-    
+
     // 转换为小写（Windows 不区分大小写）
     if (process.platform === 'win32') {
       normalized = normalized.toLowerCase();
     }
-    
+
     return normalized;
   }
-  
+
   private hasPathTraversal(path: string): boolean {
     // 检查 .. 序列
     return /(?:^|[/\\])\.\.(?:[/\\]|$)/.test(path);
   }
-  
+
   private isSensitiveSystemPath(path: string): boolean {
     const sensitivePaths = [
       '/etc/passwd',
@@ -420,11 +421,11 @@ export class SecurityGuard {
       'c:/program files',
       'c:/programdata'
     ];
-    
+
     const lowerPath = path.toLowerCase();
     return sensitivePaths.some(sensitive => lowerPath.startsWith(sensitive));
   }
-  
+
   private hasCommandInjection(command: string): boolean {
     // 检查常见的命令注入模式
     const injectionPatterns = [
@@ -436,10 +437,10 @@ export class SecurityGuard {
       /eval\s+/, // eval 命令
       /exec\s+/ // exec 命令
     ];
-    
+
     return injectionPatterns.some(pattern => pattern.test(command));
   }
-  
+
   private getPatternType(index: number): string {
     const types = [
       'api_key',
@@ -457,22 +458,22 @@ export class SecurityGuard {
     ];
     return types[index] ?? 'unknown';
   }
-  
+
   private deduplicateMatches(matches: SensitiveMatch[]): SensitiveMatch[] {
     // 按起始位置排序
     const sorted = [...matches].sort((a, b) => a.start - b.start);
-    
+
     // 去除重叠的匹配
     const result: SensitiveMatch[] = [];
     let lastEnd = -1;
-    
+
     for (const match of sorted) {
       if (match.start >= lastEnd) {
         result.push(match);
         lastEnd = match.end;
       }
     }
-    
+
     return result;
   }
 }

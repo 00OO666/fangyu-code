@@ -10,7 +10,6 @@
  */
 
 import React, { useState, useCallback, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import {
   Check,
   X,
@@ -187,7 +186,7 @@ export const MonacoDiffEditor: React.FC<MonacoDiffEditorProps> = ({
       foldingHighlight: false, // 禁用折叠高亮
       links: false, // 禁用链接检测
       colorDecorators: false, // 禁用颜色装饰器
-      lightbulb: { enabled: 'off' }, // 禁用灯泡提示
+      lightbulb: { enabled: false as any }, // 禁用灯泡提示
       contextmenu: false, // 禁用右键菜单
       mouseWheelZoom: false, // 禁用鼠标滚轮缩放
       smoothScrolling: false, // 禁用平滑滚动

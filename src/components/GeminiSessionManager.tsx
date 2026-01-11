@@ -31,9 +31,11 @@ import { History } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 
 interface GeminiSessionManagerProps {
   projectPath: string;
@@ -75,6 +77,9 @@ export const GeminiSessionManager: React.FC<GeminiSessionManagerProps> = ({
         <DialogContent className="max-w-md h-[80vh]">
           <DialogHeader>
             <DialogTitle>Gemini 会话历史</DialogTitle>
+            <VisuallyHidden.Root>
+              <DialogDescription>浏览和管理 Gemini 会话历史记录</DialogDescription>
+            </VisuallyHidden.Root>
           </DialogHeader>
           <div className="h-[calc(80vh-4rem)]">
             <GeminiSessionHistoryPanel
@@ -94,6 +99,9 @@ export const GeminiSessionManager: React.FC<GeminiSessionManagerProps> = ({
         <DialogContent className="max-w-4xl h-[80vh]">
           <DialogHeader>
             <DialogTitle>会话详情</DialogTitle>
+            <VisuallyHidden.Root>
+              <DialogDescription>查看选中会话的详细内容</DialogDescription>
+            </VisuallyHidden.Root>
           </DialogHeader>
           {viewingSessionId && (
             <GeminiSessionDetailViewer

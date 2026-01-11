@@ -8,9 +8,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { AgentSwarmManager } from "@/core/agents/AgentSwarmManager";
 import { DEFAULT_PLANNER_CONFIG, TaskPlanner } from "@/core/planning/TaskPlanner";
 import { SandboxManager } from "@/core/sandbox/SandboxManager";
+import { DEFAULT_WORKFLOW_CONFIG } from "@/core/types/workflow";
 import type {
   Agent,
-  DEFAULT_WORKFLOW_CONFIG,
   Task,
   WorkflowConfig,
   WorkflowDAG,
@@ -33,7 +33,7 @@ export interface WorkflowOrchestrator {
   error: string | null;
 
   // 操作
-  generateWorkflow: (prompt: string, ultrathink?: boolean) => Promise<void>;
+  generateWorkflow: (prompt: string, ultrathink?: boolean) => Promise<WorkflowDAG | void>;
   startExecution: () => Promise<void>;
   pauseExecution: () => void;
   resumeExecution: () => Promise<void>;

@@ -31,6 +31,8 @@ import { InputArea } from "./InputArea";
 import { AttachmentPreview } from "./AttachmentPreview";
 import { ControlBar } from "./ControlBar";
 import { ExpandedModal } from "./ExpandedModal";
+import { FileDropZone, type FileAttachment } from "@/components/FileDropZone";
+import { useFileAttachments } from "@/hooks/useFileAttachments";
 
 // Re-export types for external use
 export type { FloatingPromptInputRef, FloatingPromptInputProps, ThinkingMode, ModelType } from "./types";
@@ -116,6 +118,12 @@ const FloatingPromptInputInner = (
   const [state, dispatch] = useReducer(inputReducer, {
     ...initialState,
     selectedModel: getInitialModel(),
+  });
+
+  // 🆕 文件附件管理（支持图片、PDF、Word、Excel、PPT）
+  const fileAttachments = useFileAttachments({
+    maxFiles: 10,
+    maxFileSize: 20 * 1024 * 1024, // 20MB
   });
 
   // 🆕 智能记忆检测（必须在 state 初始化之后）
@@ -399,8 +407,8 @@ const FloatingPromptInputInner = (
 
         if (envVars && typeof envVars === 'object') {
           const customModel = envVars.ANTHROPIC_MODEL ||
-                             envVars.ANTHROPIC_DEFAULT_SONNET_MODEL ||
-                             envVars.ANTHROPIC_DEFAULT_OPUS_MODEL;
+            envVars.ANTHROPIC_DEFAULT_SONNET_MODEL ||
+            envVars.ANTHROPIC_DEFAULT_OPUS_MODEL;
 
           if (customModel && typeof customModel === 'string') {
             // Check if it's a built-in model ID (sonnet, opus, sonnet1m)
@@ -665,6 +673,42 @@ const FloatingPromptInputInner = (
     promptQueue.updateItemPrompt(itemId, prompt);
   }, [promptQueue]);
 
+  // 🆕 处理 AI 生成的图片（Nano Banana）
+  const handleImageGenerated = useCallback(async (imageBase64: string, mimeType: string) => {
+    try {
+      // 将 base64 图片保存到临时文件，然后添加到附件
+      const result = await api.saveClipboardImage(`data:${mimeType};base64,${imageBase64}`);
+
+      if (result.success && result.file_path) {
+        // 创建预览 URL
+        const byteCharacters = atob(imageBase64);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: mimeType });
+        const blobUrl = URL.createObjectURL(blob);
+
+        // 添加到图片附件列表
+        const newAttachment = {
+          id: Date.now().toString(),
+          filePath: result.file_path,
+          previewUrl: blobUrl,
+          width: 0,
+          height: 0,
+        };
+
+        setImageAttachments(prev => [...prev, newAttachment]);
+        console.log('[FloatingPromptInput] AI 生成图片已添加到附件:', result.file_path);
+      } else {
+        console.error('[FloatingPromptInput] 保存 AI 生成图片失败:', result.error);
+      }
+    } catch (error) {
+      console.error('[FloatingPromptInput] 处理 AI 生成图片失败:', error);
+    }
+  }, [setImageAttachments]);
+
   // 🆕 队列输入框提交（sequential 模式，等待执行）
   const handleQueueSubmit = useCallback((prompt: string, mode: PromptSendMode) => {
     if (prompt.trim()) {
@@ -813,6 +857,28 @@ const FloatingPromptInputInner = (
           className="border-b border-border/50 p-4"
         />
 
+        {/* 🆕 文件附件区域（支持拖拽上传图片/PDF/Word/Excel/PPT） */}
+        {fileAttachments.hasAttachments && (
+          <FileDropZone
+            attachments={fileAttachments.attachments}
+            onAttachmentsChange={(update) => {
+              // FileDropZone 使用函数式更新，但我们用 hook 管理状态
+              // 这里只处理删除操作（通过 removeFile）
+              if (typeof update === 'function') {
+                const newList = update(fileAttachments.attachments);
+                // 找出被删除的项
+                const removedIds = fileAttachments.attachments
+                  .filter(a => !newList.find(n => n.id === a.id))
+                  .map(a => a.id);
+                removedIds.forEach(id => fileAttachments.removeFile(id));
+              }
+            }}
+            disabled={disabled}
+            compact={false}
+            className="px-4 pt-2 border-b border-border/50"
+          />
+        )}
+
         <div className="p-4 space-y-2">
           <InputArea
             ref={textareaRef}
@@ -883,7 +949,7 @@ const FloatingPromptInputInner = (
             setEnableDualAPI={setEnableDualAPI}
             getEnabledProviders={getEnabledProviders}
             handleEnhancePromptWithAPI={handleEnhancePromptWithAPI}
-            onCancel={onCancel || (() => {})}
+            onCancel={onCancel || (() => { })}
             onSend={handleSend}
             onOpenCanvas={onOpenCanvas}
             hasPreviewableCode={hasPreviewableCode}
@@ -896,6 +962,8 @@ const FloatingPromptInputInner = (
             queueItems={promptQueue.items}
             showQueuePanel={showQueuePanel}
             onToggleQueuePanel={() => setShowQueuePanel(!showQueuePanel)}
+            // 🆕 图像生成回调
+            onImageGenerated={handleImageGenerated}
           />
         </div>
       </div>

@@ -168,15 +168,15 @@ export const WorkflowManagerPanel: React.FC<WorkflowManagerPanelProps> = ({
               <div className="text-sm space-y-1">
                 <div>ID: {result.workflowId}</div>
                 <div>状态: {result.workflow.status}</div>
-                <div>任务数: {result.workflow.tasks.length}</div>
+                <div>任务数: {result.workflow.phases.flatMap(p => p.tasks).length}</div>
               </div>
             </div>
 
-            {result.workflow.tasks.length > 0 && (
+            {result.workflow.phases.flatMap(p => p.tasks).length > 0 && (
               <div>
                 <div className="text-sm font-medium mb-2">任务列表</div>
                 <div className="space-y-2">
-                  {result.workflow.tasks.map((task: CollaborationTask) => (
+                  {result.workflow.phases.flatMap(p => p.tasks).map((task: CollaborationTask) => (
                     <div
                       key={task.id}
                       className="flex items-center justify-between p-2 border rounded"
@@ -188,13 +188,13 @@ export const WorkflowManagerPanel: React.FC<WorkflowManagerPanelProps> = ({
                         {task.status === 'failed' && (
                           <XCircle className="h-4 w-4 text-red-500" />
                         )}
-                        {task.status === 'running' && (
+                        {task.status === 'in_progress' && (
                           <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
                         )}
                         {task.status === 'pending' && (
                           <Clock className="h-4 w-4 text-gray-400" />
                         )}
-                        <span className="text-sm">{task.name}</span>
+                        <span className="text-sm">{task.title}</span>
                       </div>
                       <span className="text-xs text-muted-foreground">
                         {task.assignedAgent}

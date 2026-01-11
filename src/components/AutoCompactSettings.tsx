@@ -224,7 +224,7 @@ export const AutoCompactSettings: React.FC<AutoCompactSettingsProps> = ({
         )}
 
         <Tabs value={activeTab} className="flex-1 overflow-hidden"
-              onValueChange={setActiveTab}>
+          onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="config" className="flex items-center gap-2">
               <Settings2 className="h-4 w-4" />
@@ -273,8 +273,10 @@ export const AutoCompactSettings: React.FC<AutoCompactSettingsProps> = ({
                     <Label className="text-base">{t('autoCompact.maxContextTokens')}</Label>
                     <TooltipProvider>
                       <Tooltip>
-                        <TooltipTrigger>
-                          <Info className="h-4 w-4 text-muted-foreground" />
+                        <TooltipTrigger asChild>
+                          <span className="cursor-help">
+                            <Info className="h-4 w-4 text-muted-foreground" />
+                          </span>
                         </TooltipTrigger>
                         <TooltipContent>
                           <p>{t('autoCompact.maxContextTokensHint')}</p>
@@ -654,8 +656,8 @@ export const AutoCompactSettings: React.FC<AutoCompactSettingsProps> = ({
                                   session.current_tokens / config.max_context_tokens > config.compaction_threshold
                                     ? "bg-red-500"
                                     : session.current_tokens / config.max_context_tokens > 0.7
-                                    ? "bg-yellow-500"
-                                    : "bg-green-500"
+                                      ? "bg-yellow-500"
+                                      : "bg-green-500"
                                 )}
                                 style={{
                                   width: `${Math.min(

@@ -45,6 +45,9 @@ const DEFAULT_CONFIG: ThresholdConfig = {
   maxContextTokens: 120000,
 };
 
+/** 警告限流间隔（毫秒）- 每分钟最多警告一次 */
+const WARNING_INTERVAL = 60000;
+
 /**
  * Hook for monitoring session token usage and triggering summary generation
  */
@@ -72,6 +75,8 @@ export const useSessionThresholdMonitor = (
 
   const warningTriggeredRef = useRef(false);
   const criticalTriggeredRef = useRef(false);
+  /** 🔧 FIX: 上次超限警告时间，用于限流 */
+  const lastExceedWarningTimeRef = useRef<number>(0);
 
   // Estimate token count from messages
   const estimateTokenCount = useCallback((msgs: ClaudeStreamMessage[]): number => {
@@ -102,17 +107,17 @@ export const useSessionThresholdMonitor = (
               const content =
                 typeof msg.message === "string"
                   ? msg.message
-                  : msg.message.content
-                      ?.map((c) => (c.type === "text" ? c.text : ""))
-                      .join("\n");
+                  : msg.message?.content
+                    ?.map((c) => (c.type === "text" ? c.text : ""))
+                    .join("\n");
               return `## User Message ${idx + 1}\n${content}`;
             } else if (msg.type === "assistant") {
               const content =
                 typeof msg.message === "string"
                   ? msg.message
-                  : msg.message.content
-                      ?.map((c) => (c.type === "text" ? c.text : ""))
-                      .join("\n");
+                  : msg.message?.content
+                    ?.map((c) => (c.type === "text" ? c.text : ""))
+                    .join("\n");
               return `## Assistant Response ${idx + 1}\n${content}`;
             }
             return "";
@@ -143,9 +148,36 @@ ${conversationText}`;
 
         return summary;
       } catch (error) {
-        console.error("Failed to generate summary:", error);
+        // 🔧 FIX: 记录完整错误对象，包含 type、message、stack、context
+        const errorInfo = {
+          errorType: error instanceof Error ? error.constructor.name : typeof error,
+          errorMessage: error instanceof Error ? error.message : String(error),
+          errorStack: error instanceof Error ? error.stack : undefined,
+          context: {
+            messagesCount: msgs.length,
+            timestamp: new Date().toISOString(),
+          },
+        };
+        console.error("[useSessionThresholdMonitor] Failed to generate summary:", errorInfo);
         setStatus((prev) => ({ ...prev, isGeneratingSummary: false }));
-        throw error;
+
+        // 🔧 FIX: 返回用户友好的回退摘要而不是抛出错误
+        const fallbackSummary = `## 摘要生成失败
+
+抱歉，无法自动生成会话摘要。
+
+**错误信息**: ${errorInfo.errorMessage}
+
+**建议操作**:
+1. 检查网络连接
+2. 稍后重试
+3. 手动记录重要内容
+
+---
+*生成时间: ${new Date().toLocaleString()}*`;
+
+        onSummaryGenerated?.(fallbackSummary);
+        return fallbackSummary;
       }
     },
     [onSummaryGenerated],
@@ -156,8 +188,11 @@ ${conversationText}`;
     const currentTokens = estimateTokenCount(messages);
     const percentage = currentTokens / config.maxContextTokens;
 
-    // 🔧 FIX: 添加调试日志，帮助诊断百分比计算问题
-    if (percentage > 1.0) {
+    // 🔧 FIX: 添加警告限流，每分钟最多警告一次
+    // 避免控制台被刷屏
+    const now = Date.now();
+    if (percentage > 1.0 && now - lastExceedWarningTimeRef.current > WARNING_INTERVAL) {
+      lastExceedWarningTimeRef.current = now;
       console.warn(
         `[useSessionThresholdMonitor] ⚠️ Token usage exceeds 100%:`,
         `\n  Current tokens: ${currentTokens.toLocaleString()}`,

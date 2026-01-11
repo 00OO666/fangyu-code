@@ -186,6 +186,17 @@ use commands::gemini::{
     update_gemini_provider_config,
     GeminiProcessState,
 };
+// Kiro CLI Integration (第五引擎)
+use commands::kiro::{
+    check_kiro_cli_installed,
+    check_kiro_cli_logged_in,
+    get_kiro_cli_version,
+    get_kiro_models,
+    execute_kiro_chat,
+    cancel_kiro_execution,
+    open_kiro_login,
+    KiroProcessState,
+};
 use commands::checkpoint_manager::{
     create_checkpoint, delete_checkpoint, delete_session_checkpoints, get_latest_checkpoint,
     init_checkpoint_manager, list_checkpoints, restore_checkpoint, GlobalCheckpointManager,
@@ -257,6 +268,9 @@ fn main() {
 
             // Initialize Gemini process state
             app.manage(GeminiProcessState::default());
+
+            // Initialize Kiro process state (第五引擎)
+            app.manage(KiroProcessState::default());
 
             // Initialize Checkpoint Manager
             app.manage(GlobalCheckpointManager(Mutex::new(None)));
@@ -753,6 +767,14 @@ fn main() {
             commands::docker::docker_exec_command,
             commands::docker::docker_container_status,
             commands::docker::docker_container_stats,
+            // Kiro CLI Integration (第五引擎 - Kiro CLI)
+            check_kiro_cli_installed,
+            check_kiro_cli_logged_in,
+            get_kiro_cli_version,
+            get_kiro_models,
+            execute_kiro_chat,
+            cancel_kiro_execution,
+            open_kiro_login,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

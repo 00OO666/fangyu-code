@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { Badge } from "@/components/ui/badge";
 import {
   Settings2,
@@ -489,6 +490,9 @@ export default function GeminiProviderManager({ onBack }: GeminiProviderManagerP
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>{t('provider.currentGeminiConfig')}</DialogTitle>
+            <VisuallyHidden.Root>
+              <DialogDescription>查看当前 Gemini 提供商配置详情</DialogDescription>
+            </VisuallyHidden.Root>
           </DialogHeader>
           <div className="space-y-4">
             {currentConfig ? (
@@ -498,8 +502,8 @@ export default function GeminiProviderManager({ onBack }: GeminiProviderManagerP
                     <p className="font-medium text-sm">{t('provider.authMethod')}</p>
                     <p className="text-sm text-muted-foreground font-mono bg-muted p-2 rounded">
                       {currentConfig.selectedAuthType === 'oauth-personal' ? t('provider.googleOAuthOfficial') :
-                       currentConfig.selectedAuthType === 'gemini-api-key' ? t('provider.apiKeyThirdParty') :
-                       currentConfig.selectedAuthType}
+                        currentConfig.selectedAuthType === 'gemini-api-key' ? t('provider.apiKeyThirdParty') :
+                          currentConfig.selectedAuthType}
                     </p>
                   </div>
                 )}
@@ -585,6 +589,9 @@ export default function GeminiProviderManager({ onBack }: GeminiProviderManagerP
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingProvider ? t('provider.editGeminiProvider') : t('provider.addGeminiProvider')}</DialogTitle>
+            <VisuallyHidden.Root>
+              <DialogDescription>配置 Gemini 提供商的 API 密钥和设置</DialogDescription>
+            </VisuallyHidden.Root>
           </DialogHeader>
           <GeminiProviderForm
             initialData={editingProvider || undefined}
@@ -599,6 +606,9 @@ export default function GeminiProviderManager({ onBack }: GeminiProviderManagerP
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>{t('provider.confirmDeleteGeminiProvider')}</DialogTitle>
+            <VisuallyHidden.Root>
+              <DialogDescription>确认删除选中的 Gemini 提供商配置</DialogDescription>
+            </VisuallyHidden.Root>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <p>{t('provider.confirmDeleteGeminiMessage', { name: providerToDelete?.name })}</p>

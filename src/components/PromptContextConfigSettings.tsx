@@ -125,8 +125,10 @@ export const PromptContextConfigSettings: React.FC<PromptContextConfigSettingsPr
                 <Label>{t('promptContext.maxMessages')}</Label>
                 <TooltipProvider>
                   <Tooltip>
-                    <TooltipTrigger>
-                      <Info className="h-4 w-4 text-muted-foreground" />
+                    <TooltipTrigger asChild>
+                      <span className="cursor-help">
+                        <Info className="h-4 w-4 text-muted-foreground" />
+                      </span>
                     </TooltipTrigger>
                     <TooltipContent>
                       <p>{t('promptContext.maxMessagesDesc')}</p>
@@ -157,8 +159,10 @@ export const PromptContextConfigSettings: React.FC<PromptContextConfigSettingsPr
                 <Label>{t('promptContext.maxAssistantLength')}</Label>
                 <TooltipProvider>
                   <Tooltip>
-                    <TooltipTrigger>
-                      <Info className="h-4 w-4 text-muted-foreground" />
+                    <TooltipTrigger asChild>
+                      <span className="cursor-help">
+                        <Info className="h-4 w-4 text-muted-foreground" />
+                      </span>
                     </TooltipTrigger>
                     <TooltipContent>
                       <p>{t('promptContext.maxAssistantLengthDesc')}</p>
@@ -189,8 +193,10 @@ export const PromptContextConfigSettings: React.FC<PromptContextConfigSettingsPr
                 <Label>{t('promptContext.maxUserLength')}</Label>
                 <TooltipProvider>
                   <Tooltip>
-                    <TooltipTrigger>
-                      <Info className="h-4 w-4 text-muted-foreground" />
+                    <TooltipTrigger asChild>
+                      <span className="cursor-help">
+                        <Info className="h-4 w-4 text-muted-foreground" />
+                      </span>
                     </TooltipTrigger>
                     <TooltipContent>
                       <p>{t('promptContext.maxUserLengthDesc')}</p>
@@ -220,8 +226,10 @@ export const PromptContextConfigSettings: React.FC<PromptContextConfigSettingsPr
               <Label>{t('promptContext.includeResults')}</Label>
               <TooltipProvider>
                 <Tooltip>
-                  <TooltipTrigger>
-                    <Info className="h-4 w-4 text-muted-foreground" />
+                  <TooltipTrigger asChild>
+                    <span className="cursor-help">
+                      <Info className="h-4 w-4 text-muted-foreground" />
+                    </span>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>{t('promptContext.includeResultsDesc')}</p>
@@ -243,8 +251,10 @@ export const PromptContextConfigSettings: React.FC<PromptContextConfigSettingsPr
                   <Label className="text-sm">{t('promptContext.maxResultLength')}</Label>
                   <TooltipProvider>
                     <Tooltip>
-                      <TooltipTrigger>
-                        <Info className="h-4 w-4 text-muted-foreground" />
+                      <TooltipTrigger asChild>
+                        <span className="cursor-help">
+                          <Info className="h-4 w-4 text-muted-foreground" />
+                        </span>
                       </TooltipTrigger>
                       <TooltipContent>
                         <p>{t('promptContext.maxResultLengthDesc')}</p>

@@ -27,10 +27,12 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import {
   Zap,
   FolderOpen,
@@ -196,11 +198,10 @@ export const HookToggleManager: React.FC<HookToggleManagerProps> = ({
     return (
       <Card
         key={hook.path}
-        className={`p-4 transition-all ${
-          hook.isEnabled
-            ? 'border-green-500/30 bg-green-500/5'
-            : 'border-border hover:border-muted-foreground/30'
-        }`}
+        className={`p-4 transition-all ${hook.isEnabled
+          ? 'border-green-500/30 bg-green-500/5'
+          : 'border-border hover:border-muted-foreground/30'
+          }`}
       >
         <div className="flex items-start justify-between gap-4">
           {/* 左侧：Hook 信息 */}
@@ -354,6 +355,9 @@ export const HookToggleManager: React.FC<HookToggleManagerProps> = ({
         <DialogContent>
           <DialogHeader>
             <DialogTitle>选择触发事件</DialogTitle>
+            <VisuallyHidden.Root>
+              <DialogDescription>为 Hook 选择触发时机</DialogDescription>
+            </VisuallyHidden.Root>
           </DialogHeader>
 
           <div className="py-4">

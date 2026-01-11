@@ -343,6 +343,47 @@ export function generateSummaryText(summary: Omit<SessionSummary, "summaryText">
 }
 
 /**
+ * 生成失败时的回退摘要
+ */
+function createFallbackSummary(
+  config: SummarizerConfig,
+  errorMessage: string,
+): SessionSummary {
+  const projectName = config.projectPath.split(/[/\\]/).pop() || "Unknown";
+  const fallbackText = [
+    `# 会话继承自 Session #${config.sessionId.slice(0, 8)}`,
+    "",
+    "## ⚠️ 摘要生成失败",
+    "",
+    `由于技术原因，无法生成完整摘要。错误信息：${errorMessage}`,
+    "",
+    "请手动查看上一个会话的内容，或重新开始新会话。",
+    "",
+    "## 项目信息",
+    `- **路径**: ${config.projectPath}`,
+    `- **名称**: ${projectName}`,
+    "",
+    "---",
+    `*回退摘要生成于 ${new Date().toLocaleString()}*`,
+  ].join("\n");
+
+  return {
+    sessionId: config.sessionId,
+    project: {
+      path: config.projectPath,
+      name: projectName,
+      techStack: [],
+    },
+    todoList: { completed: [], inProgress: [], pending: [] },
+    modifiedFiles: [],
+    keyDecisions: [],
+    recentMessages: [],
+    generatedAt: Date.now(),
+    summaryText: fallbackText,
+  };
+}
+
+/**
  * 主函数：生成完整会话摘要
  */
 export async function generateSessionSummary(
@@ -352,56 +393,76 @@ export async function generateSessionSummary(
   console.log("[SessionSummarizer] Generating summary for session:", config.sessionId);
   console.log("[SessionSummarizer] Total messages:", messages.length);
 
-  // 1. 提取 TodoList 状态
-  const todoList = extractTodoList(messages);
-  console.log("[SessionSummarizer] TodoList extracted:", {
-    completed: todoList?.completed?.length ?? 0,
-    inProgress: todoList?.inProgress?.length ?? 0,
-    pending: todoList?.pending?.length ?? 0,
-  });
+  try {
+    // 1. 提取 TodoList 状态
+    const todoList = extractTodoList(messages);
+    console.log("[SessionSummarizer] TodoList extracted:", {
+      completed: todoList?.completed?.length ?? 0,
+      inProgress: todoList?.inProgress?.length ?? 0,
+      pending: todoList?.pending?.length ?? 0,
+    });
 
-  // 2. 提取修改文件
-  const modifiedFiles = extractModifiedFiles(messages);
-  console.log("[SessionSummarizer] Modified files:", modifiedFiles.length);
+    // 2. 提取修改文件
+    const modifiedFiles = extractModifiedFiles(messages);
+    console.log("[SessionSummarizer] Modified files:", modifiedFiles.length);
 
-  // 3. 提取关键决策
-  const keyDecisions = extractKeyDecisions(messages);
-  console.log("[SessionSummarizer] Key decisions:", keyDecisions.length);
+    // 3. 提取关键决策
+    const keyDecisions = extractKeyDecisions(messages);
+    console.log("[SessionSummarizer] Key decisions:", keyDecisions.length);
 
-  // 4. 提取最近消息
-  const recentMessages = extractRecentMessages(messages, config.recentMessagesCount);
-  console.log("[SessionSummarizer] Recent messages:", recentMessages.length);
+    // 4. 提取最近消息
+    const recentMessages = extractRecentMessages(messages, config.recentMessagesCount);
+    console.log("[SessionSummarizer] Recent messages:", recentMessages.length);
 
-  // 5. 构建项目信息
-  const projectName = config.projectPath.split(/[/\\]/).pop() || "Unknown";
+    // 5. 构建项目信息
+    const projectName = config.projectPath.split(/[/\\]/).pop() || "Unknown";
 
-  // 6. 构建摘要对象
-  const summaryBase: Omit<SessionSummary, "summaryText"> = {
-    sessionId: config.sessionId,
-    project: {
-      path: config.projectPath,
-      name: projectName,
-      techStack: [], // TODO: 从项目配置中读取
-    },
-    todoList,
-    modifiedFiles,
-    keyDecisions,
-    recentMessages,
-    generatedAt: Date.now(),
-  };
+    // 6. 构建摘要对象
+    const summaryBase: Omit<SessionSummary, "summaryText"> = {
+      sessionId: config.sessionId,
+      project: {
+        path: config.projectPath,
+        name: projectName,
+        techStack: [], // TODO: 从项目配置中读取
+      },
+      todoList,
+      modifiedFiles,
+      keyDecisions,
+      recentMessages,
+      generatedAt: Date.now(),
+    };
 
-  // 7. 生成摘要文本
-  const summaryText = generateSummaryText(summaryBase);
+    // 7. 生成摘要文本
+    const summaryText = generateSummaryText(summaryBase);
 
-  const summary: SessionSummary = {
-    ...summaryBase,
-    summaryText,
-  };
+    const summary: SessionSummary = {
+      ...summaryBase,
+      summaryText,
+    };
 
-  console.log("[SessionSummarizer] Summary generated successfully");
-  console.log("[SessionSummarizer] Summary text length:", summaryText.length, "chars");
+    console.log("[SessionSummarizer] Summary generated successfully");
+    console.log("[SessionSummarizer] Summary text length:", summaryText.length, "chars");
 
-  return summary;
+    return summary;
+  } catch (error) {
+    // 详细错误日志
+    const errorInfo = {
+      errorType: error instanceof Error ? error.constructor.name : typeof error,
+      errorMessage: error instanceof Error ? error.message : String(error),
+      errorStack: error instanceof Error ? error.stack : undefined,
+      context: {
+        sessionId: config.sessionId,
+        projectPath: config.projectPath,
+        messagesCount: messages.length,
+        verbosity: config.verbosity,
+      },
+    };
+
+    console.error("[SessionSummarizer] ❌ Failed to generate summary:", errorInfo);
+
+    // 返回用户友好的回退摘要
+    return createFallbackSummary(config, errorInfo.errorMessage);
+  }
 }
 
 export default generateSessionSummary;

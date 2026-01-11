@@ -20,10 +20,12 @@ import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -144,7 +146,7 @@ export function ConfigManager({ open, onOpenChange }: ConfigManagerProps) {
     title: string;
     description: string;
     action: () => Promise<void>;
-  }>({ open: false, title: '', description: '', action: async () => {} });
+  }>({ open: false, title: '', description: '', action: async () => { } });
 
   // 加载健康度报告
   const loadHealthReport = useCallback(async () => {
@@ -281,6 +283,9 @@ export function ConfigManager({ open, onOpenChange }: ConfigManagerProps) {
               <Settings className="h-5 w-5" />
               配置管理中心
             </DialogTitle>
+            <VisuallyHidden.Root>
+              <DialogDescription>管理应用配置、缓存和健康诊断</DialogDescription>
+            </VisuallyHidden.Root>
           </DialogHeader>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
@@ -673,7 +678,7 @@ export function ConfigManagerEmbedded({ className }: ConfigManagerEmbeddedProps)
     title: string;
     description: string;
     action: () => Promise<void>;
-  }>({ open: false, title: '', description: '', action: async () => {} });
+  }>({ open: false, title: '', description: '', action: async () => { } });
 
   // 加载健康度报告
   const loadHealthReport = useCallback(async () => {

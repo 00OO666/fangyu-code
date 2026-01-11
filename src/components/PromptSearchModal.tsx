@@ -25,7 +25,8 @@ import {
   Sparkles,
   Folder,
 } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
@@ -153,10 +154,10 @@ export function PromptSearchModal({
         filterDate === 'today'
           ? now - 86400000
           : filterDate === 'week'
-          ? now - 604800000
-          : filterDate === 'month'
-          ? now - 2592000000
-          : 0;
+            ? now - 604800000
+            : filterDate === 'month'
+              ? now - 2592000000
+              : 0;
 
       results = results.filter((p) => new Date(p.timestamp).getTime() > cutoff);
     }
@@ -267,6 +268,9 @@ export function PromptSearchModal({
             <Search className="h-5 w-5" />
             搜索提示历史
           </DialogTitle>
+          <VisuallyHidden.Root>
+            <DialogDescription>搜索和筛选历史提示词记录</DialogDescription>
+          </VisuallyHidden.Root>
         </DialogHeader>
 
         {/* 搜索和过滤 */}

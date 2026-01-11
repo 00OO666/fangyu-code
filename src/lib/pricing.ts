@@ -202,6 +202,12 @@ export const MODEL_PRICING: Record<string, ModelPricing> = {
 };
 
 /**
+ * 模块级别的警告去重 Set
+ * 用于避免重复输出相同的未知模型警告
+ */
+const warnedModels = new Set<string>();
+
+/**
  * 根据模型名称获取定价
  * ⚠️ MUST MATCH: Backend logic in usage.rs::parse_model_family
  *
@@ -218,6 +224,12 @@ export function getPricingForModel(model?: string, engine?: string): ModelPricin
     if (engine === "gemini") {
       return MODEL_PRICING["gemini-2.5-pro"];
     }
+    return MODEL_PRICING["default"];
+  }
+
+  // 🔧 FIX: 过滤 synthetic 模型，静默返回默认定价
+  // synthetic 模型是内部使用的占位符，不需要警告
+  if (model === "<synthetic>" || model.includes("synthetic")) {
     return MODEL_PRICING["default"];
   }
 
@@ -356,8 +368,12 @@ export function getPricingForModel(model?: string, engine?: string): ModelPricin
     return MODEL_PRICING["gemini-2.5-pro"];
   }
 
-  // Unknown model - use default
-  console.warn(`[pricing] Unknown model: '${model}'. Using default pricing.`);
+  // 🔧 FIX: Unknown model - 使用 debug 级别日志，并添加去重
+  // 每个未知模型只警告一次，避免控制台被刷屏
+  if (!warnedModels.has(model)) {
+    warnedModels.add(model);
+    console.debug(`[pricing] Unknown model: '${model}'. Using default pricing.`);
+  }
   return MODEL_PRICING["default"];
 }
 
@@ -412,9 +428,9 @@ export function calculateMessageCost(
   const pricing =
     engine === "gemini" && resolvedModel
       ? getGeminiTieredPricing(
-          resolvedModel,
-          tokens.input_tokens + tokens.cache_creation_tokens + tokens.cache_read_tokens,
-        )
+        resolvedModel,
+        tokens.input_tokens + tokens.cache_creation_tokens + tokens.cache_read_tokens,
+      )
       : getPricingForModel(resolvedModel, engine);
 
   const inputCost = (tokens.input_tokens / 1_000_000) * pricing.input;

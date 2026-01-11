@@ -18,10 +18,12 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import {
   GitCommit,
   GitBranch,
@@ -161,11 +163,10 @@ export function GitChangesPanel({ projectPath }: GitChangesPanelProps) {
         {/* 自动提交开关 */}
         <button
           onClick={() => updateConfig({ enabled: !config.enabled })}
-          className={`flex items-center gap-1 px-2 py-1 rounded text-xs transition-colors ${
-            config.enabled
-              ? 'bg-green-500/10 text-green-500'
-              : 'bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]'
-          }`}
+          className={`flex items-center gap-1 px-2 py-1 rounded text-xs transition-colors ${config.enabled
+            ? 'bg-green-500/10 text-green-500'
+            : 'bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]'
+            }`}
           title={config.enabled ? '自动提交已启用' : '自动提交已禁用'}
         >
           {config.enabled ? <Play className="w-3 h-3" /> : <Pause className="w-3 h-3" />}
@@ -299,6 +300,9 @@ export function GitChangesPanel({ projectPath }: GitChangesPanelProps) {
               <Settings className="w-5 h-5" />
               自动提交设置
             </DialogTitle>
+            <VisuallyHidden.Root>
+              <DialogDescription>配置 Git 自动提交的延迟时间、自动推送等选项</DialogDescription>
+            </VisuallyHidden.Root>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
@@ -332,14 +336,12 @@ export function GitChangesPanel({ projectPath }: GitChangesPanelProps) {
               </div>
               <button
                 onClick={() => updateConfig({ autoPush: !config.autoPush })}
-                className={`w-10 h-6 rounded-full transition-colors ${
-                  config.autoPush ? 'bg-green-500' : 'bg-[var(--bg-tertiary)]'
-                }`}
+                className={`w-10 h-6 rounded-full transition-colors ${config.autoPush ? 'bg-green-500' : 'bg-[var(--bg-tertiary)]'
+                  }`}
               >
                 <div
-                  className={`w-5 h-5 rounded-full bg-white transition-transform ${
-                    config.autoPush ? 'translate-x-4' : 'translate-x-0.5'
-                  }`}
+                  className={`w-5 h-5 rounded-full bg-white transition-transform ${config.autoPush ? 'translate-x-4' : 'translate-x-0.5'
+                    }`}
                 />
               </button>
             </div>
@@ -383,6 +385,9 @@ export function GitChangesPanel({ projectPath }: GitChangesPanelProps) {
               <History className="w-5 h-5" />
               提交历史
             </DialogTitle>
+            <VisuallyHidden.Root>
+              <DialogDescription>查看最近的 Git 提交记录，支持回滚操作</DialogDescription>
+            </VisuallyHidden.Root>
           </DialogHeader>
 
           <ScrollArea className="h-96 py-4">
@@ -450,6 +455,9 @@ export function GitChangesPanel({ projectPath }: GitChangesPanelProps) {
               <Map className="w-5 h-5" />
               仓库映射
             </DialogTitle>
+            <VisuallyHidden.Root>
+              <DialogDescription>显示项目的文件结构概览</DialogDescription>
+            </VisuallyHidden.Root>
           </DialogHeader>
 
           <div className="py-4">
