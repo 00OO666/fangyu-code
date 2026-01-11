@@ -33,9 +33,12 @@ const DEFAULT_CONFIG: Required<
 /**
  * 从数据库读取会话历史
  */
-async function loadSessionHistory(sessionId: string): Promise<any[]> {
+async function loadSessionHistory(sessionId: string, projectId: string): Promise<any[]> {
   try {
-    const history = await invoke<string>("load_session_history", { sessionId });
+    const history = await invoke<string>("load_session_history", {
+      sessionId,
+      projectId
+    });
     const messages = history
       .split("\n")
       .filter((line) => line.trim())
@@ -140,7 +143,7 @@ export function useSmartSessionContinue(
     try {
       // 1. 加载会话历史
       console.log("[useSmartSessionContinue] 📚 Loading session history...");
-      const messages = await loadSessionHistory(sessionId);
+      const messages = await loadSessionHistory(sessionId, projectPath);
 
       if (abortController.signal.aborted) {
         console.log("[useSmartSessionContinue] Aborted during history loading");
@@ -148,7 +151,9 @@ export function useSmartSessionContinue(
       }
 
       if (messages.length === 0) {
-        throw new Error("No messages found in session history");
+        console.warn("[useSmartSessionContinue] ⚠️ No messages found in session history, skipping summary generation");
+        setStatus("idle");
+        return;
       }
 
       console.log("[useSmartSessionContinue] Loaded", messages.length, "messages");

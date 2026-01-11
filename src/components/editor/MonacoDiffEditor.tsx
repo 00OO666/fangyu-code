@@ -173,7 +173,24 @@ export const MonacoDiffEditor: React.FC<MonacoDiffEditorProps> = ({
       scrollBeyondLastLine: false,
       readOnly,
       renderWhitespace: 'selection',
-      renderLineHighlight: 'all'
+      renderLineHighlight: 'none', // 🔧 FIX: 禁用行高亮
+      // 🆕 性能优化：禁用不必要的功能
+      occurrencesHighlight: 'off', // 禁用高亮
+      renderValidationDecorations: 'off', // 禁用验证装饰
+      quickSuggestions: false, // 禁用快速建议
+      parameterHints: { enabled: false }, // 禁用参数提示
+      suggestOnTriggerCharacters: false, // 禁用触发字符建议
+      acceptSuggestionOnEnter: 'off', // 禁用回车接受建议
+      tabCompletion: 'off', // 禁用 Tab 补全
+      wordBasedSuggestions: 'off', // 禁用基于单词的建议
+      folding: false, // 禁用代码折叠
+      foldingHighlight: false, // 禁用折叠高亮
+      links: false, // 禁用链接检测
+      colorDecorators: false, // 禁用颜色装饰器
+      lightbulb: { enabled: 'off' }, // 禁用灯泡提示
+      contextmenu: false, // 禁用右键菜单
+      mouseWheelZoom: false, // 禁用鼠标滚轮缩放
+      smoothScrolling: false, // 禁用平滑滚动
     });
 
     const originalEditor = editor.getOriginalEditor();
@@ -183,7 +200,16 @@ export const MonacoDiffEditor: React.FC<MonacoDiffEditorProps> = ({
       minimap: { enabled: false },
       scrollBeyondLastLine: false,
       readOnly: true,
-      renderWhitespace: 'selection'
+      renderWhitespace: 'selection',
+      // 🆕 原始编辑器也应用相同的性能优化
+      renderLineHighlight: 'none',
+      occurrencesHighlight: 'off',
+      quickSuggestions: false,
+      folding: false,
+      links: false,
+      contextmenu: false,
+      mouseWheelZoom: false,
+      smoothScrolling: false,
     });
   }, [readOnly]);
 
@@ -246,30 +272,23 @@ export const MonacoDiffEditor: React.FC<MonacoDiffEditorProps> = ({
           )}
 
           {/* 统计信息 */}
-          <AnimatePresence>
-            {showStats && stats.changes > 0 && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                className="flex items-center gap-2 ml-2"
-              >
-                {stats.additions > 0 && (
-                  <Badge variant="outline" className="text-[10px] bg-green-500/10 text-green-600 border-green-300">
-                    +{stats.additions}
-                  </Badge>
-                )}
-                {stats.deletions > 0 && (
-                  <Badge variant="outline" className="text-[10px] bg-red-500/10 text-red-600 border-red-300">
-                    -{stats.deletions}
-                  </Badge>
-                )}
-                <span className="text-xs text-muted-foreground">
-                  {stats.changes} 处变更
-                </span>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {showStats && stats.changes > 0 && (
+            <div className="flex items-center gap-2 ml-2 animate-slide-in-up">
+              {stats.additions > 0 && (
+                <Badge variant="outline" className="text-[10px] bg-green-500/10 text-green-600 border-green-300">
+                  +{stats.additions}
+                </Badge>
+              )}
+              {stats.deletions > 0 && (
+                <Badge variant="outline" className="text-[10px] bg-red-500/10 text-red-600 border-red-300">
+                  -{stats.deletions}
+                </Badge>
+              )}
+              <span className="text-xs text-muted-foreground">
+                {stats.changes} 处变更
+              </span>
+            </div>
+          )}
 
           <Button
             variant="ghost"

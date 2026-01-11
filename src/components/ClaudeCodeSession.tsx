@@ -294,11 +294,16 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   }, [claudeSettings?.hideWarmupMessages, setFilterConfig]);
 
   // 🆕 Notify parent when execution engine changes (for tab icon update)
-  useEffect(() => {
+  // 🔧 FIX: 使用 useCallback 稳定回调引用，减少不必要的重渲染
+  const stableOnEngineChange = React.useCallback(() => {
     if (onEngineChange) {
       onEngineChange(executionEngineConfig.engine);
     }
   }, [executionEngineConfig.engine, onEngineChange]);
+
+  useEffect(() => {
+    stableOnEngineChange();
+  }, [stableOnEngineChange]);
 
   // 🔧 FIX: Notify parent when session info is extracted (for new session persistence)
   // This fixes the issue where new session messages are lost after route switch
@@ -588,6 +593,8 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   );
 
   // 🆕 会话阈值监控（80%/90% 警告 + 摘要对话框）
+  const [showSummaryDialog, setShowSummaryDialog] = useState(false);
+  const [sessionSummary, setSessionSummary] = useState('');
   const {
     status: thresholdStatus,
     generateSummary: _generateThresholdSummary,
@@ -603,9 +610,18 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
     },
     onCritical: () => {
       console.log('[ClaudeCodeSession] 🚨 90% threshold critical');
+      // 🔧 FIX: 显示对话框并开始生成摘要
+      setShowSummaryDialog(true);
+      setSessionSummary(''); // 清空旧摘要，显示"正在生成摘要..."
+      _generateThresholdSummary().catch(err => {
+        console.error('[ClaudeCodeSession] Failed to generate summary:', err);
+        setSessionSummary('摘要生成失败，请稍后重试。');
+      });
     },
     onSummaryGenerated: (summary) => {
       console.log('[ClaudeCodeSession] 📝 Summary generated:', summary.slice(0, 200));
+      // 🔧 FIX: 摘要生成成功后更新状态
+      setSessionSummary(summary);
     },
   });
 
@@ -1117,7 +1133,8 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   };
 
   // Handle URL detection from terminal output
-  const handleLinkDetected = (url: string) => {
+  // 🔧 FIX: 使用 useCallback 稳定引用，减少 SessionContext 重渲染
+  const handleLinkDetected = React.useCallback((url: string) => {
     const currentState: SessionHelpers.PreviewState = {
       showPreview,
       showPreviewPrompt,
@@ -1132,7 +1149,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
     if (newState.showPreviewPrompt !== currentState.showPreviewPrompt) {
       setShowPreviewPrompt(newState.showPreviewPrompt);
     }
-  };
+  }, [showPreview, showPreviewPrompt, previewUrl, isPreviewMaximized, splitPosition]);
 
   const handleClosePreview = () => {
     const currentState: SessionHelpers.PreviewState = {
@@ -1838,20 +1855,23 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
 
       {/* 🆕 会话阈值摘要对话框 - 80%/90% 警告 + 一键复制 */}
       <SessionSummaryDialog
-        isOpen={thresholdStatus.isCritical}
-        summary={''}
+        isOpen={showSummaryDialog}
+        summary={sessionSummary}
         tokenPercentage={thresholdStatus.percentage}
         onClose={() => {
-          // 关闭对话框后重置状态
+          // 🔧 FIX: 关闭对话框并重置状态
+          setShowSummaryDialog(false);
           console.log('[ClaudeCodeSession] Summary dialog closed');
         }}
         onStartNewSession={() => {
           // TODO: 创建新会话
           console.log('[ClaudeCodeSession] Start new session');
+          setShowSummaryDialog(false);
         }}
         onContinueAnyway={() => {
           // 继续当前会话
           console.log('[ClaudeCodeSession] Continue anyway');
+          setShowSummaryDialog(false);
         }}
       />
 

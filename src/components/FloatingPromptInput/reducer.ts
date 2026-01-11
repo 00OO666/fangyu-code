@@ -1,4 +1,4 @@
-import { ModelType, ThinkingMode, ExecutionEngineConfig } from "./types";
+import { ModelType, ThinkingMode } from "./types";
 
 export interface InputState {
   prompt: string;
@@ -7,7 +7,6 @@ export interface InputState {
   isExpanded: boolean;
   showCostPopover: boolean;
   cursorPosition: number;
-  executionEngineConfig: ExecutionEngineConfig;
   enableProjectContext: boolean;
 }
 
@@ -18,7 +17,6 @@ export type InputAction =
   | { type: "SET_EXPANDED"; payload: boolean }
   | { type: "SET_SHOW_COST_POPOVER"; payload: boolean }
   | { type: "SET_CURSOR_POSITION"; payload: number }
-  | { type: "SET_EXECUTION_ENGINE_CONFIG"; payload: ExecutionEngineConfig }
   | { type: "SET_ENABLE_PROJECT_CONTEXT"; payload: boolean }
   | { type: "RESET_INPUT" };
 
@@ -29,12 +27,6 @@ export const initialState: InputState = {
   isExpanded: false,
   showCostPopover: false,
   cursorPosition: 0,
-  executionEngineConfig: {
-    engine: "claude",
-    codexMode: "read-only",
-    codexModel: "gpt-5.2-codex",
-    geminiModel: "gemini-3-flash",
-  },
   enableProjectContext: false,
 };
 
@@ -52,8 +44,6 @@ export function inputReducer(state: InputState, action: InputAction): InputState
       return { ...state, showCostPopover: action.payload };
     case "SET_CURSOR_POSITION":
       return { ...state, cursorPosition: action.payload };
-    case "SET_EXECUTION_ENGINE_CONFIG":
-      return { ...state, executionEngineConfig: action.payload };
     case "SET_ENABLE_PROJECT_CONTEXT":
       return { ...state, enableProjectContext: action.payload };
     case "RESET_INPUT":

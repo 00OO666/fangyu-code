@@ -4,6 +4,7 @@
 
 mod claude_binary;
 mod commands;
+mod lsp; // LSP 模块
 mod process;
 mod utils; // 新增：通用工具模块
 mod memory_index; // 智能记忆导入功能
@@ -270,6 +271,9 @@ fn main() {
             app.manage(WindowRegistryState(Mutex::new(
                 commands::window_attention::WindowRegistry::new()
             )));
+
+            // Initialize LSP Manager
+            app.manage(commands::lsp::LSPManager::new());
 
             // Initialize auto-compact manager for context management
             let auto_compact_manager =
@@ -728,6 +732,20 @@ fn main() {
             get_chat_history_stats,
             // Smart Session Continue (智能会话续接系统)
             commands::session_continue::create_continued_session,
+            // LSP (Language Server Protocol) Integration
+            commands::lsp::lsp_start,
+            commands::lsp::lsp_shutdown,
+            commands::lsp::lsp_hover,
+            commands::lsp::lsp_definition,
+            commands::lsp::lsp_references,
+            commands::lsp::lsp_completion,
+            commands::lsp::lsp_diagnostics,
+            commands::lsp::lsp_rename,
+            commands::lsp::scan_project_files,
+            commands::lsp::lsp_get_status,
+            commands::lsp::lsp_get_all_status,
+            commands::lsp::lsp_restart,
+            commands::lsp::lsp_get_server_info,
             // Docker Container Management (Docker 容器管理 - 沙箱环境)
             commands::docker::docker_check_availability,
             commands::docker::docker_create_container,

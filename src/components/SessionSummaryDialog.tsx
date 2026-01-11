@@ -38,11 +38,15 @@ export const SessionSummaryDialog: React.FC<SessionSummaryDialogProps> = ({
     }
   };
 
-  const percentage = Math.round(tokenPercentage * 100);
+  // 🔧 FIX: 确保百分比在合理范围内（0-100）
+  // tokenPercentage 应该是 0-1 之间的小数，但如果传入的值异常，需要保护
+  const percentage = Math.min(100, Math.max(0, Math.round(tokenPercentage * 100)));
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="relative w-full max-w-4xl max-h-[90vh] bg-[#1e1e1e] border border-[#333] rounded-lg shadow-2xl flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-end justify-end p-4 pointer-events-none">
+      <div
+        className="relative w-full max-w-sm max-h-[60vh] bg-[#1e1e1e] border border-[#333] rounded-lg shadow-2xl flex flex-col pointer-events-auto"
+      >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-[#333]">
           <div className="flex items-center gap-3">

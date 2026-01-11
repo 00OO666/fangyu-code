@@ -48,7 +48,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       hasError: false,
       error: null,
       friendlyError: null,
-      showTechnicalDetails: false,
+      showTechnicalDetails: true, // 🔧 FIX: 默认展开技术详情
     };
   }
 
@@ -138,8 +138,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                     )}
                   </div>
 
-                  {/* 技术详情（可选） */}
-                  {this.props.showDetails && this.state.error.message && (
+                  {/* 🔧 FIX: 始终显示完整的技术详情（包括堆栈） */}
+                  {this.state.error && (
                     <div className="mt-4 pt-4 border-t">
                       <button
                         onClick={this.toggleTechnicalDetails}
@@ -153,9 +153,22 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                         技术详情
                       </button>
                       {showTechnicalDetails && (
-                        <pre className="mt-2 text-xs bg-muted p-2 rounded overflow-auto max-h-32">
-                          {this.state.error.message}
-                        </pre>
+                        <div className="mt-2 space-y-2">
+                          <div>
+                            <p className="text-xs font-medium text-muted-foreground mb-1">错误消息：</p>
+                            <pre className="text-xs bg-muted p-2 rounded overflow-auto max-h-20 whitespace-pre-wrap break-words">
+                              {this.state.error.message}
+                            </pre>
+                          </div>
+                          {this.state.error.stack && (
+                            <div>
+                              <p className="text-xs font-medium text-muted-foreground mb-1">错误堆栈：</p>
+                              <pre className="text-xs bg-muted p-2 rounded overflow-auto max-h-40 whitespace-pre-wrap break-words font-mono">
+                                {this.state.error.stack}
+                              </pre>
+                            </div>
+                          )}
+                        </div>
                       )}
                     </div>
                   )}
