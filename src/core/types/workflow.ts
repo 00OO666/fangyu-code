@@ -304,6 +304,8 @@ export type WorkflowEventType =
   | "workflow:resumed"
   | "workflow:completed"
   | "workflow:failed"
+  | "workflow:cancelled"
+  | "workflow:stateChanged"
   | "task:queued"
   | "task:started"
   | "task:progress"

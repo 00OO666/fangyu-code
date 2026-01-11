@@ -17,7 +17,7 @@ import { getVersion } from "@tauri-apps/api/app";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const STORAGE_KEY = "fangyu-code-last-seen-version";
-const FALLBACK_VERSION = "2.7.1"; // 🔧 Fallback 版本（获取失败时使用）
+const FALLBACK_VERSION = "2.7.3"; // 🔧 Fallback 版本（获取失败时使用）
 
 // 🔧 DEBUG: 全局变量用于强制显示更新日志（调试用）
 declare global {
@@ -29,6 +29,30 @@ declare global {
 
 // 版本更新日志（从新到旧）
 export const CHANGELOGS = {
+  "2.7.3": {
+    title: "v2.7.3 - 🔄 统一工作流系统",
+    date: "2026-01-12",
+    features: [
+      "🔄 统一工作流引擎 - 合并 Kiro 风格和 Devin 风格工作流为统一系统",
+      "📊 DAG 可视化 - 任务依赖关系图形化展示，支持并行任务识别",
+      "🤖 智能代理调度 - 基于能力匹配的代理-任务分配算法",
+      "⏸️ 执行控制 - 支持暂停/恢复/重试/取消工作流执行",
+      "📈 实时进度追踪 - 任务状态、完成百分比、执行日志实时更新",
+    ],
+    improvements: [
+      "✅ 关键路径计算 - 自动识别工作流中的关键路径和瓶颈任务",
+      "✅ 并发限制控制 - 可配置最大并发代理数，避免资源过载",
+      "✅ 事件系统完善 - 完整的工作流事件订阅/取消订阅 API",
+      "✅ 代码清理 - 删除废弃的 useWorkflowOrchestrator 和 SpecDrivenWorkflow",
+    ],
+    bugfixes: [],
+    technical: [
+      "新增 UnifiedWorkflowEngine - 统一工作流引擎核心类",
+      "新增 useUnifiedWorkflow Hook - React 状态管理封装",
+      "重构 WorkflowManagerPanel - 使用新的统一工作流系统",
+      "30 个属性测试全部通过 - DAG/代理调度/执行控制/事件系统",
+    ],
+  },
   "2.7.1": {
     title: "v2.7.1 - 🔧 自动更新修复与稳定性提升",
     date: "2026-01-11",
