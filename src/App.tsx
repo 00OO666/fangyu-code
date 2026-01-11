@@ -22,13 +22,6 @@ const TauriAutoUpdateDialog = lazy(() => import("@/components/TauriAutoUpdateDia
 const ErrorMonitorPanel = lazy(() => import("@/components/ErrorMonitorPanel").then(module => ({ default: module.ErrorMonitorPanel })));
 const CommandPalette = lazy(() => import("@/components/CommandPalette").then(module => ({ default: module.CommandPalette })));
 
-// 🆕 加载占位符组件
-const LoadingFallback = () => (
-  <div className="flex items-center justify-center h-full">
-    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-  </div>
-);
-
 /**
  * 主应用组件 - 管理 Claude 目录浏览器界面
  * Main App component - Manages the Claude directory browser UI
@@ -72,7 +65,7 @@ function App() {
                   <AppLayout>
                     <ViewRouter />
                   </AppLayout>
-                  
+
                   {/* 🎨 全局命令面板 Ctrl+K */}
                   <Suspense fallback={null}>
                     <CommandPalette />
@@ -105,7 +98,7 @@ function App() {
                       />
                     </Suspense>
                   )}
-                  
+
                   {/* 窗口注意力状态指示器 */}
                   <WindowAttentionIndicator />
                 </PromptQueueProvider>

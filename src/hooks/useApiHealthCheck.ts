@@ -296,7 +296,7 @@ export function useApiHealthCheck(config: UseApiHealthCheckConfig = {}): UseApiH
 
     // 3. 检查 Provider 配置
     try {
-      const providerConfig = await api.getCurrentProviderConfig();
+      const providerConfig = await api.getCurrentProviderConfig() as any;
       if (providerConfig?.apiKey) {
         checks.push({
           name: "Provider 配置",

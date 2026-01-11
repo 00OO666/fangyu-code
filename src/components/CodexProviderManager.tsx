@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { Badge } from "@/components/ui/badge";
 import {
   Settings2,
@@ -494,6 +495,9 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>{t('provider.currentCodexConfig')}</DialogTitle>
+            <VisuallyHidden.Root>
+              <DialogDescription>查看当前 Codex 配置信息</DialogDescription>
+            </VisuallyHidden.Root>
           </DialogHeader>
           <div className="space-y-4">
             {currentConfig ? (
@@ -578,6 +582,9 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingProvider ? t('provider.editCodexProvider') : t('provider.addCodexProvider')}</DialogTitle>
+            <VisuallyHidden.Root>
+              <DialogDescription>配置 Codex 提供商信息</DialogDescription>
+            </VisuallyHidden.Root>
           </DialogHeader>
           <CodexProviderForm
             initialData={editingProvider || undefined}
@@ -592,6 +599,9 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>{t('provider.confirmDeleteCodexProvider')}</DialogTitle>
+            <VisuallyHidden.Root>
+              <DialogDescription>确认删除此 Codex 提供商配置</DialogDescription>
+            </VisuallyHidden.Root>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <p>{t('provider.confirmDeleteCodexMessage', { name: providerToDelete?.name })}</p>

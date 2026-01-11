@@ -166,48 +166,51 @@ export function useConsoleMonitor(options: {
       // 生成错误 ID（基于消息内容）
       const errorId = `${type}-${message.substring(0, 100)}`;
 
-      setErrors((prev) => {
-        const existingError = errorMapRef.current.get(errorId);
+      // 使用 queueMicrotask 延迟状态更新，避免在渲染期间更新状态
+      queueMicrotask(() => {
+        setErrors((prev) => {
+          const existingError = errorMapRef.current.get(errorId);
 
-        if (existingError) {
-          // 更新现有错误的计数
-          const updated = {
-            ...existingError,
-            count: existingError.count + 1,
-            timestamp: Date.now(),
-          };
-          errorMapRef.current.set(errorId, updated);
+          if (existingError) {
+            // 更新现有错误的计数
+            const updated = {
+              ...existingError,
+              count: existingError.count + 1,
+              timestamp: Date.now(),
+            };
+            errorMapRef.current.set(errorId, updated);
 
-          return prev.map((err) => (err.id === errorId ? updated : err));
-        } else {
-          // 添加新错误
-          const newError: ConsoleError = {
-            id: errorId,
-            type,
-            message,
-            stack,
-            timestamp: Date.now(),
-            count: 1,
-            category,
-            suggestion,
-            file,
-            line,
-          };
+            return prev.map((err) => (err.id === errorId ? updated : err));
+          } else {
+            // 添加新错误
+            const newError: ConsoleError = {
+              id: errorId,
+              type,
+              message,
+              stack,
+              timestamp: Date.now(),
+              count: 1,
+              category,
+              suggestion,
+              file,
+              line,
+            };
 
-          errorMapRef.current.set(errorId, newError);
+            errorMapRef.current.set(errorId, newError);
 
-          const newErrors = [...prev, newError];
+            const newErrors = [...prev, newError];
 
-          // 限制错误数量
-          if (newErrors.length > maxErrors) {
-            const removed = newErrors.shift();
-            if (removed) {
-              errorMapRef.current.delete(removed.id);
+            // 限制错误数量
+            if (newErrors.length > maxErrors) {
+              const removed = newErrors.shift();
+              if (removed) {
+                errorMapRef.current.delete(removed.id);
+              }
             }
-          }
 
-          return newErrors;
-        }
+            return newErrors;
+          }
+        });
       });
     },
     [maxErrors]

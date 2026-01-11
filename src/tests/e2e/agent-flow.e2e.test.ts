@@ -20,7 +20,7 @@ class TestAgentRegistry {
   }
 
   findByCapability(capability: string): TestAgent[] {
-    return Array.from(this.agents.values()).filter(a => 
+    return Array.from(this.agents.values()).filter(a =>
       a.capabilities.includes(capability)
     );
   }
@@ -73,7 +73,7 @@ class TestOrchestrator {
     private registry: TestAgentRegistry,
     _taskQueue: TaskQueue,
     _contextManager: TestContextManager
-  ) {}
+  ) { }
 
   async assignTask(task: TestTask): Promise<{ success: boolean; result?: unknown; error?: string }> {
     const agents = this.registry.findByCapability(task.type);
@@ -343,7 +343,7 @@ describe('E2E: Agent Flow', () => {
       registry.register({
         id: 'batch-agent',
         name: 'Batch Agent',
-        capabilities: ['batch'],
+        capabilities: ['batch'],  // agent 能力是 'batch'
         priority: 1,
         execute: async (task) => {
           completedTasks.push(task.id);
@@ -351,12 +351,12 @@ describe('E2E: Agent Flow', () => {
         }
       });
 
-      // 添加多个任务
+      // 添加多个任务（类型必须与 agent 能力匹配）
       for (let i = 0; i < 5; i++) {
         taskQueue.enqueue({
           id: `batch-task-${i}`,
           description: `Batch task ${i}`,
-          type: 'general' as const,
+          type: 'batch' as const,  // 修复：类型改为 'batch' 以匹配 agent 能力
           priority: i,
           status: 'pending' as const,
           dependencies: [],

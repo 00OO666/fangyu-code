@@ -20,10 +20,12 @@ import { Switch } from '@/components/ui/switch';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import {
   Search,
   Plus,
@@ -560,11 +562,10 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
           <Tag className="w-3 h-3 text-[var(--text-tertiary)] mr-1" />
           <button
             onClick={() => setFilterTag(null)}
-            className={`px-2 py-0.5 text-xs rounded-full transition-colors ${
-              filterTag === null
-                ? 'bg-[var(--accent-primary)] text-white'
-                : 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'
-            }`}
+            className={`px-2 py-0.5 text-xs rounded-full transition-colors ${filterTag === null
+              ? 'bg-[var(--accent-primary)] text-white'
+              : 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'
+              }`}
           >
             全部
           </button>
@@ -572,11 +573,10 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
             <button
               key={tag}
               onClick={() => setFilterTag(tag === filterTag ? null : tag)}
-              className={`px-2 py-0.5 text-xs rounded-full transition-colors ${
-                filterTag === tag
-                  ? 'bg-[var(--accent-primary)] text-white'
-                  : 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'
-              }`}
+              className={`px-2 py-0.5 text-xs rounded-full transition-colors ${filterTag === tag
+                ? 'bg-[var(--accent-primary)] text-white'
+                : 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'
+                }`}
             >
               {tag}
             </button>
@@ -781,6 +781,9 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
             <DialogTitle>
               {editingSkill ? '编辑技能' : '创建新技能'}
             </DialogTitle>
+            <VisuallyHidden.Root>
+              <DialogDescription>配置技能的名称、描述、触发词等信息</DialogDescription>
+            </VisuallyHidden.Root>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
@@ -815,22 +818,20 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
               <div className="flex gap-2 mt-1">
                 <button
                   onClick={() => setEditorScope('user')}
-                  className={`flex items-center gap-2 px-3 py-2 rounded border transition-colors ${
-                    editorScope === 'user'
-                      ? 'border-[var(--accent-primary)] bg-[var(--accent-primary)]/10'
-                      : 'border-[var(--border-primary)] hover:bg-[var(--bg-hover)]'
-                  }`}
+                  className={`flex items-center gap-2 px-3 py-2 rounded border transition-colors ${editorScope === 'user'
+                    ? 'border-[var(--accent-primary)] bg-[var(--accent-primary)]/10'
+                    : 'border-[var(--border-primary)] hover:bg-[var(--bg-hover)]'
+                    }`}
                 >
                   <User className="w-4 h-4" />
                   <span>用户级</span>
                 </button>
                 <button
                   onClick={() => setEditorScope('project')}
-                  className={`flex items-center gap-2 px-3 py-2 rounded border transition-colors ${
-                    editorScope === 'project'
-                      ? 'border-[var(--accent-primary)] bg-[var(--accent-primary)]/10'
-                      : 'border-[var(--border-primary)] hover:bg-[var(--bg-hover)]'
-                  }`}
+                  className={`flex items-center gap-2 px-3 py-2 rounded border transition-colors ${editorScope === 'project'
+                    ? 'border-[var(--accent-primary)] bg-[var(--accent-primary)]/10'
+                    : 'border-[var(--border-primary)] hover:bg-[var(--bg-hover)]'
+                    }`}
                 >
                   <Globe className="w-4 h-4" />
                   <span>项目级</span>

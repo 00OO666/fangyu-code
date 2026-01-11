@@ -88,7 +88,7 @@ function extractUserMessageText(message: ClaudeStreamMessage): string {
 function extractAssistantMessageText(message: ClaudeStreamMessage): string {
   if (message.type !== "assistant") return "";
 
-  const content = message.message?.content;
+  const content = message.message?.content as string | any[] | undefined;
   if (typeof content === "string") return content.slice(0, 200);
 
   if (Array.isArray(content)) {

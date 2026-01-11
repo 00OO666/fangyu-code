@@ -19,7 +19,8 @@ import {
   File,
   Loader2,
 } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { Checkpoint, CheckpointFile } from '@/lib/api';
@@ -192,6 +193,9 @@ export function CheckpointDiff({
             <FileDiff className="h-5 w-5" />
             检查点对比
           </DialogTitle>
+          <VisuallyHidden.Root>
+            <DialogDescription>比较两个检查点之间的文件变更</DialogDescription>
+          </VisuallyHidden.Root>
         </DialogHeader>
 
         {/* 对比信息 */}

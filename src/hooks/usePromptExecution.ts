@@ -372,20 +372,20 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
         const codexPendingInfo =
           executionEngine === "codex"
             ? {
-                sessionId: effectiveSession?.id || null,
-                projectPath,
-                promptText: prompt,
-                promptIndex: undefined as number | undefined,
-              }
+              sessionId: effectiveSession?.id || null,
+              projectPath,
+              promptText: prompt,
+              promptIndex: undefined as number | undefined,
+            }
             : undefined;
         const geminiPendingInfo =
           executionEngine === "gemini"
             ? {
-                sessionId: effectiveSession?.id || null,
-                projectPath,
-                promptText: prompt,
-                promptIndex: undefined as number | undefined,
-              }
+              sessionId: effectiveSession?.id || null,
+              projectPath,
+              promptText: prompt,
+              promptIndex: undefined as number | undefined,
+            }
             : undefined;
 
         // 对于已有会话，立即记录；对于新会话，在收到 session_id 后记录
@@ -1519,7 +1519,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                       recordedPromptIndex,
                       prompt,
                     )
-                    .then(() => {})
+                    .then(() => { })
                     .catch((err) => {
                       console.error("[Prompt Revert] Failed to mark completed:", err);
                     });
@@ -1872,10 +1872,10 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
               // Add translation metadata for debugging/info
               translationMeta: userInputTranslation
                 ? {
-                    wasTranslated: userInputTranslation.wasTranslated,
-                    detectedLanguage: userInputTranslation.detectedLanguage,
-                    translatedText: userInputTranslation.translatedText,
-                  }
+                  wasTranslated: userInputTranslation.wasTranslated,
+                  detectedLanguage: userInputTranslation.detectedLanguage,
+                  translatedText: userInputTranslation.translatedText,
+                }
                 : undefined,
             };
 
@@ -2037,6 +2037,9 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
           };
           setMessages((prev) => [...prev, thinkingMessage]);
 
+          // 🔧 FIX: 将 assistantMessageId 移到 try 块外，以便 catch 块可以访问
+          const assistantMessageId = `siliconflow-${Date.now()}`;
+
           try {
             // 构建 LLM Provider 配置
             const provider: LLMProvider = {
@@ -2060,8 +2063,6 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
 
             // 🆕 使用流式调用，逐步更新消息内容
             // 创建初始的空 assistant 消息（替换 thinking 消息）
-            const assistantMessageId = `siliconflow-${Date.now()}`;
-            let currentContent = "";
 
             // 移除 thinking 消息，添加空的 assistant 消息
             setMessages((prev) => {
@@ -2085,7 +2086,6 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
               provider,
               request,
               (_chunk, fullContent) => {
-                currentContent = fullContent;
                 // 更新消息内容
                 setMessages((prev) =>
                   prev.map((msg) => {

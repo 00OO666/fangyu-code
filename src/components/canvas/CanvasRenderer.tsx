@@ -28,13 +28,6 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
   Tooltip,
   TooltipContent,
   TooltipProvider,

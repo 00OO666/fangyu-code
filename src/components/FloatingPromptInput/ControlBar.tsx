@@ -6,7 +6,8 @@ import { Popover } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Switch } from "@/components/ui/switch";
-import { Wand2, ChevronDown, DollarSign, Info, Settings, Code2, Zap, Sparkles, Hash, Webhook, Cpu, BarChart3, Network, ListOrdered } from "lucide-react";
+import { Wand2, ChevronDown, DollarSign, Info, Settings, Code2, Zap, Sparkles, Hash, Webhook, Cpu, BarChart3, Network, ListOrdered, ImagePlus } from "lucide-react";
+import { ImageGenerateButton } from "@/components/ImageGeneration";
 import { useCostDelta } from "@/hooks/useCostDelta";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -72,6 +73,8 @@ interface ControlBarProps {
   queueItems?: any[];  // 队列项列表（用于悬停预览）
   showQueuePanel?: boolean;
   onToggleQueuePanel?: () => void;
+  // 🆕 图像生成回调
+  onImageGenerated?: (imageBase64: string, mimeType: string) => void;
 }
 
 export const ControlBar: React.FC<ControlBarProps> = ({
@@ -116,6 +119,7 @@ export const ControlBar: React.FC<ControlBarProps> = ({
   queueItems = [],
   showQueuePanel,
   onToggleQueuePanel,
+  onImageGenerated,
 }) => {
   const { t } = useTranslation();
   const { count: hooksCount } = useHooksCount();
@@ -221,7 +225,7 @@ export const ControlBar: React.FC<ControlBarProps> = ({
   }, [executionEngineConfig.engine, messages, providedCodexRateLimits]);
 
   return (
-    <div className="flex items-center gap-2 flex-wrap">
+    <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent pb-1">
       {/* Execution Engine Selector */}
       <ExecutionEngineSelector
         value={executionEngineConfig}
@@ -292,12 +296,13 @@ export const ControlBar: React.FC<ControlBarProps> = ({
         />
       )}
 
-      {/* Token 统计 Badge */}
+      {/* Token 统计 Badge - 小屏幕隐藏 */}
       {hasMessages && sessionStats && sessionStats.totalTokens > 0 && (
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.2 }}
+          className="hidden sm:block"
         >
           <Badge variant="outline" className="flex items-center gap-1 px-2 py-1 h-8 cursor-default hover:bg-accent transition-colors border-border/50">
             <Hash className="h-3 w-3 text-blue-600 dark:text-blue-400" />
@@ -448,6 +453,15 @@ export const ControlBar: React.FC<ControlBarProps> = ({
         />
       )}
 
+      {/* 🆕 AI 图像生成按钮 (Nano Banana) */}
+      {executionEngineConfig.engine === 'gemini' && (
+        <ImageGenerateButton
+          disabled={disabled}
+          onImageGenerated={onImageGenerated}
+          className="h-8 w-8 border-border/50 bg-background/50 hover:bg-accent/50"
+        />
+      )}
+
       {/* Usage Dashboard Toggle - Token 消耗图表 */}
       {onToggleUsageDashboard && hasMessages && (
         <Button
@@ -455,7 +469,7 @@ export const ControlBar: React.FC<ControlBarProps> = ({
           size="default"
           onClick={onToggleUsageDashboard}
           className={cn(
-            "gap-2 h-8 transition-all",
+            "gap-1.5 h-8 transition-all hidden md:flex",
             showUsageDashboard
               ? "bg-blue-600 hover:bg-blue-700 text-white"
               : "border-border/50 bg-background/50 hover:bg-accent/50"
@@ -466,7 +480,7 @@ export const ControlBar: React.FC<ControlBarProps> = ({
             "h-3.5 w-3.5",
             showUsageDashboard ? "text-white" : "text-blue-500"
           )} />
-          <span className="text-xs">图表</span>
+          <span className="text-xs hidden lg:inline">图表</span>
         </Button>
       )}
 
@@ -476,23 +490,23 @@ export const ControlBar: React.FC<ControlBarProps> = ({
           variant="outline"
           size="default"
           onClick={onToggleMCPConfig}
-          className="gap-2 h-8 border-border/50 bg-background/50 hover:bg-accent/50 transition-all"
+          className="gap-1.5 h-8 border-border/50 bg-background/50 hover:bg-accent/50 transition-all hidden lg:flex"
           title="项目 MCP 配置 - 快速开关此项目的 MCP 服务器"
         >
           <Network className="h-3.5 w-3.5 text-orange-500" />
-          <span className="text-xs">MCP</span>
+          <span className="text-xs hidden xl:inline">MCP</span>
         </Button>
       )}
 
       {/* Canvas Button - 打开实时预览 */}
       {onOpenCanvas && hasMessages && (
-        <div className="relative">
+        <div className="relative hidden md:block">
           <Button
             variant={hasPreviewableCode ? "default" : "outline"}
             size="default"
             onClick={onOpenCanvas}
             className={cn(
-              "gap-2 h-8 transition-all",
+              "gap-1.5 h-8 transition-all",
               hasPreviewableCode
                 ? "bg-purple-600 hover:bg-purple-700 text-white animate-pulse"
                 : "border-border/50 bg-background/50 hover:bg-accent/50"
@@ -507,8 +521,8 @@ export const ControlBar: React.FC<ControlBarProps> = ({
               "h-3.5 w-3.5",
               hasPreviewableCode ? "text-white" : "text-purple-500"
             )} />
-            <span className="text-xs">
-              {hasPreviewableCode ? '预览代码' : 'Canvas'}
+            <span className="text-xs hidden lg:inline">
+              {hasPreviewableCode ? '预览' : 'Canvas'}
             </span>
           </Button>
           {hasPreviewableCode && (
@@ -526,7 +540,7 @@ export const ControlBar: React.FC<ControlBarProps> = ({
         size="default"
         onClick={() => setSiliconFlowDialogOpen(true)}
         className={cn(
-          "gap-2 h-8 border-border/50 bg-background/50 hover:bg-accent/50 transition-all",
+          "gap-1.5 h-8 border-border/50 bg-background/50 hover:bg-accent/50 transition-all hidden xl:flex",
           siliconFlowConfig.apiKey && "border-cyan-500/30"
         )}
         title={siliconFlowConfig.apiKey
@@ -538,7 +552,7 @@ export const ControlBar: React.FC<ControlBarProps> = ({
           "h-3.5 w-3.5",
           siliconFlowConfig.apiKey ? "text-cyan-500" : "text-muted-foreground"
         )} />
-        <span className="text-xs">
+        <span className="text-xs hidden 2xl:inline">
           {siliconFlowConfig.apiKey
             ? siliconFlowConfig.selectedModel.split('/').pop()?.slice(0, 12) || 'SiliconFlow'
             : 'SiliconFlow'

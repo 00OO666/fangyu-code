@@ -63,9 +63,9 @@ export const useMemoryDetection = (inputText: string, options: UseMemoryDetectio
           return;
         }
 
-        const result = await (tauriModule as any).invoke<MemoryMatch[]>("detect_memory_keywords", {
+        const result = await (tauriModule as any).invoke("detect_memory_keywords", {
           text: inputText,
-        });
+        }) as MemoryMatch[];
 
         if (!controller.signal.aborted) {
           setMatches(result);

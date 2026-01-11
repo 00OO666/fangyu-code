@@ -37,6 +37,7 @@ export function useGroupedMessages(
       // 不启用分组时，返回普通消息列表
       return messages.map((message, index) => ({
         type: "normal" as const,
+        id: message.uuid || `msg-${index}`,
         message,
         index,
       }));

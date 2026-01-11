@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -177,6 +178,9 @@ export const SiliconFlowModelSelector: React.FC<SiliconFlowModelSelectorProps> =
             <Sparkles className="h-5 w-5 text-purple-600" />
             SiliconFlow 模型选择
           </DialogTitle>
+          <VisuallyHidden.Root>
+            <DialogDescription>选择 SiliconFlow 平台的 AI 模型</DialogDescription>
+          </VisuallyHidden.Root>
         </DialogHeader>
 
         <div className="space-y-4">

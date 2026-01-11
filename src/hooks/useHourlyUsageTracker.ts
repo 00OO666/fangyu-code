@@ -22,6 +22,14 @@ import type { SessionCostStats } from "@/hooks/useSessionCostCalculation";
 
 const STORAGE_KEY = "hourly_usage_tracking";
 
+/** 🔧 FIX: 最大合理增量常量 */
+const MAX_REASONABLE_COST_DELTA = 10; // 单次增量 < $10
+const MAX_REASONABLE_TOKENS_DELTA = 1000000; // 单次增量 < 100万 tokens
+
+/** 🔧 FIX: 异常增量警告限流（每分钟最多警告一次） */
+const WARNING_INTERVAL = 60000;
+let lastWarningTime = 0;
+
 export interface HourlyUsageData {
   cost: number;
   tokens: number;
@@ -126,7 +134,7 @@ function recordUsageDelta(costDelta: number, tokensDelta: number): void {
   // 保存
   saveHourlyData(storage);
 
-  console.log("[useHourlyUsageTracker] 📊 记录增量:", {
+  console.debug("[useHourlyUsageTracker] 📊 记录增量:", {
     date,
     hour,
     costDelta,
@@ -159,7 +167,7 @@ export function useHourlyUsageTracker(sessionStats: SessionCostStats | null) {
       prevCostRef.current = currentCost;
       prevTokensRef.current = currentTokens;
       isInitializedRef.current = true;
-      console.log("[useHourlyUsageTracker] 📊 初始化:", {
+      console.debug("[useHourlyUsageTracker] 📊 初始化:", {
         cost: currentCost,
         tokens: currentTokens,
       });
@@ -172,15 +180,23 @@ export function useHourlyUsageTracker(sessionStats: SessionCostStats | null) {
 
     // 记录增量（只记录正增长，且增量合理）
     // 🔧 FIX: 添加合理性检查，避免异常大的增量
-    const isReasonableDelta = costDelta < 10 && tokensDelta < 1000000; // 单次增量 < $10 且 < 100万 tokens
+    const isReasonableDelta = costDelta < MAX_REASONABLE_COST_DELTA && tokensDelta < MAX_REASONABLE_TOKENS_DELTA;
 
     if ((costDelta > 0 || tokensDelta > 0) && isReasonableDelta) {
       recordUsageDelta(costDelta, tokensDelta);
     } else if (!isReasonableDelta && (costDelta > 0 || tokensDelta > 0)) {
-      console.warn("[useHourlyUsageTracker] ⚠️ 异常大的增量，跳过记录:", {
-        costDelta,
-        tokensDelta,
-      });
+      // 🔧 FIX: 限流警告，每分钟最多输出一次，使用 debug 级别
+      const now = Date.now();
+      if (now - lastWarningTime > WARNING_INTERVAL) {
+        lastWarningTime = now;
+        console.debug("[useHourlyUsageTracker] ⚠️ 异常大的增量，跳过记录:", {
+          costDelta,
+          tokensDelta,
+          maxCost: MAX_REASONABLE_COST_DELTA,
+          maxTokens: MAX_REASONABLE_TOKENS_DELTA,
+          source: 'sessionStats change',
+        });
+      }
     }
 
     // 更新上一次的值

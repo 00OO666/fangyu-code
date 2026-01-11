@@ -95,7 +95,7 @@ export interface Task {
   metadata?: Record<string, unknown>;
 }
 
-export type TaskType = 
+export type TaskType =
   | 'frontend'
   | 'backend'
   | 'docs'
@@ -103,9 +103,10 @@ export type TaskType =
   | 'review'
   | 'devops'
   | 'research'
-  | 'general';
+  | 'general'
+  | 'batch'; // 批量任务
 
-export type TaskStatus = 
+export type TaskStatus =
   | 'pending'
   | 'queued'
   | 'in_progress'
@@ -256,7 +257,7 @@ export interface ModelContextConfig {
   compactionThreshold: number;  // 0.85
 }
 
-export type ContextSourceType = 
+export type ContextSourceType =
   | 'system'
   | 'steering'
   | 'environment'
@@ -300,7 +301,7 @@ export interface CompactionResult {
 // Reference Types (#File, #Folder, etc.)
 // ============================================================================
 
-export type ReferenceType = 
+export type ReferenceType =
   | 'file'
   | 'folder'
   | 'problems'
@@ -347,7 +348,7 @@ export interface Operation {
   agentId?: string;
 }
 
-export type OperationType = 
+export type OperationType =
   | 'file.read'
   | 'file.write'
   | 'file.delete'
@@ -397,7 +398,7 @@ export interface ExecuteResult {
 // Spec Execution Types
 // ============================================================================
 
-export type SpecStatus = 
+export type SpecStatus =
   | 'requirements'
   | 'design'
   | 'tasks'

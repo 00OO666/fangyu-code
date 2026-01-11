@@ -1,4 +1,4 @@
-# 全局规则 v3.1
+# 全局规则 v3.2
 
 > 从 Claude Code CLAUDE.md 迁移而来
 
@@ -8,6 +8,14 @@
 - "以后"规则：用户说"以后xxx"时，立即记录到 steering 文件
 - 避免低成功率工具：WebFetch 成功率约 50%，MCP 成功率约 100%
 - 按需启用 MCP：默认不开启（节省 token），需要时提示用户启用
+
+## 🚀 大任务执行原则（重要！）
+遇到大型任务时：
+- ✅ 按最高标准一次性执行完所有任务，包括测试
+- ✅ 执行过程中无需过问用户，直接推进
+- ❌ 禁止说"准备好开始时告诉我"之类的废话
+- ❌ 禁止中途停下来等待确认
+- ✅ 遇到问题自行解决，实在解决不了再汇报
 
 ## 项目目录规范
 - 项目工作目录: `F:\projects\{project-name}\`
@@ -130,6 +138,24 @@ npx electron temp/list-kiro-models.cjs
 3. **Token 有效期** - 约 8 小时，需要 Kiro 运行才能自动刷新
 4. **模型自我认知** - 即使用 Opus 4.5，模型可能仍说自己是 3.5 Sonnet（正常现象）
 
+### 🚨 封号风险（2026-01-11 更新）
+
+**即使使用 Electron，频繁调用仍会导致封号！** 已确认的封号原因：
+
+| 原因 | 说明 |
+|------|------|
+| 请求频率 | 短时间内多次 API 调用 |
+| 行为模式 | 非正常的使用模式（如批量测试） |
+| 会话状态 | 缺少完整的会话上下文 |
+| 遥测缺失 | Kiro 会发送遥测数据，脚本没有 |
+
+**安全使用建议**：
+- ❌ 不要用于自动化或批量调用
+- ❌ 不要构建代理服务器
+- ✅ 仅用于偶尔的手动测试
+- ✅ 每次调用间隔 > 30 秒
+- ✅ 保持 Kiro IDE 运行（模拟正常使用）
+
 ### 📁 关键文件
 
 | 文件 | 说明 |
@@ -137,6 +163,25 @@ npx electron temp/list-kiro-models.cjs
 | `temp/test-kiro-api-electron.cjs` | 对话测试脚本 |
 | `temp/list-kiro-models.cjs` | 获取模型列表 |
 | `E:\Desktop\Kiro-API-逆向工程完整指南.md` | 完整技术文档 |
+
+### 🎯 官方替代方案：Kiro CLI
+
+**重大发现**: Amazon Q Developer CLI 已重命名为 **Kiro CLI**，是官方闭源产品！
+
+```bash
+# Windows (WSL)
+curl -fsSL https://cli.kiro.dev/install | bash
+kiro-cli login
+kiro-cli chat
+
+# 功能
+- Agentic 对话模式
+- MCP 集成
+- 支持 Haiku/Sonnet/Opus 模型
+- 零封号风险（官方工具）
+```
+
+详见: https://kiro.dev/cli/
 
 ### 🔬 研究历程（踩坑记录）
 

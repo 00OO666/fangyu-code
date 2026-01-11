@@ -70,7 +70,7 @@ interface TabContextValue {
   updateTabState: (tabId: string, state: Tab["state"], errorMessage?: string) => void;
   updateTabChanges: (tabId: string, hasChanges: boolean) => void;
   updateTabTitle: (tabId: string, title: string) => void;
-  updateTabEngine: (tabId: string, engine: "claude" | "codex" | "gemini") => void;
+  updateTabEngine: (tabId: string, engine: "claude" | "codex" | "gemini" | "siliconflow") => void;
   /** 🔧 FIX: 更新标签页的 session 信息（用于新建会话获取到 sessionId 后持久化） */
   updateTabSession: (
     tabId: string,
@@ -78,7 +78,7 @@ interface TabContextValue {
       sessionId: string;
       projectId: string;
       projectPath: string;
-      engine?: "claude" | "codex" | "gemini";
+      engine?: "claude" | "codex" | "gemini" | "siliconflow";
     },
   ) => void;
   /** 升级智能会话 - 根据第一条消息自动命名并创建项目文件夹 */
@@ -387,14 +387,14 @@ export const TabProvider: React.FC<TabProviderProps> = ({ children }) => {
           prev.map((t) =>
             t.id === tabId
               ? {
-                  ...t,
-                  title: result.project_name,
-                  projectPath: result.project_path,
-                  smartMode: false, // 已完成升级
-                  state: "idle" as const,
-                  errorMessage: undefined,
-                  lastActiveAt: Date.now(),
-                }
+                ...t,
+                title: result.project_name,
+                projectPath: result.project_path,
+                smartMode: false, // 已完成升级
+                state: "idle" as const,
+                errorMessage: undefined,
+                lastActiveAt: Date.now(),
+              }
               : t,
           ),
         );
@@ -418,10 +418,10 @@ export const TabProvider: React.FC<TabProviderProps> = ({ children }) => {
           prev.map((t) =>
             t.id === tabId
               ? {
-                  ...t,
-                  state: "error" as const,
-                  errorMessage: error instanceof Error ? error.message : "智能会话升级失败",
-                }
+                ...t,
+                state: "error" as const,
+                errorMessage: error instanceof Error ? error.message : "智能会话升级失败",
+              }
               : t,
           ),
         );
@@ -786,8 +786,8 @@ export const TabProvider: React.FC<TabProviderProps> = ({ children }) => {
         const newTabId = generateTabId();
         const title = session
           ? projectPath?.split(/[/\\]/).pop() ||
-            session.project_path?.split(/[/\\]/).pop() ||
-            "新会话"
+          session.project_path?.split(/[/\\]/).pop() ||
+          "新会话"
           : projectPath?.split(/[/\\]/).pop() || "新会话";
 
         // Create the window directly without creating a tab first

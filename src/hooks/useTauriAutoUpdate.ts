@@ -17,6 +17,10 @@ import { useCallback, useEffect, useState } from "react";
 const STORAGE_KEY_SKIPPED = "fangyu-code-skipped-version";
 const STORAGE_KEY_DISMISSED = "fangyu-code-dismissed-update";
 
+// 重试配置
+const MAX_RETRIES = 3;
+const INITIAL_RETRY_DELAY = 1000; // 1秒
+
 export interface UpdateInfo {
   available: boolean;
   currentVersion: string;
@@ -78,54 +82,85 @@ export function useTauriAutoUpdate(
     }
   }, []);
 
-  // 检查更新
+  // 检查更新（带重试逻辑）
   const checkForUpdates = useCallback(async (force: boolean = false) => {
     if (checking) return;
 
     setChecking(true);
     setError(null);
 
-    try {
-      console.log("[Auto Update] Checking for updates...");
-      const update = await check();
+    let lastError: Error | null = null;
 
-      if (update) {
-        console.log("[Auto Update] Update available:", update);
-
-        // 检查是否被跳过或暂时关闭
-        const skipped = !force && isVersionSkipped(update.version);
-        const dismissed = !force && isUpdateDismissed(update.version);
-
-        if (skipped) {
-          console.log("[Auto Update] Version skipped by user:", update.version);
-          setUpdateInfo(null);
-          return;
+    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+      try {
+        if (attempt > 0) {
+          console.log(`[Auto Update] Retry attempt ${attempt + 1}/${MAX_RETRIES}...`);
+        } else {
+          console.log("[Auto Update] Checking for updates...");
         }
 
-        setUpdateInfo({
-          available: true,
-          currentVersion: update.currentVersion,
-          latestVersion: update.version,
-          body: update.body,
-          date: update.date,
-        });
-        setPendingUpdate(update);
-        setIsDismissed(dismissed);
-      } else {
-        console.log("[Auto Update] No update available");
-        setUpdateInfo({
-          available: false,
-          currentVersion: "",
-          latestVersion: "",
-        });
+        const update = await check();
+
+        if (update) {
+          console.log("[Auto Update] Update available:", update);
+
+          // 检查是否被跳过或暂时关闭
+          const skipped = !force && isVersionSkipped(update.version);
+          const dismissed = !force && isUpdateDismissed(update.version);
+
+          if (skipped) {
+            console.log("[Auto Update] Version skipped by user:", update.version);
+            setUpdateInfo(null);
+            setChecking(false);
+            return;
+          }
+
+          setUpdateInfo({
+            available: true,
+            currentVersion: update.currentVersion,
+            latestVersion: update.version,
+            body: update.body,
+            date: update.date,
+          });
+          setPendingUpdate(update);
+          setIsDismissed(dismissed);
+        } else {
+          console.log("[Auto Update] No update available");
+          setUpdateInfo({
+            available: false,
+            currentVersion: "",
+            latestVersion: "",
+          });
+        }
+
+        // 成功，退出重试循环
+        setChecking(false);
+        return;
+      } catch (err) {
+        lastError = err instanceof Error ? err : new Error(String(err));
+        console.warn(`[Auto Update] Check failed (attempt ${attempt + 1}):`, lastError.message);
+
+        // 如果不是最后一次尝试，等待后重试
+        if (attempt < MAX_RETRIES - 1) {
+          const delay = INITIAL_RETRY_DELAY * Math.pow(2, attempt);
+          console.log(`[Auto Update] Retrying in ${delay}ms...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
       }
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : "检查更新失败";
-      console.error("[Auto Update] Check failed:", errorMsg);
-      setError(errorMsg);
-    } finally {
-      setChecking(false);
     }
+
+    // 所有重试都失败
+    const errorMsg = lastError?.message || "检查更新失败";
+    console.error("[Auto Update] All retries failed:", errorMsg);
+
+    // 网络错误时静默处理，不显示错误给用户
+    if (errorMsg.includes('network') || errorMsg.includes('fetch') || errorMsg.includes('timeout')) {
+      console.debug("[Auto Update] Network unavailable, skipping update check silently");
+    } else {
+      setError(errorMsg);
+    }
+
+    setChecking(false);
   }, [checking, isVersionSkipped, isUpdateDismissed]);
 
   // 下载并安装更新
@@ -146,12 +181,13 @@ export function useTauriAutoUpdate(
       await pendingUpdate.downloadAndInstall((event) => {
         switch (event.event) {
           case "Started":
-            console.log("[Auto Update] Download started, contentLength:", event.data.contentLength);
+            console.log("[Auto Update] Download started, contentLength:", (event.data as any).contentLength);
             setDownloadProgress(0);
             break;
           case "Progress": {
-            const downloaded = event.data.downloaded ?? 0;
-            const total = event.data.contentLength ?? 0;
+            const eventData = event.data as { downloaded?: number; contentLength?: number; chunkLength?: number };
+            const downloaded = eventData.downloaded ?? 0;
+            const total = eventData.contentLength ?? 0;
             let progress = 0;
 
             if (total > 0) {

@@ -13,7 +13,6 @@ import type {
   SkillSearchOptions,
   SkillLocation,
   SkillExecutionContext,
-  DEFAULT_SKILL_LOCATIONS
 } from './types';
 import { parseSkillFile } from './SkillParser';
 
@@ -102,13 +101,13 @@ export class SkillManager {
 
     for (const location of this.config.locations) {
       const resolvedPath = this.resolvePath(location.path);
-      
+
       try {
         const exists = await this.fsExists(resolvedPath);
         if (!exists) continue;
 
         const entries = await this.fsReadDir(resolvedPath);
-        
+
         for (const entry of entries) {
           const skillPath = `${resolvedPath}/${entry}`;
           const skillFile = `${skillPath}/SKILL.md`;
@@ -119,7 +118,7 @@ export class SkillManager {
 
             const content = await this.fsReadFile(skillFile);
             const skill = parseSkillFile(content, skillPath);
-            
+
             // 使用 name 作为 key，项目级覆盖全局
             this.skills.set(skill.metadata.name, skill);
             loadedSkills.push(skill);
@@ -207,7 +206,7 @@ export class SkillManager {
    */
   async getBestMatch(userInput: string, minScore: number = 5): Promise<Skill | null> {
     const matches = await this.matchSkills(userInput);
-    
+
     if (matches.length > 0 && matches[0].score >= minScore) {
       return matches[0].skill;
     }
@@ -226,7 +225,7 @@ export class SkillManager {
     // 按查询过滤
     if (options.query) {
       const queryLower = options.query.toLowerCase();
-      results = results.filter(skill => 
+      results = results.filter(skill =>
         skill.metadata.name.toLowerCase().includes(queryLower) ||
         skill.metadata.description.toLowerCase().includes(queryLower) ||
         skill.overview.toLowerCase().includes(queryLower)
@@ -376,7 +375,7 @@ export class SkillManager {
 
     for (const skill of this.skills.values()) {
       byMode[skill.mode] = (byMode[skill.mode] || 0) + 1;
-      
+
       for (const category of skill.metadata.categories || []) {
         byCategory[category] = (byCategory[category] || 0) + 1;
       }

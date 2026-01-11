@@ -21,9 +21,11 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import {
   Brain,
   Zap,
@@ -111,28 +113,28 @@ export function ThinkingDepthSelector({
     color: string;
     bgColor: string;
   }> = [
-    {
-      value: 'normal',
-      label: '正常',
-      icon: Zap,
-      color: 'text-blue-500',
-      bgColor: 'bg-blue-500/10',
-    },
-    {
-      value: 'deep',
-      label: '深度',
-      icon: Brain,
-      color: 'text-purple-500',
-      bgColor: 'bg-purple-500/10',
-    },
-    {
-      value: 'ultra',
-      label: '超深度',
-      icon: Sparkles,
-      color: 'text-amber-500',
-      bgColor: 'bg-amber-500/10',
-    },
-  ];
+      {
+        value: 'normal',
+        label: '正常',
+        icon: Zap,
+        color: 'text-blue-500',
+        bgColor: 'bg-blue-500/10',
+      },
+      {
+        value: 'deep',
+        label: '深度',
+        icon: Brain,
+        color: 'text-purple-500',
+        bgColor: 'bg-purple-500/10',
+      },
+      {
+        value: 'ultra',
+        label: '超深度',
+        icon: Sparkles,
+        color: 'text-amber-500',
+        bgColor: 'bg-amber-500/10',
+      },
+    ];
 
   const currentOption = depthOptions.find((opt) => opt.value === config.depth);
 
@@ -264,6 +266,9 @@ export function ThinkingDepthSelector({
               <Settings className="w-5 h-5" />
               思考模式设置
             </DialogTitle>
+            <VisuallyHidden.Root>
+              <DialogDescription>配置思考深度的自动检测、显示选项和触发关键词</DialogDescription>
+            </VisuallyHidden.Root>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
@@ -277,14 +282,12 @@ export function ThinkingDepthSelector({
               </div>
               <button
                 onClick={() => updateConfig({ autoDetect: !config.autoDetect })}
-                className={`w-10 h-6 rounded-full transition-colors ${
-                  config.autoDetect ? 'bg-green-500' : 'bg-[var(--bg-tertiary)]'
-                }`}
+                className={`w-10 h-6 rounded-full transition-colors ${config.autoDetect ? 'bg-green-500' : 'bg-[var(--bg-tertiary)]'
+                  }`}
               >
                 <div
-                  className={`w-5 h-5 rounded-full bg-white transition-transform ${
-                    config.autoDetect ? 'translate-x-4' : 'translate-x-0.5'
-                  }`}
+                  className={`w-5 h-5 rounded-full bg-white transition-transform ${config.autoDetect ? 'translate-x-4' : 'translate-x-0.5'
+                    }`}
                 />
               </button>
             </div>
@@ -299,14 +302,12 @@ export function ThinkingDepthSelector({
               </div>
               <button
                 onClick={() => updateConfig({ showProcess: !config.showProcess })}
-                className={`w-10 h-6 rounded-full transition-colors ${
-                  config.showProcess ? 'bg-green-500' : 'bg-[var(--bg-tertiary)]'
-                }`}
+                className={`w-10 h-6 rounded-full transition-colors ${config.showProcess ? 'bg-green-500' : 'bg-[var(--bg-tertiary)]'
+                  }`}
               >
                 <div
-                  className={`w-5 h-5 rounded-full bg-white transition-transform ${
-                    config.showProcess ? 'translate-x-4' : 'translate-x-0.5'
-                  }`}
+                  className={`w-5 h-5 rounded-full bg-white transition-transform ${config.showProcess ? 'translate-x-4' : 'translate-x-0.5'
+                    }`}
                 />
               </button>
             </div>
@@ -365,6 +366,9 @@ export function ThinkingDepthSelector({
               <History className="w-5 h-5" />
               思考历史统计
             </DialogTitle>
+            <VisuallyHidden.Root>
+              <DialogDescription>查看思考模式的使用统计和历史记录</DialogDescription>
+            </VisuallyHidden.Root>
           </DialogHeader>
 
           <div className="py-4 space-y-4">

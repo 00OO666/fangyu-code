@@ -16,7 +16,10 @@ export type View =
   | "claude-extensions"
   | "plugins"
   | "new-features" // v1.2.0 新功能演示
-  | "super-agent"; // v2.4.0 Super Agent 控制中心
+  | "super-agent" // v2.4.0 Super Agent 控制中心
+  | "developer-tools" // v2.5.0 开发工具
+  | "spec-generation" // v2.5.0 规范生成引擎
+  | "workflow-manager"; // v2.5.0 工作流管理器
 
 export interface NavigationState {
   currentView: View;

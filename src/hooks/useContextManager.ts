@@ -35,7 +35,7 @@ const estimateMessageTokens = (message: ClaudeStreamMessage): number => {
   let chars = 0;
 
   // 计算消息内容
-  const content = message.message?.content;
+  const content = message.message?.content as string | any[] | undefined;
   if (typeof content === 'string') {
     chars += content.length;
   } else if (Array.isArray(content)) {
@@ -105,7 +105,7 @@ const generateSummary = (messages: ClaudeStreamMessage[]): string => {
 
   // 提取用户消息的关键词
   userMessages.forEach(msg => {
-    const content = msg.message?.content;
+    const content = msg.message?.content as string | undefined;
     if (typeof content === 'string' && content.length > 0) {
       // 取前 100 个字符作为主题
       topics.push(content.slice(0, 100));

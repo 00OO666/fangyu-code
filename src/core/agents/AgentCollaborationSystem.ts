@@ -11,9 +11,6 @@
  */
 
 import type { TechnicalSpec, ImplementationPhase, TaskSpec } from '../spec/SpecGenerationEngine';
-import type { AgentRole } from '../types/unified-agent';
-import { getEnhancedAgentRole } from './EnhancedAgentRoles';
-import { getAgentRole } from './AgentRoles';
 
 // 任务状态
 export type TaskStatus = 'pending' | 'in_progress' | 'completed' | 'failed' | 'blocked';

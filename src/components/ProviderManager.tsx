@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { Badge } from "@/components/ui/badge";
 import {
   Settings2,
@@ -42,7 +43,7 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
   const [showForm, setShowForm] = useState(false);
   const [editingProvider, setEditingProvider] = useState<ProviderConfig | null>(null);
   const [toastMessage, setToastMessage] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-  
+
   // Delete confirmation dialog state
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [providerToDelete, setProviderToDelete] = useState<ProviderConfig | null>(null);
@@ -317,167 +318,167 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
             </div>
           ) : (
             presets.map((config) => (
-            <Card key={config.id} className={`p-4 ${isCurrentProvider(config) ? 'ring-2 ring-primary' : ''}`}>
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1 min-w-0 overflow-hidden">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="flex items-center gap-2">
-                      <Globe className="h-4 w-4 text-muted-foreground" />
-                      <h3 className="font-medium">{config.name}</h3>
-                    </div>
-                    {isCurrentProvider(config) && (
-                      <Badge variant="secondary" className="text-xs">
-                        <Check className="h-3 w-3 mr-1" />
-                        {t('provider.currentUsing')}
-                      </Badge>
-                    )}
-                  </div>
-
-                  <div className="space-y-1 text-sm text-muted-foreground">
-                    <p className="truncate"><span className="font-medium">{t('provider.description')}</span>{config.description}</p>
-                    <p className="truncate"><span className="font-medium">{t('provider.apiUrl')}</span>{config.base_url}</p>
-                    {config.auth_token && (
-                      <p className="truncate"><span className="font-medium">{t('provider.authToken')}</span>
-                        {showTokens ? config.auth_token : maskToken(config.auth_token)}
-                      </p>
-                    )}
-                    {config.api_key && (
-                      <p className="truncate"><span className="font-medium">{t('provider.apiKey')}</span>
-                        {showTokens ? config.api_key : maskToken(config.api_key)}
-                      </p>
-                    )}
-                    {config.model && (
-                      <p className="truncate"><span className="font-medium">{t('provider.model')}</span>{config.model}</p>
-                    )}
-                    {config.api_key_helper && (
-                      <p className="truncate"><span className="font-medium">{t('provider.keyHelper')}</span>
-                        <code className="text-xs bg-muted px-1 py-0.5 rounded ml-1">
-                          {config.api_key_helper.length > 50 ?
-                            config.api_key_helper.substring(0, 47) + '...' :
-                            config.api_key_helper}
-                        </code>
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 flex-shrink-0">
-                  {/* 用量显示区域 */}
-                  {usageCache[config.id] && (
-                    <div className="text-right text-xs space-y-0.5 border-r pr-3 mr-1">
-                      <div className="text-muted-foreground">
-                        {t('provider.used')} <span className="font-medium text-foreground">{formatCurrency(usageCache[config.id].used_balance)}</span>
+              <Card key={config.id} className={`p-4 ${isCurrentProvider(config) ? 'ring-2 ring-primary' : ''}`}>
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0 overflow-hidden">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="flex items-center gap-2">
+                        <Globe className="h-4 w-4 text-muted-foreground" />
+                        <h3 className="font-medium">{config.name}</h3>
                       </div>
-                      <div className="text-muted-foreground">
-                        {usageCache[config.id].is_unlimited ? (
-                          <span className="text-green-600 font-medium flex items-center justify-end gap-1">
-                            {t('provider.remaining')} <Infinity className="h-3 w-3" /> {t('provider.unlimited')}
-                          </span>
-                        ) : (
-                          <>
-                            {t('provider.remaining')} <span className={`font-medium ${usageCache[config.id].remaining_balance > 10 ? 'text-green-600' : 'text-red-600'}`}>
-                              {formatCurrency(usageCache[config.id].remaining_balance)}
+                      {isCurrentProvider(config) && (
+                        <Badge variant="secondary" className="text-xs">
+                          <Check className="h-3 w-3 mr-1" />
+                          {t('provider.currentUsing')}
+                        </Badge>
+                      )}
+                    </div>
+
+                    <div className="space-y-1 text-sm text-muted-foreground">
+                      <p className="truncate"><span className="font-medium">{t('provider.description')}</span>{config.description}</p>
+                      <p className="truncate"><span className="font-medium">{t('provider.apiUrl')}</span>{config.base_url}</p>
+                      {config.auth_token && (
+                        <p className="truncate"><span className="font-medium">{t('provider.authToken')}</span>
+                          {showTokens ? config.auth_token : maskToken(config.auth_token)}
+                        </p>
+                      )}
+                      {config.api_key && (
+                        <p className="truncate"><span className="font-medium">{t('provider.apiKey')}</span>
+                          {showTokens ? config.api_key : maskToken(config.api_key)}
+                        </p>
+                      )}
+                      {config.model && (
+                        <p className="truncate"><span className="font-medium">{t('provider.model')}</span>{config.model}</p>
+                      )}
+                      {config.api_key_helper && (
+                        <p className="truncate"><span className="font-medium">{t('provider.keyHelper')}</span>
+                          <code className="text-xs bg-muted px-1 py-0.5 rounded ml-1">
+                            {config.api_key_helper.length > 50 ?
+                              config.api_key_helper.substring(0, 47) + '...' :
+                              config.api_key_helper}
+                          </code>
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 flex-shrink-0">
+                    {/* 用量显示区域 */}
+                    {usageCache[config.id] && (
+                      <div className="text-right text-xs space-y-0.5 border-r pr-3 mr-1">
+                        <div className="text-muted-foreground">
+                          {t('provider.used')} <span className="font-medium text-foreground">{formatCurrency(usageCache[config.id].used_balance)}</span>
+                        </div>
+                        <div className="text-muted-foreground">
+                          {usageCache[config.id].is_unlimited ? (
+                            <span className="text-green-600 font-medium flex items-center justify-end gap-1">
+                              {t('provider.remaining')} <Infinity className="h-3 w-3" /> {t('provider.unlimited')}
                             </span>
-                          </>
-                        )}
+                          ) : (
+                            <>
+                              {t('provider.remaining')} <span className={`font-medium ${usageCache[config.id].remaining_balance > 10 ? 'text-green-600' : 'text-red-600'}`}>
+                                {formatCurrency(usageCache[config.id].remaining_balance)}
+                              </span>
+                            </>
+                          )}
+                        </div>
                       </div>
+                    )}
+
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => queryUsage(config)}
+                        disabled={queryingUsage === config.id}
+                        className="text-xs"
+                        aria-label={t('provider.usageQuery')}
+                        title={t('provider.usageQuery')}
+                      >
+                        {queryingUsage === config.id ? (
+                          <RefreshCw className="h-3 w-3 animate-spin" aria-hidden="true" />
+                        ) : (
+                          <DollarSign className="h-3 w-3" aria-hidden="true" />
+                        )}
+                      </Button>
+
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => testConnection(config)}
+                        disabled={testing === config.id}
+                        className="text-xs"
+                        aria-label={t('tooltips.testConnection')}
+                      >
+                        {testing === config.id ? (
+                          <RefreshCw className="h-3 w-3 animate-spin" aria-hidden="true" />
+                        ) : (
+                          <TestTube className="h-3 w-3" aria-hidden="true" />
+                        )}
+                      </Button>
+
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEditProvider(config)}
+                        className="text-xs"
+                        aria-label={t('provider.editProvider')}
+                      >
+                        <Edit className="h-3 w-3" aria-hidden="true" />
+                      </Button>
+
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDeleteProvider(config)}
+                        disabled={deleting === config.id}
+                        className="text-xs text-red-600 hover:text-red-700"
+                        aria-label={t('dialogs.confirmDelete')}
+                      >
+                        {deleting === config.id ? (
+                          <RefreshCw className="h-3 w-3 animate-spin" aria-hidden="true" />
+                        ) : (
+                          <Trash className="h-3 w-3" aria-hidden="true" />
+                        )}
+                      </Button>
+
+                      <Button
+                        size="sm"
+                        onClick={() => switchProvider(config)}
+                        disabled={switching === config.id || isCurrentProvider(config)}
+                        className="text-xs"
+                      >
+                        {switching === config.id ? (
+                          <RefreshCw className="h-3 w-3 mr-1 animate-spin" aria-hidden="true" />
+                        ) : (
+                          <Check className="h-3 w-3 mr-1" aria-hidden="true" />
+                        )}
+                        {isCurrentProvider(config) ? t('provider.alreadySelected') : t('provider.switchToConfig')}
+                      </Button>
                     </div>
-                  )}
-
-                  <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => queryUsage(config)}
-                    disabled={queryingUsage === config.id}
-                    className="text-xs"
-                    aria-label={t('provider.usageQuery')}
-                    title={t('provider.usageQuery')}
-                  >
-                    {queryingUsage === config.id ? (
-                      <RefreshCw className="h-3 w-3 animate-spin" aria-hidden="true" />
-                    ) : (
-                      <DollarSign className="h-3 w-3" aria-hidden="true" />
-                    )}
-                  </Button>
-
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => testConnection(config)}
-                    disabled={testing === config.id}
-                    className="text-xs"
-                    aria-label={t('tooltips.testConnection')}
-                  >
-                    {testing === config.id ? (
-                      <RefreshCw className="h-3 w-3 animate-spin" aria-hidden="true" />
-                    ) : (
-                      <TestTube className="h-3 w-3" aria-hidden="true" />
-                    )}
-                  </Button>
-
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEditProvider(config)}
-                    className="text-xs"
-                    aria-label={t('provider.editProvider')}
-                  >
-                    <Edit className="h-3 w-3" aria-hidden="true" />
-                  </Button>
-
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleDeleteProvider(config)}
-                    disabled={deleting === config.id}
-                    className="text-xs text-red-600 hover:text-red-700"
-                    aria-label={t('dialogs.confirmDelete')}
-                  >
-                    {deleting === config.id ? (
-                      <RefreshCw className="h-3 w-3 animate-spin" aria-hidden="true" />
-                    ) : (
-                      <Trash className="h-3 w-3" aria-hidden="true" />
-                    )}
-                  </Button>
-                  
-                  <Button
-                    size="sm"
-                    onClick={() => switchProvider(config)}
-                    disabled={switching === config.id || isCurrentProvider(config)}
-                    className="text-xs"
-                  >
-                    {switching === config.id ? (
-                      <RefreshCw className="h-3 w-3 mr-1 animate-spin" aria-hidden="true" />
-                    ) : (
-                      <Check className="h-3 w-3 mr-1" aria-hidden="true" />
-                    )}
-                    {isCurrentProvider(config) ? t('provider.alreadySelected') : t('provider.switchToConfig')}
-                  </Button>
                   </div>
                 </div>
-              </div>
-            </Card>
+              </Card>
             ))
           )}
 
           {/* Toggle tokens visibility */}
           {presets.length > 0 && (
-          <div className="flex justify-center">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowTokens(!showTokens)}
-              className="text-xs"
-            >
-              {showTokens ? (
-                <EyeOff className="h-3 w-3 mr-1" aria-hidden="true" />
-              ) : (
-                <Eye className="h-3 w-3 mr-1" aria-hidden="true" />
-              )}
-              {showTokens ? t('provider.hideToken') : t('provider.showToken')}Token
-            </Button>
-          </div>
+            <div className="flex justify-center">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowTokens(!showTokens)}
+                className="text-xs"
+              >
+                {showTokens ? (
+                  <EyeOff className="h-3 w-3 mr-1" aria-hidden="true" />
+                ) : (
+                  <Eye className="h-3 w-3 mr-1" aria-hidden="true" />
+                )}
+                {showTokens ? t('provider.hideToken') : t('provider.showToken')}Token
+              </Button>
+            </div>
           )}
         </div>
       </div>
@@ -487,6 +488,9 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>{t('provider.currentEnvConfig')}</DialogTitle>
+            <VisuallyHidden.Root>
+              <DialogDescription>查看当前环境变量配置</DialogDescription>
+            </VisuallyHidden.Root>
           </DialogHeader>
           <div className="space-y-4">
             {currentConfig ? (
@@ -570,6 +574,9 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingProvider ? t('provider.editProvider') : t('provider.addProvider')}</DialogTitle>
+            <VisuallyHidden.Root>
+              <DialogDescription>配置 API 提供商信息</DialogDescription>
+            </VisuallyHidden.Root>
           </DialogHeader>
           <ProviderForm
             initialData={editingProvider || undefined}
@@ -587,6 +594,9 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
               <DollarSign className="h-5 w-5" />
               {t('provider.usageQuery')}
             </DialogTitle>
+            <VisuallyHidden.Root>
+              <DialogDescription>查看 API 使用量和余额信息</DialogDescription>
+            </VisuallyHidden.Root>
           </DialogHeader>
           <div className="space-y-4 py-4">
             {usageProvider && (
@@ -619,13 +629,12 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
 
                 <div className="flex justify-between items-center p-3 bg-muted rounded-lg">
                   <span className="text-sm text-muted-foreground">{t('provider.remainingBalance')}</span>
-                  <span className={`font-semibold ${
-                    usageData.is_unlimited
+                  <span className={`font-semibold ${usageData.is_unlimited
+                    ? 'text-green-600'
+                    : usageData.remaining_balance > 10
                       ? 'text-green-600'
-                      : usageData.remaining_balance > 10
-                        ? 'text-green-600'
-                        : 'text-red-600'
-                  }`}>
+                      : 'text-red-600'
+                    }`}>
                     {usageData.is_unlimited ? (
                       <span className="flex items-center gap-1">
                         <Infinity className="h-4 w-4" />
@@ -666,6 +675,9 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>{t('provider.confirmDeleteProvider')}</DialogTitle>
+            <VisuallyHidden.Root>
+              <DialogDescription>确认删除此 API 提供商配置</DialogDescription>
+            </VisuallyHidden.Root>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <p>{t('provider.confirmDeleteMessage', { name: providerToDelete?.name })}</p>

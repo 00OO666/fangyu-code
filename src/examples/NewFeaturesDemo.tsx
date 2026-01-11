@@ -5,7 +5,7 @@
  * 与首次启动弹窗保持同步
  */
 
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   Bug,
   Calendar,
@@ -16,12 +16,12 @@ import {
   Star,
   Zap,
 } from "lucide-react";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CHANGELOGS, type ChangelogData } from "@/hooks/useFirstLaunchChangelog";
+import { CHANGELOGS } from "@/hooks/useFirstLaunchChangelog";
 
 // 获取所有版本号（从新到旧）
 const versions = Object.keys(CHANGELOGS);

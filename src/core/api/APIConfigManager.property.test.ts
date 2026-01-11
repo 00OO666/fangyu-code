@@ -79,9 +79,9 @@ describe('APIConfigManager Property Tests', () => {
       fc.assert(
         fc.property(providerArb, apiKeyArb, (provider, apiKey) => {
           manager.configureProvider(provider, { apiKey, enabled: true });
-          
+
           const config = manager.getProviderConfig(provider);
-          
+
           expect(config).toBeDefined();
           expect(config?.apiKey).toBe(apiKey);
           expect(config?.provider).toBe(provider);
@@ -110,9 +110,9 @@ describe('APIConfigManager Property Tests', () => {
                 priority,
               });
             }
-            
+
             const enabled = manager.getEnabledProviders();
-            
+
             // 应该按优先级排序
             for (let i = 1; i < enabled.length; i++) {
               expect(enabled[i].priority).toBeGreaterThanOrEqual(enabled[i - 1].priority);
@@ -128,10 +128,10 @@ describe('APIConfigManager Property Tests', () => {
         fc.property(providerArb, apiKeyArb, (provider, apiKey) => {
           manager.configureProvider(provider, { apiKey, enabled: true });
           manager.disableProvider(provider);
-          
+
           const enabled = manager.getEnabledProviders();
           const found = enabled.find(c => c.provider === provider);
-          
+
           expect(found).toBeUndefined();
         }),
         { numRuns: 50 }
@@ -143,7 +143,7 @@ describe('APIConfigManager Property Tests', () => {
         fc.property(providerArb, apiKeyArb, (provider, apiKey) => {
           manager.configureProvider(provider, { apiKey, enabled: true });
           manager.setActiveProvider(provider);
-          
+
           expect(manager.getActiveProvider()).toBe(provider);
         }),
         { numRuns: 50 }
@@ -155,7 +155,7 @@ describe('APIConfigManager Property Tests', () => {
         fc.property(providerArb, (provider) => {
           // 不配置 API 密钥
           manager.configureProvider(provider, { enabled: false });
-          
+
           expect(() => manager.setActiveProvider(provider)).toThrow();
         }),
         { numRuns: 50 }
@@ -168,7 +168,7 @@ describe('APIConfigManager Property Tests', () => {
   // ===========================================================================
 
   describe('配置持久化属性测试', () => {
-    it('导出后导入应保持配置一致', () => {
+    it('导出后导入应保持配置一致（不含 API 密钥）', () => {
       fc.assert(
         fc.property(
           providerArb,
@@ -176,23 +176,31 @@ describe('APIConfigManager Property Tests', () => {
           modelArb,
           (provider, apiKey, defaultModel) => {
             const manager1 = new APIConfigManager();
-            
+
             // 配置一个提供商
             manager1.configureProvider(provider, { apiKey, enabled: true });
             manager1.setDefaultModel(defaultModel);
-            
-            // 导出
+
+            // 导出（注意：exportConfig 出于安全考虑不导出 apiKey）
             const exported = manager1.exportConfig();
-            
+
+            // 验证导出格式正确
+            expect(exported.defaultModel).toBe(defaultModel);
+            expect(exported.providers[provider].hasApiKey).toBe(true);
+            expect(exported.providers[provider].enabled).toBe(true);
+
             // 导入到新管理器
             const manager2 = new APIConfigManager();
             manager2.importConfig(exported);
-            
-            // 验证配置一致
+
+            // 验证非敏感配置一致
             expect(manager2.getDefaultModel()).toBe(defaultModel);
-            
+
             const config = manager2.getProviderConfig(provider);
-            expect(config?.apiKey).toBe(apiKey);
+            // API 密钥不会通过 export/import 传递（安全设计）
+            // 实际使用中，API 密钥通过 secureStorage 单独存储和加载
+            expect(config?.enabled).toBe(true);
+            expect(config?.provider).toBe(provider);
           }
         ),
         { numRuns: 30 }
@@ -208,7 +216,7 @@ describe('APIConfigManager Property Tests', () => {
     it('所有支持的提供商应有默认配置', () => {
       const manager = new APIConfigManager();
       const providers = getSupportedProviders();
-      
+
       for (const provider of providers) {
         const config = manager.getProviderConfig(provider);
         expect(config).toBeDefined();
@@ -219,7 +227,7 @@ describe('APIConfigManager Property Tests', () => {
 
     it('每个提供商应有显示名称', () => {
       const providers = getSupportedProviders();
-      
+
       for (const provider of providers) {
         const name = getProviderDisplayName(provider);
         expect(typeof name).toBe('string');
@@ -231,18 +239,18 @@ describe('APIConfigManager Property Tests', () => {
       fc.assert(
         fc.property(providerArb, apiKeyArb, (provider, apiKey) => {
           const manager = new APIConfigManager();
-          
+
           // 修改配置
           manager.configureProvider(provider, { apiKey, enabled: true });
           manager.setDefaultModel('custom-model');
-          
+
           // 重置
           manager.reset();
-          
+
           // 验证恢复默认
           expect(manager.getDefaultModel()).toBe('gpt-4o');
           expect(manager.getActiveProvider()).toBe('hiapi');
-          
+
           const config = manager.getProviderConfig(provider);
           expect(config?.apiKey).toBe('');
         }),
@@ -259,7 +267,7 @@ describe('APIConfigManager Property Tests', () => {
     it('每个提供商应有支持的模型列表', () => {
       const manager = new APIConfigManager();
       const providers: APIProvider[] = ['hiapi', 'openai', 'anthropic', 'google'];
-      
+
       for (const provider of providers) {
         const models = manager.getProviderModels(provider);
         expect(Array.isArray(models)).toBe(true);
@@ -272,7 +280,7 @@ describe('APIConfigManager Property Tests', () => {
         fc.property(modelArb, (model) => {
           const manager = new APIConfigManager();
           manager.setDefaultModel(model);
-          
+
           expect(manager.getDefaultModel()).toBe(model);
         }),
         { numRuns: 50 }
@@ -287,14 +295,14 @@ describe('APIConfigManager Property Tests', () => {
   describe('工具函数属性测试', () => {
     it('createAPIConfigManager 应创建有效的管理器', () => {
       const manager = createAPIConfigManager();
-      
+
       expect(manager).toBeInstanceOf(APIConfigManager);
       expect(manager.getActiveProvider()).toBe('hiapi');
     });
 
     it('getSupportedProviders 应返回所有提供商', () => {
       const providers = getSupportedProviders();
-      
+
       expect(providers).toContain('hiapi');
       expect(providers).toContain('openai');
       expect(providers).toContain('anthropic');
@@ -317,7 +325,7 @@ describe('APIConfigManager Property Tests', () => {
           (provider, apiKey) => {
             const manager = new APIConfigManager();
             manager.configureProvider(provider, { apiKey, enabled: true });
-            
+
             const client = manager.getClient(provider);
             expect(client).toBeDefined();
           }
@@ -335,7 +343,7 @@ describe('APIConfigManager Property Tests', () => {
             const manager = new APIConfigManager();
             manager.configureProvider(provider, { apiKey, enabled: true });
             manager.disableProvider(provider);
-            
+
             const client = manager.getClient(provider);
             expect(client).toBeUndefined();
           }
@@ -353,10 +361,10 @@ describe('APIConfigManager Property Tests', () => {
             const manager = new APIConfigManager();
             manager.configureProvider(provider, { apiKey, enabled: true });
             manager.setActiveProvider(provider);
-            
+
             const activeClient = manager.getActiveClient();
             const providerClient = manager.getClient(provider);
-            
+
             expect(activeClient).toBe(providerClient);
           }
         ),
