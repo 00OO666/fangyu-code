@@ -8,14 +8,16 @@ import { CliProcessingIndicator } from "./CliProcessingIndicator";
 
 /**
  * ✅ MeasurableItem: 自动监听高度变化的虚拟列表项
- * 
+ *
  * 使用 ResizeObserver 并在内容变化时自动通知虚拟列表重新测量。
  * 仅对正在流式输出的消息进行防抖，历史消息立即更新以防止滚动抖动。
+ *
+ * 🔧 FIX: 只对新消息启用动画，历史消息禁用动画以提升性能
  */
-const MeasurableItem = ({ virtualItem, measureElement, isStreaming, children, ...props }: any) => {
+const MeasurableItem = ({ virtualItem, measureElement, isStreaming, isNewMessage, children, ...props }: any) => {
   const elRef = useRef<HTMLDivElement>(null);
   const measureRef = useRef(measureElement);
-  
+
   // 保持 measureElement 引用最新
   useEffect(() => {
     measureRef.current = measureElement;
@@ -57,6 +59,19 @@ const MeasurableItem = ({ virtualItem, measureElement, isStreaming, children, ..
       cancelAnimationFrame(frameId);
     };
   }, [isStreaming]); // 添加 isStreaming 依赖
+
+  // 🔧 FIX: 只对新消息启用动画，历史消息直接渲染
+  if (!isNewMessage) {
+    return (
+      <div
+        {...props}
+        ref={elRef}
+        data-index={virtualItem.index}
+      >
+        {children}
+      </div>
+    );
+  }
 
   return (
     <motion.div
@@ -159,7 +174,7 @@ export const SessionMessages = forwardRef<SessionMessagesRef, SessionMessagesPro
       }
       return 250; // 增加默认高度
     },
-    overscan: 12, // ✅ OPTIMIZED: Increased to 12 to prevent blank areas during fast scrolling
+    overscan: 3, // 🔧 FIX: 从 12 降到 3，减少不必要的渲染，提升性能
     measureElement: (element) => {
       // Ensure element is fully rendered before measurement
       return element?.getBoundingClientRect().height ?? 200;
@@ -330,6 +345,8 @@ export const SessionMessages = forwardRef<SessionMessagesRef, SessionMessagesPro
               : undefined;
 
             const isStreaming = virtualItem.index === messageGroups.length - 1 && isLoading;
+            // 🔧 FIX: 只对最后一条消息启用动画，提升性能
+            const isNewMessage = virtualItem.index === messageGroups.length - 1;
 
             return (
               <MeasurableItem
@@ -337,6 +354,7 @@ export const SessionMessages = forwardRef<SessionMessagesRef, SessionMessagesPro
                 virtualItem={virtualItem}
                 measureElement={rowVirtualizer.measureElement}
                 isStreaming={isStreaming}
+                isNewMessage={isNewMessage}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}

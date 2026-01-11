@@ -26,6 +26,9 @@ import { ClaudeExtensionsManager } from '@/components/ClaudeExtensionsManager';
 import { PluginManager } from '@/components/PluginManager';
 import { HookToggleManager } from '@/components/HookToggleManager';
 import { SuperAgentCenter } from '@/components/SuperAgentCenter';
+import { DeveloperTools } from '@/components/DeveloperTools';
+import { SpecGenerationPanel } from '@/components/SpecGenerationPanel';
+import { WorkflowManagerPanel } from '@/components/WorkflowManagerPanel';
 import NewFeaturesDemo from '@/examples/NewFeaturesDemo';
 // import { ProjectCardSkeleton, SessionListItemSkeleton } from '@/components/ui/skeleton'; // Unused in new GlobalSessionCenter
 import { GlobalSessionCenter } from '@/components/GlobalSessionCenter';
@@ -295,6 +298,26 @@ export const ViewRouter: React.FC = () => {
 
       case "super-agent":
         return <SuperAgentCenter onBack={goBack} />;
+
+      case "developer-tools":
+        return <DeveloperTools onBack={goBack} />;
+
+      case "spec-generation":
+        return (
+          <div className="flex-1 overflow-hidden">
+            <SpecGenerationPanel apiClient={viewParams.apiClient} />
+          </div>
+        );
+
+      case "workflow-manager":
+        return (
+          <div className="flex-1 overflow-hidden">
+            <WorkflowManagerPanel
+              workspaceRoot={viewParams.workspaceRoot || ''}
+              apiClient={viewParams.apiClient}
+            />
+          </div>
+        );
 
       case "project-settings":
         if (viewParams.project) {

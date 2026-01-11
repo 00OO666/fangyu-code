@@ -248,9 +248,10 @@ export function useDisplayableMessages(
           let hasVisibleContent = false;
 
           for (const content of msg.content) {
-            // 如果有文本内容，保留消息
-            if (content.type === "text") {
+            // 🔧 FIX: 如果有文本内容，立即保留消息（优先级最高）
+            if (content.type === "text" && content.text?.trim()) {
               hasVisibleContent = true;
+              console.log(`[Filter] Message ${index}: Found text content, will show`);
               break;
             }
 

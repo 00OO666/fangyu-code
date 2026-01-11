@@ -160,26 +160,13 @@ const AIMessageComponent: React.FC<AIMessageProps> = ({
   className,
   onLinkDetected
 }) => {
+  // 🔧 FIX: 提取 messageId 用于 ThinkingBlock
+  const messageId = (message as any).uuid || (message as any).id;
+
   const text = extractAIText(message);
   const hasTools = hasToolCalls(message);
   const hasThinking = hasThinkingBlock(message);
   const thinkingContent = hasThinking ? extractThinkingContent(message) : '';
-
-  // 🔍 DEBUG: 记录渲染信息
-  const messageId = (message as any).uuid || (message as any).id || '';
-  if (messageId) {
-    console.log('[AIMessage] Rendering:', {
-      uuid: messageId,
-      hasText: !!text,
-      textLength: text?.length || 0,
-      textPreview: text?.substring(0, 100),
-      hasTools,
-      hasThinking,
-      contentType: typeof message.message?.content,
-      contentIsArray: Array.isArray(message.message?.content),
-      contentLength: Array.isArray(message.message?.content) ? message.message.content.length : 0
-    });
-  }
 
   // 🆕 从 SessionContext 获取 Thinking 状态管理函数
   const { getThinkingOpenState, onThinkingToggle } = useSession();

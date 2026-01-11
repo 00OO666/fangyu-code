@@ -15,6 +15,8 @@ import { api } from "@/lib/api";
 import { getEnabledProviders } from "@/lib/promptEnhancementService";
 import { inputReducer, initialState } from "./reducer";
 import { getDefaultModel } from "./defaultModelStorage";
+// 🆕 Zustand Store
+import { useExecutionEngineConfig, useSetExecutionEngineConfig } from "@/stores/sessionStore";
 
 // Memory Import功能
 import { useMemoryDetection } from "@/hooks/useMemoryDetection";
@@ -106,11 +108,14 @@ const FloatingPromptInputInner = (
     return defaultModel;
   };
 
-  // Use Reducer for state management
+  // 🆕 使用 Zustand Store 管理引擎配置
+  const executionEngineConfig = useExecutionEngineConfig();
+  const setExecutionEngineConfig = useSetExecutionEngineConfig();
+
+  // Use Reducer for state management (不再包含 executionEngineConfig)
   const [state, dispatch] = useReducer(inputReducer, {
     ...initialState,
     selectedModel: getInitialModel(),
-    executionEngineConfig: externalEngineConfig || initialState.executionEngineConfig,
   });
 
   // 🆕 智能记忆检测（必须在 state 初始化之后）
@@ -209,27 +214,22 @@ const FloatingPromptInputInner = (
     initThinkingMode();
   }, []);
 
-  // Sync external config changes
+  // 🆕 同步外部配置到 Zustand Store（如果有外部配置传入）
   useEffect(() => {
-    if (externalEngineConfig && externalEngineConfig.engine !== state.executionEngineConfig.engine) {
-      dispatch({ type: "SET_EXECUTION_ENGINE_CONFIG", payload: externalEngineConfig });
+    if (externalEngineConfig && externalEngineConfig.engine !== executionEngineConfig.engine) {
+      setExecutionEngineConfig(externalEngineConfig);
     }
-  }, [externalEngineConfig, state.executionEngineConfig.engine]);
+  }, [externalEngineConfig, executionEngineConfig.engine, setExecutionEngineConfig]);
 
-  // Persist execution engine config (使用 ref 避免循环依赖)
+  // 🆕 通知父组件配置变化
   const onExecutionEngineConfigChangeRef = useRef(onExecutionEngineConfigChange);
   useEffect(() => {
     onExecutionEngineConfigChangeRef.current = onExecutionEngineConfigChange;
   }, [onExecutionEngineConfigChange]);
 
   useEffect(() => {
-    try {
-      localStorage.setItem('execution_engine_config', JSON.stringify(state.executionEngineConfig));
-      onExecutionEngineConfigChangeRef.current?.(state.executionEngineConfig);
-    } catch (error) {
-      console.error('[ExecutionEngine] Failed to save config to localStorage:', error);
-    }
-  }, [state.executionEngineConfig]);
+    onExecutionEngineConfigChangeRef.current?.(executionEngineConfig);
+  }, [executionEngineConfig]);
 
   // Dynamic model list
   const [availableModels, setAvailableModels] = useState<ModelConfig[]>(MODELS);
@@ -340,7 +340,7 @@ const FloatingPromptInputInner = (
   });
 
   // 🆕 斜杠命令支持 Claude 和 Gemini 引擎（Codex 暂不支持非交互式斜杠命令）
-  const currentEngine = state.executionEngineConfig.engine;
+  const currentEngine = executionEngineConfig.engine;
   const isSlashCommandSupported = currentEngine === 'claude' || currentEngine === 'gemini';
 
   // 🆕 自定义斜杠命令 Hook - 从后端获取用户和项目命令
@@ -529,7 +529,7 @@ const FloatingPromptInputInner = (
       if (imageAttachments.length > 0) {
         // Codex CLI doesn't recognize @ prefix syntax, use direct paths instead
         // Claude Code CLI uses @ prefix to reference files
-        const isCodex = state.executionEngineConfig.engine === 'codex';
+        const isCodex = executionEngineConfig.engine === 'codex';
         const imagePathMentions = imageAttachments.map(attachment => {
           if (isCodex) {
             // For Codex: use direct path without @ prefix
@@ -769,8 +769,8 @@ const FloatingPromptInputInner = (
             disabled={disabled}
             imageAttachments={imageAttachments}
             embeddedImages={embeddedImages}
-            executionEngineConfig={state.executionEngineConfig}
-            setExecutionEngineConfig={(config) => dispatch({ type: "SET_EXECUTION_ENGINE_CONFIG", payload: config })}
+            executionEngineConfig={executionEngineConfig}
+            setExecutionEngineConfig={setExecutionEngineConfig}
             selectedModel={state.selectedModel}
             setSelectedModel={(model) => dispatch({ type: "SET_MODEL", payload: model })}
             availableModels={availableModels}
@@ -858,8 +858,8 @@ const FloatingPromptInputInner = (
             isLoading={isLoading}
             prompt={state.prompt}
             hasAttachments={imageAttachments.length > 0}
-            executionEngineConfig={state.executionEngineConfig}
-            setExecutionEngineConfig={(config) => dispatch({ type: "SET_EXECUTION_ENGINE_CONFIG", payload: config })}
+            executionEngineConfig={executionEngineConfig}
+            setExecutionEngineConfig={setExecutionEngineConfig}
             selectedModel={state.selectedModel}
             setSelectedModel={(model) => dispatch({ type: "SET_MODEL", payload: model })}
             availableModels={availableModels}

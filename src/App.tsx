@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import { NavigationProvider } from "@/contexts/NavigationContext";
 import { ProjectProvider } from "@/contexts/ProjectContext";
 import { TabProvider } from "@/hooks/useTabs";
@@ -9,15 +9,25 @@ import { PromptQueueProvider } from "@/hooks/usePromptQueue";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ViewRouter } from "@/components/layout/ViewRouter";
 import { useFirstLaunchChangelog } from "@/hooks/useFirstLaunchChangelog";
-import { FirstLaunchChangelogDialog } from "@/components/FirstLaunchChangelogDialog";
-import { TauriAutoUpdateDialog } from "@/components/TauriAutoUpdateDialog";
 import { TopCenterNotification } from "@/components/notifications";
 import { useDataMigration } from "@/hooks/useDataMigration";
 import { api } from "@/lib/api";
 import { useConsoleMonitor } from "@/hooks/useConsoleMonitor";
-import { ErrorMonitorPanel } from "@/components/ErrorMonitorPanel";
 import { WindowAttentionIndicator } from "@/components/WindowAttentionIndicator";
-import { CommandPalette } from "@/components/CommandPalette";
+
+// 🔧 FIX: 懒加载大型组件，减少首屏加载时间
+const FirstLaunchChangelogDialog = lazy(() => import("@/components/FirstLaunchChangelogDialog"));
+const TauriAutoUpdateDialog = lazy(() => import("@/components/TauriAutoUpdateDialog"));
+// 🔧 FIX: 命名导出需要特殊处理
+const ErrorMonitorPanel = lazy(() => import("@/components/ErrorMonitorPanel").then(module => ({ default: module.ErrorMonitorPanel })));
+const CommandPalette = lazy(() => import("@/components/CommandPalette").then(module => ({ default: module.CommandPalette })));
+
+// 🆕 加载占位符组件
+const LoadingFallback = () => (
+  <div className="flex items-center justify-center h-full">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+  </div>
+);
 
 /**
  * 主应用组件 - 管理 Claude 目录浏览器界面
@@ -64,28 +74,36 @@ function App() {
                   </AppLayout>
                   
                   {/* 🎨 全局命令面板 Ctrl+K */}
-                  <CommandPalette />
-                  
+                  <Suspense fallback={null}>
+                    <CommandPalette />
+                  </Suspense>
+
                   {/* 版本更新提醒对话框 */}
-                  <FirstLaunchChangelogDialog
-                    open={showChangelog}
-                    onClose={hideChangelog}
-                    changelog={changelog}
-                  />
-                  
+                  <Suspense fallback={null}>
+                    <FirstLaunchChangelogDialog
+                      open={showChangelog}
+                      onClose={hideChangelog}
+                      changelog={changelog}
+                    />
+                  </Suspense>
+
                   {/* Tauri 自动更新对话框 */}
-                  <TauriAutoUpdateDialog />
-                  
+                  <Suspense fallback={null}>
+                    <TauriAutoUpdateDialog />
+                  </Suspense>
+
                   {/* 顶部居中通知 */}
                   <TopCenterNotification />
-                  
+
                   {/* 错误监控面板（仅开发模式） */}
                   {import.meta.env.DEV && (
-                    <ErrorMonitorPanel
-                      errors={errors}
-                      onClearAll={clearErrors}
-                      onClearError={clearError}
-                    />
+                    <Suspense fallback={null}>
+                      <ErrorMonitorPanel
+                        errors={errors}
+                        onClearAll={clearErrors}
+                        onClearError={clearError}
+                      />
+                    </Suspense>
                   )}
                   
                   {/* 窗口注意力状态指示器 */}

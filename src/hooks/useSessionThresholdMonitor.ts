@@ -156,6 +156,17 @@ ${conversationText}`;
     const currentTokens = estimateTokenCount(messages);
     const percentage = currentTokens / config.maxContextTokens;
 
+    // 🔧 FIX: 添加调试日志，帮助诊断百分比计算问题
+    if (percentage > 1.0) {
+      console.warn(
+        `[useSessionThresholdMonitor] ⚠️ Token usage exceeds 100%:`,
+        `\n  Current tokens: ${currentTokens.toLocaleString()}`,
+        `\n  Max tokens: ${config.maxContextTokens.toLocaleString()}`,
+        `\n  Percentage: ${(percentage * 100).toFixed(1)}%`,
+        `\n  Messages count: ${messages.length}`
+      );
+    }
+
     const newStatus: ThresholdStatus = {
       currentTokens,
       percentage,
