@@ -13,7 +13,7 @@
  * 5. 事件驱动架构
  */
 
-import { EventEmitter } from 'events';
+import { BrowserEventEmitter } from '../../lib/BrowserEventEmitter';
 import { v4 as uuidv4 } from 'uuid';
 import type {
     Task,
@@ -81,7 +81,7 @@ export interface GenerateOptions {
 // UnifiedWorkflowEngine 类
 // ============================================
 
-export class UnifiedWorkflowEngine extends EventEmitter {
+export class UnifiedWorkflowEngine extends BrowserEventEmitter {
     private config: UnifiedWorkflowConfig;
     private workflowConfig: WorkflowConfig;
     private state: WorkflowState = 'idle';
