@@ -33,6 +33,18 @@ import type {
 // 代理池接口
 // ============================================
 
+/**
+ * 代理能力匹配结果（导出用于测试）
+ */
+export interface AgentMatchResult {
+  agent: Agent;
+  score: number;
+  matchedSkills: string[];
+  matchedTools: string[];
+  matchedLanguages: string[];
+  matchedFrameworks: string[];
+}
+
 interface AgentPool {
   maxAgents: number;
   agents: Map<string, Agent>;
@@ -48,6 +60,15 @@ interface SchedulerState {
   completedTasks: Set<string>;
   failedTasks: Set<string>;
   inProgressTasks: Set<string>;
+}
+
+/**
+ * 任务队列管理器 - 支持优先级排序和并发控制
+ */
+interface TaskQueueManager {
+  queue: Task[];
+  maxConcurrent: number;
+  currentConcurrent: number;
 }
 
 // ============================================
@@ -157,6 +178,7 @@ export class AgentSwarmManager extends EventEmitter {
   private config: WorkflowConfig;
   private messageQueue: AgentMessage[] = [];
   private sandboxManager: any; // 将由 SandboxManager 注入
+  private taskQueueManager: TaskQueueManager;
 
   constructor(config: WorkflowConfig) {
     super();
@@ -176,6 +198,12 @@ export class AgentSwarmManager extends EventEmitter {
       completedTasks: new Set(),
       failedTasks: new Set(),
       inProgressTasks: new Set()
+    };
+
+    this.taskQueueManager = {
+      queue: [],
+      maxConcurrent: config.maxConcurrentTasks,
+      currentConcurrent: 0
     };
   }
 
@@ -349,7 +377,7 @@ export class AgentSwarmManager extends EventEmitter {
   }
 
   /**
-   * 🔄 调度循环
+   * 🔄 调度循环（增强版 - 支持并发限制）
    */
   private async startSchedulingLoop(): Promise<void> {
     this.emitEvent('workflow:started', {
@@ -357,6 +385,15 @@ export class AgentSwarmManager extends EventEmitter {
     });
 
     while (this.scheduler.isRunning) {
+      // 检查并发限制
+      const availableSlots = this.taskQueueManager.maxConcurrent - this.taskQueueManager.currentConcurrent;
+
+      if (availableSlots <= 0) {
+        // 达到并发上限，等待
+        await this.sleep(100);
+        continue;
+      }
+
       // 获取可执行的任务（依赖已满足）
       const readyTasks = this.getReadyTasks();
 
@@ -365,9 +402,14 @@ export class AgentSwarmManager extends EventEmitter {
         break;
       }
 
-      // 并行分配任务
+      // 按优先级排序任务
+      const sortedTasks = this.sortTasksByPriority(readyTasks);
+
+      // 并行分配任务（受并发限制）
+      const tasksToAssign = sortedTasks.slice(0, Math.min(availableSlots, this.config.maxConcurrentTasks));
+
       const _assignments = await Promise.all(
-        readyTasks.slice(0, this.config.maxConcurrentTasks).map(async task => {
+        tasksToAssign.map(async task => {
           try {
             await this.assignAndExecuteTask(task);
           } catch (error) {
@@ -389,6 +431,63 @@ export class AgentSwarmManager extends EventEmitter {
     });
 
     this.scheduler.isRunning = false;
+  }
+
+  /**
+   * 📊 按优先级排序任务
+   */
+  private sortTasksByPriority(tasks: Task[]): Task[] {
+    const priorityOrder: Record<string, number> = {
+      'critical': 4,
+      'high': 3,
+      'medium': 2,
+      'low': 1
+    };
+
+    return [...tasks].sort((a, b) => {
+      // 首先按优先级排序
+      const priorityDiff = (priorityOrder[b.priority] || 2) - (priorityOrder[a.priority] || 2);
+      if (priorityDiff !== 0) return priorityDiff;
+
+      // 然后按依赖数量排序（依赖少的优先）
+      const depDiff = a.dependencies.length - b.dependencies.length;
+      if (depDiff !== 0) return depDiff;
+
+      // 最后按复杂度排序（简单的优先）
+      return a.estimatedComplexity - b.estimatedComplexity;
+    });
+  }
+
+  /**
+   * 🔢 获取当前并发数
+   */
+  getCurrentConcurrency(): number {
+    return this.taskQueueManager.currentConcurrent;
+  }
+
+  /**
+   * ⚙️ 设置最大并发数
+   */
+  setMaxConcurrency(max: number): void {
+    this.taskQueueManager.maxConcurrent = Math.max(1, max);
+    console.log(`[AgentSwarm] Max concurrency set to ${this.taskQueueManager.maxConcurrent}`);
+  }
+
+  /**
+   * 📋 获取任务队列状态
+   */
+  getTaskQueueStatus(): {
+    queueLength: number;
+    maxConcurrent: number;
+    currentConcurrent: number;
+    availableSlots: number;
+  } {
+    return {
+      queueLength: this.scheduler.taskQueue.length,
+      maxConcurrent: this.taskQueueManager.maxConcurrent,
+      currentConcurrent: this.taskQueueManager.currentConcurrent,
+      availableSlots: this.taskQueueManager.maxConcurrent - this.taskQueueManager.currentConcurrent
+    };
   }
 
   /**
@@ -438,65 +537,151 @@ export class AgentSwarmManager extends EventEmitter {
   }
 
   /**
-   * 🎯 找到最适合任务的代理
+   * 🎯 找到最适合任务的代理（增强版 - 基于能力匹配）
    */
   private async findBestAgentForTask(task: Task): Promise<Agent | null> {
     const idleAgentIds = Array.from(this.pool.idleAgents);
 
     if (idleAgentIds.length === 0) return null;
 
-    // 计算每个代理的适合度分数
-    const scores = idleAgentIds.map(agentId => {
-      const agent = this.pool.agents.get(agentId)!;
-      return {
-        agent,
-        score: this.calculateAgentFitScore(agent, task)
-      };
-    });
+    // 使用增强的能力匹配算法
+    const matchResults = this.matchAgentsToTask(task, idleAgentIds);
 
     // 按分数排序
-    scores.sort((a, b) => b.score - a.score);
+    matchResults.sort((a, b) => b.score - a.score);
 
     // 返回分数最高的代理（如果分数 > 0）
-    return scores[0]?.score > 0 ? scores[0].agent : null;
+    if (matchResults.length > 0 && matchResults[0].score > 0) {
+      const bestMatch = matchResults[0];
+      console.log(`[AgentSwarm] Best match for task "${task.description.slice(0, 50)}...": ${bestMatch.agent.name} (score: ${bestMatch.score})`);
+      if (bestMatch.matchedSkills.length > 0) {
+        console.log(`[AgentSwarm]   Matched skills: ${bestMatch.matchedSkills.join(', ')}`);
+      }
+      if (bestMatch.matchedTools.length > 0) {
+        console.log(`[AgentSwarm]   Matched tools: ${bestMatch.matchedTools.join(', ')}`);
+      }
+      return bestMatch.agent;
+    }
+
+    return null;
   }
 
   /**
-   * 📊 计算代理适合度分数
+   * 🔍 基于能力的代理-任务匹配算法（公开方法，用于测试）
    */
-  private calculateAgentFitScore(agent: Agent, task: Task): number {
-    let score = 0;
+  matchAgentsToTask(task: Task, agentIds: string[]): AgentMatchResult[] {
+    const results: AgentMatchResult[] = [];
 
-    // 基于建议的代理类型
+    for (const agentId of agentIds) {
+      const agent = this.pool.agents.get(agentId);
+      if (!agent) continue;
+
+      const matchResult = this.calculateDetailedMatch(agent, task);
+      results.push(matchResult);
+    }
+
+    return results;
+  }
+
+  /**
+   * 📊 计算详细的代理-任务匹配分数
+   */
+  private calculateDetailedMatch(agent: Agent, task: Task): AgentMatchResult {
+    let score = 0;
+    const matchedSkills: string[] = [];
+    const matchedTools: string[] = [];
+    const matchedLanguages: string[] = [];
+    const matchedFrameworks: string[] = [];
+
+    // 1. 代理类型匹配（权重: 50）
     const suggestedType = task.metadata?.suggestedAgentType;
     if (suggestedType && agent.type === suggestedType) {
       score += 50;
+    } else if (agent.type === 'general' || agent.type === 'fullstack') {
+      // 通用代理有基础分
+      score += 20;
     }
 
-    // 基于技能匹配
-    const matchedSkills = task.requiredSkills.filter(
-      skill => agent.capabilities.specializations.includes(skill) ||
-               agent.capabilities.languages.includes(skill) ||
-               agent.capabilities.frameworks.includes(skill)
-    );
-    score += matchedSkills.length * 10;
+    // 2. 技能匹配（权重: 每个 15）
+    for (const skill of task.requiredSkills) {
+      const normalizedSkill = skill.toLowerCase();
+      if (agent.capabilities.specializations.some(s =>
+        s.toLowerCase().includes(normalizedSkill) || normalizedSkill.includes(s.toLowerCase())
+      )) {
+        score += 15;
+        matchedSkills.push(skill);
+      }
+    }
 
-    // 基于工具匹配
-    const matchedTools = task.requiredTools.filter(
-      tool => agent.capabilities.tools.includes(tool)
-    );
-    score += matchedTools.length * 5;
+    // 3. 工具匹配（权重: 每个 10）
+    for (const tool of task.requiredTools) {
+      const normalizedTool = tool.toLowerCase();
+      if (agent.capabilities.tools.some(t =>
+        t.toLowerCase() === normalizedTool || t.toLowerCase().includes(normalizedTool)
+      )) {
+        score += 10;
+        matchedTools.push(tool);
+      }
+    }
 
-    // 基于历史表现
-    score += agent.performance.successRate * 20;
+    // 4. 语言匹配（从任务描述推断）
+    const taskDesc = task.description.toLowerCase();
+    for (const lang of agent.capabilities.languages) {
+      if (lang === '*' || taskDesc.includes(lang.toLowerCase())) {
+        score += 5;
+        matchedLanguages.push(lang);
+      }
+    }
 
-    // 减少等待时间较长的代理的分数（优先使用活跃代理）
+    // 5. 框架匹配（从任务描述推断）
+    for (const framework of agent.capabilities.frameworks) {
+      if (framework === '*' || taskDesc.includes(framework.toLowerCase())) {
+        score += 5;
+        matchedFrameworks.push(framework);
+      }
+    }
+
+    // 6. 历史表现加成（权重: 最高 20）
+    score += Math.round(agent.performance.successRate * 20);
+
+    // 7. 任务复杂度与代理经验匹配
+    if (agent.performance.tasksCompleted > 0) {
+      const avgComplexity = agent.performance.avgCompletionTime / 1000 / 60; // 转换为分钟
+      const taskComplexity = task.estimatedComplexity;
+      // 如果代理处理过类似复杂度的任务，加分
+      if (Math.abs(avgComplexity - taskComplexity) <= 1) {
+        score += 10;
+      }
+    }
+
+    // 8. 空闲时间惩罚（避免代理长时间空闲）
     const idleTime = Date.now() - agent.performance.lastActiveAt;
-    if (idleTime > 60000) { // 超过1分钟
+    if (idleTime > 300000) { // 超过5分钟
+      score -= 10;
+    } else if (idleTime > 60000) { // 超过1分钟
       score -= 5;
     }
 
-    return score;
+    // 9. 克隆代理轻微惩罚（优先使用原始代理）
+    if (agent.isClone) {
+      score -= 5;
+    }
+
+    return {
+      agent,
+      score: Math.max(0, score), // 确保分数不为负
+      matchedSkills,
+      matchedTools,
+      matchedLanguages,
+      matchedFrameworks
+    };
+  }
+
+  /**
+   * 📊 计算代理适合度分数（保留旧方法以兼容）
+   */
+  private calculateAgentFitScore(agent: Agent, task: Task): number {
+    return this.calculateDetailedMatch(agent, task).score;
   }
 
   /**
@@ -548,6 +733,9 @@ export class AgentSwarmManager extends EventEmitter {
     this.pool.busyAgents.add(agent.id);
     this.pool.taskAssignments.set(task.id, agent.id);
     this.scheduler.inProgressTasks.add(task.id);
+
+    // 更新并发计数
+    this.taskQueueManager.currentConcurrent++;
 
     // 从队列移除
     const queueIndex = this.scheduler.taskQueue.findIndex(t => t.id === task.id);
@@ -634,6 +822,9 @@ export class AgentSwarmManager extends EventEmitter {
     this.pool.idleAgents.add(agent.id);
     this.pool.taskAssignments.delete(task.id);
 
+    // 更新并发计数
+    this.taskQueueManager.currentConcurrent = Math.max(0, this.taskQueueManager.currentConcurrent - 1);
+
     this.emitEvent('task:completed', { task, agent });
     this.emitEvent('agent:idle', { agent });
 
@@ -656,6 +847,9 @@ export class AgentSwarmManager extends EventEmitter {
     agent.performance.tasksFailed++;
     agent.performance.successRate = agent.performance.tasksCompleted /
       (agent.performance.tasksCompleted + agent.performance.tasksFailed);
+
+    // 更新并发计数
+    this.taskQueueManager.currentConcurrent = Math.max(0, this.taskQueueManager.currentConcurrent - 1);
 
     // 检查是否应该重试
     if (task.metrics.retryCount < this.config.retryPolicy.maxRetries) {
@@ -694,6 +888,9 @@ export class AgentSwarmManager extends EventEmitter {
 
     this.scheduler.inProgressTasks.delete(taskId);
     this.pool.taskAssignments.delete(taskId);
+
+    // 更新并发计数
+    this.taskQueueManager.currentConcurrent = Math.max(0, this.taskQueueManager.currentConcurrent - 1);
 
     this.emitEvent('task:cancelled', { taskId });
   }
