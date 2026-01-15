@@ -59,8 +59,7 @@ export function useSmartAutoScroll(config: SmartAutoScrollConfig): SmartAutoScro
 
   // Refs
   const parentRef = useRef<HTMLDivElement>(null);
-  const lastScrollPositionRef = useRef(0);
-  const isAutoScrollingRef = useRef(false); // 🆕 Track if scroll was initiated by code
+  const isAutoScrollingRef = useRef(false); // Track if scroll was initiated by code
 
   // 🆕 计算最后一条消息的内容哈希，用于检测内容变化
   const lastMessageHash = useMemo(
@@ -88,100 +87,94 @@ export function useSmartAutoScroll(config: SmartAutoScrollConfig): SmartAutoScro
   };
 
   // Smart scroll detection - detect when user manually scrolls
+  // 🆕 v3.2: 简化逻辑，直接在用户交互事件中设置状态
   useEffect(() => {
     const scrollElement = parentRef.current;
     if (!scrollElement) return;
 
+    // 用户主动向上滚动时，立即停止自动滚动
+    const handleWheel = (e: WheelEvent) => {
+      // deltaY < 0 表示向上滚动
+      if (e.deltaY < 0) {
+        setUserScrolled(true);
+        setShouldAutoScroll(false);
+      }
+    };
+
+    // 用户拖动滚动条时
+    const handlePointerDown = (e: PointerEvent) => {
+      const rect = scrollElement.getBoundingClientRect();
+      const isOnScrollbar = e.clientX > rect.right - 20;
+      if (isOnScrollbar) {
+        // 标记用户正在拖动滚动条
+        setUserScrolled(true);
+        setShouldAutoScroll(false);
+      }
+    };
+
+    // 触摸滚动
+    const handleTouchMove = () => {
+      const { scrollTop, scrollHeight, clientHeight } = scrollElement;
+      const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+      if (distanceFromBottom > 100) {
+        setUserScrolled(true);
+        setShouldAutoScroll(false);
+      }
+    };
+
+    // 监听滚动位置，用于检测用户是否滚动回底部
     const handleScroll = () => {
-      // 1. Check if this scroll event was triggered by our auto-scroll
       if (isAutoScrollingRef.current) {
         isAutoScrollingRef.current = false;
-        // Update last position to current to prevent diff calculation errors next time
-        lastScrollPositionRef.current = scrollElement.scrollTop;
         return;
       }
 
       const { scrollTop, scrollHeight, clientHeight } = scrollElement;
-
-      // 2. Calculate distance from bottom
       const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
-      const isAtBottom = distanceFromBottom <= 50; // 50px threshold
+      const isAtBottom = distanceFromBottom <= 50;
 
-      // 3. Determine user intent
-      // If user is not at bottom, they are viewing history -> Stop auto scroll
-      if (!isAtBottom) {
-        setUserScrolled(true);
-        setShouldAutoScroll(false);
-      } else {
-        // User is at bottom (or scrolled back to bottom) -> Resume auto scroll
+      // 用户滚动回底部时恢复自动滚动
+      if (isAtBottom && userScrolled) {
         setUserScrolled(false);
         setShouldAutoScroll(true);
       }
-
-      lastScrollPositionRef.current = scrollTop;
     };
 
+    scrollElement.addEventListener("wheel", handleWheel, { passive: true });
+    scrollElement.addEventListener("pointerdown", handlePointerDown, { passive: true });
+    scrollElement.addEventListener("touchmove", handleTouchMove, { passive: true });
     scrollElement.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => {
+      scrollElement.removeEventListener("wheel", handleWheel);
+      scrollElement.removeEventListener("pointerdown", handlePointerDown);
+      scrollElement.removeEventListener("touchmove", handleTouchMove);
       scrollElement.removeEventListener("scroll", handleScroll);
     };
-  }, []); // Empty deps - event listener only needs to be registered once
+  }, [userScrolled]);
 
   // Smart auto-scroll for new messages (initial load or update)
-  // 🆕 使用 lastMessageHash 替代 displayableMessages.length，确保内容变化时也能触发滚动
   useEffect(() => {
     if (displayableMessages.length > 0 && shouldAutoScroll && !userScrolled) {
       const timeoutId = setTimeout(() => {
-        performAutoScroll();
-      }, 100);
+        performAutoScroll("auto");
+      }, 50);
 
       return () => clearTimeout(timeoutId);
     }
   }, [lastMessageHash, shouldAutoScroll, userScrolled]);
 
-  // Enhanced streaming scroll - only when user hasn't manually scrolled away
-  // 🆕 流式输出时持续滚动，不再依赖消息长度
+  // Streaming scroll - only when user hasn't manually scrolled away
   useEffect(() => {
     if (isLoading && shouldAutoScroll && !userScrolled) {
-      // Immediate scroll on update
-      performAutoScroll();
-
-      // Frequent updates during streaming (every 150ms for smoother experience)
-      const intervalId = setInterval(performAutoScroll, 150);
+      // 流式输出时每 200ms 滚动一次（降低频率避免干扰）
+      const intervalId = setInterval(() => {
+        performAutoScroll("auto");
+      }, 200);
 
       return () => clearInterval(intervalId);
     }
   }, [isLoading, shouldAutoScroll, userScrolled]);
-
-  // 🆕 当消息内容变化时触发额外滚动（确保流式输出时跟踪最新内容）
-  // 进入历史会话/初次渲染时，虚拟列表的测量会在短时间内不断修正高度，导致首次滚动不到真正的底部。
-  // 在非流式状态下提供一个短暂的“粘底”窗口，确保最终停在最新消息处。
-  useEffect(() => {
-    if (isLoading) return;
-    if (!shouldAutoScroll || userScrolled || displayableMessages.length === 0) return;
-
-    let ticks = 0;
-    const intervalId = setInterval(() => {
-      ticks += 1;
-      performAutoScroll("auto");
-      if (ticks >= 8) {
-        clearInterval(intervalId);
-      }
-    }, 100);
-
-    return () => clearInterval(intervalId);
-  }, [lastMessageHash, isLoading, shouldAutoScroll, userScrolled, displayableMessages.length]);
-
-  useEffect(() => {
-    if (shouldAutoScroll && !userScrolled && displayableMessages.length > 0) {
-      // 使用 requestAnimationFrame 确保在 DOM 更新后滚动
-      const frameId = requestAnimationFrame(() => {
-        performAutoScroll();
-      });
-      return () => cancelAnimationFrame(frameId);
-    }
-  }, [lastMessageHash]);
 
   return {
     parentRef,

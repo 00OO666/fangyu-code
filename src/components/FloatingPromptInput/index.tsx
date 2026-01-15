@@ -15,8 +15,9 @@ import { api } from "@/lib/api";
 import { getEnabledProviders } from "@/lib/promptEnhancementService";
 import { inputReducer, initialState } from "./reducer";
 import { getDefaultModel } from "./defaultModelStorage";
-// 🆕 Zustand Store
-import { useExecutionEngineConfig, useSetExecutionEngineConfig } from "@/stores/sessionStore";
+
+// 🔧 FIX: 移除 Zustand Store 导入，直接使用父组件传入的 props
+// import { useExecutionEngineConfig, useSetExecutionEngineConfig } from "@/stores/sessionStore";
 
 // Memory Import功能
 import { useMemoryDetection } from "@/hooks/useMemoryDetection";
@@ -25,6 +26,9 @@ import { MemoryImportSuggestion } from "@/components/MemoryImportSuggestion";
 // 🆕 Prompt Queue 功能
 import { usePromptQueue, type PromptSendMode } from "@/hooks/usePromptQueue";
 import { PromptQueuePanel } from "./PromptQueuePanel";
+
+// 🆕 预填充消息支持（用于摘要续接等场景）
+import { useConsumePrefillMessage } from "@/stores/sessionStore";
 
 // Import sub-components
 import { InputArea } from "./InputArea";
@@ -77,48 +81,116 @@ const FloatingPromptInputInner = (
   }: FloatingPromptInputProps,
   ref: React.Ref<FloatingPromptInputRef>,
 ) => {
-  // Helper function to convert backend model string to frontend ModelType
-  const parseSessionModel = (modelStr?: string): ModelType | null => {
-    if (!modelStr) return null;
-
-    const lowerModel = modelStr.toLowerCase();
-    if (lowerModel.includes("opus")) return "opus";
-    if (lowerModel.includes("sonnet") && lowerModel.includes("1m")) return "sonnet1m";
-    if (lowerModel.includes("sonnet")) return "sonnet";
-
-    return null;
+  // 🆕 使用父组件传入的配置，而不是 Zustand Store
+  // 🔧 FIX: 移除 Zustand store 的使用，避免双重状态管理导致无限循环
+  // 父组件 ClaudeCodeSession 已经管理了 executionEngineConfig 状态
+  const executionEngineConfig = externalEngineConfig || {
+    engine: 'claude' as const,
+    codexMode: 'read-only' as const,
+    codexModel: 'gpt-5.2',
+    geminiModel: 'gemini-3-flash',
   };
+  const setExecutionEngineConfig = onExecutionEngineConfigChange || (() => { });
 
-  // Determine initial model:
-  // 1. Historical session: use sessionModel
-  // 2. New session: use user's default model or fallback to "sonnet"
-  const getInitialModel = (): ModelType => {
-    // If this is a historical session with saved model, use it
-    const parsedSessionModel = parseSessionModel(sessionModel);
+  // 🔧 FIX: 使用 useReducer 的第三个参数（lazy initialization）避免每次渲染都调用 getInitialModel
+  // 原问题：传递对象表达式作为初始状态时，表达式会在每次渲染时被求值，导致 console.log 输出 1000+ 次
+  const [state, dispatch] = useReducer(inputReducer, null, () => {
+    // Determine initial model:
+    // 1. Historical session: use sessionModel
+    // 2. New session: use user's default model or fallback to "sonnet"
+    const parseModel = (modelStr?: string): ModelType | null => {
+      if (!modelStr) return null;
+      const lowerModel = modelStr.toLowerCase();
+      if (lowerModel.includes("opus")) return "opus";
+      if (lowerModel.includes("sonnet") && lowerModel.includes("1m")) return "sonnet1m";
+      if (lowerModel.includes("sonnet")) return "sonnet";
+      return null;
+    };
+
+    const parsedSessionModel = parseModel(sessionModel);
+    let selectedModel: ModelType;
+
     if (parsedSessionModel) {
-      console.log('[FloatingPromptInput] 历史会话，使用保存的模型:', parsedSessionModel, '| sessionModel:', sessionModel);
-      return parsedSessionModel;
+      console.log('[FloatingPromptInput] 历史会话，使用保存的模型:', parsedSessionModel);
+      selectedModel = parsedSessionModel;
+    } else {
+      const userDefaultModel = getDefaultModel();
+      if (userDefaultModel) {
+        console.log('[FloatingPromptInput] 新会话，使用用户默认模型:', userDefaultModel);
+        selectedModel = userDefaultModel;
+      } else {
+        console.log('[FloatingPromptInput] 未设置默认模型，回退到:', defaultModel);
+        selectedModel = defaultModel;
+      }
     }
-    // For new sessions, use user's default model setting
-    const userDefaultModel = getDefaultModel();
-    if (userDefaultModel) {
-      console.log('[FloatingPromptInput] 新会话，使用用户默认模型:', userDefaultModel);
-      return userDefaultModel;
-    }
-    // Fall back to prop default or "sonnet"
-    console.log('[FloatingPromptInput] 未设置默认模型，回退到:', defaultModel);
-    return defaultModel;
-  };
 
-  // 🆕 使用 Zustand Store 管理引擎配置
-  const executionEngineConfig = useExecutionEngineConfig();
-  const setExecutionEngineConfig = useSetExecutionEngineConfig();
-
-  // Use Reducer for state management (不再包含 executionEngineConfig)
-  const [state, dispatch] = useReducer(inputReducer, {
-    ...initialState,
-    selectedModel: getInitialModel(),
+    return {
+      ...initialState,
+      selectedModel,
+    };
   });
+
+  // 🔧 FIX: 提取稳定的回调函数，避免每次渲染都创建新函数
+  const handlePromptChange = useCallback((p: string) => {
+    dispatch({ type: "SET_PROMPT", payload: p });
+  }, []);
+
+  const handleCursorPositionChange = useCallback((p: number) => {
+    dispatch({ type: "SET_CURSOR_POSITION", payload: p });
+  }, []);
+
+  const handleSetModel = useCallback((model: ModelType) => {
+    dispatch({ type: "SET_MODEL", payload: model });
+  }, []);
+
+  const handleSetEnableProjectContext = useCallback((enable: boolean) => {
+    dispatch({ type: "SET_ENABLE_PROJECT_CONTEXT", payload: enable });
+  }, []);
+
+  const handleSetShowCostPopover = useCallback((show: boolean) => {
+    dispatch({ type: "SET_SHOW_COST_POPOVER", payload: show });
+  }, []);
+
+  const handleSetExpanded = useCallback((expanded: boolean) => {
+    dispatch({ type: "SET_EXPANDED", payload: expanded });
+  }, []);
+
+  const handleCloseExpanded = useCallback(() => {
+    dispatch({ type: "SET_EXPANDED", payload: false });
+  }, []);
+
+  const handleOpenExpanded = useCallback(() => {
+    dispatch({ type: "SET_EXPANDED", payload: true });
+  }, []);
+
+  // 🔧 Mac 输入法兼容：composition 事件回调
+  const handleCompositionStart = useCallback(() => {
+    setIsComposing(true);
+  }, []);
+
+  const handleCompositionEnd = useCallback(() => {
+    setIsComposing(false);
+    compositionEndTimeRef.current = Date.now();
+  }, []);
+
+  // 🔧 FIX: 稳定的回调函数，避免每次渲染创建新函数
+  const handleNoopCancel = useCallback(() => { }, []);
+
+  const handleToggleQueuePanel = useCallback(() => {
+    setShowQueuePanel(prev => !prev);
+  }, []);
+
+  const handleMemoryImportComplete = useCallback(() => {
+    console.log('[FloatingPromptInput] Memory imported successfully');
+  }, []);
+
+  const handleCloseMemoryPanel = useCallback(() => {
+    setShowMemoryPanel(false);
+  }, []);
+
+  const handleCloseQueuePanel = useCallback(() => {
+    setShowQueuePanel(false);
+  }, []);
 
   // 🆕 文件附件管理（支持图片、PDF、Word、Excel、PPT）
   const fileAttachments = useFileAttachments({
@@ -138,15 +210,19 @@ const FloatingPromptInputInner = (
   // 🆕 提示词队列管理
   const promptQueue = usePromptQueue();
   const [showQueuePanel, setShowQueuePanel] = useState(false);
-  const pendingCount = promptQueue.items.filter(i => i.status === 'pending').length;
+  // 🔧 FIX: 使用 useMemo 避免每次渲染都创建新数组
+  const pendingCount = React.useMemo(
+    () => promptQueue.items.filter(i => i.status === 'pending').length,
+    [promptQueue.items]
+  );
 
   // 🆕 自动队列处理：使用 ref 存储最新值，避免 useEffect 依赖导致的频繁执行
   const latestRefs = useRef({ promptQueue, onSend });
 
-  // 🆕 在 useEffect 中更新 refs（不会触发重新渲染）
+  // 🔧 FIX: 使用 useEffect 更新 ref，避免在渲染期间直接赋值
   useEffect(() => {
     latestRefs.current = { promptQueue, onSend };
-  }, [promptQueue, onSend]);
+  });
 
   // 🆕 追踪 isLoading 变化，AI 完成后自动处理队列（只依赖 isLoading）
   const prevIsLoadingRef = useRef(isLoading);
@@ -178,6 +254,17 @@ const FloatingPromptInputInner = (
       dispatch({ type: "SET_PROMPT", payload: draft });
     }, []),
   });
+
+  // 🆕 预填充消息支持（用于摘要续接等场景）
+  const consumePrefillMessage = useConsumePrefillMessage();
+  useEffect(() => {
+    // 组件挂载时检查是否有预填充消息
+    const prefillMessage = consumePrefillMessage();
+    if (prefillMessage) {
+      console.log('[FloatingPromptInput] 检测到预填充消息，自动填充到输入框');
+      dispatch({ type: "SET_PROMPT", payload: prefillMessage });
+    }
+  }, []); // 只在组件挂载时执行一次
 
   // Initialize enableProjectContext from localStorage
   useEffect(() => {
@@ -222,22 +309,8 @@ const FloatingPromptInputInner = (
     initThinkingMode();
   }, []);
 
-  // 🆕 同步外部配置到 Zustand Store（如果有外部配置传入）
-  useEffect(() => {
-    if (externalEngineConfig && externalEngineConfig.engine !== executionEngineConfig.engine) {
-      setExecutionEngineConfig(externalEngineConfig);
-    }
-  }, [externalEngineConfig, executionEngineConfig.engine, setExecutionEngineConfig]);
-
-  // 🆕 通知父组件配置变化
-  const onExecutionEngineConfigChangeRef = useRef(onExecutionEngineConfigChange);
-  useEffect(() => {
-    onExecutionEngineConfigChangeRef.current = onExecutionEngineConfigChange;
-  }, [onExecutionEngineConfigChange]);
-
-  useEffect(() => {
-    onExecutionEngineConfigChangeRef.current?.(executionEngineConfig);
-  }, [executionEngineConfig]);
+  // 🔧 FIX: 移除了双向同步的 useEffect，因为现在直接使用父组件传入的 props
+  // 不再需要 Zustand store 同步逻辑
 
   // Dynamic model list
   const [availableModels, setAvailableModels] = useState<ModelConfig[]>(MODELS);
@@ -268,7 +341,7 @@ const FloatingPromptInputInner = (
     prompt: state.prompt,
     projectPath,
     isExpanded: state.isExpanded,
-    onPromptChange: (p) => dispatch({ type: "SET_PROMPT", payload: p }),
+    onPromptChange: handlePromptChange,
     textareaRef,
     expandedTextareaRef,
   });
@@ -287,8 +360,8 @@ const FloatingPromptInputInner = (
     projectPath,
     cursorPosition: state.cursorPosition,
     isExpanded: state.isExpanded,
-    onPromptChange: (p) => dispatch({ type: "SET_PROMPT", payload: p }),
-    onCursorPositionChange: (p) => dispatch({ type: "SET_CURSOR_POSITION", payload: p }),
+    onPromptChange: handlePromptChange,
+    onCursorPositionChange: handleCursorPositionChange,
     textareaRef,
     expandedTextareaRef,
   });
@@ -302,7 +375,7 @@ const FloatingPromptInputInner = (
   } = usePromptEnhancement({
     prompt: state.prompt,
     isExpanded: state.isExpanded,
-    onPromptChange: (p) => dispatch({ type: "SET_PROMPT", payload: p }),
+    onPromptChange: handlePromptChange,
     getConversationContext,
     messages,
     textareaRef,
@@ -371,10 +444,7 @@ const FloatingPromptInputInner = (
     handleKeyDown: handleSlashCommandKeyDown,
   } = useSlashCommandMenu({
     prompt: state.prompt,
-    onCommandSelect: (command) => {
-      // 替换当前输入为选中的命令
-      dispatch({ type: "SET_PROMPT", payload: command });
-    },
+    onCommandSelect: handlePromptChange,
     customCommands,
     // Claude 和 Gemini 都支持斜杠命令菜单
     disabled: !isSlashCommandSupported || state.isExpanded || disabled,
@@ -392,7 +462,17 @@ const FloatingPromptInputInner = (
 
   // Restore session model
   useEffect(() => {
-    const parsedSessionModel = parseSessionModel(sessionModel);
+    // 🔧 FIX: 内联解析函数，避免依赖外部函数
+    const parseModel = (modelStr?: string): ModelType | null => {
+      if (!modelStr) return null;
+      const lowerModel = modelStr.toLowerCase();
+      if (lowerModel.includes("opus")) return "opus";
+      if (lowerModel.includes("sonnet") && lowerModel.includes("1m")) return "sonnet1m";
+      if (lowerModel.includes("sonnet")) return "sonnet";
+      return null;
+    };
+
+    const parsedSessionModel = parseModel(sessionModel);
     if (parsedSessionModel) {
       dispatch({ type: "SET_MODEL", payload: parsedSessionModel });
     }
@@ -816,7 +896,7 @@ const FloatingPromptInputInner = (
             executionEngineConfig={executionEngineConfig}
             setExecutionEngineConfig={setExecutionEngineConfig}
             selectedModel={state.selectedModel}
-            setSelectedModel={(model) => dispatch({ type: "SET_MODEL", payload: model })}
+            setSelectedModel={handleSetModel}
             availableModels={availableModels}
             selectedThinkingMode={state.selectedThinkingMode}
             handleToggleThinkingMode={handleToggleThinkingMode}
@@ -825,12 +905,12 @@ const FloatingPromptInputInner = (
             isEnhancing={isEnhancing}
             projectPath={projectPath}
             enableProjectContext={state.enableProjectContext}
-            setEnableProjectContext={(enable) => dispatch({ type: "SET_ENABLE_PROJECT_CONTEXT", payload: enable })}
+            setEnableProjectContext={handleSetEnableProjectContext}
             enableDualAPI={enableDualAPI}
             setEnableDualAPI={setEnableDualAPI}
             getEnabledProviders={getEnabledProviders}
             handleEnhancePromptWithAPI={handleEnhancePromptWithAPI}
-            onClose={() => dispatch({ type: "SET_EXPANDED", payload: false })}
+            onClose={handleCloseExpanded}
             onRemoveAttachment={handleRemoveImageAttachment}
             onRemoveEmbedded={handleRemoveEmbeddedImage}
             onTextChange={handleTextChange}
@@ -879,7 +959,7 @@ const FloatingPromptInputInner = (
           />
         )}
 
-        <div className="p-4 space-y-2">
+        <div className="p-4 space-y-2 flex-shrink-0">
           <InputArea
             ref={textareaRef}
             prompt={state.prompt}
@@ -895,15 +975,12 @@ const FloatingPromptInputInner = (
             onDragLeave={handleDrag}
             onDragOver={handleDrag}
             onDrop={handleDrop}
-            onExpand={() => dispatch({ type: "SET_EXPANDED", payload: true })}
+            onExpand={handleOpenExpanded}
             onFileSelect={handleFileSelect}
             onFilePickerClose={handleFilePickerClose}
             // 🔧 Mac 输入法兼容
-            onCompositionStart={() => setIsComposing(true)}
-            onCompositionEnd={() => {
-              setIsComposing(false);
-              compositionEndTimeRef.current = Date.now(); // 记录时间戳用于冷却期
-            }}
+            onCompositionStart={handleCompositionStart}
+            onCompositionEnd={handleCompositionEnd}
             // 🆕 Prompt Suggestions
             suggestion={suggestion}
             isSuggestionLoading={isSuggestionLoading}
@@ -927,7 +1004,7 @@ const FloatingPromptInputInner = (
             executionEngineConfig={executionEngineConfig}
             setExecutionEngineConfig={setExecutionEngineConfig}
             selectedModel={state.selectedModel}
-            setSelectedModel={(model) => dispatch({ type: "SET_MODEL", payload: model })}
+            setSelectedModel={handleSetModel}
             availableModels={availableModels}
             selectedThinkingMode={state.selectedThinkingMode}
             handleToggleThinkingMode={handleToggleThinkingMode}
@@ -937,19 +1014,19 @@ const FloatingPromptInputInner = (
             sessionCost={sessionCost}
             sessionStats={sessionStats}
             showCostPopover={state.showCostPopover}
-            setShowCostPopover={(show) => dispatch({ type: "SET_SHOW_COST_POPOVER", payload: show })}
+            setShowCostPopover={handleSetShowCostPopover}
             messages={messages}
             session={session}
             codexRateLimits={codexRateLimits}
             isEnhancing={isEnhancing}
             projectPath={projectPath}
             enableProjectContext={state.enableProjectContext}
-            setEnableProjectContext={(enable) => dispatch({ type: "SET_ENABLE_PROJECT_CONTEXT", payload: enable })}
+            setEnableProjectContext={handleSetEnableProjectContext}
             enableDualAPI={enableDualAPI}
             setEnableDualAPI={setEnableDualAPI}
             getEnabledProviders={getEnabledProviders}
             handleEnhancePromptWithAPI={handleEnhancePromptWithAPI}
-            onCancel={onCancel || (() => { })}
+            onCancel={onCancel || handleNoopCancel}
             onSend={handleSend}
             onOpenCanvas={onOpenCanvas}
             hasPreviewableCode={hasPreviewableCode}
@@ -961,7 +1038,7 @@ const FloatingPromptInputInner = (
             pendingQueueCount={pendingCount}
             queueItems={promptQueue.items}
             showQueuePanel={showQueuePanel}
-            onToggleQueuePanel={() => setShowQueuePanel(!showQueuePanel)}
+            onToggleQueuePanel={handleToggleQueuePanel}
             // 🆕 图像生成回调
             onImageGenerated={handleImageGenerated}
           />
@@ -972,10 +1049,8 @@ const FloatingPromptInputInner = (
         <MemoryImportSuggestion
           matches={memoryMatches}
           projectPath={projectPath}
-          onImportComplete={() => {
-            console.log('[FloatingPromptInput] Memory imported successfully');
-          }}
-          onClose={() => setShowMemoryPanel(false)}
+          onImportComplete={handleMemoryImportComplete}
+          onClose={handleCloseMemoryPanel}
         />
       )}
 
@@ -996,7 +1071,7 @@ const FloatingPromptInputInner = (
             onSendMerged={handleSendMerged}
             onClearQueue={promptQueue.clearQueue}
             onSetAutoMerge={promptQueue.setAutoMerge}
-            onClose={() => setShowQueuePanel(false)}
+            onClose={handleCloseQueuePanel}
             isLoading={isLoading}
             onQueueSubmit={handleQueueSubmit}
             onOptimizePrompt={handleOptimizePrompt}

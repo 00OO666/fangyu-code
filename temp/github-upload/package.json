@@ -1,0 +1,23 @@
+{
+    "name": "claude-api-proxy-tester",
+    "version": "1.0.0",
+    "description": "Claude API 代理服务器测试工具",
+    "main": "test.js",
+    "type": "module",
+    "scripts": {
+        "test": "node test.js"
+    },
+    "keywords": [
+        "claude",
+        "api",
+        "proxy",
+        "tester",
+        "anthropic"
+    ],
+    "author": "00OO666",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/00OO666/claude-api-proxy-tester.git"
+    }
+}

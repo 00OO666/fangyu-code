@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, useMemo, ReactNode } from 'react';
 import { View } from '@/types/navigation';
 
 interface HistoryItem {
@@ -42,7 +42,7 @@ export const NavigationProvider: React.FC<{ children: ReactNode }> = ({ children
     setPreviousView(currentView);
     setCurrentView(newView);
     setViewParams(newParams);
-    
+
     setHistory(prev => {
       const lastItem = prev[prev.length - 1];
       // Avoid duplicate consecutive entries (check both view and params)
@@ -57,9 +57,9 @@ export const NavigationProvider: React.FC<{ children: ReactNode }> = ({ children
     if (history.length > 1) {
       const newHistory = [...history];
       newHistory.pop(); // Remove current
-      
+
       const prevItem = newHistory[newHistory.length - 1]; // Target item
-      
+
       if (navigationInterceptor) {
         const shouldProceed = navigationInterceptor(prevItem.view);
         if (!shouldProceed) return;
@@ -68,12 +68,12 @@ export const NavigationProvider: React.FC<{ children: ReactNode }> = ({ children
       setHistory(newHistory);
       setCurrentView(prevItem.view);
       setViewParams(prevItem.params);
-      
+
       // Update previous view reference (optional, effectively the one we just popped)
       // But conceptually 'previous' usually means 'where we just came from' before this action.
       // In a browser, 'back' moves you to previous state. 
       // Let's keep previousView as the one we are leaving (which was current).
-      setPreviousView(currentView); 
+      setPreviousView(currentView);
     } else {
       // Fallback if history is empty (shouldn't happen with init state)
       if (navigationInterceptor) {
@@ -85,17 +85,20 @@ export const NavigationProvider: React.FC<{ children: ReactNode }> = ({ children
     }
   }, [history, navigationInterceptor, currentView]);
 
+  // 🔧 FIX (v2.7.6): 使用 useMemo 缓存 context value，避免不必要的重渲染
+  const contextValue = useMemo(() => ({
+    currentView,
+    viewParams,
+    previousView,
+    history,
+    navigateTo,
+    goBack,
+    canGoBack: history.length > 1,
+    setNavigationInterceptor
+  }), [currentView, viewParams, previousView, history, navigateTo, goBack]);
+
   return (
-    <NavigationContext.Provider value={{
-      currentView,
-      viewParams,
-      previousView,
-      history,
-      navigateTo,
-      goBack,
-      canGoBack: history.length > 1,
-      setNavigationInterceptor
-    }}>
+    <NavigationContext.Provider value={contextValue}>
       {children}
     </NavigationContext.Provider>
   );

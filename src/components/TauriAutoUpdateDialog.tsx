@@ -44,7 +44,8 @@ export const TauriAutoUpdateDialog: React.FC = () => {
   });
 
   // 是否显示对话框（有更新且未被暂时关闭）
-  const showDialog = updateInfo?.available && !isDismissed && !downloading && !installing;
+  // 🔧 FIX v2.5.2: 使用 Boolean() 确保始终返回 boolean，避免 uncontrolled to controlled 警告
+  const showDialog = Boolean(updateInfo?.available && !isDismissed && !downloading && !installing);
   // 暴露更新检查函数到 window 对象，供设置页面调用
   React.useEffect(() => {
     (window as any).__updateHook = {
@@ -142,7 +143,8 @@ export const TauriAutoUpdateDialog: React.FC = () => {
       </AlertDialog>
 
       {/* 下载进度对话框 */}
-      <AlertDialog open={downloading || installing}>
+      {/* 🔧 FIX v2.5.2: 使用 Boolean() 确保始终返回 boolean */}
+      <AlertDialog open={Boolean(downloading || installing)}>
         <AlertDialogContent className="max-w-md">
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">

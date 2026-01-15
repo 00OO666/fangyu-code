@@ -93,6 +93,80 @@ pub async fn delete_sessions_batch(
     }
 }
 
+/// Deletes sessions matching a pattern (e.g., sessions with first_message containing "/compact")
+/// Returns the number of deleted sessions
+#[tauri::command]
+pub async fn delete_sessions_by_pattern(
+    project_id: String,
+    pattern: String,
+) -> Result<DeleteByPatternResult, String> {
+    log::info!("Deleting sessions matching pattern '{}' in project {}", pattern, project_id);
+    
+    let store = ProjectStore::new()?;
+    
+    // Get all sessions for the project
+    let sessions = store.get_project_sessions(&project_id)?;
+    
+    // Find sessions matching the pattern
+    let matching_session_ids: Vec<String> = sessions
+        .iter()
+        .filter(|s| {
+            // Match against first_message
+            if let Some(ref msg) = s.first_message {
+                if msg.contains(&pattern) {
+                    return true;
+                }
+            }
+            // Also match against session ID
+            if s.id.contains(&pattern) {
+                return true;
+            }
+            false
+        })
+        .map(|s| s.id.clone())
+        .collect();
+    
+    let matched_count = matching_session_ids.len();
+    
+    if matching_session_ids.is_empty() {
+        log::info!("No sessions found matching pattern '{}'", pattern);
+        return Ok(DeleteByPatternResult {
+            matched_count: 0,
+            deleted_count: 0,
+            failed_count: 0,
+            errors: vec![],
+        });
+    }
+    
+    log::info!("Found {} sessions matching pattern '{}', deleting...", matched_count, pattern);
+    
+    // Delete matching sessions
+    let outcome = store.delete_sessions_batch(&project_id, &matching_session_ids);
+    
+    log::info!(
+        "Pattern delete completed: {} matched, {} deleted, {} failed",
+        matched_count,
+        outcome.deleted_count,
+        outcome.failed_count
+    );
+    
+    Ok(DeleteByPatternResult {
+        matched_count,
+        deleted_count: outcome.deleted_count,
+        failed_count: outcome.failed_count,
+        errors: outcome.errors,
+    })
+}
+
+/// Result of delete by pattern operation
+#[derive(serde::Serialize, serde::Deserialize)]
+pub struct DeleteByPatternResult {
+    pub matched_count: usize,
+    pub deleted_count: usize,
+    pub failed_count: usize,
+    pub errors: Vec<String>,
+}
+
 /// Removes a project from the project list (without deleting files)
 #[tauri::command]
 pub async fn delete_project(project_id: String) -> Result<String, String> {

@@ -202,13 +202,14 @@ export function useSessionCostCalculation(
     prevStatsRef.current = stats;
   }, [stats]);
 
-  return {
+  // 🔧 FIX: 使用 useMemo 缓存返回对象，避免每次渲染都创建新对象导致子组件重复渲染
+  return useMemo(() => ({
     stats,
     delta,
     formatCost: formatCostUtil,
     formatDuration,
     formatTokensK,
-  };
+  }), [stats, delta]);
 }
 
 function calculateSessionDuration(

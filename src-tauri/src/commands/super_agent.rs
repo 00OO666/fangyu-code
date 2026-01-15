@@ -387,7 +387,7 @@ pub fn super_agent_validate_command(command: String) -> SecurityValidation {
 /// Requirements: 8.5
 #[command]
 pub fn super_agent_validate_path(path: String) -> SecurityValidation {
-    let path_buf = PathBuf::from(&path);
+    let _path_buf = PathBuf::from(&path);
     
     let mut warnings = Vec::new();
     let mut risk_level = RiskLevel::Low;

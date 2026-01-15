@@ -17,7 +17,7 @@ import { getVersion } from "@tauri-apps/api/app";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const STORAGE_KEY = "fangyu-code-last-seen-version";
-const FALLBACK_VERSION = "2.7.3"; // 🔧 Fallback 版本（获取失败时使用）
+const FALLBACK_VERSION = "2.7.8"; // 🔧 Fallback 版本（获取失败时使用）
 
 // 🔧 DEBUG: 全局变量用于强制显示更新日志（调试用）
 declare global {
@@ -29,6 +29,90 @@ declare global {
 
 // 版本更新日志（从新到旧）
 export const CHANGELOGS = {
+  "2.7.8": {
+    title: "v2.7.8 - 🔧 消息显示修复",
+    date: "2026-01-16",
+    features: [],
+    improvements: [
+      "🔧 修复 Claude 说话后调用工具时，文字被覆盖的问题",
+      "🔧 改进消息聚合逻辑，更严格检测真实文本内容",
+      "🔧 智能消息合并，保留文本和工具调用",
+      "🔧 改进消息 ID 生成，确保唯一性",
+    ],
+    bugfixes: [
+      "修复工具调用前后的文字消息被错误覆盖",
+      "修复相同 ID 消息简单替换导致内容丢失",
+    ],
+    technical: [
+      "subagentGrouping.ts - 改进 getTechnicalMessageType() 文本检测",
+      "useMessageTranslation.ts - 新增 mergeMessageContent() 智能合并",
+      "usePromptExecution.ts - 改进 getClaudeMessageId() 唯一性",
+      "useSessionStream.ts - 添加详细调试日志",
+    ],
+  },
+  "2.7.6": {
+    title: "v2.7.6 - 🔒 全面代码审计与安全加固",
+    date: "2026-01-15",
+    features: [
+      "🔒 CSP 安全加固 - 移除 unsafe-eval，限制 connect-src 到已知域名",
+      "🛡️ IPC 输入验证 - Rust 后端添加路径规范化和目录访问白名单",
+      "🔐 敏感数据加密 - Web Crypto API 加密存储，开发环境安全警告",
+      "📦 代码分割优化 - 动态导入 pdfjs/mammoth/xlsx，减少 500KB+ Bundle",
+    ],
+    improvements: [
+      "✅ Context 重渲染优化 - useMemo 缓存 ProjectContext/PlanModeContext",
+      "✅ any 类型消除 - 创建 api-extended.ts 定义 Hook/Task/Agent 类型",
+      "✅ 架构重构 - AppProviders 组合组件，useTabs 拆分为独立模块",
+      "✅ Zustand 状态管理 - 核心状态迁移，Context 仅用于依赖注入",
+    ],
+    bugfixes: [],
+    technical: [
+      "Phase 1: 安全修复 - CSP/IPC/SecureStorage",
+      "Phase 2: 架构优化 - Context/Hooks/Zustand",
+      "Phase 3: 性能优化 - useMemo/代码分割/事件监听器审查",
+      "Phase 4: 代码质量 - TypeScript 类型/错误处理",
+      "Phase 5: 用户体验 - 首屏加载/错误反馈/可访问性",
+    ],
+  },
+  "2.7.5": {
+    title: "v2.7.5 - 📝 会话摘要生成器",
+    date: "2026-01-13",
+    features: [
+      "📝 独立会话摘要生成器 - 一键生成会话摘要，支持复制和在新会话中继续",
+      "🔧 独立 API 配置 - 摘要生成使用独立的引擎和模型配置，不影响主聊天",
+      "🎨 引擎选择器重构 - 全新 UI 设计，官方品牌图标，更好的交互体验",
+      "📊 会话统计面板 - 显示消息数、Token 使用、预估费用等统计信息",
+    ],
+    improvements: [
+      "✅ Token 阈值警告 - 80% 时显示警告，90% 时显示危险提示",
+      "✅ 四引擎支持 - Claude/OpenAI/Gemini/SiliconFlow 任选",
+      "✅ 配置持久化 - 引擎和模型选择自动保存，下次启动恢复",
+      "✅ API Key 加密存储 - 使用 Web Crypto API 加密敏感信息",
+    ],
+    bugfixes: [],
+    technical: [
+      "新增 SummaryButton/SummaryModal 组件",
+      "新增 useSummaryGenerator Hook",
+      "新增 SummaryConfigStore/SummaryGeneratorService 服务",
+      "新增 EnhancedEngineSelector 组件（官方品牌图标）",
+      "8 个属性测试覆盖核心功能",
+    ],
+  },
+  "2.7.4": {
+    title: "v2.7.4 - 🔧 自动更新体验优化",
+    date: "2026-01-12",
+    features: [],
+    improvements: [
+      "✅ 自动更新状态显示优化 - 修复下载失败时同时显示错误和成功信息的问题",
+      "✅ 更新对话框逻辑改进 - 只有在下载完全成功后才显示「更新已安装」",
+    ],
+    bugfixes: [
+      "🐛 修复更新对话框状态冲突 - 不再同时显示「下载安装失败」和「更新已安装」",
+    ],
+    technical: [
+      "UpdateDialog.tsx - 重构下载状态管理，确保状态互斥",
+    ],
+  },
   "2.7.3": {
     title: "v2.7.3 - 🔄 统一工作流系统",
     date: "2026-01-12",

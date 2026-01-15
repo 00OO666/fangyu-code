@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 // import { Plus } from "lucide-react"; // Unused in new GlobalSessionCenter
 import { listen, type UnlistenFn } from '@tauri-apps/api/event';
 import { useTranslation } from 'react-i18next';
@@ -70,6 +70,32 @@ export const ViewRouter: React.FC = () => {
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null);
   const [showNavigationConfirm, setShowNavigationConfirm] = useState(false);
   const [pendingView, setPendingView] = useState<any | null>(null); // Store pending view for confirmation
+
+  // 🔧 FIX: 记录 TabManager 是否曾经被访问过
+  // 只有访问过 claude-tab-manager 视图后才渲染 TabManager，避免不必要的初始化
+  const [hasVisitedTabManager, setHasVisitedTabManager] = useState(false);
+
+  // 🔧 FIX: 保存 TabManager 的初始参数，只在第一次访问时使用
+  const tabManagerParamsRef = useRef<{ initialSession?: any; initialProjectPath?: string }>({});
+
+  useEffect(() => {
+    if (currentView === "claude-tab-manager") {
+      if (!hasVisitedTabManager) {
+        // 第一次访问，保存初始参数
+        tabManagerParamsRef.current = {
+          initialSession: viewParams.initialSession,
+          initialProjectPath: viewParams.initialProjectPath,
+        };
+        setHasVisitedTabManager(true);
+      } else if (viewParams.initialSession || viewParams.initialProjectPath) {
+        // 后续访问如果有新的参数，更新参数（用于从会话列表点击打开新会话）
+        tabManagerParamsRef.current = {
+          initialSession: viewParams.initialSession,
+          initialProjectPath: viewParams.initialProjectPath,
+        };
+      }
+    }
+  }, [currentView, viewParams.initialSession, viewParams.initialProjectPath, hasVisitedTabManager]);
 
   // Load projects on mount if in projects view
   const hasLoadedProjectsRef = useRef(false);
@@ -255,13 +281,9 @@ export const ViewRouter: React.FC = () => {
         );
 
       case "claude-tab-manager":
-        return (
-          <TabManager
-            initialSession={viewParams.initialSession}
-            initialProjectPath={viewParams.initialProjectPath}
-            onBack={() => navigateTo("projects")}
-          />
-        );
+        // 🔧 FIX: TabManager 现在在外部持久化渲染，这里返回 null
+        // 这样切换到设置页面再回来时，TabManager 的状态不会丢失
+        return null;
 
       case "usage-dashboard":
         return <UsageDashboard onBack={goBack} />;
@@ -337,20 +359,41 @@ export const ViewRouter: React.FC = () => {
 
   return (
     <>
-      {/* ✨ AnimatePresence for smooth page transitions */}
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.div
-          key={currentView}
-          initial="initial"
-          animate="in"
-          exit="out"
-          variants={pageVariants}
-          transition={pageTransition}
+      {/* 🔧 FIX: TabManager 持久化渲染 - 切换到其他视图时保持挂载但隐藏 */}
+      {/* 这解决了切换到设置页面再回来时会话内容空白的问题 */}
+      {hasVisitedTabManager && (
+        <div
           className="flex-1 flex flex-col h-full overflow-hidden"
+          style={{
+            display: currentView === "claude-tab-manager" ? "flex" : "none",
+            position: currentView === "claude-tab-manager" ? "relative" : "absolute",
+            visibility: currentView === "claude-tab-manager" ? "visible" : "hidden",
+          }}
         >
-          {renderContent()}
-        </motion.div>
-      </AnimatePresence>
+          <TabManager
+            initialSession={tabManagerParamsRef.current.initialSession}
+            initialProjectPath={tabManagerParamsRef.current.initialProjectPath}
+            onBack={() => navigateTo("projects")}
+          />
+        </div>
+      )}
+
+      {/* ✨ AnimatePresence for smooth page transitions (非 TabManager 视图) */}
+      {currentView !== "claude-tab-manager" && (
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={currentView}
+            initial="initial"
+            animate="in"
+            exit="out"
+            variants={pageVariants}
+            transition={pageTransition}
+            className="flex-1 flex flex-col h-full overflow-hidden"
+          >
+            {renderContent()}
+          </motion.div>
+        </AnimatePresence>
+      )}
 
       <ClaudeBinaryDialog
         open={showClaudeBinaryDialog}

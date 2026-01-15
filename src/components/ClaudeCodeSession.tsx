@@ -1,11 +1,14 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback, lazy, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronDown,
   ChevronUp,
   X,
-  List
+  List,
+  AlertTriangle,
+  FileText,
+  Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { api, type Session, type Project } from "@/lib/api";
@@ -42,7 +45,8 @@ import { codexConverter } from '@/lib/codexConverter';
 import { convertGeminiSessionDetailToClaudeMessages } from '@/lib/geminiConverter';
 import { SessionHeader } from "./session/SessionHeader";
 import { SessionMessages, type SessionMessagesRef } from "./session/SessionMessages";
-import { CanvasFloatingWindow } from "@/components/canvas/CanvasFloatingWindow";
+// 🔧 FIX: 懒加载 Canvas 组件（包含 Monaco Editor ~300KB）
+const CanvasFloatingWindow = lazy(() => import("@/components/canvas/CanvasFloatingWindow").then(m => ({ default: m.CanvasFloatingWindow })));
 import { CompactStatusIndicator } from './CompactStatusIndicator';
 import { UsageDashboard } from "@/components/UsageDashboard";
 import { ProjectMCPQuickConfig } from "@/components/ProjectMCPQuickConfig";
@@ -50,13 +54,15 @@ import { useCanvasExtractor } from "@/hooks/useCanvasExtractor";
 import { useAutoMCPCallTracker } from "@/hooks/useAutoMCPCallTracker";
 import { useAutoResume } from "@/hooks/useAutoResume";
 import { ChatNotification } from "@/components/notifications/ChatNotification";
-import { ToolRecommendationToast } from "./ToolRecommendationToast";
-import { useToolRecommendation } from "@/hooks/useToolRecommendation";
+import { SmartRecommendationBar } from "./SmartRecommendationBar";
+import { useSmartRecommendation } from "@/hooks/useSmartRecommendation";
 import { useMessageDeduplication } from "@/hooks/useMessageDeduplication";
 import { useTokenOptimization } from "@/hooks/useTokenOptimization";
 import { useMessagePersistence } from "@/hooks/useMessagePersistence";
 import { useSessionThresholdMonitor } from "@/hooks/useSessionThresholdMonitor";
 import { SessionSummaryDialog } from "@/components/SessionSummaryDialog";
+import { DuplicateRateWarning } from "@/components/DuplicateRateWarning";
+import { SessionToolbar } from "@/components/SessionToolbar";
 
 import * as SessionHelpers from '@/lib/sessionHelpers';
 
@@ -192,6 +198,11 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   // 🆕 项目级 MCP 配置对话框状态
   const [showMCPConfig, setShowMCPConfig] = useState(false);
 
+  // 🔧 FIX: 稳定的回调函数，避免每次渲染都创建新函数导致子组件重复渲染
+  const handleOpenCanvas = useCallback(() => setShowCanvas(true), []);
+  const handleToggleUsageDashboard = useCallback(() => setShowUsageDashboard(prev => !prev), []);
+  const handleToggleMCPConfig = useCallback(() => setShowMCPConfig(prev => !prev), []);
+
   // Plan Mode state - 使用 Context（方案 B-1）
   const {
     isPlanMode,
@@ -246,17 +257,25 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   // 解决问题：setProjectPath 是异步的，首条消息会在 projectPath 更新前被检查并拒绝
   const pendingFirstMessageRef = useRef<{ prompt: string; model: ModelType; maxThinkingTokens?: number } | null>(null);
 
+  // 🔧 FIX v2: 使用 useRef 存储 onTitleUpdate 回调，避免 useSmartTabTitle 重新执行
+  const onTitleUpdateRef = useRef(onTitleUpdate);
+  const isActiveRef = useRef(isActive);
+  useEffect(() => {
+    onTitleUpdateRef.current = onTitleUpdate;
+    isActiveRef.current = isActive;
+  }, [onTitleUpdate, isActive]);
+
   // 🆕 智能标签页标题 - 根据对话内容自动命名
   // 条件：只在活跃标签页且有消息时启用，避免性能问题
   useSmartTabTitle({
     messages,
     initialTitle: projectPath.split(/[/\\]/).pop() || session?.project_path?.split(/[/\\]/).pop() || '新会话',
     onTitleUpdate: useCallback((title: string) => {
-      if (onTitleUpdate && isActive) {
+      if (onTitleUpdateRef.current && isActiveRef.current) {
         console.log('[ClaudeCodeSession] Smart title update:', title);
-        onTitleUpdate(title);
+        onTitleUpdateRef.current(title);
       }
-    }, [onTitleUpdate, isActive]),
+    }, []), // 🔧 FIX: 移除依赖，使用 ref 获取最新值
     enabled: isActive && messages.length > 0, // 只在活跃且有消息时启用
   });
 
@@ -344,14 +363,15 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
     enableSubagentGrouping: true
   });
 
-  // 🆕 智能工具推荐 - 根据对话内容推荐启用 MCP/SKILL/Hook
+  // 🆕 智能推荐系统 v2 - 自动检测已启用 MCP，更智能的推荐
   const {
     recommendations,
-    analyzeContent,
-    dismissRecommendation,
-    clearRecommendations,
-    removeRecommendation,
-  } = useToolRecommendation();
+    analyze: analyzeForRecommendation,
+    dismiss: dismissRecommendation,
+    snooze: snoozeRecommendation,
+    clearAll: clearRecommendations,
+    refresh: refreshMCPStatus,
+  } = useSmartRecommendation();
 
   // 🆕 分析用户消息内容，生成工具推荐
   useEffect(() => {
@@ -375,13 +395,9 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
         })
         .join(' ');
 
-      // 获取已启用的工具 ID（用于过滤已启用的工具）
-      // TODO: 从 API 获取实际启用的工具列表
-      const enabledTools = new Set<string>();
-
-      analyzeContent(content, enabledTools);
+      analyzeForRecommendation(content);
     }
-  }, [messages, analyzeContent]);
+  }, [messages, analyzeForRecommendation]);
 
   // Stable callback for toggling plan mode (prevents unnecessary event listener re-registration)
   const handleTogglePlanMode = useCallback(() => {
@@ -405,20 +421,20 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   }, [messages]);
 
   const [currentPromptIndex, setCurrentPromptIndex] = React.useState<number>(-1);
-  
+
   // 🆕 导航到上一条提示词
   const handleNavigateToPreviousPrompt = useCallback(() => {
     if (totalPrompts === 0) return;
-    
+
     const newIndex = currentPromptIndex <= 0 ? 0 : currentPromptIndex - 1;
     setCurrentPromptIndex(newIndex);
     sessionMessagesRef.current?.scrollToPrompt(newIndex);
   }, [currentPromptIndex, totalPrompts]);
-  
+
   // 🆕 导航到下一条提示词
   const handleNavigateToNextPrompt = useCallback(() => {
     if (totalPrompts === 0) return;
-    
+
     const maxIndex = totalPrompts - 1;
     const newIndex = currentPromptIndex >= maxIndex ? maxIndex : currentPromptIndex + 1;
     setCurrentPromptIndex(newIndex);
@@ -449,7 +465,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
     // Check if we have messages and parentRef is attached
     if (displayableMessages.length > 0 && parentRef.current) {
       const currentSessionId = session?.id || 'new_session';
-      
+
       // If we haven't scrolled for this session yet
       if (hasScrolledToBottomRef.current !== currentSessionId) {
         // Use a small delay to ensure virtualizer has calculated sizes
@@ -457,16 +473,16 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
           if (parentRef.current) {
             // Force scroll to bottom
             parentRef.current.scrollTop = parentRef.current.scrollHeight;
-            
+
             // Sync with smart auto-scroll state
             setUserScrolled(false);
             setShouldAutoScroll(true);
-            
+
             // Mark as done for this session
             hasScrolledToBottomRef.current = currentSessionId;
           }
         }, 150); // 150ms delay for stability
-        
+
         return () => clearTimeout(timer);
       }
     }
@@ -480,7 +496,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   // New state for preview feature
   const [showPreview, setShowPreview] = useState(false);
   const [previewUrl, setPreviewUrl] = useState("");
-  
+
   // Translation state
   const [lastTranslationResult, setLastTranslationResult] = useState<TranslationResult | null>(null);
   const [showPreviewPrompt, setShowPreviewPrompt] = useState(false);
@@ -504,6 +520,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   const {
     processMessageWithTranslation,
     initializeProgressiveTranslation,
+    initializeProcessedIds, // 🔧 FIX: 用于初始化已处理的消息 ID
   } = useMessageTranslation({
     isMountedRef,
     lastTranslationResult: lastTranslationResult || undefined,
@@ -537,6 +554,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
     setClaudeSessionId,
     setCodexRateLimits,
     initializeProgressiveTranslation,
+    initializeProcessedIds, // 🔧 FIX: 传入初始化已处理消息 ID 的方法
     processMessageWithTranslation,
     onSessionNotFound: handleSessionNotFound
   });
@@ -592,9 +610,11 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
     executionEngineConfig.engine
   );
 
-  // 🆕 会话阈值监控（80%/90% 警告 + 摘要对话框）
+  // 🆕 会话阈值监控（80%/90% 警告 + 手动摘要生成）
   const [showSummaryDialog, setShowSummaryDialog] = useState(false);
   const [sessionSummary, setSessionSummary] = useState('');
+  const [showSummaryHint, setShowSummaryHint] = useState(false); // 🆕 显示摘要提示
+  const [isGeneratingSummaryManual, setIsGeneratingSummaryManual] = useState(false); // 🆕 手动生成中
   const {
     status: thresholdStatus,
     generateSummary: _generateThresholdSummary,
@@ -603,27 +623,37 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
     config: {
       maxContextTokens: contextUsage.contextWindowSize || 200000,
       warningThreshold: 0.8,  // 80% 警告
-      criticalThreshold: 0.9, // 90% 生成摘要
+      criticalThreshold: 0.9, // 90% 提示生成摘要（不自动生成）
     },
     onWarning: () => {
       console.log('[ClaudeCodeSession] ⚠️ 80% threshold warning');
     },
     onCritical: () => {
-      console.log('[ClaudeCodeSession] 🚨 90% threshold critical');
-      // 🔧 FIX: 显示对话框并开始生成摘要
-      setShowSummaryDialog(true);
-      setSessionSummary(''); // 清空旧摘要，显示"正在生成摘要..."
-      _generateThresholdSummary().catch(err => {
-        console.error('[ClaudeCodeSession] Failed to generate summary:', err);
-        setSessionSummary('摘要生成失败，请稍后重试。');
-      });
+      console.log('[ClaudeCodeSession] 🚨 90% threshold critical - 显示摘要提示');
+      // 🔧 FIX: 不自动生成，只显示提示
+      setShowSummaryHint(true);
     },
     onSummaryGenerated: (summary) => {
       console.log('[ClaudeCodeSession] 📝 Summary generated:', summary.slice(0, 200));
-      // 🔧 FIX: 摘要生成成功后更新状态
       setSessionSummary(summary);
+      setIsGeneratingSummaryManual(false);
     },
   });
+
+  // 🆕 手动生成摘要
+  const handleGenerateSummaryManual = useCallback(async () => {
+    setIsGeneratingSummaryManual(true);
+    setShowSummaryHint(false);
+    setShowSummaryDialog(true);
+    setSessionSummary(''); // 清空旧摘要，显示"正在生成摘要..."
+    try {
+      await _generateThresholdSummary();
+    } catch (err) {
+      console.error('[ClaudeCodeSession] Failed to generate summary:', err);
+      setSessionSummary('摘要生成失败: ' + (err instanceof Error ? err.message : String(err)));
+      setIsGeneratingSummaryManual(false);
+    }
+  }, [_generateThresholdSummary]);
 
   // 🆕 智能会话续接（替代压缩功能 - 新窗口注入摘要）
   const {
@@ -906,24 +936,22 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
       setClaudeSessionId(session.id);
 
       // 🆕 Auto-switch execution engine based on session type
+      // 🔧 FIX: 只在引擎类型实际变化时才更新，避免不必要的重渲染
       const sessionEngine = (session as any).engine;
+      const targetEngine = sessionEngine === 'codex' ? 'codex'
+        : sessionEngine === 'gemini' ? 'gemini'
+          : 'claude';
 
-      if (sessionEngine === 'codex') {
-        setExecutionEngineConfig(prev => ({
+      setExecutionEngineConfig(prev => {
+        // 如果引擎类型没有变化，返回原对象引用，避免触发重渲染
+        if (prev.engine === targetEngine) {
+          return prev;
+        }
+        return {
           ...prev,
-          engine: 'codex' as const,
-        }));
-      } else if (sessionEngine === 'gemini') {
-        setExecutionEngineConfig(prev => ({
-          ...prev,
-          engine: 'gemini' as const,
-        }));
-      } else {
-        setExecutionEngineConfig(prev => ({
-          ...prev,
-          engine: 'claude',
-        }));
-      }
+          engine: targetEngine as 'claude' | 'codex' | 'gemini',
+        };
+      });
 
       // Load session history first, then check for active session
       const initializeSession = async () => {
@@ -988,7 +1016,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
         setClaudeSettings(settings);
       } catch (error) {
         console.error("Failed to load Claude settings:", error);
-        setClaudeSettings({ 
+        setClaudeSettings({
           showSystemInitialization: true,
           hideWarmupMessages: true // Default: hide warmup messages for better UX
         }); // Default fallback
@@ -1108,7 +1136,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
       // keepQueue=true, processNextInQueue=false: 只保留队列，不自动处理
     } catch (err) {
       console.error("Failed to cancel execution:", err);
-      
+
       // Even if backend fails, we should update UI to reflect stopped state
       // Add error message but still stop the UI loading state
       const errorMessage: ClaudeStreamMessage = {
@@ -1119,11 +1147,11 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
         receivedAt: new Date().toISOString()
       };
       setMessages(prev => [...prev, errorMessage]);
-      
+
       // Clean up listeners anyway
       unlistenRefs.current.forEach(unlisten => unlisten && typeof unlisten === 'function' && unlisten());
       unlistenRefs.current = [];
-      
+
       // Reset states to allow user to continue
       setIsLoading(false);
       hasActiveSessionRef.current = false;
@@ -1133,15 +1161,26 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   };
 
   // Handle URL detection from terminal output
-  // 🔧 FIX: 使用 useCallback 稳定引用，减少 SessionContext 重渲染
-  const handleLinkDetected = React.useCallback((url: string) => {
-    const currentState: SessionHelpers.PreviewState = {
+  // 🔧 FIX v2: 使用 useRef 存储状态，避免回调函数重新创建导致 SessionContext 重渲染
+  const previewStateRef = useRef({
+    showPreview,
+    showPreviewPrompt,
+    previewUrl,
+    isPreviewMaximized,
+    splitPosition
+  });
+  useEffect(() => {
+    previewStateRef.current = {
       showPreview,
       showPreviewPrompt,
       previewUrl,
       isPreviewMaximized,
       splitPosition
     };
+  }, [showPreview, showPreviewPrompt, previewUrl, isPreviewMaximized, splitPosition]);
+
+  const handleLinkDetected = React.useCallback((url: string) => {
+    const currentState = previewStateRef.current;
     const newState = SessionHelpers.handleLinkDetected(url, currentState);
     if (newState.previewUrl !== currentState.previewUrl) {
       setPreviewUrl(newState.previewUrl);
@@ -1149,7 +1188,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
     if (newState.showPreviewPrompt !== currentState.showPreviewPrompt) {
       setShowPreviewPrompt(newState.showPreviewPrompt);
     }
-  }, [showPreview, showPreviewPrompt, previewUrl, isPreviewMaximized, splitPosition]);
+  }, []); // 🔧 FIX: 移除依赖，使用 ref 获取最新状态
 
   const handleClosePreview = () => {
     const currentState: SessionHelpers.PreviewState = {
@@ -1192,37 +1231,45 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   // 🆕 辅助函数：计算用户消息对应的 promptIndex
   // 只计算真实用户输入，排除系统消息和工具结果
   // 🔧 FIX: 参数实际上是 messages 数组的索引，而不是 displayableMessages 的索引
+  // 🔧 FIX v2: 使用 useRef 存储 messages，避免函数重新创建导致 SessionContext 重渲染
+  const messagesRef = useRef(messages);
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
+
   const getPromptIndexForMessage = useCallback((messagesIndex: number): number => {
+    // 🔧 FIX: 使用 ref 获取最新的 messages
+    const currentMessages = messagesRef.current;
     // 🔧 FIX: 直接使用传入的 messagesIndex，不需要再查找
     const actualIndex = messagesIndex;
 
-    if (actualIndex === -1 || actualIndex >= messages.length) return -1;
-    
+    if (actualIndex === -1 || actualIndex >= currentMessages.length) return -1;
+
     // 计算这是第几条真实用户消息（排除 Warmup/System 和纯工具结果消息）
     // 这个逻辑必须和后端 prompt_tracker.rs 完全一致！
-    return messages.slice(0, actualIndex + 1)
+    return currentMessages.slice(0, actualIndex + 1)
       .filter(m => {
         // 只处理 user 类型消息
         if (m.type !== 'user') return false;
-        
+
         // 检查是否是侧链消息（agent 消息）- 与后端一致
         const isSidechain = (m as any).isSidechain === true;
         if (isSidechain) {
           return false;
         }
-        
+
         // 检查是否有 parent_tool_use_id（子代理的消息）- 与后端一致
         const hasParentToolUseId = (m as any).parent_tool_use_id !== null && (m as any).parent_tool_use_id !== undefined;
         if (hasParentToolUseId) {
           return false;
         }
-        
+
         // 提取消息文本（处理字符串和数组两种格式）
         const content = m.message?.content;
         let text = '';
         let hasTextContent = false;
         let hasToolResult = false;
-        
+
         if (typeof content === 'string') {
           text = content;
           hasTextContent = text.trim().length > 0;
@@ -1231,31 +1278,31 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
           const textItems = content.filter((item: any) => item.type === 'text');
           text = textItems.map((item: any) => item.text || '').join('');
           hasTextContent = textItems.length > 0 && text.trim().length > 0;
-          
+
           // 检查是否有 tool_result
           hasToolResult = content.some((item: any) => item.type === 'tool_result');
         }
-        
+
         // 如果只有 tool_result 没有 text，不计入（这些是工具执行的结果）
         if (hasToolResult && !hasTextContent) {
           return false;
         }
-        
+
         // 必须有文本内容
         if (!hasTextContent) {
           return false;
         }
-        
+
         // 排除自动发送的 Warmup 和 Skills 消息
         // 这个逻辑要和后端 prompt_tracker.rs 保持一致
         const isWarmupMessage = text.includes('Warmup');
-        const isSkillMessage = text.includes('<command-name>') 
+        const isSkillMessage = text.includes('<command-name>')
           || text.includes('Launching skill:')
           || text.includes('skill is running');
         return !isWarmupMessage && !isSkillMessage;
       })
       .length - 1;
-  }, [messages]); // 🔧 FIX: 移除 displayableMessages 依赖，因为不再使用
+  }, []); // 🔧 FIX: 移除 messages 依赖，使用 ref 获取最新状态
 
 
   // 🆕 撤回处理函数 - 支持三种撤回模式
@@ -1268,31 +1315,48 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
     setShowPromptNavigator(false);
   }, []);
 
+  // 🔧 FIX v2: 使用 useRef 存储依赖状态，避免 handleRevert 重新创建导致 SessionContext 重渲染
+  const revertDepsRef = useRef({
+    effectiveSession,
+    projectPath,
+    hideWarmupMessages: claudeSettings?.hideWarmupMessages,
+    engine: executionEngineConfig.engine
+  });
+  useEffect(() => {
+    revertDepsRef.current = {
+      effectiveSession,
+      projectPath,
+      hideWarmupMessages: claudeSettings?.hideWarmupMessages,
+      engine: executionEngineConfig.engine
+    };
+  }, [effectiveSession, projectPath, claudeSettings?.hideWarmupMessages, executionEngineConfig.engine]);
+
   const handleRevert = useCallback(async (promptIndex: number, mode: import('@/lib/api').RewindMode = 'both') => {
+    const { effectiveSession, projectPath } = revertDepsRef.current;
     if (!effectiveSession) return;
 
     try {
 
-      const sessionEngine = effectiveSession.engine || executionEngineConfig.engine || 'claude';
+      const sessionEngine = effectiveSession.engine || revertDepsRef.current.engine || 'claude';
       const isCodex = sessionEngine === 'codex';
       const isGemini = sessionEngine === 'gemini';
 
       // 调用后端撤回（返回提示词文本）
       const promptText = isCodex
         ? await api.revertCodexToPrompt(
-            effectiveSession.id,
-            projectPath,
-            promptIndex,
-            mode
-          )
+          effectiveSession.id,
+          projectPath,
+          promptIndex,
+          mode
+        )
         : isGemini
-        ? await api.revertGeminiToPrompt(
+          ? await api.revertGeminiToPrompt(
             effectiveSession.id,
             projectPath,
             promptIndex,
             mode
           )
-        : await api.revertToPrompt(
+          : await api.revertToPrompt(
             effectiveSession.id,
             effectiveSession.project_id,
             projectPath,
@@ -1341,7 +1405,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
       console.error('[Prompt Revert] Failed to revert:', error);
       setError('__REVERT_FAILED__:' + error);
     }
-  }, [effectiveSession, projectPath, claudeSettings?.hideWarmupMessages, executionEngineConfig.engine]);
+  }, []); // 🔧 FIX: 移除依赖，使用 ref 获取最新状态
 
   // Cleanup event listeners and track mount state
   // ⚠️ IMPORTANT: No dependencies! Only cleanup on real unmount
@@ -1408,7 +1472,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   if (showPreview && isPreviewMaximized) {
     return (
       <AnimatePresence>
-        <motion.div 
+        <motion.div
           className="fixed inset-0 z-50 bg-background"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -1443,6 +1507,17 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
                 <div className="h-full flex flex-col">
                   {projectPathInput}
                   <PlanModeStatusBar isPlanMode={isPlanMode} />
+                  {/* 🆕 会话工具栏 - 预览模式下也可用 */}
+                  {messages.length > 0 && (
+                    <div className="flex-shrink-0 px-4 py-2 border-b border-border/50 flex items-center justify-end">
+                      <SessionToolbar
+                        messages={messages}
+                        session={effectiveSession || undefined}
+                        projectPath={projectPath}
+                        isStreaming={isLoading}
+                      />
+                    </div>
+                  )}
                   {/* 🆕 Token Usage Dashboard - 预览模式下也可用 */}
                   <AnimatePresence>
                     {showUsageDashboard && (
@@ -1485,6 +1560,29 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
             <div className="h-full flex flex-col relative">
               {projectPathInput}
               <PlanModeStatusBar isPlanMode={isPlanMode} />
+
+              {/* 🆕 会话工具栏 - 摘要生成、导出、检查点等功能 */}
+              {messages.length > 0 && (
+                <div className="flex-shrink-0 px-4 py-2 border-b border-border/50 flex items-center justify-end">
+                  <SessionToolbar
+                    messages={messages}
+                    session={effectiveSession || undefined}
+                    projectPath={projectPath}
+                    isStreaming={isLoading}
+                  />
+                </div>
+              )}
+
+              {/* 🆕 重复率警告 - 仅开发模式显示 */}
+              {import.meta.env.DEV && (
+                <div className="px-4 py-1">
+                  <DuplicateRateWarning
+                    rate={duplicateRate}
+                    count={duplicateCount}
+                    total={rawMessages?.length || 0}
+                  />
+                </div>
+              )}
 
               {/* 🆕 Token Usage Dashboard - 可折叠面板 */}
               <AnimatePresence>
@@ -1726,6 +1824,45 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
 
         {/* Floating Prompt Input - 输入区域 */}
         <ErrorBoundary>
+          {/* 🆕 摘要生成提示横幅 - 90% 阈值时显示 */}
+          {showSummaryHint && (
+            <div className="mx-4 mb-2 p-3 bg-orange-500/10 border border-orange-500/30 rounded-lg flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 text-sm text-orange-200">
+                <AlertTriangle className="h-4 w-4 text-orange-500 flex-shrink-0" />
+                <span>上下文使用率已达 {Math.round(thresholdStatus.percentage * 100)}%，建议生成摘要以便开启新会话</span>
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleGenerateSummaryManual}
+                  disabled={isGeneratingSummaryManual}
+                  className="h-7 text-xs border-orange-500/50 text-orange-200 hover:bg-orange-500/20"
+                >
+                  {isGeneratingSummaryManual ? (
+                    <>
+                      <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                      生成中...
+                    </>
+                  ) : (
+                    <>
+                      <FileText className="h-3 w-3 mr-1" />
+                      生成摘要
+                    </>
+                  )}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowSummaryHint(false)}
+                  className="h-7 w-7 p-0 text-orange-200/50 hover:text-orange-200"
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+            </div>
+          )}
+
           {/* 操作通知 - 显示在输入框上方 */}
           <ChatNotification />
 
@@ -1752,12 +1889,12 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
             codexRateLimits={codexRateLimits}
             executionEngineConfig={executionEngineConfig}              // 🆕 Codex 集成
             onExecutionEngineConfigChange={setExecutionEngineConfig}   // 🆕 Codex 集成
-            onOpenCanvas={() => setShowCanvas(true)}                   // 🆕 Canvas 实时预览
+            onOpenCanvas={handleOpenCanvas}                            // 🔧 FIX: 使用稳定回调
             hasPreviewableCode={!!extractedCode?.code}                 // 🆕 检测到可预览代码
             codeSource={extractedCode?.source}                         // 🆕 代码来源
-            onToggleUsageDashboard={() => setShowUsageDashboard(prev => !prev)} // 🆕 Token 消耗图表
+            onToggleUsageDashboard={handleToggleUsageDashboard}        // 🔧 FIX: 使用稳定回调
             showUsageDashboard={showUsageDashboard}                    // 🆕 图表显示状态
-            onToggleMCPConfig={() => setShowMCPConfig(prev => !prev)}  // 🆕 项目级 MCP 配置
+            onToggleMCPConfig={handleToggleMCPConfig}                  // 🔧 FIX: 使用稳定回调
             compactStatus={compactStatus}                              // 🆕 后台压缩状态
             isCompacting={isCompacting}                                // 🆕 是否正在压缩
             compactProgress={compactProgress}                          // 🆕 压缩进度
@@ -1827,21 +1964,30 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
         onPromptClick={handlePromptNavigation}
       />
 
-      {/* Canvas 实时预览悬浮窗 - Gemini 风格 */}
-      <CanvasFloatingWindow
-        isOpen={showCanvas}
-        onClose={() => setShowCanvas(false)}
-        extractedCode={extractedCode?.code || ''}
-        language={extractedCode?.language || 'tsx'}
-      />
+      {/* Canvas 实时预览悬浮窗 - Gemini 风格 (懒加载) */}
+      {showCanvas && (
+        <Suspense fallback={<div className="fixed inset-0 bg-background/80 flex items-center justify-center z-50"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
+          <CanvasFloatingWindow
+            isOpen={showCanvas}
+            onClose={() => setShowCanvas(false)}
+            extractedCode={extractedCode?.code || ''}
+            language={extractedCode?.language || 'tsx'}
+          />
+        </Suspense>
+      )}
 
-      {/* 🆕 智能工具推荐提示 */}
-      <ToolRecommendationToast
-        recommendations={recommendations}
-        onDismiss={dismissRecommendation}
-        onRemove={removeRecommendation}
-        onClearAll={clearRecommendations}
-      />
+      {/* 🆕 智能推荐条 v2 - 更简洁的 UI */}
+      {recommendations.length > 0 && (
+        <div className="fixed bottom-20 right-4 z-50 max-w-md">
+          <SmartRecommendationBar
+            recommendations={recommendations}
+            onDismiss={dismissRecommendation}
+            onSnooze={snoozeRecommendation}
+            onClearAll={clearRecommendations}
+            onRefresh={refreshMCPStatus}
+          />
+        </div>
+      )}
 
       {/* 🆕 项目级 MCP 快捷配置对话框 */}
       {projectPath && (

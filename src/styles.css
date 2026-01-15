@@ -8,6 +8,8 @@
  */
 
 @import "./styles/theme.css";
+@import "./styles/design-system-v3.css";
+/* 🆕 v3 Design System with Glassmorphism */
 @import "./styles/typography.css";
 @import "./styles/animations.css";
 @import "./styles/components.css";
@@ -32,4 +34,24 @@
    * Modern browsers (including Safari) support standard flexbox properties perfectly.
    * Forcing -webkit-box (2009 syntax) was conflicting with modern layouts.
    */
+}
+
+/* ========================================
+   🔧 FIX v2.4: 滚动优化
+   ======================================== */
+
+/* 优化滚动容器性能 */
+.overflow-y-auto {
+  /* 启用触摸滚动惯性（移动端和触控板） */
+  -webkit-overflow-scrolling: touch;
+  /* 防止滚动链传播到父元素 */
+  overscroll-behavior: contain;
+}
+
+/* 虚拟列表滚动容器优化 */
+[data-virtual-list] {
+  /* GPU 加速 */
+  transform: translateZ(0);
+  /* 提示浏览器优化滚动 */
+  will-change: scroll-position;
 }

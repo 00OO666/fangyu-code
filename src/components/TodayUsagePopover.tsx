@@ -104,7 +104,8 @@ export const TodayUsagePopover: React.FC<TodayUsagePopoverProps> = ({
   // 当前小时
   const currentHour = new Date().getHours();
 
-  if (!hasMessages) return null;
+  // 🔧 FIX: 移除 hasMessages 条件，始终显示今日消耗按钮
+  // if (!hasMessages) return null;
 
   // 触发按钮
   const triggerButton = (
@@ -131,112 +132,112 @@ export const TodayUsagePopover: React.FC<TodayUsagePopoverProps> = ({
   // 弹出内容
   const popoverContent = (
     <div className="space-y-4">
-          {/* 标题 */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-emerald-500" />
-              <span className="font-medium text-sm">今日消耗统计</span>
-            </div>
-            <span className="text-xs text-muted-foreground">
-              {getTodayDateString()}
-            </span>
+      {/* 标题 */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Calendar className="h-4 w-4 text-emerald-500" />
+          <span className="font-medium text-sm">今日消耗统计</span>
+        </div>
+        <span className="text-xs text-muted-foreground">
+          {getTodayDateString()}
+        </span>
+      </div>
+
+      {/* 统计卡片 */}
+      <div className="grid grid-cols-3 gap-2">
+        <div className="bg-muted/50 rounded-lg p-2 text-center">
+          <div className="flex items-center justify-center gap-1 text-emerald-600 dark:text-emerald-400">
+            <Zap className="h-3 w-3" />
+            <span className="text-xs text-muted-foreground">费用</span>
           </div>
-
-          {/* 统计卡片 */}
-          <div className="grid grid-cols-3 gap-2">
-            <div className="bg-muted/50 rounded-lg p-2 text-center">
-              <div className="flex items-center justify-center gap-1 text-emerald-600 dark:text-emerald-400">
-                <Zap className="h-3 w-3" />
-                <span className="text-xs text-muted-foreground">费用</span>
-              </div>
-              <div className="font-semibold text-sm mt-1">
-                {formatCost(stats.totalCost)}
-              </div>
-            </div>
-            <div className="bg-muted/50 rounded-lg p-2 text-center">
-              <div className="flex items-center justify-center gap-1 text-blue-600 dark:text-blue-400">
-                <TrendingUp className="h-3 w-3" />
-                <span className="text-xs text-muted-foreground">Token</span>
-              </div>
-              <div className="font-semibold text-sm mt-1">
-                {formatTokens(stats.totalTokens)}
-              </div>
-            </div>
-            <div className="bg-muted/50 rounded-lg p-2 text-center">
-              <div className="flex items-center justify-center gap-1 text-purple-600 dark:text-purple-400">
-                <Clock className="h-3 w-3" />
-                <span className="text-xs text-muted-foreground">活跃</span>
-              </div>
-              <div className="font-semibold text-sm mt-1">
-                {stats.activeHours}h
-              </div>
-            </div>
+          <div className="font-semibold text-sm mt-1">
+            {formatCost(stats.totalCost)}
           </div>
+        </div>
+        <div className="bg-muted/50 rounded-lg p-2 text-center">
+          <div className="flex items-center justify-center gap-1 text-blue-600 dark:text-blue-400">
+            <TrendingUp className="h-3 w-3" />
+            <span className="text-xs text-muted-foreground">Token</span>
+          </div>
+          <div className="font-semibold text-sm mt-1">
+            {formatTokens(stats.totalTokens)}
+          </div>
+        </div>
+        <div className="bg-muted/50 rounded-lg p-2 text-center">
+          <div className="flex items-center justify-center gap-1 text-purple-600 dark:text-purple-400">
+            <Clock className="h-3 w-3" />
+            <span className="text-xs text-muted-foreground">活跃</span>
+          </div>
+          <div className="font-semibold text-sm mt-1">
+            {stats.activeHours}h
+          </div>
+        </div>
+      </div>
 
-          {/* 24小时柱状图 */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span>24小时分布</span>
-              {stats.avgCostPerHour > 0 && (
-                <span>平均: {formatCost(stats.avgCostPerHour)}/h</span>
-              )}
-            </div>
-            <div className="flex items-end gap-0.5 h-16 bg-muted/30 rounded p-1">
-              {todayData.map((hourData) => {
-                const heightPercent = stats.maxCost > 0
-                  ? (hourData.cost / stats.maxCost) * 100
-                  : 0;
-                const isCurrentHour = hourData.hour === currentHour;
-                const hasData = hourData.cost > 0;
+      {/* 24小时柱状图 */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span>24小时分布</span>
+          {stats.avgCostPerHour > 0 && (
+            <span>平均: {formatCost(stats.avgCostPerHour)}/h</span>
+          )}
+        </div>
+        <div className="flex items-end gap-0.5 h-16 bg-muted/30 rounded p-1">
+          {todayData.map((hourData) => {
+            const heightPercent = stats.maxCost > 0
+              ? (hourData.cost / stats.maxCost) * 100
+              : 0;
+            const isCurrentHour = hourData.hour === currentHour;
+            const hasData = hourData.cost > 0;
 
-                return (
-                  <div
-                    key={hourData.hour}
-                    className="flex-1 flex flex-col items-center justify-end h-full group relative"
-                  >
-                    {/* 柱子 */}
-                    <div
-                      className={cn(
-                        "w-full rounded-t transition-all",
-                        hasData
-                          ? isCurrentHour
-                            ? "bg-emerald-500"
-                            : "bg-emerald-400/70 dark:bg-emerald-500/70"
-                          : isCurrentHour
-                            ? "bg-muted-foreground/30"
-                            : "bg-muted-foreground/10",
-                        "min-h-[2px]"
-                      )}
-                      style={{
-                        height: hasData ? `${Math.max(heightPercent, 8)}%` : '2px'
-                      }}
-                    />
+            return (
+              <div
+                key={hourData.hour}
+                className="flex-1 flex flex-col items-center justify-end h-full group relative"
+              >
+                {/* 柱子 */}
+                <div
+                  className={cn(
+                    "w-full rounded-t transition-all",
+                    hasData
+                      ? isCurrentHour
+                        ? "bg-emerald-500"
+                        : "bg-emerald-400/70 dark:bg-emerald-500/70"
+                      : isCurrentHour
+                        ? "bg-muted-foreground/30"
+                        : "bg-muted-foreground/10",
+                    "min-h-[2px]"
+                  )}
+                  style={{
+                    height: hasData ? `${Math.max(heightPercent, 8)}%` : '2px'
+                  }}
+                />
 
-                    {/* Tooltip */}
-                    {hasData && (
-                      <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 bg-popover border rounded px-2 py-1 text-xs opacity-0 group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap shadow-lg pointer-events-none">
-                        <div className="font-medium">{hourData.hour}:00</div>
-                        <div className="text-emerald-600 dark:text-emerald-400">
-                          {formatCost(hourData.cost)}
-                        </div>
-                        <div className="text-muted-foreground">
-                          {formatTokens(hourData.tokens)} tokens
-                        </div>
-                      </div>
-                    )}
+                {/* Tooltip */}
+                {hasData && (
+                  <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 bg-popover border rounded px-2 py-1 text-xs opacity-0 group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap shadow-lg pointer-events-none">
+                    <div className="font-medium">{hourData.hour}:00</div>
+                    <div className="text-emerald-600 dark:text-emerald-400">
+                      {formatCost(hourData.cost)}
+                    </div>
+                    <div className="text-muted-foreground">
+                      {formatTokens(hourData.tokens)} tokens
+                    </div>
                   </div>
-                );
-              })}
-            </div>
-            {/* 时间刻度 */}
-            <div className="flex justify-between text-[10px] text-muted-foreground px-1">
-              <span>0</span>
-              <span>6</span>
-              <span>12</span>
-              <span>18</span>
-              <span>23</span>
-            </div>
-          </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+        {/* 时间刻度 */}
+        <div className="flex justify-between text-[10px] text-muted-foreground px-1">
+          <span>0</span>
+          <span>6</span>
+          <span>12</span>
+          <span>18</span>
+          <span>23</span>
+        </div>
+      </div>
 
       {/* 底部提示 */}
       {stats.totalCount === 0 && (

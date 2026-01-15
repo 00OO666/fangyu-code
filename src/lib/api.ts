@@ -2,6 +2,17 @@ import { invoke } from "@tauri-apps/api/core";
 import { codexProviderPresets } from "@/config/codexProviderPresets";
 import { HooksManager } from "@/lib/hooksManager";
 import type { HooksConfiguration } from "@/types/hooks";
+import type {
+  HookEventContext,
+  HookExecutionResult,
+  BackgroundTaskType,
+  TaskPriority,
+  TaskProgress,
+  TaskResult,
+  AgentType,
+  AgentMessageType,
+  AgentMessagePayload,
+} from "@/types/api-extended";
 
 // Import cache utilities
 import { isCacheValid, SESSION_CACHE } from "./api/cache";
@@ -193,6 +204,14 @@ export const api = {
    * @returns Promise resolving to success message
    */
   deleteSessionsBatch: SessionModule.deleteSessionsBatch,
+
+  /**
+   * Deletes sessions matching a pattern (e.g., "/compact")
+   * @param projectId - The project ID
+   * @param pattern - The pattern to match against session first_message or ID
+   * @returns Promise resolving to delete result with counts
+   */
+  deleteSessionsByPattern: SessionModule.deleteSessionsByPattern,
 
   /**
    * Removes a project from the project list (without deleting files)
@@ -1393,9 +1412,9 @@ export const api = {
    * @param context - The hook execution context
    * @returns Promise resolving to hook chain execution result
    */
-  async triggerHookEvent(event: string, context: any): Promise<any> {
+  async triggerHookEvent(event: string, context: HookEventContext): Promise<HookExecutionResult> {
     try {
-      return await invoke<any>("trigger_hook_event", { event, context });
+      return await invoke<HookExecutionResult>("trigger_hook_event", { event, context });
     } catch (error) {
       console.error("Failed to trigger hook event:", error);
       throw error;
@@ -1408,7 +1427,7 @@ export const api = {
    * @param context - The hook context for evaluation
    * @returns Promise resolving to whether condition is true
    */
-  async testHookCondition(condition: string, context: any): Promise<boolean> {
+  async testHookCondition(condition: string, context: HookEventContext): Promise<boolean> {
     try {
       return await invoke<boolean>("test_hook_condition", { condition, context });
     } catch (error) {
@@ -3138,12 +3157,12 @@ export const api = {
    */
   async createBackgroundTask(
     name: string,
-    taskType: any,
+    taskType: BackgroundTaskType,
     description?: string,
-    priority?: string,
+    priority?: TaskPriority,
     sessionId?: string,
     tags?: string[],
-  ): Promise<any> {
+  ): Promise<string> {
     try {
       return await invoke("create_background_task", {
         name,
@@ -3210,7 +3229,7 @@ export const api = {
   /**
    * Complete a background task
    */
-  async completeBackgroundTask(taskId: string, result: any): Promise<void> {
+  async completeBackgroundTask(taskId: string, result: TaskResult): Promise<void> {
     try {
       await invoke("complete_background_task", { taskId, result });
     } catch (error) {
@@ -3234,7 +3253,7 @@ export const api = {
   /**
    * Update task progress
    */
-  async updateTaskProgress(taskId: string, progress: any): Promise<void> {
+  async updateTaskProgress(taskId: string, progress: TaskProgress): Promise<void> {
     try {
       await invoke("update_task_progress", { taskId, progress });
     } catch (error) {
@@ -3351,10 +3370,10 @@ export const api = {
     name: string,
     description: string,
     prompt: string,
-    agentType?: any,
+    agentType?: AgentType,
     dependencies?: string[],
     priority?: number,
-  ): Promise<any> {
+  ): Promise<string> {
     try {
       return await invoke("add_parallel_task", {
         groupId,
@@ -3377,9 +3396,9 @@ export const api = {
   async addParallelAgent(
     groupId: string,
     name: string,
-    agentType?: any,
+    agentType?: AgentType,
     capabilities?: string[],
-  ): Promise<any> {
+  ): Promise<string> {
     try {
       return await invoke("add_parallel_agent", { groupId, name, agentType, capabilities });
     } catch (error) {
@@ -3403,7 +3422,7 @@ export const api = {
   /**
    * Complete a parallel task
    */
-  async completeParallelTask(groupId: string, taskId: string, result: any): Promise<void> {
+  async completeParallelTask(groupId: string, taskId: string, result: TaskResult): Promise<void> {
     try {
       await invoke("complete_parallel_task", { groupId, taskId, result });
     } catch (error) {
@@ -3479,8 +3498,8 @@ export const api = {
     groupId: string,
     fromAgent: string,
     toAgent: string | null,
-    messageType: any,
-    payload: any,
+    messageType: AgentMessageType,
+    payload: AgentMessagePayload,
   ): Promise<void> {
     try {
       await invoke("send_agent_message", { groupId, fromAgent, toAgent, messageType, payload });
@@ -3558,11 +3577,34 @@ export const api = {
    * 使用 LLM 生成文本（用于摘要、翻译等）
    * @param prompt 提示词
    * @param model 模型类型 ("haiku" | "sonnet" | "opus")
+   * @param apiKey 可选的 API Key（不传则从配置读取）
+   * @param apiBase 可选的 API Base URL
    * @returns 生成的文本
    */
-  async generateTextWithLLM(prompt: string, model: "haiku" | "sonnet" | "opus" = "haiku"): Promise<string> {
+  async generateTextWithLLM(
+    prompt: string,
+    model: "haiku" | "sonnet" | "opus" = "haiku",
+    apiKey?: string,
+    apiBase?: string
+  ): Promise<string> {
     try {
-      return await invoke<string>("generate_text_with_llm", { prompt, model });
+      // 如果没有传入 apiKey，尝试从 provider config 获取
+      let effectiveApiKey = apiKey;
+      if (!effectiveApiKey) {
+        try {
+          const providerConfig = await ProvidersModule.getCurrentProviderConfig();
+          effectiveApiKey = providerConfig.anthropic_api_key || providerConfig.anthropic_auth_token;
+        } catch {
+          // 忽略错误，让后端从 settings.json 读取
+        }
+      }
+
+      return await invoke<string>("generate_text_with_llm", {
+        prompt,
+        model,
+        apiKey: effectiveApiKey || null,
+        apiBase: apiBase || null,
+      });
     } catch (error) {
       console.error("Failed to generate text with LLM:", error);
       throw error;

@@ -132,6 +132,8 @@ export function getParentToolUseId(message: ClaudeStreamMessage): string | null 
  * - 'tool': 仅包含工具调用或结果
  * - 'thinking': 仅包含思考内容
  * - null: 包含文本或其他不可聚合内容
+ *
+ * 🔧 FIX v2.7.8: 改进文本检测逻辑，防止 Claude 说的话被错误聚合
  */
 function getTechnicalMessageType(message: ClaudeStreamMessage): "tool" | "thinking" | null {
   // Thinking 类型的消息
@@ -142,12 +144,6 @@ function getTechnicalMessageType(message: ClaudeStreamMessage): "tool" | "thinki
 
   const content = message.message?.content;
   if (!Array.isArray(content)) {
-    // console.log('[subagentGrouping] ⚠️ Content is not array:', {
-    //   uuid: message.uuid,
-    //   type: message.type,
-    //   contentType: typeof content,
-    //   content: content
-    // });
     return null;
   }
 
@@ -161,28 +157,41 @@ function getTechnicalMessageType(message: ClaudeStreamMessage): "tool" | "thinki
     } else if (item.type === "tool_use" || item.type === "tool_result") {
       hasTool = true;
     } else if (item.type === "text") {
-      // 🔧 更激进的文本检测：只有真正有内容的文本才算
+      // 🔧 FIX v2.7.8: 更严格的文本检测，防止 Claude 说的话被错误聚合
       const text = item.text || '';
       const trimmedText = text.trim();
-      // 忽略空白、仅包含标签的文本（如 <thinking></thinking>）
-      const hasRealContent = trimmedText.length > 0 &&
-                            !trimmedText.match(/^<\/?[a-z_]+>$/i);
-      if (hasRealContent) {
+
+      // 判断是否为"空"或"无意义"的文本：
+      // 1. 完全空白
+      // 2. 仅包含单个 XML 标签（如 <thinking> 或 </thinking>）
+      // 3. 仅包含换行符
+      // 4. 仅包含成对的空标签（如 <thinking></thinking>）
+      const isEmptyOrTag =
+        trimmedText.length === 0 ||
+        /^<\/?[a-z_]+>$/i.test(trimmedText) ||
+        /^[\s\n\r]*$/.test(trimmedText) ||
+        /^<([a-z_]+)>\s*<\/\1>$/i.test(trimmedText);
+
+      // 只要不是空/标签，就认为有真实文本内容
+      if (!isEmptyOrTag) {
         hasText = true;
-        // 🔍 DEBUG: 记录包含文本的消息
-        // console.log('[subagentGrouping] Message has text content:', {
-        //   uuid: message.uuid,
-        //   textPreview: trimmedText.substring(0, 100),
-        //   hasThinking,
-        //   hasTool
-        // });
+        // 🔍 DEBUG: 记录包含文本的消息（开发环境）
+        if (import.meta.env.DEV) {
+          console.log('[subagentGrouping] ✅ Message has real text, NOT aggregating:', {
+            uuid: message.uuid,
+            textPreview: trimmedText.substring(0, 100),
+            textLength: trimmedText.length
+          });
+        }
       }
     }
   });
 
-  // 如果包含可见文本，不可聚合
+  // 🔧 FIX: 如果包含可见文本，绝对不可聚合（这是最重要的规则）
   if (hasText) {
-    // console.log('[subagentGrouping] Message NOT aggregatable (has text):', message.uuid);
+    if (import.meta.env.DEV) {
+      console.log('[subagentGrouping] ❌ NOT aggregating (has text):', message.uuid);
+    }
     return null;
   }
 
@@ -224,11 +233,29 @@ function getTechnicalMessageType(message: ClaudeStreamMessage): "tool" | "thinki
  *
  * ✅ FIX: 支持并行 Task 调用
  * 当 Claude 在一条消息中并行调用多个子代理时，每个 Task 都应该被正确分组
+ *
+ * 🔧 FIX v2.3: 优化算法复杂度从 O(n²) 到 O(n)
+ * - 使用 Map 预处理 parent_tool_use_id 索引
+ * - 避免对每个 Task 都遍历所有后续消息
  */
 export function groupMessages(messages: ClaudeStreamMessage[]): MessageGroup[] {
   // console.log('[subagentGrouping] 🔍 Starting groupMessages with', messages.length, 'messages');
 
   const processedIndices = new Set<number>();
+
+  // 🔧 优化：第一遍预处理，构建 parent_tool_use_id -> 消息索引列表 的映射
+  // 这样后续查找子代理消息只需要 O(1) 而不是 O(n)
+  const parentIdToMessagesMap = new Map<string, { message: ClaudeStreamMessage; index: number }[]>();
+
+  messages.forEach((message, index) => {
+    const parentId = getParentToolUseId(message);
+    if (parentId) {
+      if (!parentIdToMessagesMap.has(parentId)) {
+        parentIdToMessagesMap.set(parentId, []);
+      }
+      parentIdToMessagesMap.get(parentId)!.push({ message, index });
+    }
+  });
 
   // 第一遍：识别所有 Task 工具调用
   // 记录每个 Task ID 对应的消息和索引
@@ -254,27 +281,20 @@ export function groupMessages(messages: ClaudeStreamMessage[]): MessageGroup[] {
     }
   });
 
-  // 第二遍：为每个 Task 收集子代理消息
-  // ✅ FIX: 不再在遇到下一个 Task 时停止，而是遍历所有消息并根据 parent_tool_use_id 归类
+  // 🔧 优化：第二遍使用预处理的 Map 直接获取子代理消息，O(1) 查找
   const subagentGroups = new Map<string, SubagentGroup>();
 
   taskToolUseMap.forEach((taskInfo, taskId) => {
-    const subagentMessages: ClaudeStreamMessage[] = [];
-    let maxIndex = taskInfo.index;
+    // 🔧 优化：直接从 Map 获取，不需要遍历所有消息
+    const childMessages = parentIdToMessagesMap.get(taskId) || [];
 
-    // 遍历所有后续消息，根据 parent_tool_use_id 匹配
-    for (let i = taskInfo.index + 1; i < messages.length; i++) {
-      const msg = messages[i];
-      const parentId = getParentToolUseId(msg);
+    if (childMessages.length > 0) {
+      // 按索引排序，确保消息顺序正确
+      childMessages.sort((a, b) => a.index - b.index);
 
-      // ✅ FIX: 只根据 parent_tool_use_id 判断归属，不提前停止
-      if (parentId === taskId) {
-        subagentMessages.push(msg);
-        maxIndex = Math.max(maxIndex, i);
-      }
-    }
+      const subagentMessages = childMessages.map(item => item.message);
+      const maxIndex = childMessages[childMessages.length - 1].index;
 
-    if (subagentMessages.length > 0) {
       subagentGroups.set(taskId, {
         id: taskId,
         taskMessage: taskInfo.message,
@@ -288,12 +308,12 @@ export function groupMessages(messages: ClaudeStreamMessage[]): MessageGroup[] {
   });
 
   // 标记所有子代理消息的索引（避免重复渲染）
-  messages.forEach((message, index) => {
-    const parentId = getParentToolUseId(message);
-    if (parentId && subagentGroups.has(parentId)) {
-      processedIndices.add(index);
+  // 🔧 优化：直接使用预处理的 Map
+  for (const [parentId, childMessages] of parentIdToMessagesMap) {
+    if (subagentGroups.has(parentId)) {
+      childMessages.forEach(item => processedIndices.add(item.index));
     }
-  });
+  }
 
   // 记录已添加的 Task 组（避免重复）
   const addedTaskGroups = new Set<string>();

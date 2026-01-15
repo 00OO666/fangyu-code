@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Card } from "@/components/ui/card";
 import { useTranslation } from "@/hooks/useTranslation";
+import { EngineSelector } from "./EngineSelector";
+import { EngineType, ENGINE_INFO } from "@/types/multiEngineSettings";
 
 interface EnvironmentVariable {
   id: string;
@@ -19,19 +21,64 @@ interface EnvironmentSettingsProps {
   addEnvVar: () => void;
   updateEnvVar: (id: string, field: "key" | "value" | "enabled", value: string | boolean) => void;
   removeEnvVar: (id: string) => void;
+  /** 当前选中的引擎（多引擎模式） */
+  selectedEngine?: EngineType;
+  /** 引擎切换回调（多引擎模式） */
+  onEngineChange?: (engine: EngineType) => void;
+  /** 是否显示引擎选择器 */
+  showEngineSelector?: boolean;
 }
+
+/** 引擎特定的常用环境变量提示 */
+const ENGINE_ENV_HINTS: Record<EngineType, { key: string; desc: string }[]> = {
+  'claude-code': [
+    { key: 'ANTHROPIC_API_KEY', desc: 'Anthropic API 密钥' },
+    { key: 'ANTHROPIC_BASE_URL', desc: 'API 代理地址' },
+    { key: 'MAX_THINKING_TOKENS', desc: '最大思考 Token 数' },
+    { key: 'CLAUDE_CODE_ENABLE_TELEMETRY', desc: '启用遥测' },
+  ],
+  'codex': [
+    { key: 'OPENAI_API_KEY', desc: 'OpenAI API 密钥' },
+    { key: 'OPENAI_BASE_URL', desc: 'API 代理地址' },
+    { key: 'OPENAI_MODEL', desc: '默认模型' },
+  ],
+  'gemini': [
+    { key: 'GOOGLE_API_KEY', desc: 'Google API 密钥' },
+    { key: 'GOOGLE_BASE_URL', desc: 'API 代理地址' },
+    { key: 'GEMINI_MODEL', desc: '默认模型' },
+  ],
+};
 
 export const EnvironmentSettings: React.FC<EnvironmentSettingsProps> = ({
   envVars,
   addEnvVar,
   updateEnvVar,
-  removeEnvVar
+  removeEnvVar,
+  selectedEngine = 'claude-code',
+  onEngineChange,
+  showEngineSelector = false,
 }) => {
   const { t } = useTranslation();
+  const engineInfo = ENGINE_INFO[selectedEngine];
+  const envHints = ENGINE_ENV_HINTS[selectedEngine];
 
   return (
     <Card className="p-6">
       <div className="space-y-6">
+        {/* 引擎选择器 */}
+        {showEngineSelector && onEngineChange && (
+          <div className="flex items-center justify-between pb-4 border-b border-border">
+            <div className="text-sm text-muted-foreground">
+              配置 <span className="font-medium text-foreground">{engineInfo.name}</span> 的环境变量
+            </div>
+            <EngineSelector
+              selectedEngine={selectedEngine}
+              onEngineChange={onEngineChange}
+              size="sm"
+            />
+          </div>
+        )}
+
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-base font-semibold">{t('environmentSettings.title')}</h3>
@@ -76,7 +123,7 @@ export const EnvironmentSettings: React.FC<EnvironmentSettingsProps> = ({
                       className="scale-75"
                     />
                   </div>
-                  
+
                   <Input
                     placeholder="KEY"
                     value={envVar.key}
@@ -106,15 +153,17 @@ export const EnvironmentSettings: React.FC<EnvironmentSettingsProps> = ({
             </>
           )}
         </div>
-        
+
         <div className="pt-2 space-y-2">
           <p className="text-xs text-muted-foreground">
-            <strong>{t('environmentSettings.commonVariables')}</strong>
+            <strong>{engineInfo.shortName} 常用变量</strong>
           </p>
           <ul className="text-xs text-muted-foreground space-y-1 ml-4">
-            <li>- <code className="px-1 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400">CLAUDE_CODE_ENABLE_TELEMETRY</code> - {t('environmentSettings.varTelemetry')}</li>
-            <li>- <code className="px-1 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400">ANTHROPIC_MODEL</code> - {t('environmentSettings.varModel')}</li>
-            <li>- <code className="px-1 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400">DISABLE_COST_WARNINGS</code> - {t('environmentSettings.varCostWarnings')}</li>
+            {envHints.map(hint => (
+              <li key={hint.key}>
+                - <code className="px-1 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400">{hint.key}</code> - {hint.desc}
+              </li>
+            ))}
           </ul>
         </div>
       </div>

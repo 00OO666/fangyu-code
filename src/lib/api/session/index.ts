@@ -107,6 +107,28 @@ export async function deleteSessionsBatch(
 }
 
 /**
+ * 按模式删除会话（例如删除所有包含 "/compact" 的会话）
+ */
+export interface DeleteByPatternResult {
+  matched_count: number;
+  deleted_count: number;
+  failed_count: number;
+  errors: string[];
+}
+
+export async function deleteSessionsByPattern(
+  projectId: string,
+  pattern: string,
+): Promise<DeleteByPatternResult> {
+  try {
+    return await invoke<DeleteByPatternResult>("delete_sessions_by_pattern", { projectId, pattern });
+  } catch (error) {
+    console.error("Failed to delete sessions by pattern:", error);
+    throw error;
+  }
+}
+
+/**
  * 加载 Claude 会话历史
  */
 export async function loadSessionHistory(

@@ -104,17 +104,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
         className={cn(
           "relative rounded-lg mb-1 transition-all duration-300 ease-out group overflow-hidden",
           isExpanded ? "w-full justify-start px-3 h-10" : "w-10 h-10",
-          isActive ? "bg-primary/15 text-primary shadow-lg shadow-primary/20" : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+          isActive
+            ? "bg-[var(--ds-glass-bg-subtle)] text-[var(--ds-primary-400)] shadow-lg shadow-[var(--ds-primary-500)]/10"
+            : "text-[var(--ds-text-muted)] hover:text-[var(--ds-text-primary)] hover:bg-[var(--ds-hover-overlay)]"
         )}
         onClick={() => onNavigate(item.view)}
         onMouseEnter={() => setHoveredItem(item.view)}
         onMouseLeave={() => setHoveredItem(null)}
       >
-        <div className={cn("absolute inset-0 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent opacity-0 transition-opacity duration-300", (isHovered || isActive) && "opacity-100")} />
-        {isActive && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full" />}
+        <div className={cn("absolute inset-0 bg-gradient-to-r from-[var(--ds-primary-500)]/10 via-[var(--ds-primary-500)]/5 to-transparent opacity-0 transition-opacity duration-300", (isHovered || isActive) && "opacity-100")} />
+        {isActive && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-[var(--ds-gradient-primary)] rounded-r-full" />}
         <item.icon className={cn("w-4 h-4 flex-shrink-0 transition-transform duration-300 relative z-10", isActive && "scale-110", isHovered && !isActive && "scale-105")} strokeWidth={isActive ? 2.5 : 2} />
         {isExpanded && <span className={cn("ml-3 text-sm font-medium whitespace-nowrap overflow-hidden text-ellipsis relative z-10 transition-all duration-300", isActive && "font-semibold")}>{item.label}</span>}
-        {isExpanded && item.shortcut && <span className="ml-auto text-xs text-muted-foreground/60 bg-muted/50 px-1.5 py-0.5 rounded relative z-10">⌘{item.shortcut}</span>}
         {!isExpanded && <span className="sr-only">{item.label}</span>}
       </Button>
     );
@@ -123,9 +124,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <TooltipProvider delayDuration={0}>
           <Tooltip>
             <TooltipTrigger asChild>{buttonContent}</TooltipTrigger>
-            <TooltipContent side="right" className="flex items-center gap-2 px-3 py-2 bg-popover/95 backdrop-blur-sm">
-              <span className="font-medium">{item.label}</span>
-              {item.shortcut && <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded border">⌘{item.shortcut}</span>}
+            <TooltipContent side="right" className="flex items-center gap-2 px-3 py-2 ds-glass-strong">
+              <span className="font-medium text-[var(--ds-text-primary)]">{item.label}</span>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -135,46 +135,46 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   return (
-    <div ref={sidebarRef} className={cn("relative flex flex-col py-3 h-full transition-all duration-300 ease-[cubic-bezier(0.2,0,0,1)]", "bg-[var(--glass-bg)] backdrop-blur-[var(--glass-blur)] border-r border-[var(--glass-border)]", isExpanded ? "px-3" : "items-center px-2", className)} style={{ width: isExpanded ? `${width}px` : '60px' }}>
+    <div ref={sidebarRef} className={cn("relative flex flex-col py-3 h-full transition-all duration-300 ease-[cubic-bezier(0.2,0,0,1)]", "ds-glass border-r border-[var(--ds-border-glass)]", isExpanded ? "px-3" : "items-center px-2", className)} style={{ width: isExpanded ? `${width}px` : '60px' }}>
       {/* 用户头像区域 */}
-      <div className={cn("flex items-center gap-3 mb-4 pb-3 border-b border-[var(--glass-border)]", !isExpanded && "justify-center")}>
-        <Avatar className={cn("transition-all duration-300 ring-2 ring-primary/20 ring-offset-2 ring-offset-background", isExpanded ? "h-10 w-10" : "h-8 w-8")}>
+      <div className={cn("flex items-center gap-3 mb-4 pb-3 border-b border-[var(--ds-border-subtle)]", !isExpanded && "justify-center")}>
+        <Avatar className={cn("transition-all duration-300 ring-2 ring-[var(--ds-primary-500)]/20 ring-offset-2 ring-offset-background", isExpanded ? "h-10 w-10" : "h-8 w-8")}>
           <AvatarImage src="/avatars/fangyu.png" alt="Fangyu" />
-          <AvatarFallback className="bg-gradient-to-br from-primary/80 to-primary text-primary-foreground font-bold">FY</AvatarFallback>
+          <AvatarFallback className="bg-[var(--ds-gradient-primary)] text-white font-bold">FY</AvatarFallback>
         </Avatar>
-        {isExpanded && <div className="flex-1 min-w-0"><p className="text-sm font-semibold truncate">Fangyu</p><p className="text-xs text-muted-foreground truncate">开发者</p></div>}
+        {isExpanded && <div className="flex-1 min-w-0"><p className="text-sm font-semibold truncate text-[var(--ds-text-primary)]">Fangyu</p><p className="text-xs text-[var(--ds-text-muted)] truncate">开发者</p></div>}
       </div>
       {/* 快捷搜索按钮 */}
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="outline" className={cn("mb-4 transition-all duration-300 bg-muted/30 border-muted-foreground/20 hover:bg-muted/50", isExpanded ? "w-full justify-start px-3 h-9" : "w-10 h-10")} onClick={() => { const event = new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true }); document.dispatchEvent(event); }}>
-              <Search className="w-4 h-4 text-muted-foreground" />
-              {isExpanded && <><span className="ml-2 text-sm text-muted-foreground">搜索...</span><span className="ml-auto text-xs text-muted-foreground/60 bg-muted/50 px-1.5 py-0.5 rounded">⌘K</span></>}
+            <Button variant="outline" className={cn("mb-4 transition-all duration-300 ds-glass-subtle hover:bg-[var(--ds-hover-overlay)]", isExpanded ? "w-full justify-start px-3 h-9" : "w-10 h-10")} onClick={() => { const event = new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true }); document.dispatchEvent(event); }}>
+              <Search className="w-4 h-4 text-[var(--ds-text-muted)]" />
+              {isExpanded && <span className="ml-2 text-sm text-[var(--ds-text-muted)]">搜索...</span>}
             </Button>
           </TooltipTrigger>
           {!isExpanded && <TooltipContent side="right"><p>搜索 (⌘K)</p></TooltipContent>}
         </Tooltip>
       </TooltipProvider>
       {/* 主导航区域 */}
-      <div className={cn("flex-1 flex flex-col w-full", isExpanded ? "space-y-0.5" : "items-center space-y-1")}>
+      <div className={cn("flex-1 flex flex-col w-full min-h-0 overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent", isExpanded ? "space-y-0.5" : "items-center space-y-1")}>
         {mainNavItems.map((item) => <NavButton key={item.view} item={item} />)}
       </div>
 
       {/* 底部状态区域 */}
-      <div className={cn("flex flex-col w-full mt-auto pt-3 border-t border-[var(--glass-border)]", isExpanded ? "space-y-2" : "items-center space-y-2")}>
+      <div className={cn("flex flex-col w-full mt-auto pt-3 border-t border-[var(--ds-border-subtle)] flex-shrink-0", isExpanded ? "space-y-2" : "items-center space-y-2")}>
         <div className={cn(isExpanded ? "w-full" : "flex justify-center w-full")}><UnifiedEngineStatus compact={!isExpanded} /></div>
         {isExpanded && <div className="px-1"><UpdateBadge onClick={onUpdateClick} /></div>}
         <div className={cn("flex items-center gap-1", isExpanded ? "justify-around px-1" : "flex-col")}>
           <TooltipProvider><Tooltip><TooltipTrigger asChild><div><ThemeToggle size="sm" className="w-8 h-8" /></div></TooltipTrigger>{!isExpanded && <TooltipContent side="right"><p>{t('sidebar.themeToggle')}</p></TooltipContent>}</Tooltip></TooltipProvider>
-          {onAboutClick && <TooltipProvider><Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" onClick={onAboutClick} className="w-8 h-8 text-muted-foreground hover:text-foreground" aria-label={t('sidebar.about')}><HelpCircle className="w-4 h-4" /></Button></TooltipTrigger>{!isExpanded && <TooltipContent side="right"><p>{t('sidebar.about')}</p></TooltipContent>}</Tooltip></TooltipProvider>}
+          {onAboutClick && <TooltipProvider><Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" onClick={onAboutClick} className="w-8 h-8 text-[var(--ds-text-muted)] hover:text-[var(--ds-text-primary)]" aria-label={t('sidebar.about')}><HelpCircle className="w-4 h-4" /></Button></TooltipTrigger>{!isExpanded && <TooltipContent side="right"><p>{t('sidebar.about')}</p></TooltipContent>}</Tooltip></TooltipProvider>}
         </div>
-        <div className={cn("flex items-center gap-1 pt-2 border-t border-[var(--glass-border)]", isExpanded ? "justify-between px-1" : "flex-col")}>
+        <div className={cn("flex items-center gap-1 pt-2 border-t border-[var(--ds-border-subtle)]", isExpanded ? "justify-between px-1" : "flex-col")}>
           {bottomNavItems.map((item) => <NavButton key={item.view} item={item} />)}
-          <TooltipProvider><Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" onClick={() => setIsExpanded(!isExpanded)} className="w-8 h-8 text-muted-foreground hover:text-foreground transition-transform duration-300" aria-label={isExpanded ? t('sidebar.collapseSidebar') : t('sidebar.expandSidebar')}>{isExpanded ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}</Button></TooltipTrigger><TooltipContent side="right"><p>{isExpanded ? t('sidebar.collapseSidebar') : t('sidebar.expandSidebar')}</p></TooltipContent></Tooltip></TooltipProvider>
+          <TooltipProvider><Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" onClick={() => setIsExpanded(!isExpanded)} className="w-8 h-8 text-[var(--ds-text-muted)] hover:text-[var(--ds-text-primary)] transition-transform duration-300" aria-label={isExpanded ? t('sidebar.collapseSidebar') : t('sidebar.expandSidebar')}>{isExpanded ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}</Button></TooltipTrigger><TooltipContent side="right"><p>{isExpanded ? t('sidebar.collapseSidebar') : t('sidebar.expandSidebar')}</p></TooltipContent></Tooltip></TooltipProvider>
         </div>
       </div>
-      {isExpanded && <div className={cn("absolute right-0 top-0 bottom-0 w-1 cursor-ew-resize transition-colors hover:bg-primary/30", isDragging && "bg-primary/50")} onMouseDown={handleMouseDown} />}
+      {isExpanded && <div className={cn("absolute right-0 top-0 bottom-0 w-1 cursor-ew-resize transition-colors hover:bg-[var(--ds-primary-500)]/30", isDragging && "bg-[var(--ds-primary-500)]/50")} onMouseDown={handleMouseDown} />}
     </div>
   );
 };

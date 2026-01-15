@@ -1,11 +1,5 @@
 import { useEffect, lazy, Suspense } from "react";
-import { NavigationProvider } from "@/contexts/NavigationContext";
-import { ProjectProvider } from "@/contexts/ProjectContext";
-import { TabProvider } from "@/hooks/useTabs";
-import { UpdateProvider } from "@/contexts/UpdateContext";
-import { OutputCacheProvider } from "@/lib/outputCache";
-import { GlobalTaskStateProvider } from "@/hooks/useGlobalTaskState";
-import { PromptQueueProvider } from "@/hooks/usePromptQueue";
+import { AppProviders } from "@/components/providers";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ViewRouter } from "@/components/layout/ViewRouter";
 import { useFirstLaunchChangelog } from "@/hooks/useFirstLaunchChangelog";
@@ -55,59 +49,47 @@ function App() {
   }, []);
 
   return (
-    <UpdateProvider>
-      <GlobalTaskStateProvider>
-        <OutputCacheProvider>
-          <NavigationProvider>
-            <ProjectProvider>
-              <TabProvider>
-                <PromptQueueProvider>
-                  <AppLayout>
-                    <ViewRouter />
-                  </AppLayout>
+    <AppProviders>
+      <AppLayout>
+        <ViewRouter />
+      </AppLayout>
 
-                  {/* 🎨 全局命令面板 Ctrl+K */}
-                  <Suspense fallback={null}>
-                    <CommandPalette />
-                  </Suspense>
+      {/* 🎨 全局命令面板 Ctrl+K */}
+      <Suspense fallback={null}>
+        <CommandPalette />
+      </Suspense>
 
-                  {/* 版本更新提醒对话框 */}
-                  <Suspense fallback={null}>
-                    <FirstLaunchChangelogDialog
-                      open={showChangelog}
-                      onClose={hideChangelog}
-                      changelog={changelog}
-                    />
-                  </Suspense>
+      {/* 版本更新提醒对话框 */}
+      <Suspense fallback={null}>
+        <FirstLaunchChangelogDialog
+          open={showChangelog}
+          onClose={hideChangelog}
+          changelog={changelog}
+        />
+      </Suspense>
 
-                  {/* Tauri 自动更新对话框 */}
-                  <Suspense fallback={null}>
-                    <TauriAutoUpdateDialog />
-                  </Suspense>
+      {/* Tauri 自动更新对话框 */}
+      <Suspense fallback={null}>
+        <TauriAutoUpdateDialog />
+      </Suspense>
 
-                  {/* 顶部居中通知 */}
-                  <TopCenterNotification />
+      {/* 顶部居中通知 */}
+      <TopCenterNotification />
 
-                  {/* 错误监控面板（仅开发模式） */}
-                  {import.meta.env.DEV && (
-                    <Suspense fallback={null}>
-                      <ErrorMonitorPanel
-                        errors={errors}
-                        onClearAll={clearErrors}
-                        onClearError={clearError}
-                      />
-                    </Suspense>
-                  )}
+      {/* 错误监控面板（仅开发模式） */}
+      {import.meta.env.DEV && (
+        <Suspense fallback={null}>
+          <ErrorMonitorPanel
+            errors={errors}
+            onClearAll={clearErrors}
+            onClearError={clearError}
+          />
+        </Suspense>
+      )}
 
-                  {/* 窗口注意力状态指示器 */}
-                  <WindowAttentionIndicator />
-                </PromptQueueProvider>
-              </TabProvider>
-            </ProjectProvider>
-          </NavigationProvider>
-        </OutputCacheProvider>
-      </GlobalTaskStateProvider>
-    </UpdateProvider>
+      {/* 窗口注意力状态指示器 */}
+      <WindowAttentionIndicator />
+    </AppProviders>
   );
 }
 

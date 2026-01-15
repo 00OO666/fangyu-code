@@ -1,10 +1,13 @@
 /**
  * SessionToolbar - 会话工具栏组件
- * 提供导出、复制、检查点等会话操作功能
+ * 提供导出、复制、检查点、摘要生成等会话操作功能
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { FileDown, Check, FileText, FileJson, FileCode2, Copy, History, Save, Loader2 } from 'lucide-react';
+import { SummaryButton } from '@/components/session/SummaryButton';
+import { SummaryModal } from '@/components/dialogs/SummaryModal';
+import { useSummaryGenerator } from '@/hooks/useSummaryGenerator';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -19,6 +22,9 @@ import { cn } from '@/lib/utils';
 import { exportSession, copyToClipboard, exportAsJsonl, exportAsMarkdown, exportAsJson } from '@/lib/sessionExport';
 import { api, Checkpoint } from '@/lib/api';
 import { CheckpointTimeline } from './CheckpointTimeline';
+import { useTabs } from '@/hooks/useTabs';
+import { useSetPrefillMessage } from '@/stores/sessionStore';
+import { toast } from 'sonner';
 import type { ClaudeStreamMessage } from '@/types/claude';
 import type { Session } from '@/lib/api';
 
@@ -58,6 +64,17 @@ export const SessionToolbar: React.FC<SessionToolbarProps> = ({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [checkpointPopoverOpen, setCheckpointPopoverOpen] = useState(false);
   const [isCreatingCheckpoint, setIsCreatingCheckpoint] = useState(false);
+  const [summaryModalOpen, setSummaryModalOpen] = useState(false);
+
+  // Tab 管理和预填充消息
+  const { createSmartTab } = useTabs();
+  const setPrefillMessage = useSetPrefillMessage();
+
+  // 摘要生成 Hook
+  const {
+    sessionStats,
+    isGenerating: isSummaryGenerating,
+  } = useSummaryGenerator({ messages });
 
   // 没有消息或正在流式输出时禁用
   const hasMessages = messages.length > 0;
@@ -164,11 +181,63 @@ export const SessionToolbar: React.FC<SessionToolbarProps> = ({
     setCheckpointPopoverOpen(false);
   }, []);
 
+  /**
+   * 处理摘要复制成功
+   */
+  const handleSummaryCopySuccess = useCallback(() => {
+    showStatus('success', '摘要已复制');
+  }, []);
+
+  /**
+   * 处理在新会话中打开摘要
+   */
+  const handleOpenInNewSession = useCallback(async (summary: string) => {
+    try {
+      // 1. 复制摘要到剪贴板
+      await navigator.clipboard.writeText(summary);
+
+      // 2. 设置预填充消息（供新标签页使用）
+      setPrefillMessage(summary);
+
+      // 3. 创建新的智能标签页
+      createSmartTab(true);
+
+      // 4. 显示成功提示
+      toast.success('已创建新会话', {
+        description: '摘要已复制到剪贴板，可直接粘贴使用',
+      });
+
+      showStatus('success', '已在新会话中打开');
+    } catch (error) {
+      console.error('[SessionToolbar] Failed to open in new session:', error);
+      toast.error('创建新会话失败');
+      showStatus('error', '操作失败');
+    }
+  }, [createSmartTab, setPrefillMessage]);
+
   // 检查点功能是否可用
   const checkpointEnabled = !!session?.id && !!projectPath;
 
   return (
     <div className={cn('flex items-center gap-2', className)}>
+      {/* 摘要生成按钮 */}
+      <SummaryButton
+        tokenPercentage={sessionStats.tokenPercentage}
+        isGenerating={isSummaryGenerating}
+        disabled={!hasMessages || isStreaming}
+        onClick={() => setSummaryModalOpen(true)}
+      />
+
+      {/* 摘要生成对话框 */}
+      <SummaryModal
+        open={summaryModalOpen}
+        onOpenChange={setSummaryModalOpen}
+        messages={messages}
+        sessionStats={sessionStats}
+        onCopySuccess={handleSummaryCopySuccess}
+        onOpenInNewSession={handleOpenInNewSession}
+      />
+
       {/* 检查点功能 */}
       {checkpointEnabled && (
         <>
@@ -244,8 +313,8 @@ export const SessionToolbar: React.FC<SessionToolbarProps> = ({
             )}
             <span className="text-xs">
               {actionStatus === 'success' ? statusMessage :
-               actionStatus === 'error' ? statusMessage :
-               '导出'}
+                actionStatus === 'error' ? statusMessage :
+                  '导出'}
             </span>
           </Button>
         </DropdownMenuTrigger>

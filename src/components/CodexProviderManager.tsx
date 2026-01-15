@@ -19,6 +19,7 @@ import {
   Trash,
   FileCode,
   ExternalLink,
+  Search,
 } from 'lucide-react';
 import { api, type CodexProviderConfig, type CurrentCodexConfig } from '@/lib/api';
 import { Toast } from '@/components/ui/toast';
@@ -31,6 +32,7 @@ import {
   getCategoryKey,
 } from '@/config/codexProviderPresets';
 import { useTranslation } from "@/hooks/useTranslation";
+import { InlineAPITester } from './settings/InlineAPITester';
 
 interface CodexProviderManagerProps {
   onBack?: () => void;
@@ -53,6 +55,9 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
   // Delete confirmation dialog state
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [providerToDelete, setProviderToDelete] = useState<CodexProviderConfig | null>(null);
+
+  // API 测试状态 - 改为记录展开的卡片 ID
+  const [expandedTesterId, setExpandedTesterId] = useState<string | null>(null);
 
   useEffect(() => {
     loadData();
@@ -245,6 +250,10 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
     return codexProviderPresets.some(p => p.id === config.id);
   };
 
+  const toggleApiTester = (configId: string) => {
+    setExpandedTesterId(prev => prev === configId ? null : configId);
+  };
+
   const maskToken = (token: string): string => {
     if (!token || token.length <= 10) return token;
     const start = token.substring(0, 8);
@@ -336,135 +345,162 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
             </div>
           ) : (
             presets.map((config) => (
-              <Card key={config.id} className={`p-4 ${isCurrentProvider(config) ? 'ring-2 ring-primary' : ''}`}>
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="flex items-center gap-2">
-                        <FileCode className="h-4 w-4 text-muted-foreground" />
-                        <h3 className="font-medium">{config.name}</h3>
+              <Card key={config.id} className={`overflow-hidden ${isCurrentProvider(config) ? 'ring-2 ring-primary' : ''}`}>
+                <div className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="flex items-center gap-2">
+                          <FileCode className="h-4 w-4 text-muted-foreground" />
+                          <h3 className="font-medium">{config.name}</h3>
+                        </div>
+                        {isCurrentProvider(config) && (
+                          <Badge variant="secondary" className="text-xs">
+                            <Check className="h-3 w-3 mr-1" />
+                            {t('provider.currentUsing')}
+                          </Badge>
+                        )}
+                        {config.isOfficial && (
+                          <Badge variant="outline" className="text-xs bg-blue-50 dark:bg-blue-950">
+                            {t('provider.official')}
+                          </Badge>
+                        )}
+                        {config.isPartner && (
+                          <Badge variant="outline" className="text-xs bg-green-50 dark:bg-green-950">
+                            {t('provider.partner')}
+                          </Badge>
+                        )}
+                        {config.category && (
+                          <Badge variant="outline" className="text-xs">
+                            {t(getCategoryKey(config.category))}
+                          </Badge>
+                        )}
                       </div>
-                      {isCurrentProvider(config) && (
-                        <Badge variant="secondary" className="text-xs">
-                          <Check className="h-3 w-3 mr-1" />
-                          {t('provider.currentUsing')}
-                        </Badge>
-                      )}
-                      {config.isOfficial && (
-                        <Badge variant="outline" className="text-xs bg-blue-50 dark:bg-blue-950">
-                          {t('provider.official')}
-                        </Badge>
-                      )}
-                      {config.isPartner && (
-                        <Badge variant="outline" className="text-xs bg-green-50 dark:bg-green-950">
-                          {t('provider.partner')}
-                        </Badge>
-                      )}
-                      {config.category && (
-                        <Badge variant="outline" className="text-xs">
-                          {t(getCategoryKey(config.category))}
-                        </Badge>
-                      )}
+
+                      <div className="space-y-1 text-sm text-muted-foreground">
+                        {config.description && (
+                          <p><span className="font-medium">{t('provider.description')}</span>{config.description.startsWith('provider.') ? t(config.description) : config.description}</p>
+                        )}
+                        {config.websiteUrl && (
+                          <p className="flex items-center gap-1">
+                            <span className="font-medium">{t('provider.website')}</span>
+                            <a
+                              href={config.websiteUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline flex items-center gap-1"
+                            >
+                              {config.websiteUrl}
+                              <ExternalLink className="h-3 w-3" />
+                            </a>
+                          </p>
+                        )}
+                        {!config.isOfficial && (
+                          <>
+                            {extractApiKeyFromAuth(config.auth) && (
+                              <p><span className="font-medium">{t('provider.apiKey')}</span>
+                                {showTokens ? extractApiKeyFromAuth(config.auth) : maskToken(extractApiKeyFromAuth(config.auth))}
+                              </p>
+                            )}
+                            {extractBaseUrlFromConfig(config.config) && (
+                              <p><span className="font-medium">{t('provider.apiUrl')}</span>{extractBaseUrlFromConfig(config.config)}</p>
+                            )}
+                            {extractModelFromConfig(config.config) && (
+                              <p><span className="font-medium">{t('provider.model')}</span>{extractModelFromConfig(config.config)}</p>
+                            )}
+                          </>
+                        )}
+                      </div>
                     </div>
 
-                    <div className="space-y-1 text-sm text-muted-foreground">
-                      {config.description && (
-                        <p><span className="font-medium">{t('provider.description')}</span>{config.description.startsWith('provider.') ? t(config.description) : config.description}</p>
-                      )}
-                      {config.websiteUrl && (
-                        <p className="flex items-center gap-1">
-                          <span className="font-medium">{t('provider.website')}</span>
-                          <a
-                            href={config.websiteUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:underline flex items-center gap-1"
-                          >
-                            {config.websiteUrl}
-                            <ExternalLink className="h-3 w-3" />
-                          </a>
-                        </p>
-                      )}
+                    <div className="flex items-center gap-2">
                       {!config.isOfficial && (
                         <>
-                          {extractApiKeyFromAuth(config.auth) && (
-                            <p><span className="font-medium">{t('provider.apiKey')}</span>
-                              {showTokens ? extractApiKeyFromAuth(config.auth) : maskToken(extractApiKeyFromAuth(config.auth))}
-                            </p>
-                          )}
-                          {extractBaseUrlFromConfig(config.config) && (
-                            <p><span className="font-medium">{t('provider.apiUrl')}</span>{extractBaseUrlFromConfig(config.config)}</p>
-                          )}
-                          {extractModelFromConfig(config.config) && (
-                            <p><span className="font-medium">{t('provider.model')}</span>{extractModelFromConfig(config.config)}</p>
-                          )}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => testConnection(config)}
+                            disabled={testing === config.id}
+                            className="text-xs"
+                            aria-label={t('tooltips.testConnection')}
+                          >
+                            {testing === config.id ? (
+                              <RefreshCw className="h-3 w-3 animate-spin" aria-hidden="true" />
+                            ) : (
+                              <TestTube className="h-3 w-3" aria-hidden="true" />
+                            )}
+                          </Button>
+
+                          {/* API 模型测试按钮 */}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => toggleApiTester(config.id)}
+                            className={`text-xs ${expandedTesterId === config.id ? 'bg-green-100 dark:bg-green-900/30 text-green-600' : 'text-green-600 hover:text-green-700'}`}
+                            aria-label="测试所有模型"
+                            title="测试代理商支持的所有 OpenAI 模型"
+                          >
+                            <Search className="h-3 w-3" aria-hidden="true" />
+                          </Button>
                         </>
                       )}
+
+                      {!isBuiltInPreset(config) && (
+                        <>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEditProvider(config)}
+                            className="text-xs"
+                            aria-label={t('provider.editProvider')}
+                          >
+                            <Edit className="h-3 w-3" aria-hidden="true" />
+                          </Button>
+
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDeleteProvider(config)}
+                            disabled={deleting === config.id}
+                            className="text-xs text-red-600 hover:text-red-700"
+                            aria-label={t('dialogs.confirmDelete')}
+                          >
+                            {deleting === config.id ? (
+                              <RefreshCw className="h-3 w-3 animate-spin" aria-hidden="true" />
+                            ) : (
+                              <Trash className="h-3 w-3" aria-hidden="true" />
+                            )}
+                          </Button>
+                        </>
+                      )}
+
+                      <Button
+                        size="sm"
+                        onClick={() => switchProvider(config)}
+                        disabled={switching === config.id || isCurrentProvider(config)}
+                        className="text-xs"
+                      >
+                        {switching === config.id ? (
+                          <RefreshCw className="h-3 w-3 mr-1 animate-spin" aria-hidden="true" />
+                        ) : (
+                          <Check className="h-3 w-3 mr-1" aria-hidden="true" />
+                        )}
+                        {isCurrentProvider(config) ? t('provider.alreadySelected') : t('provider.switchToConfig')}
+                      </Button>
                     </div>
                   </div>
-
-                  <div className="flex items-center gap-2">
-                    {!config.isOfficial && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => testConnection(config)}
-                        disabled={testing === config.id}
-                        className="text-xs"
-                        aria-label={t('tooltips.testConnection')}
-                      >
-                        {testing === config.id ? (
-                          <RefreshCw className="h-3 w-3 animate-spin" aria-hidden="true" />
-                        ) : (
-                          <TestTube className="h-3 w-3" aria-hidden="true" />
-                        )}
-                      </Button>
-                    )}
-
-                    {!isBuiltInPreset(config) && (
-                      <>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEditProvider(config)}
-                          className="text-xs"
-                          aria-label={t('provider.editProvider')}
-                        >
-                          <Edit className="h-3 w-3" aria-hidden="true" />
-                        </Button>
-
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDeleteProvider(config)}
-                          disabled={deleting === config.id}
-                          className="text-xs text-red-600 hover:text-red-700"
-                          aria-label={t('dialogs.confirmDelete')}
-                        >
-                          {deleting === config.id ? (
-                            <RefreshCw className="h-3 w-3 animate-spin" aria-hidden="true" />
-                          ) : (
-                            <Trash className="h-3 w-3" aria-hidden="true" />
-                          )}
-                        </Button>
-                      </>
-                    )}
-
-                    <Button
-                      size="sm"
-                      onClick={() => switchProvider(config)}
-                      disabled={switching === config.id || isCurrentProvider(config)}
-                      className="text-xs"
-                    >
-                      {switching === config.id ? (
-                        <RefreshCw className="h-3 w-3 mr-1 animate-spin" aria-hidden="true" />
-                      ) : (
-                        <Check className="h-3 w-3 mr-1" aria-hidden="true" />
-                      )}
-                      {isCurrentProvider(config) ? t('provider.alreadySelected') : t('provider.switchToConfig')}
-                    </Button>
-                  </div>
                 </div>
+
+                {/* 内嵌 API 测试器 */}
+                {!config.isOfficial && (
+                  <InlineAPITester
+                    provider="openai"
+                    apiKey={extractApiKeyFromAuth(config.auth) || ''}
+                    baseUrl={extractBaseUrlFromConfig(config.config) || ''}
+                    isOpen={expandedTesterId === config.id}
+                    onClose={() => setExpandedTesterId(null)}
+                  />
+                )}
               </Card>
             ))
           )}

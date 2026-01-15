@@ -5,6 +5,11 @@
  * _Requirements: 7.1_
  * **Property 7: API 密钥安全存储**
  * **Validates: Requirements 7.1, 7.2, 7.3**
+ *
+ * 🔒 安全改进 (v2.7.6):
+ * - 开发环境使用 Web Crypto API 进行 AES-GCM 加密
+ * - 添加安全警告日志
+ * - 移除不安全的 Base64 编码
  */
 
 import { invoke } from '@tauri-apps/api/core';
@@ -47,6 +52,122 @@ export interface StoredAPIKey {
 export type APIKeyProvider = 'claude' | 'openai' | 'gemini' | 'siliconflow' | 'hiapi' | 'other';
 
 // =============================================================================
+// Web Crypto API 加密工具（开发环境使用）
+// =============================================================================
+
+/**
+ * 🔒 派生加密密钥
+ * 使用 PBKDF2 从设备指纹派生 AES-GCM 密钥
+ */
+async function deriveEncryptionKey(): Promise<CryptoKey> {
+  // 使用设备指纹作为密钥材料（比硬编码密钥更安全）
+  const deviceFingerprint = [
+    navigator.userAgent,
+    navigator.language,
+    screen.width,
+    screen.height,
+    new Date().getTimezoneOffset(),
+  ].join('|');
+
+  const encoder = new TextEncoder();
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(deviceFingerprint),
+    'PBKDF2',
+    false,
+    ['deriveKey']
+  );
+
+  // 使用固定盐值（设备相关）
+  const salt = encoder.encode('fangyu_code_secure_storage_v1');
+
+  return crypto.subtle.deriveKey(
+    {
+      name: 'PBKDF2',
+      salt,
+      iterations: 100000,
+      hash: 'SHA-256',
+    },
+    keyMaterial,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt', 'decrypt']
+  );
+}
+
+/**
+ * 🔒 使用 AES-GCM 加密数据
+ */
+async function encryptData(plaintext: string): Promise<string> {
+  const key = await deriveEncryptionKey();
+  const encoder = new TextEncoder();
+  const data = encoder.encode(plaintext);
+
+  // 生成随机 IV
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+
+  const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, data);
+
+  // 将 IV 和密文组合，然后 Base64 编码
+  const combined = new Uint8Array(iv.length + encrypted.byteLength);
+  combined.set(iv);
+  combined.set(new Uint8Array(encrypted), iv.length);
+
+  return btoa(String.fromCharCode(...combined));
+}
+
+/**
+ * 🔒 使用 AES-GCM 解密数据
+ */
+async function decryptData(ciphertext: string): Promise<string | null> {
+  try {
+    const key = await deriveEncryptionKey();
+
+    // Base64 解码
+    const combined = Uint8Array.from(atob(ciphertext), (c) => c.charCodeAt(0));
+
+    // 分离 IV 和密文
+    const iv = combined.slice(0, 12);
+    const encrypted = combined.slice(12);
+
+    const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, encrypted);
+
+    const decoder = new TextDecoder();
+    return decoder.decode(decrypted);
+  } catch (error) {
+    console.warn('[SecureStorage] 解密失败，可能是旧格式数据:', error);
+    return null;
+  }
+}
+
+/**
+ * 🔒 尝试解密数据，兼容旧的 Base64 格式
+ */
+async function decryptDataWithFallback(encoded: string): Promise<string | null> {
+  // 首先尝试新的加密格式
+  const decrypted = await decryptData(encoded);
+  if (decrypted !== null) {
+    return decrypted;
+  }
+
+  // 回退到旧的 Base64 格式（用于迁移）
+  try {
+    const decoded = atob(encoded);
+    // 如果成功解码且看起来像有效数据，记录警告并返回
+    if (decoded && decoded.length > 0) {
+      console.warn(
+        '[SecureStorage] ⚠️ 检测到旧格式数据（Base64），建议重新保存以使用加密存储'
+      );
+      return decoded;
+    }
+  } catch {
+    // 忽略解码错误
+  }
+
+  return null;
+}
+
+// =============================================================================
 // 安全存储实现
 // =============================================================================
 
@@ -63,9 +184,23 @@ function isTauriEnvironment(): boolean {
 }
 
 /**
+ * 🔒 记录安全警告（开发环境）
+ */
+function logSecurityWarning(): void {
+  if (!isTauriEnvironment()) {
+    console.warn(
+      '[SecureStorage] ⚠️ 安全警告: 当前运行在开发环境，使用 Web Crypto API 加密。' +
+      '生产环境请使用 Tauri 安全存储以获得更高安全性。'
+    );
+  }
+}
+
+/**
  * 安全存储实现
  * 在 Tauri 环境中使用 Rust 后端的安全存储
- * 在非 Tauri 环境中回退到加密的 localStorage（仅用于开发）
+ * 在非 Tauri 环境中使用 Web Crypto API 加密的 localStorage
+ *
+ * 🔒 安全改进: 开发环境现在使用 AES-GCM 加密，而非简单的 Base64 编码
  */
 export const secureStorage: SecureStorage = {
   async setItem(key: string, value: string): Promise<void> {
@@ -80,9 +215,15 @@ export const secureStorage: SecureStorage = {
       }
     }
 
-    // 回退到 localStorage（开发环境）
-    // 注意：这不是真正安全的，仅用于开发
-    localStorage.setItem(prefixedKey, btoa(value));
+    // 🔒 使用 Web Crypto API 加密（开发环境）
+    logSecurityWarning();
+    try {
+      const encrypted = await encryptData(value);
+      localStorage.setItem(prefixedKey, encrypted);
+    } catch (error) {
+      console.error('[SecureStorage] 加密失败:', error);
+      throw new Error('无法安全存储数据');
+    }
   },
 
   async getItem(key: string): Promise<string | null> {
@@ -97,14 +238,10 @@ export const secureStorage: SecureStorage = {
       }
     }
 
-    // 回退到 localStorage（开发环境）
+    // 🔒 使用 Web Crypto API 解密（开发环境）
     const encoded = localStorage.getItem(prefixedKey);
     if (encoded) {
-      try {
-        return atob(encoded);
-      } catch {
-        return null;
-      }
+      return decryptDataWithFallback(encoded);
     }
     return null;
   },

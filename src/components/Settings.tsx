@@ -5,6 +5,13 @@ import {
   Save,
   AlertCircle,
   Loader2,
+  Settings2,
+  Cpu,
+  Languages,
+  Sparkles,
+  Database,
+  Bot,
+  Wrench,
 } from "lucide-react";
 import { notify } from "@/components/notifications";
 import { Button } from "@/components/ui/button";
@@ -28,14 +35,10 @@ import { StorageTab } from "./StorageTab";
 import { PromptEnhancementSettings } from "./PromptEnhancementSettings";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useNavigation } from "@/contexts/NavigationContext";
-import ProviderManager from "./ProviderManager";
-import CodexProviderManager from "./CodexProviderManager";
-import GeminiProviderManager from "./GeminiProviderManager";
+// 新统一组件（v2.8.0+ 全面重构）
+import { EngineConfigPanel } from "./EngineConfigPanel";
 import { TranslationSettings } from "./TranslationSettings";
 import { GeneralSettings } from "./settings/GeneralSettings";
-import { PermissionsSettings } from "./settings/PermissionsSettings";
-import { EnvironmentSettings } from "./settings/EnvironmentSettings";
-import { HooksSettings } from "./settings/HooksSettings";
 import { ConfigManagerEmbedded } from "./ConfigManager";
 import { OutputDisplaySettings } from "./settings/OutputDisplaySettings";
 import { SuperAgentSettings } from "./settings/SuperAgentSettings";
@@ -95,26 +98,22 @@ export const Settings: React.FC<SettingsProps> = ({
     return () => window.removeEventListener('switch-to-prompt-api-tab', handleSwitchTab);
   }, []);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-  
+
   // Permission rules state
   const [allowRules, setAllowRules] = useState<PermissionRule[]>([]);
   const [denyRules, setDenyRules] = useState<PermissionRule[]>([]);
-  
+
   // Environment variables state
   const [envVars, setEnvVars] = useState<EnvironmentVariable[]>([]);
-  
+
   // Execution config state
   const [executionConfig, setExecutionConfig] = useState<ClaudeExecutionConfig | null>(null);
   const [disableRewindGitOps, setDisableRewindGitOps] = useState(false);
   const [showRewindGitConfirmDialog, setShowRewindGitConfirmDialog] = useState(false);
-  
-  // Hooks state
-  const [userHooksChanged, setUserHooksChanged] = useState(false);
-  const getUserHooks = React.useRef<(() => any) | null>(null);
 
-  // Provider sub-tabs state
-  const [providerSubTab, setProviderSubTab] = useState("claude");
-  
+  // Provider sub-tabs state - 已废弃，使用新的 EngineConfigPanel
+  // const [providerSubTab, setProviderSubTab] = useState("claude");
+
   // 挂载时加载设置
   // Load settings on mount
   useEffect(() => {
@@ -129,14 +128,14 @@ export const Settings: React.FC<SettingsProps> = ({
       setLoading(true);
       setError(null);
       const loadedSettings = await api.getClaudeSettings();
-      
+
       // Ensure loadedSettings is an object
       if (!loadedSettings || typeof loadedSettings !== 'object') {
         console.warn("Loaded settings is not an object:", loadedSettings);
         setSettings({});
         return;
       }
-      
+
       setSettings(loadedSettings);
 
       // Load execution config
@@ -232,13 +231,6 @@ export const Settings: React.FC<SettingsProps> = ({
         setExecutionConfig(updatedExecConfig);
       }
 
-      // Save user hooks if changed
-      if (userHooksChanged && getUserHooks.current) {
-        const hooks = getUserHooks.current();
-        await api.updateHooksConfig('user', hooks);
-        setUserHooksChanged(false);
-      }
-
       // 🆕 使用顶部居中通知
       notify.success(t('settings.saved') || "设置已保存", {
         position: "top-center",
@@ -299,7 +291,7 @@ export const Settings: React.FC<SettingsProps> = ({
       id: `${type}-${Date.now()}`,
       value: "",
     };
-    
+
     if (type === "allow") {
       setAllowRules(prev => [...prev, newRule]);
     } else {
@@ -312,11 +304,11 @@ export const Settings: React.FC<SettingsProps> = ({
    */
   const updatePermissionRule = (type: "allow" | "deny", id: string, value: string) => {
     if (type === "allow") {
-      setAllowRules(prev => prev.map(rule => 
+      setAllowRules(prev => prev.map(rule =>
         rule.id === id ? { ...rule, value } : rule
       ));
     } else {
-      setDenyRules(prev => prev.map(rule => 
+      setDenyRules(prev => prev.map(rule =>
         rule.id === id ? { ...rule, value } : rule
       ));
     }
@@ -350,7 +342,7 @@ export const Settings: React.FC<SettingsProps> = ({
    * Updates an environment variable
    */
   const updateEnvVar = (id: string, field: "key" | "value" | "enabled", value: string | boolean) => {
-    setEnvVars(prev => prev.map(envVar => 
+    setEnvVars(prev => prev.map(envVar =>
       envVar.id === id ? { ...envVar, [field]: value } : envVar
     ));
   };
@@ -363,192 +355,215 @@ export const Settings: React.FC<SettingsProps> = ({
   };
 
   return (
-    <div className={cn("flex flex-col h-full bg-background text-foreground", className)}>
-      <div className="max-w-4xl mx-auto w-full flex flex-col h-full">
-        {/* Header */}
+    <div className={cn("flex flex-col h-full bg-gradient-to-br from-background via-background to-muted/20 text-foreground", className)}>
+      <div className="max-w-5xl mx-auto w-full flex flex-col h-full">
+        {/* Premium Header with Glassmorphism */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="flex items-center justify-between p-4 border-b border-border"
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          className="relative flex items-center justify-between p-5 border-b border-border/50 backdrop-blur-xl bg-background/80"
         >
-        <div className="flex items-center gap-3">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={goBack}
-          className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-          aria-label="返回"
-        >
-          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-        </Button>
-        <div>
-          <h2 className="text-lg font-semibold">{t('settings.title')}</h2>
-          <p className="text-xs text-muted-foreground">
-              {t('common.configureClaudePreferences')}
-          </p>
-          </div>
-        </div>
-        
-        <Button
-          onClick={saveSettings}
-          disabled={saving || loading}
-          size="sm"
-          className={cn(
-            "gap-2 bg-primary hover:bg-primary/90",
-            "transition-all duration-200",
-            saving && "scale-95 opacity-80"
-          )}
-        >
-          {saving ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-              {t('common.savingSettings')}
-            </>
-          ) : (
-            <>
-              <Save className="h-4 w-4" aria-hidden="true" />
-              {t('common.saveSettings')}
-            </>
-          )}
-        </Button>
-      </motion.div>
-      
-      {/* Error message */}
-      <AnimatePresence>
-        {error && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="mx-4 mt-4 p-3 rounded-lg bg-destructive/10 border border-destructive/50 flex items-center gap-2 text-sm text-destructive"
-          >
-            <AlertCircle className="h-4 w-4" />
-            {error}
-          </motion.div>
-        )}
-      </AnimatePresence>
-      
-      {/* Content */}
-      {loading ? (
-        <div className="flex-1 flex items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
-      ) : (
-        <div className="flex-1 overflow-y-auto p-4">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid grid-cols-10 w-full">
-              <TabsTrigger value="general">{t('settings.general')}</TabsTrigger>
-              <TabsTrigger value="permissions">{t('settings.permissions')}</TabsTrigger>
-              <TabsTrigger value="environment">{t('settings.environment')}</TabsTrigger>
-              <TabsTrigger value="hooks">{t('settings.hooks')}</TabsTrigger>
-              <TabsTrigger value="translation">{t('settings.translation')}</TabsTrigger>
-              <TabsTrigger value="prompt-api">{t('settings.promptApi')}</TabsTrigger>
-              <TabsTrigger value="provider">{t('settings.provider')}</TabsTrigger>
-              <TabsTrigger value="storage">{t('settings.storage')}</TabsTrigger>
-              <TabsTrigger value="super-agent" className="text-primary">Super Agent</TabsTrigger>
-              <TabsTrigger value="config" className="text-orange-500">配置管理</TabsTrigger>
-            </TabsList>
-            
-            {/* General Settings */}
-            <TabsContent value="general" className="space-y-6">
-              <OutputDisplaySettings />
-              <GeneralSettings
-                settings={settings}
-                updateSetting={updateSetting}
-                disableRewindGitOps={disableRewindGitOps}
-                handleRewindGitOpsToggle={handleRewindGitOpsToggle}
-                setToast={setToast}
-              />
-            </TabsContent>
-            
-            {/* Permissions Settings */}
-            <TabsContent value="permissions" className="space-y-6">
-              <PermissionsSettings
-                allowRules={allowRules}
-                denyRules={denyRules}
-                addPermissionRule={addPermissionRule}
-                updatePermissionRule={updatePermissionRule}
-                removePermissionRule={removePermissionRule}
-              />
-            </TabsContent>
-            
-            {/* Environment Variables */}
-            <TabsContent value="environment" className="space-y-6">
-              <EnvironmentSettings
-                envVars={envVars}
-                addEnvVar={addEnvVar}
-                updateEnvVar={updateEnvVar}
-                removeEnvVar={removeEnvVar}
-              />
-            </TabsContent>
-            
-            {/* Hooks Settings */}
-            <TabsContent value="hooks" className="space-y-6">
-              <HooksSettings
-                activeTab={activeTab}
-                setUserHooksChanged={setUserHooksChanged}
-                getUserHooks={getUserHooks}
-              />
-            </TabsContent>
+          {/* Subtle gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-purple-500/5 pointer-events-none" />
 
-            {/* Translation Tab */}
-            <TabsContent value="translation">
-              <TranslationSettings />
-            </TabsContent>
-            
-            {/* Prompt Enhancement API Tab */}
-            <TabsContent value="prompt-api">
-              <PromptEnhancementSettings />
-            </TabsContent>
-            
-            {/* Provider Tab */}
-            <TabsContent value="provider" className="space-y-4">
-              <Tabs value={providerSubTab} onValueChange={setProviderSubTab} className="w-full">
-                <TabsList className="grid grid-cols-3 w-96">
-                  <TabsTrigger value="claude">{t('settings.claudeProvider')}</TabsTrigger>
-                  <TabsTrigger value="codex">{t('settings.codexProvider')}</TabsTrigger>
-                  <TabsTrigger value="gemini">{t('settings.geminiProvider')}</TabsTrigger>
-                </TabsList>
-                <TabsContent value="claude">
-                  <ProviderManager onBack={() => {}} />
-                </TabsContent>
-                <TabsContent value="codex">
-                  <CodexProviderManager />
-                </TabsContent>
-                <TabsContent value="gemini">
-                  <GeminiProviderManager />
-                </TabsContent>
-              </Tabs>
-            </TabsContent>
-            
-            {/* Storage Tab */}
-            <TabsContent value="storage">
-              <StorageTab />
-            </TabsContent>
-
-            {/* Super Agent Tab - Super Agent 配置 */}
-            <TabsContent value="super-agent">
-              <SuperAgentSettings />
-            </TabsContent>
-
-            {/* Config Manager Tab - 配置管理中心 */}
-            <TabsContent value="config">
-              <div className="space-y-4">
-                <div className="text-sm text-muted-foreground">
-                  全面诊断和管理 Claude Code 配置，优化 Token 消耗
-                </div>
-                <ConfigManagerEmbedded />
+          <div className="relative flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={goBack}
+              className="h-9 w-9 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all duration-200 hover:scale-105"
+              aria-label="返回"
+            >
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+            </Button>
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-gradient-to-br from-primary/20 to-purple-500/20 ring-1 ring-primary/20">
+                <Settings2 className="h-5 w-5 text-primary" />
               </div>
-            </TabsContent>
+              <div>
+                <h2 className="text-xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">{t('settings.title')}</h2>
+                <p className="text-xs text-muted-foreground">
+                  {t('common.configureClaudePreferences')}
+                </p>
+              </div>
+            </div>
+          </div>
 
-          </Tabs>
-        </div>
-      )}
-      </div>
-      
+          <Button
+            onClick={saveSettings}
+            disabled={saving || loading}
+            size="sm"
+            className={cn(
+              "gap-2 px-5 rounded-xl font-medium",
+              "bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70",
+              "shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30",
+              "transition-all duration-300 hover:scale-[1.02]",
+              saving && "scale-95 opacity-80"
+            )}
+          >
+            {saving ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                {t('common.savingSettings')}
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4" aria-hidden="true" />
+                {t('common.saveSettings')}
+              </>
+            )}
+          </Button>
+        </motion.div>
+
+        {/* Error message with premium styling */}
+        <AnimatePresence>
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.95 }}
+              className="mx-5 mt-4 p-4 rounded-xl bg-destructive/10 border border-destructive/30 flex items-center gap-3 text-sm text-destructive backdrop-blur-sm"
+            >
+              <div className="p-1.5 rounded-lg bg-destructive/20">
+                <AlertCircle className="h-4 w-4" />
+              </div>
+              <span className="font-medium">{error}</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Content with enhanced loading state */}
+        {loading ? (
+          <div className="flex-1 flex flex-col items-center justify-center gap-4">
+            <div className="relative">
+              <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping" />
+              <Loader2 className="h-10 w-10 animate-spin text-primary relative" />
+            </div>
+            <p className="text-sm text-muted-foreground animate-pulse">加载设置中...</p>
+          </div>
+        ) : (
+          <div className="flex-1 overflow-y-auto p-5">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              {/* Premium Tab Navigation */}
+              <TabsList className="grid grid-cols-7 w-full h-auto p-1.5 bg-muted/50 rounded-2xl backdrop-blur-sm border border-border/50 gap-1">
+                <TabsTrigger
+                  value="general"
+                  className="gap-2 py-2.5 rounded-xl data-[state=active]:bg-background data-[state=active]:shadow-lg data-[state=active]:shadow-black/5 transition-all duration-200"
+                >
+                  <Settings2 className="h-4 w-4" />
+                  <span className="hidden lg:inline">{t('settings.general')}</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="engines"
+                  className="gap-2 py-2.5 rounded-xl data-[state=active]:bg-background data-[state=active]:shadow-lg data-[state=active]:shadow-black/5 transition-all duration-200"
+                >
+                  <Cpu className="h-4 w-4" />
+                  <span className="hidden lg:inline">引擎配置</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="translation"
+                  className="gap-2 py-2.5 rounded-xl data-[state=active]:bg-background data-[state=active]:shadow-lg data-[state=active]:shadow-black/5 transition-all duration-200"
+                >
+                  <Languages className="h-4 w-4" />
+                  <span className="hidden lg:inline">{t('settings.translation')}</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="prompt-api"
+                  className="gap-2 py-2.5 rounded-xl data-[state=active]:bg-background data-[state=active]:shadow-lg data-[state=active]:shadow-black/5 transition-all duration-200"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  <span className="hidden lg:inline">{t('settings.promptApi')}</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="storage"
+                  className="gap-2 py-2.5 rounded-xl data-[state=active]:bg-background data-[state=active]:shadow-lg data-[state=active]:shadow-black/5 transition-all duration-200"
+                >
+                  <Database className="h-4 w-4" />
+                  <span className="hidden lg:inline">{t('settings.storage')}</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="super-agent"
+                  className="gap-2 py-2.5 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/10 data-[state=active]:to-purple-500/10 data-[state=active]:shadow-lg transition-all duration-200 text-primary"
+                >
+                  <Bot className="h-4 w-4" />
+                  <span className="hidden lg:inline">Super Agent</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="config"
+                  className="gap-2 py-2.5 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500/10 data-[state=active]:to-red-500/10 data-[state=active]:shadow-lg transition-all duration-200 text-orange-500"
+                >
+                  <Wrench className="h-4 w-4" />
+                  <span className="hidden lg:inline">配置管理</span>
+                </TabsTrigger>
+              </TabsList>
+
+              {/* General Settings with Card Design */}
+              <TabsContent value="general" className="space-y-6 mt-6">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <OutputDisplaySettings />
+                  <GeneralSettings
+                    settings={settings}
+                    updateSetting={updateSetting}
+                    disableRewindGitOps={disableRewindGitOps}
+                    handleRewindGitOpsToggle={handleRewindGitOpsToggle}
+                    setToast={setToast}
+                  />
+                </motion.div>
+              </TabsContent>
+
+              {/* 🆕 引擎配置 - 使用新的统一面板 */}
+              <TabsContent value="engines" className="space-y-6 mt-6">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <EngineConfigPanel />
+                </motion.div>
+              </TabsContent>
+
+              {/* Translation Tab */}
+              <TabsContent value="translation">
+                <TranslationSettings />
+              </TabsContent>
+
+              {/* Prompt Enhancement API Tab */}
+              <TabsContent value="prompt-api">
+                <PromptEnhancementSettings />
+              </TabsContent>
+
+              {/* Storage Tab */}
+              <TabsContent value="storage">
+                <StorageTab />
+              </TabsContent>
+
+              {/* Super Agent Tab - Super Agent 配置 */}
+              <TabsContent value="super-agent">
+                <SuperAgentSettings />
+              </TabsContent>
+
+              {/* Config Manager Tab - 配置管理中心 */}
+              <TabsContent value="config">
+                <div className="space-y-4">
+                  <div className="text-sm text-muted-foreground">
+                    全面诊断和管理配置，优化 Token 消耗
+                  </div>
+                  <ConfigManagerEmbedded />
+                </div>
+              </TabsContent>
+
+            </Tabs>
+          </div >
+        )}
+      </div >
+
       {/* Confirmation Dialog for Disabling Rewind Git Operations */}
-      <Dialog open={showRewindGitConfirmDialog} onOpenChange={setShowRewindGitConfirmDialog}>
+      < Dialog open={showRewindGitConfirmDialog} onOpenChange={setShowRewindGitConfirmDialog} >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>⚠️ {t('dialogs.confirmGitOps')}</DialogTitle>
@@ -586,18 +601,20 @@ export const Settings: React.FC<SettingsProps> = ({
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+      </Dialog >
 
       {/* Toast Notification */}
       <ToastContainer>
-        {toast && (
-          <Toast
-            message={toast.message}
-            type={toast.type}
-            onDismiss={() => setToast(null)}
-          />
-        )}
-      </ToastContainer>
-    </div>
+        {
+          toast && (
+            <Toast
+              message={toast.message}
+              type={toast.type}
+              onDismiss={() => setToast(null)}
+            />
+          )
+        }
+      </ToastContainer >
+    </div >
   );
 };  

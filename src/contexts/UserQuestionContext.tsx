@@ -79,7 +79,8 @@ interface UserQuestionContextValue {
   setSendMessageCallback: (callback: ((message: string) => void) | null) => void;
 }
 
-const UserQuestionContext = createContext<UserQuestionContextValue | undefined>(
+// 🔧 FIX: 导出 Context 以便组件可以安全地使用 useContext
+export const UserQuestionContext = createContext<UserQuestionContextValue | undefined>(
   undefined
 );
 

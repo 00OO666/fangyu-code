@@ -22,6 +22,66 @@ import type { ClaudeStreamMessage } from "@/types/claude";
 import type { CodexRateLimits } from "@/types/codex";
 
 /**
+ * 🔧 FIX v2.5.2: 消息去重函数
+ * 在加载历史消息时移除重复消息
+ */
+function deduplicateMessages(messages: ClaudeStreamMessage[]): ClaudeStreamMessage[] {
+  const messageMap = new Map<string, ClaudeStreamMessage>();
+  const messagesWithoutId: ClaudeStreamMessage[] = [];
+
+  for (const msg of messages) {
+    const id = (msg as any)?.message?.id || (msg as any).id || (msg as any).uuid;
+
+    if (id) {
+      const existingMsg = messageMap.get(id);
+
+      if (existingMsg && existingMsg.message?.content && msg.message?.content) {
+        // 合并 content 数组，保留 thinking 块
+        const existingContent = Array.isArray(existingMsg.message.content) ? existingMsg.message.content : [];
+        const newContent = Array.isArray(msg.message.content) ? msg.message.content : [];
+        const existingThinking = existingContent.filter((item: any) => item.type === 'thinking');
+        const newThinking = newContent.filter((item: any) => item.type === 'thinking');
+
+        if (existingThinking.length > 0 && newThinking.length === 0) {
+          messageMap.set(id, {
+            ...msg,
+            message: {
+              ...msg.message,
+              content: [...existingThinking, ...newContent]
+            }
+          });
+        } else {
+          messageMap.set(id, msg);
+        }
+      } else {
+        messageMap.set(id, msg);
+      }
+    } else {
+      messagesWithoutId.push(msg);
+    }
+  }
+
+  // 保持原始顺序
+  const result: ClaudeStreamMessage[] = [];
+  const seenIds = new Set<string>();
+
+  for (const msg of messages) {
+    const id = (msg as any)?.message?.id || (msg as any).id || (msg as any).uuid;
+
+    if (id) {
+      if (!seenIds.has(id)) {
+        seenIds.add(id);
+        result.push(messageMap.get(id)!);
+      }
+    } else {
+      result.push(msg);
+    }
+  }
+
+  return result;
+}
+
+/**
  * Hook 配置
  * 与 useSessionLifecycle 完全兼容
  */
@@ -65,6 +125,11 @@ interface UseSessionStreamConfig {
    * 翻译初始化（兼容 useSessionLifecycle，当前禁用）
    */
   initializeProgressiveTranslation?: (messages: ClaudeStreamMessage[]) => Promise<void>;
+
+  /**
+   * 🔧 FIX: 初始化已处理的消息 ID（用于历史消息去重）
+   */
+  initializeProcessedIds?: (messages: ClaudeStreamMessage[]) => void;
 
   /**
    * 翻译处理
@@ -119,6 +184,7 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
     setClaudeSessionId,
     setCodexRateLimits,
     processMessageWithTranslation,
+    initializeProcessedIds,
     onSessionNotFound,
   } = config;
 
@@ -291,9 +357,25 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
         return;
       }
 
+      // 🔧 FIX v2.5.2: 在加载时对历史消息进行去重
+      // 历史数据中可能已经存在重复消息，需要在设置状态前去重
+      const deduplicatedMessages = deduplicateMessages(processedMessages);
+
+      if (deduplicatedMessages.length < processedMessages.length) {
+        const removed = processedMessages.length - deduplicatedMessages.length;
+        const rate = ((removed / processedMessages.length) * 100).toFixed(1);
+        console.log(`[useSessionStream] 🧹 历史消息去重: 移除 ${removed} 条重复 (${rate}%)`);
+      }
+
       // 更新状态
-      setMessages(processedMessages);
+      setMessages(deduplicatedMessages);
       setRawJsonlOutput(history.map((h) => JSON.stringify(h)));
+
+      // 🔧 FIX: 初始化已处理的消息 ID，防止流式消息重复添加
+      if (initializeProcessedIds) {
+        initializeProcessedIds(deduplicatedMessages);
+      }
+
       setIsLoading(false);
     } catch (err) {
       console.error("[useSessionStream] Failed to load session history:", err);
@@ -360,20 +442,43 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
           try {
             if (!isMountedRef.current) return;
 
-            // 🔍 DEBUG: 记录原始消息
-            try {
-              const parsed = JSON.parse(event.payload);
-              if (parsed.type === 'assistant' && parsed.message?.content) {
-                const hasText = parsed.message.content.some((item: any) => item.type === 'text');
-                console.log('[useSessionStream] 📨 Received assistant message:', {
-                  uuid: parsed.uuid,
-                  hasText,
-                  contentTypes: parsed.message.content.map((item: any) => item.type),
-                  rawPayload: event.payload.substring(0, 500)
-                });
+            // 🔍 DEBUG v2.7.8: 详细记录消息接收过程，帮助排查消息丢失问题
+            if (import.meta.env.DEV) {
+              try {
+                const parsed = JSON.parse(event.payload);
+                if (parsed.type === 'assistant' && parsed.message?.content) {
+                  const contentItems = parsed.message.content;
+                  const hasText = contentItems.some((item: any) => {
+                    if (item.type !== 'text') return false;
+                    const text = item.text || '';
+                    const trimmed = text.trim();
+                    // 检查是否有真实文本（非空、非标签）
+                    return trimmed.length > 0 && !/^<\/?[a-z_]+>$/i.test(trimmed);
+                  });
+                  const hasTools = contentItems.some((item: any) =>
+                    item.type === 'tool_use' || item.type === 'tool_result');
+                  const hasThinking = contentItems.some((item: any) => item.type === 'thinking');
+
+                  // 提取文本预览
+                  const textPreview = contentItems
+                    .filter((item: any) => item.type === 'text')
+                    .map((item: any) => (item.text || '').trim().substring(0, 50))
+                    .filter((t: string) => t.length > 0)
+                    .join(' | ');
+
+                  console.log('[useSessionStream] 📨 Received assistant message:', {
+                    uuid: parsed.uuid,
+                    messageId: parsed.message?.id,
+                    hasText,
+                    hasTools,
+                    hasThinking,
+                    textPreview: textPreview || '(no text)',
+                    contentTypes: contentItems.map((item: any) => item.type)
+                  });
+                }
+              } catch (e) {
+                // Ignore parsing errors in debug code
               }
-            } catch (e) {
-              // Ignore parsing errors in debug code
             }
 
             // 使用统一的转换器注册中心

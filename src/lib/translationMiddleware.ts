@@ -38,6 +38,8 @@ interface QueueItem {
 export class TranslationMiddleware {
   private config: TranslationConfig | null = null;
   private initialized = false;
+  private initPromise: Promise<void> | null = null; // 🚀 缓存初始化 Promise，避免重复初始化
+  private cachedIsEnabled: boolean | null = null; // 🚀 缓存 isEnabled 状态
 
   // 性能优化相关
   private rateLimitConfig: RateLimitConfig = {
@@ -414,6 +416,7 @@ export class TranslationMiddleware {
     try {
       this.config = await api.getTranslationConfig();
       this.initialized = true;
+      this.cachedIsEnabled = this.config?.enabled ?? false; // 🚀 缓存状态
     } catch (error) {
       console.warn("[TranslationMiddleware] ⚠️ Failed to load saved config, using default:", error);
       this.config = {
@@ -425,24 +428,47 @@ export class TranslationMiddleware {
         cache_ttl_seconds: 3600,
       };
       this.initialized = true;
+      this.cachedIsEnabled = true; // 🚀 缓存状态
     }
   }
 
   /**
    * 确保中间件已初始化
+   * 🚀 性能优化：使用 Promise 缓存避免重复初始化
    */
   private async ensureInitialized(): Promise<void> {
-    if (!this.initialized) {
-      await this.init();
+    if (this.initialized) return;
+
+    // 如果已经有初始化 Promise 在进行中，等待它完成
+    if (this.initPromise) {
+      await this.initPromise;
+      return;
     }
+
+    // 创建并缓存初始化 Promise
+    this.initPromise = this.init();
+    await this.initPromise;
   }
 
   /**
    * 检查翻译功能是否启用
+   * 🚀 性能优化：优先使用缓存状态，避免每次都等待初始化
    */
   public async isEnabled(): Promise<boolean> {
+    // 如果已有缓存，直接返回（同步路径，极快）
+    if (this.cachedIsEnabled !== null) {
+      return this.cachedIsEnabled;
+    }
     await this.ensureInitialized();
     return this.config?.enabled ?? false;
+  }
+
+  /**
+   * 同步检查翻译功能是否启用（用于性能敏感场景）
+   * 🚀 新增：完全同步的检查方法
+   */
+  public isEnabledSync(): boolean {
+    return this.cachedIsEnabled ?? false;
   }
 
   /**

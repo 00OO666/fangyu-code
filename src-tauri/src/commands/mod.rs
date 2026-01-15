@@ -8,6 +8,7 @@ pub mod devtools; // 开发者工具 - F12 打开控制台
 pub mod diagnostics; // 诊断工具 - 检查配置健全性、Token消耗优化
 pub mod docker; // Docker 容器管理 - 沙箱环境
 pub mod parallel_agents; // 并行代理系统 - Claude Code Task风格
+pub mod path_validator; // 🔒 路径验证器 - 防止路径遍历攻击
 pub mod claude;
 pub mod kiro; // Kiro CLI 集成 - 第五引擎
 pub mod clipboard;

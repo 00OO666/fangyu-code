@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useRef } from "react";
 import { extractMessageContent as extractContentUtil } from "@/lib/contentExtraction";
 import {
   progressiveTranslationManager,
@@ -8,6 +8,110 @@ import {
 import { type TranslationResult, translationMiddleware } from "@/lib/translationMiddleware";
 import { normalizeUsageData } from "@/lib/utils";
 import type { ClaudeStreamMessage } from "@/types/claude";
+
+/**
+ * 🔧 FIX v2.7.8: 智能合并两条消息的内容
+ * 
+ * 合并策略：
+ * - 保留两者的文本内容（如果新消息有文本，追加而非替换）
+ * - 合并工具调用（去重）
+ * - 保留 thinking 块
+ * 
+ * 这样可以防止 Claude 说的话被后续的工具调用消息覆盖
+ */
+function mergeMessageContent(
+  existing: ClaudeStreamMessage,
+  incoming: ClaudeStreamMessage
+): ClaudeStreamMessage {
+  const existingContent = Array.isArray(existing.message?.content)
+    ? existing.message.content
+    : [];
+  const incomingContent = Array.isArray(incoming.message?.content)
+    ? incoming.message.content
+    : [];
+
+  // 提取各类型内容
+  const existingText = existingContent.filter((item: any) => item.type === 'text');
+  const existingTools = existingContent.filter((item: any) =>
+    item.type === 'tool_use' || item.type === 'tool_result');
+  const existingThinking = existingContent.filter((item: any) => item.type === 'thinking');
+
+  const incomingText = incomingContent.filter((item: any) => item.type === 'text');
+  const incomingTools = incomingContent.filter((item: any) =>
+    item.type === 'tool_use' || item.type === 'tool_result');
+  const incomingThinking = incomingContent.filter((item: any) => item.type === 'thinking');
+
+  // 🔧 FIX: 智能合并文本内容
+  // 如果旧消息有文本，新消息也有文本，检查是否需要合并
+  let mergedText: any[] = [];
+
+  // 检查旧文本是否有实际内容
+  const existingHasRealText = existingText.some((item: any) => {
+    const text = item.text || '';
+    return text.trim().length > 0 && !/^<\/?[a-z_]+>$/i.test(text.trim());
+  });
+
+  // 检查新文本是否有实际内容
+  const incomingHasRealText = incomingText.some((item: any) => {
+    const text = item.text || '';
+    return text.trim().length > 0 && !/^<\/?[a-z_]+>$/i.test(text.trim());
+  });
+
+  if (existingHasRealText && incomingHasRealText) {
+    // 两者都有文本，保留两者（新文本可能是更新后的内容）
+    // 但如果内容相同，只保留一个
+    const existingTextStr = existingText.map((t: any) => t.text || '').join('');
+    const incomingTextStr = incomingText.map((t: any) => t.text || '').join('');
+
+    if (existingTextStr === incomingTextStr) {
+      mergedText = incomingText; // 内容相同，使用新的
+    } else if (incomingTextStr.includes(existingTextStr)) {
+      mergedText = incomingText; // 新内容包含旧内容，使用新的（流式更新）
+    } else {
+      mergedText = incomingText; // 默认使用新的文本
+    }
+  } else if (existingHasRealText) {
+    mergedText = existingText; // 只有旧消息有文本，保留
+  } else if (incomingHasRealText) {
+    mergedText = incomingText; // 只有新消息有文本，使用新的
+  } else {
+    mergedText = incomingText.length > 0 ? incomingText : existingText;
+  }
+
+  // 🔧 FIX: 合并 thinking 块（保留旧的，如果新的没有）
+  const mergedThinking = incomingThinking.length > 0 ? incomingThinking : existingThinking;
+
+  // 🔧 FIX: 合并工具调用（去重，按 id）
+  const toolIds = new Set(existingTools.map((t: any) => t.id).filter(Boolean));
+  const mergedTools = [
+    ...existingTools,
+    ...incomingTools.filter((t: any) => !t.id || !toolIds.has(t.id))
+  ];
+
+  // 按顺序组合：thinking -> text -> tools
+  const mergedContent = [...mergedThinking, ...mergedText, ...mergedTools];
+
+  // 🔍 DEBUG: 记录合并过程
+  if (import.meta.env.DEV) {
+    console.log('[useMessageTranslation] 🔀 Merging messages:', {
+      existingId: (existing as any)?.message?.id || existing.uuid,
+      existingHasText: existingHasRealText,
+      incomingHasText: incomingHasRealText,
+      existingToolCount: existingTools.length,
+      incomingToolCount: incomingTools.length,
+      mergedTextCount: mergedText.length,
+      mergedToolCount: mergedTools.length
+    });
+  }
+
+  return {
+    ...incoming,
+    message: {
+      ...incoming.message,
+      content: mergedContent
+    }
+  };
+}
 
 /**
  * useMessageTranslation Hook
@@ -40,6 +144,8 @@ interface UseMessageTranslationReturn {
     message: ClaudeStreamMessage,
     result: TranslationResult,
   ) => ClaudeStreamMessage;
+  /** 🔧 FIX: 初始化已处理的消息 ID（用于历史消息去重） */
+  initializeProcessedIds: (messages: ClaudeStreamMessage[]) => void;
 }
 
 export function useMessageTranslation(
@@ -50,6 +156,23 @@ export function useMessageTranslation(
   // Translation states
   const [translationEnabled, setTranslationEnabled] = useState(false);
   const [translationStates, setTranslationStates] = useState<TranslationState>({});
+
+  // 🔧 FIX: 跟踪已处理的消息 ID，防止重复添加
+  // 使用全局 WeakMap 存储，避免组件重新挂载时丢失
+  const processedMessageIds = useRef(new Set<string>());
+
+  // 🔧 FIX: 提供方法让外部初始化已处理的消息 ID（用于历史消息）
+  const initializeProcessedIds = useCallback((messages: ClaudeStreamMessage[]) => {
+    for (const msg of messages) {
+      const id = (msg as any)?.message?.id ||
+        (msg as any).id ||
+        (msg as any).uuid;
+      if (id) {
+        processedMessageIds.current.add(id);
+      }
+    }
+    console.log(`[useMessageTranslation] Initialized ${processedMessageIds.current.size} processed message IDs`);
+  }, []);
 
   /**
    * 处理翻译完成回调
@@ -421,7 +544,37 @@ export function useMessageTranslation(
             }
           }
 
-          onMessagesUpdate((prev) => [...prev, processedMessage]);
+          // 🔧 FIX: 获取消息 ID 用于去重
+          const messageId = (processedMessage as any)?.message?.id ||
+            (processedMessage as any).id ||
+            (processedMessage as any).uuid;
+
+          if (messageId) {
+            // 有 ID 的消息：检查是否已处理
+            if (processedMessageIds.current.has(messageId)) {
+              // 🔧 FIX v2.7.8: 智能合并消息内容，而非简单替换
+              // 这样可以保留 Claude 说的话，同时添加工具调用
+              onMessagesUpdate((prev) => {
+                return prev.map((msg) => {
+                  const existingId = (msg as any)?.message?.id ||
+                    (msg as any).id ||
+                    (msg as any).uuid;
+                  if (existingId === messageId) {
+                    // 智能合并两条消息的内容
+                    return mergeMessageContent(msg, processedMessage);
+                  }
+                  return msg;
+                });
+              });
+            } else {
+              // 新消息，添加到 Set 并追加
+              processedMessageIds.current.add(messageId);
+              onMessagesUpdate((prev) => [...prev, processedMessage]);
+            }
+          } else {
+            // 没有 ID 的消息直接追加（可能是临时消息）
+            onMessagesUpdate((prev) => [...prev, processedMessage]);
+          }
         } catch (usageError) {
           console.warn(
             "[useMessageTranslation] Error normalizing usage data, adding message without usage:",
@@ -433,7 +586,18 @@ export function useMessageTranslation(
           if (safeMessage.message) {
             delete safeMessage.message.usage;
           }
-          onMessagesUpdate((prev) => [...prev, safeMessage]);
+
+          // 🔧 FIX: 同样使用去重逻辑
+          const messageId = (safeMessage as any)?.message?.id ||
+            (safeMessage as any).id ||
+            (safeMessage as any).uuid;
+
+          if (messageId && !processedMessageIds.current.has(messageId)) {
+            processedMessageIds.current.add(messageId);
+            onMessagesUpdate((prev) => [...prev, safeMessage]);
+          } else if (!messageId) {
+            onMessagesUpdate((prev) => [...prev, safeMessage]);
+          }
         }
       } catch (err) {
         console.error("[useMessageTranslation] Failed to parse message:", err, payload);
@@ -504,5 +668,6 @@ export function useMessageTranslation(
     processMessageWithTranslation,
     initializeProgressiveTranslation,
     applyTranslationToMessage,
+    initializeProcessedIds, // 🔧 FIX: 暴露方法让外部初始化已处理的消息 ID
   };
 }

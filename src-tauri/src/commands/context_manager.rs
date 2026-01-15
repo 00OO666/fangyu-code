@@ -1,4 +1,4 @@
-use log::{error, info};
+use log::info;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 /// Auto-compact context management system for Claude Code SDK integration
@@ -124,7 +124,9 @@ pub struct AutoCompactManager {
 impl Default for AutoCompactConfig {
     fn default() -> Self {
         Self {
-            enabled: true,
+            // ⚠️ Disabled by default: Claude CLI does not support /compact command
+            // This feature is reserved for future implementation
+            enabled: false,
             max_context_tokens: 120000, // Claude 4 context window
             compaction_threshold: 0.85,
             min_compaction_interval: 300, // 5 minutes
@@ -225,6 +227,15 @@ impl AutoCompactManager {
         app: tauri::AppHandle,
         session_id: &str,
     ) -> Result<(), String> {
+        // 🔒 Check if auto-compact is enabled before executing
+        {
+            let config = self.config.lock().map_err(|e| e.to_string())?;
+            if !config.enabled {
+                // Silently skip - this is expected behavior when disabled
+                return Ok(());
+            }
+        }
+
         info!("Executing auto-compaction for session {}", session_id);
 
         let (project_path, custom_instructions, tokens_before) = {
@@ -306,7 +317,8 @@ impl AutoCompactManager {
                 if let Some(session) = sessions.get_mut(session_id) {
                     session.status = SessionStatus::CompactionFailed(e.clone());
                 }
-                error!("Auto-compaction failed for session {}: {}", session_id, e);
+                // 🔧 Downgrade to warn - this is expected when feature is not implemented
+                log::warn!("Auto-compaction not available for session {}: {}", session_id, e);
 
                 // Emit compaction failed event
                 let _ = app.emit("auto-compact-event", CompactionEvent {
@@ -360,36 +372,38 @@ impl AutoCompactManager {
     }
 
     /// Execute Claude CLI compaction command
+    /// 🔧 修复：使用 -p "/compact" 参数调用 Claude CLI
+    /// Claude CLI 的斜杠命令必须通过 -p 参数传递才能被正确解析
     async fn execute_claude_compaction(
         &self,
         app: &tauri::AppHandle,
         project_path: &str,
         instructions: &str,
     ) -> Result<(), String> {
-        // ⚠️ IMPORTANT: Claude CLI does not support /compact command
-        // This feature is not yet implemented in the official Claude CLI
-        // Returning an error to inform the user
-        return Err(
-            "压缩功能暂未实现：Claude CLI 不支持 /compact 命令。\n\n\
-            建议使用「会话续接」功能代替，它可以自动优化上下文。\n\n\
-            如需手动管理上下文，请使用 Claude CLI 的 --continue 参数。"
-                .to_string(),
-        );
-
-        // Original implementation (disabled):
-        /*
+        use tokio::io::AsyncBufReadExt;
+        
         // Find Claude CLI binary
         let claude_path = crate::claude_binary::find_claude_binary(app)?;
+        info!("Found Claude CLI at: {}", claude_path);
 
-        // Build compaction command
+        // Build compaction command with -p flag for slash command
+        // 🔧 关键修复：斜杠命令必须通过 -p 参数传递
+        let compact_cmd = if instructions.is_empty() {
+            "/compact".to_string()
+        } else {
+            format!("/compact {}", instructions)
+        };
+        
+        info!("Executing compact command: {}", compact_cmd);
+
         let mut cmd = tokio::process::Command::new(&claude_path);
-        cmd.args(&["/compact"])
+        cmd.args(&["-p", &compact_cmd, "--output-format", "stream-json"])
             .current_dir(project_path)
-            .stdin(std::process::Stdio::piped())
+            .stdin(std::process::Stdio::null())
             .stdout(std::process::Stdio::piped())
             .stderr(std::process::Stdio::piped());
 
-        // 🔥 Fix: Apply platform-specific no-window configuration to hide console
+        // 🔥 Apply platform-specific no-window configuration to hide console
         crate::commands::claude::apply_no_window_async(&mut cmd);
 
         // Execute compaction
@@ -397,33 +411,72 @@ impl AutoCompactManager {
             .spawn()
             .map_err(|e| format!("Failed to spawn compaction process: {}", e))?;
 
-        // Send instructions to stdin
-        if let Some(stdin) = child.stdin.take() {
-            use tokio::io::AsyncWriteExt;
-            let mut stdin = stdin;
-            stdin
-                .write_all(instructions.as_bytes())
-                .await
-                .map_err(|e| format!("Failed to write compaction instructions: {}", e))?;
-            stdin
-                .shutdown()
-                .await
-                .map_err(|e| format!("Failed to close stdin: {}", e))?;
-        }
+        let pid = child.id().unwrap_or(0);
+        info!("Spawned compact process with PID: {}", pid);
 
-        // Wait for completion
-        let output = child
-            .wait_with_output()
+        // Read stdout for progress and result
+        let stdout = child.stdout.take().ok_or("Failed to get stdout")?;
+        let stderr = child.stderr.take().ok_or("Failed to get stderr")?;
+        
+        let stdout_reader = tokio::io::BufReader::new(stdout);
+        let stderr_reader = tokio::io::BufReader::new(stderr);
+        
+        // Collect output
+        let mut stdout_lines = stdout_reader.lines();
+        let mut stderr_output = String::new();
+        
+        // Read stderr in background
+        let stderr_task = tokio::spawn(async move {
+            let mut lines = stderr_reader.lines();
+            let mut output = String::new();
+            while let Ok(Some(line)) = lines.next_line().await {
+                output.push_str(&line);
+                output.push('\n');
+            }
+            output
+        });
+        
+        // Process stdout lines
+        while let Ok(Some(line)) = stdout_lines.next_line().await {
+            log::trace!("Compact stdout: {}", line);
+            
+            // Parse JSON output to check for completion or errors
+            if let Ok(msg) = serde_json::from_str::<serde_json::Value>(&line) {
+                // Check for error messages
+                if msg["type"] == "error" {
+                    let error_msg = msg["error"]["message"]
+                        .as_str()
+                        .unwrap_or("Unknown error");
+                    return Err(format!("Compact error: {}", error_msg));
+                }
+                
+                // Check for result message indicating completion
+                if msg["type"] == "result" {
+                    info!("Compact completed successfully");
+                }
+            }
+        }
+        
+        // Wait for stderr task
+        stderr_output = stderr_task.await.unwrap_or_default();
+
+        // Wait for process completion
+        let status = child
+            .wait()
             .await
             .map_err(|e| format!("Failed to wait for compaction: {}", e))?;
 
-        if !output.status.success() {
-            let error = String::from_utf8_lossy(&output.stderr);
-            return Err(format!("Compaction failed: {}", error));
+        if !status.success() {
+            let error = if stderr_output.is_empty() {
+                format!("Compaction failed with exit code: {:?}", status.code())
+            } else {
+                format!("Compaction failed: {}", stderr_output.trim())
+            };
+            return Err(error);
         }
 
+        info!("Compaction process completed successfully");
         Ok(())
-        */
     }
 
     /// Start background monitoring
@@ -448,6 +501,18 @@ impl AutoCompactManager {
                 let flag = is_monitoring_flag.lock().unwrap();
                 *flag
             } {
+                // 🔒 Check if auto-compact is enabled before processing
+                let is_enabled = {
+                    let config = config.lock().unwrap();
+                    config.enabled
+                };
+
+                if !is_enabled {
+                    // Sleep and continue - don't process sessions when disabled
+                    sleep(Duration::from_secs(30)).await;
+                    continue;
+                }
+
                 // Check all sessions for compaction needs
                 let session_ids: Vec<String> = {
                     let sessions = sessions.lock().unwrap();
@@ -485,8 +550,9 @@ impl AutoCompactManager {
                                 .execute_compaction(app_clone, &session_id_clone)
                                 .await
                             {
-                                error!(
-                                    "Background compaction failed for session {}: {}",
+                                // 🔧 Downgrade to warn - this is expected when feature is not implemented
+                                log::warn!(
+                                    "Background compaction skipped for session {}: {}",
                                     session_id_clone, e
                                 );
                             }

@@ -8,7 +8,7 @@
  * - 灰色：未连接
  */
 
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { motion } from 'framer-motion';
 import { Wifi, WifiOff, RefreshCw, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -19,6 +19,13 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import type { WebSocketState } from '@/types/websocket';
+
+// 🔧 FIX: 创建支持 forwardRef 的 motion.div 包装组件
+// 解决 Tooltip 包裹 motion.div 时的 ref 警告
+const MotionDivWithRef = forwardRef<HTMLDivElement, React.ComponentProps<typeof motion.div>>(
+  (props, ref) => <motion.div ref={ref} {...props} />
+);
+MotionDivWithRef.displayName = 'MotionDivWithRef';
 
 export interface SyncStatusIndicatorProps {
   /** 连接状态 */
@@ -104,13 +111,14 @@ export const SyncStatusIndicator: React.FC<SyncStatusIndicatorProps> = ({
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <motion.div
+          {/* 🔧 FIX: 使用 MotionDivWithRef 替代 motion.div，正确转发 ref */}
+          <MotionDivWithRef
             className={cn(
               'flex items-center gap-1.5 px-2 py-1 rounded-full cursor-default',
               config.bgColor,
               (state === 'error' || state === 'disconnected') &&
-                onReconnect &&
-                'cursor-pointer hover:opacity-80',
+              onReconnect &&
+              'cursor-pointer hover:opacity-80',
               className
             )}
             onClick={handleClick}
@@ -125,17 +133,17 @@ export const SyncStatusIndicator: React.FC<SyncStatusIndicatorProps> = ({
               animate={
                 config.pulse
                   ? {
-                      rotate: [0, 360],
-                    }
+                    rotate: [0, 360],
+                  }
                   : undefined
               }
               transition={
                 config.pulse
                   ? {
-                      duration: 1,
-                      repeat: Infinity,
-                      ease: 'linear',
-                    }
+                    duration: 1,
+                    repeat: Infinity,
+                    ease: 'linear',
+                  }
                   : undefined
               }
             >
@@ -151,25 +159,25 @@ export const SyncStatusIndicator: React.FC<SyncStatusIndicatorProps> = ({
                 state === 'connected'
                   ? 'bg-green-500'
                   : state === 'connecting' || state === 'reconnecting'
-                  ? 'bg-yellow-500'
-                  : state === 'error'
-                  ? 'bg-red-500'
-                  : 'bg-muted-foreground'
+                    ? 'bg-yellow-500'
+                    : state === 'error'
+                      ? 'bg-red-500'
+                      : 'bg-muted-foreground'
               )}
               animate={
                 config.pulse
                   ? {
-                      opacity: [1, 0.4, 1],
-                    }
+                    opacity: [1, 0.4, 1],
+                  }
                   : undefined
               }
               transition={
                 config.pulse
                   ? {
-                      duration: 1,
-                      repeat: Infinity,
-                      ease: 'easeInOut',
-                    }
+                    duration: 1,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                  }
                   : undefined
               }
             />
@@ -178,7 +186,7 @@ export const SyncStatusIndicator: React.FC<SyncStatusIndicatorProps> = ({
             <span className={cn('text-xs font-medium', config.color)}>
               {config.label}
             </span>
-          </motion.div>
+          </MotionDivWithRef>
         </TooltipTrigger>
         <TooltipContent side="bottom" className="max-w-xs">
           <div className="space-y-1">

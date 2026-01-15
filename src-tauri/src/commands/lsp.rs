@@ -206,7 +206,7 @@ pub async fn lsp_rename(
     file: String,
     position: Position,
     new_name: String,
-    state: State<'_, LSPManager>,
+    _state: State<'_, LSPManager>,
 ) -> Result<serde_json::Value, String> {
     // 简化实现：返回 mock 数据
     Ok(serde_json::json!({

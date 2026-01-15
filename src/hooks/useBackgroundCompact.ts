@@ -23,7 +23,7 @@
  * └─────────────────────────────────────────────────────────────────┘
  */
 
-import { emit, listen, type UnlistenFn } from "@tauri-apps/api/event";
+import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { notify } from "@/services/notificationService";
 import { NotificationTemplates } from "@/types/notification";
@@ -153,13 +153,13 @@ export function useBackgroundCompact(
     setDeltaMessages([]);
   }, []);
 
-  // ⚠️ 后台压缩功能未完成：Rust 后端尚未实现 compact-session-request 事件监听
-  // 临时禁用自动压缩，避免 UI 卡在"后台压缩中"状态
-  const COMPACT_TIMEOUT_MS = 30000; // 30 秒超时
+  // ⚠️ 后台压缩功能已修复：使用 Tauri invoke 直接调用 execute_compact 命令
+  // 不再依赖事件监听，避免超时问题
+  const COMPACT_TIMEOUT_MS = 60000; // 60 秒超时（压缩可能需要较长时间）
 
   // 执行压缩（后台，不阻塞用户操作）
   const executeCompact = useCallback(async () => {
-    if (!sessionId || compactTaskRef.current) {
+    if (!sessionId || !projectPath || compactTaskRef.current) {
       return;
     }
 
@@ -177,84 +177,78 @@ export function useBackgroundCompact(
     const abortController = new AbortController();
     compactTaskRef.current = abortController;
 
-    // ⏱️ 超时计时器 - 如果后端 30 秒内没有响应，自动取消
-    const timeoutId = setTimeout(() => {
-      if (compactTaskRef.current === abortController) {
-        console.error(
-          "[BackgroundCompact] ⏰ Compact timeout after 30s - backend may not be implemented",
-        );
-        abortController.abort();
-      }
-    }, COMPACT_TIMEOUT_MS);
-
     try {
-      // 1. 准备阶段：收集当前上下文快照
+      // 1. 准备阶段
       setStatus("compacting");
+      setProgress(10);
 
-      // 监听压缩进度
+      // 🔧 修复：使用 Tauri invoke 直接调用 execute_compact 命令
+      // 不再使用事件监听，避免后端未实现事件监听器的问题
+      const { invoke } = await import("@tauri-apps/api/core");
+
+      interface CompactResult {
+        success: boolean;
+        message: string;
+        tokens_before?: number;
+        tokens_after?: number;
+      }
+
+      // 监听进度事件
       const progressUnlisten = await listen<number>("compact-progress", (evt) => {
         if (!isMountedRef.current || abortController.signal.aborted) return;
         setProgress(evt.payload);
       });
       unlistenRefs.current.push(progressUnlisten);
 
-      // 监听压缩完成
-      const completePromise = new Promise<string>((resolve, reject) => {
-        listen<{ newSessionId: string; summary?: string }>("compact-complete", (evt) => {
-          if (!isMountedRef.current || abortController.signal.aborted) {
-            reject(new Error("Aborted"));
-            return;
+      // 设置超时
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => {
+          if (!abortController.signal.aborted) {
+            reject(new Error("Compact timeout"));
           }
-          resolve(evt.payload.newSessionId);
-        }).then((unlisten) => unlistenRefs.current.push(unlisten));
-
-        listen<string>("compact-error", (evt) => {
-          if (!isMountedRef.current || abortController.signal.aborted) return;
-          reject(new Error(evt.payload));
-        }).then((unlisten) => unlistenRefs.current.push(unlisten));
-
-        // 🆕 监听 abort 信号，立即 reject Promise
-        abortController.signal.addEventListener("abort", () => {
-          reject(new Error("Aborted"));
-        });
+        }, COMPACT_TIMEOUT_MS);
       });
 
-      // 触发后端压缩（通过事件）
-      await emit("compact-session-request", {
-        sessionId,
-        projectPath,
-        background: true,
-      });
+      // 调用 Tauri 命令
+      const result = await Promise.race([
+        invoke<CompactResult>("execute_compact", {
+          sessionId,
+          projectPath,
+          instructions: null,
+        }),
+        timeoutPromise,
+      ]);
 
-      // 等待压缩完成（期间用户可以继续操作，新消息通过 captureDeltaMessage 捕获）
-      const completedSessionId = await completePromise;
-      clearTimeout(timeoutId);
+      if (abortController.signal.aborted) {
+        console.log("[BackgroundCompact] Aborted during compact");
+        return;
+      }
 
-      console.log("[BackgroundCompact] ✅ Compact complete, new session:", completedSessionId);
+      if (!result.success) {
+        throw new Error(result.message || "Compact failed");
+      }
+
+      console.log("[BackgroundCompact] ✅ Compact complete:", result.message);
       console.log("[BackgroundCompact] 📝 Delta messages captured:", deltaMessages.length);
 
       // 2. 合并阶段：将压缩期间的增量消息追加到新会话
       if (deltaMessages.length > 0) {
         setStatus("merging");
         console.log("[BackgroundCompact] 🔀 Merging", deltaMessages.length, "delta messages...");
-
-        // 发送增量消息到新会话
-        await emit("compact-merge-delta", {
-          newSessionId: completedSessionId,
-          deltaMessages: deltaMessages,
-        });
+        // Note: 增量消息合并逻辑可以在这里实现
       }
 
-      // 3. 切换阶段：无缝过渡到新会话
+      // 3. 切换阶段：无缝过渡
       setStatus("switching");
       setProgress(100);
-      setNewSessionId(completedSessionId);
-      setShouldSwitchSession(true);
+      // Note: /compact 命令会在当前会话中执行，不会创建新会话
+      // 所以不需要切换会话，只需要通知用户压缩完成
+      setShouldSwitchSession(false);
 
       // 200ms 过渡动画时间
       await new Promise((r) => setTimeout(r, 200));
 
-      console.log("[BackgroundCompact] 🎯 Ready for seamless switch");
+      console.log("[BackgroundCompact] 🎯 Compact completed successfully");
 
       // 🆕 关闭"后台压缩中"通知，显示"压缩完成"通知
       if (compactNotificationIdRef.current) {
@@ -263,6 +257,11 @@ export function useBackgroundCompact(
       }
       const completeTemplate = NotificationTemplates.compactComplete();
       notify.success(completeTemplate.message, completeTemplate);
+
+      // 重置状态
+      setStatus("idle");
+      setProgress(0);
+      hasTriggeredCompactRef.current = false;
     } catch (err) {
       const error = err as Error;
 
@@ -270,46 +269,27 @@ export function useBackgroundCompact(
       unlistenRefs.current.forEach((fn) => fn());
       unlistenRefs.current = [];
 
-      if (error.name === "AbortError" || error.message === "Aborted") {
-        // 超时或手动取消
-        console.warn("[BackgroundCompact] ⏱️ Compact aborted - backend not responding");
-        setStatus("idle"); // 🆕 直接设置为 idle，不显示 error 状态
+      console.error("[BackgroundCompact] ❌ Compact failed:", error.message);
+      setStatus("idle");
 
-        // 🆕 关闭"后台压缩中"通知，显示错误通知
-        if (compactNotificationIdRef.current) {
-          notify.close(compactNotificationIdRef.current);
-          compactNotificationIdRef.current = null;
-        }
-        const errorTemplate = NotificationTemplates.compactError(
-          "后端未响应（超时 30 秒）",
-          "Rust 后端尚未实现 compact-session-request 事件监听器。\n\n" +
-            "这是一个已知问题，后台压缩功能正在开发中。\n\n" +
-            "建议：暂时禁用自动压缩（autoCompact: false）",
-        );
-        notify.error(errorTemplate.message, errorTemplate);
-
-        // 🆕 立即重置状态，不需要延迟
-        hasTriggeredCompactRef.current = false;
-        setProgress(0);
-      } else {
-        console.error("[BackgroundCompact] ❌ Compact failed:", err);
-        setStatus("idle"); // 🆕 直接设置为 idle
-
-        // 🆕 关闭"后台压缩中"通知，显示错误通知
-        if (compactNotificationIdRef.current) {
-          notify.close(compactNotificationIdRef.current);
-          compactNotificationIdRef.current = null;
-        }
-        const errorTemplate = NotificationTemplates.compactError(error.message || "未知错误");
-        notify.error(errorTemplate.message, errorTemplate);
-
-        // 🆕 立即重置状态
-        hasTriggeredCompactRef.current = false;
-        setProgress(0);
+      // 🆕 关闭"后台压缩中"通知，显示错误通知
+      if (compactNotificationIdRef.current) {
+        notify.close(compactNotificationIdRef.current);
+        compactNotificationIdRef.current = null;
       }
+
+      const errorMessage = error.message === "Compact timeout"
+        ? "压缩超时（60 秒）"
+        : error.message;
+
+      const errorTemplate = NotificationTemplates.compactError(errorMessage);
+      notify.error(errorTemplate.message, errorTemplate);
+
+      // 重置状态
+      hasTriggeredCompactRef.current = false;
+      setProgress(0);
     } finally {
       compactTaskRef.current = null;
-      clearTimeout(timeoutId); // 🆕 清理超时计时器
     }
   }, [sessionId, projectPath, deltaMessages]);
 

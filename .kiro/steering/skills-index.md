@@ -26,6 +26,8 @@ inclusion: always
 | Project Forker | `skills-project-forker.md` | fork项目、定制开源 | GitHub 项目 Fork 定制 |
 | Thesis Proposal | `skills-thesis-proposal.md` | 开题报告、论文选题 | 学术开题报告撰写 |
 | PHP Standards | `skills-php-standards.md` | PHP规范、代码风格 | PHP 编码规范 |
+| **React Best Practices** | `skills-react-best-practices.md` | React性能、Next.js优化 | ⭐ Vercel 官方 React/Next.js 性能优化 |
+| **Web Interface Guidelines** | `skills-web-interface-guidelines.md` | UI规范、可访问性、a11y | ⭐ Vercel 官方 Web 界面设计规范 |
 
 ## 🔧 使用方式
 
@@ -42,6 +44,8 @@ inclusion: always
 - `#skills-project-forker` - 项目 Fork
 - `#skills-thesis-proposal` - 开题报告
 - `#skills-php-standards` - PHP 规范
+- `#skills-react-best-practices` - ⭐ React/Next.js 性能优化 (Vercel)
+- `#skills-web-interface-guidelines` - ⭐ Web 界面设计规范 (Vercel)
 
 ### 方式 2: 触发词自动识别
 说出触发词，我会自动参考对应的 Skill 指南：
@@ -55,6 +59,8 @@ inclusion: always
 - "记住这个规则" → Learner
 - "fork 这个项目" → Project Forker
 - "写开题报告" → Thesis Proposal
+- "React性能优化" / "Next.js优化" → React Best Practices (Vercel)
+- "UI规范" / "可访问性" / "a11y" → Web Interface Guidelines (Vercel)
 
 ## 📁 原始 Skills 位置
 Claude Code Skills 原始文件位于：

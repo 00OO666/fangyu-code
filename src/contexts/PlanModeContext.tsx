@@ -11,7 +11,7 @@
  * - 显示已审批/已拒绝状态
  */
 
-import {
+import React, {
   createContext,
   useContext,
   useState,
@@ -188,7 +188,7 @@ export function PlanModeProvider({
       return;
     }
 
-    
+
     setPendingApproval({
       plan,
       planId,
@@ -256,7 +256,9 @@ export function PlanModeProvider({
     setShowApprovalDialog(false);
   }, []);
 
-  const value: PlanModeContextValue = {
+  // ✅ 性能优化 (v2.7.6): 使用 useMemo 缓存 context value
+  // 只有当依赖的值真正变化时才重新创建对象，减少不必要的重渲染
+  const value = React.useMemo<PlanModeContextValue>(() => ({
     isPlanMode,
     setIsPlanMode,
     togglePlanMode,
@@ -272,7 +274,23 @@ export function PlanModeProvider({
     approvedPlanIds,
     rejectedPlanIds,
     setSendPromptCallback,
-  };
+  }), [
+    isPlanMode,
+    setIsPlanMode,
+    togglePlanMode,
+    pendingApproval,
+    showApprovalDialog,
+    triggerPlanApproval,
+    approvePlan,
+    rejectPlan,
+    closeApprovalDialog,
+    getPlanStatus,
+    isPlanApproved,
+    isPlanRejected,
+    approvedPlanIds,
+    rejectedPlanIds,
+    setSendPromptCallback,
+  ]);
 
   return (
     <PlanModeContext.Provider value={value}>

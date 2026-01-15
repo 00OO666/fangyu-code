@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode, useRef } from 'react';
 import { api, Project, Session } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
 
@@ -30,7 +30,7 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
       setLoading(true);
       setError(null);
       const list = await api.listProjects();
-      
+
       // 1. 获取 Codex 会话列表（全局获取，开销小）
       let codexSessions: any[] = [];
       try {
@@ -42,7 +42,7 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
       // 2. 计算每个项目的"最后活跃时间"
       // 默认使用创建时间，如果发现更有更新的 Codex 会话，则更新
       const projectLastActive = new Map<string, number>();
-      
+
       // 辅助函数：标准化路径（去除末尾斜杠，转小写，统一斜杠）
       const normalize = (p: string) => p ? p.replace(/\\/g, '/').replace(/\/$/, '').toLowerCase() : '';
 
@@ -56,16 +56,16 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
       codexSessions.forEach(session => {
         if (!session.projectPath) return;
         const normPath = normalize(session.projectPath);
-        
+
         // 获取会话的最新时间（优先使用最后消息时间，否则使用创建时间）
         // 注意：Codex 会话的时间戳可能是 ISO 字符串或 Unix 时间戳，需要统一
         let sessionTime = 0;
-        
+
         if (session.lastMessageTimestamp) {
           sessionTime = new Date(session.lastMessageTimestamp).getTime() / 1000;
         } else if (session.createdAt) {
-          sessionTime = typeof session.createdAt === 'string' 
-            ? new Date(session.createdAt).getTime() / 1000 
+          sessionTime = typeof session.createdAt === 'string'
+            ? new Date(session.createdAt).getTime() / 1000
             : session.createdAt;
         }
 
@@ -122,7 +122,7 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
 
       // Merge all sessions
       const allSessions = [...claudeCodexSessions, ...geminiSessions];
-      
+
 
       setSessions(allSessions);
       setSelectedProject(project);
@@ -194,24 +194,44 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
     setSessions([]);
   }, []);
 
-  // Load projects on mount
+  // Load projects on mount - 只在组件挂载时执行一次
+  // 注意：不依赖 loadProjects，避免因 t 函数变化导致无限循环
+  const loadProjectsRef = useRef(loadProjects);
+  loadProjectsRef.current = loadProjects;
+
   useEffect(() => {
-    loadProjects();
-  }, [loadProjects]);
+    loadProjectsRef.current();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // 空依赖数组，只在挂载时执行
+
+  // ✅ 性能优化 (v2.7.6): 使用 useMemo 缓存 context value
+  // 只有当依赖的值真正变化时才重新创建对象，减少不必要的重渲染
+  const contextValue = React.useMemo(() => ({
+    projects,
+    selectedProject,
+    sessions,
+    loading,
+    error,
+    loadProjects,
+    selectProject,
+    refreshSessions,
+    deleteProject,
+    clearSelection
+  }), [
+    projects,
+    selectedProject,
+    sessions,
+    loading,
+    error,
+    loadProjects,
+    selectProject,
+    refreshSessions,
+    deleteProject,
+    clearSelection
+  ]);
 
   return (
-    <ProjectContext.Provider value={{
-      projects,
-      selectedProject,
-      sessions,
-      loading,
-      error,
-      loadProjects,
-      selectProject,
-      refreshSessions,
-      deleteProject,
-      clearSelection
-    }}>
+    <ProjectContext.Provider value={contextValue}>
       {children}
     </ProjectContext.Provider>
   );

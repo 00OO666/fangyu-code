@@ -99,9 +99,15 @@ export function useSkillTrigger(options: UseSkillTriggerOptions = {}) {
     }
   }, [projectPath, enabled]);
 
+  // 只在挂载时和 projectPath/enabled 变化时加载技能
+  // 使用 ref 存储最新的 loadSkills，避免无限循环
+  const loadSkillsRef = useRef(loadSkills);
+  loadSkillsRef.current = loadSkills;
+
   useEffect(() => {
-    loadSkills();
-  }, [loadSkills]);
+    loadSkillsRef.current();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectPath, enabled]); // 直接依赖原始值，而不是 loadSkills
 
   // 从内容中提取触发词
   const extractTriggers = (name: string, content: string): string[] => {
