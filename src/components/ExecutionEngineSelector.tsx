@@ -1,14 +1,23 @@
 /**
  * ExecutionEngineSelector Component - v2.0 重构版
  *
+ * @deprecated 此组件已废弃，请使用 UnifiedEngineSelector 替代
+ * @see src/components/UnifiedEngineSelector.tsx
+ * 
  * 支持 Claude Code、Codex、Gemini、SiliconFlow 四种执行引擎
  * 提供统一的配置入口和状态显示
+ * 
+ * 迁移指南：
+ * - 使用 UnifiedEngineSelector 的 variant="popover" 获得相同功能
+ * - 新组件支持更统一的配置管理和更好的类型安全
+ * 
+ * 此组件将在 v3.0 版本中移除
  */
 
 import React, { useState } from 'react';
-import { 
-  Settings, Zap, Check, Monitor, Terminal, Sparkles, Cpu, 
-  ChevronRight, ExternalLink, AlertCircle 
+import {
+  Settings, Check, Monitor, Terminal,
+  ChevronRight, ExternalLink, AlertCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -27,6 +36,12 @@ import { ask, message } from '@tauri-apps/plugin-dialog';
 import { useEngineStatus } from '@/hooks/useEngineStatus';
 import { loadSiliconFlowConfig } from '@/config/siliconflowConfig';
 import { SiliconFlowModelSelector } from '@/components/FloatingPromptInput/SiliconFlowModelSelector';
+import {
+  ClaudeEngineIcon,
+  CodexEngineIcon,
+  GeminiEngineIcon,
+  SiliconFlowEngineIcon,
+} from '@/components/icons/EngineIcons';
 import type { CodexExecutionMode } from '@/types/codex';
 
 // ====================================================================
@@ -99,15 +114,15 @@ const ENGINE_CONFIG = {
   claude: {
     id: 'claude' as const,
     name: 'Claude Code',
-    icon: Zap,
+    Icon: ClaudeEngineIcon,
     color: 'text-orange-500',
     bgColor: 'bg-orange-500/10',
     borderColor: 'border-orange-500/30',
   },
   codex: {
     id: 'codex' as const,
-    name: 'Codex',
-    icon: Terminal,
+    name: 'OpenAI',
+    Icon: CodexEngineIcon,
     color: 'text-green-500',
     bgColor: 'bg-green-500/10',
     borderColor: 'border-green-500/30',
@@ -115,7 +130,7 @@ const ENGINE_CONFIG = {
   gemini: {
     id: 'gemini' as const,
     name: 'Gemini',
-    icon: Sparkles,
+    Icon: GeminiEngineIcon,
     color: 'text-blue-500',
     bgColor: 'bg-blue-500/10',
     borderColor: 'border-blue-500/30',
@@ -123,7 +138,7 @@ const ENGINE_CONFIG = {
   siliconflow: {
     id: 'siliconflow' as const,
     name: 'SiliconFlow',
-    icon: Cpu,
+    Icon: SiliconFlowEngineIcon,
     color: 'text-purple-500',
     bgColor: 'bg-purple-500/10',
     borderColor: 'border-purple-500/30',
@@ -255,7 +270,7 @@ export const ExecutionEngineSelector: React.FC<ExecutionEngineSelectorProps> = (
   ) => {
     const isApiEngine = engine === 'siliconflow';
     const statusOk = isApiEngine ? configured : installed;
-    const statusText = isApiEngine 
+    const statusText = isApiEngine
       ? (configured ? 'API 已配置' : 'API 未配置')
       : (installed ? '已安装' : '未安装');
 
@@ -320,7 +335,7 @@ export const ExecutionEngineSelector: React.FC<ExecutionEngineSelectorProps> = (
   // ====================================================================
 
   const currentEngine = getCurrentEngineConfig();
-  const EngineIcon = currentEngine.icon;
+  const EngineIcon = currentEngine.Icon;
 
   return (
     <>
@@ -349,9 +364,9 @@ export const ExecutionEngineSelector: React.FC<ExecutionEngineSelectorProps> = (
               <Label className="text-sm font-medium">执行引擎</Label>
               <div className="grid grid-cols-2 gap-2">
                 {Object.values(ENGINE_CONFIG).map((engine) => {
-                  const Icon = engine.icon;
+                  const Icon = engine.Icon;
                   const isSelected = value.engine === engine.id;
-                  const isDisabled = 
+                  const isDisabled =
                     (engine.id === 'codex' && !codexAvailable) ||
                     (engine.id === 'gemini' && !geminiAvailable);
 
@@ -381,7 +396,7 @@ export const ExecutionEngineSelector: React.FC<ExecutionEngineSelectorProps> = (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Label className="text-sm font-medium flex items-center gap-2">
-                  <currentEngine.icon className={`h-4 w-4 ${currentEngine.color}`} />
+                  <currentEngine.Icon className={`h-4 w-4 ${currentEngine.color}`} />
                   {currentEngine.name} 配置
                 </Label>
                 {value.engine === 'siliconflow' && (
@@ -415,7 +430,7 @@ export const ExecutionEngineSelector: React.FC<ExecutionEngineSelectorProps> = (
                   <div className={`rounded-md border p-2 ${currentEngine.bgColor} ${currentEngine.borderColor}`}>
                     {renderEngineStatus('codex', codexAvailable, codexVersion)}
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label className="text-xs font-medium">执行模式</Label>
                     <Select value={value.codexMode || 'read-only'} onValueChange={handleCodexModeChange}>

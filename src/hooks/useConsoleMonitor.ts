@@ -158,6 +158,11 @@ export function useConsoleMonitor(options: {
         .map((arg) => (typeof arg === "string" ? arg : JSON.stringify(arg)))
         .join(" ");
 
+      // 🔧 FIX: 过滤掉 ResizeObserver 循环警告（这是浏览器的已知问题，不影响功能）
+      if (message.includes("ResizeObserver loop")) {
+        return;
+      }
+
       const stack = new Error().stack;
 
       // 分析错误

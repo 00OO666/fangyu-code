@@ -347,6 +347,10 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
         //       导致下方的监听器设置条件总是满足，造成状态混乱和可能的重复监听器
         // 修复：恢复原版 Any-Code 的逻辑，只在设置监听器前清理
 
+        // 🚀 性能监控：记录消息发送开始时间
+        const perfStart = performance.now();
+        console.log("[usePromptExecution] ⏱️ Message send started");
+
         setIsLoading(true);
         setError(null);
         hasActiveSessionRef.current = true;
@@ -388,38 +392,51 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
             }
             : undefined;
 
-        // 对于已有会话，立即记录；对于新会话，在收到 session_id 后记录
-        if (effectiveSession && isUserInitiated) {
-          try {
-            if (executionEngine === "codex") {
-              // ✅ Codex 使用专用的记录 API（写入 ~/.codex/git-records/）
-              recordedPromptIndex = await api.recordCodexPromptSent(
-                effectiveSession.id,
-                projectPath,
-                prompt,
-              );
+        // 🚀 性能优化：Git 记录改为非阻塞后台执行
+        // recordPromptSent 包含耗时的 Git 操作（git rev-parse, 文件读写等）
+        // 将其改为后台执行，不阻塞消息发送流程
+        let recordPromptPromise: Promise<number> | null = null;
 
+        // 对于已有会话，后台记录；对于新会话，在收到 session_id 后记录
+        if (effectiveSession && isUserInitiated) {
+          if (executionEngine === "codex") {
+            // ✅ Codex 使用专用的记录 API（写入 ~/.codex/git-records/）
+            recordPromptPromise = api.recordCodexPromptSent(
+              effectiveSession.id,
+              projectPath,
+              prompt,
+            ).then((index) => {
+              recordedPromptIndex = index;
               if (codexPendingInfo) {
-                codexPendingInfo.promptIndex = recordedPromptIndex;
+                codexPendingInfo.promptIndex = index;
                 codexPendingInfo.sessionId = effectiveSession.id;
               }
-            } else if (executionEngine === "gemini") {
-              // 🔧 FIX: Gemini must wait for real CLI session ID from init event
-              // Don't record here even for existing sessions - Gemini CLI may generate new session ID
-              // geminiPendingInfo will be used in the init event handler
-            } else {
-              // Claude Code 使用原有的记录 API（写入 .claude-sessions/）
-              recordedPromptIndex = await api.recordPromptSent(
-                effectiveSession.id,
-                effectiveSession.project_id,
-                projectPath,
-                prompt,
-              );
-            }
-          } catch (err) {
-            console.error("[Prompt Revert] [ERROR] Failed to record prompt:", err);
+              return index;
+            }).catch((err) => {
+              console.error("[Prompt Revert] [ERROR] Failed to record Codex prompt:", err);
+              return -1;
+            });
+          } else if (executionEngine === "gemini") {
+            // 🔧 FIX: Gemini must wait for real CLI session ID from init event
+            // Don't record here even for existing sessions - Gemini CLI may generate new session ID
+            // geminiPendingInfo will be used in the init event handler
+          } else {
+            // Claude Code 使用原有的记录 API（写入 .claude-sessions/）
+            // 🚀 非阻塞执行：不等待 Git 操作完成
+            recordPromptPromise = api.recordPromptSent(
+              effectiveSession.id,
+              effectiveSession.project_id,
+              projectPath,
+              prompt,
+            ).then((index) => {
+              recordedPromptIndex = index;
+              console.log("[Prompt Revert] ✅ Background Git record completed, index:", index);
+              return index;
+            }).catch((err) => {
+              console.error("[Prompt Revert] [ERROR] Failed to record prompt:", err);
+              return -1;
+            });
           }
-        } else if (isUserInitiated) {
         }
 
         // Translation state
@@ -1344,16 +1361,42 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
             // 🔧 FIX: Track pending prompt recording Promise to avoid race condition
             let pendingClaudePromptRecordingPromise: Promise<void> | null = null;
 
-            // Helper function to generate message ID for deduplication
+            /**
+             * 🔧 FIX v2.7.8: 改进消息 ID 生成，确保唯一性
+             * 
+             * 使用更精确的组合 ID，包含：
+             * - 消息自带的 ID（优先）
+             * - uuid
+             * - timestamp + type + 内容哈希
+             */
             const getClaudeMessageId = (payload: string): string => {
               try {
                 const msg = JSON.parse(payload) as ClaudeStreamMessage;
-                // Use message ID if available, otherwise use payload hash
+
+                // 优先使用消息自带的 ID
                 if (msg.id) return `claude-${msg.id}`;
-                if (msg.timestamp) return `claude-${msg.timestamp}-${msg.type}`;
+                if (msg.uuid) return `claude-${msg.uuid}`;
+                if ((msg as any).message?.id) return `claude-${(msg as any).message.id}`;
+
+                // 🔧 FIX: 使用更精确的组合 ID（包含内容哈希）
+                if (msg.timestamp) {
+                  // 计算内容哈希，确保不同内容的消息有不同的 ID
+                  const content = msg.message?.content;
+                  let contentHash = 0;
+                  if (content) {
+                    const contentStr = JSON.stringify(content);
+                    for (let i = 0; i < Math.min(contentStr.length, 200); i++) {
+                      const char = contentStr.charCodeAt(i);
+                      contentHash = (contentHash << 5) - contentHash + char;
+                      contentHash = contentHash & contentHash;
+                    }
+                  }
+                  return `claude-${msg.timestamp}-${msg.type}-${Math.abs(contentHash).toString(16).slice(0, 8)}`;
+                }
               } catch {
                 // Fall through to hash-based ID
               }
+
               // Fallback: use payload hash
               let hash = 0;
               for (let i = 0; i < payload.length; i++) {
@@ -1361,7 +1404,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                 hash = (hash << 5) - hash + char;
                 hash = hash & hash;
               }
-              return `claude-${hash}`;
+              return `claude-${Math.abs(hash)}`;
             };
 
             // ====================================================================
@@ -1797,9 +1840,11 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
           // ========================================================================
 
           // Skip translation entirely for slash commands
+          // 🚀 性能优化：使用同步方法检查翻译状态，避免不必要的 await
           if (!isSlashCommandInput) {
             try {
-              const isEnabled = await translationMiddleware.isEnabled();
+              // 优先使用同步检查（如果翻译中间件已初始化）
+              const isEnabled = translationMiddleware.isEnabledSync() || await translationMiddleware.isEnabled();
               if (isEnabled) {
                 userInputTranslation = await translationMiddleware.translateUserInput(prompt);
                 processedPrompt = userInputTranslation.translatedText;
@@ -2158,6 +2203,10 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
           const currentPlanMode = isPlanModeRef.current;
           // 🔒 CRITICAL FIX: 传递 tabId 用于全局事件过滤
           const tabId = tabIdRef.current;
+
+          // 🚀 性能监控：记录 API 调用前的耗时
+          console.log(`[usePromptExecution] ⏱️ Pre-API processing took ${(performance.now() - perfStart).toFixed(0)}ms`);
+
           if (effectiveSession && !isFirstPrompt) {
             // Resume existing session
             try {

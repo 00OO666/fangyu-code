@@ -505,6 +505,65 @@ pub fn test_provider_connection(base_url: String) -> Result<String, String> {
     Ok(format!("连接测试完成：{}", test_url))
 }
 
+/// 保存 Claude Code 环境变量到 settings.json
+/// 用于前端高级设置中的环境变量配置
+#[command]
+pub async fn save_claude_env_vars(
+    env_vars: std::collections::HashMap<String, Value>,
+) -> Result<String, String> {
+    log::info!("开始保存 Claude Code 环境变量");
+
+    let mut settings = load_settings()?;
+
+    // 确保settings是对象
+    if !settings.is_object() {
+        return Err("settings.json格式错误".to_string());
+    }
+
+    let settings_obj = settings.as_object_mut().unwrap();
+
+    // 确保env字段存在
+    if !settings_obj.contains_key("env") {
+        settings_obj.insert("env".to_string(), serde_json::json!({}));
+    }
+
+    let env_obj = settings_obj
+        .get_mut("env")
+        .unwrap()
+        .as_object_mut()
+        .ok_or("env字段格式错误")?;
+
+    // 更新环境变量
+    for (key, value) in env_vars {
+        match value {
+            Value::String(s) if !s.is_empty() => {
+                env_obj.insert(key.clone(), Value::String(s.clone()));
+                log::info!("设置环境变量: {}={}", key, if key.contains("KEY") || key.contains("TOKEN") { "[MASKED]" } else { &s });
+            }
+            Value::Number(n) => {
+                env_obj.insert(key.clone(), Value::String(n.to_string()));
+                log::info!("设置环境变量: {}={}", key, n);
+            }
+            Value::Bool(b) if b => {
+                env_obj.insert(key.clone(), Value::String("true".to_string()));
+                log::info!("设置环境变量: {}=true", key);
+            }
+            _ => {
+                // 空值或 false，移除该环境变量
+                env_obj.remove(&key);
+                log::info!("移除环境变量: {}", key);
+            }
+        }
+    }
+
+    // 保存设置
+    save_settings(&settings)?;
+
+    log::info!("Claude Code 环境变量保存完成");
+
+    Ok("✅ 环境变量已保存到 ~/.claude/settings.json".to_string())
+}
+
 /// API Key 用量查询结果
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ApiKeyUsage {

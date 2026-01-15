@@ -300,6 +300,12 @@ export function useSmartTabTitle({
   const isGeneratingRef = useRef<boolean>(false);
   const aiAttemptedRef = useRef<boolean>(false);
 
+  // 🔧 FIX: 使用 useRef 存储回调，避免 useEffect 重新执行导致无限循环
+  const onTitleUpdateRef = useRef(onTitleUpdate);
+  useEffect(() => {
+    onTitleUpdateRef.current = onTitleUpdate;
+  }, [onTitleUpdate]);
+
   // AI 标题生成函数
   const generateTitle = useCallback(async () => {
     if (isGeneratingRef.current) return;
@@ -337,7 +343,7 @@ export function useSmartTabTitle({
       }
 
       if (title && title !== lastAppliedTitleRef.current) {
-        onTitleUpdate(title);
+        onTitleUpdateRef.current(title);
         lastAppliedTitleRef.current = title;
       }
     } catch (error) {
@@ -345,7 +351,7 @@ export function useSmartTabTitle({
     } finally {
       isGeneratingRef.current = false;
     }
-  }, [messages, onTitleUpdate, useAI]);
+  }, [messages, useAI]); // 🔧 FIX: 移除 onTitleUpdate 依赖
 
   useEffect(() => {
     if (!enabled) return;
@@ -370,14 +376,17 @@ export function useSmartTabTitle({
       const smartTitle = generateSmartTitle(messages);
       if (smartTitle && smartTitle !== lastAppliedTitleRef.current) {
         console.log("[useSmartTabTitle] Phase 2 - Keyword-based title:", smartTitle);
-        onTitleUpdate(smartTitle);
-        lastAppliedTitleRef.current = smartTitle;
+        // 🔧 FIX: 使用 setTimeout 避免在渲染期间调用 setState
+        setTimeout(() => {
+          onTitleUpdateRef.current(smartTitle);
+          lastAppliedTitleRef.current = smartTitle;
+        }, 0);
       }
     }
 
     // 更新轮数参考
     userRoundsRef.current = Math.max(userRoundsRef.current, currentUserRounds);
-  }, [messages, enabled, generateTitle, onTitleUpdate]);
+  }, [messages, enabled, generateTitle]); // 🔧 FIX: 移除 onTitleUpdate 依赖
 }
 
 /**

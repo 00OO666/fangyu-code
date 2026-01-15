@@ -540,7 +540,10 @@ pub async fn get_config_items() -> Result<Vec<ConfigItem>, String> {
     Ok(items)
 }
 
-/// 开启/关闭配置项（真实添加/移除）
+/// 开启/关闭配置项（使用剪切文件夹方式）
+///
+/// Skills: 启用时从 skills_disabled 移动到 skills，禁用时反向移动
+/// Hooks: 使用 _disabled_ 前缀重命名
 #[command]
 pub async fn toggle_config_item(
     id: String,
@@ -552,41 +555,59 @@ pub async fn toggle_config_item(
     match category.as_str() {
         "skill" => {
             let skills_dir = claude_dir.join("skills");
+            let skills_disabled_dir = claude_dir.join("skills_disabled");
 
-            // 确定当前路径和目标路径
-            let (current_name, target_name) = if enabled {
-                // 开启：从 _disabled_xxx 改为 xxx
-                let disabled_name = if id.starts_with("_disabled_") {
-                    id.clone()
-                } else {
-                    format!("_disabled_{}", id)
-                };
-                let enabled_name = disabled_name.trim_start_matches("_disabled_").to_string();
-                (disabled_name, enabled_name)
+            // 确保 skills_disabled 目录存在
+            if !skills_disabled_dir.exists() {
+                fs::create_dir_all(&skills_disabled_dir)
+                    .map_err(|e| format!("创建 skills_disabled 目录失败: {}", e))?;
+            }
+
+            // 清理 id 中的 _disabled_ 前缀（兼容旧数据）
+            let clean_name = id.trim_start_matches("_disabled_").to_string();
+
+            let (source_dir, target_dir) = if enabled {
+                // 启用：从 skills_disabled 移动到 skills
+                (skills_disabled_dir, skills_dir)
             } else {
-                // 关闭：从 xxx 改为 _disabled_xxx
-                let enabled_name = id.trim_start_matches("_disabled_").to_string();
-                let disabled_name = format!("_disabled_{}", enabled_name);
-                (enabled_name, disabled_name)
+                // 禁用：从 skills 移动到 skills_disabled
+                (skills_dir, skills_disabled_dir)
             };
 
-            let current_path = skills_dir.join(&current_name);
-            let target_path = skills_dir.join(&target_name);
+            let source_path = source_dir.join(&clean_name);
+            let target_path = target_dir.join(&clean_name);
 
-            if !current_path.exists() {
-                return Err(format!("Skill 不存在: {}", current_name));
+            // 检查源路径是否存在
+            if !source_path.exists() {
+                // 尝试兼容旧的 _disabled_ 前缀方式
+                let skills_base_dir = claude_dir.join("skills");
+                let old_disabled_path = skills_base_dir.join(format!("_disabled_{}", clean_name));
+                if enabled && old_disabled_path.exists() {
+                    // 旧格式：从 skills/_disabled_xxx 移动到 skills/xxx
+                    let new_enabled_path = skills_base_dir.join(&clean_name);
+                    fs::rename(&old_disabled_path, &new_enabled_path)
+                        .map_err(|e| format!("迁移旧格式失败: {}", e))?;
+                    log::info!("✅ Skill '{}' 已从旧格式迁移并启用", clean_name);
+                    return Ok(true);
+                }
+                return Err(format!("Skill 不存在: {} (在 {:?})", clean_name, source_dir));
             }
 
+            // 检查目标路径是否已存在
             if target_path.exists() {
-                return Err(format!("目标路径已存在: {}", target_name));
+                return Err(format!("目标路径已存在: {:?}", target_path));
             }
 
-            fs::rename(&current_path, &target_path).map_err(|e| format!("重命名失败: {}", e))?;
+            // 移动文件夹
+            fs::rename(&source_path, &target_path)
+                .map_err(|e| format!("移动 Skill 失败: {}", e))?;
 
             log::info!(
-                "✅ Skill '{}' 已{}",
-                target_name,
-                if enabled { "启用" } else { "禁用" }
+                "✅ Skill '{}' 已{} (从 {:?} 移动到 {:?})",
+                clean_name,
+                if enabled { "启用" } else { "禁用" },
+                source_dir,
+                target_dir
             );
 
             Ok(enabled)
@@ -594,32 +615,33 @@ pub async fn toggle_config_item(
         "hook" => {
             let hooks_dir = claude_dir.join("hooks");
 
+            // 清理 id 中的 _disabled_ 前缀
+            let clean_name = id.trim_start_matches("_disabled_").to_string();
+
             let (current_name, target_name) = if enabled {
-                let disabled_name = if id.starts_with("_disabled_") {
-                    id.clone()
-                } else {
-                    format!("_disabled_{}", id)
-                };
-                let enabled_name = disabled_name.trim_start_matches("_disabled_").to_string();
-                (disabled_name, enabled_name)
+                // 启用：从 _disabled_xxx 改为 xxx
+                (format!("_disabled_{}", clean_name), clean_name.clone())
             } else {
-                let enabled_name = id.trim_start_matches("_disabled_").to_string();
-                let disabled_name = format!("_disabled_{}", enabled_name);
-                (enabled_name, disabled_name)
+                // 禁用：从 xxx 改为 _disabled_xxx
+                (clean_name.clone(), format!("_disabled_{}", clean_name))
             };
 
             let current_path = hooks_dir.join(&current_name);
             let target_path = hooks_dir.join(&target_name);
 
             if !current_path.exists() {
-                return Err(format!("Hook 不存在: {}", current_name));
+                return Err(format!("Hook 不存在: {} (路径: {:?})", current_name, current_path));
+            }
+
+            if target_path.exists() {
+                return Err(format!("目标文件已存在: {}", target_name));
             }
 
             fs::rename(&current_path, &target_path).map_err(|e| format!("重命名失败: {}", e))?;
 
             log::info!(
                 "✅ Hook '{}' 已{}",
-                target_name,
+                clean_name,
                 if enabled { "启用" } else { "禁用" }
             );
 

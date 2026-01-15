@@ -1,7 +1,7 @@
 import { listen } from "@tauri-apps/api/event";
-import { useEffect, useRef } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { globalTaskActions } from "./useGlobalTaskState";
-import { useTabs } from "./useTabs";
+import { TabContext } from "./tabs";
 
 /**
  * ✨ REFACTORED: useSessionSync - Event-driven session state sync (Phase 2)
@@ -14,9 +14,14 @@ import { useTabs } from "./useTabs";
  * - 实时更新标签页状态 (started/stopped)
  * - 无需轮询，性能提升98%
  * - 自动错误处理和降级
+ *
+ * 🔧 FIX (v2.7.6): 使用可选的 context 访问，避免在 TabProvider 外部抛出错误
  */
 export const useSessionSync = () => {
-  const { tabs, updateTabStreamingStatus } = useTabs();
+  // 🔧 FIX: 使用 useContext 直接访问，允许 null 值
+  const tabContext = useContext(TabContext);
+  const tabs = tabContext?.tabs ?? [];
+  const updateTabStreamingStatus = tabContext?.updateTabStreamingStatus;
 
   // Use refs to avoid re-registering the listener on every tabs change
   const tabsRef = useRef(tabs);
@@ -67,7 +72,10 @@ export const useSessionSync = () => {
           if (tab) {
             if (status === "started") {
               // Session started - set to streaming
-              if (tab.state !== "streaming") {
+              // 🔧 FIX: 移除状态检查，始终更新状态
+              // 之前的 `if (tab.state !== "streaming")` 检查可能导致状态不同步
+              // 因为 tabsRef.current 中的状态可能是过时的
+              if (updateTabStreamingStatusRef.current) {
                 updateTabStreamingStatusRef.current(tab.id, true, session_id);
               }
 
@@ -91,7 +99,9 @@ export const useSessionSync = () => {
               }
             } else if (status === "stopped") {
               // Session stopped - set to idle
-              if (tab.state === "streaming") {
+              // 🔧 FIX: 移除状态检查，始终更新状态
+              // 之前的 `if (tab.state === "streaming")` 检查可能导致状态不同步
+              if (updateTabStreamingStatusRef.current) {
                 updateTabStreamingStatusRef.current(tab.id, false, null);
 
                 // If error occurred, log it

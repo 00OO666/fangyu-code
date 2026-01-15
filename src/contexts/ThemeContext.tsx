@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 
 type Theme = 'light' | 'dark';
@@ -7,6 +7,7 @@ interface ThemeContextType {
   theme: Theme;
   setTheme: (theme: Theme) => void;
   toggleTheme: () => void;
+  isTransitioning: boolean;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -24,15 +25,27 @@ interface ThemeProviderProps {
 }
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  const [theme, setTheme] = useState<Theme>('dark');
+  const [theme, setThemeState] = useState<Theme>('dark');
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
     // 挂载时从 localStorage 加载主题
     // Load theme from localStorage on mount
     const savedTheme = localStorage.getItem('theme') as Theme;
     if (savedTheme) {
-      setTheme(savedTheme);
+      setThemeState(savedTheme);
     }
+
+    // 防止初始加载时的过渡动画
+    // Prevent transition on initial load
+    document.documentElement.classList.add('no-transition');
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        document.documentElement.classList.remove('no-transition');
+        setIsInitialized(true);
+      });
+    });
   }, []);
 
   useEffect(() => {
@@ -57,12 +70,38 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     });
   }, [theme]);
 
-  const toggleTheme = () => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light');
-  };
+  // 带过渡动画的主题切换
+  // Theme switching with transition animation
+  const setTheme = useCallback((newTheme: Theme) => {
+    if (newTheme === theme || !isInitialized) {
+      setThemeState(newTheme);
+      return;
+    }
+
+    // 添加过渡类
+    // Add transition class
+    document.documentElement.classList.add('theme-transitioning');
+    setIsTransitioning(true);
+
+    // 设置新主题
+    setThemeState(newTheme);
+
+    // 移除过渡类
+    // Remove transition class after animation
+    const timer = setTimeout(() => {
+      document.documentElement.classList.remove('theme-transitioning');
+      setIsTransitioning(false);
+    }, 300); // 匹配 --ds-duration-slow
+
+    return () => clearTimeout(timer);
+  }, [theme, isInitialized]);
+
+  const toggleTheme = useCallback(() => {
+    setTheme(theme === 'light' ? 'dark' : 'light');
+  }, [theme, setTheme]);
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme, isTransitioning }}>
       {children}
     </ThemeContext.Provider>
   );

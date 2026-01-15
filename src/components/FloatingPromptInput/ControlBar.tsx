@@ -225,7 +225,7 @@ export const ControlBar: React.FC<ControlBarProps> = ({
   }, [executionEngineConfig.engine, messages, providedCodexRateLimits]);
 
   return (
-    <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent pb-1">
+    <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent pb-1 min-h-[40px] flex-shrink-0">
       {/* Execution Engine Selector */}
       <ExecutionEngineSelector
         value={executionEngineConfig}
@@ -296,8 +296,8 @@ export const ControlBar: React.FC<ControlBarProps> = ({
         />
       )}
 
-      {/* Token 统计 Badge - 小屏幕隐藏 */}
-      {hasMessages && sessionStats && sessionStats.totalTokens > 0 && (
+      {/* Token 统计 Badge - 小屏幕隐藏，始终显示 */}
+      {sessionStats && sessionStats.totalTokens > 0 && (
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -311,8 +311,8 @@ export const ControlBar: React.FC<ControlBarProps> = ({
         </motion.div>
       )}
 
-      {/* Session Cost with Details - 包含内联的费用增量动画 */}
-      {hasMessages && sessionCost && sessionStats && (
+      {/* Session Cost with Details - 包含内联的费用增量动画，始终显示 */}
+      {sessionCost && sessionStats && (
         <>
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -427,8 +427,8 @@ export const ControlBar: React.FC<ControlBarProps> = ({
         </motion.div>
       )}
 
-      {/* Context Window Indicator - Claude / Codex / Gemini 引擎显示 */}
-      {(executionEngineConfig.engine === 'claude' || executionEngineConfig.engine === 'codex' || executionEngineConfig.engine === 'gemini') && hasMessages && messages && (
+      {/* Context Window Indicator - Claude / Codex / Gemini 引擎显示，始终显示 */}
+      {(executionEngineConfig.engine === 'claude' || executionEngineConfig.engine === 'codex' || executionEngineConfig.engine === 'gemini') && messages && (
         <ContextWindowIndicator
           messages={messages}
           model={contextWindowModel}
@@ -462,8 +462,8 @@ export const ControlBar: React.FC<ControlBarProps> = ({
         />
       )}
 
-      {/* Usage Dashboard Toggle - Token 消耗图表 */}
-      {onToggleUsageDashboard && hasMessages && (
+      {/* Usage Dashboard Toggle - Token 消耗图表，始终显示 */}
+      {onToggleUsageDashboard && (
         <Button
           variant={showUsageDashboard ? "default" : "outline"}
           size="default"
@@ -498,8 +498,8 @@ export const ControlBar: React.FC<ControlBarProps> = ({
         </Button>
       )}
 
-      {/* Canvas Button - 打开实时预览 */}
-      {onOpenCanvas && hasMessages && (
+      {/* Canvas Button - 打开实时预览，始终显示 */}
+      {onOpenCanvas && (
         <div className="relative hidden md:block">
           <Button
             variant={hasPreviewableCode ? "default" : "outline"}

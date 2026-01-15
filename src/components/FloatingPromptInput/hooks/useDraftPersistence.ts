@@ -18,11 +18,18 @@ export function useDraftPersistence({
 }: UseDraftPersistenceOptions) {
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const hasRestoredRef = useRef(false);
+  // 🔧 FIX: 使用 ref 存储 sessionId，避免 useEffect 依赖变化导致重复恢复
+  const sessionIdRef = useRef(sessionId);
+  const onRestoreRef = useRef(onRestore);
+
+  // 更新 refs
+  onRestoreRef.current = onRestore;
 
   // 生成存储 key
-  const getStorageKey = useCallback(() => {
-    return sessionId ? `${DRAFT_KEY_PREFIX}${sessionId}` : `${DRAFT_KEY_PREFIX}global`;
-  }, [sessionId]);
+  const getStorageKey = useCallback((sid?: string) => {
+    const id = sid ?? sessionIdRef.current;
+    return id ? `${DRAFT_KEY_PREFIX}${id}` : `${DRAFT_KEY_PREFIX}global`;
+  }, []);
 
   // 保存草稿到 localStorage（带防抖）
   const saveDraft = useCallback((content: string) => {
@@ -60,9 +67,9 @@ export function useDraftPersistence({
   }, [getStorageKey]);
 
   // 恢复草稿
-  const restoreDraft = useCallback((): string | null => {
+  const restoreDraft = useCallback((sid?: string): string | null => {
     try {
-      const key = getStorageKey();
+      const key = getStorageKey(sid);
       return localStorage.getItem(key);
     } catch (error) {
       console.warn('[DraftPersistence] Failed to restore draft:', error);
@@ -70,29 +77,29 @@ export function useDraftPersistence({
     }
   }, [getStorageKey]);
 
-  // 组件挂载时恢复草稿
+  // 🔧 FIX: 合并两个 useEffect，只在 sessionId 变化时恢复草稿
   useEffect(() => {
-    // 只在首次挂载时恢复，避免 sessionId 变化时重复恢复
-    if (hasRestoredRef.current) {
+    // sessionId 变化时更新 ref
+    const prevSessionId = sessionIdRef.current;
+    sessionIdRef.current = sessionId;
+
+    // 如果 sessionId 没变且已经恢复过，跳过
+    if (prevSessionId === sessionId && hasRestoredRef.current) {
       return;
     }
 
-    const draft = restoreDraft();
-    if (draft && onRestore) {
-      onRestore(draft);
-      hasRestoredRef.current = true;
+    // sessionId 变化时重置恢复标记
+    if (prevSessionId !== sessionId) {
+      hasRestoredRef.current = false;
     }
-  }, [restoreDraft, onRestore]);
 
-  // sessionId 变化时重置恢复标记并尝试恢复新会话的草稿
-  useEffect(() => {
-    hasRestoredRef.current = false;
-    const draft = restoreDraft();
-    if (draft && onRestore) {
-      onRestore(draft);
+    // 尝试恢复草稿
+    const draft = restoreDraft(sessionId);
+    if (draft && onRestoreRef.current && !hasRestoredRef.current) {
+      onRestoreRef.current(draft);
       hasRestoredRef.current = true;
     }
-  }, [sessionId, restoreDraft, onRestore]);
+  }, [sessionId, restoreDraft]);
 
   // 清理定时器
   useEffect(() => {

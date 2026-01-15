@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { useTranslation } from "@/hooks/useTranslation";
+import { EngineSelector } from "./EngineSelector";
+import { EngineType, ENGINE_INFO } from "@/types/multiEngineSettings";
 
 interface PermissionRule {
   id: string;
@@ -18,6 +20,12 @@ interface PermissionsSettingsProps {
   addPermissionRule: (type: "allow" | "deny") => void;
   updatePermissionRule: (type: "allow" | "deny", id: string, value: string) => void;
   removePermissionRule: (type: "allow" | "deny", id: string) => void;
+  /** 当前选中的引擎（多引擎模式） */
+  selectedEngine?: EngineType;
+  /** 引擎切换回调（多引擎模式） */
+  onEngineChange?: (engine: EngineType) => void;
+  /** 是否显示引擎选择器 */
+  showEngineSelector?: boolean;
 }
 
 export const PermissionsSettings: React.FC<PermissionsSettingsProps> = ({
@@ -25,13 +33,31 @@ export const PermissionsSettings: React.FC<PermissionsSettingsProps> = ({
   denyRules,
   addPermissionRule,
   updatePermissionRule,
-  removePermissionRule
+  removePermissionRule,
+  selectedEngine = 'claude-code',
+  onEngineChange,
+  showEngineSelector = false,
 }) => {
   const { t } = useTranslation();
+  const engineInfo = ENGINE_INFO[selectedEngine];
 
   return (
     <Card className="p-6">
       <div className="space-y-6">
+        {/* 引擎选择器 */}
+        {showEngineSelector && onEngineChange && (
+          <div className="flex items-center justify-between pb-4 border-b border-border">
+            <div className="text-sm text-muted-foreground">
+              配置 <span className="font-medium text-foreground">{engineInfo.name}</span> 的权限规则
+            </div>
+            <EngineSelector
+              selectedEngine={selectedEngine}
+              onEngineChange={onEngineChange}
+              size="sm"
+            />
+          </div>
+        )}
+
         <div>
           <h3 className="text-base font-semibold mb-2">{t('permissionsSettings.title')}</h3>
           <p className="text-sm text-muted-foreground mb-4">
@@ -86,7 +112,7 @@ export const PermissionsSettings: React.FC<PermissionsSettingsProps> = ({
             )}
           </div>
         </div>
-        
+
         {/* Deny Rules */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
@@ -134,7 +160,7 @@ export const PermissionsSettings: React.FC<PermissionsSettingsProps> = ({
             )}
           </div>
         </div>
-        
+
         <div className="pt-2 space-y-2">
           <p className="text-xs text-muted-foreground">
             <strong>{t('permissionsSettings.examples')}</strong>

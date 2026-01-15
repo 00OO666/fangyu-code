@@ -69,10 +69,12 @@ export function UpdateDialog({ open, onClose }: UpdateDialogProps) {
     setIsDownloading(true);
     setError(null);
     setDownloadProgress(0);
+    setIsInstalled(false); // 重置安装状态
 
     try {
       let totalBytes = 0;
       let downloadedBytes = 0;
+      let downloadFinished = false;
 
       await updateHandle.downloadAndInstall((event) => {
         if (event.event === "Started") {
@@ -87,9 +89,14 @@ export function UpdateDialog({ open, onClose }: UpdateDialogProps) {
           }
         } else if (event.event === "Finished") {
           setDownloadProgress(100);
-          setIsInstalled(true);
+          downloadFinished = true;
         }
       });
+
+      // 只有在 downloadAndInstall 完全成功后才设置 isInstalled
+      if (downloadFinished) {
+        setIsInstalled(true);
+      }
     } catch (err) {
       console.error("下载安装失败:", err);
       const message = err instanceof Error ? err.message : "下载安装失败，请尝试手动下载";
@@ -98,6 +105,8 @@ export function UpdateDialog({ open, onClose }: UpdateDialogProps) {
       } else {
         setError(message);
       }
+      // 确保失败时不显示"已安装"
+      setIsInstalled(false);
     } finally {
       setIsDownloading(false);
     }

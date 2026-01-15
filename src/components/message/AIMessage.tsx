@@ -28,7 +28,13 @@ interface AIMessageProps {
  * 提取AI消息的文本内容
  *
  * ✅ FIX: 移除文本中的 <thinking> 标签内容，避免重复显示
+ *
+ * 🔧 FIX v2.3: 优化正则表达式性能
+ * - 预编译正则表达式，避免每次调用都重新编译
+ * - 使用更高效的字符串处理方式
  */
+const THINKING_TAG_REGEX = /<thinking>[\s\S]*?<\/thinking>/g;
+
 const extractAIText = (message: ClaudeStreamMessage): string => {
   if (!message.message?.content) return '';
 
@@ -36,7 +42,7 @@ const extractAIText = (message: ClaudeStreamMessage): string => {
 
   // 如果是字符串，移除 thinking 标签后返回
   if (typeof content === 'string') {
-    return content.replace(/<thinking>[\s\S]*?<\/thinking>/g, '').trim();
+    return content.replace(THINKING_TAG_REGEX, '').trim();
   }
 
   // 如果是数组，提取所有text类型的内容并移除 thinking 标签
@@ -46,7 +52,7 @@ const extractAIText = (message: ClaudeStreamMessage): string => {
       .map((item: unknown) => (item as { text?: string }).text || '')
       .join('\n\n');
 
-    return text.replace(/<thinking>[\s\S]*?<\/thinking>/g, '').trim();
+    return text.replace(THINKING_TAG_REGEX, '').trim();
   }
 
   return '';
@@ -108,7 +114,13 @@ const hasThinkingBlock = (message: ClaudeStreamMessage): boolean => {
  * 3. 文本中的 <thinking> 标签（Claude Code CLI 格式）
  *
  * ✅ FIX: 使用特殊的分隔符连接多个思考块，以便 ThinkingBlock 组件能够识别并渲染分割线
+ *
+ * 🔧 FIX v2.3: 优化正则表达式性能
+ * - 预编译正则表达式
+ * - 使用 matchAll 替代 while + exec 循环
  */
+const THINKING_EXTRACT_REGEX = /<thinking>([\s\S]*?)<\/thinking>/g;
+
 const extractThinkingContent = (message: ClaudeStreamMessage): string => {
   // 检查顶层 thinking 消息
   if (message.type === 'thinking') {
@@ -133,14 +145,9 @@ const extractThinkingContent = (message: ClaudeStreamMessage): string => {
     .map((item: any) => item.text || '')
     .join('');
 
-  // 使用正则表达式提取所有 <thinking> 标签中的内容
-  const thinkingRegex = /<thinking>([\s\S]*?)<\/thinking>/g;
-  const matches = [];
-  let match;
-
-  while ((match = thinkingRegex.exec(textContent)) !== null) {
-    matches.push(match[1].trim());
-  }
+  // 🔧 优化：使用 matchAll 替代 while + exec 循环
+  const matches = Array.from(textContent.matchAll(THINKING_EXTRACT_REGEX))
+    .map(match => match[1].trim());
 
   return matches.join('\n\n---divider---\n\n');
 };

@@ -72,13 +72,15 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
   onLinkDetected,
   onRevert,
   getPromptIndexForMessage,
-  displayableToMessagesIndexMap, // 🔧 FIX
+  displayableToMessagesIndexMap,
   getThinkingOpenState,
   onThinkingToggle,
   children,
 }) => {
-  // ✅ 性能优化: 使用 useMemo 缓存 context 值
-  // 只有当依赖的值真正变化时才重新创建对象
+  // 🔧 FIX v2.4: 简化实现，直接传递 Map
+  // 之前的 useRef + useEffect 方案导致 contextValue 不更新
+  // Map 的变化频率不高，直接依赖不会造成性能问题
+
   const contextValue = React.useMemo<SessionContextValue>(
     () => ({
       session,
@@ -89,7 +91,7 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
       onLinkDetected,
       onRevert,
       getPromptIndexForMessage,
-      displayableToMessagesIndexMap, // 🔧 FIX
+      displayableToMessagesIndexMap,
       getThinkingOpenState,
       onThinkingToggle,
     }),
@@ -102,7 +104,7 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
       onLinkDetected,
       onRevert,
       getPromptIndexForMessage,
-      displayableToMessagesIndexMap, // 🔧 FIX
+      displayableToMessagesIndexMap,
       getThinkingOpenState,
       onThinkingToggle,
     ]

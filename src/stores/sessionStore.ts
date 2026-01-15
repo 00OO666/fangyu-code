@@ -29,6 +29,11 @@ interface SessionStore {
   setPreviewUrl: (url: string | null) => void;
   setIsPreviewMaximized: (maximized: boolean) => void;
   setSplitPosition: (position: number) => void;
+
+  // 预填充消息（用于摘要续接等场景）
+  prefillMessage: string | null;
+  setPrefillMessage: (message: string | null) => void;
+  consumePrefillMessage: () => string | null;
 }
 
 // 默认引擎配置
@@ -55,7 +60,7 @@ const getDefaultConfig = (): ExecutionEngineConfig => {
 // 创建 Store
 export const useSessionStore = create<SessionStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       // 引擎配置
       executionEngineConfig: getDefaultConfig(),
       setExecutionEngineConfig: (config) => {
@@ -73,10 +78,21 @@ export const useSessionStore = create<SessionStore>()(
       setPreviewUrl: (url) => set({ previewUrl: url }),
       setIsPreviewMaximized: (maximized) => set({ isPreviewMaximized: maximized }),
       setSplitPosition: (position) => set({ splitPosition: position }),
+
+      // 预填充消息
+      prefillMessage: null,
+      setPrefillMessage: (message) => set({ prefillMessage: message }),
+      consumePrefillMessage: () => {
+        const message = get().prefillMessage;
+        if (message) {
+          set({ prefillMessage: null });
+        }
+        return message;
+      },
     }),
     {
       name: 'session-storage',
-      // 只持久化引擎配置
+      // 只持久化引擎配置（不持久化预填充消息）
       partialize: (state) => ({
         executionEngineConfig: state.executionEngineConfig,
       }),
@@ -106,3 +122,13 @@ export const usePreviewActions = () =>
     setIsPreviewMaximized: state.setIsPreviewMaximized,
     setSplitPosition: state.setSplitPosition,
   }));
+
+// 预填充消息 Hooks
+export const usePrefillMessage = () =>
+  useSessionStore((state) => state.prefillMessage);
+
+export const useSetPrefillMessage = () =>
+  useSessionStore((state) => state.setPrefillMessage);
+
+export const useConsumePrefillMessage = () =>
+  useSessionStore((state) => state.consumePrefillMessage);

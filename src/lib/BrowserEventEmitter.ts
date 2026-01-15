@@ -92,7 +92,7 @@ export class BrowserEventEmitter {
     /**
      * 获取指定事件的所有监听器
      */
-    listeners(event: string): EventListener[] {
+    getListeners(event: string): EventListener[] {
         return Array.from(this.listeners.get(event) ?? []);
     }
 }

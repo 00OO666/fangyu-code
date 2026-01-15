@@ -3,14 +3,14 @@
  * 
  * 支持解析图片、PDF、Word、PPT、Excel 等文件
  * 将文件内容转换为 AI 可理解的格式
+ * 
+ * 🏗️ 性能优化 (v2.7.6):
+ * - 使用动态导入延迟加载重型依赖 (pdfjs-dist, mammoth, xlsx)
+ * - 减少初始 Bundle 大小约 500KB+
+ * - 按需加载，只在实际解析文件时才加载对应库
+ * 
+ * _Requirements: 3.6 (代码分割)_
  */
-
-import * as pdfjsLib from 'pdfjs-dist';
-import mammoth from 'mammoth';
-import * as XLSX from 'xlsx';
-
-// 配置 PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 // =============================================================================
 // 类型定义
@@ -51,6 +51,48 @@ export interface FileParseOptions {
     extractImages?: boolean;
     /** PDF 最大页数 */
     maxPdfPages?: number;
+}
+
+// =============================================================================
+// 动态导入缓存（避免重复加载）
+// =============================================================================
+
+let pdfjsLibCache: typeof import('pdfjs-dist') | null = null;
+let mammothCache: typeof import('mammoth') | null = null;
+let xlsxCache: typeof import('xlsx') | null = null;
+
+/**
+ * 动态加载 PDF.js 库
+ */
+async function loadPdfjs() {
+    if (!pdfjsLibCache) {
+        pdfjsLibCache = await import('pdfjs-dist');
+        // 配置 PDF.js worker
+        pdfjsLibCache.GlobalWorkerOptions.workerSrc =
+            `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLibCache.version}/pdf.worker.min.js`;
+    }
+    return pdfjsLibCache;
+}
+
+/**
+ * 动态加载 Mammoth 库
+ */
+async function loadMammoth() {
+    if (!mammothCache) {
+        const module = await import('mammoth');
+        mammothCache = module.default || module;
+    }
+    return mammothCache;
+}
+
+/**
+ * 动态加载 XLSX 库
+ */
+async function loadXlsx() {
+    if (!xlsxCache) {
+        xlsxCache = await import('xlsx');
+    }
+    return xlsxCache;
 }
 
 // =============================================================================
@@ -190,12 +232,16 @@ async function parseImage(file: File): Promise<ParsedFile> {
 
 /**
  * 解析 PDF 文件
+ * 🏗️ 性能优化: 动态导入 pdfjs-dist (~200KB)
  */
 async function parsePDF(file: File, options: FileParseOptions = {}): Promise<ParsedFile> {
     const maxPages = options.maxPdfPages || 50;
     const extractImages = options.extractImages ?? false;
 
     try {
+        // 动态加载 PDF.js
+        const pdfjsLib = await loadPdfjs();
+
         const arrayBuffer = await file.arrayBuffer();
         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
         const pageCount = Math.min(pdf.numPages, maxPages);
@@ -254,9 +300,13 @@ async function parsePDF(file: File, options: FileParseOptions = {}): Promise<Par
 
 /**
  * 解析 Word 文件
+ * 🏗️ 性能优化: 动态导入 mammoth (~100KB)
  */
 async function parseWord(file: File, options: FileParseOptions = {}): Promise<ParsedFile> {
     try {
+        // 动态加载 Mammoth
+        const mammoth = await loadMammoth();
+
         const arrayBuffer = await file.arrayBuffer();
         const result = await mammoth.extractRawText({ arrayBuffer });
 
@@ -285,9 +335,13 @@ async function parseWord(file: File, options: FileParseOptions = {}): Promise<Pa
 
 /**
  * 解析 Excel 文件
+ * 🏗️ 性能优化: 动态导入 xlsx (~200KB)
  */
 async function parseExcel(file: File, options: FileParseOptions = {}): Promise<ParsedFile> {
     try {
+        // 动态加载 XLSX
+        const XLSX = await loadXlsx();
+
         const arrayBuffer = await file.arrayBuffer();
         const workbook = XLSX.read(arrayBuffer, { type: 'array' });
 
@@ -578,6 +632,26 @@ export function getSupportedExtensions(): string[] {
     ];
 }
 
+/**
+ * 预加载文件解析库（可选，用于提前加载）
+ * 可在用户悬停在文件上传按钮时调用
+ */
+export async function preloadParsers(types: SupportedFileType[]): Promise<void> {
+    const loaders: Promise<unknown>[] = [];
+
+    if (types.includes('pdf')) {
+        loaders.push(loadPdfjs());
+    }
+    if (types.includes('word')) {
+        loaders.push(loadMammoth());
+    }
+    if (types.includes('excel')) {
+        loaders.push(loadXlsx());
+    }
+
+    await Promise.all(loaders);
+}
+
 export default {
     parseFile,
     parseFiles,
@@ -587,4 +661,5 @@ export default {
     formatFileSize,
     getFileTypeIcon,
     getSupportedExtensions,
+    preloadParsers,
 };

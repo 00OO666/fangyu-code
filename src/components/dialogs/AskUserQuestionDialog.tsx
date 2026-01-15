@@ -8,7 +8,7 @@
  */
 
 import { useState, useMemo } from "react";
-import { HelpCircle, Send, XCircle, CheckCircle } from "lucide-react";
+import { HelpCircle, Send, XCircle, CheckCircle, Check } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import type { Question, UserAnswers } from "@/contexts/UserQuestionContext";
 
@@ -178,15 +177,18 @@ export function AskUserQuestionDialog({
                           const isSelected = isOptionSelected(questionKey, option.label);
 
                           return (
-                            <div
+                            <button
+                              type="button"
                               key={optIndex}
                               className={cn(
-                                "p-3 rounded-md border cursor-pointer transition-all hover:shadow-sm",
+                                "w-full text-left p-3 rounded-md border cursor-pointer transition-all hover:shadow-sm",
                                 isSelected
                                   ? "border-green-500/40 bg-green-500/10 shadow-sm"
                                   : "border-border/50 bg-background hover:bg-muted/50"
                               )}
-                              onClick={() => {
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
                                 if (q.multiSelect) {
                                   handleMultiSelect(questionKey, option.label, !isSelected);
                                 } else {
@@ -197,13 +199,16 @@ export function AskUserQuestionDialog({
                               <div className="flex items-start gap-2.5">
                                 {/* 选择图标 */}
                                 {q.multiSelect ? (
-                                  <Checkbox
-                                    checked={isSelected}
-                                    onCheckedChange={(checked) =>
-                                      handleMultiSelect(questionKey, option.label, checked as boolean)
-                                    }
-                                    className="mt-0.5"
-                                  />
+                                  <div
+                                    className={cn(
+                                      "flex-shrink-0 h-4 w-4 rounded-sm border flex items-center justify-center transition-all mt-0.5",
+                                      isSelected
+                                        ? "bg-primary border-primary text-primary-foreground"
+                                        : "border-primary bg-background"
+                                    )}
+                                  >
+                                    {isSelected && <Check className="h-3 w-3" />}
+                                  </div>
                                 ) : (
                                   <div
                                     className={cn(
@@ -243,7 +248,7 @@ export function AskUserQuestionDialog({
                                   )}
                                 </div>
                               </div>
-                            </div>
+                            </button>
                           );
                         })}
 

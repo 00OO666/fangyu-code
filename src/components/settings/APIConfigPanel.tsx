@@ -14,6 +14,7 @@ import {
   ValidationResult,
   createAPIConfigManager,
 } from '../../core/api/APIConfigManager';
+import { ClaudeAPITester } from './ClaudeAPITester';
 
 // =============================================================================
 // 类型定义
@@ -31,6 +32,7 @@ interface ProviderCardProps {
   onUpdate: (config: Partial<ProviderConfig>) => void;
   onValidate: () => void;
   onSetActive: () => void;
+  onTestAPI?: () => void;
   isValidating: boolean;
 }
 
@@ -45,6 +47,7 @@ const ProviderCard: React.FC<ProviderCardProps> = ({
   onUpdate,
   onValidate,
   onSetActive,
+  onTestAPI,
   isValidating,
 }) => {
   const [showApiKey, setShowApiKey] = useState(false);
@@ -90,7 +93,7 @@ const ProviderCard: React.FC<ProviderCardProps> = ({
             </p>
           </div>
         </div>
-        
+
         {isActive && (
           <span className="px-2 py-1 text-xs font-medium text-blue-600 bg-blue-100 rounded dark:bg-blue-900 dark:text-blue-300">
             当前使用
@@ -138,6 +141,25 @@ const ProviderCard: React.FC<ProviderCardProps> = ({
           >
             {isValidating ? '验证中...' : '验证'}
           </button>
+          {/* Claude API 测试按钮 - 支持 Anthropic 和使用 Claude 模型的代理 */}
+          {(config.provider === 'anthropic' ||
+            config.models?.some(m => m.toLowerCase().includes('claude'))) &&
+            onTestAPI && (
+              <button
+                onClick={onTestAPI}
+                disabled={!apiKey}
+                className={`
+                px-3 py-2 text-sm font-medium rounded-md transition-colors
+                ${!apiKey
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-purple-100 text-purple-700 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:hover:bg-purple-900/50'
+                  }
+              `}
+                title="测试代理商支持的所有 Claude 模型"
+              >
+                🔍 测试
+              </button>
+            )}
         </div>
       </div>
 
@@ -215,6 +237,8 @@ export const APIConfigPanel: React.FC<APIConfigPanelProps> = ({
   const [validationResults, setValidationResults] = useState<Record<APIProvider, ValidationResult>>({} as Record<APIProvider, ValidationResult>);
   const [validatingProviders, setValidatingProviders] = useState<Set<APIProvider>>(new Set());
   const [defaultModel, setDefaultModel] = useState('gpt-4o');
+  const [showAPITester, setShowAPITester] = useState(false);
+  const [testerConfig, setTesterConfig] = useState<{ apiKey: string; baseUrl: string } | null>(null);
 
   // 加载配置
   useEffect(() => {
@@ -240,7 +264,7 @@ export const APIConfigPanel: React.FC<APIConfigPanelProps> = ({
 
   const handleValidate = useCallback(async (provider: APIProvider) => {
     setValidatingProviders(prev => new Set(prev).add(provider));
-    
+
     try {
       const result = await manager.validateCredentials(provider);
       setValidationResults(prev => ({ ...prev, [provider]: result }));
@@ -264,6 +288,14 @@ export const APIConfigPanel: React.FC<APIConfigPanelProps> = ({
     }
   }, [manager, refreshConfigs, onConfigChange]);
 
+  const handleOpenAPITester = useCallback((config: ProviderConfig) => {
+    setTesterConfig({
+      apiKey: config.apiKey,
+      baseUrl: config.baseUrl,
+    });
+    setShowAPITester(true);
+  }, []);
+
   const handleDefaultModelChange = useCallback(async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const model = e.target.value;
     manager.setDefaultModel(model);
@@ -274,7 +306,7 @@ export const APIConfigPanel: React.FC<APIConfigPanelProps> = ({
 
   const handleValidateAll = useCallback(async () => {
     const providers = configs.filter(c => c.apiKey).map(c => c.provider);
-    
+
     for (const provider of providers) {
       await handleValidate(provider);
     }
@@ -342,6 +374,7 @@ export const APIConfigPanel: React.FC<APIConfigPanelProps> = ({
               onUpdate={(update) => handleUpdateProvider(config.provider, update)}
               onValidate={() => handleValidate(config.provider)}
               onSetActive={() => handleSetActive(config.provider)}
+              onTestAPI={() => handleOpenAPITester(config)}
               isValidating={validatingProviders.has(config.provider)}
             />
           ))}
@@ -353,6 +386,15 @@ export const APIConfigPanel: React.FC<APIConfigPanelProps> = ({
           💡 推荐使用 HiAPI 中转服务，支持多种模型，价格优惠。
         </p>
       </div>
+
+      {/* Claude API 测试弹窗 */}
+      {showAPITester && testerConfig && (
+        <ClaudeAPITester
+          apiKey={testerConfig.apiKey}
+          baseUrl={testerConfig.baseUrl}
+          onClose={() => setShowAPITester(false)}
+        />
+      )}
     </div>
   );
 };

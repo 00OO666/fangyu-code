@@ -11,8 +11,7 @@
  * @version 1.0.0
  */
 
-import type React from "react";
-import { createContext, type ReactNode, useCallback, useContext, useRef, useState } from "react";
+import { createContext, type ReactNode, useCallback, useContext, useMemo, useRef, useState } from "react";
 import type { ModelType } from "@/components/FloatingPromptInput/types";
 
 // ============================================================================
@@ -98,7 +97,7 @@ export interface PromptQueueActions {
 /**
  * 完整的队列 Context 值
  */
-export interface PromptQueueContextValue extends PromptQueueState, PromptQueueActions {}
+export interface PromptQueueContextValue extends PromptQueueState, PromptQueueActions { }
 
 // ============================================================================
 // Context
@@ -127,10 +126,10 @@ function estimateTokens(text: string): number {
  * 生成唯一 ID
  */
 function generateId(): string {
-  return `pq-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  return `pq-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
 }
 
-export const PromptQueueProvider: React.FC<PromptQueueProviderProps> = ({ children }) => {
+export const PromptQueueProvider = ({ children }: PromptQueueProviderProps) => {
   const [items, setItems] = useState<PromptQueueItem[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [currentItemId, setCurrentItemId] = useState<string | null>(null);
@@ -138,6 +137,10 @@ export const PromptQueueProvider: React.FC<PromptQueueProviderProps> = ({ childr
 
   // 用于跟踪撤回的项（供外部获取）
   const lastRevokedRef = useRef<string | null>(null);
+
+  // 🔧 FIX: 使用 ref 存储 items，避免 getter 函数依赖 items 导致无限循环
+  const itemsRef = useRef<PromptQueueItem[]>(items);
+  itemsRef.current = items;
 
   // 添加到队列
   const enqueue = useCallback(
@@ -251,19 +254,20 @@ export const PromptQueueProvider: React.FC<PromptQueueProviderProps> = ({ childr
     console.log("[PromptQueue] 队列已清空");
   }, []);
 
+  // 🔧 FIX: 移除 items 依赖，改用 itemsRef 访问最新值
   // 获取下一个待发送项（sequential 模式）
   const getNextSequential = useCallback((): PromptQueueItem | null => {
-    return items.find((item) => item.status === "pending" && item.mode === "sequential") || null;
-  }, [items]);
+    return itemsRef.current.find((item) => item.status === "pending" && item.mode === "sequential") || null;
+  }, []);
 
   // 获取所有待合并项（merge 模式）
   const getMergeItems = useCallback((): PromptQueueItem[] => {
-    return items.filter((item) => item.status === "pending" && item.mode === "merge");
-  }, [items]);
+    return itemsRef.current.filter((item) => item.status === "pending" && item.mode === "merge");
+  }, []);
 
   // 打包合并指令为单条
   const getMergedPrompt = useCallback((): string | null => {
-    const mergeItems = items.filter((item) => item.status === "pending" && item.mode === "merge");
+    const mergeItems = itemsRef.current.filter((item) => item.status === "pending" && item.mode === "merge");
 
     if (mergeItems.length === 0) return null;
     if (mergeItems.length === 1) return mergeItems[0].prompt;
@@ -274,7 +278,7 @@ export const PromptQueueProvider: React.FC<PromptQueueProviderProps> = ({ childr
       .join("\n\n---\n\n");
 
     return `以下是多个相关任务，请按顺序依次处理：\n\n${merged}`;
-  }, [items]);
+  }, []);
 
   // 移动队列项位置
   const reorderItem = useCallback((itemId: string, newIndex: number) => {
@@ -307,18 +311,21 @@ export const PromptQueueProvider: React.FC<PromptQueueProviderProps> = ({ childr
     console.log("[PromptQueue] 更新提示词:", { itemId, promptPreview: prompt.substring(0, 50) });
   }, []);
 
+  // 🔧 FIX: 移除 items 依赖，改用 itemsRef 访问最新值
   // 获取队列统计
   const getStats = useCallback(() => {
+    const currentItems = itemsRef.current;
     const stats = {
-      total: items.length,
-      pending: items.filter((i) => i.status === "pending").length,
-      sending: items.filter((i) => i.status === "sending").length,
-      sent: items.filter((i) => i.status === "sent").length,
+      total: currentItems.length,
+      pending: currentItems.filter((i) => i.status === "pending").length,
+      sending: currentItems.filter((i) => i.status === "sending").length,
+      sent: currentItems.filter((i) => i.status === "sent").length,
     };
     return stats;
-  }, [items]);
+  }, []);
 
-  const contextValue: PromptQueueContextValue = {
+  // 🔧 FIX: 简化依赖数组，getter 函数现在是稳定的（不依赖 items）
+  const contextValue: PromptQueueContextValue = useMemo(() => ({
     // State
     items,
     isProcessing,
@@ -340,7 +347,27 @@ export const PromptQueueProvider: React.FC<PromptQueueProviderProps> = ({ childr
     updateItemPrompt,
     setAutoMerge,
     getStats,
-  };
+  }), [
+    items,
+    isProcessing,
+    currentItemId,
+    autoMerge,
+    // 以下函数都是稳定的（空依赖或只依赖 setItems）
+    enqueue,
+    dequeue,
+    revokeToInput,
+    markSending,
+    markSent,
+    markFailed,
+    clearQueue,
+    getNextSequential,
+    getMergeItems,
+    getMergedPrompt,
+    reorderItem,
+    updateItemMode,
+    updateItemPrompt,
+    getStats,
+  ]);
 
   return <PromptQueueContext.Provider value={contextValue}>{children}</PromptQueueContext.Provider>;
 };

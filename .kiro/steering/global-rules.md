@@ -29,6 +29,12 @@
 - 每个项目必须有明确的项目标记
 - **桌面文件规则**: 所有需要保存到桌面的文件，先在当前工作目录创建，然后用 `Copy-Item` 复制到 `E:\Desktop`（因为 Kiro 文件操作受限于 workspace）
 
+## 🔴 读取工作区外文件（重要！）
+- ❌ 禁止使用 `readFile` 工具读取工作区外的文件（会报 Access denied）
+- ✅ 必须使用 `Get-Content` PowerShell 命令读取工作区外的文件
+- 示例：`Get-Content 'E:\Desktop\xxx.md' -Encoding UTF8`
+- 适用场景：桌面文件、其他项目目录、系统配置文件等
+
 ## 失败后必须搜索
 失败 2 次后必须 WebSearch 或使用 MCP 搜索解决方案
 
@@ -46,6 +52,20 @@
 当提到特定项目时，系统会自动读取相关 steering 文件：
 - **Fangyu Code** - 触发词：fangyu code, tauri, 桌面应用 → 参考 `fangyu-code.md`
 - **PbootCMS** - 触发词：pbootcms, 外贸网站, 8.136.42.225 → 参考 `pbootcms.md`（手动引用 #pbootcms）
+
+## ⭐ Vercel 官方最佳实践（自动调用）
+以下任务必须参考对应的 Vercel Skills：
+
+| 任务类型 | 触发词 | 参考文件 |
+|---------|--------|----------|
+| React/Next.js 开发 | React、Next.js、性能优化、重渲染、bundle | `#skills-react-best-practices` |
+| UI/界面设计 | UI规范、可访问性、a11y、交互设计、表单 | `#skills-web-interface-guidelines` |
+
+**自动调用规则**：
+- ✅ 写 React 组件时 → 参考 React Best Practices（消除瀑布流、Bundle 优化）
+- ✅ 审查 React 代码时 → 检查是否符合 40+ 条性能规则
+- ✅ 设计 UI 交互时 → 参考 Web Interface Guidelines（MUST/SHOULD/NEVER）
+- ✅ 处理表单/键盘/动画时 → 参考对应章节的具体规范
 
 ## MCP 工具索引
 已配置的 MCP 服务器（默认禁用，需要时启用）：
@@ -79,6 +99,40 @@
 - ✅ 及时删除废弃的文件、函数、变量
 - ✅ 避免注释掉的代码堆积
 - ✅ 保持代码库整洁，不干扰后续重构
+
+### 🚀 GitHub 发布流程（重要！）
+发布新版本时必须严格遵循以下流程：
+
+**第一步：本地验证**
+1. 先在本地运行 `npm run build` 确保构建成功
+2. 如果构建失败，修复问题后再继续
+
+**第二步：版本号和更新公告**
+1. 升级三处版本号（package.json、tauri.conf.json、Cargo.toml）
+2. 更新 CHANGELOGS（useFirstLaunchChangelog.ts）
+3. 更新 FALLBACK_VERSION
+
+**第三步：提交和推送**
+1. 用**产品功能描述**作为 commit message，不要用内部修复描述
+   - ✅ 正确：`v2.7.3: 统一工作流系统 - DAG 可视化，智能代理调度`
+   - ❌ 错误：`fix: 修复 EventEmitter 浏览器兼容性问题`
+2. 推送到 main 分支
+3. 创建 tag：`git tag -a v2.x.x -m "Release v2.x.x - 功能描述"`
+4. 推送 tag：`git push origin-ssh v2.x.x`
+
+**第四步：监控构建**
+1. 等待 GitHub Actions 构建完成
+2. 如果构建失败：
+   - 在本地修复问题
+   - **删除远程 tag**：`git push origin-ssh :refs/tags/v2.x.x`
+   - **删除本地 tag**：`git tag -d v2.x.x`
+   - 修复后重新提交，commit message 仍用产品功能描述
+   - 重新创建并推送 tag
+
+**关键原则**
+- ❌ 禁止用内部修复信息作为 Release 标题（用户不需要知道构建问题）
+- ✅ Release 标题必须是产品功能更新描述
+- ✅ 构建失败时删除 tag 重来，而不是追加 fix commit
 
 ## 配置文件位置
 - **Steering**: `.kiro/steering/*.md`（本目录）

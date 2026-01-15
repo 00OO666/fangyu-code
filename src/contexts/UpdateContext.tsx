@@ -4,6 +4,7 @@ import React, {
   useState,
   useEffect,
   useCallback,
+  useRef,
 } from "react";
 import type { UpdateInfo, UpdateHandle } from "../lib/updater";
 import { useUpdateCheck } from "../hooks/useUpdateCheck";
@@ -84,7 +85,7 @@ export function UpdateProvider({ children }: { children: React.ReactNode }) {
       } else {
         setIsDismissed(isDismissedVersion);
       }
-      
+
       return true; // 有更新
     } else {
       // up-to-date or error
@@ -121,15 +122,20 @@ export function UpdateProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem(LEGACY_DISMISSED_KEY);
   }, []);
 
-  // 应用启动时自动检查更新
+  // 应用启动时自动检查更新 - 只在挂载时执行一次
+  // 使用 ref 存储最新的 checkUpdate，避免因依赖变化导致重复执行
+  const checkUpdateRef = useRef(checkUpdate);
+  checkUpdateRef.current = checkUpdate;
+
   useEffect(() => {
     // 延迟2秒后检查，避免影响启动体验
     const timer = setTimeout(() => {
-      checkUpdate(false).catch(console.error);
+      checkUpdateRef.current(false).catch(console.error);
     }, 2000);
 
     return () => clearTimeout(timer);
-  }, [checkUpdate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // 空依赖数组，只在挂载时执行
 
   const value: UpdateContextValue = {
     hasUpdate,

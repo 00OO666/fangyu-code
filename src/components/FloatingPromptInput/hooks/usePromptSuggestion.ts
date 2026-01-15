@@ -458,16 +458,21 @@ export function usePromptSuggestion({
 
   /**
    * 当用户输入变化时，立即清除当前建议
+   * 🔧 FIX: 移除 suggestion 依赖，避免潜在的循环
    */
+  const suggestionRef = useRef(suggestion);
+  suggestionRef.current = suggestion;
+
   useEffect(() => {
     // 如果用户正在输入，暂时隐藏建议
     if (currentPrompt.length > 0) {
       // 检查建议是否以用户输入开头
-      if (suggestion && !suggestion.text.toLowerCase().startsWith(currentPrompt.toLowerCase())) {
+      const currentSuggestion = suggestionRef.current;
+      if (currentSuggestion && !currentSuggestion.text.toLowerCase().startsWith(currentPrompt.toLowerCase())) {
         setSuggestion(null);
       }
     }
-  }, [currentPrompt, suggestion]);
+  }, [currentPrompt]); // 只依赖 currentPrompt，不依赖 suggestion
 
   /**
    * 接受建议

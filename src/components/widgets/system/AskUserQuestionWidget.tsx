@@ -10,12 +10,14 @@
  * - 🆕 自动触发交互式对话框（未回答时）
  */
 
-import React, { useState, useMemo, useEffect, useRef } from "react";
+import React, { useState, useMemo, useEffect, useRef, useContext } from "react";
 import { useTranslation } from "react-i18next";
 import { HelpCircle, CheckCircle, MessageCircle, ChevronDown, ChevronUp, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { useUserQuestion, getQuestionId } from "@/contexts/UserQuestionContext";
+import { getQuestionId } from "@/contexts/UserQuestionContext";
+// 🔧 FIX: 直接导入 Context 以便安全地使用 useContext
+import { UserQuestionContext } from "@/contexts/UserQuestionContext";
 
 export interface AskUserQuestionWidgetProps {
   /** 问题列表 */
@@ -86,17 +88,11 @@ export const AskUserQuestionWidget: React.FC<AskUserQuestionWidgetProps> = ({
     setIsCollapsed(!isCollapsed);
   };
 
-  // 🆕 尝试获取 UserQuestion Context
-  let triggerQuestionDialog: ((questions: any[]) => void) | undefined;
-  let isQuestionAnswered: ((questionId: string) => boolean) | undefined;
-
-  try {
-    const userQuestionContext = useUserQuestion();
-    triggerQuestionDialog = userQuestionContext.triggerQuestionDialog;
-    isQuestionAnswered = userQuestionContext.isQuestionAnswered;
-  } catch {
-    // Context 不可用时忽略（组件可能在 Provider 外部渲染）
-  }
+  // 🆕 安全获取 UserQuestion Context
+  // 🔧 FIX: 使用 useContext 直接获取，如果 Provider 不存在则返回 undefined（不会抛错）
+  const userQuestionContext = useContext(UserQuestionContext);
+  const triggerQuestionDialog = userQuestionContext?.triggerQuestionDialog;
+  const isQuestionAnswered = userQuestionContext?.isQuestionAnswered;
 
   // 计算问题 ID
   const questionId = useMemo(() => {

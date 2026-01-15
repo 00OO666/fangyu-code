@@ -236,6 +236,10 @@ const StreamMessageV2Component: React.FC<StreamMessageV2Props> = ({
  * - 避免大对象序列化开销（从 O(n) 降低到 O(1)）
  * - 优先使用引用比较和浅比较
  * - 只在必要时进行深度比较
+ *
+ * 🔧 FIX v2.3: 完善深度比较逻辑
+ * - 添加 thinking 类型内容的比较
+ * - 添加 tool_result 的 content 比较
  */
 const isMessageEqual = (prev: ClaudeStreamMessage | undefined, next: ClaudeStreamMessage | undefined): boolean => {
   // 引用相同，直接返回
@@ -274,14 +278,30 @@ const isMessageEqual = (prev: ClaudeStreamMessage | undefined, next: ClaudeStrea
       // 对于文本内容，比较文本
       if (prevItem?.type === 'text' && prevItem?.text !== nextItem?.text) return false;
 
+      // 🔧 FIX: 对于 thinking 内容，比较 thinking 字段
+      if (prevItem?.type === 'thinking') {
+        if (prevItem?.thinking !== nextItem?.thinking) return false;
+      }
+
       // 对于工具调用，比较 ID 和名称
       if (prevItem?.type === 'tool_use') {
         if (prevItem?.id !== nextItem?.id || prevItem?.name !== nextItem?.name) return false;
       }
 
-      // 对于工具结果，比较 tool_use_id
-      if (prevItem?.type === 'tool_result' && prevItem?.tool_use_id !== nextItem?.tool_use_id) {
-        return false;
+      // 🔧 FIX: 对于工具结果，比较 tool_use_id 和 content
+      if (prevItem?.type === 'tool_result') {
+        if (prevItem?.tool_use_id !== nextItem?.tool_use_id) return false;
+        // 比较 content（可能是字符串或对象）
+        const prevResultContent = prevItem?.content;
+        const nextResultContent = nextItem?.content;
+        if (typeof prevResultContent === 'string' && typeof nextResultContent === 'string') {
+          if (prevResultContent !== nextResultContent) return false;
+        } else if (prevResultContent !== nextResultContent) {
+          // 对于非字符串内容，使用引用比较（避免深度比较开销）
+          // 如果引用不同但内容可能相同，这里会返回 false 导致重渲染
+          // 这是一个性能和正确性的权衡
+          return false;
+        }
       }
     }
   } else if (prevContent !== nextContent) {
@@ -366,10 +386,19 @@ const isMessageGroupEqual = (prev: MessageGroup | undefined, next: MessageGroup 
  * - Shallow property comparison (O(1))
  * - Smart content comparison (O(n) where n is content items, not full serialization)
  * - Function references assumed stable via useCallback
+ *
+ * 🔧 FIX v2.3: 完善比较逻辑
+ * - 添加 projectPath 比较到 messageGroup 分支
+ * - 显式比较回调函数引用（不再假设稳定）
  */
 export const StreamMessageV2 = React.memo(
   StreamMessageV2Component,
   (prevProps, nextProps) => {
+    // 🔧 FIX: 先比较回调函数引用，如果不稳定则需要重渲染
+    // 这比假设稳定更安全，虽然可能导致额外重渲染
+    if (prevProps.onLinkDetected !== nextProps.onLinkDetected) return false;
+    if (prevProps.onRevert !== nextProps.onRevert) return false;
+
     // 如果使用 messageGroup，使用智能分组比较
     if (prevProps.messageGroup || nextProps.messageGroup) {
       return (
@@ -378,6 +407,7 @@ export const StreamMessageV2 = React.memo(
         prevProps.promptIndex === nextProps.promptIndex &&
         prevProps.sessionId === nextProps.sessionId &&
         prevProps.projectId === nextProps.projectId &&
+        prevProps.projectPath === nextProps.projectPath && // 🔧 FIX: 添加 projectPath 比较
         prevProps.claudeSettings?.showSystemInitialization === nextProps.claudeSettings?.showSystemInitialization
       );
     }
@@ -396,7 +426,6 @@ export const StreamMessageV2 = React.memo(
       prevProps.projectId === nextProps.projectId &&
       prevProps.projectPath === nextProps.projectPath &&
       prevProps.claudeSettings?.showSystemInitialization === nextProps.claudeSettings?.showSystemInitialization
-      // Note: onLinkDetected and onRevert are assumed to be stable via useCallback
     );
   }
 );

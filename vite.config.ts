@@ -35,15 +35,25 @@ export default defineConfig(async () => ({
     host: host || '127.0.0.1',
     hmr: host
       ? {
-          protocol: "ws",
-          host,
-          port: 5174,
-        }
+        protocol: "ws",
+        host,
+        port: 5174,
+      }
       : undefined,
     watch: {
       // 3. tell vite to ignore watching `src-tauri`
       ignored: ["**/src-tauri/**"],
     },
+  },
+
+  // Optimize dependencies (pre-bundle for faster dev startup)
+  optimizeDeps: {
+    include: [
+      'lucide-react',
+      'framer-motion',
+      'react-markdown',
+      'remark-gfm',
+    ],
   },
 
   // Build configuration for code splitting and optimization
@@ -71,6 +81,8 @@ export default defineConfig(async () => ({
             "@radix-ui/react-switch",
             "@radix-ui/react-popover",
           ],
+          "icons-vendor": ["lucide-react"],
+          "motion-vendor": ["framer-motion"],
           "editor-vendor": ["@uiw/react-md-editor"],
           "syntax-vendor": ["react-syntax-highlighter"],
           utils: ["clsx", "tailwind-merge"],

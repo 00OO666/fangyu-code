@@ -27,7 +27,7 @@ use commands::devtools::{open_devtools, close_devtools, is_devtools_open};
 use commands::diagnostics::{run_diagnostics, fix_all_issues, fix_issue};
 use commands::claude::{
     cancel_claude_execution, check_claude_version, clear_custom_claude_path, continue_claude_code,
-    delete_project, delete_project_permanently, delete_session, delete_sessions_batch,
+    delete_project, delete_project_permanently, delete_session, delete_sessions_batch, delete_sessions_by_pattern,
     execute_claude_code, find_claude_md_files, get_available_tools, get_claude_execution_config,
     get_claude_path, get_claude_permission_config, get_claude_session_output, get_claude_settings,
     get_codex_system_prompt, get_hooks_config, get_active_hooks, get_permission_presets, get_project_sessions,
@@ -75,7 +75,7 @@ use commands::prompt_tracker::{
 use commands::provider::{
     add_provider_config, clear_provider_config, delete_provider_config,
     get_current_provider_config, get_provider_config, get_provider_presets, query_provider_usage,
-    switch_provider_config, test_provider_connection, update_provider_config,
+    save_claude_env_vars, switch_provider_config, test_provider_connection, update_provider_config,
 };
 use commands::simple_git::{check_and_init_git, check_reset_safety, precise_revert_code};
 use commands::storage::{
@@ -399,6 +399,7 @@ fn main() {
             get_project_sessions,
             delete_session,
             delete_sessions_batch,
+            delete_sessions_by_pattern,
             delete_project,
             restore_project,
             list_hidden_projects,
@@ -522,6 +523,7 @@ fn main() {
             delete_provider_config,
             get_provider_config,
             query_provider_usage,
+            save_claude_env_vars,
             // Translation
             translate,
             translate_batch,
@@ -538,6 +540,7 @@ fn main() {
             commands::context_commands::register_auto_compact_session,
             commands::context_commands::update_session_context,
             commands::context_commands::trigger_manual_compaction,
+            commands::context_commands::execute_compact,
             commands::context_commands::get_auto_compact_config,
             commands::context_commands::update_auto_compact_config,
             commands::context_commands::get_session_context_stats,

@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { X, Plus, MoreHorizontal, MessageSquare, ArrowLeft, ExternalLink, Zap, Bot, Sparkles, Loader2, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -91,7 +91,9 @@ export const TabManager: React.FC<TabManagerProps> = ({
 
   const [draggedTab, setDraggedTab] = useState<string | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null); // 🔧 NEW: 拖拽悬停的位置
-  const [tabToClose, setTabToClose] = useState<string | null>(null); // 🔧 NEW: 待关闭的标签页ID（需要确认）
+  // 🔧 FIX: 使用空字符串作为初始值，避免 Dialog 从 uncontrolled 变为 controlled
+  // 空字符串表示没有待关闭的标签页，非空字符串表示有待关闭的标签页
+  const [tabToClose, setTabToClose] = useState<string>(''); // 🔧 NEW: 待关闭的标签页ID（需要确认）
   const [editingTabId, setEditingTabId] = useState<string | null>(null); // 🆕 正在编辑的标签页ID
   const [editingTitle, setEditingTitle] = useState<string>(''); // 🆕 编辑中的标题
   const editInputRef = useRef<HTMLInputElement>(null); // 🆕 编辑输入框引用
@@ -168,7 +170,7 @@ export const TabManager: React.FC<TabManagerProps> = ({
 
     // 如果需要确认，显示Dialog
     if (result && typeof result === 'object' && 'needsConfirmation' in result && result.needsConfirmation) {
-      setTabToClose(result.tabId || null);
+      setTabToClose(result.tabId || '');
     }
   }, [closeTab]);
 
@@ -176,7 +178,7 @@ export const TabManager: React.FC<TabManagerProps> = ({
   const confirmCloseTab = useCallback(async () => {
     if (tabToClose) {
       await closeTab(tabToClose, true); // force close
-      setTabToClose(null);
+      setTabToClose('');
     }
   }, [tabToClose, closeTab]);
 
@@ -295,25 +297,22 @@ export const TabManager: React.FC<TabManagerProps> = ({
               ref={tabsContainerRef}
               className="flex-1 flex items-center gap-1 sm:gap-2 overflow-x-auto scrollbar-thin min-w-0"
             >
-              <AnimatePresence mode="popLayout">
-                {tabs.map((tab, index) => {
-                  const tabEngine = tab.session?.engine ?? tab.engine ?? 'claude';
-                  // 🆕 检查全局任务状态（通过 tabId 或 sessionId）
-                  const hasGlobalTask = tab.session?.id
-                    ? Array.from(globalTaskState.tasks.values()).some(
-                        task => (task.tabId === tab.id || task.sessionId === tab.session?.id) &&
-                                (task.status === 'running' || task.status === 'pending')
-                      )
-                    : false;
-                  return (
+              {/* 🔧 FIX: 移除 AnimatePresence mode="popLayout"，因为它会尝试给 Tooltip 添加 ref 导致警告 */}
+              {/* 标签页动画改用 CSS transition 实现 */}
+              {tabs.map((tab, index) => {
+                const tabEngine = tab.session?.engine ?? tab.engine ?? 'claude';
+                // 🆕 检查全局任务状态（通过 tabId 或 sessionId）
+                const hasGlobalTask = tab.session?.id
+                  ? Array.from(globalTaskState.tasks.values()).some(
+                    task => (task.tabId === tab.id || task.sessionId === tab.session?.id) &&
+                      (task.status === 'running' || task.status === 'pending')
+                  )
+                  : false;
+                return (
                   <Tooltip key={tab.id}>
+                    {/* 🔧 FIX: 使用普通 div 作为 TooltipTrigger 的目标，避免 motion.div 的 ref 问题 */}
                     <TooltipTrigger asChild>
-                      <motion.div
-                        layout
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.15 }}
+                      <div
                         className={cn(
                           "group relative flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 rounded-lg min-w-[80px] sm:min-w-[100px] max-w-[150px] sm:max-w-[200px] flex-shrink-0 cursor-pointer",
                           "transition-colors",
@@ -427,7 +426,7 @@ export const TabManager: React.FC<TabManagerProps> = ({
                         >
                           <X className="h-3 w-3" />
                         </button>
-                      </motion.div>
+                      </div>
                     </TooltipTrigger>
                     <TooltipContent side="bottom" className="max-w-sm">
                       <div className="space-y-1.5 text-xs">
@@ -479,9 +478,8 @@ export const TabManager: React.FC<TabManagerProps> = ({
                       </div>
                     </TooltipContent>
                   </Tooltip>
-                  );
-                })}
-              </AnimatePresence>
+                );
+              })}
 
               {/* 新建标签页按钮 */}
               <Tooltip>
@@ -613,7 +611,7 @@ export const TabManager: React.FC<TabManagerProps> = ({
                 <motion.div
                   initial={{ y: -20 }}
                   animate={{ y: 0 }}
-                  transition={{ 
+                  transition={{
                     type: "spring",
                     stiffness: 200,
                     damping: 20,
@@ -672,7 +670,8 @@ export const TabManager: React.FC<TabManagerProps> = ({
         </div>
 
         {/* 🔧 NEW: 自定义关闭确认Dialog */}
-        <Dialog open={tabToClose !== null} onOpenChange={(open) => !open && setTabToClose(null)}>
+        {/* 🔧 FIX: 使用 Boolean 确保 open 始终是 boolean 类型，避免 uncontrolled to controlled 警告 */}
+        <Dialog open={Boolean(tabToClose)} onOpenChange={(open) => !open && setTabToClose('')}>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>{t('tabs.confirmCloseTab')}</DialogTitle>
@@ -681,7 +680,7 @@ export const TabManager: React.FC<TabManagerProps> = ({
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setTabToClose(null)}>
+              <Button variant="outline" onClick={() => setTabToClose('')}>
                 {t('buttons.cancel')}
               </Button>
               <Button variant="destructive" onClick={confirmCloseTab}>
@@ -691,6 +690,6 @@ export const TabManager: React.FC<TabManagerProps> = ({
           </DialogContent>
         </Dialog>
       </div>
-    </TooltipProvider>
+    </TooltipProvider >
   );
 };
