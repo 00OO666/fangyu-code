@@ -5,6 +5,29 @@ use std::process::Command;
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
 
+/// Safely set the current directory for a Command
+/// Handles paths with Chinese characters and other Unicode on Windows
+fn safe_current_dir(cmd: &mut Command, project_path: &str) -> Result<(), String> {
+    let path = Path::new(project_path);
+
+    // Validate path exists
+    if !path.exists() {
+        return Err(format!("Path does not exist: {}", project_path));
+    }
+
+    // Validate it's a directory
+    if !path.is_dir() {
+        return Err(format!("Path is not a directory: {}", project_path));
+    }
+
+    // Try to canonicalize the path (resolves to absolute path with proper Unicode handling)
+    let canonical_path = path.canonicalize()
+        .map_err(|e| format!("Failed to canonicalize path '{}': {}", project_path, e))?;
+
+    cmd.current_dir(&canonical_path);
+    Ok(())
+}
+
 /// Check if a directory is a Git repository
 pub fn is_git_repo(project_path: &str) -> bool {
     Path::new(project_path).join(".git").exists()
@@ -785,3 +808,548 @@ pub fn check_reset_safety(
     })
 }
 
+
+
+// ============================================================================
+// Git Panel Commands (Git 面板命令 - 用于 GitChangesPanel)
+// ============================================================================
+
+/// File status in Git
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GitFileStatus {
+    /// File path relative to repository root
+    pub path: String,
+    /// Status code: M (modified), A (added), D (deleted), ? (untracked), R (renamed)
+    pub status: String,
+    /// Whether the file is staged
+    pub staged: bool,
+}
+
+/// Commit information
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GitCommitInfo {
+    /// Full commit hash
+    pub hash: String,
+    /// Short commit hash (7 chars)
+    pub short_hash: String,
+    /// Commit message
+    pub message: String,
+    /// Author name
+    pub author: String,
+    /// Timestamp (ISO format)
+    pub timestamp: String,
+    /// Relative time (e.g., "2 hours ago")
+    pub relative_time: String,
+    /// Number of files changed
+    pub files_changed: i32,
+    /// Lines added
+    pub insertions: i32,
+    /// Lines deleted
+    pub deletions: i32,
+}
+
+/// Git command result
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GitCommandResult {
+    pub success: bool,
+    pub output: Option<String>,
+    pub error: Option<String>,
+}
+
+/// Get the status of all files in the repository
+#[tauri::command]
+pub fn git_status(project_path: String) -> Result<Vec<GitFileStatus>, String> {
+    if !is_git_repo(&project_path) {
+        return Err("Not a Git repository".to_string());
+    }
+
+    let mut cmd = Command::new("git");
+    cmd.args(["status", "--porcelain", "-uall"]);
+    cmd.current_dir(&project_path);
+
+    #[cfg(target_os = "windows")]
+    cmd.creation_flags(0x08000000);
+
+    let output = cmd
+        .output()
+        .map_err(|e| format!("Failed to execute git status: {}", e))?;
+
+    if !output.status.success() {
+        return Err(format!(
+            "Git status failed: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
+    }
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let mut files = Vec::new();
+
+    for line in stdout.lines() {
+        if line.len() < 4 {
+            continue;
+        }
+
+        // Git status format: XY filename
+        // X = staged status, Y = unstaged status
+        let staged_status = line.chars().nth(0).unwrap_or(' ');
+        let unstaged_status = line.chars().nth(1).unwrap_or(' ');
+        let path = line[3..].trim().to_string();
+
+        // Handle renamed files (format: "R  old -> new")
+        let path = if path.contains(" -> ") {
+            path.split(" -> ").last().unwrap_or(&path).to_string()
+        } else {
+            path
+        };
+
+        // Determine the primary status
+        let (status, staged) = if staged_status != ' ' && staged_status != '?' {
+            (staged_status.to_string(), true)
+        } else {
+            (
+                if unstaged_status == '?' {
+                    "?".to_string()
+                } else {
+                    unstaged_status.to_string()
+                },
+                false,
+            )
+        };
+
+        files.push(GitFileStatus {
+            path,
+            status,
+            staged,
+        });
+    }
+
+    Ok(files)
+}
+
+/// Get recent commits
+#[tauri::command]
+pub fn git_log(project_path: String, count: Option<i32>) -> Result<Vec<GitCommitInfo>, String> {
+    if !is_git_repo(&project_path) {
+        return Err("Not a Git repository".to_string());
+    }
+
+    let count = count.unwrap_or(20);
+
+    let mut cmd = Command::new("git");
+    cmd.args([
+        "log",
+        &format!("-{}", count),
+        "--format=%H|%h|%s|%an|%aI|%ar",
+        "--shortstat",
+    ]);
+    cmd.current_dir(&project_path);
+
+    #[cfg(target_os = "windows")]
+    cmd.creation_flags(0x08000000);
+
+    let output = cmd
+        .output()
+        .map_err(|e| format!("Failed to execute git log: {}", e))?;
+
+    if !output.status.success() {
+        return Err(format!(
+            "Git log failed: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
+    }
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let mut commits = Vec::new();
+    let mut current_commit: Option<GitCommitInfo> = None;
+
+    for line in stdout.lines() {
+        if line.contains('|') && line.split('|').count() >= 6 {
+            // Save previous commit if exists
+            if let Some(commit) = current_commit.take() {
+                commits.push(commit);
+            }
+
+            // Parse new commit line
+            let parts: Vec<&str> = line.split('|').collect();
+            if parts.len() >= 6 {
+                current_commit = Some(GitCommitInfo {
+                    hash: parts[0].to_string(),
+                    short_hash: parts[1].to_string(),
+                    message: parts[2].to_string(),
+                    author: parts[3].to_string(),
+                    timestamp: parts[4].to_string(),
+                    relative_time: parts[5].to_string(),
+                    files_changed: 0,
+                    insertions: 0,
+                    deletions: 0,
+                });
+            }
+        } else if let Some(ref mut commit) = current_commit {
+            // Parse stat line (e.g., " 3 files changed, 10 insertions(+), 5 deletions(-)")
+            if line.contains("file") && line.contains("changed") {
+                // Extract numbers using regex-like parsing
+                let parts: Vec<&str> = line.split_whitespace().collect();
+                for (i, part) in parts.iter().enumerate() {
+                    if *part == "file" || *part == "files" {
+                        if i > 0 {
+                            commit.files_changed = parts[i - 1].parse().unwrap_or(0);
+                        }
+                    } else if part.contains("insertion") {
+                        if i > 0 {
+                            commit.insertions = parts[i - 1].parse().unwrap_or(0);
+                        }
+                    } else if part.contains("deletion") {
+                        if i > 0 {
+                            commit.deletions = parts[i - 1].parse().unwrap_or(0);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Don't forget the last commit
+    if let Some(commit) = current_commit {
+        commits.push(commit);
+    }
+
+    Ok(commits)
+}
+
+/// Get diff for a file or all files
+#[tauri::command]
+pub fn git_diff(
+    project_path: String,
+    file_path: Option<String>,
+    staged: Option<bool>,
+) -> Result<String, String> {
+    if !is_git_repo(&project_path) {
+        return Err("Not a Git repository".to_string());
+    }
+
+    let mut cmd = Command::new("git");
+    let mut args = vec!["diff"];
+
+    if staged.unwrap_or(false) {
+        args.push("--cached");
+    }
+
+    if let Some(ref path) = file_path {
+        args.push("--");
+        args.push(path);
+    }
+
+    cmd.args(&args);
+    cmd.current_dir(&project_path);
+
+    #[cfg(target_os = "windows")]
+    cmd.creation_flags(0x08000000);
+
+    let output = cmd
+        .output()
+        .map_err(|e| format!("Failed to execute git diff: {}", e))?;
+
+    if !output.status.success() {
+        return Err(format!(
+            "Git diff failed: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
+    }
+
+    Ok(String::from_utf8_lossy(&output.stdout).to_string())
+}
+
+/// Reset to a specific commit
+#[tauri::command]
+pub fn git_reset(
+    project_path: String,
+    commit_hash: String,
+    mode: String,
+    create_backup: Option<bool>,
+) -> Result<GitCommandResult, String> {
+    if !is_git_repo(&project_path) {
+        return Err("Not a Git repository".to_string());
+    }
+
+    // Validate mode
+    let mode_arg = match mode.as_str() {
+        "soft" => "--soft",
+        "mixed" => "--mixed",
+        "hard" => "--hard",
+        _ => return Err(format!("Invalid reset mode: {}. Use soft, mixed, or hard.", mode)),
+    };
+
+    // Create backup branch if requested (especially for hard reset)
+    if create_backup.unwrap_or(mode == "hard") {
+        let backup_result = git_create_backup_branch(project_path.clone());
+        if let Err(e) = backup_result {
+            log::warn!("Failed to create backup branch: {}", e);
+        }
+    }
+
+    log::info!(
+        "[Git Reset] Resetting to {} with mode {}",
+        &commit_hash[..8.min(commit_hash.len())],
+        mode
+    );
+
+    let mut cmd = Command::new("git");
+    cmd.args(["reset", mode_arg, &commit_hash]);
+    cmd.current_dir(&project_path);
+
+    #[cfg(target_os = "windows")]
+    cmd.creation_flags(0x08000000);
+
+    let output = cmd
+        .output()
+        .map_err(|e| format!("Failed to execute git reset: {}", e))?;
+
+    if output.status.success() {
+        Ok(GitCommandResult {
+            success: true,
+            output: Some(String::from_utf8_lossy(&output.stdout).to_string()),
+            error: None,
+        })
+    } else {
+        Ok(GitCommandResult {
+            success: false,
+            output: None,
+            error: Some(String::from_utf8_lossy(&output.stderr).to_string()),
+        })
+    }
+}
+
+/// Revert a specific commit (creates a new commit that undoes the changes)
+#[tauri::command]
+pub fn git_revert_commit(project_path: String, commit_hash: String) -> Result<GitCommandResult, String> {
+    if !is_git_repo(&project_path) {
+        return Err("Not a Git repository".to_string());
+    }
+
+    log::info!(
+        "[Git Revert] Reverting commit {}",
+        &commit_hash[..8.min(commit_hash.len())]
+    );
+
+    let mut cmd = Command::new("git");
+    cmd.args(["revert", "--no-edit", &commit_hash]);
+    cmd.current_dir(&project_path);
+
+    #[cfg(target_os = "windows")]
+    cmd.creation_flags(0x08000000);
+
+    let output = cmd
+        .output()
+        .map_err(|e| format!("Failed to execute git revert: {}", e))?;
+
+    if output.status.success() {
+        Ok(GitCommandResult {
+            success: true,
+            output: Some(String::from_utf8_lossy(&output.stdout).to_string()),
+            error: None,
+        })
+    } else {
+        let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+        
+        // Check for conflicts
+        if stderr.contains("conflict") || stderr.contains("CONFLICT") {
+            // Abort the revert
+            let mut abort_cmd = Command::new("git");
+            abort_cmd.args(["revert", "--abort"]);
+            abort_cmd.current_dir(&project_path);
+            #[cfg(target_os = "windows")]
+            abort_cmd.creation_flags(0x08000000);
+            let _ = abort_cmd.output();
+
+            return Ok(GitCommandResult {
+                success: false,
+                output: None,
+                error: Some("Revert failed due to conflicts. The operation has been aborted.".to_string()),
+            });
+        }
+
+        Ok(GitCommandResult {
+            success: false,
+            output: None,
+            error: Some(stderr),
+        })
+    }
+}
+
+/// Restore a file to its state in HEAD or a specific commit
+#[tauri::command]
+pub fn git_restore(
+    project_path: String,
+    file_path: String,
+    source: Option<String>,
+    staged: Option<bool>,
+) -> Result<GitCommandResult, String> {
+    if !is_git_repo(&project_path) {
+        return Err("Not a Git repository".to_string());
+    }
+
+    log::info!(
+        "[Git Restore] Restoring file {} from {:?}",
+        file_path,
+        source
+    );
+
+    let mut cmd = Command::new("git");
+    let mut args = vec!["restore"];
+
+    if staged.unwrap_or(false) {
+        args.push("--staged");
+    }
+
+    if let Some(ref src) = source {
+        args.push("--source");
+        args.push(src);
+    }
+
+    args.push("--");
+    args.push(&file_path);
+
+    cmd.args(&args);
+    cmd.current_dir(&project_path);
+
+    #[cfg(target_os = "windows")]
+    cmd.creation_flags(0x08000000);
+
+    let output = cmd
+        .output()
+        .map_err(|e| format!("Failed to execute git restore: {}", e))?;
+
+    if output.status.success() {
+        Ok(GitCommandResult {
+            success: true,
+            output: Some(format!("Successfully restored {}", file_path)),
+            error: None,
+        })
+    } else {
+        Ok(GitCommandResult {
+            success: false,
+            output: None,
+            error: Some(String::from_utf8_lossy(&output.stderr).to_string()),
+        })
+    }
+}
+
+/// Create a backup branch with timestamp
+#[tauri::command]
+pub fn git_create_backup_branch(project_path: String) -> Result<String, String> {
+    if !is_git_repo(&project_path) {
+        return Err("Not a Git repository".to_string());
+    }
+
+    let timestamp = chrono::Local::now().format("%Y%m%d_%H%M%S");
+    let branch_name = format!("backup_{}", timestamp);
+
+    log::info!("[Git Backup] Creating backup branch: {}", branch_name);
+
+    let mut cmd = Command::new("git");
+    cmd.args(["branch", &branch_name]);
+    cmd.current_dir(&project_path);
+
+    #[cfg(target_os = "windows")]
+    cmd.creation_flags(0x08000000);
+
+    let output = cmd
+        .output()
+        .map_err(|e| format!("Failed to create backup branch: {}", e))?;
+
+    if output.status.success() {
+        log::info!("[Git Backup] Backup branch created: {}", branch_name);
+        Ok(branch_name)
+    } else {
+        Err(format!(
+            "Failed to create backup branch: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ))
+    }
+}
+
+/// Stage files for commit
+#[tauri::command]
+pub fn git_add(project_path: String, files: Vec<String>) -> Result<GitCommandResult, String> {
+    if !is_git_repo(&project_path) {
+        return Err("Not a Git repository".to_string());
+    }
+
+    let mut cmd = Command::new("git");
+    let mut args = vec!["add"];
+    
+    for file in &files {
+        args.push(file);
+    }
+
+    cmd.args(&args);
+    cmd.current_dir(&project_path);
+
+    #[cfg(target_os = "windows")]
+    cmd.creation_flags(0x08000000);
+
+    let output = cmd
+        .output()
+        .map_err(|e| format!("Failed to execute git add: {}", e))?;
+
+    if output.status.success() {
+        Ok(GitCommandResult {
+            success: true,
+            output: Some(format!("Staged {} file(s)", files.len())),
+            error: None,
+        })
+    } else {
+        Ok(GitCommandResult {
+            success: false,
+            output: None,
+            error: Some(String::from_utf8_lossy(&output.stderr).to_string()),
+        })
+    }
+}
+
+/// Create a commit with a message
+#[tauri::command]
+pub fn git_commit(project_path: String, message: String) -> Result<GitCommandResult, String> {
+    if !is_git_repo(&project_path) {
+        return Err("Not a Git repository".to_string());
+    }
+
+    let mut cmd = Command::new("git");
+    cmd.args(["commit", "-m", &message]);
+    cmd.current_dir(&project_path);
+
+    #[cfg(target_os = "windows")]
+    cmd.creation_flags(0x08000000);
+
+    let output = cmd
+        .output()
+        .map_err(|e| format!("Failed to execute git commit: {}", e))?;
+
+    if output.status.success() {
+        Ok(GitCommandResult {
+            success: true,
+            output: Some(String::from_utf8_lossy(&output.stdout).to_string()),
+            error: None,
+        })
+    } else {
+        let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+        
+        // Check if nothing to commit
+        if stderr.contains("nothing to commit") {
+            return Ok(GitCommandResult {
+                success: true,
+                output: Some("Nothing to commit, working tree clean".to_string()),
+                error: None,
+            });
+        }
+
+        Ok(GitCommandResult {
+            success: false,
+            output: None,
+            error: Some(stderr),
+        })
+    }
+}

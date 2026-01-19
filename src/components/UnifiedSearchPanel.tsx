@@ -316,8 +316,9 @@ export function UnifiedSearchPanel({
       try {
         const skills = await api.listAgentSkills(projectPath);
         const skillItems: SearchItem[] = skills.map((s: any) => {
-          // 检查是否被禁用（文件名以 _disabled_ 开头）
-          const isDisabled = s.name.startsWith("_disabled_");
+          // 使用后端返回的 isEnabled 字段判断是否启用
+          // 后端逻辑：skills 目录下的为启用，skills_disabled 目录下的为禁用
+          const isEnabled = s.isEnabled ?? true;
           const cleanName = cleanDisplayName(s.name);
 
           // 使用智能描述生成器
@@ -332,13 +333,13 @@ export function UnifiedSearchPanel({
             id: `skill:${s.name}`,
             type: "skill" as const,
             name: cleanName, // 使用清理后的名称
-            originalName: s.name, // 保存原始名称（可能带 _disabled_ 前缀）
+            originalName: s.name, // 保存原始名称
             description,
             path: s.path,
             filePath: s.path,
             triggers: s.triggers || [],
             scope: s.scope || "user",
-            enabled: !isDisabled, // 如果没有 _disabled_ 前缀，则为启用状态
+            enabled: isEnabled, // 使用后端返回的 isEnabled 字段
           };
         });
         allItems.push(...skillItems);

@@ -49,7 +49,7 @@ function extractServerIdFromToolName(toolName: string): string | null {
 /**
  * 更新 MCP 服务器的调用时间
  */
-function updateMCPCallTime(engine: "claude" | "codex" | "gemini" | "siliconflow", serverId: string): void {
+function updateMCPCallTime(engine: "claude" | "codex" | "gemini" | "siliconflow" | "kiro", serverId: string): void {
   const now = Date.now();
   const allTimes = getAllCallTimes();
 
@@ -98,7 +98,7 @@ function checkMCPToolCallsInMessage(message: any): Set<string> {
  */
 export function useAutoMCPCallTracker(
   messages: any[] | undefined,
-  engine: "claude" | "codex" | "gemini" | "siliconflow",
+  engine: "claude" | "codex" | "gemini" | "siliconflow" | "kiro",
 ) {
   const processedMessageIds = useRef<Set<string>>(new Set());
 

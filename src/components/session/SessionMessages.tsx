@@ -7,10 +7,11 @@ import { useSession } from "@/contexts/SessionContext";
 import { CliProcessingIndicator } from "./CliProcessingIndicator";
 
 /**
- * ✅ SessionMessages v3.3 - 修复滚动横跳问题
+ * ✅ SessionMessages v3.4 - 修复 flushSync 警告
  *
  * 🔧 重大变更：
- * - 使用 isUserScrolling ref 追踪用户滚动状态
+ * - v3.4: 使用 queueMicrotask 延迟 measureElement，避免渲染期间调用 flushSync
+ * - v3.3: 使用 isUserScrolling ref 追踪用户滚动状态
  * - 用户滚动时禁用位置调整，程序滚动时启用
  * - 增加 overscan 减少滚动时的测量
  */
@@ -160,13 +161,14 @@ export const SessionMessages = forwardRef<SessionMessagesRef, SessionMessagesPro
   });
 
   /**
-   * 🔧 v3.2: 直接使用 measureElement
-   * flushSync 警告只是警告，不影响功能
-   * 延迟测量反而会导致布局跳动
+   * 🔧 v3.4: 使用 queueMicrotask 延迟测量
+   * 避免在 React 渲染期间调用 flushSync
    */
   const measureElementRef = useCallback((node: HTMLElement | null) => {
     if (node) {
-      rowVirtualizer.measureElement(node);
+      queueMicrotask(() => {
+        rowVirtualizer.measureElement(node);
+      });
     }
   }, [rowVirtualizer]);
 

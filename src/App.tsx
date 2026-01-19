@@ -1,4 +1,4 @@
-import { useEffect, lazy, Suspense } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { AppProviders } from "@/components/providers";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ViewRouter } from "@/components/layout/ViewRouter";
@@ -27,25 +27,77 @@ function App() {
   // 首次启动版本更新提醒
   const { showChangelog, changelog, hideChangelog } = useFirstLaunchChangelog();
 
-  // Console 监控（仅开发模式）
+  // 🆕 错误监控面板显示状态（支持生产环境通过快捷键开启）
+  const [showErrorMonitor, setShowErrorMonitor] = useState(() => {
+    // 开发模式默认显示，生产模式检查 localStorage
+    if (import.meta.env.DEV) return true;
+    return localStorage.getItem('fangyu-show-error-monitor') === 'true';
+  });
+
+  // 🔧 FIX: 开发模式下确保面板显示（解决 HMR 热更新后状态丢失问题）
+  useEffect(() => {
+    if (import.meta.env.DEV && !showErrorMonitor) {
+      setShowErrorMonitor(true);
+    }
+    
+    // 🔧 FIX: 清除可能导致面板不可见的旧位置数据
+    const savedPos = localStorage.getItem('fangyu-error-panel-position');
+    if (savedPos) {
+      try {
+        const pos = JSON.parse(savedPos);
+        // 如果位置超出屏幕范围，重置
+        if (pos.x < 0 || pos.y < 0 || pos.x > window.innerWidth - 100 || pos.y > window.innerHeight - 100) {
+          console.log('[App] 错误监控面板位置超出屏幕，重置位置');
+          localStorage.removeItem('fangyu-error-panel-position');
+        }
+      } catch {
+        localStorage.removeItem('fangyu-error-panel-position');
+      }
+    }
+  }, []);
+
+  // Console 监控（开发模式或手动开启时启用）
   const { errors, clearErrors, clearError } = useConsoleMonitor({
-    enabled: import.meta.env.DEV,
+    enabled: import.meta.env.DEV || showErrorMonitor,
     maxErrors: 50,
     showOriginal: true
   });
 
-  // 全局快捷键监听 - F12 打开开发者工具
+  // 全局快捷键监听
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      // 调试：打印所有按键
+      if (event.ctrlKey && event.shiftKey) {
+        console.log('[App] Ctrl+Shift+' + event.key + ' pressed');
+      }
+      
       // F12 - 打开/关闭开发者工具
       if (event.key === 'F12') {
         event.preventDefault();
         api.openDevtools().catch(console.error);
       }
+      
+      // Ctrl+Shift+E - 切换错误监控面板（生产环境也可用）
+      if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'e') {
+        console.log('[App] Ctrl+Shift+E detected!');
+        event.preventDefault();
+        event.stopPropagation();
+        setShowErrorMonitor(prev => {
+          const newValue = !prev;
+          // 持久化到 localStorage
+          if (newValue) {
+            localStorage.setItem('fangyu-show-error-monitor', 'true');
+          } else {
+            localStorage.removeItem('fangyu-show-error-monitor');
+          }
+          console.log(`[App] 错误监控面板: ${newValue ? '已开启' : '已关闭'}`);
+          return newValue;
+        });
+      }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown, { capture: true });
+    return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
   }, []);
 
   return (
@@ -76,9 +128,10 @@ function App() {
       {/* 顶部居中通知 */}
       <TopCenterNotification />
 
-      {/* 错误监控面板（仅开发模式） */}
-      {import.meta.env.DEV && (
+      {/* 错误监控面板（开发模式自动显示，生产模式 Ctrl+Shift+E 开启） */}
+      {showErrorMonitor && (
         <Suspense fallback={null}>
+          {console.log('[App] 渲染 ErrorMonitorPanel, errors:', errors.length)}
           <ErrorMonitorPanel
             errors={errors}
             onClearAll={clearErrors}

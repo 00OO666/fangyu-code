@@ -297,8 +297,11 @@ pub async fn create_project_claude_md(
 
     let project_path_buf = PathBuf::from(&project_path);
 
+    // 确保目录存在（如果不存在则创建）
     if !project_path_buf.exists() {
-        return Err(format!("Project path does not exist: {}", project_path));
+        log::info!("[SmartProject] Project path does not exist, creating: {:?}", project_path_buf);
+        fs::create_dir_all(&project_path_buf)
+            .map_err(|e| format!("Failed to create project directory: {}", e))?;
     }
 
     let claude_md_path = project_path_buf.join("CLAUDE.md");

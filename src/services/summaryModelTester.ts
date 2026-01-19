@@ -1,10 +1,11 @@
 /**
  * Summary Model Tester Service
- * 
+ *
  * 测试摘要引擎的模型可用性
  * 复用 InlineAPITester 的测试逻辑，支持四引擎
  */
 
+import { invoke } from '@tauri-apps/api/core';
 import type { SummaryEngine, ModelInfo } from '@/types/summary';
 import { ENGINE_MODELS } from '@/types/summary';
 
@@ -53,14 +54,30 @@ type ProgressCallback = (progress: TestProgress) => void;
 
 async function testClaudeModel(
     modelId: string,
-    apiKey: string,
-    baseUrl: string
+    _apiKey: string,
+    _baseUrl: string
 ): Promise<ModelTestResult> {
     const startTime = Date.now();
     try {
-        // Claude 使用 Tauri 后端，这里模拟成功
-        // 实际应该调用 Tauri 命令测试
-        await new Promise(r => setTimeout(r, 100));
+        // 映射模型 ID 到 Tauri 后端支持的简称
+        const modelMap: Record<string, string> = {
+            'claude-opus-4-20250514': 'opus',
+            'claude-sonnet-4-20250514': 'sonnet',
+            'claude-3-5-haiku-20241022': 'haiku',
+            'claude-3-5-sonnet-20241022': 'sonnet',
+            'claude-3-haiku-20240307': 'haiku',
+            'claude-3-sonnet-20240229': 'sonnet',
+            'claude-3-opus-20240229': 'opus',
+        };
+
+        const model = modelMap[modelId] || modelId;
+
+        // 实际调用 Tauri 后端测试模型
+        await invoke<string>('generate_text_with_llm', {
+            prompt: 'Say "OK" in one word.',
+            model,
+        });
+
         return {
             modelId,
             status: 'success',

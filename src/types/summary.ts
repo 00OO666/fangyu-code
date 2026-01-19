@@ -11,7 +11,7 @@
 // =============================================================================
 
 /** 支持的执行引擎 */
-export type SummaryEngine = 'claude' | 'codex' | 'gemini' | 'siliconflow';
+export type SummaryEngine = 'claude' | 'codex' | 'gemini' | 'siliconflow' | 'kiro';
 
 /** 模型信息 */
 export interface ModelInfo {
@@ -182,11 +182,16 @@ export interface SessionStats {
 /** 四引擎模型注册表 */
 export const ENGINE_MODELS: Record<SummaryEngine, ModelInfo[]> = {
     claude: [
+        // Claude 4 系列（最新）
+        { id: 'claude-opus-4-20250514', name: 'Claude Opus 4', costPer1k: 0.015, maxContext: 200000 },
+        { id: 'claude-sonnet-4-20250514', name: 'Claude Sonnet 4', costPer1k: 0.003, maxContext: 200000 },
+        // Claude 3.5 系列
+        { id: 'claude-3-5-sonnet-20241022', name: 'Claude 3.5 Sonnet', costPer1k: 0.003, maxContext: 200000, recommended: true },
+        { id: 'claude-3-5-haiku-20241022', name: 'Claude 3.5 Haiku', costPer1k: 0.0008, maxContext: 200000 },
+        // Claude 3 系列（旧版）
         { id: 'claude-3-opus-20240229', name: 'Claude 3 Opus', costPer1k: 0.015, maxContext: 200000 },
         { id: 'claude-3-sonnet-20240229', name: 'Claude 3 Sonnet', costPer1k: 0.003, maxContext: 200000 },
-        { id: 'claude-3-haiku-20240307', name: 'Claude 3 Haiku', costPer1k: 0.00025, maxContext: 200000, recommended: true },
-        { id: 'claude-3-5-sonnet-20241022', name: 'Claude 3.5 Sonnet', costPer1k: 0.003, maxContext: 200000 },
-        { id: 'claude-3-5-haiku-20241022', name: 'Claude 3.5 Haiku', costPer1k: 0.0008, maxContext: 200000 },
+        { id: 'claude-3-haiku-20240307', name: 'Claude 3 Haiku', costPer1k: 0.00025, maxContext: 200000 },
     ],
     codex: [
         { id: 'gpt-4o', name: 'GPT-4o', costPer1k: 0.005, maxContext: 128000 },
@@ -211,7 +216,7 @@ export const ENGINE_MODELS: Record<SummaryEngine, ModelInfo[]> = {
 /** 默认摘要配置 */
 export const DEFAULT_SUMMARY_CONFIG: SummaryAPIConfig = {
     engine: 'claude',
-    model: 'claude-3-haiku-20240307',
+    model: 'claude-3-5-sonnet-20241022',
     customParams: {
         maxTokens: 4096,
         temperature: 0.3,

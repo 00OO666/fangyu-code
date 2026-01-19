@@ -66,7 +66,7 @@ export interface UsageStats {
 /**
  * 引擎类型
  */
-export type EngineType = "claude" | "codex" | "gemini" | "siliconflow";
+export type EngineType = "claude" | "codex" | "gemini" | "siliconflow" | "kiro";
 
 /**
  * 单引擎统计摘要

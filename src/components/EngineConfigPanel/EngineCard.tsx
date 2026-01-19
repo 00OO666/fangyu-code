@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import { Bot, FileCode, Sparkles, Zap, CheckCircle, AlertCircle, XCircle, Download } from 'lucide-react';
+import { Bot, FileCode, Sparkles, Zap, Cloud, CheckCircle, AlertCircle, XCircle, Download } from 'lucide-react';
 import type { EngineType, EngineStatusInfo } from '../../types/provider';
 import { ENGINE_DISPLAY_NAMES, ENGINE_COLORS } from '../../types/provider';
 import { cn } from '../../lib/utils';
@@ -20,6 +20,7 @@ const ENGINE_ICON_MAP: Record<EngineType, React.ComponentType<{ className?: stri
     codex: FileCode,
     gemini: Sparkles,
     siliconflow: Zap,
+    kiro: Cloud,
 };
 
 function getStatusInfo(status: EngineStatusInfo): {

@@ -271,7 +271,7 @@ export function useTabState() {
                 sessionId: string;
                 projectId: string;
                 projectPath: string;
-                engine?: 'claude' | 'codex' | 'gemini' | 'siliconflow';
+                engine?: 'claude' | 'codex' | 'gemini' | 'siliconflow' | 'kiro';
             }
         ) => {
             setTabs((prev) =>

@@ -17,6 +17,8 @@ import { useCallback, useEffect, useRef } from "react";
 import type { ModelType } from "@/components/FloatingPromptInput/types";
 // 🆕 SiliconFlow 相关导入
 import { loadSiliconFlowConfig, SILICONFLOW_API } from "@/config/siliconflowConfig";
+// 🆕 Kiro 引擎导入
+import { getDefaultKiroEngine } from "@/services/kiro";
 // 🆕 全局任务状态管理（跨会话同步）
 import { globalTaskActions } from "@/hooks/useGlobalTaskState";
 import { api, type Session } from "@/lib/api";
@@ -80,11 +82,12 @@ interface UsePromptExecutionConfig {
   extractedSessionInfo: { sessionId: string; projectId: string } | null;
 
   // 🆕 Execution Engine Integration (Claude/Codex/Gemini)
-  executionEngine?: "claude" | "codex" | "gemini" | "siliconflow"; // 执行引擎选择 (默认: 'claude')
+  executionEngine?: "claude" | "codex" | "gemini" | "siliconflow" | "kiro"; // 执行引擎选择 (默认: 'claude')
   codexMode?: CodexExecutionMode; // Codex 执行模式
   codexModel?: string; // Codex 模型 (e.g., 'gpt-5.2')
   geminiModel?: string; // Gemini 模型 (e.g., 'gemini-3-flash')
   geminiApprovalMode?: "auto_edit" | "yolo" | "default"; // Gemini 审批模式
+  kiroModel?: string; // Kiro 模型 (e.g., 'claude-opus-4.5')
 
   // Refs
   hasActiveSessionRef: React.MutableRefObject<boolean>;
@@ -199,6 +202,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
     codexModel, // 🆕 Codex 模型
     geminiModel, // 🆕 Gemini 模型
     geminiApprovalMode, // 🆕 Gemini 审批模式
+    kiroModel, // 🆕 Kiro 模型 (e.g., 'claude-opus-4.5')
     hasActiveSessionRef,
     unlistenRefs,
     isMountedRef,
@@ -2045,6 +2049,140 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
               promptText: prompt,
             };
           }
+        } else if (executionEngine === "kiro") {
+          // ====================================================================
+          // 🆕 Kiro Execution Branch (Amazon Q Developer / CodeWhisperer API)
+          // ====================================================================
+          console.log("[usePromptExecution] Executing Kiro prompt");
+
+          // 添加用户消息到界面
+          const userMessage: ClaudeStreamMessage = {
+            type: "user",
+            message: {
+              role: "user",
+              content: [{ type: "text", text: processedPrompt }],
+            },
+            timestamp: new Date().toISOString(),
+          };
+          setMessages((prev) => [...prev, userMessage]);
+
+          // 添加 assistant thinking 消息（显示加载状态）
+          const thinkingMessage: ClaudeStreamMessage = {
+            type: "assistant",
+            message: {
+              role: "assistant",
+              content: [{ type: "text", text: "正在思考..." }],
+            },
+            timestamp: new Date().toISOString(),
+          };
+          setMessages((prev) => [...prev, thinkingMessage]);
+
+          // 生成唯一消息 ID 用于流式更新
+          const assistantMessageId = `kiro-${Date.now()}`;
+
+          try {
+            // 获取 Kiro 引擎实例
+            const kiroEngine = getDefaultKiroEngine();
+
+            // 验证配置
+            const validation = await kiroEngine.validateConfig();
+            if (!validation.valid) {
+              throw new Error(validation.error || "Kiro 配置无效，请检查 Token 是否有效");
+            }
+
+            // 设置模型（如果指定）
+            if (kiroModel) {
+              kiroEngine.setModel(kiroModel);
+            }
+
+            // 移除 thinking 消息，添加空的 assistant 消息
+            setMessages((prev) => {
+              const filtered = prev.filter((msg) => msg !== thinkingMessage);
+              return [
+                ...filtered,
+                {
+                  type: "assistant",
+                  message: {
+                    id: assistantMessageId,
+                    role: "assistant",
+                    content: [{ type: "text", text: "" }],
+                  },
+                  timestamp: new Date().toISOString(),
+                } as ClaudeStreamMessage,
+              ];
+            });
+
+            // 流式调用 Kiro API
+            await kiroEngine.sendMessage(processedPrompt, {
+              onChunk: (fullContent: string) => {
+                // 更新消息内容
+                setMessages((prev) =>
+                  prev.map((msg) => {
+                    if (
+                      msg.type === "assistant" &&
+                      (msg.message as any)?.id === assistantMessageId
+                    ) {
+                      return {
+                        ...msg,
+                        message: {
+                          ...(msg.message as any),
+                          content: [{ type: "text", text: fullContent }],
+                        },
+                      };
+                    }
+                    return msg;
+                  }),
+                );
+              },
+            });
+
+            // 添加结果消息（标记完成）
+            const resultMessage: ClaudeStreamMessage = {
+              type: "result",
+              subtype: "success",
+              timestamp: new Date().toISOString(),
+              model: kiroModel || "auto",
+            };
+            setMessages((prev) => [...prev, resultMessage]);
+
+            // 保存会话信息
+            const conversationId = kiroEngine.getConversationId();
+            if (conversationId) {
+              const projectId = projectPath.replace(/[^a-zA-Z0-9]/g, "-");
+              setExtractedSessionInfo({ sessionId: conversationId, projectId, engine: "kiro" });
+            }
+
+            // 标记任务完成
+            globalTaskActions.updateTaskStatus(tabIdRef.current, "completed");
+
+            // 更新状态
+            setIsLoading(false);
+            hasActiveSessionRef.current = false;
+          } catch (err: any) {
+            console.error("[usePromptExecution] Kiro execution failed:", err);
+
+            // 移除流式创建的 assistant 消息
+            setMessages((prev) =>
+              prev.filter(
+                (msg) =>
+                  !(msg.type === "assistant" && (msg.message as any)?.id === assistantMessageId),
+              ),
+            );
+
+            // 添加错误消息
+            const errorMessage: ClaudeStreamMessage = {
+              type: "system",
+              subtype: "error",
+              error: err.message || "Kiro API 调用失败",
+              timestamp: new Date().toISOString(),
+            };
+            setMessages((prev) => [...prev, errorMessage]);
+
+            // 标记任务失败
+            globalTaskActions.updateTaskStatus(tabIdRef.current, "failed", err.message);
+
+            throw err;
+          }
         } else if (executionEngine === "siliconflow") {
           // ====================================================================
           // 🆕 SiliconFlow Execution Branch
@@ -2355,6 +2493,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
       codexModel, // 🆕 Codex integration
       geminiModel, // 🆕 Gemini integration
       geminiApprovalMode, // 🆕 Gemini integration
+      kiroModel, // 🆕 Kiro integration
       hasActiveSessionRef,
       unlistenRefs,
       isMountedRef,

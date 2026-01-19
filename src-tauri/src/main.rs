@@ -77,7 +77,12 @@ use commands::provider::{
     get_current_provider_config, get_provider_config, get_provider_presets, query_provider_usage,
     save_claude_env_vars, switch_provider_config, test_provider_connection, update_provider_config,
 };
-use commands::simple_git::{check_and_init_git, check_reset_safety, precise_revert_code};
+use commands::simple_git::{
+    check_and_init_git, check_reset_safety, precise_revert_code,
+    // Git Panel Commands
+    git_status, git_log, git_diff, git_reset, git_revert_commit, git_restore,
+    git_create_backup_branch, git_add, git_commit,
+};
 use commands::storage::{
     storage_analyze_query, storage_delete_row, storage_execute_sql, storage_get_performance_stats,
     storage_insert_row, storage_list_tables, storage_read_table, storage_reset_database,
@@ -196,6 +201,12 @@ use commands::kiro::{
     cancel_kiro_execution,
     open_kiro_login,
     KiroProcessState,
+    // Kiro API 模式（直接调用 Amazon Q API）
+    read_kiro_token,
+    get_kiro_token_status,
+    send_kiro_request,
+    parse_kiro_sse_response,
+    kiro_chat,
 };
 use commands::checkpoint_manager::{
     create_checkpoint, delete_checkpoint, delete_session_checkpoints, get_latest_checkpoint,
@@ -553,6 +564,16 @@ fn main() {
             check_and_init_git,
             check_reset_safety,
             precise_revert_code,
+            // Git Panel Commands
+            git_status,
+            git_log,
+            git_diff,
+            git_reset,
+            git_revert_commit,
+            git_restore,
+            git_create_backup_branch,
+            git_add,
+            git_commit,
             record_prompt_sent,
             mark_prompt_completed,
             revert_to_prompt,
@@ -778,6 +799,12 @@ fn main() {
             execute_kiro_chat,
             cancel_kiro_execution,
             open_kiro_login,
+            // Kiro API 模式（直接调用 Amazon Q API）
+            read_kiro_token,
+            get_kiro_token_status,
+            send_kiro_request,
+            parse_kiro_sse_response,
+            kiro_chat,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

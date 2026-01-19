@@ -84,6 +84,12 @@ export function useTauriAutoUpdate(
 
   // 检查更新（带重试逻辑）
   const checkForUpdates = useCallback(async (force: boolean = false) => {
+    // 开发模式下跳过更新检查
+    if (import.meta.env.DEV) {
+      console.debug("[Auto Update] Skipping update check in development mode");
+      return;
+    }
+
     if (checking) return;
 
     setChecking(true);

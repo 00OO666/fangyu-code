@@ -22,9 +22,10 @@ import { cn } from '@/lib/utils';
 import { exportSession, copyToClipboard, exportAsJsonl, exportAsMarkdown, exportAsJson } from '@/lib/sessionExport';
 import { api, Checkpoint } from '@/lib/api';
 import { CheckpointTimeline } from './CheckpointTimeline';
-import { useTabs } from '@/hooks/useTabs';
+import { TabContext } from '@/hooks/useTabs';
 import { useSetPrefillMessage } from '@/stores/sessionStore';
 import { toast } from 'sonner';
+import { useContext } from 'react';
 import type { ClaudeStreamMessage } from '@/types/claude';
 import type { Session } from '@/lib/api';
 
@@ -67,7 +68,8 @@ export const SessionToolbar: React.FC<SessionToolbarProps> = ({
   const [summaryModalOpen, setSummaryModalOpen] = useState(false);
 
   // Tab 管理和预填充消息
-  const { createSmartTab } = useTabs();
+  // 🔧 FIX: 使用可选的 Context 访问，避免在 TabProvider 外部使用时崩溃
+  const tabContext = useContext(TabContext);
   const setPrefillMessage = useSetPrefillMessage();
 
   // 摘要生成 Hook
@@ -196,13 +198,23 @@ export const SessionToolbar: React.FC<SessionToolbarProps> = ({
       // 1. 复制摘要到剪贴板
       await navigator.clipboard.writeText(summary);
 
-      // 2. 设置预填充消息（供新标签页使用）
+      // 2. 检查 TabContext 是否可用
+      if (!tabContext) {
+        // TabProvider 不可用时，只复制到剪贴板
+        toast.success('摘要已复制到剪贴板', {
+          description: '请手动创建新会话并粘贴',
+        });
+        showStatus('success', '摘要已复制');
+        return;
+      }
+
+      // 3. 设置预填充消息（供新标签页使用）
       setPrefillMessage(summary);
 
-      // 3. 创建新的智能标签页
-      createSmartTab(true);
+      // 4. 创建新的智能标签页
+      tabContext.createSmartTab(true);
 
-      // 4. 显示成功提示
+      // 5. 显示成功提示
       toast.success('已创建新会话', {
         description: '摘要已复制到剪贴板，可直接粘贴使用',
       });
@@ -213,7 +225,7 @@ export const SessionToolbar: React.FC<SessionToolbarProps> = ({
       toast.error('创建新会话失败');
       showStatus('error', '操作失败');
     }
-  }, [createSmartTab, setPrefillMessage]);
+  }, [tabContext, setPrefillMessage]);
 
   // 检查点功能是否可用
   const checkpointEnabled = !!session?.id && !!projectPath;

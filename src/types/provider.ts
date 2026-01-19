@@ -5,7 +5,7 @@
  */
 
 // 引擎类型
-export type EngineType = 'claude' | 'codex' | 'gemini' | 'siliconflow';
+export type EngineType = 'claude' | 'codex' | 'gemini' | 'siliconflow' | 'kiro';
 
 // 引擎显示名称映射
 export const ENGINE_DISPLAY_NAMES: Record<EngineType, string> = {
@@ -13,6 +13,7 @@ export const ENGINE_DISPLAY_NAMES: Record<EngineType, string> = {
     codex: 'OpenAI Codex',
     gemini: 'Google Gemini',
     siliconflow: 'SiliconFlow',
+    kiro: 'Kiro (Amazon Q)',
 };
 
 // 引擎图标映射（Lucide 图标名称）
@@ -21,6 +22,7 @@ export const ENGINE_ICONS: Record<EngineType, string> = {
     codex: 'FileCode',
     gemini: 'Sparkles',
     siliconflow: 'Zap',
+    kiro: 'Cloud',
 };
 
 // 代理商分类
@@ -123,6 +125,7 @@ export const DEFAULT_RUNTIME_CONFIG: RuntimeConfig = {
         codex: 'auto',
         gemini: 'auto',
         siliconflow: 'native', // SiliconFlow 不需要 WSL
+        kiro: 'native',        // Kiro 使用原生 API 调用
     },
 };
 
@@ -155,6 +158,7 @@ export const DEFAULT_PROVIDER_STORAGE: ProviderStorage = {
         codex: null,
         gemini: null,
         siliconflow: null,
+        kiro: null,
     },
 };
 
@@ -250,6 +254,7 @@ export const ENGINE_COLORS: Record<EngineType, string> = {
     codex: '#059669',       // 翠绿色
     gemini: '#7C3AED',      // 紫罗兰
     siliconflow: '#2563EB', // 蓝色
+    kiro: '#FF6B35',        // 橙红色 (Amazon Q 品牌色)
 };
 
 // 模型列表
@@ -276,6 +281,15 @@ export const GEMINI_MODELS = [
     { value: 'gemini-1.0-pro', label: 'Gemini 1.0 Pro' },
 ];
 
+// Kiro (Amazon Q) 模型列表
+export const KIRO_MODELS = [
+    { value: '', label: 'Auto (自动选择)' },
+    { value: 'claude-opus-4.5', label: 'Claude Opus 4.5 (最强大)' },
+    { value: 'CLAUDE_SONNET_4_5_20250929_V1_0', label: 'Claude Sonnet 4.5 (平衡)' },
+    { value: 'CLAUDE_SONNET_4_20250514_V1_0', label: 'Claude Sonnet 4' },
+    { value: 'claude-haiku-4.5', label: 'Claude Haiku 4.5 (最快)' },
+];
+
 // 预设代理商配置
 export const PRESET_PROVIDERS: Record<EngineType, PresetProvider[]> = {
     claude: [
@@ -291,6 +305,9 @@ export const PRESET_PROVIDERS: Record<EngineType, PresetProvider[]> = {
     ],
     siliconflow: [
         { name: 'SiliconFlow 官方', baseUrl: 'https://api.siliconflow.cn/v1', isOfficial: true },
+    ],
+    kiro: [
+        { name: 'Kiro (Amazon Q)', baseUrl: 'https://q.us-east-1.amazonaws.com', isOfficial: true, description: '使用 Kiro SSO Token' },
     ],
 };
 
@@ -319,5 +336,10 @@ export const FORM_FIELDS: Record<EngineType, FormFieldConfig[]> = {
         { name: 'baseUrl', label: 'API 端点', type: 'url', required: true, placeholder: 'https://api.siliconflow.cn/v1' },
         { name: 'apiKey', label: 'API Key', type: 'secret', required: true },
         { name: 'model', label: '默认模型', type: 'text', required: true, placeholder: '模型名称' },
+    ],
+    kiro: [
+        { name: 'name', label: '名称', type: 'text', required: true, placeholder: '例如: Kiro (Amazon Q)' },
+        { name: 'baseUrl', label: 'Token 路径', type: 'text', required: false, placeholder: '~/.aws/sso/cache/kiro-auth-token.json', description: '留空使用默认路径' },
+        { name: 'model', label: '默认模型', type: 'select', options: KIRO_MODELS, description: 'Opus 4.5 仅 Builders ID 支持' },
     ],
 };

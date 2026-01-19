@@ -10,7 +10,7 @@
  * - 更好的视觉层次
  */
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   AlertTriangle,
   X,
@@ -25,7 +25,9 @@ import {
   TrendingUp,
   Minimize2,
   Maximize2,
+  GripHorizontal,
 } from "lucide-react";
+import { useDraggable } from "@/hooks/useDraggable";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -305,6 +307,23 @@ export const ErrorMonitorPanel: React.FC<ErrorMonitorPanelProps> = ({
   const [isMinimized, setIsMinimized] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  // 🔧 DEBUG: 组件挂载日志
+  useEffect(() => {
+    console.log('[ErrorMonitorPanel] 组件已挂载, errors:', errors.length);
+    return () => console.log('[ErrorMonitorPanel] 组件已卸载');
+  }, []);
+
+  // 动态计算面板高度：最小化时约 60px，展开时 560px
+  const currentPanelHeight = isMinimized ? 60 : 560;
+
+  // 拖拽功能 - 使用动态高度
+  const { position, isDragging, dragHandleProps } = useDraggable({
+    storageKey: 'fangyu-error-panel-position',
+    constrainToViewport: true,
+    panelSize: { width: 420, height: currentPanelHeight },
+    margin: 16,
+  });
+
   // 计算统计数据
   const errorCount = errors.filter((e) => e.type === "error").length;
   const warnCount = errors.filter((e) => e.type === "warn").length;
@@ -387,12 +406,18 @@ export const ErrorMonitorPanel: React.FC<ErrorMonitorPanelProps> = ({
     return (
       <div
         className={cn(
-          "fixed bottom-4 right-4 z-50",
+          "fixed z-50 cursor-move",
           "bg-[var(--glass-bg)] backdrop-blur-[var(--glass-blur)]",
           "border border-white/10 rounded-xl shadow-2xl",
-          "p-3 flex items-center gap-2"
+          "px-4 py-3 flex items-center gap-3 min-w-[180px]"
         )}
+        style={{
+          left: position.x,
+          top: position.y,
+        }}
+        {...dragHandleProps}
       >
+        <GripHorizontal className="h-4 w-4 text-white/40" />
         <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
         <Bug className="h-4 w-4 text-white/60" />
         <span className="text-sm text-white/60">暂无错误 ✨</span>
@@ -403,15 +428,27 @@ export const ErrorMonitorPanel: React.FC<ErrorMonitorPanelProps> = ({
   return (
     <div
       className={cn(
-        "fixed bottom-4 right-4 z-50 transition-all duration-300 ease-out",
+        "fixed z-50 transition-all duration-300 ease-out",
         "bg-[var(--glass-bg)] backdrop-blur-[var(--glass-blur)]",
         "border border-white/10 rounded-xl shadow-2xl",
-        isMinimized ? "w-auto" : "w-[420px] max-h-[560px]"
+        isMinimized ? "w-auto" : "w-[420px] max-h-[560px]",
+        isDragging && "shadow-2xl ring-2 ring-[var(--ds-primary)]/30"
       )}
+      style={{
+        left: position.x,
+        top: position.y,
+      }}
     >
-      {/* 头部 */}
-      <div className="flex items-center justify-between p-3 border-b border-white/10">
-        <div className="flex items-center gap-2">
+      {/* 头部 - 整个头部都可拖拽，高度增加便于拖拽 */}
+      <div 
+        className={cn(
+          "flex items-center justify-between p-4 border-b border-white/10",
+          "select-none cursor-move min-h-[52px]"
+        )}
+        {...dragHandleProps}
+      >
+        <div className="flex items-center gap-2 pointer-events-none">
+          <GripHorizontal className="h-4 w-4 text-white/40" />
           <div className="relative">
             <Bug className="h-4 w-4 text-[var(--ds-primary)]" />
             {totalCount > 0 && (
@@ -426,14 +463,14 @@ export const ErrorMonitorPanel: React.FC<ErrorMonitorPanelProps> = ({
             {totalCount}
           </Badge>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
           {/* 一键复制按钮 */}
           <Button
             variant="ghost"
             size="sm"
             onClick={copyAllErrors}
             className={cn(
-              "h-7 px-2 text-xs transition-all",
+              "h-7 px-2 text-xs transition-all pointer-events-auto",
               copied
                 ? "bg-green-500/20 text-green-400"
                 : "hover:bg-white/10 text-white/60"
@@ -457,7 +494,7 @@ export const ErrorMonitorPanel: React.FC<ErrorMonitorPanelProps> = ({
             variant="ghost"
             size="sm"
             onClick={onClearAll}
-            className="h-7 px-2 text-xs hover:bg-red-500/20 hover:text-red-400 text-white/60"
+            className="h-7 px-2 text-xs hover:bg-red-500/20 hover:text-red-400 text-white/60 pointer-events-auto"
           >
             <Trash2 className="h-3 w-3 mr-1" />
             清空
@@ -467,7 +504,7 @@ export const ErrorMonitorPanel: React.FC<ErrorMonitorPanelProps> = ({
             variant="ghost"
             size="sm"
             onClick={() => setIsMinimized(!isMinimized)}
-            className="h-7 w-7 p-0 hover:bg-white/10 text-white/60"
+            className="h-7 w-7 p-0 hover:bg-white/10 text-white/60 pointer-events-auto"
           >
             {isMinimized ? (
               <Maximize2 className="h-3 w-3" />
@@ -560,7 +597,7 @@ export const ErrorMonitorPanel: React.FC<ErrorMonitorPanelProps> = ({
           {/* 底部提示 */}
           <div className="p-2 border-t border-white/10 bg-white/5">
             <p className="text-xs text-white/40 text-center">
-              实时监控 console 错误和警告 · 点击「复制全部」导出详情
+              拖拽顶部栏移动面板 · 双击重置位置
             </p>
           </div>
         </>

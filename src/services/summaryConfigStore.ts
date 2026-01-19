@@ -119,7 +119,7 @@ export function validateConfig(config: SummaryAPIConfig): ConfigValidationResult
   const warnings: string[] = [];
   
   // 验证引擎
-  const validEngines: SummaryEngine[] = ['claude', 'codex', 'gemini', 'siliconflow'];
+  const validEngines: SummaryEngine[] = ['claude', 'codex', 'gemini', 'siliconflow', 'kiro'];
   if (!validEngines.includes(config.engine)) {
     errors.push(`无效的引擎: ${config.engine}`);
   }

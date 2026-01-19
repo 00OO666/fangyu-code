@@ -82,7 +82,7 @@ interface EngineConfigState {
     error: Error | null;
 }
 
-const ALL_ENGINES: EngineType[] = ['claude', 'codex', 'gemini', 'siliconflow'];
+const ALL_ENGINES: EngineType[] = ['claude', 'codex', 'gemini', 'siliconflow', 'kiro'];
 
 export function useEngineConfig(): UseEngineConfigReturn {
     const [state, setState] = useState<EngineConfigState>({

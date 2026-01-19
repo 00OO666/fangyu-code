@@ -12,15 +12,71 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { gitService, type GitFileStatus, type GitCommitInfo } from "@/lib/gitService";
 
-// Git 命令执行辅助函数（简化实现）
+// Re-export types for convenience
+export type { GitFileStatus, GitCommitInfo };
+
+// Git 命令执行辅助函数 - 使用真实的 Tauri 命令
 async function executeGitCommand(
-  _projectPath: string,
-  _args: string,
+  projectPath: string,
+  args: string,
 ): Promise<{ success: boolean; output?: string; error?: string }> {
-  // TODO: 实现 Git 命令执行
-  // 需要添加对应的 Tauri 命令
-  return { success: false, error: "Git command not implemented" };
+  // 解析命令参数
+  const parts = args.split(' ');
+  const command = parts[0];
+
+  try {
+    switch (command) {
+      case 'status': {
+        const files = await gitService.getStatus(projectPath);
+        // 转换为 porcelain 格式
+        const output = files.map(f => `${f.staged ? f.status : ' '}${f.staged ? ' ' : f.status} ${f.path}`).join('\n');
+        return { success: true, output };
+      }
+      case 'add': {
+        const filePath = parts.slice(1).join(' ').replace(/"/g, '');
+        const result = await gitService.add(projectPath, [filePath]);
+        return result;
+      }
+      case 'commit': {
+        // 解析 -m "message" 格式
+        const messageMatch = args.match(/-m\s+"([^"]+)"/);
+        const message = messageMatch ? messageMatch[1] : 'Auto commit';
+        const result = await gitService.commit(projectPath, message);
+        return result;
+      }
+      case 'log': {
+        const commits = await gitService.getLog(projectPath, 20);
+        const output = commits.map(c => `${c.hash}|${c.author}|${c.timestamp}`).join('\n');
+        return { success: true, output };
+      }
+      case 'diff': {
+        const diff = await gitService.getDiff(projectPath);
+        return { success: true, output: diff };
+      }
+      case 'rev-parse': {
+        // 获取当前 HEAD
+        const commits = await gitService.getLog(projectPath, 1);
+        if (commits.length > 0) {
+          return { success: true, output: commits[0].hash };
+        }
+        return { success: false, error: 'No commits found' };
+      }
+      case 'push': {
+        // Push 暂不支持，返回成功但不执行
+        console.warn('[Git] Push command not implemented');
+        return { success: true, output: 'Push skipped (not implemented)' };
+      }
+      default:
+        return { success: false, error: `Unknown command: ${command}` };
+    }
+  } catch (error) {
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : String(error) 
+    };
+  }
 }
 
 // ============================================================
@@ -50,6 +106,19 @@ export interface CommitInfo {
   filesChanged: string[];
   linesAdded: number;
   linesRemoved: number;
+}
+
+// 从 GitCommitInfo 转换为 CommitInfo
+function convertToCommitInfo(gitCommit: GitCommitInfo): CommitInfo {
+  return {
+    hash: gitCommit.hash,
+    message: gitCommit.message,
+    author: gitCommit.author,
+    timestamp: gitCommit.timestamp,
+    filesChanged: [], // 需要单独获取
+    linesAdded: gitCommit.insertions,
+    linesRemoved: gitCommit.deletions,
+  };
 }
 
 export interface PendingCommit {
@@ -134,25 +203,11 @@ export function useGitAutoCommit(options: UseGitAutoCommitOptions) {
    */
   const getChangedFiles = useCallback(async (): Promise<string[]> => {
     try {
-      // 通过 git status 获取修改的文件
-      const result = await executeGitCommand(projectPath, "status --porcelain");
-
-      if (!result.success || !result.output) {
-        return [];
-      }
-
-      // 解析 git status 输出
-      const files = result.output
-        .split("\n")
-        .filter((line) => line.trim())
-        .map((line) => {
-          // Git status 格式: " M file.txt" 或 "?? file.txt"
-          const match = line.match(/^\s*[MADRCU?]{1,2}\s+(.+)$/);
-          return match ? match[1].trim() : null;
-        })
-        .filter((file): file is string => file !== null && !shouldIgnore(file));
-
-      return files;
+      // 使用真实的 gitService
+      const files = await gitService.getStatus(projectPath);
+      return files
+        .map(f => f.path)
+        .filter(file => !shouldIgnore(file));
     } catch (error) {
       console.error("获取修改文件失败:", error);
       return [];

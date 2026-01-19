@@ -112,16 +112,26 @@ function detectLanguage(text: string): 'zh' | 'en' {
 
 /** 调用 Claude API（通过 Tauri 后端） */
 async function callClaudeAPI(config: APICallConfig): Promise<string> {
-    // 使用现有的 Tauri 命令
+    // 映射模型 ID 到 Tauri 后端支持的简称
+    // Tauri 后端会将简称映射到完整模型名：
+    // - haiku → claude-3-5-haiku-20241022
+    // - sonnet → claude-3-5-sonnet-20241022
+    // - opus → claude-opus-4-20250514
     const modelMap: Record<string, 'haiku' | 'sonnet' | 'opus'> = {
-        'claude-3-haiku-20240307': 'haiku',
+        // Claude 4 系列
+        'claude-opus-4-20250514': 'opus',
+        'claude-sonnet-4-20250514': 'sonnet',
+        // Claude 3.5 系列
         'claude-3-5-haiku-20241022': 'haiku',
-        'claude-3-sonnet-20240229': 'sonnet',
         'claude-3-5-sonnet-20241022': 'sonnet',
+        // Claude 3 系列（旧版，映射到最接近的新版）
+        'claude-3-haiku-20240307': 'haiku',
+        'claude-3-sonnet-20240229': 'sonnet',
         'claude-3-opus-20240229': 'opus',
     };
 
-    const model = modelMap[config.model] || 'haiku';
+    // 如果模型在映射表中，使用简称；否则直接传递模型 ID
+    const model = modelMap[config.model] || config.model;
     return await invoke<string>('generate_text_with_llm', {
         prompt: config.prompt,
         model,
