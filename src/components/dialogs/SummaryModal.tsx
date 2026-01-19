@@ -102,26 +102,16 @@ export const SummaryModal: React.FC<SummaryModalProps> = ({
         const service = getSummaryGeneratorService();
         const store = getSummaryConfigStore();
 
-        // 构建配置
-        const config: SummaryAPIConfig = {
-            engine: engineConfig.engine as any,
-            model: engineConfig.engine === 'siliconflow'
-                ? (engineConfig.siliconflowModel || 'deepseek-ai/DeepSeek-V3')
-                : engineConfig.engine === 'codex'
-                    ? (engineConfig.codexModel || 'gpt-4o-mini')
-                    : engineConfig.engine === 'gemini'
-                        ? (engineConfig.geminiModel || 'gemini-1.5-flash')
-                        : 'claude-3-haiku-20240307',
-            updatedAt: Date.now(),
-        };
+        // 从存储加载最新配置（确保使用用户保存的配置）
+        const latestConfig = await store.loadConfig();
 
-        // 保存配置
-        await store.saveConfig(config);
+        // 更新 UI 显示的配置
+        setSavedConfig(latestConfig);
 
-        // 生成摘要
-        const summaryResult = await service.generateSummary(messages, config);
+        // 生成摘要（使用已保存的配置）
+        const summaryResult = await service.generateSummary(messages, latestConfig);
         setResult(summaryResult);
-    }, [messages, engineConfig]);
+    }, [messages]);
 
     // 复制到剪贴板
     const handleCopy = useCallback(async () => {

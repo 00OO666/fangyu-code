@@ -142,6 +142,7 @@ export interface UseMessagePersistenceOptions {
 export interface UseMessagePersistenceReturn {
   loadPersistedMessages: () => Promise<ClaudeStreamMessage[]>;
   persistMessages: (messages: ClaudeStreamMessage[]) => void;
+  persistMessagesImmediately: (messages: ClaudeStreamMessage[]) => Promise<void>;  // 🆕 立即保存
   clearPersistedMessages: () => Promise<void>;
 }
 
@@ -185,6 +186,23 @@ export function useMessagePersistence(
     [enabled, sessionId, debounceMs]
   );
 
+  // 🆕 立即持久化消息（不防抖）
+  const persistMessagesImmediately = useCallback(
+    async (messages: ClaudeStreamMessage[]): Promise<void> => {
+      if (!enabled || !sessionId) return;
+
+      // 清除防抖定时器
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+        saveTimeoutRef.current = null;
+      }
+
+      // 立即保存
+      await saveMessages(sessionId, messages);
+    },
+    [enabled, sessionId]
+  );
+
   // 清除持久化的消息
   const clearPersistedMessages = useCallback(async (): Promise<void> => {
     if (!sessionId) return;
@@ -203,6 +221,7 @@ export function useMessagePersistence(
   return {
     loadPersistedMessages,
     persistMessages,
+    persistMessagesImmediately,
     clearPersistedMessages,
   };
 }

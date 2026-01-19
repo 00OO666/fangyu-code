@@ -1,12 +1,11 @@
 /**
  * Summary Generator Service
- * 
+ *
  * 摘要生成服务，支持四引擎 API 调用
- * 
+ *
  * Requirements: 1.2, 2.4, 2.6
  */
 
-import { invoke } from '@tauri-apps/api/core';
 import {
     SummaryAPIConfig,
     SummaryResult,
@@ -18,6 +17,7 @@ import {
 import type { ClaudeStreamMessage } from '@/types/claude';
 import { getSummaryConfigStore } from './summaryConfigStore';
 import { loadSiliconFlowConfig } from '@/config/siliconflowConfig';
+import { getCurrentProvider } from '@/services/engineConfigService';
 
 // =============================================================================
 // 类型定义
@@ -110,32 +110,29 @@ function detectLanguage(text: string): 'zh' | 'en' {
 // 引擎 API 调用
 // =============================================================================
 
-/** 调用 Claude API（通过 Tauri 后端） */
+/** 调用 Claude API（直接调用，和 InlineAPITester 一样） */
 async function callClaudeAPI(config: APICallConfig): Promise<string> {
-    // 映射模型 ID 到 Tauri 后端支持的简称
-    // Tauri 后端会将简称映射到完整模型名：
-    // - haiku → claude-3-5-haiku-20241022
-    // - sonnet → claude-3-5-sonnet-20241022
-    // - opus → claude-opus-4-20250514
-    const modelMap: Record<string, 'haiku' | 'sonnet' | 'opus'> = {
-        // Claude 4 系列
-        'claude-opus-4-20250514': 'opus',
-        'claude-sonnet-4-20250514': 'sonnet',
-        // Claude 3.5 系列
-        'claude-3-5-haiku-20241022': 'haiku',
-        'claude-3-5-sonnet-20241022': 'sonnet',
-        // Claude 3 系列（旧版，映射到最接近的新版）
-        'claude-3-haiku-20240307': 'haiku',
-        'claude-3-sonnet-20240229': 'sonnet',
-        'claude-3-opus-20240229': 'opus',
-    };
-
-    // 如果模型在映射表中，使用简称；否则直接传递模型 ID
-    const model = modelMap[config.model] || config.model;
-    return await invoke<string>('generate_text_with_llm', {
-        prompt: config.prompt,
-        model,
+    const response = await fetch(`${config.endpoint}/v1/messages`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': config.apiKey,
+            'anthropic-version': '2023-06-01',
+        },
+        body: JSON.stringify({
+            model: config.model,
+            max_tokens: config.maxTokens,
+            messages: [{ role: 'user', content: config.prompt }],
+        }),
     });
+
+    if (!response.ok) {
+        const error = await response.text();
+        throw new Error(`Claude API error: ${response.status} - ${error}`);
+    }
+
+    const data = await response.json();
+    return data.content?.[0]?.text || '';
 }
 
 /** 调用 OpenAI/Codex API */
@@ -282,11 +279,34 @@ export class SummaryGeneratorService {
 
         // 尝试从各引擎的全局配置获取
         switch (engine) {
+            case 'claude': {
+                // Claude 引擎：从当前代理商配置获取
+                const claudeProvider = getCurrentProvider('claude');
+                return claudeProvider?.apiKey || '';
+            }
             case 'siliconflow': {
                 const sfConfig = loadSiliconFlowConfig();
                 return sfConfig.apiKey || '';
             }
-            // 其他引擎可以从各自的配置中获取
+            default:
+                return '';
+        }
+    }
+
+    /** 获取 API Endpoint（支持从各引擎配置获取） */
+    private getEndpointForEngine(engine: SummaryEngine, config: SummaryAPIConfig): string {
+        // 优先使用配置中的 Endpoint
+        if (config.apiEndpoint) {
+            return config.apiEndpoint;
+        }
+
+        // 尝试从各引擎的全局配置获取
+        switch (engine) {
+            case 'claude': {
+                // Claude 引擎：从当前代理商配置获取
+                const claudeProvider = getCurrentProvider('claude');
+                return claudeProvider?.baseUrl || 'https://api.anthropic.com';
+            }
             default:
                 return '';
         }
@@ -333,7 +353,7 @@ export class SummaryGeneratorService {
 
             // 准备 API 调用配置
             const apiConfig: APICallConfig = {
-                endpoint: config.apiEndpoint || '',
+                endpoint: this.getEndpointForEngine(config.engine, config),
                 apiKey: this.getApiKeyForEngine(config.engine, config),
                 model: config.model,
                 prompt,

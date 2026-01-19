@@ -183,6 +183,28 @@ const isThinkingBlocksError = (error: any): boolean => {
   return hasThinkingKeyword && hasBlocksKeyword && hasModificationError && is400Error;
 };
 
+/**
+ * 🔧 FIX: 检测会话文件不存在或无效的错误
+ * 当会话 JSONL 文件被删除、损坏或不存在时，应该自动创建新会话
+ */
+const isSessionNotFoundError = (error: any): boolean => {
+  if (!error) return false;
+
+  const errorStr = typeof error === "string" ? error : JSON.stringify(error);
+  const lowerError = errorStr.toLowerCase();
+
+  // 检测会话文件不存在的关键特征
+  return (
+    lowerError.includes("session file not found") ||
+    lowerError.includes("session not found") ||
+    lowerError.includes("no such file") ||
+    lowerError.includes("file not found") ||
+    lowerError.includes("jsonl") && lowerError.includes("not found") ||
+    lowerError.includes("invalid session") ||
+    lowerError.includes("session does not exist")
+  );
+};
+
 // ============================================================================
 // Hook Implementation
 // ============================================================================
@@ -1479,6 +1501,9 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
               const specificErrorUnlisten = await listen<string>(`claude-error:${sid}`, (evt) => {
                 console.error("Claude error (scoped):", evt.payload);
                 setError(evt.payload);
+                // 🔧 FIX: 收到错误后停止加载状态
+                setIsLoading(false);
+                hasActiveSessionRef.current = false;
               });
 
               const specificCompleteUnlisten = await listen<boolean>(
@@ -1811,6 +1836,11 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                 } else {
                   setError(errorPayload);
                 }
+
+                // 🔧 FIX: 收到错误后停止加载状态，避免界面卡在加载中
+                // 这修复了"发送提示失败"时界面仍显示加载的问题
+                setIsLoading(false);
+                hasActiveSessionRef.current = false;
               },
             );
 
@@ -2360,9 +2390,45 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
             } catch (resumeError: any) {
               console.warn("[usePromptExecution] Resume failed:", resumeError);
 
-              // 🔧 FIX: 检测 thinking blocks 错误，自动 fallback 到新会话
-              // 这是 Claude Code CLI 2.0.76 的已知 bug
-              if (isThinkingBlocksError(resumeError)) {
+              // 🔧 FIX: 检测会话文件不存在错误，自动创建新会话
+              if (isSessionNotFoundError(resumeError)) {
+                console.warn(
+                  "[usePromptExecution] Session file not found, falling back to NEW session",
+                );
+
+                // 重置会话状态，强制创建新会话
+                setClaudeSessionId(null);
+                setExtractedSessionInfo(null);
+                setIsFirstPrompt(true);
+
+                // 添加系统消息通知用户
+                const warningMessage: ClaudeStreamMessage = {
+                  type: "system",
+                  subtype: "warning",
+                  message: {
+                    content: [
+                      {
+                        type: "text",
+                        text: "⚠️ 原会话文件不存在或已损坏，已自动开启新会话继续。",
+                      },
+                    ],
+                  },
+                  timestamp: new Date().toISOString(),
+                };
+                setMessages((prev) => [...prev, warningMessage]);
+
+                // 启动新会话
+                await api.executeClaudeCode(
+                  projectPath,
+                  processedPrompt,
+                  model,
+                  currentPlanMode,
+                  maxThinkingTokens,
+                  tabId,
+                );
+              } else if (isThinkingBlocksError(resumeError)) {
+                // 🔧 FIX: 检测 thinking blocks 错误，自动 fallback 到新会话
+                // 这是 Claude Code CLI 2.0.76 的已知 bug
                 console.warn(
                   "[usePromptExecution] Detected thinking blocks error, falling back to NEW session",
                 );
@@ -2410,8 +2476,40 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                     tabId,
                   );
                 } catch (continueError: any) {
-                  // 🔧 FIX: continue 也可能遇到 thinking blocks 错误
-                  if (isThinkingBlocksError(continueError)) {
+                  // 🔧 FIX: continue 也可能遇到会话文件不存在或 thinking blocks 错误
+                  if (isSessionNotFoundError(continueError)) {
+                    console.warn(
+                      "[usePromptExecution] Continue also failed with session not found, falling back to NEW session",
+                    );
+
+                    setClaudeSessionId(null);
+                    setExtractedSessionInfo(null);
+                    setIsFirstPrompt(true);
+
+                    const warningMessage: ClaudeStreamMessage = {
+                      type: "system",
+                      subtype: "warning",
+                      message: {
+                        content: [
+                          {
+                            type: "text",
+                            text: "⚠️ 原会话文件不存在或已损坏，已自动开启新会话继续。",
+                          },
+                        ],
+                      },
+                      timestamp: new Date().toISOString(),
+                    };
+                    setMessages((prev) => [...prev, warningMessage]);
+
+                    await api.executeClaudeCode(
+                      projectPath,
+                      processedPrompt,
+                      model,
+                      currentPlanMode,
+                      maxThinkingTokens,
+                      tabId,
+                    );
+                  } else if (isThinkingBlocksError(continueError)) {
                     console.warn(
                       "[usePromptExecution] Continue also failed with thinking blocks error, falling back to NEW session",
                     );
@@ -2464,15 +2562,32 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
         }
       } catch (err) {
         // ========================================================================
-        // 7️⃣ Error Handling
+        // 7️⃣ Error Handling - 🔧 FIX: 显示详细错误信息，帮助用户诊断问题
         // ========================================================================
         console.error("Failed to send prompt:", err);
-        setError("发送提示失败");
+
+        // 🔧 FIX: 提取并显示实际错误信息，而不是通用的"发送提示失败"
+        const errorMessage = err instanceof Error ? err.message : String(err);
+
+        // 🔧 FIX: 根据错误类型提供更有用的错误提示
+        let userFriendlyError = "发送提示失败";
+        if (errorMessage.includes("session") || errorMessage.includes("resume")) {
+          userFriendlyError = `会话恢复失败: ${errorMessage}\n\n💡 建议: 尝试开启新会话`;
+        } else if (errorMessage.includes("network") || errorMessage.includes("connect") || errorMessage.includes("timeout")) {
+          userFriendlyError = `网络连接失败: ${errorMessage}\n\n💡 建议: 检查网络连接和代理设置`;
+        } else if (errorMessage.includes("spawn") || errorMessage.includes("process")) {
+          userFriendlyError = `Claude CLI 启动失败: ${errorMessage}\n\n💡 建议: 确认 Claude Code CLI 已正确安装`;
+        } else if (errorMessage.includes("thinking") || errorMessage.includes("block")) {
+          userFriendlyError = `会话包含无法处理的数据: ${errorMessage}\n\n💡 建议: 开启新会话继续`;
+        } else if (errorMessage) {
+          userFriendlyError = `发送提示失败: ${errorMessage}`;
+        }
+
+        setError(userFriendlyError);
         setIsLoading(false);
         hasActiveSessionRef.current = false;
 
         // 🆕 更新全局任务状态为失败
-        const errorMessage = err instanceof Error ? err.message : String(err);
         globalTaskActions.updateTaskStatus(tabIdRef.current, "failed", errorMessage);
 
         // Reset session state on error

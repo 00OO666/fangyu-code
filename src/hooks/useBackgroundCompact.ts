@@ -320,6 +320,20 @@ export function useBackgroundCompact(
     if (isCompacting || status === "switching") return;
     if (hasTriggeredCompactRef.current) return;
 
+    // 🔧 v2.8.1: 添加调试日志，帮助诊断压缩功能失效问题
+    if (import.meta.env.DEV) {
+      console.log('[BackgroundCompact] 🔍 Auto-compact check:', {
+        autoCompact,
+        sessionId: sessionId?.slice(0, 8),
+        calculatedUsage: (calculatedUsage * 100).toFixed(1) + '%',
+        compactThreshold: (compactThreshold * 100).toFixed(1) + '%',
+        shouldTrigger: calculatedUsage >= compactThreshold,
+        isCompacting,
+        status,
+        hasTriggered: hasTriggeredCompactRef.current,
+      });
+    }
+
     // 达到 75% 阈值时触发后台压缩
     if (calculatedUsage >= compactThreshold) {
       console.log(
