@@ -2,10 +2,12 @@
  * 引擎卡片网格组件
  */
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import type { EngineType, EngineStatusInfo } from '../../types/provider';
 import { EngineCard } from './EngineCard';
 import { EngineInstaller } from './EngineInstaller';
+import { SetupWizard } from './OneClickSetup';
+import { getEngineConfigStatus, type ConfigStatus } from '../../services/setupStateService';
 
 interface EngineCardGridProps {
     engines: EngineStatusInfo[];
@@ -14,7 +16,7 @@ interface EngineCardGridProps {
     onRefreshStatus?: () => void;
 }
 
-const ALL_ENGINES: EngineType[] = ['claude', 'codex', 'gemini', 'siliconflow'];
+const ALL_ENGINES: EngineType[] = ['claude', 'codex', 'gemini', 'siliconflow', 'kiro'];
 
 export function EngineCardGrid({
     engines,
@@ -24,6 +26,22 @@ export function EngineCardGrid({
 }: EngineCardGridProps) {
     // 当前正在安装的引擎
     const [installingEngine, setInstallingEngine] = useState<EngineType | null>(null);
+    // 当前正在配置的引擎（一键配置向导）
+    const [configuringEngine, setConfiguringEngine] = useState<EngineType | null>(null);
+    // 各引擎的配置状态
+    const [configStatuses, setConfigStatuses] = useState<Record<EngineType, ConfigStatus>>({} as Record<EngineType, ConfigStatus>);
+
+    // 加载配置状态
+    useEffect(() => {
+        const loadConfigStatuses = async () => {
+            const statuses: Record<EngineType, ConfigStatus> = {} as Record<EngineType, ConfigStatus>;
+            for (const engine of ALL_ENGINES) {
+                statuses[engine] = await getEngineConfigStatus(engine);
+            }
+            setConfigStatuses(statuses);
+        };
+        loadConfigStatuses();
+    }, []);
 
     // 键盘导航
     const handleKeyDown = useCallback((e: React.KeyboardEvent, currentIndex: number) => {
@@ -61,14 +79,37 @@ export function EngineCardGrid({
         setInstallingEngine(engine);
     }, []);
 
+    // 处理一键配置按钮点击
+    const handleSetupClick = useCallback((engine: EngineType, e: React.MouseEvent) => {
+        e.stopPropagation();
+        setConfiguringEngine(engine);
+    }, []);
+
     // 处理安装完成
     const handleInstallComplete = useCallback(() => {
+        onRefreshStatus?.();
+    }, [onRefreshStatus]);
+
+    // 处理配置完成
+    const handleSetupComplete = useCallback(async () => {
+        setConfiguringEngine(null);
+        // 刷新配置状态
+        const statuses: Record<EngineType, ConfigStatus> = {} as Record<EngineType, ConfigStatus>;
+        for (const engine of ALL_ENGINES) {
+            statuses[engine] = await getEngineConfigStatus(engine);
+        }
+        setConfigStatuses(statuses);
         onRefreshStatus?.();
     }, [onRefreshStatus]);
 
     // 关闭安装面板
     const handleCloseInstaller = useCallback(() => {
         setInstallingEngine(null);
+    }, []);
+
+    // 关闭配置向导
+    const handleCloseSetupWizard = useCallback(() => {
+        setConfiguringEngine(null);
     }, []);
 
     return (
@@ -85,6 +126,8 @@ export function EngineCardGrid({
                         connectionStatus: 'unknown' as const,
                     };
                     const isActive = engine === currentEngine;
+                    const configStatus = configStatuses[engine];
+                    const isFullyConfigured = configStatus?.isFullyConfigured ?? false;
 
                     return (
                         <div
@@ -99,15 +142,21 @@ export function EngineCardGrid({
                                 isActive={isActive}
                                 onClick={() => onEngineSelect(engine)}
                             />
-                            {/* 安装按钮 - 仅在未安装时显示 */}
-                            {!status.installed && (
+                            {/* 一键配置按钮 - 未完全配置时显示 */}
+                            {!isFullyConfigured && (
                                 <button
-                                    onClick={(e) => handleInstallClick(engine, e)}
-                                    className="absolute bottom-2 right-2 px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-                                    aria-label={`安装 ${engine}`}
+                                    onClick={(e) => handleSetupClick(engine, e)}
+                                    className="absolute bottom-2 right-2 px-2 py-1 text-xs bg-purple-500 text-white rounded hover:bg-purple-600 transition-colors"
+                                    aria-label={`一键配置 ${engine}`}
                                 >
-                                    安装
+                                    一键配置
                                 </button>
+                            )}
+                            {/* 已配置标记 */}
+                            {isFullyConfigured && (
+                                <span className="absolute bottom-2 right-2 px-2 py-1 text-xs bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded">
+                                    已配置
+                                </span>
                             )}
                         </div>
                     );
@@ -121,6 +170,19 @@ export function EngineCardGrid({
                     onInstallComplete={handleInstallComplete}
                     onClose={handleCloseInstaller}
                 />
+            )}
+
+            {/* 一键配置向导 */}
+            {configuringEngine && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                    <div className="max-w-4xl w-full max-h-[90vh] overflow-auto">
+                        <SetupWizard
+                            engine={configuringEngine}
+                            onComplete={handleSetupComplete}
+                            onCancel={handleCloseSetupWizard}
+                        />
+                    </div>
+                </div>
             )}
         </div>
     );

@@ -29,7 +29,11 @@ pub struct CurrentConfig {
     // Claude Code 2025 新增字段
     pub anthropic_small_fast_model: Option<String>,
     pub api_timeout_ms: Option<String>,
+    pub max_thinking_tokens: Option<String>,
+    pub claude_code_max_output_tokens: Option<String>,
     pub claude_code_disable_nonessential_traffic: Option<String>,
+    pub claude_code_disable_telemetry: Option<String>,
+    pub claude_code_use_bedrock: Option<String>,
 }
 
 // 获取Claude设置文件路径
@@ -239,8 +243,24 @@ pub fn get_current_provider_config() -> Result<CurrentConfig, String> {
             .get("API_TIMEOUT_MS")
             .and_then(|v| v.as_str())
             .map(|s| s.to_string()),
+        max_thinking_tokens: env_vars
+            .get("MAX_THINKING_TOKENS")
+            .and_then(|v| v.as_str())
+            .map(|s| s.to_string()),
+        claude_code_max_output_tokens: env_vars
+            .get("CLAUDE_CODE_MAX_OUTPUT_TOKENS")
+            .and_then(|v| v.as_str())
+            .map(|s| s.to_string()),
         claude_code_disable_nonessential_traffic: env_vars
             .get("CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC")
+            .and_then(|v| v.as_str())
+            .map(|s| s.to_string()),
+        claude_code_disable_telemetry: env_vars
+            .get("CLAUDE_CODE_DISABLE_TELEMETRY")
+            .and_then(|v| v.as_str())
+            .map(|s| s.to_string()),
+        claude_code_use_bedrock: env_vars
+            .get("CLAUDE_CODE_USE_BEDROCK")
             .and_then(|v| v.as_str())
             .map(|s| s.to_string()),
     })
@@ -507,11 +527,16 @@ pub fn test_provider_connection(base_url: String) -> Result<String, String> {
 
 /// 保存 Claude Code 环境变量到 settings.json
 /// 用于前端高级设置中的环境变量配置
+/// 
+/// 处理逻辑：
+/// - 字符串：非空则设置，空字符串则移除
+/// - 数字：非零则设置，0 则移除
+/// - 布尔：true 则设置为 "true"，false 则移除
 #[command]
 pub async fn save_claude_env_vars(
     env_vars: std::collections::HashMap<String, Value>,
 ) -> Result<String, String> {
-    log::info!("开始保存 Claude Code 环境变量");
+    log::info!("开始保存 Claude Code 环境变量，共 {} 个字段", env_vars.len());
 
     let mut settings = load_settings()?;
 
@@ -541,15 +566,31 @@ pub async fn save_claude_env_vars(
                 log::info!("设置环境变量: {}={}", key, if key.contains("KEY") || key.contains("TOKEN") { "[MASKED]" } else { &s });
             }
             Value::Number(n) => {
-                env_obj.insert(key.clone(), Value::String(n.to_string()));
-                log::info!("设置环境变量: {}={}", key, n);
+                // 数字类型：非零则设置，0 则移除
+                if let Some(num) = n.as_i64() {
+                    if num != 0 {
+                        env_obj.insert(key.clone(), Value::String(num.to_string()));
+                        log::info!("设置环境变量: {}={}", key, num);
+                    } else {
+                        env_obj.remove(&key);
+                        log::info!("移除环境变量（值为0）: {}", key);
+                    }
+                } else if let Some(num) = n.as_f64() {
+                    if num != 0.0 {
+                        env_obj.insert(key.clone(), Value::String(num.to_string()));
+                        log::info!("设置环境变量: {}={}", key, num);
+                    } else {
+                        env_obj.remove(&key);
+                        log::info!("移除环境变量（值为0）: {}", key);
+                    }
+                }
             }
             Value::Bool(b) if b => {
                 env_obj.insert(key.clone(), Value::String("true".to_string()));
                 log::info!("设置环境变量: {}=true", key);
             }
             _ => {
-                // 空值或 false，移除该环境变量
+                // 空字符串、false 或其他值，移除该环境变量
                 env_obj.remove(&key);
                 log::info!("移除环境变量: {}", key);
             }

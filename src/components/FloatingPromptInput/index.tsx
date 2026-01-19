@@ -1,4 +1,4 @@
-import React, { useState, useRef, forwardRef, useImperativeHandle, useEffect, useReducer, useCallback } from "react";
+import React, { useState, useRef, forwardRef, useImperativeHandle, useEffect, useReducer, useCallback, useContext, useMemo } from "react";
 import { AnimatePresence } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -24,7 +24,7 @@ import { useMemoryDetection } from "@/hooks/useMemoryDetection";
 import { MemoryImportSuggestion } from "@/components/MemoryImportSuggestion";
 
 // 🆕 Prompt Queue 功能
-import { usePromptQueue, type PromptSendMode } from "@/hooks/usePromptQueue";
+import { PromptQueueContext, type PromptSendMode, type PromptQueueContextValue } from "@/hooks/usePromptQueue";
 import { PromptQueuePanel } from "./PromptQueuePanel";
 
 // 🆕 预填充消息支持（用于摘要续接等场景）
@@ -208,8 +208,35 @@ const FloatingPromptInputInner = (
   const [showMemoryPanel, setShowMemoryPanel] = useState(true);
 
   // 🆕 提示词队列管理
-  const promptQueue = usePromptQueue();
+  // 🔧 FIX: 使用可选的 Context 访问，避免在 PromptQueueProvider 外部使用时崩溃
+  const promptQueueContext = useContext(PromptQueueContext);
   const [showQueuePanel, setShowQueuePanel] = useState(false);
+  
+  // 🔧 FIX: 创建一个空的队列对象作为 fallback
+  const emptyQueue: PromptQueueContextValue = useMemo(() => ({
+    items: [],
+    isProcessing: false,
+    currentItemId: null,
+    autoMerge: false,
+    enqueue: () => ({ id: '', prompt: '', model: 'sonnet' as const, createdAt: 0, mode: 'sequential' as const, status: 'pending' as const }),
+    dequeue: () => null,
+    revokeToInput: () => null,
+    markSending: () => {},
+    markSent: () => {},
+    markFailed: () => {},
+    clearQueue: () => {},
+    getNextSequential: () => null,
+    getMergeItems: () => [],
+    getMergedPrompt: () => null,
+    reorderItem: () => {},
+    updateItemMode: () => {},
+    updateItemPrompt: () => {},
+    setAutoMerge: () => {},
+    getStats: () => ({ total: 0, pending: 0, sending: 0, sent: 0 }),
+  }), []);
+  
+  const promptQueue = promptQueueContext || emptyQueue;
+  
   // 🔧 FIX: 使用 useMemo 避免每次渲染都创建新数组
   const pendingCount = React.useMemo(
     () => promptQueue.items.filter(i => i.status === 'pending').length,

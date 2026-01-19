@@ -17,7 +17,7 @@ import { getVersion } from "@tauri-apps/api/app";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const STORAGE_KEY = "fangyu-code-last-seen-version";
-const FALLBACK_VERSION = "2.7.8"; // 🔧 Fallback 版本（获取失败时使用）
+const FALLBACK_VERSION = "2.7.9"; // 🔧 Fallback 版本（获取失败时使用）
 
 // 🔧 DEBUG: 全局变量用于强制显示更新日志（调试用）
 declare global {
@@ -29,6 +29,24 @@ declare global {
 
 // 版本更新日志（从新到旧）
 export const CHANGELOGS = {
+  "2.7.9": {
+    title: "v2.7.9 - 🔧 会话切换稳定性修复",
+    date: "2026-01-19",
+    features: [],
+    improvements: [
+      "🔧 修复切换会话时内容偶尔丢失的问题",
+      "🔧 优化 Tab 激活时的数据恢复逻辑",
+      "🔧 添加 IndexedDB 恢复状态跟踪，避免竞态条件",
+    ],
+    bugfixes: [
+      "修复 Tab 激活时 IndexedDB 恢复与后端加载的竞态条件",
+      "修复重新打开应用后切换会话时消息显示为空的问题",
+    ],
+    technical: [
+      "ClaudeCodeSession.tsx - 添加 isRestoringFromIndexedDBRef 状态跟踪",
+      "Tab 激活时先等待 IndexedDB 恢复完成再决定是否从后端加载",
+    ],
+  },
   "2.7.8": {
     title: "v2.7.8 - 🔧 消息显示修复",
     date: "2026-01-16",

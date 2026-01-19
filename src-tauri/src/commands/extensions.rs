@@ -88,7 +88,7 @@ pub struct AgentSkillFile {
     pub description: Option<String>,
     /// File content
     pub content: String,
-    /// Whether the skill is enabled (true if directory name does not start with "_disabled_")
+    /// Whether the skill is enabled (true if in skills directory, false if in skills_disabled directory)
     pub is_enabled: bool,
 }
 
@@ -236,6 +236,7 @@ fn scan_agents_directory(dir: &Path, scope: &str) -> Result<Vec<SubagentFile>, S
 }
 
 /// List all Agent Skills in project and user directories
+/// Scans both skills (enabled) and skills_disabled (disabled) directories
 #[tauri::command]
 pub async fn list_agent_skills(
     project_path: Option<String>,
@@ -243,19 +244,35 @@ pub async fn list_agent_skills(
     info!("Listing agent skills");
     let mut skills = Vec::new();
 
-    // User-level skills (~/.claude/skills/)
+    // User-level skills
     if let Ok(claude_dir) = get_claude_dir() {
+        // Enabled skills (~/.claude/skills/)
         let user_skills_dir = claude_dir.join("skills");
         if user_skills_dir.exists() {
-            skills.extend(scan_skills_directory(&user_skills_dir, "user")?);
+            skills.extend(scan_skills_directory(&user_skills_dir, "user", true)?);
+        }
+        
+        // Disabled skills (~/.claude/skills_disabled/)
+        let user_skills_disabled_dir = claude_dir.join("skills_disabled");
+        if user_skills_disabled_dir.exists() {
+            skills.extend(scan_skills_directory(&user_skills_disabled_dir, "user", false)?);
         }
     }
 
-    // Project-level skills (.claude/skills/)
-    if let Some(proj_path) = project_path {
-        let project_skills_dir = Path::new(&proj_path).join(".claude").join("skills");
+    // Project-level skills
+    if let Some(proj_path) = &project_path {
+        let project_claude_dir = Path::new(proj_path).join(".claude");
+        
+        // Enabled skills (.claude/skills/)
+        let project_skills_dir = project_claude_dir.join("skills");
         if project_skills_dir.exists() {
-            skills.extend(scan_skills_directory(&project_skills_dir, "project")?);
+            skills.extend(scan_skills_directory(&project_skills_dir, "project", true)?);
+        }
+        
+        // Disabled skills (.claude/skills_disabled/)
+        let project_skills_disabled_dir = project_claude_dir.join("skills_disabled");
+        if project_skills_disabled_dir.exists() {
+            skills.extend(scan_skills_directory(&project_skills_disabled_dir, "project", false)?);
         }
     }
 
@@ -263,7 +280,8 @@ pub async fn list_agent_skills(
 }
 
 /// Scan skills directory for SKILL.md files
-fn scan_skills_directory(dir: &Path, scope: &str) -> Result<Vec<AgentSkillFile>, String> {
+/// is_enabled: true if scanning skills directory, false if scanning skills_disabled directory
+fn scan_skills_directory(dir: &Path, scope: &str, is_enabled: bool) -> Result<Vec<AgentSkillFile>, String> {
     let mut skills = Vec::new();
 
     for entry in WalkDir::new(dir)
@@ -305,9 +323,6 @@ fn scan_skills_directory(dir: &Path, scope: &str) -> Result<Vec<AgentSkillFile>,
             Ok(content) => {
                 let description = parse_description_from_content(&content);
 
-                // Check if skill is enabled (directory name does not start with "_disabled_")
-                let is_enabled = !name.starts_with("_disabled_");
-
                 skills.push(AgentSkillFile {
                     name,
                     path: path.to_string_lossy().to_string(),
@@ -339,7 +354,8 @@ pub async fn read_skill(file_path: String) -> Result<String, String> {
 }
 
 /// Toggle skill enabled/disabled state
-/// Disabled skills have their directory name prefixed with "_disabled_"
+/// Disabled skills are moved to skills_disabled directory
+/// Enabled skills are moved to skills directory
 #[tauri::command]
 pub async fn toggle_skill(
     skill_name: String,
@@ -349,52 +365,78 @@ pub async fn toggle_skill(
 ) -> Result<bool, String> {
     info!("Toggling skill '{}' (scope: {}) to enabled={}", skill_name, scope, enabled);
 
-    // Determine skills directory based on scope
-    let skills_dir = if scope == "project" {
+    // Determine base directory based on scope
+    let base_dir = if scope == "project" {
         let proj_path = project_path.ok_or("Project path required for project-level skills")?;
-        Path::new(&proj_path).join(".claude").join("skills")
+        Path::new(&proj_path).join(".claude")
     } else {
-        get_claude_dir().map_err(|e| e.to_string())?.join("skills")
+        get_claude_dir().map_err(|e| e.to_string())?
     };
 
+    let skills_dir = base_dir.join("skills");
+    let skills_disabled_dir = base_dir.join("skills_disabled");
+
+    // Ensure both directories exist
     if !skills_dir.exists() {
-        return Err(format!("Skills directory not found: {:?}", skills_dir));
+        fs::create_dir_all(&skills_dir)
+            .map_err(|e| format!("Failed to create skills directory: {}", e))?;
+    }
+    if !skills_disabled_dir.exists() {
+        fs::create_dir_all(&skills_disabled_dir)
+            .map_err(|e| format!("Failed to create skills_disabled directory: {}", e))?;
     }
 
-    // Clean up the skill name (remove _disabled_ prefix if present)
+    // Clean up the skill name (remove _disabled_ prefix if present for backward compatibility)
     let clean_name = skill_name.trim_start_matches("_disabled_");
 
-    // Determine current and target directory names
-    let (current_name, target_name) = if enabled {
-        // Enable: remove _disabled_ prefix
-        (format!("_disabled_{}", clean_name), clean_name.to_string())
+    // Determine source and target directories
+    let (source_dir, target_dir) = if enabled {
+        // Enable: move from skills_disabled to skills
+        (skills_disabled_dir.clone(), skills_dir.clone())
     } else {
-        // Disable: add _disabled_ prefix
-        (clean_name.to_string(), format!("_disabled_{}", clean_name))
+        // Disable: move from skills to skills_disabled
+        (skills_dir.clone(), skills_disabled_dir.clone())
     };
 
-    let current_dir = skills_dir.join(&current_name);
-    let target_dir = skills_dir.join(&target_name);
+    let source_path = source_dir.join(clean_name);
+    let target_path = target_dir.join(clean_name);
 
     // Check if the skill already has the target state
-    if target_dir.exists() {
-        info!("Skill '{}' is already in the target state", skill_name);
+    if target_path.exists() {
+        info!("Skill '{}' is already in the target state", clean_name);
         return Ok(true);
     }
 
-    // Check if current directory exists
-    if !current_dir.exists() {
+    // Check if source path exists
+    if !source_path.exists() {
+        // Try backward compatibility: check for _disabled_ prefix in skills directory
+        let old_disabled_path = skills_dir.join(format!("_disabled_{}", clean_name));
+        if enabled && old_disabled_path.exists() {
+            // Migrate from old format: rename _disabled_xxx to xxx in skills directory
+            fs::rename(&old_disabled_path, &target_path)
+                .map_err(|e| format!("Failed to migrate skill from old format: {}", e))?;
+            info!("Successfully migrated and enabled skill '{}' from old format", clean_name);
+            return Ok(true);
+        }
+
         return Err(format!(
-            "Skill directory not found: {:?}. Expected '{}' or '_disabled_{}'",
-            current_dir, clean_name, clean_name
+            "Skill '{}' not found in {} directory",
+            clean_name,
+            if enabled { "skills_disabled" } else { "skills" }
         ));
     }
 
-    // Rename the directory
-    fs::rename(&current_dir, &target_dir)
+    // Move the directory
+    fs::rename(&source_path, &target_path)
         .map_err(|e| format!("Failed to toggle skill: {}", e))?;
 
-    info!("Successfully toggled skill '{}' to {}", clean_name, if enabled { "enabled" } else { "disabled" });
+    info!(
+        "Successfully {} skill '{}' (moved from {:?} to {:?})",
+        if enabled { "enabled" } else { "disabled" },
+        clean_name,
+        source_dir,
+        target_dir
+    );
     Ok(true)
 }
 

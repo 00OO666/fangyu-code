@@ -689,6 +689,7 @@ export async function importConfig(
                 codex: null,
                 gemini: null,
                 siliconflow: null,
+                kiro: null,
             };
         }
 
@@ -790,24 +791,34 @@ export async function updateRuntimeConfig(updates: Partial<RuntimeConfig>): Prom
 
 /**
  * 同步 Claude 环境变量到 Tauri 后端（~/.claude/settings.json）
+ * 
+ * 注意：这个函数会将前端设置的环境变量同步到 ~/.claude/settings.json
+ * - 有值的字段会被设置
+ * - 空值或 false 的字段会被移除（通过发送 false 值让后端处理）
  */
 async function syncClaudeEnvVarsToBackend(envVars?: RuntimeConfig['claudeEnvVars']): Promise<void> {
     if (!envVars) return;
 
     try {
         // 构建环境变量对象
+        // 注意：需要发送所有字段，包括空值和 false，让后端决定是设置还是移除
         const envConfig: Record<string, string | number | boolean> = {};
 
-        if (envVars.ANTHROPIC_API_KEY) envConfig.ANTHROPIC_API_KEY = envVars.ANTHROPIC_API_KEY;
-        if (envVars.ANTHROPIC_BASE_URL) envConfig.ANTHROPIC_BASE_URL = envVars.ANTHROPIC_BASE_URL;
-        if (envVars.ANTHROPIC_AUTH_TOKEN) envConfig.ANTHROPIC_AUTH_TOKEN = envVars.ANTHROPIC_AUTH_TOKEN;
-        if (envVars.ANTHROPIC_MODEL) envConfig.ANTHROPIC_MODEL = envVars.ANTHROPIC_MODEL;
-        if (envVars.API_TIMEOUT_MS) envConfig.API_TIMEOUT_MS = envVars.API_TIMEOUT_MS;
-        if (envVars.MAX_THINKING_TOKENS) envConfig.MAX_THINKING_TOKENS = envVars.MAX_THINKING_TOKENS;
-        if (envVars.CLAUDE_CODE_MAX_OUTPUT_TOKENS) envConfig.CLAUDE_CODE_MAX_OUTPUT_TOKENS = envVars.CLAUDE_CODE_MAX_OUTPUT_TOKENS;
-        if (envVars.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC) envConfig.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = 'true';
-        if (envVars.CLAUDE_CODE_DISABLE_TELEMETRY) envConfig.CLAUDE_CODE_DISABLE_TELEMETRY = 'true';
-        if (envVars.CLAUDE_CODE_USE_BEDROCK) envConfig.CLAUDE_CODE_USE_BEDROCK = 'true';
+        // 字符串类型：有值则设置，空值则发送空字符串让后端移除
+        envConfig.ANTHROPIC_API_KEY = envVars.ANTHROPIC_API_KEY || '';
+        envConfig.ANTHROPIC_BASE_URL = envVars.ANTHROPIC_BASE_URL || '';
+        envConfig.ANTHROPIC_AUTH_TOKEN = envVars.ANTHROPIC_AUTH_TOKEN || '';
+        envConfig.ANTHROPIC_MODEL = envVars.ANTHROPIC_MODEL || '';
+
+        // 数字类型：有值则设置，否则发送 0 让后端移除
+        envConfig.API_TIMEOUT_MS = envVars.API_TIMEOUT_MS || 0;
+        envConfig.MAX_THINKING_TOKENS = envVars.MAX_THINKING_TOKENS || 0;
+        envConfig.CLAUDE_CODE_MAX_OUTPUT_TOKENS = envVars.CLAUDE_CODE_MAX_OUTPUT_TOKENS || 0;
+
+        // 布尔类型：直接发送布尔值，后端会根据 true/false 决定设置或移除
+        envConfig.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = !!envVars.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC;
+        envConfig.CLAUDE_CODE_DISABLE_TELEMETRY = !!envVars.CLAUDE_CODE_DISABLE_TELEMETRY;
+        envConfig.CLAUDE_CODE_USE_BEDROCK = !!envVars.CLAUDE_CODE_USE_BEDROCK;
 
         // 调用 Tauri 后端保存环境变量
         await invoke('save_claude_env_vars', { envVars: envConfig });
@@ -861,6 +872,94 @@ export async function applyModelToClaudeCode(
 }
 
 /**
+ * 从 Tauri 后端读取 Claude 环境变量并同步到前端 localStorage
+ * 确保前端显示的配置与 ~/.claude/settings.json 一致
+ */
+async function syncClaudeEnvVarsFromBackend(): Promise<void> {
+    try {
+        // 调用 Tauri 后端获取当前配置
+        const currentConfig = await invoke<{
+            anthropic_base_url?: string;
+            anthropic_auth_token?: string;
+            anthropic_api_key?: string;
+            anthropic_model?: string;
+            anthropic_small_fast_model?: string;
+            api_timeout_ms?: string;
+            max_thinking_tokens?: string;
+            claude_code_max_output_tokens?: string;
+            claude_code_disable_nonessential_traffic?: string;
+            claude_code_disable_telemetry?: string;
+            claude_code_use_bedrock?: string;
+        }>('get_current_provider_config');
+
+        if (!currentConfig) {
+            console.log('[EngineConfigService] 后端没有 Claude 环境变量配置');
+            return;
+        }
+
+        // 读取当前前端配置
+        const runtimeConfig = readRuntimeConfig();
+        const currentEnvVars = runtimeConfig.claudeEnvVars || {};
+
+        // 合并后端配置到前端（后端优先）
+        const mergedEnvVars: RuntimeConfig['claudeEnvVars'] = {
+            ...currentEnvVars,
+        };
+
+        // 字符串类型
+        if (currentConfig.anthropic_api_key) {
+            mergedEnvVars.ANTHROPIC_API_KEY = currentConfig.anthropic_api_key;
+        }
+        if (currentConfig.anthropic_base_url) {
+            mergedEnvVars.ANTHROPIC_BASE_URL = currentConfig.anthropic_base_url;
+        }
+        if (currentConfig.anthropic_auth_token) {
+            mergedEnvVars.ANTHROPIC_AUTH_TOKEN = currentConfig.anthropic_auth_token;
+        }
+        if (currentConfig.anthropic_model) {
+            mergedEnvVars.ANTHROPIC_MODEL = currentConfig.anthropic_model;
+        }
+
+        // 数字类型
+        if (currentConfig.api_timeout_ms) {
+            mergedEnvVars.API_TIMEOUT_MS = parseInt(currentConfig.api_timeout_ms, 10) || undefined;
+        }
+        if (currentConfig.max_thinking_tokens) {
+            mergedEnvVars.MAX_THINKING_TOKENS = parseInt(currentConfig.max_thinking_tokens, 10) || undefined;
+        }
+        if (currentConfig.claude_code_max_output_tokens) {
+            mergedEnvVars.CLAUDE_CODE_MAX_OUTPUT_TOKENS = parseInt(currentConfig.claude_code_max_output_tokens, 10) || undefined;
+        }
+
+        // 布尔类型
+        if (currentConfig.claude_code_disable_nonessential_traffic === '1' || 
+            currentConfig.claude_code_disable_nonessential_traffic === 'true') {
+            mergedEnvVars.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = true;
+        }
+        if (currentConfig.claude_code_disable_telemetry === '1' || 
+            currentConfig.claude_code_disable_telemetry === 'true') {
+            mergedEnvVars.CLAUDE_CODE_DISABLE_TELEMETRY = true;
+        }
+        if (currentConfig.claude_code_use_bedrock === '1' || 
+            currentConfig.claude_code_use_bedrock === 'true') {
+            mergedEnvVars.CLAUDE_CODE_USE_BEDROCK = true;
+        }
+
+        // 更新前端配置
+        const updatedConfig: RuntimeConfig = {
+            ...runtimeConfig,
+            claudeEnvVars: mergedEnvVars,
+        };
+        writeRuntimeConfig(updatedConfig);
+
+        console.log('[EngineConfigService] 已从后端同步 Claude 环境变量到前端');
+    } catch (error) {
+        console.warn('[EngineConfigService] 从后端同步 Claude 环境变量失败:', error);
+        // 不抛出错误，允许应用继续启动
+    }
+}
+
+/**
  * 初始化服务（应用启动时调用）
  */
 export async function initializeService(): Promise<void> {
@@ -869,6 +968,10 @@ export async function initializeService(): Promise<void> {
     if (migrationResult && !migrationResult.success) {
         console.error('配置迁移失败:', migrationResult.errors);
     }
+
+    // 从后端同步 Claude 环境变量到前端
+    // 确保前端显示的配置与 ~/.claude/settings.json 一致
+    await syncClaudeEnvVarsFromBackend();
 }
 
 // 导出类接口（兼容设计文档）

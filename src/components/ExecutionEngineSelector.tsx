@@ -48,7 +48,7 @@ import type { CodexExecutionMode } from '@/types/codex';
 // Type Definitions
 // ====================================================================
 
-export type ExecutionEngine = 'claude' | 'codex' | 'gemini' | 'siliconflow';
+export type ExecutionEngine = 'claude' | 'codex' | 'gemini' | 'siliconflow' | 'kiro';
 export type CodexRuntimeMode = 'auto' | 'native' | 'wsl';
 export type ClaudeRuntimeMode = 'auto' | 'native' | 'wsl';
 export type GeminiRuntimeMode = 'auto' | 'native' | 'wsl';
@@ -63,6 +63,7 @@ export interface ExecutionEngineConfig {
   geminiApprovalMode?: 'auto_edit' | 'yolo' | 'default';
   siliconflowModel?: string;
   siliconflowApiKey?: string;
+  kiroModel?: string; // 🆕 Kiro 模型 (e.g., 'claude-opus-4.5')
 }
 
 interface CodexModeConfig {

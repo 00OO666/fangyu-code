@@ -105,6 +105,9 @@ export interface PromptQueueContextValue extends PromptQueueState, PromptQueueAc
 
 const PromptQueueContext = createContext<PromptQueueContextValue | null>(null);
 
+// 🔧 FIX (v2.7.6): 导出 PromptQueueContext 供需要可选访问的组件使用
+export { PromptQueueContext };
+
 // ============================================================================
 // Provider
 // ============================================================================

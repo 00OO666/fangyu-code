@@ -306,7 +306,7 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
             content,
             triggers: extractTriggers(content),
             tags: extractTags(content),
-            isEnabled: !s.name.startsWith('_disabled_'),
+            isEnabled: s.isEnabled ?? true, // 使用后端返回的 isEnabled 字段
           };
         })
       );

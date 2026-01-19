@@ -225,7 +225,7 @@ export const ControlBar: React.FC<ControlBarProps> = ({
   }, [executionEngineConfig.engine, messages, providedCodexRateLimits]);
 
   return (
-    <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent pb-1 min-h-[40px] flex-shrink-0">
+    <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap pb-1 min-h-[40px] flex-shrink-0">
       {/* Execution Engine Selector */}
       <ExecutionEngineSelector
         value={executionEngineConfig}
@@ -296,13 +296,12 @@ export const ControlBar: React.FC<ControlBarProps> = ({
         />
       )}
 
-      {/* Token 统计 Badge - 小屏幕隐藏，始终显示 */}
+      {/* Token 统计 Badge - 始终显示 */}
       {sessionStats && sessionStats.totalTokens > 0 && (
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.2 }}
-          className="hidden sm:block"
         >
           <Badge variant="outline" className="flex items-center gap-1 px-2 py-1 h-8 cursor-default hover:bg-accent transition-colors border-border/50">
             <Hash className="h-3 w-3 text-blue-600 dark:text-blue-400" />
@@ -462,14 +461,14 @@ export const ControlBar: React.FC<ControlBarProps> = ({
         />
       )}
 
-      {/* Usage Dashboard Toggle - Token 消耗图表，始终显示 */}
+      {/* Usage Dashboard Toggle - Token 消耗图表 */}
       {onToggleUsageDashboard && (
         <Button
           variant={showUsageDashboard ? "default" : "outline"}
           size="default"
           onClick={onToggleUsageDashboard}
           className={cn(
-            "gap-1.5 h-8 transition-all hidden md:flex",
+            "gap-1 h-8 transition-all",
             showUsageDashboard
               ? "bg-blue-600 hover:bg-blue-700 text-white"
               : "border-border/50 bg-background/50 hover:bg-accent/50"
@@ -480,7 +479,7 @@ export const ControlBar: React.FC<ControlBarProps> = ({
             "h-3.5 w-3.5",
             showUsageDashboard ? "text-white" : "text-blue-500"
           )} />
-          <span className="text-xs hidden lg:inline">图表</span>
+          <span className="text-xs hidden sm:inline">图表</span>
         </Button>
       )}
 
@@ -490,23 +489,23 @@ export const ControlBar: React.FC<ControlBarProps> = ({
           variant="outline"
           size="default"
           onClick={onToggleMCPConfig}
-          className="gap-1.5 h-8 border-border/50 bg-background/50 hover:bg-accent/50 transition-all hidden lg:flex"
+          className="gap-1 h-8 border-border/50 bg-background/50 hover:bg-accent/50 transition-all"
           title="项目 MCP 配置 - 快速开关此项目的 MCP 服务器"
         >
           <Network className="h-3.5 w-3.5 text-orange-500" />
-          <span className="text-xs hidden xl:inline">MCP</span>
+          <span className="text-xs hidden sm:inline">MCP</span>
         </Button>
       )}
 
-      {/* Canvas Button - 打开实时预览，始终显示 */}
+      {/* Canvas Button - 打开实时预览 */}
       {onOpenCanvas && (
-        <div className="relative hidden md:block">
+        <div className="relative">
           <Button
             variant={hasPreviewableCode ? "default" : "outline"}
             size="default"
             onClick={onOpenCanvas}
             className={cn(
-              "gap-1.5 h-8 transition-all",
+              "gap-1 h-8 transition-all",
               hasPreviewableCode
                 ? "bg-purple-600 hover:bg-purple-700 text-white animate-pulse"
                 : "border-border/50 bg-background/50 hover:bg-accent/50"
@@ -521,7 +520,7 @@ export const ControlBar: React.FC<ControlBarProps> = ({
               "h-3.5 w-3.5",
               hasPreviewableCode ? "text-white" : "text-purple-500"
             )} />
-            <span className="text-xs hidden lg:inline">
+            <span className="text-xs hidden sm:inline">
               {hasPreviewableCode ? '预览' : 'Canvas'}
             </span>
           </Button>
@@ -540,7 +539,7 @@ export const ControlBar: React.FC<ControlBarProps> = ({
         size="default"
         onClick={() => setSiliconFlowDialogOpen(true)}
         className={cn(
-          "gap-1.5 h-8 border-border/50 bg-background/50 hover:bg-accent/50 transition-all hidden xl:flex",
+          "gap-1 h-8 border-border/50 bg-background/50 hover:bg-accent/50 transition-all hidden lg:flex",
           siliconFlowConfig.apiKey && "border-cyan-500/30"
         )}
         title={siliconFlowConfig.apiKey

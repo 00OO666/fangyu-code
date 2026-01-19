@@ -775,6 +775,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
     codexModel: executionEngineConfig.codexModel,  // 🆕 Codex integration
     geminiModel: executionEngineConfig.geminiModel,           // 🆕 Gemini integration
     geminiApprovalMode: executionEngineConfig.geminiApprovalMode, // 🆕 Gemini integration
+    kiroModel: executionEngineConfig.kiroModel,    // 🆕 Kiro integration
     hasActiveSessionRef,
     unlistenRefs,
     isMountedRef,
@@ -975,13 +976,20 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
 
   // 🔧 v2.3.1: 尝试从 IndexedDB 恢复消息（作为后备方案）
   // 当 API 加载失败或消息为空时，尝试从本地恢复
+  // 🔧 v2.8.0: 添加 ref 跟踪恢复状态，避免与 tab 激活逻辑竞态
+  const isRestoringFromIndexedDBRef = useRef(false);
   useEffect(() => {
-    if (claudeSessionId && messages.length === 0) {
+    if (claudeSessionId && messages.length === 0 && !isRestoringFromIndexedDBRef.current) {
+      isRestoringFromIndexedDBRef.current = true;
       loadPersistedMessages().then(persistedMessages => {
         if (persistedMessages.length > 0) {
           console.log('[MessagePersistence] 从 IndexedDB 恢复了', persistedMessages.length, '条消息');
           setMessages(persistedMessages);
         }
+        // 恢复完成后重置标志
+        isRestoringFromIndexedDBRef.current = false;
+      }).catch(() => {
+        isRestoringFromIndexedDBRef.current = false;
       });
     }
   }, [claudeSessionId, messages.length, loadPersistedMessages, setMessages]);
@@ -990,23 +998,44 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   // This fixes the issue where switching between tabs doesn't show messages
   // because TabManager keeps all tabs in DOM (absolute + hidden) and components don't remount
   // 🆕 OPTIMIZATION: Only reload if messages are empty (避免覆盖正在流式传输的消息)
+  // 🔧 v2.8.0: 先等待 IndexedDB 恢复完成，避免竞态条件导致消息丢失
   const prevIsActiveRef = useRef(isActive);
   useEffect(() => {
     const wasInactive = prevIsActiveRef.current === false;
     const nowActive = isActive === true;
 
-    // When tab becomes active and we have a session, reload history
-    // (unless this is the initial mount - handled by the previous useEffect)
-    // 🔧 CRITICAL FIX: Only reload if messages are empty to avoid overwriting streaming messages
-    if (wasInactive && nowActive && session && messages.length === 0) {
-      console.debug('[ClaudeCodeSession] Tab became active with empty messages, reloading history for session:', session.id);
-      loadSessionHistory();
-    } else if (wasInactive && nowActive && session && messages.length > 0) {
-      console.debug('[ClaudeCodeSession] Tab became active with existing messages, skipping reload to preserve state');
+    // When tab becomes active and we have a session, check if we need to reload
+    if (wasInactive && nowActive && session) {
+      // 🔧 FIX: 延迟检查，给 IndexedDB 恢复一个机会先完成
+      const checkAndReload = async () => {
+        // 等待 IndexedDB 恢复完成（最多等待 200ms）
+        let waitTime = 0;
+        while (isRestoringFromIndexedDBRef.current && waitTime < 200) {
+          await new Promise(resolve => setTimeout(resolve, 50));
+          waitTime += 50;
+        }
+
+        // 再次检查消息是否为空（IndexedDB 可能已经恢复了消息）
+        // 注意：这里需要通过 ref 或重新获取来检查最新状态
+        // 由于 React 的闭包特性，直接使用 messages.length 可能是旧值
+        // 所以我们先尝试从 IndexedDB 加载，如果有数据就不调用后端
+        const persistedMessages = await loadPersistedMessages();
+        if (persistedMessages.length > 0) {
+          console.debug('[ClaudeCodeSession] Tab became active, restored from IndexedDB:', persistedMessages.length, 'messages');
+          setMessages(persistedMessages);
+        } else if (messages.length === 0) {
+          console.debug('[ClaudeCodeSession] Tab became active with empty messages, reloading history for session:', session.id);
+          loadSessionHistory();
+        } else {
+          console.debug('[ClaudeCodeSession] Tab became active with existing messages, skipping reload to preserve state');
+        }
+      };
+
+      checkAndReload();
     }
 
     prevIsActiveRef.current = isActive;
-  }, [isActive, session, messages.length, loadSessionHistory]);
+  }, [isActive, session, messages.length, loadSessionHistory, loadPersistedMessages, setMessages]);
 
   // Load Claude settings once for all StreamMessage components
   useEffect(() => {

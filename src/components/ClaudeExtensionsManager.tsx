@@ -83,7 +83,7 @@ interface SkillFile {
   scope: 'project' | 'user';
   description?: string;
   content?: string;
-  isEnabled?: boolean;  // 是否启用（true 表示目录名不以 _disabled_ 开头）
+  isEnabled?: boolean;  // 是否启用（true 表示在 skills 目录，false 表示在 skills_disabled 目录）
 }
 
 /**
