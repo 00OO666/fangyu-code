@@ -5,9 +5,9 @@
  * 复用 InlineAPITester 的测试逻辑，支持四引擎
  */
 
-import { invoke } from '@tauri-apps/api/core';
 import type { SummaryEngine, ModelInfo } from '@/types/summary';
 import { ENGINE_MODELS } from '@/types/summary';
+import { getCurrentProvider } from '@/services/engineConfigService';
 
 // =============================================================================
 // 类型定义
@@ -54,41 +54,48 @@ type ProgressCallback = (progress: TestProgress) => void;
 
 async function testClaudeModel(
     modelId: string,
-    _apiKey: string,
-    _baseUrl: string
+    apiKey: string,
+    baseUrl: string
 ): Promise<ModelTestResult> {
     const startTime = Date.now();
     try {
-        // 映射模型 ID 到 Tauri 后端支持的简称
-        const modelMap: Record<string, string> = {
-            'claude-opus-4-20250514': 'opus',
-            'claude-sonnet-4-20250514': 'sonnet',
-            'claude-3-5-haiku-20241022': 'haiku',
-            'claude-3-5-sonnet-20241022': 'sonnet',
-            'claude-3-haiku-20240307': 'haiku',
-            'claude-3-sonnet-20240229': 'sonnet',
-            'claude-3-opus-20240229': 'opus',
-        };
-
-        const model = modelMap[modelId] || modelId;
-
-        // 实际调用 Tauri 后端测试模型
-        await invoke<string>('generate_text_with_llm', {
-            prompt: 'Say "OK" in one word.',
-            model,
+        // 直接调用 Claude API（和 InlineAPITester 一样）
+        const response = await fetch(`${baseUrl}/v1/messages`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': apiKey,
+                'anthropic-version': '2023-06-01',
+            },
+            body: JSON.stringify({
+                model: modelId,
+                max_tokens: 20,
+                messages: [{ role: 'user', content: 'hi' }],
+            }),
         });
+        const latency = Date.now() - startTime;
+        const data = await response.json();
 
+        if (data.content) {
+            const actualModel = data.model;
+            return {
+                modelId,
+                status: modelId === actualModel ? 'success' : 'replaced',
+                actualModel,
+                latency,
+            };
+        }
         return {
             modelId,
-            status: 'success',
-            actualModel: modelId,
-            latency: Date.now() - startTime,
+            status: 'error',
+            error: data.error?.message?.slice(0, 50) || '未知错误',
+            latency,
         };
     } catch (error) {
         return {
             modelId,
             status: 'error',
-            error: error instanceof Error ? error.message.slice(0, 50) : '未知错误',
+            error: error instanceof Error ? error.message.slice(0, 50) : '网络错误',
             latency: Date.now() - startTime,
         };
     }
@@ -258,9 +265,20 @@ export async function testEngineModels(
     const testFn = TEST_FUNCTIONS[engine];
     const results: ModelTestResult[] = [];
 
+    // Claude 引擎：从当前代理商配置获取 API Key 和 Base URL
+    let effectiveApiKey = apiKey;
+    let effectiveBaseUrl = baseUrl;
+    if (engine === 'claude') {
+        const claudeProvider = getCurrentProvider('claude');
+        if (claudeProvider) {
+            effectiveApiKey = claudeProvider.apiKey || '';
+            effectiveBaseUrl = claudeProvider.baseUrl || 'https://api.anthropic.com';
+        }
+    }
+
     for (let i = 0; i < models.length; i++) {
         const model = models[i];
-        
+
         // 报告进度
         onProgress?.({
             current: i + 1,
@@ -269,7 +287,7 @@ export async function testEngineModels(
         });
 
         // 执行测试
-        const result = await testFn(model.id, apiKey, baseUrl);
+        const result = await testFn(model.id, effectiveApiKey, effectiveBaseUrl);
         results.push(result);
 
         // 短暂延迟避免 rate limit
@@ -310,23 +328,43 @@ export async function testSingleModel(
 // =============================================================================
 
 const CACHE_KEY = 'fangyu-summary-model-test-cache';
+const CACHE_VERSION_KEY = 'fangyu-summary-model-cache-version';
 const CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 小时
+
+// 缓存版本号：当模型列表更新时，增加此版本号以清除旧缓存
+const CURRENT_CACHE_VERSION = 2; // v2: 更新为 Claude 4.5 模型列表
 
 interface CachedTestResults {
     [engine: string]: EngineTestResult;
 }
 
 /**
+ * 检查并清除过期的缓存版本
+ */
+function checkAndClearOldCache(): void {
+    const storedVersion = localStorage.getItem(CACHE_VERSION_KEY);
+    if (storedVersion !== String(CURRENT_CACHE_VERSION)) {
+        // 版本不匹配，清除旧缓存
+        localStorage.removeItem(CACHE_KEY);
+        localStorage.setItem(CACHE_VERSION_KEY, String(CURRENT_CACHE_VERSION));
+        console.log('[SummaryModelTester] Cleared old cache due to version update');
+    }
+}
+
+/**
  * 获取缓存的测试结果
  */
 export function getCachedTestResults(): CachedTestResults {
+    // 先检查并清除旧版本缓存
+    checkAndClearOldCache();
+
     try {
         const cached = localStorage.getItem(CACHE_KEY);
         if (!cached) return {};
-        
+
         const data = JSON.parse(cached) as CachedTestResults;
         const now = Date.now();
-        
+
         // 过滤过期的结果
         const valid: CachedTestResults = {};
         for (const [engine, result] of Object.entries(data)) {

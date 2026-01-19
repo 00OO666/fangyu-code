@@ -17,7 +17,7 @@ import { getVersion } from "@tauri-apps/api/app";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const STORAGE_KEY = "fangyu-code-last-seen-version";
-const FALLBACK_VERSION = "2.7.9"; // 🔧 Fallback 版本（获取失败时使用）
+const FALLBACK_VERSION = "2.8.0"; // 🔧 Fallback 版本（获取失败时使用）
 
 // 🔧 DEBUG: 全局变量用于强制显示更新日志（调试用）
 declare global {
@@ -29,6 +29,28 @@ declare global {
 
 // 版本更新日志（从新到旧）
 export const CHANGELOGS = {
+  "2.8.0": {
+    title: "v2.8.0 - 🔧 上下文丢失与会话压缩修复",
+    date: "2026-01-20",
+    features: [],
+    improvements: [
+      "🔧 修复 Tab 切换时上下文丢失的问题 - 使用 ref 跟踪最新消息状态",
+      "🔧 减少消息持久化延迟 - 从 1000ms 优化到 300ms",
+      "🔧 Tab 失活时立即保存消息 - 避免防抖延迟导致数据丢失",
+      "🔧 添加会话压缩调试日志 - 帮助诊断压缩功能是否正常工作",
+    ],
+    bugfixes: [
+      "修复 Tab 激活时使用闭包中的旧 messages.length 导致错误重载",
+      "修复快速切换 Tab 时消息还没保存到 IndexedDB 的问题",
+      "修复会话压缩功能可能因上下文使用率计算不正确而失效",
+    ],
+    technical: [
+      "ClaudeCodeSession.tsx - 添加 messagesLengthRef 跟踪最新消息数量",
+      "useMessagePersistence.ts - 新增 persistMessagesImmediately() 立即保存方法",
+      "useBackgroundCompact.ts - 添加自动压缩检查调试日志",
+      "useContextWindowUsage.ts - 添加上下文使用率调试日志",
+    ],
+  },
   "2.7.9": {
     title: "v2.7.9 - 🔧 会话切换稳定性修复",
     date: "2026-01-19",

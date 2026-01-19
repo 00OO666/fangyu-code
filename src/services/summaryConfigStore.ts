@@ -183,8 +183,11 @@ export class SummaryConfigStore {
       
       // 版本迁移（如果需要）
       if (parsed.version !== SUMMARY_CONFIG_VERSION) {
-        console.warn('[SummaryConfigStore] Config version mismatch, migrating...');
-        // 未来版本迁移逻辑
+        console.warn('[SummaryConfigStore] Config version mismatch, resetting to defaults...');
+        // 版本不匹配，重置为默认配置（使用新的模型列表）
+        this.config = { ...DEFAULT_SUMMARY_CONFIG };
+        await this.saveConfig(this.config);
+        return this.config;
       }
       
       // 解密 API Key

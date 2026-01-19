@@ -182,10 +182,11 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   const [codexRateLimits, setCodexRateLimits] = useState<CodexRateLimits | null>(null);
 
   // 🔧 v2.3.1: 消息持久化 - 解决消息丢失问题
-  const { loadPersistedMessages, persistMessages } = useMessagePersistence({
+  // 🔧 v2.8.1: 减少防抖延迟到 300ms，提高保存及时性
+  const { loadPersistedMessages, persistMessages, persistMessagesImmediately } = useMessagePersistence({
     sessionId: claudeSessionId || '',
     enabled: !!claudeSessionId,
-    debounceMs: 1000
+    debounceMs: 300  // 从 1000ms 改为 300ms，减少 Tab 切换时消息丢失风险
   });
 
   // Canvas 实时预览状态
@@ -515,6 +516,8 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   const queuedPromptsRef = useRef<Array<{ id: string; prompt: string; model: ModelType }>>([]);
   const isMountedRef = useRef(true);
   const isListeningRef = useRef(false);
+  // 🔧 FIX v2.8.1: 跟踪最新的消息数量，避免 Tab 激活时使用闭包中的旧值
+  const messagesLengthRef = useRef(messages.length);
 
   // ✅ Refactored: Use custom Hook for message translation (AFTER refs are declared)
   const {
@@ -610,6 +613,20 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
     executionEngineConfig.engine
   );
 
+  // 🔧 v2.8.1: 调试上下文使用率，帮助诊断压缩功能失效问题
+  useEffect(() => {
+    if (import.meta.env.DEV && messages.length > 0) {
+      console.log('[ContextUsage] 📊 Current context usage:', {
+        hasData: contextUsage.hasData,
+        percentage: contextUsage.percentage.toFixed(1) + '%',
+        currentTokens: contextUsage.currentTokens,
+        contextWindowSize: contextUsage.contextWindowSize,
+        level: contextUsage.level,
+        messagesCount: messages.length,
+      });
+    }
+  }, [contextUsage.hasData, contextUsage.percentage, contextUsage.currentTokens, contextUsage.contextWindowSize, contextUsage.level, messages.length]);
+
   // 🆕 会话阈值监控（80%/90% 警告 + 手动摘要生成）
   const [showSummaryDialog, setShowSummaryDialog] = useState(false);
   const [sessionSummary, setSessionSummary] = useState('');
@@ -683,8 +700,9 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   void generateSummary;
   void sessionContinueError;
 
-  // 🆕 后台无缝压缩（Invisible UX - 75% 阈值自动触发）
-  // ⚠️ 已被智能会话续接替代，保留以供降级使用
+  // 🆕 后台无缝压缩（Invisible UX - 80% 阈值自动触发，与 Claude Code 一致）
+  // 参考 Claude Code v1.0.51: 阈值从 60% 提高到 80%
+  // 参考 Claude Code v2.0.64: 自动压缩变得即时（instant）
   const {
     status: compactStatus,
     isCompacting,
@@ -696,8 +714,8 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   } = useBackgroundCompact({
     sessionId: effectiveSession?.id,
     projectPath,
-    compactThreshold: 0.75,
-    autoCompact: false, // 禁用自动压缩，优先使用会话续接
+    compactThreshold: 0.80, // 🔧 FIX: 与 Claude Code 一致，使用 80% 阈值
+    autoCompact: true, // 🔧 FIX: 启用自动压缩（之前被错误禁用）
     contextUsage: contextUsage.hasData ? contextUsage.percentage / 100 : 0,
     maxTokens: contextUsage.contextWindowSize,
     currentTokens: contextUsage.currentTokens,
@@ -967,6 +985,17 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
     }
   }, [session]); // Remove hasLoadedSession dependency to ensure it runs on mount
 
+  // 🔧 v2.8.1: Tab 失活时立即保存消息，避免防抖延迟导致数据丢失
+  useEffect(() => {
+    // 当 tab 从活跃变为失活时，立即保存消息（不等防抖）
+    if (!isActive && messages.length > 0 && claudeSessionId) {
+      console.debug('[ClaudeCodeSession] Tab becoming inactive, immediately saving', messages.length, 'messages');
+      persistMessagesImmediately(messages).catch(err => {
+        console.error('[ClaudeCodeSession] Failed to save messages on tab deactivation:', err);
+      });
+    }
+  }, [isActive, messages, claudeSessionId, persistMessagesImmediately]);
+
   // 🔧 v2.3.1: 自动保存消息到 IndexedDB
   useEffect(() => {
     if (messages.length > 0 && claudeSessionId) {
@@ -994,11 +1023,17 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
     }
   }, [claudeSessionId, messages.length, loadPersistedMessages, setMessages]);
 
+  // 🔧 FIX v2.8.1: 同步 messagesLengthRef，确保始终是最新值
+  useEffect(() => {
+    messagesLengthRef.current = messages.length;
+  }, [messages.length]);
+
   // 🔧 FIX: Reload session history when tab becomes active
   // This fixes the issue where switching between tabs doesn't show messages
   // because TabManager keeps all tabs in DOM (absolute + hidden) and components don't remount
   // 🆕 OPTIMIZATION: Only reload if messages are empty (避免覆盖正在流式传输的消息)
   // 🔧 v2.8.0: 先等待 IndexedDB 恢复完成，避免竞态条件导致消息丢失
+  // 🔧 v2.8.1: 使用 ref 获取最新消息数量，避免闭包陷阱导致错误重载
   const prevIsActiveRef = useRef(isActive);
   useEffect(() => {
     const wasInactive = prevIsActiveRef.current === false;
@@ -1015,19 +1050,21 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
           waitTime += 50;
         }
 
-        // 再次检查消息是否为空（IndexedDB 可能已经恢复了消息）
-        // 注意：这里需要通过 ref 或重新获取来检查最新状态
-        // 由于 React 的闭包特性，直接使用 messages.length 可能是旧值
-        // 所以我们先尝试从 IndexedDB 加载，如果有数据就不调用后端
+        // 尝试从 IndexedDB 加载
         const persistedMessages = await loadPersistedMessages();
         if (persistedMessages.length > 0) {
           console.debug('[ClaudeCodeSession] Tab became active, restored from IndexedDB:', persistedMessages.length, 'messages');
           setMessages(persistedMessages);
-        } else if (messages.length === 0) {
-          console.debug('[ClaudeCodeSession] Tab became active with empty messages, reloading history for session:', session.id);
-          loadSessionHistory();
         } else {
-          console.debug('[ClaudeCodeSession] Tab became active with existing messages, skipping reload to preserve state');
+          // 🔧 FIX v2.8.1: 使用 ref 获取最新的消息数量，避免闭包中的旧值
+          const currentMessagesLength = messagesLengthRef.current;
+
+          if (currentMessagesLength === 0) {
+            console.debug('[ClaudeCodeSession] Tab became active with empty messages, reloading history for session:', session.id);
+            loadSessionHistory();
+          } else {
+            console.debug('[ClaudeCodeSession] Tab became active with existing messages (', currentMessagesLength, '), skipping reload to preserve state');
+          }
         }
       };
 
@@ -1035,7 +1072,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
     }
 
     prevIsActiveRef.current = isActive;
-  }, [isActive, session, messages.length, loadSessionHistory, loadPersistedMessages, setMessages]);
+  }, [isActive, session, loadSessionHistory, loadPersistedMessages, setMessages]);
 
   // Load Claude settings once for all StreamMessage components
   useEffect(() => {
