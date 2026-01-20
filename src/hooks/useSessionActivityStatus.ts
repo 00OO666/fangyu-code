@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 
@@ -119,7 +120,7 @@ export const useSessionActivityStatus = (
         });
       }
     } catch (error) {
-      console.warn("Failed to fetch session activity status:", error);
+      logger.warn('useSessionActivityStatus', "Failed to fetch session activity status:", error);
       // On error, default to inactive to prevent unwanted cost tracking
       setActivityInfo({
         sessionId,

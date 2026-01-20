@@ -8,6 +8,7 @@
  * - API Key 用量查询
  */
 
+import { logger } from '@/lib/logger';
 import { invoke } from "@tauri-apps/api/core";
 import type { ApiKeyUsage, CurrentProviderConfig, ProviderConfig } from "../types";
 
@@ -22,7 +23,7 @@ export async function getProviderPresets(): Promise<ProviderConfig[]> {
   try {
     return await invoke<ProviderConfig[]>("get_provider_presets");
   } catch (error) {
-    console.error("Failed to get provider presets:", error);
+    logger.error('index', "Failed to get provider presets:", error);
     throw error;
   }
 }
@@ -34,7 +35,7 @@ export async function getCurrentProviderConfig(): Promise<CurrentProviderConfig>
   try {
     return await invoke<CurrentProviderConfig>("get_current_provider_config");
   } catch (error) {
-    console.error("Failed to get current provider config:", error);
+    logger.error('index', "Failed to get current provider config:", error);
     throw error;
   }
 }
@@ -50,7 +51,7 @@ export async function switchProviderConfig(config: ProviderConfig): Promise<stri
   try {
     return await invoke<string>("switch_provider_config", { config });
   } catch (error) {
-    console.error("Failed to switch provider config:", error);
+    logger.error('index', "Failed to switch provider config:", error);
     throw error;
   }
 }
@@ -62,7 +63,7 @@ export async function clearProviderConfig(): Promise<string> {
   try {
     return await invoke<string>("clear_provider_config");
   } catch (error) {
-    console.error("Failed to clear provider config:", error);
+    logger.error('index', "Failed to clear provider config:", error);
     throw error;
   }
 }
@@ -78,7 +79,7 @@ export async function getProviderConfig(id: string): Promise<ProviderConfig> {
   try {
     return await invoke<ProviderConfig>("get_provider_config", { id });
   } catch (error) {
-    console.error("Failed to get provider config:", error);
+    logger.error('index', "Failed to get provider config:", error);
     throw error;
   }
 }
@@ -102,7 +103,7 @@ export async function addProviderConfig(config: Omit<ProviderConfig, "id">): Pro
   try {
     return await invoke<string>("add_provider_config", { config: fullConfig });
   } catch (error) {
-    console.error("Failed to add provider config:", error);
+    logger.error('index', "Failed to add provider config:", error);
     throw error;
   }
 }
@@ -114,7 +115,7 @@ export async function updateProviderConfig(config: ProviderConfig): Promise<stri
   try {
     return await invoke<string>("update_provider_config", { config });
   } catch (error) {
-    console.error("Failed to update provider config:", error);
+    logger.error('index', "Failed to update provider config:", error);
     throw error;
   }
 }
@@ -126,7 +127,7 @@ export async function deleteProviderConfig(id: string): Promise<string> {
   try {
     return await invoke<string>("delete_provider_config", { id });
   } catch (error) {
-    console.error("Failed to delete provider config:", error);
+    logger.error('index', "Failed to delete provider config:", error);
     throw error;
   }
 }
@@ -142,7 +143,7 @@ export async function testProviderConnection(baseUrl: string): Promise<string> {
   try {
     return await invoke<string>("test_provider_connection", { baseUrl });
   } catch (error) {
-    console.error("Failed to test provider connection:", error);
+    logger.error('index', "Failed to test provider connection:", error);
     throw error;
   }
 }
@@ -154,7 +155,7 @@ export async function queryProviderUsage(baseUrl: string, apiKey: string): Promi
   try {
     return await invoke<ApiKeyUsage>("query_provider_usage", { baseUrl, apiKey });
   } catch (error) {
-    console.error("Failed to query provider usage:", error);
+    logger.error('index', "Failed to query provider usage:", error);
     throw error;
   }
 }

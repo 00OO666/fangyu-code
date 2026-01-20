@@ -7,6 +7,7 @@
  * 3. 与 Spec 模式集成
  */
 
+import { logger } from '@/lib/logger';
 import type {
   Skill,
   SkillMatch,
@@ -84,7 +85,7 @@ export class SkillManager {
    */
   async loadSkills(): Promise<Skill[]> {
     if (!this.fsReadFile || !this.fsReadDir || !this.fsExists) {
-      console.warn('[SkillManager] File system not initialized');
+      logger.warn('SkillManager', '[SkillManager] File system not initialized');
       return [];
     }
 
@@ -123,18 +124,18 @@ export class SkillManager {
             this.skills.set(skill.metadata.name, skill);
             loadedSkills.push(skill);
 
-            console.log(`[SkillManager] Loaded skill: ${skill.metadata.name} from ${location.type}`);
+            logger.debug('SkillManager', `[SkillManager] Loaded skill: ${skill.metadata.name} from ${location.type}`);
           } catch (err) {
-            console.warn(`[SkillManager] Failed to load skill from ${skillPath}:`, err);
+            logger.warn('SkillManager', `[SkillManager] Failed to load skill from ${skillPath}:`, err);
           }
         }
       } catch (err) {
-        console.warn(`[SkillManager] Failed to read directory ${resolvedPath}:`, err);
+        logger.warn('SkillManager', `[SkillManager] Failed to read directory ${resolvedPath}:`, err);
       }
     }
 
     this.lastLoadTime = Date.now();
-    console.log(`[SkillManager] Loaded ${loadedSkills.length} skills`);
+    logger.debug('SkillManager', `[SkillManager] Loaded ${loadedSkills.length} skills`);
 
     return loadedSkills;
   }

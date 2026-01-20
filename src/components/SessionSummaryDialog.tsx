@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useState } from "react";
 import { Copy, Check, AlertTriangle, FileText, X } from "lucide-react";
 
@@ -34,7 +35,7 @@ export const SessionSummaryDialog: React.FC<SessionSummaryDialogProps> = ({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
-      console.error("Failed to copy summary:", error);
+      logger.error('SessionSummaryDialog', "Failed to copy summary:", error);
     }
   };
 

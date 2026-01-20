@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AlertCircle, Loader2, RotateCcw, HelpCircle, Sparkles, Download } from "lucide-react";
@@ -114,7 +115,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
         }
       } catch (error) {
         if (cancelled) return;
-        console.warn("Failed to load Codex path:", error);
+        logger.warn('GeneralSettings', "Failed to load Codex path:", error);
       }
     };
 
@@ -323,7 +324,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
         type: 'success'
       });
     } catch (error) {
-      console.error('Failed to toggle SiliconFlow:', error);
+      logger.error('GeneralSettings', 'Failed to toggle SiliconFlow:', error);
       setSiliconFlowEnabled(!checked); // 恢复状态
       setToast({
         message: `切换失败: ${error}`,
@@ -362,7 +363,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
       try {
         await api.updateHooksConfig('user', {} as HooksConfiguration);
       } catch (err) {
-        console.warn('Failed to disable hooks:', err);
+        logger.warn('GeneralSettings', 'Failed to disable hooks:', err);
       }
 
       // 5. 禁用所有 MCP 服务器 (暂时跳过 - API 未实现)
@@ -375,7 +376,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
       //   }
       //   await api.saveMcpServers(disabledMcp);
       // } catch (err) {
-      //   console.warn('Failed to disable MCP servers:', err);
+      //   logger.warn('GeneralSettings', 'Failed to disable MCP servers:', err);
       // }
 
       setShowResetDialog(false);
@@ -386,7 +387,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
         window.location.reload();
       }, 1500);
     } catch (error) {
-      console.error('Failed to reset settings:', error);
+      logger.error('GeneralSettings', 'Failed to reset settings:', error);
       setToast({ message: `重置设置失败: ${error}`, type: 'error' });
     } finally {
       setIsResetting(false);

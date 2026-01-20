@@ -5,6 +5,7 @@
  * 复用 InlineAPITester 的测试逻辑，支持四引擎
  */
 
+import { logger } from '@/lib/logger';
 import type { SummaryEngine, ModelInfo } from '@/types/summary';
 import { ENGINE_MODELS } from '@/types/summary';
 import { getCurrentProvider } from '@/services/engineConfigService';
@@ -347,7 +348,7 @@ function checkAndClearOldCache(): void {
         // 版本不匹配，清除旧缓存
         localStorage.removeItem(CACHE_KEY);
         localStorage.setItem(CACHE_VERSION_KEY, String(CURRENT_CACHE_VERSION));
-        console.log('[SummaryModelTester] Cleared old cache due to version update');
+        logger.debug('summaryModelTester', '[SummaryModelTester] Cleared old cache due to version update');
     }
 }
 
@@ -387,7 +388,7 @@ export function cacheTestResult(result: EngineTestResult): void {
         cached[result.engine] = result;
         localStorage.setItem(CACHE_KEY, JSON.stringify(cached));
     } catch (e) {
-        console.warn('Failed to cache test results:', e);
+        logger.warn('summaryModelTester', 'Failed to cache test results:', e);
     }
 }
 

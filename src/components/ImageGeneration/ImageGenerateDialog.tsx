@@ -8,6 +8,7 @@
  * 4. 生成结果预览和下载
  */
 
+import { logger } from '@/lib/logger';
 import React, { useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -172,7 +173,7 @@ export const ImageGenerateDialog: React.FC<ImageGenerateDialogProps> = ({
                 new ClipboardItem({ [image.mimeType]: blob }),
             ]);
         } catch (err) {
-            console.error('复制失败:', err);
+            logger.error('ImageGenerateDialog', '复制失败:', err);
         }
     }, []);
 

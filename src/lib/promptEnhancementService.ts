@@ -5,6 +5,7 @@
  * ⚡ 使用统一的 LLMApiService 处理 API 调用
  */
 
+import { logger } from '@/lib/logger';
 import { LLMApiService, type LLMProvider } from "@/lib/services/llmApiService";
 
 // 重新导出类型以保持向后兼容
@@ -145,7 +146,7 @@ export function loadConfig(): PromptEnhancementConfig {
 
     return config;
   } catch (error) {
-    console.error("[PromptEnhancement] Failed to load config:", error);
+    logger.error('promptEnhancementService', "[PromptEnhancement] Failed to load config:", error);
     return { providers: [] };
   }
 }
@@ -168,7 +169,7 @@ export function saveConfig(config: PromptEnhancementConfig): void {
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(encryptedConfig));
   } catch (error) {
-    console.error("[PromptEnhancement] Failed to save config:", error);
+    logger.error('promptEnhancementService', "[PromptEnhancement] Failed to save config:", error);
   }
 }
 
@@ -240,7 +241,7 @@ ${context && context.length > 0 ? `\n【当前对话上下文】\n${context.join
 
     return response.content;
   } catch (error: any) {
-    console.error("[PromptEnhancement] API call failed:", error);
+    logger.error('promptEnhancementService', "[PromptEnhancement] API call failed:", error);
     // 🆕 提供更友好的错误信息
     if (error.message?.includes("timeout")) {
       throw new Error("请求超时，请检查网络或稍后重试");

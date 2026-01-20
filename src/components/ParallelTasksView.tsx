@@ -10,6 +10,7 @@
  * 来源: Claude Code Task Tool Visualization
  */
 
+import { logger } from '@/lib/logger';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -126,7 +127,7 @@ export function ParallelTasksView({ groupId, onClose, className }: ParallelTasks
       setGroup(groupData);
       setStats(statsData);
     } catch (error) {
-      console.error('加载任务组失败:', error);
+      logger.error('ParallelTasksView', '加载任务组失败:', error);
     } finally {
       setLoading(false);
     }
@@ -145,7 +146,7 @@ export function ParallelTasksView({ groupId, onClose, className }: ParallelTasks
       await api.startParallelGroup(groupId);
       loadGroup();
     } catch (error) {
-      console.error('启动任务组失败:', error);
+      logger.error('ParallelTasksView', '启动任务组失败:', error);
     }
   };
 

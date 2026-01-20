@@ -11,6 +11,7 @@
  * 来源: Claude Code Skills + Cursor Custom Instructions
  */
 
+import { logger } from '@/lib/logger';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { api } from '@/lib/api';
 import { Button } from '@/components/ui/button';
@@ -313,7 +314,7 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
 
       setSkills(skillsWithContent);
     } catch (error) {
-      console.error('加载技能失败:', error);
+      logger.error('SkillsManager', '加载技能失败:', error);
     } finally {
       setLoading(false);
     }
@@ -407,7 +408,7 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
       setShowCreateDialog(false);
       setEditingSkill(null);
     } catch (error) {
-      console.error('保存技能失败:', error);
+      logger.error('SkillsManager', '保存技能失败:', error);
       alert('保存技能失败');
     }
   };
@@ -422,7 +423,7 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
       await api.openSkillsDirectory(projectPath);
       loadSkills();
     } catch (error) {
-      console.error('删除技能失败:', error);
+      logger.error('SkillsManager', '删除技能失败:', error);
     }
   };
 
@@ -459,7 +460,7 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
       loadSkills();
       setShowMarketDialog(false);
     } catch (error) {
-      console.error('导入模板失败:', error);
+      logger.error('SkillsManager', '导入模板失败:', error);
     }
   };
 
@@ -483,7 +484,7 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
       await api.toggleSkill(skill.name, skill.scope, enabled, projectPath);
       await loadSkills(); // 重新加载技能列表
     } catch (error) {
-      console.error('切换技能状态失败:', error);
+      logger.error('SkillsManager', '切换技能状态失败:', error);
       alert(`切换技能状态失败: ${error}`);
     }
   };
@@ -493,7 +494,7 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
     try {
       await api.openSkillsDirectory(projectPath);
     } catch (error) {
-      console.error('打开目录失败:', error);
+      logger.error('SkillsManager', '打开目录失败:', error);
     }
   };
 

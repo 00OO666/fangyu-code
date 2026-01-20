@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useState, useEffect } from "react";
 import MDEditor from "@uiw/react-md-editor";
 import { motion } from "framer-motion";
@@ -58,7 +59,7 @@ export const ClaudeFileEditor: React.FC<ClaudeFileEditorProps> = ({
       setContent(fileContent);
       setOriginalContent(fileContent);
     } catch (err) {
-      console.error("Failed to load file:", err);
+      logger.error('ClaudeFileEditor', "Failed to load file:", err);
       setError("Failed to load CLAUDE.md file");
     } finally {
       setLoading(false);
@@ -74,7 +75,7 @@ export const ClaudeFileEditor: React.FC<ClaudeFileEditorProps> = ({
       setOriginalContent(content);
       setToast({ message: "File saved successfully", type: "success" });
     } catch (err) {
-      console.error("Failed to save file:", err);
+      logger.error('ClaudeFileEditor', "Failed to save file:", err);
       setError("Failed to save CLAUDE.md file");
       setToast({ message: "Failed to save file", type: "error" });
     } finally {

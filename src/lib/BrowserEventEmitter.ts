@@ -1,3 +1,5 @@
+import { logger } from '@/lib/logger';
+
 /**
  * BrowserEventEmitter - 浏览器兼容的事件发射器
  *
@@ -69,7 +71,7 @@ export class BrowserEventEmitter {
             try {
                 listener(...args);
             } catch (error) {
-                console.error(`Error in event listener for "${event}":`, error);
+                logger.error('BrowserEventEmitter', `Error in event listener for "${event}":`, error);
             }
         });
         return true;

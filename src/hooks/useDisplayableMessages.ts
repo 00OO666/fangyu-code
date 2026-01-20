@@ -7,6 +7,7 @@
  * 🔧 v2.2.6 优化: 支持用户自定义显示设置，让用户能看到完整的大模型输出
  */
 
+import { logger } from '@/lib/logger';
 import { useMemo } from "react";
 import type { ClaudeStreamMessage } from "@/types/claude";
 import { getGlobalOutputDisplaySettings } from "./useOutputDisplaySettings";
@@ -251,7 +252,7 @@ export function useDisplayableMessages(
             // 🔧 FIX: 如果有文本内容，立即保留消息（优先级最高）
             if (content.type === "text" && content.text?.trim()) {
               hasVisibleContent = true;
-              console.log(`[Filter] Message ${index}: Found text content, will show`);
+              logger.debug('useDisplayableMessages', `[Filter] Message ${index}: Found text content, will show`);
               break;
             }
 

@@ -9,6 +9,7 @@
  * 灵感来源：Kiro 的 Spec-Driven 架构
  */
 
+import { logger } from '@/lib/logger';
 import type { RealAPIClient } from '../api/RealAPIClient';
 
 // 规范类型
@@ -369,7 +370,7 @@ Output Format:
       // 如果没有找到 JSON，返回基本规范
       return this.createFallbackSpec(text, type);
     } catch (error) {
-      console.error('Failed to parse spec:', error);
+      logger.error('SpecGenerationEngine', 'Failed to parse spec:', error);
       return this.createFallbackSpec(text, type);
     }
   }

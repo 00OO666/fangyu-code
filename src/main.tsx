@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
@@ -28,7 +29,7 @@ const AppWrapper: React.FC = () => {
         const { initializeToolRegistry: init } = await import("./lib/toolRegistryInit");
         init();
       } catch (error) {
-        console.error("[AppWrapper] ToolRegistry initialization failed:", error);
+        logger.error('main', "[AppWrapper] ToolRegistry initialization failed:", error);
       }
     };
 
@@ -39,7 +40,7 @@ const AppWrapper: React.FC = () => {
         await window.show();
         await window.setFocus();
       } catch (error) {
-        console.error("Failed to show window:", error);
+        logger.error('main', "Failed to show window:", error);
       }
     };
 

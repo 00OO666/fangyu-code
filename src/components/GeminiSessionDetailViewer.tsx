@@ -7,6 +7,7 @@
  * - Timestamps and metadata
  */
 
+import { logger } from '@/lib/logger';
 import React, { useState, useEffect, useRef } from 'react';
 import { api } from '@/lib/api';
 import type { GeminiSessionDetail } from '@/types/gemini';
@@ -104,7 +105,7 @@ export const GeminiSessionDetailViewer: React.FC<GeminiSessionDetailViewerProps>
       const detail = await api.getGeminiSessionDetail(projectPath, sessionId);
       setSession(detail);
     } catch (err) {
-      console.error('Failed to load session detail:', err);
+      logger.error('GeminiSessionDetailViewer', 'Failed to load session detail:', err);
       setError(err instanceof Error ? err.message : 'Failed to load session detail');
     } finally {
       setLoading(false);

@@ -6,6 +6,7 @@
  * Requirements: 1.1, 1.2, 1.3, 1.6
  */
 
+import { logger } from '@/lib/logger';
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { getSummaryGeneratorService } from '@/services/summaryGeneratorService';
 import { getSummaryConfigStore } from '@/services/summaryConfigStore';
@@ -161,7 +162,7 @@ export function useSummaryGenerator(
             await navigator.clipboard.writeText(result.summary);
             return true;
         } catch (error) {
-            console.error('[useSummaryGenerator] Failed to copy:', error);
+            logger.error('useSummaryGenerator', '[useSummaryGenerator] Failed to copy:', error);
             return false;
         }
     }, [result]);

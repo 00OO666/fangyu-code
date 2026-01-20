@@ -1,3 +1,5 @@
+import { logger } from '@/lib/logger';
+
 /**
  * Feature flags for gradual rollout of optimizations
  *
@@ -156,7 +158,7 @@ export const enableFeature = (flag: FeatureFlag): { success: boolean; error?: st
   }
 
   localStorage.setItem(`feature_${flag}`, "true");
-  console.log(`[FeatureFlags] Enabled: ${flag}`);
+  logger.debug('featureFlags', `[FeatureFlags] Enabled: ${flag}`);
   return { success: true };
 };
 
@@ -166,7 +168,7 @@ export const enableFeature = (flag: FeatureFlag): { success: boolean; error?: st
  */
 export const disableFeature = (flag: FeatureFlag): void => {
   localStorage.setItem(`feature_${flag}`, "false");
-  console.log(`[FeatureFlags] Disabled: ${flag}`);
+  logger.debug('featureFlags', `[FeatureFlags] Disabled: ${flag}`);
 
   // Disable dependent features
   for (const [key, info] of Object.entries(FEATURE_FLAG_INFO)) {
@@ -181,7 +183,7 @@ export const disableFeature = (flag: FeatureFlag): void => {
  */
 export const resetFeature = (flag: FeatureFlag): void => {
   localStorage.removeItem(`feature_${flag}`);
-  console.log(`[FeatureFlags] Reset to default: ${flag}`);
+  logger.debug('featureFlags', `[FeatureFlags] Reset to default: ${flag}`);
 };
 
 /**

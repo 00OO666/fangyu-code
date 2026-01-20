@@ -10,6 +10,7 @@
  * 参考: VSCode Command Palette
  */
 
+import { logger } from '@/lib/logger';
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -134,7 +135,7 @@ export function UnifiedSearchModal({
         }));
         allItems.push(...skillItems);
       } catch (err) {
-        console.warn('[UnifiedSearch] Failed to load skills:', err);
+        logger.warn('UnifiedSearchModal', '[UnifiedSearch] Failed to load skills:', err);
       }
 
       // 加载 MCP Servers (模拟数据，实际应从配置文件读取)
@@ -168,7 +169,7 @@ export function UnifiedSearchModal({
         ];
         allItems.push(...mcpServers);
       } catch (err) {
-        console.warn('[UnifiedSearch] Failed to load MCP servers:', err);
+        logger.warn('UnifiedSearchModal', '[UnifiedSearch] Failed to load MCP servers:', err);
       }
 
       // 加载 Hooks (模拟数据)
@@ -191,7 +192,7 @@ export function UnifiedSearchModal({
         ];
         allItems.push(...hooks);
       } catch (err) {
-        console.warn('[UnifiedSearch] Failed to load hooks:', err);
+        logger.warn('UnifiedSearchModal', '[UnifiedSearch] Failed to load hooks:', err);
       }
 
       // 加载 Plugins (模拟数据)
@@ -214,12 +215,12 @@ export function UnifiedSearchModal({
         ];
         allItems.push(...plugins);
       } catch (err) {
-        console.warn('[UnifiedSearch] Failed to load plugins:', err);
+        logger.warn('UnifiedSearchModal', '[UnifiedSearch] Failed to load plugins:', err);
       }
 
       setItems(allItems);
     } catch (error) {
-      console.error('[UnifiedSearch] Failed to load items:', error);
+      logger.error('UnifiedSearchModal', '[UnifiedSearch] Failed to load items:', error);
     } finally {
       setLoading(false);
     }

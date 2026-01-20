@@ -7,6 +7,7 @@
  * - 其他引擎（Codex、Gemini、Siliconflow）仅使用前端存储
  */
 
+import { logger } from '@/lib/logger';
 import { invoke } from '@tauri-apps/api/core';
 import type {
     EngineType,
@@ -182,7 +183,7 @@ async function syncClaudeProviderToBackend(config: UnifiedProviderConfig, action
             try {
                 decryptedApiKey = await decrypt(config.apiKey, config.apiKeyIv);
             } catch (e) {
-                console.warn('[EngineConfigService] 解密 API Key 失败:', e);
+                logger.warn('engineConfigService', '[EngineConfigService] 解密 API Key 失败:', e);
             }
         }
 
@@ -190,7 +191,7 @@ async function syncClaudeProviderToBackend(config: UnifiedProviderConfig, action
             try {
                 decryptedAuthToken = await decrypt(config.authToken, config.authTokenIv);
             } catch (e) {
-                console.warn('[EngineConfigService] 解密 Auth Token 失败:', e);
+                logger.warn('engineConfigService', '[EngineConfigService] 解密 Auth Token 失败:', e);
             }
         }
 
@@ -198,16 +199,16 @@ async function syncClaudeProviderToBackend(config: UnifiedProviderConfig, action
 
         if (action === 'add') {
             await invoke('add_provider_config', { config: tauriConfig });
-            console.log('[EngineConfigService] 已同步添加 Claude 代理商到后端:', config.name);
+            logger.debug('engineConfigService', '[EngineConfigService] 已同步添加 Claude 代理商到后端:', config.name);
         } else if (action === 'update') {
             await invoke('update_provider_config', { config: tauriConfig });
-            console.log('[EngineConfigService] 已同步更新 Claude 代理商到后端:', config.name);
+            logger.debug('engineConfigService', '[EngineConfigService] 已同步更新 Claude 代理商到后端:', config.name);
         } else if (action === 'delete') {
             await invoke('delete_provider_config', { id: config.id });
-            console.log('[EngineConfigService] 已同步删除 Claude 代理商从后端:', config.name);
+            logger.debug('engineConfigService', '[EngineConfigService] 已同步删除 Claude 代理商从后端:', config.name);
         }
     } catch (error) {
-        console.error('[EngineConfigService] 同步 Claude 代理商到后端失败:', error);
+        logger.error('engineConfigService', '[EngineConfigService] 同步 Claude 代理商到后端失败:', error);
         // 不抛出错误，允许前端继续工作
     }
 }
@@ -227,7 +228,7 @@ async function activateClaudeProvider(config: UnifiedProviderConfig): Promise<vo
             try {
                 decryptedApiKey = await decrypt(config.apiKey, config.apiKeyIv);
             } catch (e) {
-                console.warn('[EngineConfigService] 解密 API Key 失败:', e);
+                logger.warn('engineConfigService', '[EngineConfigService] 解密 API Key 失败:', e);
             }
         }
 
@@ -235,15 +236,15 @@ async function activateClaudeProvider(config: UnifiedProviderConfig): Promise<vo
             try {
                 decryptedAuthToken = await decrypt(config.authToken, config.authTokenIv);
             } catch (e) {
-                console.warn('[EngineConfigService] 解密 Auth Token 失败:', e);
+                logger.warn('engineConfigService', '[EngineConfigService] 解密 Auth Token 失败:', e);
             }
         }
 
         const tauriConfig = toTauriConfig(config, decryptedApiKey, decryptedAuthToken);
         await invoke('switch_provider_config', { config: tauriConfig });
-        console.log('[EngineConfigService] 已激活 Claude 代理商:', config.name);
+        logger.debug('engineConfigService', '[EngineConfigService] 已激活 Claude 代理商:', config.name);
     } catch (error) {
-        console.error('[EngineConfigService] 激活 Claude 代理商失败:', error);
+        logger.error('engineConfigService', '[EngineConfigService] 激活 Claude 代理商失败:', error);
         throw error;
     }
 }
@@ -254,9 +255,9 @@ async function activateClaudeProvider(config: UnifiedProviderConfig): Promise<vo
 async function deactivateClaudeProvider(): Promise<void> {
     try {
         await invoke('clear_provider_config');
-        console.log('[EngineConfigService] 已清除 Claude 代理商配置');
+        logger.debug('engineConfigService', '[EngineConfigService] 已清除 Claude 代理商配置');
     } catch (error) {
-        console.error('[EngineConfigService] 清除 Claude 代理商配置失败:', error);
+        logger.error('engineConfigService', '[EngineConfigService] 清除 Claude 代理商配置失败:', error);
         // 不抛出错误
     }
 }
@@ -822,9 +823,9 @@ async function syncClaudeEnvVarsToBackend(envVars?: RuntimeConfig['claudeEnvVars
 
         // 调用 Tauri 后端保存环境变量
         await invoke('save_claude_env_vars', { envVars: envConfig });
-        console.log('[EngineConfigService] 已同步 Claude 环境变量到后端');
+        logger.debug('engineConfigService', '[EngineConfigService] 已同步 Claude 环境变量到后端');
     } catch (error) {
-        console.error('[EngineConfigService] 同步 Claude 环境变量失败:', error);
+        logger.error('engineConfigService', '[EngineConfigService] 同步 Claude 环境变量失败:', error);
         // 不抛出错误，允许前端继续工作
     }
 }
@@ -868,7 +869,7 @@ export async function applyModelToClaudeCode(
         await syncClaudeEnvVarsToBackend(runtimeConfig.claudeEnvVars);
     }
 
-    console.log('[EngineConfigService] 已全局应用模型到 Claude Code:', modelId);
+    logger.debug('engineConfigService', '[EngineConfigService] 已全局应用模型到 Claude Code:', modelId);
 }
 
 /**
@@ -893,7 +894,7 @@ async function syncClaudeEnvVarsFromBackend(): Promise<void> {
         }>('get_current_provider_config');
 
         if (!currentConfig) {
-            console.log('[EngineConfigService] 后端没有 Claude 环境变量配置');
+            logger.debug('engineConfigService', '[EngineConfigService] 后端没有 Claude 环境变量配置');
             return;
         }
 
@@ -952,9 +953,9 @@ async function syncClaudeEnvVarsFromBackend(): Promise<void> {
         };
         writeRuntimeConfig(updatedConfig);
 
-        console.log('[EngineConfigService] 已从后端同步 Claude 环境变量到前端');
+        logger.debug('engineConfigService', '[EngineConfigService] 已从后端同步 Claude 环境变量到前端');
     } catch (error) {
-        console.warn('[EngineConfigService] 从后端同步 Claude 环境变量失败:', error);
+        logger.warn('engineConfigService', '[EngineConfigService] 从后端同步 Claude 环境变量失败:', error);
         // 不抛出错误，允许应用继续启动
     }
 }
@@ -966,7 +967,7 @@ export async function initializeService(): Promise<void> {
     // 检查并执行迁移
     const migrationResult = await checkAndMigrate();
     if (migrationResult && !migrationResult.success) {
-        console.error('配置迁移失败:', migrationResult.errors);
+        logger.error('engineConfigService', '配置迁移失败:', migrationResult.errors);
     }
 
     // 从后端同步 Claude 环境变量到前端

@@ -10,6 +10,7 @@
  * - 更好的视觉层次
  */
 
+import { logger } from '@/lib/logger';
 import React, { useState, useCallback, useEffect } from "react";
 import {
   AlertTriangle,
@@ -309,8 +310,8 @@ export const ErrorMonitorPanel: React.FC<ErrorMonitorPanelProps> = ({
 
   // 🔧 DEBUG: 组件挂载日志
   useEffect(() => {
-    console.log('[ErrorMonitorPanel] 组件已挂载, errors:', errors.length);
-    return () => console.log('[ErrorMonitorPanel] 组件已卸载');
+    logger.debug('ErrorMonitorPanel', '[ErrorMonitorPanel] 组件已挂载, errors:', errors.length);
+    return () => logger.debug('ErrorMonitorPanel', '[ErrorMonitorPanel] 组件已卸载');
   }, []);
 
   // 动态计算面板高度：最小化时约 60px，展开时 560px
@@ -397,7 +398,7 @@ export const ErrorMonitorPanel: React.FC<ErrorMonitorPanelProps> = ({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error("复制失败:", err);
+      logger.error('ErrorMonitorPanel', "复制失败:", err);
     }
   }, [errors, errorCount, warnCount, totalCount, duplicateInfo]);
 

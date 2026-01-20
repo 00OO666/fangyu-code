@@ -8,6 +8,7 @@
  * - Performance analytics
  */
 
+import { logger } from '@/lib/logger';
 import type { ClaudeMessage, ClaudeResponse } from "./claudeSDK";
 
 export interface CacheEntry {
@@ -486,7 +487,7 @@ export class IntelligentPromptCache {
 
       localStorage.setItem("claude-prompt-cache", JSON.stringify(cacheData));
     } catch (error) {
-      console.warn("[PromptCache] Failed to save to storage:", error);
+      logger.warn('promptCache', "[PromptCache] Failed to save to storage:", error);
     }
   }
 
@@ -513,7 +514,7 @@ export class IntelligentPromptCache {
       // Clean expired entries
       this.cleanExpired();
     } catch (error) {
-      console.warn("[PromptCache] Failed to load from storage:", error);
+      logger.warn('promptCache', "[PromptCache] Failed to load from storage:", error);
     }
   }
 }

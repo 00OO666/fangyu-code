@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import { useCallback, useEffect, useState } from "react";
 import type { Session } from "@/lib/api";
 import { api } from "@/lib/api";
@@ -49,7 +50,7 @@ const setSessionCache = (sessions: Session[]) => {
     };
     localStorage.setItem(SESSION_CACHE_KEY, JSON.stringify(cache));
   } catch (e) {
-    console.warn("Failed to cache sessions:", e);
+    logger.warn('useSessionCache', "Failed to cache sessions:", e);
   }
 };
 
@@ -143,7 +144,7 @@ export const useSessionCache = (): UseSessionCacheReturn => {
                 project_path: session.project_path || project.path,
               }));
             } catch (err) {
-              console.error(`Failed to load sessions for project ${project.id}:`, err);
+              logger.error('useSessionCache', `Failed to load sessions for project ${project.id}:`, err);
               return [];
             }
           }),
@@ -171,7 +172,7 @@ export const useSessionCache = (): UseSessionCacheReturn => {
       setSessionCache(finalSessions); // 🚀 保存到 localStorage
       setSessions(finalSessions);
     } catch (err) {
-      console.error("Failed to load all sessions:", err);
+      logger.error('useSessionCache', "Failed to load all sessions:", err);
       setError("加载会话失败");
     } finally {
       setLoading(false);

@@ -3,6 +3,7 @@
  * 管理引擎一键配置的完整流程
  */
 
+import { logger } from '@/lib/logger';
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import {
     X,
@@ -91,7 +92,7 @@ export function SetupWizard({ engine, onComplete, onCancel }: SetupWizardProps) 
                     addLog('开始新的配置流程');
                 }
             } catch (error) {
-                console.error('Failed to load progress:', error);
+                logger.error('SetupWizard', 'Failed to load progress:', error);
                 const initial = createInitialProgress(engine);
                 initial.status = 'in_progress';
                 setProgress(initial);

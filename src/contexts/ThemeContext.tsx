@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 
@@ -66,7 +67,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     // 更新 Windows 标题栏颜色以匹配主题
     // Update Windows title bar color to match theme
     invoke('set_titlebar_theme', { isDark: theme === 'dark' }).catch((err) => {
-      console.warn('Failed to update titlebar theme:', err);
+      logger.warn('ThemeContext', 'Failed to update titlebar theme:', err);
     });
   }, [theme]);
 

@@ -17,6 +17,7 @@
  * }
  */
 
+import { logger } from '@/lib/logger';
 import { useEffect, useRef } from "react";
 import type { SessionCostStats } from "@/hooks/useSessionCostCalculation";
 
@@ -62,7 +63,7 @@ function loadHourlyData(): HourlyUsageStorage {
     const stored = localStorage.getItem(STORAGE_KEY);
     return stored ? JSON.parse(stored) : {};
   } catch (error) {
-    console.error("[useHourlyUsageTracker] Failed to load data:", error);
+    logger.error('useHourlyUsageTracker', "[useHourlyUsageTracker] Failed to load data:", error);
     return {};
   }
 }
@@ -74,7 +75,7 @@ function saveHourlyData(data: HourlyUsageStorage): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   } catch (error) {
-    console.error("[useHourlyUsageTracker] Failed to save data:", error);
+    logger.error('useHourlyUsageTracker', "[useHourlyUsageTracker] Failed to save data:", error);
   }
 }
 
@@ -239,9 +240,9 @@ export function getHourlyDataForRange(startDate: string, endDate: string): Hourl
 export function clearAllHourlyData(): void {
   try {
     localStorage.removeItem(STORAGE_KEY);
-    console.log("[useHourlyUsageTracker] ✅ 所有数据已清除");
+    logger.debug('useHourlyUsageTracker', "[useHourlyUsageTracker] ✅ 所有数据已清除");
   } catch (error) {
-    console.error("[useHourlyUsageTracker] Failed to clear data:", error);
+    logger.error('useHourlyUsageTracker', "[useHourlyUsageTracker] Failed to clear data:", error);
   }
 }
 

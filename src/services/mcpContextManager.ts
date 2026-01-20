@@ -10,6 +10,7 @@
  * - On-demand: Load only on explicit @mention
  */
 
+import { logger } from '@/lib/logger';
 import { isFeatureEnabled } from "@/config/featureFlags";
 
 export interface MCPContextConfig {
@@ -37,7 +38,7 @@ export const getMCPContextConfig = (): MCPContextConfig => {
     try {
       return JSON.parse(stored);
     } catch (e) {
-      console.warn("[MCPContextManager] Invalid stored config, using default");
+      logger.warn('mcpContextManager', "[MCPContextManager] Invalid stored config, using default");
     }
   }
   return DEFAULT_CONFIG;
@@ -50,7 +51,7 @@ export const setMCPContextConfig = (config: Partial<MCPContextConfig>): void => 
   const current = getMCPContextConfig();
   const updated = { ...current, ...config };
   localStorage.setItem("mcp_context_config", JSON.stringify(updated));
-  console.log("[MCPContextManager] Config updated:", updated);
+  logger.debug('mcpContextManager', "[MCPContextManager] Config updated:", updated);
 };
 
 /**

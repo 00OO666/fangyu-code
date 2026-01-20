@@ -7,6 +7,7 @@
  * - 任务完成后通知原窗口
  */
 
+import { logger } from '@/lib/logger';
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 
@@ -26,9 +27,9 @@ class TaskDelegationService {
   async delegateTask(task: Omit<DelegatedTask, 'targetWindowId'>): Promise<void> {
     try {
       await invoke('delegate_task_to_active_window', { task });
-      console.log('[TaskDelegation] Task delegated:', task.taskId);
+      logger.debug('taskDelegationService', '[TaskDelegation] Task delegated:', task.taskId);
     } catch (error) {
-      console.error('[TaskDelegation] Failed to delegate task:', error);
+      logger.error('taskDelegationService', '[TaskDelegation] Failed to delegate task:', error);
       throw error;
     }
   }
@@ -40,7 +41,7 @@ class TaskDelegationService {
     callback: (task: DelegatedTask) => void
   ): Promise<() => void> {
     const unlisten = await listen<DelegatedTask>('task-delegated', (event) => {
-      console.log('[TaskDelegation] Received delegated task:', event.payload);
+      logger.debug('taskDelegationService', '[TaskDelegation] Received delegated task:', event.payload);
       callback(event.payload);
     });
 
@@ -56,9 +57,9 @@ class TaskDelegationService {
   ): Promise<void> {
     try {
       await invoke('report_delegated_task_completion', { taskId, result });
-      console.log('[TaskDelegation] Task completion reported:', taskId);
+      logger.debug('taskDelegationService', '[TaskDelegation] Task completion reported:', taskId);
     } catch (error) {
-      console.error('[TaskDelegation] Failed to report completion:', error);
+      logger.error('taskDelegationService', '[TaskDelegation] Failed to report completion:', error);
     }
   }
 }

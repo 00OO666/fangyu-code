@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import { useState, useEffect, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -150,7 +151,7 @@ export default function GeminiProviderForm({
 
       await onSubmit(submitData);
     } catch (error) {
-      console.error('Failed to save Gemini provider config:', error);
+      logger.error('GeminiProviderForm', 'Failed to save Gemini provider config:', error);
       setToastMessage({
         message: t('provider.saveConfigFailed', { error: String(error) }),
         type: 'error'

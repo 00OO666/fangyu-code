@@ -4,6 +4,7 @@
  * 提供 Skills 的加载、搜索、匹配功能
  */
 
+import { logger } from '@/lib/logger';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { readTextFile, readDir, exists } from '@tauri-apps/plugin-fs';
 import { homeDir } from '@tauri-apps/api/path';
@@ -91,7 +92,7 @@ export function useSkills(projectPath?: string): UseSkillsReturn {
           }
         });
       } catch (err) {
-        console.error('[useSkills] Failed to init file system:', err);
+        logger.error('useSkills', '[useSkills] Failed to init file system:', err);
       }
     };
 

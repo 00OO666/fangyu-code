@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { memo } from "react";
 import { cn } from "@/lib/utils";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -35,7 +36,7 @@ const MessageContentComponent: React.FC<MessageContentProps> = ({
     <div className={cn("relative", className)}>
       <ErrorBoundary
         onError={(error) => {
-          console.error('[MessageContent] Markdown rendering error:', error);
+          logger.error('MessageContent', '[MessageContent] Markdown rendering error:', error);
         }}
         fallback={(error) => (
           <div className="p-4 rounded-md border border-destructive/20 bg-destructive/5 my-2">

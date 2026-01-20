@@ -5,6 +5,7 @@
  * 并显示全局通知，让用户知道后台发生了什么
  */
 
+import { logger } from '@/lib/logger';
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import { useEffect, useRef } from "react";
 import { notify } from "@/services/notificationService";
@@ -111,7 +112,7 @@ export function useGitNotifications() {
       });
       unlistenRefs.current.push(pushCompleteUnlisten);
 
-      console.log("[GitNotifications] ✅ Git event listeners registered");
+      logger.debug('useGitNotifications', "[GitNotifications] ✅ Git event listeners registered");
     };
 
     setupListeners();

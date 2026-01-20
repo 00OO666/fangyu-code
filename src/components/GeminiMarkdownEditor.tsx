@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useState, useEffect } from "react";
 import MDEditor from "@uiw/react-md-editor";
 import { motion } from "framer-motion";
@@ -50,7 +51,7 @@ export const GeminiMarkdownEditor: React.FC<GeminiMarkdownEditorProps> = ({
       setContent(prompt);
       setOriginalContent(prompt);
     } catch (err) {
-      console.error("Failed to load Gemini system prompt:", err);
+      logger.error('GeminiMarkdownEditor', "Failed to load Gemini system prompt:", err);
       const errorMessage = err instanceof Error ? err.message : String(err);
       setError(`无法加载 GEMINI.md 文件: ${errorMessage}`);
     } finally {
@@ -67,7 +68,7 @@ export const GeminiMarkdownEditor: React.FC<GeminiMarkdownEditorProps> = ({
       setOriginalContent(content);
       setToast({ message: "GEMINI.md 保存成功", type: "success" });
     } catch (err) {
-      console.error("Failed to save Gemini system prompt:", err);
+      logger.error('GeminiMarkdownEditor', "Failed to save Gemini system prompt:", err);
       const errorMessage = err instanceof Error ? err.message : String(err);
       setError(`保存失败: ${errorMessage}`);
       setToast({ message: "保存 GEMINI.md 失败", type: "error" });

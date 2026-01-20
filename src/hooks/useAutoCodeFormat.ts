@@ -4,6 +4,7 @@
  * 当 AI 响应完成后，自动检测代码块并使用 Biome 格式化
  */
 
+import { logger } from '@/lib/logger';
 import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useRef } from "react";
 import { codeFormatService } from "@/services/codeFormatService";
@@ -159,7 +160,7 @@ export function useAutoCodeFormat(
           }
         } catch (error) {
           // 静默失败，不影响用户体验
-          console.debug("[AutoCodeFormat] Format failed:", error);
+          logger.debug('useAutoCodeFormat', "[AutoCodeFormat] Format failed:", error);
         }
       }
 

@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import { useState, useEffect } from "react";
 import { Info, ExternalLink, Sparkles } from "lucide-react";
 import { open as openUrl } from "@tauri-apps/plugin-shell";
@@ -33,7 +34,7 @@ export function AboutDialog({ open, onClose, onViewNewFeatures }: AboutDialogPro
         const version = await getVersion();
         setAppVersion(version);
       } catch (err) {
-        console.error("Failed to get version:", err);
+        logger.error('AboutDialog', "Failed to get version:", err);
         setAppVersion(t('dialogs.unknown'));
       }
     };
@@ -47,7 +48,7 @@ export function AboutDialog({ open, onClose, onViewNewFeatures }: AboutDialogPro
     try {
       await openUrl(PROJECT_URL);
     } catch (err) {
-      console.error(t('dialogs.openProjectPageFailed'), err);
+      logger.error('AboutDialog', t('dialogs.openProjectPageFailed'), err);
     }
   };
 

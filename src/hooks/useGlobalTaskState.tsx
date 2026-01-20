@@ -13,6 +13,7 @@
  * @module useGlobalTaskState
  */
 
+import { logger } from '@/lib/logger';
 import {
   createContext,
   type ReactNode,
@@ -136,9 +137,9 @@ class GlobalTaskStore {
           },
         },
       });
-      console.debug("[GlobalTaskState] Broadcasted task update:", action, task.taskId);
+      logger.debug('useGlobalTaskState', "[GlobalTaskState] Broadcasted task update:", action, task.taskId);
     } catch (error) {
-      console.warn("[GlobalTaskState] Failed to broadcast task update:", error);
+      logger.warn('useGlobalTaskState', "[GlobalTaskState] Failed to broadcast task update:", error);
     }
   };
 
@@ -160,7 +161,7 @@ class GlobalTaskStore {
           this.updateActiveCount();
           this.notify();
           this.notifyTaskListeners(task.taskId, task);
-          console.debug("[GlobalTaskState] Applied remote task update:", action, task.taskId);
+          logger.debug('useGlobalTaskState', "[GlobalTaskState] Applied remote task update:", action, task.taskId);
           break;
 
         case "remove": {
@@ -171,7 +172,7 @@ class GlobalTaskStore {
             this.updateActiveCount();
             this.notify();
             this.notifyTaskListeners(task.taskId, undefined);
-            console.debug("[GlobalTaskState] Applied remote task removal:", task.taskId);
+            logger.debug('useGlobalTaskState', "[GlobalTaskState] Applied remote task removal:", task.taskId);
           }
           break;
         }
@@ -216,13 +217,13 @@ class GlobalTaskStore {
     // 🆕 广播到其他窗口
     this.broadcastTaskUpdate(task, "register");
 
-    console.debug("[GlobalTaskState] Task registered:", info.taskId, info.status);
+    logger.debug('useGlobalTaskState', "[GlobalTaskState] Task registered:", info.taskId, info.status);
   };
 
   updateTaskStatus = (taskId: string, status: TaskStatus, error?: string) => {
     const existing = this.state.tasks.get(taskId);
     if (!existing) {
-      console.warn("[GlobalTaskState] Task not found:", taskId);
+      logger.warn('useGlobalTaskState', "[GlobalTaskState] Task not found:", taskId);
       return;
     }
 
@@ -250,7 +251,7 @@ class GlobalTaskStore {
     // 🆕 广播到其他窗口
     this.broadcastTaskUpdate(updated, "update");
 
-    console.debug("[GlobalTaskState] Task status updated:", taskId, status);
+    logger.debug('useGlobalTaskState', "[GlobalTaskState] Task status updated:", taskId, status);
   };
 
   updateTaskProgress = (taskId: string, progress: number) => {
@@ -291,7 +292,7 @@ class GlobalTaskStore {
       // 🆕 广播到其他窗口
       this.broadcastTaskUpdate(existing, "remove");
 
-      console.debug("[GlobalTaskState] Task removed:", taskId);
+      logger.debug('useGlobalTaskState', "[GlobalTaskState] Task removed:", taskId);
     }
   };
 
@@ -358,7 +359,7 @@ class GlobalTaskStore {
     this.notify();
     taskIds.forEach((id) => this.notifyTaskListeners(id, undefined));
 
-    console.debug("[GlobalTaskState] All tasks cleared");
+    logger.debug('useGlobalTaskState', "[GlobalTaskState] All tasks cleared");
   };
 
   /**
@@ -401,7 +402,7 @@ class GlobalTaskStore {
       this.updateActiveCount();
       this.notify();
 
-      console.debug("[GlobalTaskState] Cleaned up stale tasks:", tasksToRemove.length);
+      logger.debug('useGlobalTaskState', "[GlobalTaskState] Cleaned up stale tasks:", tasksToRemove.length);
     }
   };
 }
@@ -460,11 +461,11 @@ export const GlobalTaskStateProvider: React.FC<GlobalTaskStateProviderProps> = (
           }
         });
         if (isMounted) {
-          console.debug("[GlobalTaskState] Cross-window sync listener initialized");
+          logger.debug('useGlobalTaskState', "[GlobalTaskState] Cross-window sync listener initialized");
         }
       } catch (error) {
         // 静默处理错误，避免影响应用启动
-        console.warn("[GlobalTaskState] Failed to setup cross-window listener:", error);
+        logger.warn('useGlobalTaskState', "[GlobalTaskState] Failed to setup cross-window listener:", error);
       }
     };
 
@@ -535,7 +536,7 @@ export const GlobalTaskStateProvider: React.FC<GlobalTaskStateProviderProps> = (
  *
  * // 读取活跃任务
  * const activeTasks = actions.getActiveTasks();
- * console.log('Active tasks:', state.activeCount);
+ * logger.debug('useGlobalTaskState', 'Active tasks:', state.activeCount);
  * ```
  */
 export const useGlobalTaskState = (): GlobalTaskContextValue => {
@@ -556,7 +557,7 @@ export const useGlobalTaskState = (): GlobalTaskContextValue => {
  * ```tsx
  * const task = useTaskStatus('session-123');
  * if (task?.status === 'running') {
- *   console.log('Task is running, progress:', task.progress);
+ *   logger.debug('useGlobalTaskState', 'Task is running, progress:', task.progress);
  * }
  * ```
  */

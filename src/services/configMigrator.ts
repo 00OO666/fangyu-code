@@ -2,6 +2,7 @@
  * 配置迁移服务 - 处理旧版本配置的升级
  */
 
+import { logger } from '@/lib/logger';
 import { invoke } from '@tauri-apps/api/core';
 import type { EngineType, UnifiedProviderConfig, ProviderStorage, RuntimeConfig } from '../types/provider';
 import { PROVIDER_STORAGE_KEY, DEFAULT_PROVIDER_STORAGE, DEFAULT_RUNTIME_CONFIG, RUNTIME_CONFIG_KEY } from '../types/provider';
@@ -169,10 +170,10 @@ function checkLegacyData(): { hasLegacy: boolean; sources: string[] } {
 async function loadLegacyClaudeProviders(): Promise<LegacyProviderConfig[]> {
     try {
         const providers = await invoke<LegacyProviderConfig[]>('get_provider_presets');
-        console.log('[ConfigMigrator] 从 Tauri 后端读取到', providers.length, '个 Claude 代理商配置');
+        logger.debug('configMigrator', '[ConfigMigrator] 从 Tauri 后端读取到', providers.length, '个 Claude 代理商配置');
         return providers;
     } catch (error) {
-        console.warn('[ConfigMigrator] 从 Tauri 后端读取 Claude 配置失败:', error);
+        logger.warn('configMigrator', '[ConfigMigrator] 从 Tauri 后端读取 Claude 配置失败:', error);
         return [];
     }
 }
@@ -217,7 +218,7 @@ async function migrateFromLegacy(): Promise<ProviderStorage> {
             }
         }
     } catch (error) {
-        console.warn('[ConfigMigrator] 从 Tauri 后端迁移 Claude 配置失败:', error);
+        logger.warn('configMigrator', '[ConfigMigrator] 从 Tauri 后端迁移 Claude 配置失败:', error);
     }
 
     // 2. 尝试从旧的统一存储读取（localStorage）
@@ -248,7 +249,7 @@ async function migrateFromLegacy(): Promise<ProviderStorage> {
                 storage.currentProviders = { ...storage.currentProviders, ...parsed.currentProviders };
             }
         } catch (e) {
-            console.warn('[ConfigMigrator] 解析旧统一存储失败:', e);
+            logger.warn('configMigrator', '[ConfigMigrator] 解析旧统一存储失败:', e);
         }
     }
 
@@ -289,7 +290,7 @@ async function migrateFromLegacy(): Promise<ProviderStorage> {
                     }
                 }
             } catch (e) {
-                console.warn(`[ConfigMigrator] 解析 ${key} 失败:`, e);
+                logger.warn('configMigrator', `[ConfigMigrator] 解析 ${key} 失败:`, e);
             }
         }
     }
@@ -327,7 +328,7 @@ async function migrateFromLegacy(): Promise<ProviderStorage> {
                     });
                 }
             } catch (e) {
-                console.warn(`[ConfigMigrator] 解析 ${key} 失败:`, e);
+                logger.warn('configMigrator', `[ConfigMigrator] 解析 ${key} 失败:`, e);
             }
         }
     }
@@ -356,7 +357,7 @@ async function migrateFromLegacy(): Promise<ProviderStorage> {
             if (matchingProvider) {
                 // 设置为当前激活的代理商
                 storage.currentProviders.claude = matchingProvider.id;
-                console.log('[ConfigMigrator] 找到当前激活的 Claude 代理商:', matchingProvider.name);
+                logger.debug('configMigrator', '[ConfigMigrator] 找到当前激活的 Claude 代理商:', matchingProvider.name);
             } else if (currentConfig.anthropic_api_key || currentConfig.anthropic_auth_token) {
                 // 如果没有匹配的代理商，创建一个新的
                 const newProvider: UnifiedProviderConfig = {
@@ -377,16 +378,16 @@ async function migrateFromLegacy(): Promise<ProviderStorage> {
                 };
                 providers.push(newProvider);
                 storage.currentProviders.claude = newProvider.id;
-                console.log('[ConfigMigrator] 从当前配置创建新的 Claude 代理商');
+                logger.debug('configMigrator', '[ConfigMigrator] 从当前配置创建新的 Claude 代理商');
             }
         }
     } catch (error) {
-        console.warn('[ConfigMigrator] 读取当前 Claude 配置失败:', error);
+        logger.warn('configMigrator', '[ConfigMigrator] 读取当前 Claude 配置失败:', error);
     }
 
     storage.providers = providers;
 
-    console.log(`[ConfigMigrator] 从旧格式迁移了 ${providers.length} 个代理商配置`);
+    logger.debug('configMigrator', `[ConfigMigrator] 从旧格式迁移了 ${providers.length} 个代理商配置`);
 
     return storage;
 }
@@ -503,10 +504,10 @@ export async function migrate(): Promise<MigrationResult> {
 
     // 如果新存储为空，尝试从旧格式迁移
     if (storage.providers.length === 0) {
-        console.log('[ConfigMigrator] 新存储为空，尝试从旧格式迁移...');
+        logger.debug('configMigrator', '[ConfigMigrator] 新存储为空，尝试从旧格式迁移...');
 
         if (hasLegacy) {
-            console.log('[ConfigMigrator] 检测到 localStorage 旧格式数据:', sources);
+            logger.debug('configMigrator', '[ConfigMigrator] 检测到 localStorage 旧格式数据:', sources);
         }
 
         // 总是尝试从旧格式迁移（包括 Tauri 后端）
@@ -514,7 +515,7 @@ export async function migrate(): Promise<MigrationResult> {
 
         // 如果迁移后仍然没有数据，返回成功但不需要进一步处理
         if (storage.providers.length === 0) {
-            console.log('[ConfigMigrator] 没有找到旧配置数据');
+            logger.debug('configMigrator', '[ConfigMigrator] 没有找到旧配置数据');
             return {
                 success: true,
                 fromVersion,
@@ -555,7 +556,7 @@ export async function migrate(): Promise<MigrationResult> {
         // 清理旧备份
         cleanupOldBackups();
 
-        console.log(`[ConfigMigrator] 迁移完成: ${migratedStorage.providers.length} 个代理商`);
+        logger.debug('configMigrator', `[ConfigMigrator] 迁移完成: ${migratedStorage.providers.length} 个代理商`);
 
         return {
             success: true,
@@ -565,7 +566,7 @@ export async function migrate(): Promise<MigrationResult> {
             backupId,
         };
     } catch (error) {
-        console.error('[ConfigMigrator] 迁移失败:', error);
+        logger.error('configMigrator', '[ConfigMigrator] 迁移失败:', error);
         // 回滚
         const backup = await restoreBackup(backupId);
         if (backup) {

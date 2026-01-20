@@ -7,6 +7,7 @@
  * - 编辑模式：多选、批量删除
  */
 
+import { logger } from '@/lib/logger';
 import React, { useState, useCallback, useMemo } from "react";
 import { Clock, Plus, Search, Loader2, FileText, Trash2, CheckSquare, Square, X, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -79,7 +80,7 @@ export const GlobalSessionCenter: React.FC<GlobalSessionCenterProps> = ({
       const { p, s } = JSON.parse(key);
       return { projectId: p, sessionId: s };
     } catch {
-      console.error('[parseSessionKey] Failed to parse:', key);
+      logger.error('GlobalSessionCenter', '[parseSessionKey] Failed to parse:', key);
       return { projectId: '', sessionId: '' };
     }
   };
@@ -129,14 +130,14 @@ export const GlobalSessionCenter: React.FC<GlobalSessionCenterProps> = ({
       const sessionsByProject = new Map<string, string[]>();
       for (const key of selectedIds) {
         const { projectId, sessionId } = parseSessionKey(key);
-        console.log('[Delete] Parsed key:', key, '→', { projectId, sessionId });
+        logger.debug('GlobalSessionCenter', '[Delete] Parsed key:', key, '→', { projectId, sessionId });
         if (!sessionsByProject.has(projectId)) {
           sessionsByProject.set(projectId, []);
         }
         sessionsByProject.get(projectId)!.push(sessionId);
       }
 
-      console.log('[Delete] Sessions by project:', Object.fromEntries(sessionsByProject));
+      logger.debug('GlobalSessionCenter', '[Delete] Sessions by project:', Object.fromEntries(sessionsByProject));
 
       let totalDeleted = 0;
       let totalFailed = 0;
@@ -144,19 +145,19 @@ export const GlobalSessionCenter: React.FC<GlobalSessionCenterProps> = ({
       // 逐项目删除
       for (const [projectId, sessionIds] of sessionsByProject) {
         try {
-          console.log('[Delete] Calling delete_sessions_batch:', { projectId, sessionIds });
+          logger.debug('GlobalSessionCenter', '[Delete] Calling delete_sessions_batch:', { projectId, sessionIds });
           const result = await invoke<string>('delete_sessions_batch', {
             sessionIds,
             projectId,
           });
-          console.log('[Delete] Result:', result);
+          logger.debug('GlobalSessionCenter', '[Delete] Result:', result);
           // 解析结果
           const match = result.match(/Deleted (\d+) sessions/);
           if (match) {
             totalDeleted += parseInt(match[1], 10);
           }
         } catch (e) {
-          console.error(`[Delete] Failed for project ${projectId}:`, e);
+          logger.error('GlobalSessionCenter', `[Delete] Failed for project ${projectId}:`, e);
           totalFailed += sessionIds.length;
         }
       }
@@ -174,7 +175,7 @@ export const GlobalSessionCenter: React.FC<GlobalSessionCenterProps> = ({
       setEditMode(false);
       await refresh();
     } catch (e) {
-      console.error('[Delete] Error:', e);
+      logger.error('GlobalSessionCenter', '[Delete] Error:', e);
       toast.error(`删除失败: ${e}`);
     } finally {
       setIsDeleting(false);

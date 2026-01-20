@@ -10,6 +10,7 @@
  * 来源: Claude Code CLI 2.0
  */
 
+import { logger } from '@/lib/logger';
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -121,7 +122,7 @@ export function PromptSearchModal({
 
       setPrompts(mockPrompts);
     } catch (error) {
-      console.error('Failed to load prompt history:', error);
+      logger.error('PromptSearchModal', 'Failed to load prompt history:', error);
     } finally {
       setLoading(false);
     }
@@ -226,7 +227,7 @@ export function PromptSearchModal({
       setCopiedId(prompt.id);
       setTimeout(() => setCopiedId(null), 2000);
     } catch (error) {
-      console.error('Failed to copy:', error);
+      logger.error('PromptSearchModal', 'Failed to copy:', error);
     }
   }, []);
 

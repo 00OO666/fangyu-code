@@ -12,6 +12,7 @@
  * @version 1.0.0
  */
 
+import { logger } from '@/lib/logger';
 import React, { useCallback, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -466,10 +467,10 @@ export const PromptQueuePanel: React.FC<PromptQueuePanelProps> = ({
       if (optimized && onUpdatePrompt) {
         // 更新队列项的提示词
         onUpdatePrompt(itemId, optimized);
-        console.log('[PromptQueuePanel] Optimized:', optimized.substring(0, 50));
+        logger.debug('PromptQueuePanel', '[PromptQueuePanel] Optimized:', optimized.substring(0, 50));
       }
     } catch (error) {
-      console.error('[PromptQueuePanel] Optimize failed:', error);
+      logger.error('PromptQueuePanel', '[PromptQueuePanel] Optimize failed:', error);
     } finally {
       setOptimizingId(null);
     }
@@ -598,8 +599,8 @@ export const PromptQueuePanel: React.FC<PromptQueuePanelProps> = ({
                 value={queueInput}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
-                onFocus={() => console.log('[PromptQueuePanel] Textarea focused')}
-                onClick={() => console.log('[PromptQueuePanel] Textarea clicked')}
+                onFocus={() => logger.debug('PromptQueuePanel', '[PromptQueuePanel] Textarea focused')}
+                onClick={() => logger.debug('PromptQueuePanel', '[PromptQueuePanel] Textarea clicked')}
                 placeholder="输入指令加入队列..."
                 className={cn(
                   'w-full px-3 py-2 text-sm rounded-lg border resize-none',

@@ -8,6 +8,7 @@
  * _Requirements: 1.1_
  */
 
+import { logger } from '@/lib/logger';
 import { useEffect, useCallback, useRef } from 'react';
 import type { Tab, PersistedTabState } from './types';
 import { TAB_STORAGE_KEY } from './types';
@@ -51,7 +52,7 @@ export function useTabPersistence({
             );
 
             if (hasOldPlaceholder) {
-                console.log('[useTabPersistence] Detected old placeholder tabs, clearing for migration');
+                logger.debug('useTabPersistence', '[useTabPersistence] Detected old placeholder tabs, clearing for migration');
                 localStorage.removeItem(TAB_STORAGE_KEY);
                 return;
             }
@@ -60,7 +61,7 @@ export function useTabPersistence({
             const validTabs = savedTabs
                 .filter((tab) => {
                     if (!tab.id || !tab.title) {
-                        console.warn('[useTabPersistence] Skipping invalid tab:', tab);
+                        logger.warn('useTabPersistence', '[useTabPersistence] Skipping invalid tab:', tab);
                         return false;
                     }
                     return true;
@@ -81,7 +82,7 @@ export function useTabPersistence({
             setTabs(validTabs);
             setActiveTabId(validActiveTabId);
         } catch (error) {
-            console.error('[useTabPersistence] Failed to restore tabs:', error);
+            logger.error('useTabPersistence', '[useTabPersistence] Failed to restore tabs:', error);
             localStorage.removeItem(TAB_STORAGE_KEY);
         }
     }, [setTabs, setActiveTabId]);
@@ -94,7 +95,7 @@ export function useTabPersistence({
             const state: PersistedTabState = { tabs, activeTabId };
             localStorage.setItem(TAB_STORAGE_KEY, JSON.stringify(state));
         } catch (error) {
-            console.error('[useTabPersistence] Failed to persist tabs:', error);
+            logger.error('useTabPersistence', '[useTabPersistence] Failed to persist tabs:', error);
         }
     }, [tabs, activeTabId]);
 

@@ -1,3 +1,5 @@
+import { logger } from '@/lib/logger';
+
 /**
  * Window Heartbeat Worker
  *
@@ -45,13 +47,13 @@ function startHeartbeat() {
     });
   }, config.interval);
 
-  console.log(`[Worker] Heartbeat started for window ${config.windowId}`);
+  logger.debug('windowHeartbeat.worker', `[Worker] Heartbeat started for window ${config.windowId}`);
 }
 
 function stopHeartbeat() {
   if (heartbeatTimer !== null) {
     self.clearInterval(heartbeatTimer);
     heartbeatTimer = null;
-    console.log('[Worker] Heartbeat stopped');
+    logger.debug('windowHeartbeat.worker', '[Worker] Heartbeat stopped');
   }
 }

@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -100,7 +101,7 @@ const getProjectName = (path: string): string => {
  * @example
  * <ProjectList
  *   projects={projects}
- *   onProjectClick={(project) => console.log('Selected:', project)}
+ *   onProjectClick={(project) => logger.debug('ProjectList', 'Selected:', project);}
  * />
  */
 export const ProjectList: React.FC<ProjectListProps> = ({
@@ -135,7 +136,7 @@ export const ProjectList: React.FC<ProjectListProps> = ({
         const sessions = await api.listCodexSessions();
         setCodexSessions(sessions);
       } catch (error) {
-        console.error('Failed to load Codex sessions:', error);
+        logger.error('ProjectList', 'Failed to load Codex sessions:', error);
         // Continue with empty array - won't block UI
       }
     };
@@ -184,7 +185,7 @@ export const ProjectList: React.FC<ProjectListProps> = ({
       setDeleteDialogOpen(false);
       setProjectToDelete(null);
     } catch (error) {
-      console.error('Failed to delete project:', error);
+      logger.error('ProjectList', 'Failed to delete project:', error);
     } finally {
       setIsDeleting(false);
     }

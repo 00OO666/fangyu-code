@@ -9,6 +9,7 @@
  * - 代码更简洁
  */
 
+import { logger } from '@/lib/logger';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { ExecutionEngineConfig } from '@/components/ExecutionEngineSelector';
@@ -45,7 +46,7 @@ const getDefaultConfig = (): ExecutionEngineConfig => {
       return JSON.parse(stored);
     }
   } catch (error) {
-    console.error('[SessionStore] Failed to load config from localStorage:', error);
+    logger.error('sessionStore', '[SessionStore] Failed to load config from localStorage:', error);
   }
 
   // 默认配置
@@ -64,7 +65,7 @@ export const useSessionStore = create<SessionStore>()(
       // 引擎配置
       executionEngineConfig: getDefaultConfig(),
       setExecutionEngineConfig: (config) => {
-        console.log('[SessionStore] Setting engine config:', config);
+        logger.debug('sessionStore', '[SessionStore] Setting engine config:', config);
         set({ executionEngineConfig: config });
       },
 

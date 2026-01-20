@@ -1,3 +1,5 @@
+import { logger } from '@/lib/logger';
+
 /**
  * AsyncQueue - 异步消息队列
  *
@@ -64,7 +66,7 @@ export class AsyncQueue<T> implements AsyncIterable<T>, AsyncIterator<T> {
    */
   enqueue(value: T): void {
     if (this.isDone) {
-      console.warn("[AsyncQueue] Attempting to enqueue after done");
+      logger.warn('AsyncQueue', "[AsyncQueue] Attempting to enqueue after done");
       return;
     }
 

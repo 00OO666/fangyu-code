@@ -5,6 +5,7 @@
  * 在应用启动时调用 initializeToolRegistry() 完成注册
  */
 
+import { logger } from '@/lib/logger';
 import type React from "react";
 // ✅ 已迁移组件：从新的 widgets 目录导入
 import {
@@ -216,7 +217,7 @@ export function initializeToolRegistry(): void {
       return match?.[1]?.trim() || undefined;
     } catch (error) {
       // 如果正则表达式无效，记录错误并返回 undefined
-      console.error("[extractTaggedValue] Invalid regex for tag:", tag, error);
+      logger.error('toolRegistryInit', "[extractTaggedValue] Invalid regex for tag:", tag, error);
       return undefined;
     }
   };

@@ -5,6 +5,7 @@
  * auto-compact functionality with intelligent threshold management and real-time monitoring.
  */
 
+import { logger } from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import {
   Settings2,
@@ -91,7 +92,7 @@ export const AutoCompactSettings: React.FC<AutoCompactSettingsProps> = ({
         await api.initAutoCompactManager();
       } catch (e) {
         // Manager might already be initialized, ignore error
-        console.debug("Auto-compact manager might already be initialized");
+        logger.debug('AutoCompactSettings', "Auto-compact manager might already be initialized");
       }
 
       // Load configuration and status
@@ -105,7 +106,7 @@ export const AutoCompactSettings: React.FC<AutoCompactSettingsProps> = ({
       setStatus(statusData);
       setSessions(sessionsData);
     } catch (err) {
-      console.error("Failed to load auto-compact data:", err);
+      logger.error('AutoCompactSettings', "Failed to load auto-compact data:", err);
       setError(err instanceof Error ? err.message : "Failed to load settings");
     } finally {
       setIsLoading(false);
@@ -133,7 +134,7 @@ export const AutoCompactSettings: React.FC<AutoCompactSettingsProps> = ({
       // Reload data to show updated values
       await loadData();
     } catch (err) {
-      console.error("Failed to save config:", err);
+      logger.error('AutoCompactSettings', "Failed to save config:", err);
       setError(err instanceof Error ? err.message : "Failed to save settings");
     } finally {
       setIsSaving(false);
@@ -146,7 +147,7 @@ export const AutoCompactSettings: React.FC<AutoCompactSettingsProps> = ({
       // Reload sessions to show updated status
       await loadData();
     } catch (err) {
-      console.error("Failed to trigger compaction:", err);
+      logger.error('AutoCompactSettings', "Failed to trigger compaction:", err);
       setError(err instanceof Error ? err.message : "Failed to trigger compaction");
     }
   };

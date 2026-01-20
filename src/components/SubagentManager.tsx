@@ -11,6 +11,7 @@
  * 来源: Claude Code Subagents + Cursor Agent Presets
  */
 
+import { logger } from '@/lib/logger';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -184,7 +185,7 @@ export function SubagentManager({ onSelectSubagent, className }: SubagentManager
       const list = await api.listSubagents();
       setSubagents(list);
     } catch (error) {
-      console.error('加载子代理列表失败:', error);
+      logger.error('SubagentManager', '加载子代理列表失败:', error);
     } finally {
       setLoading(false);
     }
@@ -245,7 +246,7 @@ export function SubagentManager({ onSelectSubagent, className }: SubagentManager
       setShowCreateDialog(false);
       setEditingSubagent(null);
     } catch (error) {
-      console.error('保存子代理失败:', error);
+      logger.error('SubagentManager', '保存子代理失败:', error);
     }
   };
 
@@ -257,7 +258,7 @@ export function SubagentManager({ onSelectSubagent, className }: SubagentManager
       // TODO: 实现删除API
       loadSubagents();
     } catch (error) {
-      console.error('删除子代理失败:', error);
+      logger.error('SubagentManager', '删除子代理失败:', error);
     }
   };
 

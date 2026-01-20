@@ -15,6 +15,7 @@
  * - Devin 的隔离环境
  */
 
+import { logger } from '@/lib/logger';
 import { BrowserEventEmitter } from '../../lib/BrowserEventEmitter';
 import { v4 as uuidv4 } from 'uuid';
 import { invoke } from '@tauri-apps/api/core';
@@ -96,13 +97,13 @@ export class SandboxManager extends BrowserEventEmitter {
       const result = await invoke<{ available: boolean; version?: string }>('docker_check_availability');
       this.isDockerAvailable = result.available;
       if (result.available) {
-        console.log(`[SandboxManager] Docker available, version: ${result.version}`);
+        logger.debug('SandboxManager', `[SandboxManager] Docker available, version: ${result.version}`);
       } else {
-        console.warn('[SandboxManager] Docker not available, using simulation mode');
+        logger.warn('SandboxManager', '[SandboxManager] Docker not available, using simulation mode');
       }
     } catch (error) {
       // Tauri 命令不存在时，回退到模拟模式
-      console.warn('[SandboxManager] Docker check failed, using simulation mode:', error);
+      logger.warn('SandboxManager', '[SandboxManager] Docker check failed, using simulation mode:', error);
       this.isDockerAvailable = false;
     }
   }
@@ -169,7 +170,7 @@ export class SandboxManager extends BrowserEventEmitter {
     await this.createTerminal(sandboxId, 'main');
 
     this.emit('sandbox:created', { sandbox });
-    console.log(`[SandboxManager] Created sandbox ${sandboxId} for agent ${options.agentId}`);
+    logger.debug('SandboxManager', `[SandboxManager] Created sandbox ${sandboxId} for agent ${options.agentId}`);
 
     return sandbox;
   }
@@ -193,10 +194,10 @@ export class SandboxManager extends BrowserEventEmitter {
       });
 
       sandbox.containerId = result.containerId;
-      console.log(`[SandboxManager] Created Docker container: ${result.containerId}`);
+      logger.debug('SandboxManager', `[SandboxManager] Created Docker container: ${result.containerId}`);
     } catch (error) {
       // Tauri 命令不存在时，使用模拟容器 ID
-      console.warn('[SandboxManager] Docker create failed, using simulation:', error);
+      logger.warn('SandboxManager', '[SandboxManager] Docker create failed, using simulation:', error);
       sandbox.containerId = `sim-container-${sandbox.id.slice(0, 12)}`;
     }
   }
@@ -266,7 +267,7 @@ export class SandboxManager extends BrowserEventEmitter {
     this.sandboxes.delete(sandboxId);
     this.emit('sandbox:destroyed', { sandboxId });
 
-    console.log(`[SandboxManager] Destroyed sandbox ${sandboxId}`);
+    logger.debug('SandboxManager', `[SandboxManager] Destroyed sandbox ${sandboxId}`);
   }
 
   /**
@@ -276,9 +277,9 @@ export class SandboxManager extends BrowserEventEmitter {
     try {
       // 使用 Tauri 调用 docker stop && docker rm
       await invoke('docker_destroy_container', { containerId });
-      console.log(`[SandboxManager] Destroyed Docker container: ${containerId}`);
+      logger.debug('SandboxManager', `[SandboxManager] Destroyed Docker container: ${containerId}`);
     } catch (error) {
-      console.warn(`[SandboxManager] Failed to destroy container ${containerId}:`, error);
+      logger.warn('SandboxManager', `[SandboxManager] Failed to destroy container ${containerId}:`, error);
     }
   }
 
@@ -410,7 +411,7 @@ export class SandboxManager extends BrowserEventEmitter {
       };
     } catch (error) {
       // Tauri 命令不存在时，回退到模拟执行
-      console.warn('[SandboxManager] Docker exec failed, using simulation:', error);
+      logger.warn('SandboxManager', '[SandboxManager] Docker exec failed, using simulation:', error);
       return this.simulateExecution(command);
     }
   }
@@ -492,7 +493,7 @@ export class SandboxManager extends BrowserEventEmitter {
     // 模拟文件读取
     return {
       success: true,
-      content: `// Simulated content of ${path}\nconsole.log('Hello from sandbox');`
+      content: `// Simulated content of ${path}\nlogger.debug('SandboxManager', 'Hello from sandbox');`
     };
   }
 
@@ -656,7 +657,7 @@ export class SandboxManager extends BrowserEventEmitter {
       );
 
       // 启动浏览器（实际实现会更复杂）
-      console.log(`[SandboxManager] Launching browser at ${url}`);
+      logger.debug('SandboxManager', `[SandboxManager] Launching browser at ${url}`);
     }
 
     this.emit('browser:launched', { sandboxId, url });

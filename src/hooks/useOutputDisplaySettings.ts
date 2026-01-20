@@ -5,6 +5,7 @@
  * 解决问题：用户看不到完整的大模型输出（思考过程、系统消息等）
  */
 
+import { logger } from '@/lib/logger';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 
 /**
@@ -58,7 +59,7 @@ function loadSettings(): OutputDisplaySettings {
       return { ...DEFAULT_SETTINGS, ...parsed };
     }
   } catch (error) {
-    console.warn('[OutputDisplaySettings] Failed to load settings:', error);
+    logger.warn('useOutputDisplaySettings', '[OutputDisplaySettings] Failed to load settings:', error);
   }
   return DEFAULT_SETTINGS;
 }
@@ -70,7 +71,7 @@ function saveSettings(settings: OutputDisplaySettings): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
   } catch (error) {
-    console.warn('[OutputDisplaySettings] Failed to save settings:', error);
+    logger.warn('useOutputDisplaySettings', '[OutputDisplaySettings] Failed to save settings:', error);
   }
 }
 

@@ -7,6 +7,7 @@
  * Requirements: 2.3, 6.1, 6.2, 6.3, 6.4
  */
 
+import { logger } from '@/lib/logger';
 import {
   SummaryAPIConfig,
   StoredSummaryConfig,
@@ -78,7 +79,7 @@ async function encryptApiKey(apiKey: string): Promise<string> {
     
     return btoa(String.fromCharCode(...combined));
   } catch (error) {
-    console.error('[SummaryConfigStore] Failed to encrypt API key:', error);
+    logger.error('summaryConfigStore', '[SummaryConfigStore] Failed to encrypt API key:', error);
     return '';
   }
 }
@@ -104,7 +105,7 @@ async function decryptApiKey(encryptedKey: string): Promise<string> {
     
     return new TextDecoder().decode(decrypted);
   } catch (error) {
-    console.error('[SummaryConfigStore] Failed to decrypt API key:', error);
+    logger.error('summaryConfigStore', '[SummaryConfigStore] Failed to decrypt API key:', error);
     return '';
   }
 }
@@ -183,7 +184,7 @@ export class SummaryConfigStore {
       
       // 版本迁移（如果需要）
       if (parsed.version !== SUMMARY_CONFIG_VERSION) {
-        console.warn('[SummaryConfigStore] Config version mismatch, resetting to defaults...');
+        logger.warn('summaryConfigStore', '[SummaryConfigStore] Config version mismatch, resetting to defaults...');
         // 版本不匹配，重置为默认配置（使用新的模型列表）
         this.config = { ...DEFAULT_SUMMARY_CONFIG };
         await this.saveConfig(this.config);
@@ -204,14 +205,14 @@ export class SummaryConfigStore {
       // 验证配置
       const validation = validateConfig(this.config);
       if (!validation.valid) {
-        console.error('[SummaryConfigStore] Invalid config, resetting to defaults:', validation.errors);
+        logger.error('summaryConfigStore', '[SummaryConfigStore] Invalid config, resetting to defaults:', validation.errors);
         this.config = { ...DEFAULT_SUMMARY_CONFIG };
         await this.saveConfig(this.config);
       }
       
       return this.config;
     } catch (error) {
-      console.error('[SummaryConfigStore] Failed to load config, resetting to defaults:', error);
+      logger.error('summaryConfigStore', '[SummaryConfigStore] Failed to load config, resetting to defaults:', error);
       this.config = { ...DEFAULT_SUMMARY_CONFIG };
       return this.config;
     }
@@ -259,7 +260,7 @@ export class SummaryConfigStore {
       try {
         await this.saveConfig(config);
       } catch (error) {
-        console.error('[SummaryConfigStore] Debounced save failed:', error);
+        logger.error('summaryConfigStore', '[SummaryConfigStore] Debounced save failed:', error);
       }
     }, this.debounceMs);
   }

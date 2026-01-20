@@ -9,6 +9,7 @@
  * const translated = await translateContent('Hello world', 'greeting-key');
  */
 
+import { logger } from '@/lib/logger';
 import React from 'react';
 import { translationMiddleware } from '@/lib/translationMiddleware';
 
@@ -55,7 +56,7 @@ export const useToolTranslation = () => {
 
       return content;
     } catch (error) {
-      console.error('[useToolTranslation] Translation failed:', error);
+      logger.error('useToolTranslation', '[useToolTranslation] Translation failed:', error);
       return content;
     }
   }, [translatedContent]);

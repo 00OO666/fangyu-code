@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React from "react";
 import { UserMessage } from "./UserMessage";
 import { AIMessage } from "./AIMessage";
@@ -201,7 +202,7 @@ const StreamMessageV2Component: React.FC<StreamMessageV2Props> = ({
 
   if (!Renderer) {
     if (process.env.NODE_ENV !== 'production') {
-      console.warn('[StreamMessageV2] Unhandled message type:', messageType, message);
+      logger.warn('StreamMessageV2', '[StreamMessageV2] Unhandled message type:', messageType, message);
     }
     return null;
   }

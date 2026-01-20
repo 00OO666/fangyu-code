@@ -13,6 +13,7 @@
  * - 成本可控（条件触发，非始终双调用）
  */
 
+import { logger } from '@/lib/logger';
 import { LLMApiService, type LLMProvider } from "@/lib/services/llmApiService";
 import type { ClaudeStreamMessage } from "@/types/claude";
 import { loadContextConfig } from "./promptContextConfig";
@@ -167,7 +168,7 @@ export async function enhancePromptWithDualAPI(
         provider,
       );
     } catch (error) {
-      console.error("[Dual API] Acemcp refinement failed, using original:", error);
+      logger.error('dualAPIEnhancement', "[Dual API] Acemcp refinement failed, using original:", error);
       // 降级：使用原始上下文
       refinedProjectContext = projectContext;
     }
@@ -189,7 +190,7 @@ export async function enhancePromptWithDualAPI(
         provider,
       );
     } catch (error) {
-      console.error("[Dual API] Step 1 failed, falling back to recent messages:", error);
+      logger.error('dualAPIEnhancement', "[Dual API] Step 1 failed, falling back to recent messages:", error);
       selectedContext = meaningful.slice(-config.maxMessages).map((msg) => {
         const text = extractTextFromContent(msg.message?.content || []);
         return `${msg.type === "user" ? "用户" : "助手"}: ${text}`;
@@ -333,15 +334,15 @@ function parseIndicesFromResponse(response: string, maxIndex: number, maxCount: 
 
     return validIndices;
   } catch (error) {
-    console.error("[parseIndices] Parse failed:", error);
-    console.error("[parseIndices] Response was:", response);
+    logger.error('dualAPIEnhancement', "[parseIndices] Parse failed:", error);
+    logger.error('dualAPIEnhancement', "[parseIndices] Response was:", response);
 
     // 降级方案：使用最后 N 条消息的索引
     const fallbackIndices = Array.from({ length: Math.min(maxCount, maxIndex) }, (_, i) =>
       Math.max(0, maxIndex - maxCount + i),
     ).filter((idx) => idx >= 0 && idx < maxIndex);
 
-    console.warn("[parseIndices] Using fallback (last N messages):", fallbackIndices);
+    logger.warn('dualAPIEnhancement', "[parseIndices] Using fallback (last N messages);:", fallbackIndices);
     return fallbackIndices;
   }
 }
@@ -430,7 +431,7 @@ ${acemcpResult}
 
   // 如果整理后反而更长，使用智能截断
   if (response.length > ACEMCP_REFINEMENT_THRESHOLDS.maxRefinedLength) {
-    console.warn(`[Acemcp Refinement] Result too long (${response.length}), truncating...`);
+    logger.warn('dualAPIEnhancement', `[Acemcp Refinement] Result too long (${response.length});, truncating...`);
     return smartTruncate(response, ACEMCP_REFINEMENT_THRESHOLDS.maxRefinedLength);
   }
 

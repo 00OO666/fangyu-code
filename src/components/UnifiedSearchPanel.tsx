@@ -9,6 +9,7 @@
  * - 支持模糊搜索和过滤
  */
 
+import { logger } from '@/lib/logger';
 import { AnimatePresence, motion } from "framer-motion";
 import { FileCode, Filter, Loader2, Network, Puzzle, Search, Webhook, X, Zap } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -344,7 +345,7 @@ export function UnifiedSearchPanel({
         });
         allItems.push(...skillItems);
       } catch (err) {
-        console.warn("[UnifiedSearchPanel] Failed to load skills:", err);
+        logger.warn('UnifiedSearchPanel', "[UnifiedSearchPanel] Failed to load skills:", err);
       }
 
       // 加载 MCP Servers
@@ -390,7 +391,7 @@ export function UnifiedSearchPanel({
               }
             }
           } catch (err) {
-            console.warn(`[UnifiedSearchPanel] Failed to load ${engine} MCP servers:`, err);
+            logger.warn('UnifiedSearchPanel', `[UnifiedSearchPanel] Failed to load ${engine} MCP servers:`, err);
           }
         }
 
@@ -419,7 +420,7 @@ export function UnifiedSearchPanel({
         });
         allItems.push(...mcpItems);
       } catch (err) {
-        console.warn("[UnifiedSearchPanel] Failed to load MCP servers:", err);
+        logger.warn('UnifiedSearchPanel', "[UnifiedSearchPanel] Failed to load MCP servers:", err);
       }
 
       // 加载 Hooks
@@ -453,7 +454,7 @@ export function UnifiedSearchPanel({
         });
         allItems.push(...hookItems);
       } catch (err) {
-        console.warn("[UnifiedSearchPanel] Failed to load hooks:", err);
+        logger.warn('UnifiedSearchPanel', "[UnifiedSearchPanel] Failed to load hooks:", err);
       }
 
       // 加载 Plugins (待实现)
@@ -461,7 +462,7 @@ export function UnifiedSearchPanel({
 
       setItems(allItems);
     } catch (error) {
-      console.error("[UnifiedSearchPanel] Failed to load items:", error);
+      logger.error('UnifiedSearchPanel', "[UnifiedSearchPanel] Failed to load items:", error);
     } finally {
       setLoading(false);
     }
@@ -504,11 +505,11 @@ export function UnifiedSearchPanel({
   const handleToggle = async (item: SearchItem, enabled: boolean) => {
     // 防止重复点击
     if (toggling.has(item.id)) {
-      console.log("[UnifiedSearchPanel] Already toggling:", item.id);
+      logger.debug('UnifiedSearchPanel', "[UnifiedSearchPanel] Already toggling:", item.id);
       return;
     }
 
-    console.log("[UnifiedSearchPanel] Toggle start:", item.id, enabled);
+    logger.debug('UnifiedSearchPanel', "[UnifiedSearchPanel] Toggle start:", item.id, enabled);
     setToggling((prev) => new Set(prev).add(item.id));
 
     try {
@@ -521,7 +522,7 @@ export function UnifiedSearchPanel({
 
           // 🔧 修复：必须传递 serverSpec 参数
           if (!item.serverSpec) {
-            console.warn("[UnifiedSearchPanel] MCP missing serverSpec:", item);
+            logger.warn('UnifiedSearchPanel', "[UnifiedSearchPanel] MCP missing serverSpec:", item);
             notify.error(`无法切换 MCP 工具：缺少配置信息`);
             break;
           }
@@ -539,7 +540,7 @@ export function UnifiedSearchPanel({
         }
         case "hook": {
           if (!item.filePath) {
-            console.warn("[UnifiedSearchPanel] Hook missing filePath:", item);
+            logger.warn('UnifiedSearchPanel', "[UnifiedSearchPanel] Hook missing filePath:", item);
             break;
           }
           // 使用保存的 eventType，如果没有则使用文件名推断
@@ -555,7 +556,7 @@ export function UnifiedSearchPanel({
         }
         case "skill": {
           if (!item.originalName || !item.scope) {
-            console.warn("[UnifiedSearchPanel] Skill missing originalName or scope:", item);
+            logger.warn('UnifiedSearchPanel', "[UnifiedSearchPanel] Skill missing originalName or scope:", item);
             break;
           }
           await api.toggleSkill(item.originalName, item.scope, enabled, projectPath);
@@ -569,7 +570,7 @@ export function UnifiedSearchPanel({
         }
         case "plugin": {
           // TODO: 实现 Plugin 的启用/禁用
-          console.warn("[UnifiedSearchPanel] Plugin toggle not implemented yet");
+          logger.warn('UnifiedSearchPanel', "[UnifiedSearchPanel] Plugin toggle not implemented yet");
           break;
         }
       }
@@ -599,7 +600,7 @@ export function UnifiedSearchPanel({
         }),
       );
     } catch (error) {
-      console.error("[UnifiedSearchPanel] Failed to toggle item:", error);
+      logger.error('UnifiedSearchPanel', "[UnifiedSearchPanel] Failed to toggle item:", error);
       // 恢复状态
       setItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, enabled: !enabled } : i)));
 
@@ -610,7 +611,7 @@ export function UnifiedSearchPanel({
         position: "global",
       });
     } finally {
-      console.log("[UnifiedSearchPanel] Toggle end:", item.id);
+      logger.debug('UnifiedSearchPanel', "[UnifiedSearchPanel] Toggle end:", item.id);
       setToggling((prev) => {
         const next = new Set(prev);
         next.delete(item.id);
@@ -622,7 +623,7 @@ export function UnifiedSearchPanel({
   // 打开本体文件
   const handleOpenFile = async (item: SearchItem) => {
     if (!item.filePath) {
-      console.warn("[UnifiedSearchPanel] Item missing filePath:", item);
+      logger.warn('UnifiedSearchPanel', "[UnifiedSearchPanel] Item missing filePath:", item);
       return;
     }
 
@@ -634,7 +635,7 @@ export function UnifiedSearchPanel({
       );
       await api.openFileWithDefaultApp(expandedPath);
     } catch (error) {
-      console.error("[UnifiedSearchPanel] Failed to open file:", error);
+      logger.error('UnifiedSearchPanel', "[UnifiedSearchPanel] Failed to open file:", error);
     }
   };
 

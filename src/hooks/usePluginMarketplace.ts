@@ -11,6 +11,7 @@
  * 来源: VSCode Marketplace + npm Registry
  */
 
+import { logger } from '@/lib/logger';
 import { useCallback, useMemo, useState } from "react";
 import type {
   PluginCategory,
@@ -442,7 +443,7 @@ export function usePluginMarketplace(options: UsePluginMarketplaceOptions = {}) 
     async (pluginId: string, _installOptions?: Partial<PluginInstallOptions>): Promise<boolean> => {
       const plugin = await getPluginDetails(pluginId);
       if (!plugin) {
-        console.error(`[Marketplace] Plugin not found: ${pluginId}`);
+        logger.error('usePluginMarketplace', `[Marketplace] Plugin not found: ${pluginId}`);
         return false;
       }
 
@@ -486,7 +487,7 @@ export function usePluginMarketplace(options: UsePluginMarketplaceOptions = {}) 
 
         updateProgress("completed", 100);
 
-        console.log(`[Marketplace] Plugin installed: ${pluginId}`);
+        logger.debug('usePluginMarketplace', `[Marketplace] Plugin installed: ${pluginId}`);
         onInstallComplete?.(pluginId);
 
         // 延迟清除进度
@@ -515,7 +516,7 @@ export function usePluginMarketplace(options: UsePluginMarketplaceOptions = {}) 
   const uninstallPlugin = useCallback(async (pluginId: string): Promise<boolean> => {
     // 模拟卸载
     await new Promise((resolve) => setTimeout(resolve, 500));
-    console.log(`[Marketplace] Plugin uninstalled: ${pluginId}`);
+    logger.debug('usePluginMarketplace', `[Marketplace] Plugin uninstalled: ${pluginId}`);
     return true;
   }, []);
 
@@ -559,7 +560,7 @@ export function usePluginMarketplace(options: UsePluginMarketplaceOptions = {}) 
     async (pluginId: string): Promise<boolean> => {
       const updateInfo = availableUpdates.find((u) => u.pluginId === pluginId);
       if (!updateInfo) {
-        console.error(`[Marketplace] No update available for: ${pluginId}`);
+        logger.error('usePluginMarketplace', `[Marketplace] No update available for: ${pluginId}`);
         return false;
       }
 

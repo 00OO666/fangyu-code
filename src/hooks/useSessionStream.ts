@@ -11,6 +11,7 @@
  * - 支持多引擎（Claude、Codex、Gemini）
  */
 
+import { logger } from '@/lib/logger';
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import { useCallback, useEffect, useRef } from "react";
 import { api, type Session } from "@/lib/api";
@@ -191,7 +192,7 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
   // 🆕 条件化调试日志（仅在开发环境启用）
   const debugLog = useCallback((...args: any[]) => {
     if (import.meta.env.DEV) {
-      console.log(...args);
+      logger.debug('useSessionStream', ...args);
     }
   }, []);
 
@@ -247,7 +248,7 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
           const geminiDetail = await api.getGeminiSessionDetail(session.project_path, session.id);
           history = convertGeminiSessionDetailToClaudeMessages(geminiDetail);
         } catch (err) {
-          console.error("[useSessionStream] Failed to load Gemini session:", err);
+          logger.error('useSessionStream', "[useSessionStream] Failed to load Gemini session:", err);
           throw err;
         }
       } else {
@@ -288,7 +289,7 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
           if (type && !validTypes.includes(type)) {
             if (!warnedTypes.has(type)) {
               warnedTypes.add(type);
-              console.debug("[useSessionStream] Filtering out message type:", type);
+              logger.debug('useSessionStream', "[useSessionStream] Filtering out message type:", type);
             }
             return false;
           }
@@ -348,12 +349,12 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
 
       // 竞态条件检查
       if (loadingSessionIdRef.current !== currentSessionId) {
-        console.debug("[useSessionStream] Session changed during loading, discarding results");
+        logger.debug('useSessionStream', "[useSessionStream] Session changed during loading, discarding results");
         return;
       }
 
       if (!isMountedRef.current) {
-        console.debug("[useSessionStream] Component unmounted during loading");
+        logger.debug('useSessionStream', "[useSessionStream] Component unmounted during loading");
         return;
       }
 
@@ -364,7 +365,7 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
       if (deduplicatedMessages.length < processedMessages.length) {
         const removed = processedMessages.length - deduplicatedMessages.length;
         const rate = ((removed / processedMessages.length) * 100).toFixed(1);
-        console.log(`[useSessionStream] 🧹 历史消息去重: 移除 ${removed} 条重复 (${rate}%)`);
+        logger.debug('useSessionStream', `[useSessionStream] 🧹 历史消息去重: 移除 ${removed} 条重复 (${rate}%);`);
       }
 
       // 更新状态
@@ -378,7 +379,7 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
 
       setIsLoading(false);
     } catch (err) {
-      console.error("[useSessionStream] Failed to load session history:", err);
+      logger.error('useSessionStream', "[useSessionStream] Failed to load session history:", err);
 
       if (loadingSessionIdRef.current !== currentSessionId) return;
       if (!isMountedRef.current) return;
@@ -390,7 +391,7 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
         errorMessage.includes("Session ID not found");
 
       if (isSessionNotFound) {
-        console.debug("[useSessionStream] Session not found (new session), continuing");
+        logger.debug('useSessionStream', "[useSessionStream] Session not found (new session);, continuing");
         onSessionNotFound?.();
         setIsLoading(false);
         return;
@@ -490,7 +491,7 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
               await processMessage(result.message, event.payload);
             }
           } catch (err) {
-            console.error("[useSessionStream] Failed to parse message:", err);
+            logger.error('useSessionStream', "[useSessionStream] Failed to parse message:", err);
           }
         },
       );
@@ -498,7 +499,7 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
 
       // 监听错误
       const errorUnlisten = await listen<string>(`${eventPrefix}-error:${sessionId}`, (event) => {
-        console.error("[useSessionStream] Error:", event.payload);
+        logger.error('useSessionStream', "[useSessionStream] Error:", event.payload);
         if (isMountedRef.current) {
           setError(event.payload);
         }
@@ -588,7 +589,7 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
         debugLog("[useSessionStream] ℹ️ No active session found for", session.id);
       }
     } catch (err) {
-      console.error("[useSessionStream] ❌ Failed to check active sessions:", err);
+      logger.error('useSessionStream', "[useSessionStream] ❌ Failed to check active sessions:", err);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session, getEngine, setClaudeSessionId, debugLog]);

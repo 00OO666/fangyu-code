@@ -13,6 +13,7 @@
  * 5. 事件驱动架构
  */
 
+import { logger } from '@/lib/logger';
 import { BrowserEventEmitter } from '../../lib/BrowserEventEmitter';
 import { v4 as uuidv4 } from 'uuid';
 import type {
@@ -765,16 +766,16 @@ export class UnifiedWorkflowEngine extends BrowserEventEmitter {
         const prefix = `[UnifiedWorkflow]`;
         switch (level) {
             case 'error':
-                console.error(prefix, message);
+                logger.error('UnifiedWorkflowEngine', prefix, message);
                 break;
             case 'warn':
-                console.warn(prefix, message);
+                logger.warn('UnifiedWorkflowEngine', prefix, message);
                 break;
             case 'debug':
-                console.debug(prefix, message);
+                logger.debug('UnifiedWorkflowEngine', prefix, message);
                 break;
             default:
-                console.log(prefix, message);
+                logger.debug('UnifiedWorkflowEngine', prefix, message);
         }
     }
 

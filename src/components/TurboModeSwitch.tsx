@@ -10,6 +10,7 @@
  * 来源: Claude Code Auto Accept UI + Cursor Agent Mode Indicator
  */
 
+import { logger } from '@/lib/logger';
 import { useState } from 'react';
 import {
   useTurboMode,
@@ -61,7 +62,7 @@ export function TurboModeSwitch({ onExecute, onConfirmationNeeded }: TurboModeSw
       : undefined,
     onConfirmationNeeded,
     onModeChange: (level) => {
-      console.log('Turbo 模式变更:', level);
+      logger.debug('TurboModeSwitch', 'Turbo 模式变更:', level);
     },
   });
 

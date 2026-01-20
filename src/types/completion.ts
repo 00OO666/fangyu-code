@@ -1,3 +1,5 @@
+import { logger } from '@/lib/logger';
+
 /**
  * 代码补全类型定义
  *
@@ -434,8 +436,8 @@ export const COMMON_SNIPPETS: Record<string, CompletionItem[]> = {
     {
       label: "log",
       kind: "snippet",
-      detail: "console.log()",
-      insertText: "console.log($1);",
+      detail: "logger.debug('completion', );",
+      insertText: "logger.debug('completion', $1);",
       isSnippet: true,
     },
     {

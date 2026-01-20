@@ -5,6 +5,7 @@
  * 智能识别每个提示词的撤回能力（CLI/项目界面）
  */
 
+import { logger } from '@/lib/logger';
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Clock, ArrowLeft, MessageSquare, X, Terminal, FolderGit2, AlertCircle, FileCode, FilePlus, FileX, FileEdit, ChevronRight, Loader2 } from 'lucide-react';
@@ -104,7 +105,7 @@ export const RevertPromptPicker: React.FC<RevertPromptPickerProps> = ({
 
         setPrompts(promptEntries);
       } catch (error) {
-        console.error('[RevertPromptPicker] Failed to load prompts:', error);
+        logger.error('RevertPromptPicker', '[RevertPromptPicker] Failed to load prompts:', error);
         onClose();
       }
     };
@@ -136,7 +137,7 @@ export const RevertPromptPicker: React.FC<RevertPromptPickerProps> = ({
               )
             );
           } catch (error) {
-            console.error(`Failed to load capabilities for prompt #${prompt.index}:`, error);
+            logger.error('RevertPromptPicker', `Failed to load capabilities for prompt #${prompt.index}:`, error);
             // 失败时设置默认能力（仅对话）
             setPrompts(prev =>
               prev.map(p =>
@@ -195,7 +196,7 @@ export const RevertPromptPicker: React.FC<RevertPromptPickerProps> = ({
 
       const promptRecord = promptRecords.find(p => p.index === selectedPrompt.index);
       if (!promptRecord || !promptRecord.gitCommitBefore) {
-        console.warn('[RevertPromptPicker] No git commit found for prompt', selectedPrompt.index);
+        logger.warn('RevertPromptPicker', '[RevertPromptPicker] No git commit found for prompt', selectedPrompt.index);
         setFileChanges([]);
         return;
       }
@@ -209,7 +210,7 @@ export const RevertPromptPicker: React.FC<RevertPromptPickerProps> = ({
 
       setFileChanges(changes);
     } catch (error) {
-      console.error('[RevertPromptPicker] Failed to load file changes:', error);
+      logger.error('RevertPromptPicker', '[RevertPromptPicker] Failed to load file changes:', error);
       setFileChanges([]);
     } finally {
       setLoadingFileChanges(false);

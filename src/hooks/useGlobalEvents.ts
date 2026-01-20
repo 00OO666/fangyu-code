@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import { listen } from "@tauri-apps/api/event";
 import { useEffect } from "react";
 import { useNavigation } from "@/contexts/NavigationContext";
@@ -65,7 +66,7 @@ export const useGlobalEvents = () => {
           }
         });
       } catch (err) {
-        console.error("Failed to setup claude-complete listener:", err);
+        logger.error('useGlobalEvents', "Failed to setup claude-complete listener:", err);
       }
     };
 

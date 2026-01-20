@@ -1,3 +1,5 @@
+import { logger } from '@/lib/logger';
+
 /**
  * EnhancedHookEngine - 增强 Hook 引擎
  * 
@@ -112,17 +114,17 @@ export class DefaultHookExecutor implements HookExecutor {
     switch (action.type) {
       case 'sendMessage':
         // 模拟发送消息
-        console.log(`[Hook] Sending message: ${action.payload}`);
+        logger.debug('EnhancedHookEngine', `[Hook] Sending message: ${action.payload}`);
         return { sent: true, message: action.payload };
         
       case 'executeCommand':
         // 模拟执行命令
-        console.log(`[Hook] Executing command: ${action.payload}`);
+        logger.debug('EnhancedHookEngine', `[Hook] Executing command: ${action.payload}`);
         return { executed: true, command: action.payload };
         
       case 'custom':
         // 自定义动作
-        console.log(`[Hook] Custom action:`, action.payload);
+        logger.debug('EnhancedHookEngine', `[Hook] Custom action:`, action.payload);
         return { custom: true, payload: action.payload };
         
       default:

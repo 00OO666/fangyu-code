@@ -4,6 +4,7 @@
  * 负责与 Amazon Q Developer API 通信
  */
 
+import { logger } from '@/lib/logger';
 import { invoke } from '@tauri-apps/api/core';
 import type { 
   KiroChatMessage, 
@@ -135,14 +136,14 @@ export class KiroApiClient {
             this.retryDelay * Math.pow(2, attempt),
             KIRO_RETRY_CONFIG.maxDelayMs
           );
-          console.log(`[KiroApiClient] 速率限制，${delay}ms 后重试 (${attempt + 1}/${this.retryCount})`);
+          logger.debug('KiroApiClient', `[KiroApiClient] 速率限制，${delay}ms 后重试 (${attempt + 1}/${this.retryCount});`);
           await this.sleep(delay);
           continue;
         }
 
         // 其他错误等待后重试
         if (attempt < this.retryCount - 1) {
-          console.log(`[KiroApiClient] 请求失败，${this.retryDelay}ms 后重试 (${attempt + 1}/${this.retryCount})`);
+          logger.debug('KiroApiClient', `[KiroApiClient] 请求失败，${this.retryDelay}ms 后重试 (${attempt + 1}/${this.retryCount});`);
           await this.sleep(this.retryDelay);
         }
       }

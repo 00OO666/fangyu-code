@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import { useState, useEffect, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -202,7 +203,7 @@ export default function CodexProviderForm({
 
       await onSubmit(submitData);
     } catch (error) {
-      console.error('Failed to save Codex provider config:', error);
+      logger.error('CodexProviderForm', 'Failed to save Codex provider config:', error);
       setToastMessage({
         message: t('provider.saveConfigFailed', { error: String(error) }),
         type: 'error'

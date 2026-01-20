@@ -8,6 +8,7 @@
  * - 可视化时间线展示
  */
 
+import { logger } from '@/lib/logger';
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -75,7 +76,7 @@ export function CheckpointTimeline({
       const data = await api.listCheckpoints(sessionId);
       setCheckpoints(data || []);
     } catch (err) {
-      console.error('Failed to load checkpoints:', err);
+      logger.error('CheckpointTimeline', 'Failed to load checkpoints:', err);
       setError(err instanceof Error ? err.message : 'Failed to load checkpoints');
     } finally {
       setLoading(false);
@@ -95,11 +96,11 @@ export function CheckpointTimeline({
         checkpoint.id,
         projectPath
       );
-      console.log('Restored files:', restoredFiles);
+      logger.debug('CheckpointTimeline', 'Restored files:', restoredFiles);
       onRestore?.(checkpoint);
       setConfirmRestore(null);
     } catch (err) {
-      console.error('Failed to restore checkpoint:', err);
+      logger.error('CheckpointTimeline', 'Failed to restore checkpoint:', err);
       setError(err instanceof Error ? err.message : 'Failed to restore checkpoint');
     } finally {
       setRestoringId(null);
@@ -114,7 +115,7 @@ export function CheckpointTimeline({
       setCheckpoints((prev) => prev.filter((c) => c.id !== checkpoint.id));
       setConfirmDelete(null);
     } catch (err) {
-      console.error('Failed to delete checkpoint:', err);
+      logger.error('CheckpointTimeline', 'Failed to delete checkpoint:', err);
       setError(err instanceof Error ? err.message : 'Failed to delete checkpoint');
     } finally {
       setDeletingId(null);

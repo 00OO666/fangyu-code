@@ -8,6 +8,7 @@
  * 4. 支持从聊天消息中提取代码
  */
 
+import { logger } from '@/lib/logger';
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Code, Eye, Maximize2, Minimize2, RefreshCw, Copy, Check, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -221,7 +222,7 @@ export const CanvasPanel: React.FC<CanvasPanelProps> = ({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('复制失败:', err);
+      logger.error('CanvasPanel', '复制失败:', err);
     }
   };
 

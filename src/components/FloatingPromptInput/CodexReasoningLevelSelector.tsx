@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React from "react";
 import { ChevronUp, Check, Brain, Zap, Sparkles, Rocket } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -105,9 +106,9 @@ export const CodexReasoningLevelSelector: React.FC<CodexReasoningLevelSelectorPr
       setIsSaving(true);
       try {
         await api.updateCodexReasoningLevel(level);
-        console.log(`[CodexReasoningLevel] Successfully saved level: ${level}`);
+        logger.debug('CodexReasoningLevelSelector', `[CodexReasoningLevel] Successfully saved level: ${level}`);
       } catch (error) {
-        console.error('[CodexReasoningLevel] Failed to persist level:', error);
+        logger.error('CodexReasoningLevelSelector', '[CodexReasoningLevel] Failed to persist level:', error);
         // Note: We don't revert the UI state as the local change is still valid for the session
       } finally {
         setIsSaving(false);

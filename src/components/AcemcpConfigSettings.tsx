@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import { useState, useEffect } from "react";
 import { Database, Save, RefreshCw, Eye, EyeOff, CheckCircle, AlertCircle, Download, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -49,7 +50,7 @@ export function AcemcpConfigSettings({ className }: AcemcpConfigSettingsProps) {
       setConfig(loaded);
       setHasChanges(false);
     } catch (error) {
-      console.error('Failed to load acemcp config:', error);
+      logger.error('AcemcpConfigSettings', 'Failed to load acemcp config:', error);
     } finally {
       setIsLoading(false);
     }
@@ -67,7 +68,7 @@ export function AcemcpConfigSettings({ className }: AcemcpConfigSettingsProps) {
       setHasChanges(false);
       setTestStatus('idle');
     } catch (error) {
-      console.error('Failed to save acemcp config:', error);
+      logger.error('AcemcpConfigSettings', 'Failed to save acemcp config:', error);
       alert(t('errors.saveFailed') + ': ' + (error instanceof Error ? error.message : t('errors.generic')));
     } finally {
       setIsSaving(false);

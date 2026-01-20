@@ -3,6 +3,7 @@
  * 提供导出、复制、检查点、摘要生成等会话操作功能
  */
 
+import { logger } from '@/lib/logger';
 import React, { useState, useCallback, useMemo } from 'react';
 import { FileDown, Check, FileText, FileJson, FileCode2, Copy, History, Save, Loader2 } from 'lucide-react';
 import { SummaryButton } from '@/components/session/SummaryButton';
@@ -121,7 +122,7 @@ export const SessionToolbar: React.FC<SessionToolbarProps> = ({
       showStatus('success', `已复制为 ${label}`);
       setIsMenuOpen(false);
     } catch (error) {
-      console.error('复制失败:', error);
+      logger.error('SessionToolbar', '复制失败:', error);
       showStatus('error', '复制失败');
     }
   };
@@ -139,7 +140,7 @@ export const SessionToolbar: React.FC<SessionToolbarProps> = ({
 
       setIsMenuOpen(false);
     } catch (error) {
-      console.error('保存文件失败:', error);
+      logger.error('SessionToolbar', '保存文件失败:', error);
       showStatus('error', '保存失败');
     }
   };
@@ -168,7 +169,7 @@ export const SessionToolbar: React.FC<SessionToolbarProps> = ({
       );
       showStatus('success', '检查点已创建');
     } catch (error) {
-      console.error('创建检查点失败:', error);
+      logger.error('SessionToolbar', '创建检查点失败:', error);
       showStatus('error', '创建失败');
     } finally {
       setIsCreatingCheckpoint(false);
@@ -221,7 +222,7 @@ export const SessionToolbar: React.FC<SessionToolbarProps> = ({
 
       showStatus('success', '已在新会话中打开');
     } catch (error) {
-      console.error('[SessionToolbar] Failed to open in new session:', error);
+      logger.error('SessionToolbar', '[SessionToolbar] Failed to open in new session:', error);
       toast.error('创建新会话失败');
       showStatus('error', '操作失败');
     }

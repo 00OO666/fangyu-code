@@ -7,6 +7,7 @@
  * 2025年最新官方定价和Claude 4系列模型支持
  */
 
+import { logger } from '@/lib/logger';
 import Anthropic from "@anthropic-ai/sdk";
 import { api } from "./api";
 
@@ -382,7 +383,7 @@ export class TokenCounterService {
         });
       }
     } catch (error) {
-      console.warn("[TokenCounter] 初始化失败，将使用估算方法:", error);
+      logger.warn('tokenCounter', "[TokenCounter] 初始化失败，将使用估算方法:", error);
     }
   }
 
@@ -468,7 +469,7 @@ export class TokenCounterService {
     }
 
     // Unknown model - return original
-    console.warn(`[TokenCounter] Unknown model: '${model}'. Using default pricing.`);
+    logger.warn('tokenCounter', `[TokenCounter] Unknown model: '${model}'. Using default pricing.`);
     return model;
   }
 
@@ -513,7 +514,7 @@ export class TokenCounterService {
         cache_read_input_tokens: (response as any).cache_read_input_tokens,
       };
     } catch (error) {
-      console.warn("[TokenCounter] API调用失败，使用估算方法:", error);
+      logger.warn('tokenCounter', "[TokenCounter] API调用失败，使用估算方法:", error);
       return this.estimateTokens(messages, tools, systemPrompt);
     }
   }
@@ -578,7 +579,7 @@ export class TokenCounterService {
       );
       return await Promise.all(promises);
     } catch (error) {
-      console.error("[TokenCounter] 批量计算失败:", error);
+      logger.error('tokenCounter', "[TokenCounter] 批量计算失败:", error);
       // 降级到逐个计算
       const results: TokenCountResponse[] = [];
       for (const req of requests) {
@@ -606,7 +607,7 @@ export class TokenCounterService {
     const pricing = CLAUDE_PRICING[normalizedModel as keyof typeof CLAUDE_PRICING];
 
     if (!pricing) {
-      console.warn(`[TokenCounter] 未知模型定价: ${normalizedModel}`);
+      logger.warn('tokenCounter', `[TokenCounter] 未知模型定价: ${normalizedModel}`);
       return {
         input_cost: 0,
         output_cost: 0,
@@ -1071,7 +1072,7 @@ export async function getSessionCacheTokens(
       cache_read: cacheData.total_cache_read_tokens,
     };
   } catch (error) {
-    console.warn("Failed to fetch session cache tokens:", error);
+    logger.warn('tokenCounter', "Failed to fetch session cache tokens:", error);
     return { cache_creation: 0, cache_read: 0 };
   }
 }

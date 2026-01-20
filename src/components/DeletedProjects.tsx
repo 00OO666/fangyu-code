@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
@@ -105,7 +106,7 @@ export const DeletedProjects: React.FC<DeletedProjectsProps> = ({
       
       setDeletedProjects(projects);
     } catch (error) {
-      console.error("Failed to load deleted projects:", error);
+      logger.error('DeletedProjects', "Failed to load deleted projects:", error);
     } finally {
       setLoading(false);
     }
@@ -133,7 +134,7 @@ export const DeletedProjects: React.FC<DeletedProjectsProps> = ({
         onProjectRestored();
       }
     } catch (error) {
-      console.error("Failed to restore project:", error);
+      logger.error('DeletedProjects', "Failed to restore project:", error);
     } finally {
       setRestoring(null);
     }
@@ -161,7 +162,7 @@ export const DeletedProjects: React.FC<DeletedProjectsProps> = ({
       // 2. Calling it would trigger unnecessary parent re-renders
       // 3. The deleted projects list is already updated via loadDeletedProjects()
     } catch (error) {
-      console.error("Failed to permanently delete project:", error);
+      logger.error('DeletedProjects', "Failed to permanently delete project:", error);
       setSuccessMessage(t('deletedProjects.deleteFailed', { error: String(error) }));
       setTimeout(() => setSuccessMessage(null), 3000);
     } finally {

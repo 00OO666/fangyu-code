@@ -13,6 +13,7 @@
  * - 调试功能：window.__forceShowChangelog = true
  */
 
+import { logger } from '@/lib/logger';
 import { getVersion } from "@tauri-apps/api/app";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -1212,7 +1213,7 @@ export const useFirstLaunchChangelog = () => {
           ...latestChangelog,
         });
         setShowChangelog(true);
-        console.log(`[Changelog] No changelog for ${version}, showing ${latestVersion}`);
+        logger.debug('useFirstLaunchChangelog', `[Changelog] No changelog for ${version}, showing ${latestVersion}`);
       }
     }
   }, [setChangelog, setShowChangelog]);
@@ -1235,7 +1236,7 @@ export const useFirstLaunchChangelog = () => {
 
       // 🔧 DEBUG: 强制显示（调试用）
       if (window.__forceShowChangelog) {
-        console.log("[Changelog] Force show enabled");
+        logger.debug('useFirstLaunchChangelog', "[Changelog] Force show enabled");
         showChangelogForVersion(version);
         return;
       }
@@ -1249,7 +1250,7 @@ export const useFirstLaunchChangelog = () => {
       // 更新 lastSeenVersion（无论是否显示，都记录当前版本）
       localStorage.setItem(STORAGE_KEY, version);
     } catch (error) {
-      console.error("[useFirstLaunchChangelog] Error checking first launch:", error);
+      logger.error('useFirstLaunchChangelog', "[useFirstLaunchChangelog] Error checking first launch:", error);
     }
   }, [setCurrentVersion, showChangelogForVersion]);
 
@@ -1264,7 +1265,7 @@ export const useFirstLaunchChangelog = () => {
     window.__resetChangelogVersion = () => {
       localStorage.removeItem(STORAGE_KEY);
       hasCheckedRef.current = false;
-      console.log("[Changelog] Reset complete. Reload page to test.");
+      logger.debug('useFirstLaunchChangelog', "[Changelog] Reset complete. Reload page to test.");
     };
   }, [checkFirstLaunch]);
 

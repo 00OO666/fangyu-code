@@ -7,6 +7,7 @@
  * @version 1.0.0
  */
 
+import { logger } from '@/lib/logger';
 import type {
   FileSummary,
   MessageSummary,
@@ -390,8 +391,8 @@ export async function generateSessionSummary(
   messages: HistoryMessage[],
   config: SummarizerConfig,
 ): Promise<SessionSummary> {
-  console.log("[SessionSummarizer] Generating summary for session:", config.sessionId);
-  console.log("[SessionSummarizer] Total messages:", messages.length);
+  logger.debug('sessionSummarizer', "[SessionSummarizer] Generating summary for session:", config.sessionId);
+  logger.debug('sessionSummarizer', "[SessionSummarizer] Total messages:", messages.length);
 
   try {
     // 1. 提取 TodoList 状态
@@ -404,15 +405,15 @@ export async function generateSessionSummary(
 
     // 2. 提取修改文件
     const modifiedFiles = extractModifiedFiles(messages);
-    console.log("[SessionSummarizer] Modified files:", modifiedFiles.length);
+    logger.debug('sessionSummarizer', "[SessionSummarizer] Modified files:", modifiedFiles.length);
 
     // 3. 提取关键决策
     const keyDecisions = extractKeyDecisions(messages);
-    console.log("[SessionSummarizer] Key decisions:", keyDecisions.length);
+    logger.debug('sessionSummarizer', "[SessionSummarizer] Key decisions:", keyDecisions.length);
 
     // 4. 提取最近消息
     const recentMessages = extractRecentMessages(messages, config.recentMessagesCount);
-    console.log("[SessionSummarizer] Recent messages:", recentMessages.length);
+    logger.debug('sessionSummarizer', "[SessionSummarizer] Recent messages:", recentMessages.length);
 
     // 5. 构建项目信息
     const projectName = config.projectPath.split(/[/\\]/).pop() || "Unknown";
@@ -440,8 +441,8 @@ export async function generateSessionSummary(
       summaryText,
     };
 
-    console.log("[SessionSummarizer] Summary generated successfully");
-    console.log("[SessionSummarizer] Summary text length:", summaryText.length, "chars");
+    logger.debug('sessionSummarizer', "[SessionSummarizer] Summary generated successfully");
+    logger.debug('sessionSummarizer', "[SessionSummarizer] Summary text length:", summaryText.length, "chars");
 
     return summary;
   } catch (error) {
@@ -458,7 +459,7 @@ export async function generateSessionSummary(
       },
     };
 
-    console.error("[SessionSummarizer] ❌ Failed to generate summary:", errorInfo);
+    logger.error('sessionSummarizer', "[SessionSummarizer] ❌ Failed to generate summary:", errorInfo);
 
     // 返回用户友好的回退摘要
     return createFallbackSummary(config, errorInfo.errorMessage);

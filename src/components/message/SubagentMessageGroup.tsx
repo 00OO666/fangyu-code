@@ -5,6 +5,7 @@
  * 提供视觉分隔和折叠/展开功能
  */
 
+import { logger } from '@/lib/logger';
 import React, { useState } from "react";
 import { Bot, ChevronDown, ChevronUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -65,7 +66,7 @@ export const SubagentMessageGroup: React.FC<SubagentMessageGroupProps> = ({
   // 🛡️ 如果没有 taskMessage，返回 null 防止崩溃
   if (!group.taskMessage) {
     if (process.env.NODE_ENV !== 'production') {
-      console.error('[SubagentMessageGroup] Missing taskMessage in group:', group);
+      logger.error('SubagentMessageGroup', '[SubagentMessageGroup] Missing taskMessage in group:', group);
     }
     return null;
   }

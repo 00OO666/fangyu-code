@@ -23,6 +23,7 @@
  * └─────────────────────────────────────────────────────────────────┘
  */
 
+import { logger } from '@/lib/logger';
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { notify } from "@/services/notificationService";
@@ -163,7 +164,7 @@ export function useBackgroundCompact(
       return;
     }
 
-    console.log("[BackgroundCompact] 🚀 Starting background compact for session:", sessionId);
+    logger.debug('useBackgroundCompact', "[BackgroundCompact] 🚀 Starting background compact for session:", sessionId);
     compactStartTimeRef.current = Date.now();
     setStatus("preparing");
     setProgress(0);
@@ -220,7 +221,7 @@ export function useBackgroundCompact(
       ]);
 
       if (abortController.signal.aborted) {
-        console.log("[BackgroundCompact] Aborted during compact");
+        logger.debug('useBackgroundCompact', "[BackgroundCompact] Aborted during compact");
         return;
       }
 
@@ -228,13 +229,13 @@ export function useBackgroundCompact(
         throw new Error(result.message || "Compact failed");
       }
 
-      console.log("[BackgroundCompact] ✅ Compact complete:", result.message);
-      console.log("[BackgroundCompact] 📝 Delta messages captured:", deltaMessages.length);
+      logger.debug('useBackgroundCompact', "[BackgroundCompact] ✅ Compact complete:", result.message);
+      logger.debug('useBackgroundCompact', "[BackgroundCompact] 📝 Delta messages captured:", deltaMessages.length);
 
       // 2. 合并阶段：将压缩期间的增量消息追加到新会话
       if (deltaMessages.length > 0) {
         setStatus("merging");
-        console.log("[BackgroundCompact] 🔀 Merging", deltaMessages.length, "delta messages...");
+        logger.debug('useBackgroundCompact', "[BackgroundCompact] 🔀 Merging", deltaMessages.length, "delta messages...");
         // Note: 增量消息合并逻辑可以在这里实现
       }
 
@@ -248,7 +249,7 @@ export function useBackgroundCompact(
       // 200ms 过渡动画时间
       await new Promise((r) => setTimeout(r, 200));
 
-      console.log("[BackgroundCompact] 🎯 Compact completed successfully");
+      logger.debug('useBackgroundCompact', "[BackgroundCompact] 🎯 Compact completed successfully");
 
       // 🆕 关闭"后台压缩中"通知，显示"压缩完成"通知
       if (compactNotificationIdRef.current) {
@@ -269,7 +270,7 @@ export function useBackgroundCompact(
       unlistenRefs.current.forEach((fn) => fn());
       unlistenRefs.current = [];
 
-      console.error("[BackgroundCompact] ❌ Compact failed:", error.message);
+      logger.error('useBackgroundCompact', "[BackgroundCompact] ❌ Compact failed:", error.message);
       setStatus("idle");
 
       // 🆕 关闭"后台压缩中"通知，显示错误通知
@@ -296,7 +297,7 @@ export function useBackgroundCompact(
   // 手动触发压缩
   const triggerCompact = useCallback(async () => {
     if (isCompacting) {
-      console.warn("[BackgroundCompact] Already compacting, skipping");
+      logger.warn('useBackgroundCompact', "[BackgroundCompact] Already compacting, skipping");
       return;
     }
     hasTriggeredCompactRef.current = true;
@@ -305,7 +306,7 @@ export function useBackgroundCompact(
 
   // 确认切换完成
   const confirmSwitch = useCallback(() => {
-    console.log("[BackgroundCompact] ✨ Switch confirmed, cleaning up");
+    logger.debug('useBackgroundCompact', "[BackgroundCompact] ✨ Switch confirmed, cleaning up");
     setShouldSwitchSession(false);
     setStatus("idle");
     setProgress(0);

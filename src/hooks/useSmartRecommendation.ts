@@ -8,6 +8,7 @@
  * 4. 更智能的置信度计算
  */
 
+import { logger } from '@/lib/logger';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { api } from '@/lib/api';
 
@@ -294,7 +295,7 @@ export function useSmartRecommendation() {
 
             setEnabledMCPs(enabled);
         } catch (error) {
-            console.warn('[SmartRecommendation] Failed to refresh enabled MCPs:', error);
+            logger.warn('useSmartRecommendation', '[SmartRecommendation] Failed to refresh enabled MCPs:', error);
         }
     }, []);
 

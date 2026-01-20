@@ -15,6 +15,7 @@
  * 3. 在 useTabs.switchToTab 中恢复状态
  */
 
+import { logger } from '@/lib/logger';
 import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
 
 // ============================================================================
@@ -164,7 +165,7 @@ export const GlobalExecutionProvider: React.FC<GlobalExecutionProviderProps> = (
       startedAt: Date.now(),
     });
 
-    console.log(`[GlobalExecution] ▶️ Tab ${tabId} started execution (engine: ${engine}, session: ${sessionId})`);
+    logger.debug('GlobalExecutionContext', `[GlobalExecution] ▶️ Tab ${tabId} started execution (engine: ${engine}, session: ${sessionId});`);
   }, [updateTabState]);
 
   /**
@@ -179,7 +180,7 @@ export const GlobalExecutionProvider: React.FC<GlobalExecutionProviderProps> = (
       currentPrompt: undefined,
     });
 
-    console.log(`[GlobalExecution] ⏹️ Tab ${tabId} ended execution`);
+    logger.debug('GlobalExecutionContext', `[GlobalExecution] ⏹️ Tab ${tabId} ended execution`);
   }, [updateTabState]);
 
   /**
@@ -191,7 +192,7 @@ export const GlobalExecutionProvider: React.FC<GlobalExecutionProviderProps> = (
 
     if (hadState) {
       triggerUpdate();
-      console.log(`[GlobalExecution] 🗑️ Tab ${tabId} state cleared`);
+      logger.debug('GlobalExecutionContext', `[GlobalExecution] 🗑️ Tab ${tabId} state cleared`);
     }
   }, [triggerUpdate]);
 

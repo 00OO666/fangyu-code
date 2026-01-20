@@ -5,6 +5,7 @@
  * for seamless integration with existing message display components.
  */
 
+import { logger } from '@/lib/logger';
 import type { ClaudeStreamMessage } from "@/types/claude";
 import type {
   CodexAgentMessageItem,
@@ -247,7 +248,7 @@ export class CodexEventConverter {
       const event = JSON.parse(eventLine) as CodexEvent;
       return this.convertEventObject(event);
     } catch (error) {
-      console.error("[CodexConverter] Failed to parse event:", eventLine, error);
+      logger.error('codexConverter', "[CodexConverter] Failed to parse event:", eventLine, error);
       return null;
     }
   }
@@ -504,7 +505,7 @@ export class CodexEventConverter {
   ): ClaudeStreamMessage | null {
     const { payload } = event;
     if (!payload) {
-      console.warn("[CodexConverter] response_item missing payload:", event);
+      logger.warn('codexConverter', "[CodexConverter] response_item missing payload:", event);
       return null;
     }
 
@@ -543,7 +544,7 @@ export class CodexEventConverter {
 
     // Handle message-type response_item (user/assistant messages)
     if (!payload.role) {
-      console.warn("[CodexConverter] response_item missing role and not a recognized type:", event);
+      logger.warn('codexConverter', "[CodexConverter] response_item missing role and not a recognized type:", event);
       return null;
     }
 
@@ -572,7 +573,7 @@ export class CodexEventConverter {
 
     // Check if content is empty or has only empty text blocks
     if (content.length === 0) {
-      console.warn("[CodexConverter] response_item has empty content, skipping");
+      logger.warn('codexConverter', "[CodexConverter] response_item has empty content, skipping");
       return null;
     }
 
@@ -584,7 +585,7 @@ export class CodexEventConverter {
     });
 
     if (!hasNonEmptyContent) {
-      console.warn("[CodexConverter] response_item has no non-empty content, skipping");
+      logger.warn('codexConverter', "[CodexConverter] response_item has no non-empty content, skipping");
       return null;
     }
 
@@ -882,7 +883,7 @@ export class CodexEventConverter {
         return this.convertTodoList(item, phase, metadata, eventTimestamp);
 
       default:
-        console.warn("[CodexConverter] Unknown item type:", (item as any).type, "Full item:", item);
+        logger.warn('codexConverter', "[CodexConverter] Unknown item type:", (item as any).type, "Full item:", item);
         return null;
     }
   }

@@ -12,6 +12,7 @@
  * - 移除不安全的 Base64 编码
  */
 
+import { logger } from '@/lib/logger';
 import { invoke } from '@tauri-apps/api/core';
 
 // =============================================================================
@@ -135,7 +136,7 @@ async function decryptData(ciphertext: string): Promise<string | null> {
     const decoder = new TextDecoder();
     return decoder.decode(decrypted);
   } catch (error) {
-    console.warn('[SecureStorage] 解密失败，可能是旧格式数据:', error);
+    logger.warn('secureStorage', '[SecureStorage] 解密失败，可能是旧格式数据:', error);
     return null;
   }
 }
@@ -211,7 +212,7 @@ export const secureStorage: SecureStorage = {
         await invoke('secure_store_set', { key: prefixedKey, value });
         return;
       } catch (error) {
-        console.warn('[SecureStorage] Tauri secure storage failed, falling back:', error);
+        logger.warn('secureStorage', '[SecureStorage] Tauri secure storage failed, falling back:', error);
       }
     }
 
@@ -221,7 +222,7 @@ export const secureStorage: SecureStorage = {
       const encrypted = await encryptData(value);
       localStorage.setItem(prefixedKey, encrypted);
     } catch (error) {
-      console.error('[SecureStorage] 加密失败:', error);
+      logger.error('secureStorage', '[SecureStorage] 加密失败:', error);
       throw new Error('无法安全存储数据');
     }
   },
@@ -234,7 +235,7 @@ export const secureStorage: SecureStorage = {
         const value = await invoke<string | null>('secure_store_get', { key: prefixedKey });
         return value;
       } catch (error) {
-        console.warn('[SecureStorage] Tauri secure storage failed, falling back:', error);
+        logger.warn('secureStorage', '[SecureStorage] Tauri secure storage failed, falling back:', error);
       }
     }
 
@@ -254,7 +255,7 @@ export const secureStorage: SecureStorage = {
         await invoke('secure_store_remove', { key: prefixedKey });
         return;
       } catch (error) {
-        console.warn('[SecureStorage] Tauri secure storage failed, falling back:', error);
+        logger.warn('secureStorage', '[SecureStorage] Tauri secure storage failed, falling back:', error);
       }
     }
 
@@ -268,7 +269,7 @@ export const secureStorage: SecureStorage = {
         await invoke('secure_store_clear');
         return;
       } catch (error) {
-        console.warn('[SecureStorage] Tauri secure storage failed, falling back:', error);
+        logger.warn('secureStorage', '[SecureStorage] Tauri secure storage failed, falling back:', error);
       }
     }
 
@@ -296,7 +297,7 @@ export const secureStorage: SecureStorage = {
           .filter((k) => k.startsWith(SECURE_STORAGE_PREFIX))
           .map((k) => k.slice(SECURE_STORAGE_PREFIX.length));
       } catch (error) {
-        console.warn('[SecureStorage] Tauri secure storage failed, falling back:', error);
+        logger.warn('secureStorage', '[SecureStorage] Tauri secure storage failed, falling back:', error);
       }
     }
 
@@ -489,10 +490,10 @@ export async function migrateKeyToSecureStorage(
     // 从 localStorage 删除
     localStorage.removeItem(localStorageKey);
 
-    console.log(`[SecureStorage] Migrated ${provider} API key to secure storage`);
+    logger.debug('secureStorage', `[SecureStorage] Migrated ${provider} API key to secure storage`);
     return true;
   } catch (error) {
-    console.error(`[SecureStorage] Failed to migrate ${provider} API key:`, error);
+    logger.error('secureStorage', `[SecureStorage] Failed to migrate ${provider} API key:`, error);
     return false;
   }
 }

@@ -5,6 +5,7 @@
  * 支持从全局配置复制到项目配置，或在项目级别禁用某些服务器
  */
 
+import { logger } from '@/lib/logger';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -125,10 +126,10 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
     try {
       setLoadingGlobal(true);
       const servers = await api.mcpGetEngineServersWithStatus(engine);
-      console.log(`[ProjectMCPQuickConfig] 加载了 ${servers.length} 个全局服务器:`, servers.map(s => ({ id: s.id, enabled: s.enabled })));
+      logger.debug('ProjectMCPQuickConfig', `[ProjectMCPQuickConfig] 加载了 ${servers.length} 个全局服务器:`, servers.map(s => ({ id: s.id, enabled: s.enabled })));
       setGlobalServers(servers);
     } catch (error) {
-      console.error('[ProjectMCPQuickConfig] Failed to load global servers:', error);
+      logger.error('ProjectMCPQuickConfig', '[ProjectMCPQuickConfig] Failed to load global servers:', error);
     } finally {
       setLoadingGlobal(false);
     }
@@ -157,7 +158,7 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
       setSavingId(serverId);
       await toggleProjectServer(serverId, spec, !currentEnabled);
     } catch (error) {
-      console.error('[ProjectMCPQuickConfig] Toggle failed:', error);
+      logger.error('ProjectMCPQuickConfig', '[ProjectMCPQuickConfig] Toggle failed:', error);
     } finally {
       setSavingId(null);
     }
@@ -177,7 +178,7 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
       await api.mcpSaveProjectConfig(projectPath, newConfig);
       await reloadProjectConfig();
     } catch (error) {
-      console.error('[ProjectMCPQuickConfig] Copy all failed:', error);
+      logger.error('ProjectMCPQuickConfig', '[ProjectMCPQuickConfig] Copy all failed:', error);
     } finally {
       setCopyingToProject(false);
     }
@@ -212,7 +213,7 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
           // 使用全局服务器的真实 ID，而不是推荐的 serverId
           newConfig.mcpServers[globalServer.id] = globalServer.spec;
           addedCount++;
-          console.log(`[ProjectMCPQuickConfig] Added ${rec.name} (${globalServer.id})`);
+          logger.debug('ProjectMCPQuickConfig', `[ProjectMCPQuickConfig] Added ${rec.name} (${globalServer.id});`);
         } else {
           console.warn(`[ProjectMCPQuickConfig] 未找到全局服务器: ${rec.serverId}`, {
             available: globalServers.map(s => s.id),
@@ -224,9 +225,9 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
       await api.mcpSaveProjectConfig(projectPath, newConfig);
       await reloadProjectConfig();
 
-      console.log(`[ProjectMCPQuickConfig] 成功添加 ${addedCount}/${toAdd.length} 个推荐服务器`);
+      logger.debug('ProjectMCPQuickConfig', `[ProjectMCPQuickConfig] 成功添加 ${addedCount}/${toAdd.length} 个推荐服务器`);
     } catch (error) {
-      console.error('[ProjectMCPQuickConfig] Add recommendations failed:', error);
+      logger.error('ProjectMCPQuickConfig', '[ProjectMCPQuickConfig] Add recommendations failed:', error);
     } finally {
       setAddingRecommended(false);
     }
@@ -366,11 +367,11 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
   const handleAutoConfigureMCP = useCallback(async (serverId: string, spec: MCPServerSpec) => {
     try {
       setAutoConfiguringId(serverId);
-      console.log(`[ProjectMCPQuickConfig] 开始自动配置: ${serverId}`);
+      logger.debug('ProjectMCPQuickConfig', `[ProjectMCPQuickConfig] 开始自动配置: ${serverId}`);
 
       // 1. 添加到全局 Claude 配置
       await api.mcpUpsertEngineServer(engine, serverId, spec);
-      console.log(`[ProjectMCPQuickConfig] 已添加到全局 ${engine} 配置`);
+      logger.debug('ProjectMCPQuickConfig', `[ProjectMCPQuickConfig] 已添加到全局 ${engine} 配置`);
 
       // 2. 重新加载全局服务器列表
       await loadGlobalServers();
@@ -385,9 +386,9 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
       await api.mcpSaveProjectConfig(projectPath, newConfig);
       await reloadProjectConfig();
 
-      console.log(`[ProjectMCPQuickConfig] ✅ ${serverId} 配置成功！`);
+      logger.debug('ProjectMCPQuickConfig', `[ProjectMCPQuickConfig] ✅ ${serverId} 配置成功！`);
     } catch (error) {
-      console.error(`[ProjectMCPQuickConfig] 自动配置失败:`, error);
+      logger.error('ProjectMCPQuickConfig', `[ProjectMCPQuickConfig] 自动配置失败:`, error);
       // 如果失败，跳转到设置页面让用户手动配置
       onClose();
       navigateTo('settings');

@@ -5,6 +5,7 @@
  * 处理双击 ESC 和 Shift+Tab 的快捷键检测
  */
 
+import { logger } from '@/lib/logger';
 import { useEffect, useState } from "react";
 
 interface KeyboardShortcutsConfig {
@@ -69,7 +70,7 @@ export function useKeyboardShortcuts(config: KeyboardShortcutsConfig): void {
           // Shift + Esc + Esc: 快速恢复最新检查点
           if (event.shiftKey || lastEscapeWasShift) {
             if (onRestoreLastCheckpoint) {
-              console.log("🔄 快速恢复最新检查点 (Shift+Esc+Esc)");
+              logger.debug('useKeyboardShortcuts', "🔄 快速恢复最新检查点 (Shift+Esc+Esc);");
               onRestoreLastCheckpoint();
             }
           }

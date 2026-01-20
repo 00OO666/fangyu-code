@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -74,13 +75,13 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
       try {
         customPresets = await api.getCodexProviderPresets();
       } catch (error) {
-        console.warn('Failed to load custom Codex presets, using defaults:', error);
+        logger.warn('CodexProviderManager', 'Failed to load custom Codex presets, using defaults:', error);
       }
 
       try {
         config = await api.getCurrentCodexConfig();
       } catch (error) {
-        console.warn('Failed to load current Codex config:', error);
+        logger.warn('CodexProviderManager', 'Failed to load current Codex config:', error);
       }
 
       // 合并内置预设和自定义预设
@@ -102,7 +103,7 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
       setPresets([...builtInPresets, ...customPresets]);
       setCurrentConfig(config);
     } catch (error) {
-      console.error('Failed to load Codex provider data:', error);
+      logger.error('CodexProviderManager', 'Failed to load Codex provider data:', error);
       setToastMessage({ message: t('provider.loadCodexConfigFailed'), type: 'error' });
     } finally {
       setLoading(false);
@@ -116,7 +117,7 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
       setToastMessage({ message, type: 'success' });
       await loadData();
     } catch (error) {
-      console.error('Failed to switch Codex provider:', error);
+      logger.error('CodexProviderManager', 'Failed to switch Codex provider:', error);
       setToastMessage({ message: t('provider.switchCodexFailed'), type: 'error' });
     } finally {
       setSwitching(null);
@@ -130,7 +131,7 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
       setToastMessage({ message, type: 'success' });
       await loadData();
     } catch (error) {
-      console.error('Failed to clear Codex provider:', error);
+      logger.error('CodexProviderManager', 'Failed to clear Codex provider:', error);
       setToastMessage({ message: t('provider.clearCodexConfigFailed'), type: 'error' });
     } finally {
       setSwitching(null);
@@ -145,7 +146,7 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
       const message = await api.testCodexProviderConnection(baseUrl, apiKey);
       setToastMessage({ message, type: 'success' });
     } catch (error) {
-      console.error('Failed to test Codex connection:', error);
+      logger.error('CodexProviderManager', 'Failed to test Codex connection:', error);
       setToastMessage({ message: t('provider.connectionTestFailed'), type: 'error' });
     } finally {
       setTesting(null);
@@ -178,7 +179,7 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
       setDeleteDialogOpen(false);
       setProviderToDelete(null);
     } catch (error) {
-      console.error('Failed to delete Codex provider:', error);
+      logger.error('CodexProviderManager', 'Failed to delete Codex provider:', error);
       setToastMessage({ message: t('provider.codexDeleteFailed'), type: 'error' });
     } finally {
       setDeleting(null);
@@ -202,7 +203,7 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
             await api.switchCodexProvider(updatedConfig);
             setToastMessage({ message: t('provider.codexUpdateSyncSuccess'), type: 'success' });
           } catch (switchError) {
-            console.error('Failed to sync Codex provider config:', switchError);
+            logger.error('CodexProviderManager', 'Failed to sync Codex provider config:', switchError);
             setToastMessage({ message: t('provider.codexUpdateSyncFailed'), type: 'error' });
           }
         } else {
@@ -216,7 +217,7 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
       setEditingProvider(null);
       await loadData();
     } catch (error) {
-      console.error('Failed to save Codex provider:', error);
+      logger.error('CodexProviderManager', 'Failed to save Codex provider:', error);
       setToastMessage({ message: editingProvider ? t('provider.codexUpdateFailed') : t('provider.codexAddFailed'), type: 'error' });
     }
   };

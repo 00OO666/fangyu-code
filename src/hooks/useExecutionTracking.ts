@@ -10,6 +10,7 @@
  * - 提供执行恢复接口
  */
 
+import { logger } from '@/lib/logger';
 import { useEffect, useRef } from "react";
 
 // 🔧 FIX: 直接从 GlobalExecutionContext 模块导入 Context，避免重复创建 hooks
@@ -69,7 +70,7 @@ const globalExecutionStore = {
       promptCount: (existing?.promptCount ?? 0) + 1,
     };
     this.states.set(tabId, newState);
-    console.log(`[GlobalExecution] ▶️ Tab ${tabId} started execution`);
+    logger.debug('useExecutionTracking', `[GlobalExecution] ▶️ Tab ${tabId} started execution`);
   },
 
   endExecution(tabId: string) {
@@ -78,13 +79,13 @@ const globalExecutionStore = {
       existing.isStreaming = false;
       existing.lastUpdateAt = Date.now();
       existing.currentPrompt = undefined;
-      console.log(`[GlobalExecution] ⏹️ Tab ${tabId} ended execution`);
+      logger.debug('useExecutionTracking', `[GlobalExecution] ⏹️ Tab ${tabId} ended execution`);
     }
   },
 
   clearTabState(tabId: string) {
     this.states.delete(tabId);
-    console.log(`[GlobalExecution] 🗑️ Tab ${tabId} state cleared`);
+    logger.debug('useExecutionTracking', `[GlobalExecution] 🗑️ Tab ${tabId} state cleared`);
   },
 
   getTabState(tabId: string): TabExecutionState | undefined {

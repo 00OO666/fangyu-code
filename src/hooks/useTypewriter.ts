@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import { useCallback, useEffect, useRef, useState } from "react";
 
 interface UseTypewriterOptions {
@@ -118,7 +119,7 @@ export function useTypewriter(
     startTimeRef.current = Date.now();
     if (timeout > 0) {
       timeoutRef.current = setTimeout(() => {
-        console.log('[Typewriter] Timeout reached, skipping to end');
+        logger.debug('useTypewriter', '[Typewriter] Timeout reached, skipping to end');
         skipToEnd();
       }, timeout);
     }

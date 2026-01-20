@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -131,7 +132,7 @@ export const Settings: React.FC<SettingsProps> = ({
 
       // Ensure loadedSettings is an object
       if (!loadedSettings || typeof loadedSettings !== 'object') {
-        console.warn("Loaded settings is not an object:", loadedSettings);
+        logger.warn('Settings', "Loaded settings is not an object:", loadedSettings);
         setSettings({});
         return;
       }
@@ -144,7 +145,7 @@ export const Settings: React.FC<SettingsProps> = ({
         setExecutionConfig(execConfig);
         setDisableRewindGitOps(execConfig.disable_rewind_git_operations || false);
       } catch (err) {
-        console.error("Failed to load execution config:", err);
+        logger.error('Settings', "Failed to load execution config:", err);
         // Continue with default values
       }
 
@@ -181,7 +182,7 @@ export const Settings: React.FC<SettingsProps> = ({
       }
 
     } catch (err) {
-      console.error("Failed to load settings:", err);
+      logger.error('Settings', "Failed to load settings:", err);
       setError(t('errors.loadFailed'));
       setSettings({});
     } finally {
@@ -237,7 +238,7 @@ export const Settings: React.FC<SettingsProps> = ({
         duration: 3000,
       });
     } catch (err) {
-      console.error("Failed to save settings:", err);
+      logger.error('Settings', "Failed to save settings:", err);
       setError(t('errors.saveFailed'));
       notify.error(t('errors.saveFailed') || "设置保存失败", {
         position: "top-center",

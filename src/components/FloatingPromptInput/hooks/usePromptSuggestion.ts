@@ -11,6 +11,7 @@
  * - 支持取消请求
  */
 
+import { logger } from '@/lib/logger';
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { claudeSDK } from '@/lib/claudeSDK';
 import { extractTextFromContent } from '@/lib/sessionHelpers';
@@ -358,7 +359,7 @@ export function usePromptSuggestion({
       if ((err as Error).name === 'AbortError') {
         return null;
       }
-      console.error('[usePromptSuggestion] AI generation failed:', err);
+      logger.error('usePromptSuggestion', '[usePromptSuggestion] AI generation failed:', err);
       throw err;
     }
   }, [messages, currentPrompt, model]);

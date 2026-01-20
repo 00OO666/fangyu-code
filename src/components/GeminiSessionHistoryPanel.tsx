@@ -5,6 +5,7 @@
  * Allows users to view, resume, or delete previous sessions.
  */
 
+import { logger } from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { api } from '@/lib/api';
 import type { GeminiSessionInfo } from '@/types/gemini';
@@ -46,7 +47,7 @@ export const GeminiSessionHistoryPanel: React.FC<GeminiSessionHistoryPanelProps>
       const sessionList = await api.listGeminiSessions(projectPath);
       setSessions(sessionList);
     } catch (err) {
-      console.error('Failed to load Gemini sessions:', err);
+      logger.error('GeminiSessionHistoryPanel', 'Failed to load Gemini sessions:', err);
       setError(err instanceof Error ? err.message : 'Failed to load sessions');
     } finally {
       setLoading(false);
@@ -75,7 +76,7 @@ export const GeminiSessionHistoryPanel: React.FC<GeminiSessionHistoryPanelProps>
       // Refresh list after deletion
       await loadSessions();
     } catch (err) {
-      console.error('Failed to delete session:', err);
+      logger.error('GeminiSessionHistoryPanel', 'Failed to delete session:', err);
       setError(err instanceof Error ? err.message : 'Failed to delete session');
     }
   };

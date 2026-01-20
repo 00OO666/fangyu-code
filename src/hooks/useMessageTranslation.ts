@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import { useCallback, useState, useRef } from "react";
 import { extractMessageContent as extractContentUtil } from "@/lib/contentExtraction";
 import {
@@ -171,7 +172,7 @@ export function useMessageTranslation(
         processedMessageIds.current.add(id);
       }
     }
-    console.log(`[useMessageTranslation] Initialized ${processedMessageIds.current.size} processed message IDs`);
+    logger.debug('useMessageTranslation', `[useMessageTranslation] Initialized ${processedMessageIds.current.size} processed message IDs`);
   }, []);
 
   /**
@@ -495,7 +496,7 @@ export function useMessageTranslation(
             }
           }
         } catch (translationError) {
-          console.error("[useMessageTranslation] Response translation failed:", translationError);
+          logger.error('useMessageTranslation', "[useMessageTranslation] Response translation failed:", translationError);
           // Continue with original message if translation fails
         }
 
@@ -600,7 +601,7 @@ export function useMessageTranslation(
           }
         }
       } catch (err) {
-        console.error("[useMessageTranslation] Failed to parse message:", err, payload);
+        logger.error('useMessageTranslation', "[useMessageTranslation] Failed to parse message:", err, payload);
       }
     },
     [isMountedRef, lastTranslationResult, onMessagesUpdate],

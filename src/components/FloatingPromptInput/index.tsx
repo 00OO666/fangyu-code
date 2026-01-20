@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useState, useRef, forwardRef, useImperativeHandle, useEffect, useReducer, useCallback, useContext, useMemo } from "react";
 import { AnimatePresence } from "framer-motion";
 import { Sparkles } from "lucide-react";
@@ -111,15 +112,15 @@ const FloatingPromptInputInner = (
     let selectedModel: ModelType;
 
     if (parsedSessionModel) {
-      console.log('[FloatingPromptInput] 历史会话，使用保存的模型:', parsedSessionModel);
+      logger.debug('index', '[FloatingPromptInput] 历史会话，使用保存的模型:', parsedSessionModel);
       selectedModel = parsedSessionModel;
     } else {
       const userDefaultModel = getDefaultModel();
       if (userDefaultModel) {
-        console.log('[FloatingPromptInput] 新会话，使用用户默认模型:', userDefaultModel);
+        logger.debug('index', '[FloatingPromptInput] 新会话，使用用户默认模型:', userDefaultModel);
         selectedModel = userDefaultModel;
       } else {
-        console.log('[FloatingPromptInput] 未设置默认模型，回退到:', defaultModel);
+        logger.debug('index', '[FloatingPromptInput] 未设置默认模型，回退到:', defaultModel);
         selectedModel = defaultModel;
       }
     }
@@ -181,7 +182,7 @@ const FloatingPromptInputInner = (
   }, []);
 
   const handleMemoryImportComplete = useCallback(() => {
-    console.log('[FloatingPromptInput] Memory imported successfully');
+    logger.debug('index', '[FloatingPromptInput] Memory imported successfully');
   }, []);
 
   const handleCloseMemoryPanel = useCallback(() => {
@@ -263,7 +264,7 @@ const FloatingPromptInputInner = (
         const { promptQueue: queue, onSend: send } = latestRefs.current;
         const nextItem = queue.getNextSequential();
         if (nextItem) {
-          console.log('[FloatingPromptInput] Auto-processing next queue item:', nextItem.id);
+          logger.debug('index', '[FloatingPromptInput] Auto-processing next queue item:', nextItem.id);
           queue.dequeue(nextItem.id);
           send(nextItem.prompt, nextItem.model, undefined, false);
         }
@@ -288,7 +289,7 @@ const FloatingPromptInputInner = (
     // 组件挂载时检查是否有预填充消息
     const prefillMessage = consumePrefillMessage();
     if (prefillMessage) {
-      console.log('[FloatingPromptInput] 检测到预填充消息，自动填充到输入框');
+      logger.debug('index', '[FloatingPromptInput] 检测到预填充消息，自动填充到输入框');
       dispatch({ type: "SET_PROMPT", payload: prefillMessage });
     }
   }, []); // 只在组件挂载时执行一次
@@ -320,7 +321,7 @@ const FloatingPromptInputInner = (
         // 同步更新 localStorage 以保持一致
         localStorage.setItem('thinking_mode', actualMode);
       } catch (error) {
-        console.error('[ThinkingMode] Failed to read settings, falling back to localStorage:', error);
+        logger.error('index', '[ThinkingMode] Failed to read settings, falling back to localStorage:', error);
         // 降级：从 localStorage 读取
         try {
           const stored = localStorage.getItem('thinking_mode');
@@ -483,7 +484,7 @@ const FloatingPromptInputInner = (
     try {
       localStorage.setItem('enable_project_context', state.enableProjectContext.toString());
     } catch (error) {
-      console.warn('Failed to save enable_project_context to localStorage:', error);
+      logger.warn('index', 'Failed to save enable_project_context to localStorage:', error);
     }
   }, [state.enableProjectContext]);
 
@@ -540,7 +541,7 @@ const FloatingPromptInputInner = (
           }
         }
       } catch (error) {
-        console.error('[FloatingPromptInput] Failed to load custom model:', error);
+        logger.error('index', '[FloatingPromptInput] Failed to load custom model:', error);
       }
     };
 
@@ -572,7 +573,7 @@ const FloatingPromptInputInner = (
       const tokens = thinkingMode?.tokens;
       await api.updateThinkingMode(enabled, tokens);
     } catch (error) {
-      console.error("Failed to update thinking mode:", error);
+      logger.error('index', "Failed to update thinking mode:", error);
       // Revert state and localStorage on API error
       const revertedMode = currentMode;
       dispatch({ type: "SET_THINKING_MODE", payload: revertedMode });
@@ -661,12 +662,12 @@ const FloatingPromptInputInner = (
       // 🆕 强规则：按 Enter 发送的提示词自动复制到剪贴板，方便找回
       try {
         navigator.clipboard.writeText(finalPrompt).then(() => {
-          console.log('[FloatingPromptInput] 提示词已复制到剪贴板:', finalPrompt.substring(0, 50) + '...');
+          logger.debug('index', '[FloatingPromptInput] 提示词已复制到剪贴板:', finalPrompt.substring(0, 50) + '...');
         }).catch(err => {
-          console.warn('[FloatingPromptInput] 复制到剪贴板失败:', err);
+          logger.warn('index', '[FloatingPromptInput] 复制到剪贴板失败:', err);
         });
       } catch (err) {
-        console.warn('[FloatingPromptInput] 剪贴板 API 不可用:', err);
+        logger.warn('index', '[FloatingPromptInput] 剪贴板 API 不可用:', err);
       }
 
       // When custom model is selected, pass the actual model name instead of "custom"
@@ -681,7 +682,7 @@ const FloatingPromptInputInner = (
       // 🆕 队列逻辑：如果 AI 正在工作且不是插队模式，加入队列
       if (isLoading && sendMode !== 'interrupt') {
         promptQueue.enqueue(finalPrompt, modelToSend, sendMode);
-        console.log('[FloatingPromptInput] AI 正在工作，已加入队列:', { mode: sendMode, promptPreview: finalPrompt.substring(0, 50) });
+        logger.debug('index', '[FloatingPromptInput] AI 正在工作，已加入队列:', { mode: sendMode, promptPreview: finalPrompt.substring(0, 50) });
 
         // 清空输入框
         dispatch({ type: "RESET_INPUT" });
@@ -713,7 +714,7 @@ const FloatingPromptInputInner = (
 
       // 异步执行 onSend，失败时恢复输入框
       Promise.resolve(onSend(promptToSend, modelToSend, undefined, forceImmediate)).catch((error) => {
-        console.error('[FloatingPromptInput] 发送失败，恢复输入框:', error);
+        logger.error('index', '[FloatingPromptInput] 发送失败，恢复输入框:', error);
         dispatch({ type: "SET_PROMPT", payload: savedPrompt });
         setImageAttachments(savedAttachments);
         setEmbeddedImages(savedEmbedded);
@@ -807,12 +808,12 @@ const FloatingPromptInputInner = (
         };
 
         setImageAttachments(prev => [...prev, newAttachment]);
-        console.log('[FloatingPromptInput] AI 生成图片已添加到附件:', result.file_path);
+        logger.debug('index', '[FloatingPromptInput] AI 生成图片已添加到附件:', result.file_path);
       } else {
-        console.error('[FloatingPromptInput] 保存 AI 生成图片失败:', result.error);
+        logger.error('index', '[FloatingPromptInput] 保存 AI 生成图片失败:', result.error);
       }
     } catch (error) {
-      console.error('[FloatingPromptInput] 处理 AI 生成图片失败:', error);
+      logger.error('index', '[FloatingPromptInput] 处理 AI 生成图片失败:', error);
     }
   }, [setImageAttachments]);
 
@@ -820,14 +821,14 @@ const FloatingPromptInputInner = (
   const handleQueueSubmit = useCallback((prompt: string, mode: PromptSendMode) => {
     if (prompt.trim()) {
       promptQueue.enqueue(prompt.trim(), state.selectedModel, mode);
-      console.log('[FloatingPromptInput] 加入队列:', { mode, promptPreview: prompt.substring(0, 50) });
+      logger.debug('index', '[FloatingPromptInput] 加入队列:', { mode, promptPreview: prompt.substring(0, 50) });
     }
   }, [promptQueue, state.selectedModel]);
 
   // 🆕 优化提示词（调用 prompt enhancement API）
   const handleOptimizePrompt = useCallback(async (_itemId: string, originalPrompt: string): Promise<string | null> => {
     try {
-      console.log('[FloatingPromptInput] 优化提示词:', originalPrompt.substring(0, 50));
+      logger.debug('index', '[FloatingPromptInput] 优化提示词:', originalPrompt.substring(0, 50));
       // 调用 handleEnhancePromptWithAPI（需要临时设置 prompt）
       const savedPrompt = state.prompt;
       dispatch({ type: "SET_PROMPT", payload: originalPrompt });
@@ -835,7 +836,7 @@ const FloatingPromptInputInner = (
       // 获取第一个可用的 provider
       const providers = getEnabledProviders();
       if (providers.length === 0) {
-        console.warn('[FloatingPromptInput] 没有可用的优化 provider');
+        logger.warn('index', '[FloatingPromptInput] 没有可用的优化 provider');
         dispatch({ type: "SET_PROMPT", payload: savedPrompt });
         return null;
       }
@@ -851,7 +852,7 @@ const FloatingPromptInputInner = (
 
       return optimizedPrompt !== originalPrompt ? optimizedPrompt : null;
     } catch (error) {
-      console.error('[FloatingPromptInput] 优化失败:', error);
+      logger.error('index', '[FloatingPromptInput] 优化失败:', error);
       return null;
     }
   }, [state.prompt, handleEnhancePromptWithAPI, getEnabledProviders]);

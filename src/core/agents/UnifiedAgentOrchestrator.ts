@@ -5,6 +5,7 @@
  * and coordination across multiple AI models.
  */
 
+import { logger } from '@/lib/logger';
 import { v4 as uuidv4 } from 'uuid';
 import type {
   Agent,
@@ -133,7 +134,7 @@ export class UnifiedAgentOrchestrator {
     };
 
     this.agents.set(cloned.id, cloned);
-    console.log(`Cloned agent ${agentId} -> ${cloned.id}, reason: ${reason}`);
+    logger.debug('UnifiedAgentOrchestrator', `Cloned agent ${agentId} -> ${cloned.id}, reason: ${reason}`);
     return cloned;
   }
 

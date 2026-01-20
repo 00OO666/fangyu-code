@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Edit2, FileText, Loader2 } from "lucide-react";
@@ -28,7 +29,7 @@ interface ClaudeMemoriesDropdownProps {
  * @example
  * <ClaudeMemoriesDropdown
  *   projectPath="/Users/example/project"
- *   onEditFile={(file) => console.log('Edit file:', file)}
+ *   onEditFile={(file) => logger.debug('ClaudeMemoriesDropdown', 'Edit file:', file);}
  * />
  */
 export const ClaudeMemoriesDropdown: React.FC<ClaudeMemoriesDropdownProps> = ({
@@ -55,7 +56,7 @@ export const ClaudeMemoriesDropdown: React.FC<ClaudeMemoriesDropdownProps> = ({
       const foundFiles = await api.findClaudeMdFiles(projectPath);
       setFiles(foundFiles);
     } catch (err) {
-      console.error("Failed to load CLAUDE.md files:", err);
+      logger.error('ClaudeMemoriesDropdown', "Failed to load CLAUDE.md files:", err);
       setError("Failed to load CLAUDE.md files");
     } finally {
       setLoading(false);

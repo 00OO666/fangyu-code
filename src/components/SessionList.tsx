@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useState, useEffect } from "react";
 import { ArrowLeft, Clock, Plus, Trash2, CheckSquare, Square, FilePenLine, Loader2, Zap, Bot, RefreshCw, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -76,7 +77,7 @@ type SessionFilter = 'all' | 'claude' | 'codex' | 'gemini';
  *   sessions={sessions}
  *   projectPath="/Users/example/project"
  *   onBack={() => setSelectedProject(null)}
- *   onSessionClick={(session) => console.log('Selected session:', session)}
+ *   onSessionClick={(session) => logger.debug('SessionList', 'Selected session:', session);}
  * />
  */
 export const SessionList: React.FC<SessionListProps> = ({
@@ -130,7 +131,7 @@ export const SessionList: React.FC<SessionListProps> = ({
       const files = await api.findClaudeMdFiles(projectPath);
       setClaudeMdFiles(files);
     } catch (err) {
-      console.error('Failed to load CLAUDE.md files:', err);
+      logger.error('SessionList', 'Failed to load CLAUDE.md files:', err);
       setClaudeMdFiles([]);
     } finally {
       setLoadingClaudeMd(false);
@@ -228,7 +229,7 @@ export const SessionList: React.FC<SessionListProps> = ({
       setDeleteDialogOpen(false);
       setSessionToDelete(null);
     } catch (error) {
-      console.error("Failed to delete session:", error);
+      logger.error('SessionList', "Failed to delete session:", error);
     } finally {
       setIsDeleting(false);
     }
@@ -283,7 +284,7 @@ export const SessionList: React.FC<SessionListProps> = ({
         setIsSelectionMode(false);
       }
     } catch (error) {
-      console.error("Failed to batch delete sessions:", error);
+      logger.error('SessionList', "Failed to batch delete sessions:", error);
     } finally {
       setIsDeleting(false);
     }
@@ -307,7 +308,7 @@ export const SessionList: React.FC<SessionListProps> = ({
       setConvertDialogOpen(false);
       setSessionToConvert(null);
     } catch (error) {
-      console.error("Failed to convert session:", error);
+      logger.error('SessionList', "Failed to convert session:", error);
     } finally {
       setIsConverting(false);
     }

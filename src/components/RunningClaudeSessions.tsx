@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useState, useEffect } from "react";
 import { Play, Loader2, Terminal, AlertCircle } from "lucide-react";
 import { listen, type UnlistenFn } from '@tauri-apps/api/event';
@@ -45,7 +46,7 @@ export const RunningClaudeSessions: React.FC<RunningClaudeSessionsProps> = ({
           await loadRunningSessions();
         });
       } catch (err) {
-        console.error('[RunningClaudeSessions] Failed to setup event listener:', err);
+        logger.error('RunningClaudeSessions', '[RunningClaudeSessions] Failed to setup event listener:', err);
       }
     };
 
@@ -73,7 +74,7 @@ export const RunningClaudeSessions: React.FC<RunningClaudeSessionsProps> = ({
       });
       setError(null);
     } catch (err) {
-      console.error("Failed to load running sessions:", err);
+      logger.error('RunningClaudeSessions', "Failed to load running sessions:", err);
       setError("Failed to load running sessions");
     } finally {
       setLoading(false);

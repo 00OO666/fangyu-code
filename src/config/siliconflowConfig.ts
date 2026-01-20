@@ -1,3 +1,5 @@
+import { logger } from '@/lib/logger';
+
 /**
  * SiliconFlow 配置
  * 硅基流动 - 国产 AI 模型聚合平台
@@ -226,7 +228,7 @@ export function loadSiliconFlowConfig(): SiliconFlowConfig {
       return { ...DEFAULT_SILICONFLOW_CONFIG, ...JSON.parse(stored) };
     }
   } catch (e) {
-    console.error('Failed to load SiliconFlow config:', e);
+    logger.error('siliconflowConfig', 'Failed to load SiliconFlow config:', e);
   }
   return { ...DEFAULT_SILICONFLOW_CONFIG };
 }

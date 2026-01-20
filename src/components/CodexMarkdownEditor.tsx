@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useState, useEffect } from "react";
 import MDEditor from "@uiw/react-md-editor";
 import { motion } from "framer-motion";
@@ -52,7 +53,7 @@ export const CodexMarkdownEditor: React.FC<CodexMarkdownEditorProps> = ({
       setContent(prompt);
       setOriginalContent(prompt);
     } catch (err) {
-      console.error("Failed to load Codex system prompt:", err);
+      logger.error('CodexMarkdownEditor', "Failed to load Codex system prompt:", err);
       const errorMessage = err instanceof Error ? err.message : String(err);
 
       // Check if error is about Codex not being installed
@@ -76,7 +77,7 @@ export const CodexMarkdownEditor: React.FC<CodexMarkdownEditorProps> = ({
       setOriginalContent(content);
       setToast({ message: "AGENTS.md 保存成功", type: "success" });
     } catch (err) {
-      console.error("Failed to save Codex system prompt:", err);
+      logger.error('CodexMarkdownEditor', "Failed to save Codex system prompt:", err);
       const errorMessage = err instanceof Error ? err.message : String(err);
       setError(`保存失败: ${errorMessage}`);
       setToast({ message: "保存 AGENTS.md 失败", type: "error" });

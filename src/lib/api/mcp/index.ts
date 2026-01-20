@@ -8,6 +8,7 @@
  * - 连接测试
  */
 
+import { logger } from '@/lib/logger';
 import { invoke } from "@tauri-apps/api/core";
 import type {
   AddServerResult,
@@ -49,7 +50,7 @@ export async function mcpAdd(
       scope,
     });
   } catch (error) {
-    console.error("Failed to add MCP server:", error);
+    logger.error('index', "Failed to add MCP server:", error);
     throw error;
   }
 }
@@ -61,7 +62,7 @@ export async function mcpList(): Promise<MCPServer[]> {
   try {
     return await invoke<MCPServer[]>("mcp_list");
   } catch (error) {
-    console.error("API: Failed to list MCP servers:", error);
+    logger.error('index', "API: Failed to list MCP servers:", error);
     throw error;
   }
 }
@@ -73,7 +74,7 @@ export async function mcpGet(name: string): Promise<MCPServer> {
   try {
     return await invoke<MCPServer>("mcp_get", { name });
   } catch (error) {
-    console.error("Failed to get MCP server:", error);
+    logger.error('index', "Failed to get MCP server:", error);
     throw error;
   }
 }
@@ -85,7 +86,7 @@ export async function mcpRemove(name: string): Promise<string> {
   try {
     return await invoke<string>("mcp_remove", { name });
   } catch (error) {
-    console.error("Failed to remove MCP server:", error);
+    logger.error('index', "Failed to remove MCP server:", error);
     throw error;
   }
 }
@@ -101,7 +102,7 @@ export async function mcpAddJson(
   try {
     return await invoke<AddServerResult>("mcp_add_json", { name, jsonConfig, scope });
   } catch (error) {
-    console.error("Failed to add MCP server from JSON:", error);
+    logger.error('index', "Failed to add MCP server from JSON:", error);
     throw error;
   }
 }
@@ -113,7 +114,7 @@ export async function mcpAddFromClaudeDesktop(scope: string = "local"): Promise<
   try {
     return await invoke<ImportResult>("mcp_add_from_claude_desktop", { scope });
   } catch (error) {
-    console.error("Failed to import from Claude Desktop:", error);
+    logger.error('index', "Failed to import from Claude Desktop:", error);
     throw error;
   }
 }
@@ -129,7 +130,7 @@ export async function mcpServe(): Promise<string> {
   try {
     return await invoke<string>("mcp_serve");
   } catch (error) {
-    console.error("Failed to start MCP server:", error);
+    logger.error('index', "Failed to start MCP server:", error);
     throw error;
   }
 }
@@ -141,7 +142,7 @@ export async function mcpTestConnection(name: string): Promise<string> {
   try {
     return await invoke<string>("mcp_test_connection", { name });
   } catch (error) {
-    console.error("Failed to test MCP connection:", error);
+    logger.error('index', "Failed to test MCP connection:", error);
     throw error;
   }
 }
@@ -153,7 +154,7 @@ export async function mcpExportConfig(): Promise<string> {
   try {
     return await invoke<string>("mcp_export_config");
   } catch (error) {
-    console.error("Failed to export MCP configuration:", error);
+    logger.error('index', "Failed to export MCP configuration:", error);
     throw error;
   }
 }
@@ -165,7 +166,7 @@ export async function mcpResetProjectChoices(): Promise<string> {
   try {
     return await invoke<string>("mcp_reset_project_choices");
   } catch (error) {
-    console.error("Failed to reset project choices:", error);
+    logger.error('index', "Failed to reset project choices:", error);
     throw error;
   }
 }
@@ -177,7 +178,7 @@ export async function mcpGetServerStatus(): Promise<Record<string, ServerStatus>
   try {
     return await invoke<Record<string, ServerStatus>>("mcp_get_server_status");
   } catch (error) {
-    console.error("Failed to get server status:", error);
+    logger.error('index', "Failed to get server status:", error);
     throw error;
   }
 }
@@ -193,7 +194,7 @@ export async function mcpReadProjectConfig(projectPath: string): Promise<MCPProj
   try {
     return await invoke<MCPProjectConfig>("mcp_read_project_config", { projectPath });
   } catch (error) {
-    console.error("Failed to read project MCP config:", error);
+    logger.error('index', "Failed to read project MCP config:", error);
     throw error;
   }
 }
@@ -208,7 +209,7 @@ export async function mcpSaveProjectConfig(
   try {
     return await invoke<string>("mcp_save_project_config", { projectPath, config });
   } catch (error) {
-    console.error("Failed to save project MCP config:", error);
+    logger.error('index', "Failed to save project MCP config:", error);
     throw error;
   }
 }
@@ -224,7 +225,7 @@ export async function mcpGetStatus(): Promise<McpStatus> {
   try {
     return await invoke<McpStatus>("mcp_get_claude_status");
   } catch (error) {
-    console.error("Failed to get MCP status:", error);
+    logger.error('index', "Failed to get MCP status:", error);
     throw error;
   }
 }
@@ -237,7 +238,7 @@ export async function mcpGetAllServers(): Promise<Record<string, MCPServerSpec>>
   try {
     return await invoke<Record<string, MCPServerSpec>>("mcp_get_all_servers");
   } catch (error) {
-    console.error("Failed to get all MCP servers:", error);
+    logger.error('index', "Failed to get all MCP servers:", error);
     throw error;
   }
 }
@@ -250,7 +251,7 @@ export async function mcpGetUnifiedServers(): Promise<Record<string, McpServer>>
   try {
     return await invoke<Record<string, McpServer>>("mcp_get_unified_servers");
   } catch (error) {
-    console.error("Failed to get unified MCP servers:", error);
+    logger.error('index', "Failed to get unified MCP servers:", error);
     throw error;
   }
 }
@@ -270,7 +271,7 @@ export async function mcpGetEngineServers(
       engine,
     });
   } catch (error) {
-    console.error(`Failed to get ${engine} MCP servers:`, error);
+    logger.error('index', `Failed to get ${engine} MCP servers:`, error);
     throw error;
   }
 }
@@ -290,7 +291,7 @@ export async function mcpUpsertEngineServer(
       serverSpec,
     });
   } catch (error) {
-    console.error(`Failed to upsert ${engine} MCP server:`, error);
+    logger.error('index', `Failed to upsert ${engine} MCP server:`, error);
     throw error;
   }
 }
@@ -308,7 +309,7 @@ export async function mcpDeleteEngineServer(
       id,
     });
   } catch (error) {
-    console.error(`Failed to delete ${engine} MCP server:`, error);
+    logger.error('index', `Failed to delete ${engine} MCP server:`, error);
     throw error;
   }
 }
@@ -330,7 +331,7 @@ export async function mcpToggleEngineServer(
       enabled,
     });
   } catch (error) {
-    console.error(`Failed to toggle ${engine} MCP server:`, error);
+    logger.error('index', `Failed to toggle ${engine} MCP server:`, error);
     throw error;
   }
 }
@@ -346,7 +347,7 @@ export async function mcpGetEngineServersWithStatus(
       engine,
     });
   } catch (error) {
-    console.error(`Failed to get ${engine} MCP servers with status:`, error);
+    logger.error('index', `Failed to get ${engine} MCP servers with status:`, error);
     throw error;
   }
 }
@@ -368,7 +369,7 @@ export async function mcpUpsertServer(
       apps,
     });
   } catch (error) {
-    console.error("Failed to upsert MCP server:", error);
+    logger.error('index', "Failed to upsert MCP server:", error);
     throw error;
   }
 }
@@ -380,7 +381,7 @@ export async function mcpDeleteServer(id: string, apps: McpApps): Promise<string
   try {
     return await invoke<string>("mcp_delete_server", { id, apps });
   } catch (error) {
-    console.error("Failed to delete MCP server:", error);
+    logger.error('index', "Failed to delete MCP server:", error);
     throw error;
   }
 }
@@ -402,7 +403,7 @@ export async function mcpToggleApp(
       enabled,
     });
   } catch (error) {
-    console.error("Failed to toggle MCP app:", error);
+    logger.error('index', "Failed to toggle MCP app:", error);
     throw error;
   }
 }
@@ -414,7 +415,7 @@ export async function mcpImportFromApp(app: string): Promise<string[]> {
   try {
     return await invoke<string[]>("mcp_import_from_app", { app });
   } catch (error) {
-    console.error("Failed to import from app:", error);
+    logger.error('index', "Failed to import from app:", error);
     throw error;
   }
 }
@@ -426,7 +427,7 @@ export async function mcpValidateCommand(cmd: string): Promise<boolean> {
   try {
     return await invoke<boolean>("mcp_validate_command", { cmd });
   } catch (error) {
-    console.error("Failed to validate command:", error);
+    logger.error('index', "Failed to validate command:", error);
     throw error;
   }
 }
@@ -438,7 +439,7 @@ export async function mcpReadClaudeConfig(): Promise<string | null> {
   try {
     return await invoke<string | null>("mcp_read_claude_config");
   } catch (error) {
-    console.error("Failed to read Claude MCP config:", error);
+    logger.error('index', "Failed to read Claude MCP config:", error);
     throw error;
   }
 }

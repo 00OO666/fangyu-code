@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { motion } from "framer-motion";
@@ -66,7 +67,7 @@ export const Diagnostics: React.FC = () => {
       const result = await invoke<DiagnosticReport>("run_diagnostics");
       setReport(result);
     } catch (error) {
-      console.error("诊断失败:", error);
+      logger.error('Diagnostics', "诊断失败:", error);
     } finally {
       setLoading(false);
     }
@@ -79,7 +80,7 @@ export const Diagnostics: React.FC = () => {
       alert(`修复完成！成功: ${result.fixedCount}, 失败: ${result.failedCount}`);
       await runDiagnostics(); // 重新诊断
     } catch (error) {
-      console.error("修复失败:", error);
+      logger.error('Diagnostics', "修复失败:", error);
     } finally {
       setFixing(false);
     }

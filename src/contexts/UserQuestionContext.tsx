@@ -13,6 +13,7 @@
  * 参考：PlanModeContext 的实现模式
  */
 
+import { logger } from '@/lib/logger';
 import {
   createContext,
   useContext,
@@ -112,7 +113,7 @@ function loadAnsweredQuestionIds(key: string): Set<string> {
       return new Set(JSON.parse(stored));
     }
   } catch (error) {
-    console.warn(`[UserQuestion] Failed to load ${key}:`, error);
+    logger.warn('UserQuestionContext', `[UserQuestion] Failed to load ${key}:`, error);
   }
   return new Set();
 }
@@ -124,7 +125,7 @@ function saveAnsweredQuestionIds(key: string, ids: Set<string>): void {
   try {
     sessionStorage.setItem(key, JSON.stringify(Array.from(ids)));
   } catch (error) {
-    console.warn(`[UserQuestion] Failed to save ${key}:`, error);
+    logger.warn('UserQuestionContext', `[UserQuestion] Failed to save ${key}:`, error);
   }
 }
 

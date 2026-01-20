@@ -7,6 +7,7 @@
  * 3. 将 Task 调用和相关子代理消息打包成一个消息组
  */
 
+import { logger } from '@/lib/logger';
 import type { ClaudeStreamMessage } from "@/types/claude";
 
 /**
@@ -190,7 +191,7 @@ function getTechnicalMessageType(message: ClaudeStreamMessage): "tool" | "thinki
   // 🔧 FIX: 如果包含可见文本，绝对不可聚合（这是最重要的规则）
   if (hasText) {
     if (import.meta.env.DEV) {
-      console.log('[subagentGrouping] ❌ NOT aggregating (has text):', message.uuid);
+      logger.debug('subagentGrouping', '[subagentGrouping] ❌ NOT aggregating (has text);:', message.uuid);
     }
     return null;
   }
@@ -209,16 +210,16 @@ function getTechnicalMessageType(message: ClaudeStreamMessage): "tool" | "thinki
     // 以免混淆。它自身内部已经包含了 Thinking 和 Tool。
     // 但是，如果后续还有 Tool，用户可能希望合并后续的 Tool。
     // 让我们保守一点，将其视为 'mixed'，不参与外部聚合。
-    // console.log('[subagentGrouping] Message NOT aggregatable (mixed thinking+tool):', message.uuid);
+    // logger.debug('subagentGrouping', '[subagentGrouping] Message NOT aggregatable (mixed thinking+tool);:', message.uuid);
     return null;
   }
 
   if (hasThinking) {
-    // console.log('[subagentGrouping] Message aggregatable as thinking:', message.uuid);
+    // logger.debug('subagentGrouping', '[subagentGrouping] Message aggregatable as thinking:', message.uuid);
     return "thinking";
   }
   if (hasTool) {
-    // console.log('[subagentGrouping] Message aggregatable as tool:', message.uuid);
+    // logger.debug('subagentGrouping', '[subagentGrouping] Message aggregatable as tool:', message.uuid);
     return "tool";
   }
 
@@ -239,7 +240,7 @@ function getTechnicalMessageType(message: ClaudeStreamMessage): "tool" | "thinki
  * - 避免对每个 Task 都遍历所有后续消息
  */
 export function groupMessages(messages: ClaudeStreamMessage[]): MessageGroup[] {
-  // console.log('[subagentGrouping] 🔍 Starting groupMessages with', messages.length, 'messages');
+  // logger.debug('subagentGrouping', '[subagentGrouping] 🔍 Starting groupMessages with', messages.length, 'messages');
 
   const processedIndices = new Set<number>();
 
@@ -428,7 +429,7 @@ export function groupMessages(messages: ClaudeStreamMessage[]): MessageGroup[] {
         }
       } else {
         // 不可聚合的消息（文本等），结算之前的聚合
-        // console.log('[subagentGrouping] Non-aggregatable message (has text), adding as normal group:', {
+        // logger.debug('subagentGrouping', '[subagentGrouping] Non-aggregatable message (has text);, adding as normal group:', {
         //   uuid: msg.uuid,
         //   type: msg.type,
         //   hasContent: !!msg.message?.content,

@@ -5,6 +5,7 @@
  * 从 usePromptExecution.ts 提取（行 501-895）
  */
 
+import { logger } from '@/lib/logger';
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import { api } from "@/lib/api";
 import { CodexEventConverter } from "@/lib/codexConverter";
@@ -90,7 +91,7 @@ export async function setupCodexEventListeners(
 
     // 检查 tabId 是否变化（HMR 导致）
     if (tabIdRef.current !== codexRequestTabId) {
-      console.log("[Codex Engine] ⚠️ tabId 已变化，忽略旧请求的消息");
+      logger.debug('codex', "[Codex Engine] ⚠️ tabId 已变化，忽略旧请求的消息");
       return;
     }
 
@@ -155,7 +156,7 @@ export async function setupCodexEventListeners(
               };
             })
             .catch((err) => {
-              console.warn("[Codex Engine] Failed to record prompt:", err);
+              logger.warn('codex', "[Codex Engine] Failed to record prompt:", err);
             });
         } else if (codexPendingInfo && codexPendingInfo.promptIndex !== undefined) {
           window.__codexPendingPrompt = {
@@ -211,7 +212,7 @@ export async function setupCodexEventListeners(
           pendingPrompt.promptText,
         );
       } catch (err) {
-        console.warn("[Codex Engine] Failed to record completion:", err);
+        logger.warn('codex', "[Codex Engine] Failed to record completion:", err);
       }
       delete window.__codexPendingPrompt;
     }
@@ -243,7 +244,7 @@ export async function setupCodexEventListeners(
 
   const unlistenError = await listen("codex-error", (event: any) => {
     const payload = event.payload as string;
-    console.error("[Codex Engine] Error:", payload);
+    logger.error('codex', "[Codex Engine] Error:", payload);
     setIsLoading(false);
     hasActiveSessionRef.current = false;
     config.setError(payload);
