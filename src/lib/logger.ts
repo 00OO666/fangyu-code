@@ -1,5 +1,3 @@
-import { logger } from '@/lib/logger';
-
 /**
  * Logger Service
  *
@@ -71,7 +69,7 @@ class LoggerService {
   debug(module: string, message: string, ...args: any[]): void {
     if (!this.shouldLog('debug')) return;
     const formatted = this.format('debug', module, message);
-    logger.debug('logger', formatted, ...args) }
+    console.debug(formatted, ...args) }
 
   /**
    * Info 日志
@@ -87,7 +85,7 @@ class LoggerService {
   warn(module: string, message: string, ...args: any[]): void {
     if (!this.shouldLog('warn')) return;
     const formatted = this.format('warn', module, message);
-    logger.warn('logger', formatted, ...args) }
+    console.warn(formatted, ...args) }
 
   /**
    * Error 日志（始终输出）
@@ -97,8 +95,8 @@ class LoggerService {
     const formatted = this.format('error', module, message);
 
     if (error instanceof Error) {
-      logger.error('logger', formatted, error.message, error.stack, ...args) } else {
-      logger.error('logger', formatted, error, ...args) }
+      console.error(formatted, error.message, error.stack, ...args) } else {
+      console.error(formatted, error, ...args) }
   }
 
   /**
