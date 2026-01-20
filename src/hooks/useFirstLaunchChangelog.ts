@@ -18,7 +18,7 @@ import { getVersion } from "@tauri-apps/api/app";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const STORAGE_KEY = "fangyu-code-last-seen-version";
-const FALLBACK_VERSION = "2.8.0"; // 🔧 Fallback 版本（获取失败时使用）
+const FALLBACK_VERSION = "2.8.1"; // 🔧 Fallback 版本（获取失败时使用）
 
 // 🔧 DEBUG: 全局变量用于强制显示更新日志（调试用）
 declare global {
@@ -30,6 +30,24 @@ declare global {
 
 // 版本更新日志（从新到旧）
 export const CHANGELOGS = {
+  "2.8.1": {
+    title: "v2.8.1 - 🔧 统一日志管理系统",
+    date: "2026-01-20",
+    features: [],
+    improvements: [
+      "🔧 新增统一日志服务 - 替换 1244 处 console.log 调用",
+      "🔧 支持日志级别控制 - debug/info/warn/error 分级管理",
+      "🔧 模块标识追踪 - 每条日志标注来源模块，便于调试",
+      "🔧 生产环境优化 - 自动过滤 debug 级别日志",
+    ],
+    bugfixes: [],
+    technical: [
+      "新增 src/lib/logger.ts 统一日志服务",
+      "替换 245 个文件中的 console 调用",
+      "支持 logger.debug/info/warn/error 四个级别",
+      "日志格式: [模块名] 消息内容",
+    ],
+  },
   "2.8.0": {
     title: "v2.8.0 - 🔧 上下文丢失与会话压缩修复",
     date: "2026-01-20",
