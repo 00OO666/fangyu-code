@@ -5,6 +5,7 @@
  * 支持 gemini-2.5-flash-image (快速) 和 gemini-3-pro-image-preview (高质量)
  */
 
+import { logger } from '@/lib/logger';
 import { GoogleGenAI } from '@google/genai';
 import { getAPIKey } from '@/lib/secureStorage';
 
@@ -61,7 +62,7 @@ class GeminiImageService {
       }
       return false;
     } catch (error) {
-      console.error('[GeminiImageService] Failed to initialize:', error);
+      logger.error('geminiImageService', '[GeminiImageService] Failed to initialize:', error);
       return false;
     }
   }
@@ -115,7 +116,7 @@ class GeminiImageService {
 
       return this.parseResponse(response, prompt, model);
     } catch (error) {
-      console.error('[GeminiImageService] generateImage error:', error);
+      logger.error('geminiImageService', '[GeminiImageService] generateImage error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : '图片生成失败',
@@ -167,7 +168,7 @@ class GeminiImageService {
 
       return this.parseResponse(response, prompt, model);
     } catch (error) {
-      console.error('[GeminiImageService] editImage error:', error);
+      logger.error('geminiImageService', '[GeminiImageService] editImage error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : '图片编辑失败',
@@ -229,7 +230,7 @@ class GeminiImageService {
       const lastUserMessage = messages.filter(m => m.role === 'user').pop();
       return this.parseResponse(response, lastUserMessage?.content || '', model);
     } catch (error) {
-      console.error('[GeminiImageService] chatEditImage error:', error);
+      logger.error('geminiImageService', '[GeminiImageService] chatEditImage error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : '对话式图像编辑失败',
@@ -275,7 +276,7 @@ class GeminiImageService {
         text,
       };
     } catch (error) {
-      console.error('[GeminiImageService] parseResponse error:', error);
+      logger.error('geminiImageService', '[GeminiImageService] parseResponse error:', error);
       return {
         success: false,
         error: '解析响应失败',

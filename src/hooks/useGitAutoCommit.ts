@@ -11,6 +11,7 @@
  * 来源: Cursor Auto-Commit + Aider Git Integration
  */
 
+import { logger } from '@/lib/logger';
 import { useCallback, useEffect, useRef, useState } from "react";
 import { gitService, type GitFileStatus, type GitCommitInfo } from "@/lib/gitService";
 
@@ -65,7 +66,7 @@ async function executeGitCommand(
       }
       case 'push': {
         // Push 暂不支持，返回成功但不执行
-        console.warn('[Git] Push command not implemented');
+        logger.warn('useGitAutoCommit', '[Git] Push command not implemented');
         return { success: true, output: 'Push skipped (not implemented)' };
       }
       default:
@@ -209,7 +210,7 @@ export function useGitAutoCommit(options: UseGitAutoCommitOptions) {
         .map(f => f.path)
         .filter(file => !shouldIgnore(file));
     } catch (error) {
-      console.error("获取修改文件失败:", error);
+      logger.error('useGitAutoCommit', "获取修改文件失败:", error);
       return [];
     }
   }, [projectPath, shouldIgnore]);
@@ -279,7 +280,7 @@ export function useGitAutoCommit(options: UseGitAutoCommitOptions) {
 
         return `${config.messagePrefix} ${action} ${files.length} 个文件`;
       } catch (error) {
-        console.error("生成提交消息失败:", error);
+        logger.error('useGitAutoCommit', "生成提交消息失败:", error);
         return `${config.messagePrefix} 更新 ${files.length} 个文件`;
       }
     },
@@ -298,7 +299,7 @@ export function useGitAutoCommit(options: UseGitAutoCommitOptions) {
         if (onBeforeCommit) {
           const shouldProceed = await onBeforeCommit(files, message);
           if (!shouldProceed) {
-            console.log("提交被前置钩子取消");
+            logger.debug('useGitAutoCommit', "提交被前置钩子取消");
             return null;
           }
         }
@@ -364,7 +365,7 @@ export function useGitAutoCommit(options: UseGitAutoCommitOptions) {
 
         return commit;
       } catch (error) {
-        console.error("执行提交失败:", error);
+        logger.error('useGitAutoCommit', "执行提交失败:", error);
         return null;
       } finally {
         setIsCommitting(false);
@@ -381,7 +382,7 @@ export function useGitAutoCommit(options: UseGitAutoCommitOptions) {
     const files = await getChangedFiles();
 
     if (files.length < config.minFiles) {
-      console.log(`修改文件数 (${files.length}) 少于最小值 (${config.minFiles})`);
+      logger.debug('useGitAutoCommit', `修改文件数 (${files.length}); 少于最小值 (${config.minFiles})`);
       return null;
     }
 
@@ -504,7 +505,7 @@ export function useGitAutoCommit(options: UseGitAutoCommitOptions) {
 
         return commits;
       } catch (error) {
-        console.error("获取提交历史失败:", error);
+        logger.error('useGitAutoCommit', "获取提交历史失败:", error);
         return [];
       }
     },

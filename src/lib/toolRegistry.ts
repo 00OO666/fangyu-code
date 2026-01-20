@@ -5,6 +5,7 @@
  * 支持 MCP 工具的正则匹配和优先级解决
  */
 
+import { logger } from '@/lib/logger';
 import type { FC } from "react";
 
 /**
@@ -104,7 +105,7 @@ class ToolRegistryClass {
    */
   getRenderer(toolName: string | undefined): ToolRenderer | null {
     if (!toolName) {
-      console.warn("[ToolRegistry] Tool name is undefined");
+      logger.warn('toolRegistry', "[ToolRegistry] Tool name is undefined");
       return null;
     }
     const normalizedName = toolName.toLowerCase();

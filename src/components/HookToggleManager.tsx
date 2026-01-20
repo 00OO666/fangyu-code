@@ -10,6 +10,7 @@
  * 参考: SkillsManager.tsx 实现方式
  */
 
+import { logger } from '@/lib/logger';
 import { useState, useEffect, useCallback } from 'react';
 import { api } from '@/lib/api';
 import { Button } from '@/components/ui/button';
@@ -106,7 +107,7 @@ export const HookToggleManager: React.FC<HookToggleManagerProps> = ({
       const result = await api.listHookFiles();
       setHooks(result);
     } catch (err) {
-      console.error('[HookToggleManager] Failed to load hooks:', err);
+      logger.error('HookToggleManager', '[HookToggleManager] Failed to load hooks:', err);
       setError(err instanceof Error ? err.message : 'Failed to load hooks');
     } finally {
       setLoading(false);
@@ -137,7 +138,7 @@ export const HookToggleManager: React.FC<HookToggleManagerProps> = ({
       await api.toggleHookFile(hook.path, enabled, hook.eventType || 'PreToolUse');
       await loadHooks(); // 重新加载列表
     } catch (err) {
-      console.error('[HookToggleManager] Failed to toggle hook:', err);
+      logger.error('HookToggleManager', '[HookToggleManager] Failed to toggle hook:', err);
       setError(err instanceof Error ? err.message : 'Failed to toggle hook');
     } finally {
       setToggling(null);
@@ -155,7 +156,7 @@ export const HookToggleManager: React.FC<HookToggleManagerProps> = ({
       await api.toggleHookFile(hook.path, true, selectedEvent);
       await loadHooks();
     } catch (err) {
-      console.error('[HookToggleManager] Failed to enable hook:', err);
+      logger.error('HookToggleManager', '[HookToggleManager] Failed to enable hook:', err);
       setError(err instanceof Error ? err.message : 'Failed to enable hook');
     } finally {
       setToggling(null);
@@ -169,7 +170,7 @@ export const HookToggleManager: React.FC<HookToggleManagerProps> = ({
       const hooksDir = `${homeDir}\\hooks`;
       await open(hooksDir);
     } catch (err) {
-      console.error('[HookToggleManager] Failed to open hooks directory:', err);
+      logger.error('HookToggleManager', '[HookToggleManager] Failed to open hooks directory:', err);
     }
   };
 

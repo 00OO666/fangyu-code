@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -71,7 +72,7 @@ export function EnhancedHooksManager({ onBack, projectPath }: EnhancedHooksManag
       const enhancedConfig = convertToEnhanced(config);
       setHooksConfig(enhancedConfig);
     } catch (err) {
-      console.error('Failed to load hooks config:', err);
+      logger.error('EnhancedHooksManager', 'Failed to load hooks config:', err);
       setError(err instanceof Error ? err.message : 'Failed to load hooks configuration');
     } finally {
       setLoading(false);
@@ -92,7 +93,7 @@ export function EnhancedHooksManager({ onBack, projectPath }: EnhancedHooksManag
 
       setModified(false);
     } catch (err) {
-      console.error('Failed to save hooks config:', err);
+      logger.error('EnhancedHooksManager', 'Failed to save hooks config:', err);
       setError(err instanceof Error ? err.message : 'Failed to save hooks configuration');
     } finally {
       setSaving(false);
@@ -114,7 +115,7 @@ export function EnhancedHooksManager({ onBack, projectPath }: EnhancedHooksManag
       const result = await api.triggerHookEvent(testEvent, context);
       setTestResult(result);
     } catch (err) {
-      console.error('Failed to test hook event:', err);
+      logger.error('EnhancedHooksManager', 'Failed to test hook event:', err);
       setError(err instanceof Error ? err.message : 'Failed to test hook event');
     } finally {
       setTesting(false);

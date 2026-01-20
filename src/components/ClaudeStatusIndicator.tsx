@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -61,7 +62,7 @@ const loadCachedStatus = (): StatusInfo | null => {
       }
     }
   } catch (error) {
-    console.warn('Failed to load cached Claude status:', error);
+    logger.warn('ClaudeStatusIndicator', 'Failed to load cached Claude status:', error);
   }
   return null;
 };
@@ -75,7 +76,7 @@ const saveCachedStatus = (statusInfo: StatusInfo) => {
     };
     localStorage.setItem(CACHE_KEY, JSON.stringify(cached));
   } catch (error) {
-    console.warn('Failed to save Claude status cache:', error);
+    logger.warn('ClaudeStatusIndicator', 'Failed to save Claude status cache:', error);
   }
 };
 
@@ -224,7 +225,7 @@ export const ClaudeStatusIndicator: React.FC<ClaudeStatusIndicatorProps> = ({
       // Save to cache for future sessions (24 hour cache)
       saveCachedStatus(newStatus);
     } catch (error) {
-      console.error('Failed to check Claude status:', error);
+      logger.error('ClaudeStatusIndicator', 'Failed to check Claude status:', error);
       const errorStatus = {
         status: 'error' as const,
         error: '状态检查失败',

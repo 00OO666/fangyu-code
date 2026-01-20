@@ -7,6 +7,7 @@
  * Merged from errorHandler.ts and errorHandling.ts for unified error management.
  */
 
+import { logger } from '@/lib/logger';
 import { APIError } from "@anthropic-ai/sdk/error";
 
 // ============================================================================
@@ -471,7 +472,7 @@ export class ErrorHandler {
           {
             label: "Run as Administrator",
             action: () => {
-              console.log("Please try running the application as Administrator");
+              logger.debug('errorHandling', "Please try running the application as Administrator");
             },
           },
         ],
@@ -872,10 +873,10 @@ export function withErrorHandling<T extends (...args: any[]) => Promise<any>>(
       // Try fallback if available
       if (options?.fallback && claudeError.recoverable) {
         try {
-          console.warn("Primary operation failed, trying fallback:", claudeError.message);
+          logger.warn('errorHandling', "Primary operation failed, trying fallback:", claudeError.message);
           return await options.fallback(...args);
         } catch (fallbackError) {
-          console.error("Fallback also failed:", fallbackError);
+          logger.error('errorHandling', "Fallback also failed:", fallbackError);
         }
       }
 

@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -74,7 +75,7 @@ export const MCPServerList: React.FC<MCPServerListProps> = ({
       setCopiedServer(serverId);
       setTimeout(() => setCopiedServer(null), 2000);
     } catch (error) {
-      console.error("Failed to copy command:", error);
+      logger.error('MCPServerList', "Failed to copy command:", error);
     }
   };
 
@@ -88,7 +89,7 @@ export const MCPServerList: React.FC<MCPServerListProps> = ({
       await api.mcpDeleteServer(server.id, server.apps);
       onServerRemoved(server.id);
     } catch (error) {
-      console.error("Failed to remove server:", error);
+      logger.error('MCPServerList', "Failed to remove server:", error);
     } finally {
       setRemovingServer(null);
     }
@@ -117,7 +118,7 @@ export const MCPServerList: React.FC<MCPServerListProps> = ({
       // 刷新列表
       onRefresh();
     } catch (error) {
-      console.error("Failed to toggle app:", error);
+      logger.error('MCPServerList', "Failed to toggle app:", error);
     }
   };
 

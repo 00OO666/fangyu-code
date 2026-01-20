@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode, useRef } from 'react';
 import { api, Project, Session } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
@@ -36,7 +37,7 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
       try {
         codexSessions = await api.listCodexSessions();
       } catch (e) {
-        console.warn("Failed to load codex sessions for sorting:", e);
+        logger.warn('ProjectContext', "Failed to load codex sessions for sorting:", e);
       }
 
       // 2. 计算每个项目的"最后活跃时间"
@@ -84,7 +85,7 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
 
       setProjects(sortedList);
     } catch (err) {
-      console.error("Failed to load projects:", err);
+      logger.error('ProjectContext', "Failed to load projects:", err);
       setError(t('common.loadingProjects'));
     } finally {
       setLoading(false);
@@ -116,7 +117,7 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
           engine: 'gemini' as const,
         }));
       } catch (geminiErr) {
-        console.warn('[ProjectContext] Failed to load Gemini sessions (may not exist):', geminiErr);
+        logger.warn('ProjectContext', '[ProjectContext] Failed to load Gemini sessions (may not exist);:', geminiErr);
         // Continue without Gemini sessions if loading fails
       }
 
@@ -130,7 +131,7 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
       // Background indexing
       api.preindexProject(project.path).catch(console.error);
     } catch (err) {
-      console.error("Failed to load sessions:", err);
+      logger.error('ProjectContext', "Failed to load sessions:", err);
       setError(t('common.loadingSessions'));
     } finally {
       setLoading(false);
@@ -160,14 +161,14 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
             engine: 'gemini' as const,
           }));
         } catch (geminiErr) {
-          console.warn('[ProjectContext] Failed to refresh Gemini sessions:', geminiErr);
+          logger.warn('ProjectContext', '[ProjectContext] Failed to refresh Gemini sessions:', geminiErr);
         }
 
         // Merge all sessions
         const allSessions = [...claudeCodexSessions, ...geminiSessions];
         setSessions(allSessions);
       } catch (err) {
-        console.error("Failed to refresh sessions:", err);
+        logger.error('ProjectContext', "Failed to refresh sessions:", err);
       }
     }
   }, [selectedProject]);
@@ -182,7 +183,7 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
         setSessions([]);
       }
     } catch (err) {
-      console.error("Failed to delete project:", err);
+      logger.error('ProjectContext', "Failed to delete project:", err);
       throw err;
     } finally {
       setLoading(false);

@@ -11,6 +11,7 @@
  * 5. 执行日志面板
  */
 
+import { logger } from '@/lib/logger';
 import React, { useState, useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -153,7 +154,7 @@ export const WorkflowManagerPanel: React.FC<WorkflowManagerPanelProps> = ({
     try {
       await generateWorkflow(requirements, { mode });
     } catch (err) {
-      console.error('生成工作流失败:', err);
+      logger.error('WorkflowManagerPanel', '生成工作流失败:', err);
     }
   }, [requirements, mode, generateWorkflow]);
 
@@ -162,7 +163,7 @@ export const WorkflowManagerPanel: React.FC<WorkflowManagerPanelProps> = ({
     try {
       await startExecution();
     } catch (err) {
-      console.error('开始执行失败:', err);
+      logger.error('WorkflowManagerPanel', '开始执行失败:', err);
     }
   }, [startExecution]);
 
@@ -176,7 +177,7 @@ export const WorkflowManagerPanel: React.FC<WorkflowManagerPanelProps> = ({
     try {
       await resumeExecution();
     } catch (err) {
-      console.error('恢复执行失败:', err);
+      logger.error('WorkflowManagerPanel', '恢复执行失败:', err);
     }
   }, [resumeExecution]);
 
@@ -185,7 +186,7 @@ export const WorkflowManagerPanel: React.FC<WorkflowManagerPanelProps> = ({
     try {
       await cancelExecution();
     } catch (err) {
-      console.error('取消执行失败:', err);
+      logger.error('WorkflowManagerPanel', '取消执行失败:', err);
     }
   }, [cancelExecution]);
 
@@ -194,7 +195,7 @@ export const WorkflowManagerPanel: React.FC<WorkflowManagerPanelProps> = ({
     try {
       await retryTask(taskId);
     } catch (err) {
-      console.error('重试任务失败:', err);
+      logger.error('WorkflowManagerPanel', '重试任务失败:', err);
     }
   }, [retryTask]);
 

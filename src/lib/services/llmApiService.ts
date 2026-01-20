@@ -7,6 +7,7 @@
  * @module llmApiService
  */
 
+import { logger } from '@/lib/logger';
 import { fetch as tauriFetch } from "@tauri-apps/plugin-http";
 
 /**
@@ -456,7 +457,7 @@ export class LLMApiService {
           error.message?.includes("404");
 
         if (isUserCancelled || is4xxError) {
-          console.error(`[LLMApiService] ${format} API call failed (non-retryable):`, error);
+          logger.error('llmApiService', `[LLMApiService] ${format} API call failed (non-retryable);:`, error);
           throw error;
         }
 
@@ -527,7 +528,7 @@ export class LLMApiService {
     const format = provider.apiFormat || detectApiFormat(provider.apiUrl);
     if (format !== "openai") {
       // 对于非 OpenAI 格式，回退到非流式调用
-      console.warn(`[LLMApiService] Streaming not supported for ${format}, falling back to non-streaming`);
+      logger.warn('llmApiService', `[LLMApiService] Streaming not supported for ${format}, falling back to non-streaming`);
       const response = await LLMApiService.call(provider, request, options);
       onChunk(response.content, response.content);
       return response;
@@ -611,7 +612,7 @@ export class LLMApiService {
               }
             } catch (e) {
               // 忽略解析错误，继续处理
-              console.debug("[LLMApiService] Failed to parse SSE line:", trimmedLine);
+              logger.debug('llmApiService', "[LLMApiService] Failed to parse SSE line:", trimmedLine);
             }
           }
         }

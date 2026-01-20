@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -117,7 +118,7 @@ export const MCPEnginePanel: React.FC<MCPEnginePanelProps> = ({
       const serversList = await api.mcpGetEngineServersWithStatus(engine);
       setServers(serversList);
     } catch (error) {
-      console.error(`Failed to load ${engine} MCP servers:`, error);
+      logger.error('MCPEnginePanel', `Failed to load ${engine} MCP servers:`, error);
     } finally {
       setLoading(false);
     }
@@ -147,7 +148,7 @@ export const MCPEnginePanel: React.FC<MCPEnginePanelProps> = ({
       setCopiedServer(serverId);
       setTimeout(() => setCopiedServer(null), 2000);
     } catch (error) {
-      console.error("Failed to copy command:", error);
+      logger.error('MCPEnginePanel', "Failed to copy command:", error);
     }
   };
 
@@ -175,7 +176,7 @@ export const MCPEnginePanel: React.FC<MCPEnginePanelProps> = ({
         )
       );
     } catch (error) {
-      console.error(`Failed to toggle ${engine} MCP server:`, error);
+      logger.error('MCPEnginePanel', `Failed to toggle ${engine} MCP server:`, error);
     }
   };
 
@@ -222,7 +223,7 @@ export const MCPEnginePanel: React.FC<MCPEnginePanelProps> = ({
       await api.mcpDeleteEngineServer(engine, id);
       setServers((prev) => prev.filter((s) => s.id !== id));
     } catch (error) {
-      console.error(`Failed to remove server from ${engine}:`, error);
+      logger.error('MCPEnginePanel', `Failed to remove server from ${engine}:`, error);
     } finally {
       setRemovingServer(null);
     }

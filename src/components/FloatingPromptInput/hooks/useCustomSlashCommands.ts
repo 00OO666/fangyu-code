@@ -8,6 +8,7 @@
  * Gemini: ~/.gemini/commands/*.toml
  */
 
+import { logger } from '@/lib/logger';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import type { SlashCommand } from '../slashCommands';
@@ -104,10 +105,10 @@ export function useCustomSlashCommands({
       const errorMessage = err instanceof Error ? err.message : String(err);
       // 如果后端命令不存在（Gemini 还未实现），静默失败
       if (errorMessage.includes('not found') || errorMessage.includes('Unknown command')) {
-        console.debug(`Custom slash commands not available for engine: ${engine}`);
+        logger.debug('useCustomSlashCommands', `Custom slash commands not available for engine: ${engine}`);
         setRawCommands([]);
       } else {
-        console.error('Failed to load custom slash commands:', errorMessage);
+        logger.error('useCustomSlashCommands', 'Failed to load custom slash commands:', errorMessage);
         setError(errorMessage);
         setRawCommands([]);
       }

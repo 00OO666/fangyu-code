@@ -4,6 +4,7 @@
  * 调用 Tauri 后端的 Kiro CLI 命令
  */
 
+import { logger } from '@/lib/logger';
 import { invoke } from '@tauri-apps/api/core';
 import { listen, UnlistenFn } from '@tauri-apps/api/event';
 
@@ -46,7 +47,7 @@ export async function checkKiroCliInstalled(): Promise<boolean> {
     try {
         return await invoke<boolean>('check_kiro_cli_installed');
     } catch (error) {
-        console.error('[Kiro] Failed to check CLI installation:', error);
+        logger.error('kiroApi', '[Kiro] Failed to check CLI installation:', error);
         return false;
     }
 }
@@ -58,7 +59,7 @@ export async function checkKiroCliLoggedIn(): Promise<boolean> {
     try {
         return await invoke<boolean>('check_kiro_cli_logged_in');
     } catch (error) {
-        console.error('[Kiro] Failed to check login status:', error);
+        logger.error('kiroApi', '[Kiro] Failed to check login status:', error);
         return false;
     }
 }
@@ -70,7 +71,7 @@ export async function getKiroCliVersion(): Promise<string> {
     try {
         return await invoke<string>('get_kiro_cli_version');
     } catch (error) {
-        console.error('[Kiro] Failed to get CLI version:', error);
+        logger.error('kiroApi', '[Kiro] Failed to get CLI version:', error);
         throw error;
     }
 }
@@ -82,7 +83,7 @@ export async function getKiroModels(): Promise<KiroModel[]> {
     try {
         return await invoke<KiroModel[]>('get_kiro_models');
     } catch (error) {
-        console.error('[Kiro] Failed to get models:', error);
+        logger.error('kiroApi', '[Kiro] Failed to get models:', error);
         return [];
     }
 }
@@ -104,7 +105,7 @@ export async function executeKiroChat(params: {
             tabId: params.tabId,
         });
     } catch (error) {
-        console.error('[Kiro] Failed to execute chat:', error);
+        logger.error('kiroApi', '[Kiro] Failed to execute chat:', error);
         throw error;
     }
 }
@@ -116,7 +117,7 @@ export async function cancelKiroExecution(tabId?: string): Promise<void> {
     try {
         await invoke('cancel_kiro_execution', { tabId });
     } catch (error) {
-        console.error('[Kiro] Failed to cancel execution:', error);
+        logger.error('kiroApi', '[Kiro] Failed to cancel execution:', error);
         throw error;
     }
 }
@@ -128,7 +129,7 @@ export async function openKiroLogin(): Promise<string> {
     try {
         return await invoke<string>('open_kiro_login');
     } catch (error) {
-        console.error('[Kiro] Failed to open login:', error);
+        logger.error('kiroApi', '[Kiro] Failed to open login:', error);
         throw error;
     }
 }

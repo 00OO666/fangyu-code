@@ -3,6 +3,7 @@
  * 提供会话记录导出功能，支持多种格式
  */
 
+import { logger } from '@/lib/logger';
 import { save } from "@tauri-apps/plugin-dialog";
 import { writeTextFile } from "@tauri-apps/plugin-fs";
 import type { Session } from "@/lib/api";
@@ -233,7 +234,7 @@ export async function saveFileWithDialog(
 
     return null;
   } catch (error) {
-    console.error("保存文件失败:", error);
+    logger.error('sessionExport', "保存文件失败:", error);
     throw error;
   }
 }

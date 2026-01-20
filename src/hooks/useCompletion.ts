@@ -8,6 +8,7 @@
  * - 键盘导航
  */
 
+import { logger } from '@/lib/logger';
 import { useCallback, useEffect, useRef, useState } from "react";
 import type {
   CompletionConfig,
@@ -102,7 +103,7 @@ export function useCompletion(config: CompletionConfig = {}) {
           const result = await provider.provideCompletions(context);
           items.push(...result.items);
         } catch (error) {
-          console.error(`[Completion] Provider ${provider.id} error:`, error);
+          logger.error('useCompletion', `[Completion] Provider ${provider.id} error:`, error);
         }
       }
 
@@ -157,7 +158,7 @@ export function useCompletion(config: CompletionConfig = {}) {
           result,
         }));
       } catch (error) {
-        console.error("[Completion] Error:", error);
+        logger.error('useCompletion', "[Completion] Error:", error);
         setState((prev) => ({
           ...prev,
           visible: false,

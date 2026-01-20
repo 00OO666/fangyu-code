@@ -14,6 +14,7 @@
  * 来源: Claude Code @mention + Cursor @ References
  */
 
+import { logger } from '@/lib/logger';
 import { useCallback, useEffect, useState } from "react";
 import { api } from "@/lib/api";
 
@@ -107,7 +108,7 @@ export function useMentionParser(options: UseMentionParserOptions = {}) {
           })),
         );
       } catch (error) {
-        console.error("加载mention建议失败:", error);
+        logger.error('useMentionParser', "加载mention建议失败:", error);
       } finally {
         setLoading(false);
       }

@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useState } from "react";
 import { Download, Upload, FileText, Loader2, Info, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -67,7 +68,7 @@ export const MCPImportExport: React.FC<MCPImportExportProps> = ({
             await api.mcpUpsertServer(id, id, serverSpec, importApps);
             imported++;
           } catch (e) {
-            console.error(`Failed to import server ${id}:`, e);
+            logger.error('MCPImportExport', `Failed to import server ${id}:`, e);
             failed++;
           }
         }
@@ -92,7 +93,7 @@ export const MCPImportExport: React.FC<MCPImportExportProps> = ({
       // Clear text input on successful import
       setTextInput("");
     } catch (error) {
-      console.error("Failed to import from text:", error);
+      logger.error('MCPImportExport', "Failed to import from text:", error);
       onError("导入文本失败");
     } finally {
       setImportingText(false);
@@ -131,7 +132,7 @@ export const MCPImportExport: React.FC<MCPImportExportProps> = ({
             await api.mcpUpsertServer(id, id, serverSpec, importApps);
             imported++;
           } catch (e) {
-            console.error(`Failed to import server ${id}:`, e);
+            logger.error('MCPImportExport', `Failed to import server ${id}:`, e);
             failed++;
           }
         }
@@ -153,7 +154,7 @@ export const MCPImportExport: React.FC<MCPImportExportProps> = ({
         onError("无法识别的 JSON 格式。需要 MCP 服务器配置格式。");
       }
     } catch (error) {
-      console.error("Failed to import JSON:", error);
+      logger.error('MCPImportExport', "Failed to import JSON:", error);
       onError("导入 JSON 文件失败");
     } finally {
       setImportingJson(false);
@@ -187,7 +188,7 @@ export const MCPImportExport: React.FC<MCPImportExportProps> = ({
       
       onError("✅ MCP服务器配置导出成功！文件已保存到下载文件夹。");
     } catch (error: any) {
-      console.error("Failed to export MCP configuration:", error);
+      logger.error('MCPImportExport', "Failed to export MCP configuration:", error);
       onError(`导出MCP配置失败: ${error.toString()}`);
     }
   };

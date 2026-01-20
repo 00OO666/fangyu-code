@@ -5,6 +5,7 @@
  * 注意：使用 localStorage 存储配置进度（Tauri 后端没有通用的 app_setting 命令）
  */
 
+import { logger } from '@/lib/logger';
 import type { EngineType } from '../types/provider';
 
 // 配置步骤定义
@@ -85,7 +86,7 @@ export async function saveSetupProgress(progress: EngineSetupProgress): Promise<
     try {
         localStorage.setItem(key, JSON.stringify(data));
     } catch (error) {
-        console.error('Failed to save setup progress:', error);
+        logger.error('setupStateService', 'Failed to save setup progress:', error);
     }
 }
 
@@ -101,7 +102,7 @@ export async function getSetupProgress(engine: EngineType): Promise<EngineSetupP
             return JSON.parse(localValue) as EngineSetupProgress;
         }
     } catch (error) {
-        console.error('Failed to get setup progress:', error);
+        logger.error('setupStateService', 'Failed to get setup progress:', error);
     }
     
     return null;
@@ -116,7 +117,7 @@ export async function resetSetupProgress(engine: EngineType): Promise<void> {
     try {
         localStorage.removeItem(key);
     } catch (error) {
-        console.error('Failed to reset setup progress:', error);
+        logger.error('setupStateService', 'Failed to reset setup progress:', error);
     }
 }
 

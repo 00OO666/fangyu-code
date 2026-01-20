@@ -3,6 +3,7 @@
  *
  * 提供 Git 仓库操作、diff 统计、文件变更查询等功能。
  */
+import { logger } from '@/lib/logger';
 import { invoke } from "@tauri-apps/api/core";
 import type { GitFileChange, ResetSafetyInfo } from "../types";
 
@@ -15,7 +16,7 @@ export async function checkAndInitGit(projectPath: string): Promise<boolean> {
   try {
     return await invoke<boolean>("check_and_init_git", { projectPath });
   } catch (error) {
-    console.error("Failed to check/init Git:", error);
+    logger.error('index', "Failed to check/init Git:", error);
     return false;
   }
 }
@@ -41,7 +42,7 @@ export async function checkResetSafety(
       currentEngine,
     });
   } catch (error) {
-    console.error("Failed to check reset safety:", error);
+    logger.error('index', "Failed to check reset safety:", error);
     // Return a safe default that allows proceeding
     return {
       commitsToLose: 0,
@@ -69,7 +70,7 @@ export async function getGitDiffStats(
   try {
     return await invoke("get_git_diff_stats", { projectPath, fromCommit, toCommit });
   } catch (error) {
-    console.error("Failed to get git diff stats:", error);
+    logger.error('index', "Failed to get git diff stats:", error);
     throw error;
   }
 }
@@ -87,7 +88,7 @@ export async function getSessionCodeChanges(
   try {
     return await invoke("get_session_code_changes", { projectPath, sessionStartCommit });
   } catch (error) {
-    console.error("Failed to get session code changes:", error);
+    logger.error('index', "Failed to get session code changes:", error);
     throw error;
   }
 }
@@ -108,7 +109,7 @@ export async function getGitChangedFiles(
   try {
     return await invoke("get_git_changed_files", { projectPath, fromCommit, toCommit });
   } catch (error) {
-    console.error("Failed to get git changed files:", error);
+    logger.error('index', "Failed to get git changed files:", error);
     throw error;
   }
 }
@@ -131,7 +132,7 @@ export async function getGitFileDiff(
   try {
     return await invoke("get_git_file_diff", { projectPath, fromCommit, toCommit, filePath });
   } catch (error) {
-    console.error("Failed to get git file diff:", error);
+    logger.error('index', "Failed to get git file diff:", error);
     throw error;
   }
 }
@@ -152,7 +153,7 @@ export async function getGitFileAtCommit(
   try {
     return await invoke("get_git_file_at_commit", { projectPath, commit, filePath });
   } catch (error) {
-    console.error("Failed to get git file at commit:", error);
+    logger.error('index', "Failed to get git file at commit:", error);
     throw error;
   }
 }

@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useState, useEffect } from "react";
 import MDEditor from "@uiw/react-md-editor";
 import { motion } from "framer-motion";
@@ -50,7 +51,7 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
       setContent(prompt);
       setOriginalContent(prompt);
     } catch (err) {
-      console.error("Failed to load system prompt:", err);
+      logger.error('MarkdownEditor', "Failed to load system prompt:", err);
       setError("Failed to load CLAUDE.md file");
     } finally {
       setLoading(false);
@@ -66,7 +67,7 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
       setOriginalContent(content);
       setToast({ message: "CLAUDE.md saved successfully", type: "success" });
     } catch (err) {
-      console.error("Failed to save system prompt:", err);
+      logger.error('MarkdownEditor', "Failed to save system prompt:", err);
       setError("Failed to save CLAUDE.md file");
       setToast({ message: "Failed to save CLAUDE.md", type: "error" });
     } finally {

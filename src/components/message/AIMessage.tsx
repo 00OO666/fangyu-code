@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React from "react";
 import { ClaudeIcon } from "@/components/icons/ClaudeIcon";
 import { CodexIcon } from "@/components/icons/CodexIcon";
@@ -188,7 +189,7 @@ const AIMessageComponent: React.FC<AIMessageProps> = ({
 
   // 🔍 DEBUG: 暂时注释掉空消息过滤，看看是否有消息被误判
   // if (!text && !hasTools && !hasThinking) {
-  //   console.log('[AIMessage] ⚠️ Skipping empty message:', messageId);
+  //   logger.debug('AIMessage', '[AIMessage] ⚠️ Skipping empty message:', messageId);
   //   return null;
   // }
 

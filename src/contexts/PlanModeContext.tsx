@@ -11,6 +11,7 @@
  * - 显示已审批/已拒绝状态
  */
 
+import { logger } from '@/lib/logger';
 import React, {
   createContext,
   useContext,
@@ -106,7 +107,7 @@ function loadPlanIds(key: string): Set<string> {
       return new Set(JSON.parse(stored));
     }
   } catch (e) {
-    console.error(`[PlanMode] Failed to load ${key}:`, e);
+    logger.error('PlanModeContext', `[PlanMode] Failed to load ${key}:`, e);
   }
   return new Set();
 }
@@ -118,7 +119,7 @@ function savePlanIds(key: string, ids: Set<string>) {
   try {
     sessionStorage.setItem(key, JSON.stringify([...ids]));
   } catch (e) {
-    console.error(`[PlanMode] Failed to save ${key}:`, e);
+    logger.error('PlanModeContext', `[PlanMode] Failed to save ${key}:`, e);
   }
 }
 

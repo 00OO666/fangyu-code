@@ -8,6 +8,7 @@
  * 4. 使用 Web Worker 进行复杂解析（可选）
  */
 
+import { logger } from '@/lib/logger';
 import React, { memo, useMemo, Suspense, lazy, useCallback, useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -70,7 +71,7 @@ const OptimizedCodeBlock: React.FC<OptimizedCodeBlockProps> = memo(
                 setCopied(true);
                 setTimeout(() => setCopied(false), 2000);
             } catch (e) {
-                console.error("Copy failed:", e);
+                logger.error('OptimizedMarkdown', "Copy failed:", e);
             }
         }, [code]);
 

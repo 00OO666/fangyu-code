@@ -2,6 +2,7 @@
  * ProjectSettings component for managing project-specific hooks configuration
  */
 
+import { logger } from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { HooksEditor } from '@/components/HooksEditor';
 import { api } from '@/lib/api';
@@ -73,7 +74,7 @@ export const ProjectSettings: React.FC<ProjectSettingsProps> = ({
         setToast({ message: t('projectSettings.addedToGitignore'), type: 'success' });
       }
     } catch (err) {
-      console.error('Failed to update .gitignore:', err);
+      logger.error('ProjectSettings', 'Failed to update .gitignore:', err);
       setToast({ message: t('projectSettings.updateGitignoreFailed'), type: 'error' });
     }
   };

@@ -2,6 +2,7 @@
  * 引擎配置面板 - 主组件
  */
 
+import { logger } from '@/lib/logger';
 import React, { useState, useCallback } from 'react';
 import { Plus, Loader2 } from 'lucide-react';
 import { useEngineConfig } from '../../hooks/useEngineConfig';
@@ -136,7 +137,7 @@ export function EngineConfigPanel() {
                 });
             }
         } catch (error) {
-            console.error('设置默认模型失败:', error);
+            logger.error('index', '设置默认模型失败:', error);
             notify.error('设置默认模型失败', {
                 position: 'top-center',
                 duration: 3000,

@@ -10,6 +10,7 @@
  * 主要用于跨窗口会话消息同步
  */
 
+import { logger } from '@/lib/logger';
 import { useCallback, useEffect, useRef, useState } from "react";
 import type {
   WebSocketConfig,
@@ -92,7 +93,7 @@ export function useWebSocket(config: WebSocketConfig = {}) {
           try {
             (handler as Function)(...args);
           } catch (error) {
-            console.error(`[WebSocket] Error in ${event} handler:`, error);
+            logger.error('useWebSocket', `[WebSocket] Error in ${event} handler:`, error);
           }
         });
       }
@@ -103,7 +104,7 @@ export function useWebSocket(config: WebSocketConfig = {}) {
   // 发送消息
   const send = useCallback(<T = any>(type: WebSocketMessageType, payload: T) => {
     if (wsRef.current?.readyState !== WebSocket.OPEN) {
-      console.warn("[WebSocket] Cannot send message: not connected");
+      logger.warn('useWebSocket', "[WebSocket] Cannot send message: not connected");
       return;
     }
 
@@ -175,7 +176,7 @@ export function useWebSocket(config: WebSocketConfig = {}) {
             break;
         }
       } catch (error) {
-        console.error("[WebSocket] Failed to parse message:", error);
+        logger.error('useWebSocket', "[WebSocket] Failed to parse message:", error);
       }
     },
     [emit],
@@ -195,7 +196,7 @@ export function useWebSocket(config: WebSocketConfig = {}) {
       const ws = new WebSocket(configRef.current.url);
 
       ws.onopen = () => {
-        console.log("[WebSocket] Connected to", configRef.current.url);
+        logger.debug('useWebSocket', "[WebSocket] Connected to", configRef.current.url);
         setState("connected");
         reconnectCountRef.current = 0;
         startHeartbeat();
@@ -203,7 +204,7 @@ export function useWebSocket(config: WebSocketConfig = {}) {
       };
 
       ws.onclose = (event) => {
-        console.log("[WebSocket] Connection closed:", event.code, event.reason);
+        logger.debug('useWebSocket', "[WebSocket] Connection closed:", event.code, event.reason);
         cleanup();
 
         // 如果不是正常关闭且允许自动重连
@@ -229,7 +230,7 @@ export function useWebSocket(config: WebSocketConfig = {}) {
       };
 
       ws.onerror = (error) => {
-        console.error("[WebSocket] Error:", error);
+        logger.error('useWebSocket', "[WebSocket] Error:", error);
         const err = new Error("WebSocket connection error");
         setLastError(err);
         setState("error");
@@ -241,7 +242,7 @@ export function useWebSocket(config: WebSocketConfig = {}) {
 
       wsRef.current = ws;
     } catch (error) {
-      console.error("[WebSocket] Failed to create connection:", error);
+      logger.error('useWebSocket', "[WebSocket] Failed to create connection:", error);
       const err = error instanceof Error ? error : new Error(String(error));
       setLastError(err);
       setState("error");

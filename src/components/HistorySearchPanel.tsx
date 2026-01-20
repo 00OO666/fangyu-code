@@ -8,6 +8,7 @@
  * - 支持加载历史记录到当前会话
  */
 
+import { logger } from '@/lib/logger';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -230,7 +231,7 @@ export function HistorySearchPanel({
       const data = await invoke<ChatHistoryStats>('get_chat_history_stats');
       setStats(data);
     } catch (error) {
-      console.error('Failed to load stats:', error);
+      logger.error('HistorySearchPanel', 'Failed to load stats:', error);
     }
   };
 
@@ -239,7 +240,7 @@ export function HistorySearchPanel({
       const sessions = await invoke<ChatSession[]>('get_recent_sessions', { limit: 10 });
       setRecentSessions(sessions);
     } catch (error) {
-      console.error('Failed to load recent sessions:', error);
+      logger.error('HistorySearchPanel', 'Failed to load recent sessions:', error);
     }
   };
 
@@ -252,7 +253,7 @@ export function HistorySearchPanel({
       });
       setResults(searchResults);
     } catch (error) {
-      console.error('Search failed:', error);
+      logger.error('HistorySearchPanel', 'Search failed:', error);
       setResults([]);
     } finally {
       setIsLoading(false);
@@ -268,7 +269,7 @@ export function HistorySearchPanel({
       });
       setSessionMessages(messages);
     } catch (error) {
-      console.error('Failed to load messages:', error);
+      logger.error('HistorySearchPanel', 'Failed to load messages:', error);
       setSessionMessages([]);
     } finally {
       setIsLoadingMessages(false);

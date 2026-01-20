@@ -5,6 +5,7 @@
  * 管理 Claude Code、Codex、Gemini 三种引擎的独立配置
  */
 
+import { logger } from '@/lib/logger';
 import {
     EngineType,
     EngineSettings,
@@ -71,7 +72,7 @@ class MultiEngineSettingsService {
             this.settings = createDefaultMultiEngineSettings();
             return this.settings;
         } catch (error) {
-            console.error('[MultiEngineSettingsService] Failed to load settings:', error);
+            logger.error('multiEngineSettingsService', '[MultiEngineSettingsService] Failed to load settings:', error);
             this.settings = createDefaultMultiEngineSettings();
             return this.settings;
         }
@@ -86,7 +87,7 @@ class MultiEngineSettingsService {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(this.settings));
             this.notifyListeners();
         } catch (error) {
-            console.error('[MultiEngineSettingsService] Failed to save settings:', error);
+            logger.error('multiEngineSettingsService', '[MultiEngineSettingsService] Failed to save settings:', error);
             throw error;
         }
     }
@@ -273,9 +274,9 @@ class MultiEngineSettingsService {
                 newSettings.general.hideStartupWarnings = legacy.hideStartupWarnings;
             }
 
-            console.log('[MultiEngineSettingsService] Successfully migrated legacy settings');
+            logger.debug('multiEngineSettingsService', '[MultiEngineSettingsService] Successfully migrated legacy settings');
         } catch (error) {
-            console.error('[MultiEngineSettingsService] Migration error, using defaults:', error);
+            logger.error('multiEngineSettingsService', '[MultiEngineSettingsService] Migration error, using defaults:', error);
             this.backupLegacySettings(legacy);
         }
 
@@ -289,9 +290,9 @@ class MultiEngineSettingsService {
         try {
             const backupKey = `${LEGACY_STORAGE_KEY}-backup-${Date.now()}`;
             localStorage.setItem(backupKey, JSON.stringify(legacy));
-            console.log('[MultiEngineSettingsService] Legacy settings backed up to:', backupKey);
+            logger.debug('multiEngineSettingsService', '[MultiEngineSettingsService] Legacy settings backed up to:', backupKey);
         } catch (error) {
-            console.error('[MultiEngineSettingsService] Failed to backup legacy settings:', error);
+            logger.error('multiEngineSettingsService', '[MultiEngineSettingsService] Failed to backup legacy settings:', error);
         }
     }
 

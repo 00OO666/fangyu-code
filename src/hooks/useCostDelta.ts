@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const STORAGE_KEY = "session_cost_snapshot_v3";
@@ -56,7 +57,7 @@ export function useCostDelta(sessionId: string | undefined, currentCost: number,
       records[snapshot.sessionId] = snapshot;
       localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
     } catch (error) {
-      console.error("[useCostDelta] Failed to save snapshot:", error);
+      logger.error('useCostDelta', "[useCostDelta] Failed to save snapshot:", error);
     }
   }, []);
 
@@ -142,7 +143,7 @@ export function useCostDelta(sessionId: string | undefined, currentCost: number,
         msgIndex: currentMsgIndex,
       });
     } catch (error) {
-      console.error("[useCostDelta] Failed to initialize:", error);
+      logger.error('useCostDelta', "[useCostDelta] Failed to initialize:", error);
     }
   }, [sessionId, currentCost, messages, findLastUserMessageIndex, saveSnapshot]);
 
@@ -266,7 +267,7 @@ export function useCostDelta(sessionId: string | undefined, currentCost: number,
         }
       }
     } catch (error) {
-      console.error("[useCostDelta] Failed to clean up old records:", error);
+      logger.error('useCostDelta', "[useCostDelta] Failed to clean up old records:", error);
     }
   }, []);
 

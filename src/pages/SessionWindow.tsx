@@ -5,6 +5,7 @@
  * It initializes based on URL parameters passed when the window was created.
  */
 
+import { logger } from '@/lib/logger';
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { invoke } from "@tauri-apps/api/core";
 import { Copy, Minus, PanelLeftClose, Square, X } from "lucide-react";
@@ -101,7 +102,7 @@ export const SessionWindow: React.FC = () => {
           }));
         }
       } catch (error) {
-        console.error("[SessionWindow] Initialization error:", error);
+        logger.error('SessionWindow', "[SessionWindow] Initialization error:", error);
         setState((prev) => ({
           ...prev,
           isLoading: false,
@@ -184,7 +185,7 @@ export const SessionWindow: React.FC = () => {
     // Listen for delegated tasks
     const setupTaskListener = async () => {
       await taskDelegationService.listenForDelegatedTasks((task) => {
-        console.log("[SessionWindow] Received delegated task:", task);
+        logger.debug('SessionWindow', "[SessionWindow] Received delegated task:", task);
         // Handle task execution here if needed
       });
     };
@@ -213,7 +214,7 @@ export const SessionWindow: React.FC = () => {
       const window = getCurrentWindow();
       await window.close();
     } catch (error) {
-      console.error("[SessionWindow] Failed to close window:", error);
+      logger.error('SessionWindow', "[SessionWindow] Failed to close window:", error);
     }
   };
 
@@ -222,7 +223,7 @@ export const SessionWindow: React.FC = () => {
       const window = getCurrentWindow();
       await window.minimize();
     } catch (error) {
-      console.error("[SessionWindow] Failed to minimize window:", error);
+      logger.error('SessionWindow', "[SessionWindow] Failed to minimize window:", error);
     }
   };
 
@@ -236,7 +237,7 @@ export const SessionWindow: React.FC = () => {
         await window.maximize();
       }
     } catch (error) {
-      console.error("[SessionWindow] Failed to toggle maximize:", error);
+      logger.error('SessionWindow', "[SessionWindow] Failed to toggle maximize:", error);
     }
   };
 
@@ -270,7 +271,7 @@ export const SessionWindow: React.FC = () => {
         }, 100);
       }
     } catch (error) {
-      console.error("[SessionWindow] Failed to merge to main window:", error);
+      logger.error('SessionWindow', "[SessionWindow] Failed to merge to main window:", error);
     }
   };
 
@@ -297,7 +298,7 @@ export const SessionWindow: React.FC = () => {
       await window.startDragging();
     } catch (error) {
       // Ignore errors - fallback to CSS-based dragging
-      console.debug("[SessionWindow] startDragging fallback:", error);
+      logger.debug('SessionWindow', "[SessionWindow] startDragging fallback:", error);
     }
   };
 

@@ -5,6 +5,7 @@
  * 主组件 (~100行) + SearchResults 子组件 (~100行)
  */
 
+import { logger } from '@/lib/logger';
 import React, { useState } from "react";
 import { Globe, AlertCircle } from "lucide-react";
 import { open } from "@tauri-apps/plugin-shell";
@@ -119,7 +120,7 @@ export const WebSearchWidget: React.FC<WebSearchWidgetProps> = ({
     try {
       await open(url);
     } catch (error) {
-      console.error('Failed to open URL:', error);
+      logger.error('WebSearchWidget', 'Failed to open URL:', error);
     }
   };
 

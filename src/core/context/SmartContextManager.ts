@@ -1,3 +1,5 @@
+import { logger } from '@/lib/logger';
+
 /**
  * SmartContextManager - 智能上下文管理器
  * 
@@ -360,7 +362,7 @@ export class SmartContextManager {
       try {
         listener(event, stats);
       } catch (error) {
-        console.error('Threshold listener error:', error);
+        logger.error('SmartContextManager', 'Threshold listener error:', error);
       }
     }
   }

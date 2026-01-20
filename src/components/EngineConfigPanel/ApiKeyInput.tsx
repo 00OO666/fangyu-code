@@ -2,6 +2,7 @@
  * API Key 输入组件 - 支持掩码显示和剪贴板粘贴
  */
 
+import { logger } from '@/lib/logger';
 import React, { useState, useCallback } from 'react';
 import { Eye, EyeOff, Clipboard, Check } from 'lucide-react';
 import { maskApiKey } from '../../services/cryptoService';
@@ -36,7 +37,7 @@ export function ApiKeyInput({
                 setTimeout(() => setJustPasted(false), 2000);
             }
         } catch (err) {
-            console.error('无法读取剪贴板:', err);
+            logger.error('ApiKeyInput', '无法读取剪贴板:', err);
         }
     }, [onChange]);
 

@@ -10,6 +10,7 @@
  * 来源: Claude Code Slash Commands + Cursor Custom Commands
  */
 
+import { logger } from '@/lib/logger';
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "@/lib/api";
 
@@ -93,7 +94,7 @@ export function useSkillTrigger(options: UseSkillTriggerOptions = {}) {
 
       setSkills(skillInfos);
     } catch (error) {
-      console.error("加载技能失败:", error);
+      logger.error('useSkillTrigger', "加载技能失败:", error);
     } finally {
       setLoading(false);
     }
@@ -293,7 +294,7 @@ export function useSkillTrigger(options: UseSkillTriggerOptions = {}) {
           content: args ? `${content}\n\n用户参数: ${args}` : content,
         };
       } catch (error) {
-        console.error("执行技能失败:", error);
+        logger.error('useSkillTrigger', "执行技能失败:", error);
         return {
           success: false,
           content: `执行技能 ${skill.name} 失败: ${error}`,

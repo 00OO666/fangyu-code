@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
@@ -226,7 +227,7 @@ export const UsageDashboard: React.FC<UsageDashboardProps> = ({ onBack }) => {
         setCachedData(`${cacheKey}-gemini`, geminiData);
       });
     } catch (err: any) {
-      console.error("Failed to load usage stats:", err);
+      logger.error('UsageDashboard', "Failed to load usage stats:", err);
       setError("Failed to load usage statistics. Please try again.");
     } finally {
       setLoading(false);

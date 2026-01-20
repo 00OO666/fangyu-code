@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import { useEffect, useState, lazy, Suspense } from "react";
 import { AppProviders } from "@/components/providers";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -47,7 +48,7 @@ function App() {
         const pos = JSON.parse(savedPos);
         // 如果位置超出屏幕范围，重置
         if (pos.x < 0 || pos.y < 0 || pos.x > window.innerWidth - 100 || pos.y > window.innerHeight - 100) {
-          console.log('[App] 错误监控面板位置超出屏幕，重置位置');
+          logger.debug('App', '[App] 错误监控面板位置超出屏幕，重置位置');
           localStorage.removeItem('fangyu-error-panel-position');
         }
       } catch {
@@ -68,7 +69,7 @@ function App() {
     const handleKeyDown = (event: KeyboardEvent) => {
       // 调试：打印所有按键
       if (event.ctrlKey && event.shiftKey) {
-        console.log('[App] Ctrl+Shift+' + event.key + ' pressed');
+        logger.debug('App', '[App] Ctrl+Shift+' + event.key + ' pressed');
       }
       
       // F12 - 打开/关闭开发者工具
@@ -79,7 +80,7 @@ function App() {
       
       // Ctrl+Shift+E - 切换错误监控面板（生产环境也可用）
       if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'e') {
-        console.log('[App] Ctrl+Shift+E detected!');
+        logger.debug('App', '[App] Ctrl+Shift+E detected!');
         event.preventDefault();
         event.stopPropagation();
         setShowErrorMonitor(prev => {
@@ -90,7 +91,7 @@ function App() {
           } else {
             localStorage.removeItem('fangyu-show-error-monitor');
           }
-          console.log(`[App] 错误监控面板: ${newValue ? '已开启' : '已关闭'}`);
+          logger.debug('App', `[App] 错误监控面板: ${newValue ? '已开启' : '已关闭'}`);
           return newValue;
         });
       }
@@ -131,7 +132,6 @@ function App() {
       {/* 错误监控面板（开发模式自动显示，生产模式 Ctrl+Shift+E 开启） */}
       {showErrorMonitor && (
         <Suspense fallback={null}>
-          {console.log('[App] 渲染 ErrorMonitorPanel, errors:', errors.length)}
           <ErrorMonitorPanel
             errors={errors}
             onClearAll={clearErrors}

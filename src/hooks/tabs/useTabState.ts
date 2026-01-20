@@ -8,6 +8,7 @@
  * _Requirements: 1.1_
  */
 
+import { logger } from '@/lib/logger';
 import { useState, useCallback, useRef, useMemo } from 'react';
 import type { Tab, TabSession } from './types';
 import type { Session } from '@/lib/api';
@@ -129,7 +130,7 @@ export function useTabState() {
                 setActiveTabId(newTabId);
             }
 
-            console.log('[useTabState] Created smart tab:', newTabId);
+            logger.debug('useTabState', '[useTabState] Created smart tab:', newTabId);
             return newTabId;
         },
         [generateTabId]
@@ -169,7 +170,7 @@ export function useTabState() {
                 try {
                     await cleanup();
                 } catch (error) {
-                    console.error(`[useTabState] Cleanup failed for tab ${tabId}:`, error);
+                    logger.error('useTabState', `[useTabState] Cleanup failed for tab ${tabId}:`, error);
                 }
                 cleanupCallbacksRef.current.delete(tabId);
             }
@@ -287,7 +288,7 @@ export function useTabState() {
                         engine: sessionInfo.engine || tab.engine,
                     };
 
-                    console.debug('[useTabState] Updating tab session:', { tabId, sessionInfo });
+                    logger.debug('useTabState', '[useTabState] Updating tab session:', { tabId, sessionInfo });
 
                     return {
                         ...tab,
@@ -338,21 +339,21 @@ export function useTabState() {
 
             try {
                 // 1. 生成会话标题
-                console.log('[useTabState] Step 1: Generating session title...');
+                logger.debug('useTabState', '[useTabState] Step 1: Generating session title...');
                 let title: string;
                 try {
                     title = await withTimeout(api.generateSessionTitle(firstMessage), 15000, '生成标题');
                 } catch (titleError) {
-                    console.warn('[useTabState] Title generation failed, using fallback:', titleError);
+                    logger.warn('useTabState', '[useTabState] Title generation failed, using fallback:', titleError);
                     title = firstMessage.slice(0, 30).trim() || '新会话';
                 }
 
                 // 2. 创建智能项目文件夹
-                console.log('[useTabState] Step 2: Creating smart project folder...');
+                logger.debug('useTabState', '[useTabState] Step 2: Creating smart project folder...');
                 const result = await withTimeout(api.createSmartProject(title), 30000, '创建项目文件夹');
 
                 if (!result.success) {
-                    console.error('[useTabState] Failed to create smart project:', result.error);
+                    logger.error('useTabState', '[useTabState] Failed to create smart project:', result.error);
                     setTabs((prev) =>
                         prev.map((t) =>
                             t.id === tabId
@@ -364,7 +365,7 @@ export function useTabState() {
                 }
 
                 // 3. 创建项目级 CLAUDE.md
-                console.log('[useTabState] Step 3: Creating project CLAUDE.md...');
+                logger.debug('useTabState', '[useTabState] Step 3: Creating project CLAUDE.md...');
                 try {
                     await withTimeout(
                         api.createProjectClaudeMd(result.project_path, title),
@@ -372,11 +373,11 @@ export function useTabState() {
                         '创建 CLAUDE.md'
                     );
                 } catch (error) {
-                    console.error('[useTabState] Failed to create CLAUDE.md (non-blocking):', error);
+                    logger.error('useTabState', '[useTabState] Failed to create CLAUDE.md (non-blocking);:', error);
                 }
 
                 // 4. 更新标签页信息
-                console.log('[useTabState] Step 4: Updating tab info...');
+                logger.debug('useTabState', '[useTabState] Step 4: Updating tab info...');
                 setTabs((prev) =>
                     prev.map((t) =>
                         t.id === tabId
@@ -398,7 +399,7 @@ export function useTabState() {
                     title: result.project_name,
                 };
             } catch (error) {
-                console.error('[useTabState] Failed to upgrade smart session:', error);
+                logger.error('useTabState', '[useTabState] Failed to upgrade smart session:', error);
                 setTabs((prev) =>
                     prev.map((t) =>
                         t.id === tabId

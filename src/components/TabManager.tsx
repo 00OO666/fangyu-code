@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { X, Plus, MoreHorizontal, MessageSquare, ArrowLeft, ExternalLink, Zap, Bot, Sparkles, Loader2, Search } from 'lucide-react';
@@ -187,7 +188,7 @@ export const TabManager: React.FC<TabManagerProps> = ({
     try {
       await detachTab(tabId);
     } catch (error) {
-      console.error('[TabManager] Failed to detach tab:', error);
+      logger.error('TabManager', '[TabManager] Failed to detach tab:', error);
     }
   }, [detachTab]);
 
@@ -203,7 +204,7 @@ export const TabManager: React.FC<TabManagerProps> = ({
       // 使用选择的路径创建独立窗口
       await createNewTabAsWindow(undefined, selectedPath);
     } catch (error) {
-      console.error('[TabManager] Failed to create new session window:', error);
+      logger.error('TabManager', '[TabManager] Failed to create new session window:', error);
     }
   }, [createNewTabAsWindow]);
 

@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -98,7 +99,7 @@ export default function ProviderForm({
       await onSubmit(submitData);
       
     } catch (error) {
-      console.error('Failed to save provider config:', error);
+      logger.error('ProviderForm', 'Failed to save provider config:', error);
       setToastMessage({
         message: t('provider.saveConfigFailed', { error: String(error) }),
         type: 'error'

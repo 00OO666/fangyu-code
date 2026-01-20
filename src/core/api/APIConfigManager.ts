@@ -9,6 +9,7 @@
  * 安全存储：API 密钥使用 Tauri 安全存储，其他配置使用 localStorage
  */
 
+import { logger } from '@/lib/logger';
 import { RealAPIClient, APIClientConfig, createHiAPIClient, createOpenAIClient } from './RealAPIClient';
 import {
   saveAPIKey,
@@ -423,7 +424,7 @@ export class APIConfigManager {
 
       localStorage.setItem(this.storageKey, JSON.stringify(configStore));
     } catch (error) {
-      console.error('[APIConfigManager] Failed to save config:', error);
+      logger.error('APIConfigManager', '[APIConfigManager] Failed to save config:', error);
     }
   }
 
@@ -458,7 +459,7 @@ export class APIConfigManager {
 
       return true;
     } catch (error) {
-      console.error('[APIConfigManager] Failed to load config:', error);
+      logger.error('APIConfigManager', '[APIConfigManager] Failed to load config:', error);
       return false;
     }
   }

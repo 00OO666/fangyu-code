@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
@@ -109,7 +110,7 @@ export const SiliconFlowModelSelector: React.FC<SiliconFlowModelSelectorProps> =
 
       toast.success(`模型测试成功: ${response.slice(0, 50)}...`);
     } catch (error: any) {
-      console.error('Model test failed:', error);
+      logger.error('SiliconFlowModelSelector', 'Model test failed:', error);
       toast.error(`测试失败: ${error.message}`);
     } finally {
       setTestingModel(null);

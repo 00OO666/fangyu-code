@@ -11,6 +11,7 @@
  * - 实时消息通知
  */
 
+import { logger } from '@/lib/logger';
 import React, { useEffect, useCallback, useRef } from 'react';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import type { ClaudeStreamMessage } from '@/types/claude';
@@ -100,7 +101,7 @@ export const RealtimeSync: React.FC<RealtimeSyncProps> = ({
       on('onSessionMessage', handleSessionMessage),
       on('onSessionStatus', handleSessionStatus),
       on('onStateChange', (newState) => {
-        console.log('[RealtimeSync] Connection state changed:', newState);
+        logger.debug('RealtimeSync', '[RealtimeSync] Connection state changed:', newState);
       }),
     ];
 
@@ -112,10 +113,10 @@ export const RealtimeSync: React.FC<RealtimeSyncProps> = ({
   // 启用时自动连接
   useEffect(() => {
     if (enabled) {
-      console.log('[RealtimeSync] Enabling real-time sync, connecting...');
+      logger.debug('RealtimeSync', '[RealtimeSync] Enabling real-time sync, connecting...');
       connect();
     } else if (!enabled) {
-      console.log('[RealtimeSync] Disabling real-time sync, disconnecting...');
+      logger.debug('RealtimeSync', '[RealtimeSync] Disabling real-time sync, disconnecting...');
       close();
     }
 

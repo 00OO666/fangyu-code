@@ -8,6 +8,7 @@
  * 绕过 SDK 内部的 fetch，避免 CORS 问题。
  */
 
+import { logger } from '@/lib/logger';
 import Anthropic from "@anthropic-ai/sdk";
 import { fetch as tauriFetch } from "@tauri-apps/plugin-http";
 import { api } from "./api";
@@ -112,7 +113,7 @@ export class ClaudeSDKService {
 
       this.isInitialized = true;
     } catch (error) {
-      console.error("[ClaudeSDK] Initialization failed:", error);
+      logger.error('claudeSDK', "[ClaudeSDK] Initialization failed:", error);
       throw new Error(
         `Failed to initialize Claude SDK: ${error instanceof Error ? error.message : "Unknown error"}`,
       );
@@ -212,7 +213,7 @@ export class ClaudeSDKService {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("[ClaudeSDK] API error:", response.status, errorText);
+        logger.error('claudeSDK', "[ClaudeSDK] API error:", response.status, errorText);
         throw new Error(
           `API request failed: ${response.status} ${response.statusText}\n${errorText}`,
         );
@@ -237,7 +238,7 @@ export class ClaudeSDKService {
         stop_reason: data.stop_reason || null,
       };
     } catch (error) {
-      console.error("[ClaudeSDK] sendMessageDirect failed:", error);
+      logger.error('claudeSDK', "[ClaudeSDK] sendMessageDirect failed:", error);
       throw new Error(
         `Failed to send message: ${error instanceof Error ? error.message : "Unknown error"}`,
       );
@@ -362,7 +363,7 @@ export class ClaudeSDKService {
         }
       }
     } catch (error) {
-      console.error("[ClaudeSDK] Streaming failed:", error);
+      logger.error('claudeSDK', "[ClaudeSDK] Streaming failed:", error);
       throw new Error(
         `Failed to stream message: ${error instanceof Error ? error.message : "Unknown error"}`,
       );
@@ -433,5 +434,5 @@ export const claudeSDK = new ClaudeSDKService();
 
 // Auto-initialize on import
 claudeSDK.initialize().catch((error) => {
-  console.warn("[ClaudeSDK] Auto-initialization failed:", error);
+  logger.warn('claudeSDK', "[ClaudeSDK] Auto-initialization failed:", error);
 });

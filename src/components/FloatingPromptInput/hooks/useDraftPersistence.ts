@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import { useEffect, useCallback, useRef } from 'react';
 
 const DRAFT_KEY_PREFIX = 'prompt_draft_';
@@ -47,7 +48,7 @@ export function useDraftPersistence({
           localStorage.removeItem(key);
         }
       } catch (error) {
-        console.warn('[DraftPersistence] Failed to save draft:', error);
+        logger.warn('useDraftPersistence', '[DraftPersistence] Failed to save draft:', error);
       }
     }, DRAFT_DEBOUNCE_MS);
   }, [getStorageKey]);
@@ -62,7 +63,7 @@ export function useDraftPersistence({
       const key = getStorageKey();
       localStorage.removeItem(key);
     } catch (error) {
-      console.warn('[DraftPersistence] Failed to clear draft:', error);
+      logger.warn('useDraftPersistence', '[DraftPersistence] Failed to clear draft:', error);
     }
   }, [getStorageKey]);
 
@@ -72,7 +73,7 @@ export function useDraftPersistence({
       const key = getStorageKey(sid);
       return localStorage.getItem(key);
     } catch (error) {
-      console.warn('[DraftPersistence] Failed to restore draft:', error);
+      logger.warn('useDraftPersistence', '[DraftPersistence] Failed to restore draft:', error);
       return null;
     }
   }, [getStorageKey]);

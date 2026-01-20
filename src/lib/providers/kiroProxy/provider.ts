@@ -2,6 +2,7 @@
  * Kiro Proxy Provider - 主 Provider 实现
  */
 
+import { logger } from '@/lib/logger';
 import type {
   KiroProxyConfig,
   ChatRequest,
@@ -34,14 +35,14 @@ async function loadKiroToken(): Promise<string | null> {
     if (tokenData.expiresAt) {
       const expiresAt = new Date(tokenData.expiresAt);
       if (expiresAt < new Date()) {
-        console.warn('[KiroProxy] Token expired');
+        logger.warn('provider', '[KiroProxy] Token expired');
         return null;
       }
     }
     
     return tokenData.accessToken || tokenData.token;
   } catch (error) {
-    console.error('[KiroProxy] Failed to load token:', error);
+    logger.error('provider', '[KiroProxy] Failed to load token:', error);
     return null;
   }
 }

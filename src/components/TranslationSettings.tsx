@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
@@ -45,7 +46,7 @@ export const TranslationSettings: React.FC<TranslationSettingsProps> = ({ onClos
       setCacheStats(statsData);
     } catch (err) {
       setError(err instanceof Error ? err.message : t('translation.loadFailed'));
-      console.error('Failed to load translation settings:', err);
+      logger.error('TranslationSettings', 'Failed to load translation settings:', err);
     } finally {
       setLoading(false);
     }
@@ -66,7 +67,7 @@ export const TranslationSettings: React.FC<TranslationSettingsProps> = ({ onClos
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
       setError(err instanceof Error ? err.message : t('errors.saveFailed'));
-      console.error('Failed to save translation config:', err);
+      logger.error('TranslationSettings', 'Failed to save translation config:', err);
     } finally {
       setSaving(false);
     }
@@ -91,7 +92,7 @@ export const TranslationSettings: React.FC<TranslationSettingsProps> = ({ onClos
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : t('errors.connectionFailed');
       setError(`${t('errors.connectionFailed')}: ${errorMessage}`);
-      console.error('Translation connection test failed:', err);
+      logger.error('TranslationSettings', 'Translation connection test failed:', err);
     } finally {
       setTestingConnection(false);
     }
@@ -109,7 +110,7 @@ export const TranslationSettings: React.FC<TranslationSettingsProps> = ({ onClos
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
       setError(err instanceof Error ? err.message : t('errors.generic'));
-      console.error('Failed to clear translation cache:', err);
+      logger.error('TranslationSettings', 'Failed to clear translation cache:', err);
     } finally {
       setClearingCache(false);
     }

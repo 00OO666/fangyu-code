@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Undo2, AlertTriangle, ChevronDown, ChevronUp, User } from "lucide-react";
 import { MessageBubble } from "./MessageBubble";
@@ -349,7 +350,7 @@ export const UserMessage: React.FC<UserMessageProps> = ({
           : await api.checkRewindCapabilities(sessionId, projectId!, promptIndex);
         setCapabilities(caps);
       } catch (error) {
-        console.error('Failed to check rewind capabilities:', error);
+        logger.error('UserMessage', 'Failed to check rewind capabilities:', error);
       } finally {
         setIsLoadingCapabilities(false);
       }

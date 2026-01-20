@@ -11,6 +11,7 @@
  * 来源: VSCode Extensions Panel + Cursor Extensions
  */
 
+import { logger } from '@/lib/logger';
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -125,10 +126,10 @@ export function PluginManager({
   const pluginLoader = usePluginLoader({
     workspacePath,
     onPluginActivated: (plugin) => {
-      console.log('[PluginManager] Plugin activated:', plugin.id);
+      logger.debug('PluginManager', '[PluginManager] Plugin activated:', plugin.id);
     },
     onPluginError: (plugin, error) => {
-      console.error('[PluginManager] Plugin error:', plugin.id, error);
+      logger.error('PluginManager', '[PluginManager] Plugin error:', plugin.id, error);
     },
   });
 
@@ -358,7 +359,7 @@ export function PluginManager({
                     <Switch
                       checked={plugin.enabled}
                       onCheckedChange={(checked) => {
-                        console.log('[PluginManager] Toggle plugin:', plugin.id, 'to', checked);
+                        logger.debug('PluginManager', '[PluginManager] Toggle plugin:', plugin.id, 'to', checked);
                         handleToggleEnabled(plugin);
                       }}
                     />

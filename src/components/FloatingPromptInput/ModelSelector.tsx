@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React from "react";
 import { ChevronUp, Check, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -34,7 +35,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
     setCurrentDefaultModel(modelId);
     // 🆕 同时切换当前会话的模型（更直观的用户体验）
     onModelChange(modelId);
-    console.log('[ModelSelector] 默认模型已设置:', modelId, '| 当前会话已切换');
+    logger.debug('ModelSelector', '[ModelSelector] 默认模型已设置:', modelId, '| 当前会话已切换');
   };
 
   return (

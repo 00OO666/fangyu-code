@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -75,7 +76,7 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
       setPresets(presetsData);
       setCurrentConfig(configData);
     } catch (error) {
-      console.error('Failed to load provider data:', error);
+      logger.error('ProviderManager', 'Failed to load provider data:', error);
       setToastMessage({ message: t('provider.loadConfigFailed'), type: 'error' });
     } finally {
       setLoading(false);
@@ -89,7 +90,7 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
       setToastMessage({ message, type: 'success' });
       await loadData(); // Refresh current config
     } catch (error) {
-      console.error('Failed to switch provider:', error);
+      logger.error('ProviderManager', 'Failed to switch provider:', error);
       setToastMessage({ message: t('provider.switchFailed'), type: 'error' });
     } finally {
       setSwitching(null);
@@ -103,7 +104,7 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
       setToastMessage({ message, type: 'success' });
       await loadData(); // Refresh current config
     } catch (error) {
-      console.error('Failed to clear provider:', error);
+      logger.error('ProviderManager', 'Failed to clear provider:', error);
       setToastMessage({ message: t('provider.clearConfigFailed'), type: 'error' });
     } finally {
       setSwitching(null);
@@ -116,7 +117,7 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
       const message = await api.testProviderConnection(config.base_url);
       setToastMessage({ message, type: 'success' });
     } catch (error) {
-      console.error('Failed to test connection:', error);
+      logger.error('ProviderManager', 'Failed to test connection:', error);
       setToastMessage({ message: t('provider.connectionTestFailed'), type: 'error' });
     } finally {
       setTesting(null);
@@ -142,7 +143,7 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
         setUsageDialogOpen(true);
       }
     } catch (error) {
-      console.error('Failed to query usage:', error);
+      logger.error('ProviderManager', 'Failed to query usage:', error);
       setToastMessage({ message: t('provider.queryUsageFailed', { error: String(error) }), type: 'error' });
     } finally {
       setQueryingUsage(null);
@@ -184,7 +185,7 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
       setDeleteDialogOpen(false);
       setProviderToDelete(null);
     } catch (error) {
-      console.error('Failed to delete provider:', error);
+      logger.error('ProviderManager', 'Failed to delete provider:', error);
       setToastMessage({ message: t('provider.deleteFailed'), type: 'error' });
     } finally {
       setDeleting(null);
@@ -208,7 +209,7 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
             await api.switchProviderConfig(updatedConfig);
             setToastMessage({ message: t('provider.updateSyncSuccess'), type: 'success' });
           } catch (switchError) {
-            console.error('Failed to sync provider config:', switchError);
+            logger.error('ProviderManager', 'Failed to sync provider config:', switchError);
             setToastMessage({ message: t('provider.updateSyncFailed'), type: 'error' });
           }
         } else {
@@ -222,7 +223,7 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
       setEditingProvider(null);
       await loadData();
     } catch (error) {
-      console.error('Failed to save provider:', error);
+      logger.error('ProviderManager', 'Failed to save provider:', error);
       setToastMessage({ message: editingProvider ? t('provider.updateFailed') : t('provider.addFailed'), type: 'error' });
     }
   };

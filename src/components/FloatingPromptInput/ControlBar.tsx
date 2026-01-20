@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
@@ -671,7 +672,7 @@ export const ControlBar: React.FC<ControlBarProps> = ({
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  console.log('[ControlBar] 队列按钮点击', { showQueuePanel, pendingQueueCount });
+                  logger.debug('ControlBar', '[ControlBar] 队列按钮点击', { showQueuePanel, pendingQueueCount });
                   onToggleQueuePanel();
                 }}
                 className={cn(

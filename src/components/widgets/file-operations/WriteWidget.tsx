@@ -5,6 +5,7 @@
  * 主组件 (~120行) + CodePreview (~90行) + FullScreenPreview (~140行)
  */
 
+import { logger } from '@/lib/logger';
 import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { FilePlus, ExternalLink, ChevronUp, ChevronDown, CheckCircle2, Loader2 } from "lucide-react";
@@ -78,7 +79,7 @@ export const WriteWidget: React.FC<WriteWidgetProps> = ({
     try {
       await api.openFileWithDefaultApp(filePath);
     } catch (error) {
-      console.error('Failed to open file in system:', error);
+      logger.error('WriteWidget', 'Failed to open file in system:', error);
     }
   };
 

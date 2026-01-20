@@ -5,6 +5,7 @@
  * 🔧 v2.2.6: 新增，解决刷新后消息丢失的问题
  */
 
+import { logger } from '@/lib/logger';
 import { useEffect, useCallback, useRef } from 'react';
 import type { ClaudeStreamMessage } from '@/types/claude';
 
@@ -66,7 +67,7 @@ const saveMessages = async (sessionId: string, messages: ClaudeStreamMessage[]):
 
     store.put(data);
   } catch (error) {
-    console.warn('[MessagePersistence] Failed to save messages:', error);
+    logger.warn('useMessagePersistence', '[MessagePersistence] Failed to save messages:', error);
   }
 };
 
@@ -88,7 +89,7 @@ const loadMessages = async (sessionId: string): Promise<ClaudeStreamMessage[]> =
       request.onerror = () => resolve([]);
     });
   } catch (error) {
-    console.warn('[MessagePersistence] Failed to load messages:', error);
+    logger.warn('useMessagePersistence', '[MessagePersistence] Failed to load messages:', error);
     return [];
   }
 };
@@ -103,7 +104,7 @@ const clearMessages = async (sessionId: string): Promise<void> => {
     const store = tx.objectStore(STORE_NAME);
     store.delete(sessionId);
   } catch (error) {
-    console.warn('[MessagePersistence] Failed to clear messages:', error);
+    logger.warn('useMessagePersistence', '[MessagePersistence] Failed to clear messages:', error);
   }
 };
 
@@ -129,7 +130,7 @@ const cleanupOldSessions = async (): Promise<void> => {
       }
     };
   } catch (error) {
-    console.warn('[MessagePersistence] Failed to cleanup old sessions:', error);
+    logger.warn('useMessagePersistence', '[MessagePersistence] Failed to cleanup old sessions:', error);
   }
 };
 

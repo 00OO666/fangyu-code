@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useState, useEffect, useRef, useMemo, useCallback, lazy, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
@@ -234,7 +235,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
         return JSON.parse(stored);
       }
     } catch (error) {
-      console.error('[ClaudeCodeSession] Failed to load engine config from localStorage:', error);
+      logger.error('ClaudeCodeSession', '[ClaudeCodeSession] Failed to load engine config from localStorage:', error);
     }
     // Default config
     return {
@@ -273,7 +274,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
     initialTitle: projectPath.split(/[/\\]/).pop() || session?.project_path?.split(/[/\\]/).pop() || '新会话',
     onTitleUpdate: useCallback((title: string) => {
       if (onTitleUpdateRef.current && isActiveRef.current) {
-        console.log('[ClaudeCodeSession] Smart title update:', title);
+        logger.debug('ClaudeCodeSession', '[ClaudeCodeSession] Smart title update:', title);
         onTitleUpdateRef.current(title);
       }
     }, []), // 🔧 FIX: 移除依赖，使用 ref 获取最新值
@@ -329,7 +330,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   // This fixes the issue where new session messages are lost after route switch
   useEffect(() => {
     if (extractedSessionInfo && onSessionInfoChange && projectPath) {
-      console.debug('[ClaudeCodeSession] Session info extracted, notifying parent:', extractedSessionInfo);
+      logger.debug('ClaudeCodeSession', '[ClaudeCodeSession] Session info extracted, notifying parent:', extractedSessionInfo);
       onSessionInfoChange({
         sessionId: extractedSessionInfo.sessionId,
         projectId: extractedSessionInfo.projectId,
@@ -532,7 +533,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
 
   // 🔧 FIX: 处理会话历史不存在的情况，重置到初始状态
   const handleSessionNotFound = useCallback(() => {
-    console.debug('[ClaudeCodeSession] Session not found, resetting to initial state');
+    logger.debug('ClaudeCodeSession', '[ClaudeCodeSession] Session not found, resetting to initial state');
     setSessionNotFound(true);
     // 重置为新会话状态
     setIsFirstPrompt(true);
@@ -643,15 +644,15 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
       criticalThreshold: 0.9, // 90% 提示生成摘要（不自动生成）
     },
     onWarning: () => {
-      console.log('[ClaudeCodeSession] ⚠️ 80% threshold warning');
+      logger.debug('ClaudeCodeSession', '[ClaudeCodeSession] ⚠️ 80% threshold warning');
     },
     onCritical: () => {
-      console.log('[ClaudeCodeSession] 🚨 90% threshold critical - 显示摘要提示');
+      logger.debug('ClaudeCodeSession', '[ClaudeCodeSession] 🚨 90% threshold critical - 显示摘要提示');
       // 🔧 FIX: 不自动生成，只显示提示
       setShowSummaryHint(true);
     },
     onSummaryGenerated: (summary) => {
-      console.log('[ClaudeCodeSession] 📝 Summary generated:', summary.slice(0, 200));
+      logger.debug('ClaudeCodeSession', '[ClaudeCodeSession] 📝 Summary generated:', summary.slice(0, 200));
       setSessionSummary(summary);
       setIsGeneratingSummaryManual(false);
     },
@@ -666,7 +667,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
     try {
       await _generateThresholdSummary();
     } catch (err) {
-      console.error('[ClaudeCodeSession] Failed to generate summary:', err);
+      logger.error('ClaudeCodeSession', '[ClaudeCodeSession] Failed to generate summary:', err);
       setSessionSummary('摘要生成失败: ' + (err instanceof Error ? err.message : String(err)));
       setIsGeneratingSummaryManual(false);
     }
@@ -738,8 +739,8 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   // 🆕 智能会话续接：当达到阈值时，自动创建新会话并切换
   useEffect(() => {
     if (shouldContinue && continuedSessionId) {
-      console.log('[ClaudeCodeSession] 🎉 Smart session continue - switching to:', continuedSessionId);
-      console.log('[ClaudeCodeSession] 📝 Summary:', continueSummary?.summaryText.slice(0, 200) + '...');
+      logger.debug('ClaudeCodeSession', '[ClaudeCodeSession] 🎉 Smart session continue - switching to:', continuedSessionId);
+      logger.debug('ClaudeCodeSession', '[ClaudeCodeSession] 📝 Summary:', continueSummary?.summaryText.slice(0, 200) + '...');
 
       // TODO: 打开新窗口并加载新会话
       // 目前先更新当前会话ID
@@ -761,7 +762,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   // 🆕 当后台压缩完成时，自动切换到新会话（降级方案）
   useEffect(() => {
     if (shouldSwitchSession && newSessionId) {
-      console.log('[ClaudeCodeSession] 🔄 Seamless session switch to:', newSessionId);
+      logger.debug('ClaudeCodeSession', '[ClaudeCodeSession] 🔄 Seamless session switch to:', newSessionId);
       setClaudeSessionId(newSessionId);
       loadSessionHistory();
       confirmSwitch();
@@ -846,28 +847,28 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
 
     // 🆕 智能会话升级：如果没有项目路径且有升级回调，先创建项目文件夹
     if (!projectPath && onSmartSessionUpgrade && isFirstPrompt) {
-      console.log('[ClaudeCodeSession] Starting smart session upgrade...');
+      logger.debug('ClaudeCodeSession', '[ClaudeCodeSession] Starting smart session upgrade...');
       try {
         const result = await onSmartSessionUpgrade(prompt);
-        console.log('[ClaudeCodeSession] Smart session upgrade result:', result);
+        logger.debug('ClaudeCodeSession', '[ClaudeCodeSession] Smart session upgrade result:', result);
 
         if (result) {
-          console.log('[ClaudeCodeSession] Setting project path:', result.projectPath);
+          logger.debug('ClaudeCodeSession', '[ClaudeCodeSession] Setting project path:', result.projectPath);
           setProjectPath(result.projectPath);
           onProjectPathChange?.(result.projectPath);
           // 🔧 FIX: 保存首条消息到 ref，等 projectPath 更新后由 useEffect 发送
           pendingFirstMessageRef.current = { prompt, model, maxThinkingTokens };
-          console.log('[ClaudeCodeSession] Pending first message saved, waiting for projectPath update');
+          logger.debug('ClaudeCodeSession', '[ClaudeCodeSession] Pending first message saved, waiting for projectPath update');
           return; // 不在这里发送，让 useEffect 处理
         } else {
-          console.error('[ClaudeCodeSession] Smart session upgrade returned null');
+          logger.error('ClaudeCodeSession', '[ClaudeCodeSession] Smart session upgrade returned null');
           setError("智能会话升级失败：无法创建项目文件夹");
           // 🔧 FIX: 抛出错误，让 FloatingPromptInput 捕获并恢复输入框
           throw new Error("智能会话升级失败：无法创建项目文件夹");
         }
       } catch (err) {
-        console.error('[ClaudeCodeSession] Smart session upgrade failed with error:', err);
-        console.error('[ClaudeCodeSession] Error stack:', err instanceof Error ? err.stack : 'No stack');
+        logger.error('ClaudeCodeSession', '[ClaudeCodeSession] Smart session upgrade failed with error:', err);
+        logger.error('ClaudeCodeSession', '[ClaudeCodeSession] Error stack:', err instanceof Error ? err.stack : 'No stack');
         console.error('[ClaudeCodeSession] Error details:', {
           name: err instanceof Error ? err.name : 'Unknown',
           message: err instanceof Error ? err.message : String(err)
@@ -910,7 +911,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   // 使用特殊标记 __AUTO_CONTINUE__ 让 UI 可以识别并隐藏这条消息
   useEffect(() => {
     if (shouldResume && !isLoading && !isStreaming && isActive) {
-      console.log('[ClaudeCodeSession] 🚀 Auto-resume triggered - sending "继续" (auto)');
+      logger.debug('ClaudeCodeSession', '[ClaudeCodeSession] 🚀 Auto-resume triggered - sending "继续" (auto);');
       // 发送带特殊标记的继续消息
       handleSendPromptWithScroll('__AUTO_CONTINUE__继续', 'sonnet');
     }
@@ -941,7 +942,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
             .slice(0, 5);
           setRecentProjects(sortedProjects);
         } catch (error) {
-          console.error("Failed to load recent projects:", error);
+          logger.error('ClaudeCodeSession', "Failed to load recent projects:", error);
         }
       };
       loadRecentProjects();
@@ -989,9 +990,9 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   useEffect(() => {
     // 当 tab 从活跃变为失活时，立即保存消息（不等防抖）
     if (!isActive && messages.length > 0 && claudeSessionId) {
-      console.debug('[ClaudeCodeSession] Tab becoming inactive, immediately saving', messages.length, 'messages');
+      logger.debug('ClaudeCodeSession', '[ClaudeCodeSession] Tab becoming inactive, immediately saving', messages.length, 'messages');
       persistMessagesImmediately(messages).catch(err => {
-        console.error('[ClaudeCodeSession] Failed to save messages on tab deactivation:', err);
+        logger.error('ClaudeCodeSession', '[ClaudeCodeSession] Failed to save messages on tab deactivation:', err);
       });
     }
   }, [isActive, messages, claudeSessionId, persistMessagesImmediately]);
@@ -1012,7 +1013,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
       isRestoringFromIndexedDBRef.current = true;
       loadPersistedMessages().then(persistedMessages => {
         if (persistedMessages.length > 0) {
-          console.log('[MessagePersistence] 从 IndexedDB 恢复了', persistedMessages.length, '条消息');
+          logger.debug('ClaudeCodeSession', '[MessagePersistence] 从 IndexedDB 恢复了', persistedMessages.length, '条消息');
           setMessages(persistedMessages);
         }
         // 恢复完成后重置标志
@@ -1053,17 +1054,17 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
         // 尝试从 IndexedDB 加载
         const persistedMessages = await loadPersistedMessages();
         if (persistedMessages.length > 0) {
-          console.debug('[ClaudeCodeSession] Tab became active, restored from IndexedDB:', persistedMessages.length, 'messages');
+          logger.debug('ClaudeCodeSession', '[ClaudeCodeSession] Tab became active, restored from IndexedDB:', persistedMessages.length, 'messages');
           setMessages(persistedMessages);
         } else {
           // 🔧 FIX v2.8.1: 使用 ref 获取最新的消息数量，避免闭包中的旧值
           const currentMessagesLength = messagesLengthRef.current;
 
           if (currentMessagesLength === 0) {
-            console.debug('[ClaudeCodeSession] Tab became active with empty messages, reloading history for session:', session.id);
+            logger.debug('ClaudeCodeSession', '[ClaudeCodeSession] Tab became active with empty messages, reloading history for session:', session.id);
             loadSessionHistory();
           } else {
-            console.debug('[ClaudeCodeSession] Tab became active with existing messages (', currentMessagesLength, '), skipping reload to preserve state');
+            logger.debug('ClaudeCodeSession', '[ClaudeCodeSession] Tab became active with existing messages (', currentMessagesLength, ');, skipping reload to preserve state');
           }
         }
       };
@@ -1081,7 +1082,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
         const settings = await api.getClaudeSettings();
         setClaudeSettings(settings);
       } catch (error) {
-        console.error("Failed to load Claude settings:", error);
+        logger.error('ClaudeCodeSession', "Failed to load Claude settings:", error);
         setClaudeSettings({
           showSystemInitialization: true,
           hideWarmupMessages: true // Default: hide warmup messages for better UX
@@ -1132,7 +1133,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
         setError(null);
       }
     } catch (err) {
-      console.error("Failed to select directory:", err);
+      logger.error('ClaudeCodeSession', "Failed to select directory:", err);
       const errorMessage = err instanceof Error ? err.message : String(err);
       setError(errorMessage);
     }
@@ -1201,7 +1202,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
       }
       // keepQueue=true, processNextInQueue=false: 只保留队列，不自动处理
     } catch (err) {
-      console.error("Failed to cancel execution:", err);
+      logger.error('ClaudeCodeSession', "Failed to cancel execution:", err);
 
       // Even if backend fails, we should update UI to reflect stopped state
       // Add error message but still stop the UI loading state
@@ -1468,7 +1469,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
       setError('');
 
     } catch (error) {
-      console.error('[Prompt Revert] Failed to revert:', error);
+      logger.error('ClaudeCodeSession', '[Prompt Revert] Failed to revert:', error);
       setError('__REVERT_FAILED__:' + error);
     }
   }, []); // 🔧 FIX: 移除依赖，使用 ref 获取最新状态
@@ -2073,16 +2074,16 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
         onClose={() => {
           // 🔧 FIX: 关闭对话框并重置状态
           setShowSummaryDialog(false);
-          console.log('[ClaudeCodeSession] Summary dialog closed');
+          logger.debug('ClaudeCodeSession', '[ClaudeCodeSession] Summary dialog closed');
         }}
         onStartNewSession={() => {
           // TODO: 创建新会话
-          console.log('[ClaudeCodeSession] Start new session');
+          logger.debug('ClaudeCodeSession', '[ClaudeCodeSession] Start new session');
           setShowSummaryDialog(false);
         }}
         onContinueAnyway={() => {
           // 继续当前会话
-          console.log('[ClaudeCodeSession] Continue anyway');
+          logger.debug('ClaudeCodeSession', '[ClaudeCodeSession] Continue anyway');
           setShowSummaryDialog(false);
         }}
       />

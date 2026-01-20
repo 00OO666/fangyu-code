@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useRef, useEffect, useCallback, useState } from 'react';
 import { ClaudeCodeSession } from './ClaudeCodeSession';
 import { useTabSession, useTabs } from '@/hooks/useTabs';
@@ -97,7 +98,7 @@ const TabSessionWrapperComponent: React.FC<TabSessionWrapperProps> = ({
   // 🔧 FIX: Handle session info change - 持久化新建会话的信息
   // 解决路由切换后新建会话消息丢失的问题
   const handleSessionInfoChange = useCallback((info: { sessionId: string; projectId: string; projectPath: string; engine?: 'claude' | 'codex' | 'gemini' | 'siliconflow' }) => {
-    console.debug('[TabSessionWrapper] Session info received, updating tab:', { tabId, info });
+    logger.debug('TabSessionWrapper', '[TabSessionWrapper] Session info received, updating tab:', { tabId, info });
     updateSession(info);
   }, [tabId, updateSession]);
 
@@ -117,22 +118,22 @@ const TabSessionWrapperComponent: React.FC<TabSessionWrapperProps> = ({
 
   // 🆕 智能会话升级回调 - 当用户发送第一条消息时，自动创建项目文件夹
   const handleSmartSessionUpgrade = useCallback(async (firstMessage: string): Promise<{ projectPath: string; title: string } | null> => {
-    console.log('[TabSessionWrapper] handleSmartSessionUpgrade called', { tabId, smartMode: tab?.smartMode, messageLength: firstMessage?.length });
+    logger.debug('TabSessionWrapper', '[TabSessionWrapper] handleSmartSessionUpgrade called', { tabId, smartMode: tab?.smartMode, messageLength: firstMessage?.length });
 
     // 只有智能模式才需要升级
     if (!tab?.smartMode) {
-      console.warn('[TabSessionWrapper] Not in smart mode, skipping upgrade');
+      logger.warn('TabSessionWrapper', '[TabSessionWrapper] Not in smart mode, skipping upgrade');
       return null;
     }
 
     try {
-      console.log('[TabSessionWrapper] Calling upgradeSmartSession...');
+      logger.debug('TabSessionWrapper', '[TabSessionWrapper] Calling upgradeSmartSession...');
       const result = await upgradeSmartSession(tabId, firstMessage);
-      console.log('[TabSessionWrapper] upgradeSmartSession result:', result);
+      logger.debug('TabSessionWrapper', '[TabSessionWrapper] upgradeSmartSession result:', result);
       return result;
     } catch (err) {
-      console.error('[TabSessionWrapper] Smart session upgrade failed with error:', err);
-      console.error('[TabSessionWrapper] Error stack:', err instanceof Error ? err.stack : 'No stack');
+      logger.error('TabSessionWrapper', '[TabSessionWrapper] Smart session upgrade failed with error:', err);
+      logger.error('TabSessionWrapper', '[TabSessionWrapper] Error stack:', err instanceof Error ? err.stack : 'No stack');
       return null;
     }
   }, [tab?.smartMode, tabId, upgradeSmartSession]);
@@ -185,7 +186,7 @@ export const TabSessionWrapper = React.memo(TabSessionWrapperComponent, (prevPro
     // 🔧 CRITICAL: 如果 prevId 是 undefined，nextId 有值，这是 "session 升级"
     // 不应该触发重新渲染，返回 true 表示"相同"
     if (prevId === undefined && nextId !== undefined) {
-      console.debug('[TabSessionWrapper] Session upgraded from undefined to', nextId, '- skipping re-render');
+      logger.debug('TabSessionWrapper', '[TabSessionWrapper] Session upgraded from undefined to', nextId, '- skipping re-render');
       return true;
     }
 

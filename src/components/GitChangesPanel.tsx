@@ -11,6 +11,7 @@
  * 来源: Cursor Git UI + Aider Repo Map
  */
 
+import { logger } from '@/lib/logger';
 import { useState, useEffect, useCallback } from 'react';
 import { useGitAutoCommit, type CommitInfo, type GitFileStatus } from '@/hooks/useGitAutoCommit';
 import { gitService, type ResetMode } from '@/lib/gitService';
@@ -86,7 +87,7 @@ export function GitChangesPanel({ projectPath }: GitChangesPanelProps) {
   const gitAutoCommit = useGitAutoCommit({
     projectPath,
     onAfterCommit: (commit) => {
-      console.log('提交成功:', commit);
+      logger.debug('GitChangesPanel', '提交成功:', commit);
     },
   });
 

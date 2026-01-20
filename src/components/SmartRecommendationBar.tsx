@@ -9,6 +9,7 @@
  * 5. 类型颜色编码图标
  */
 
+import { logger } from '@/lib/logger';
 import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -137,7 +138,7 @@ export function SmartRecommendationBar({
                 notify.info(`${currentRec.type.toUpperCase()} 类型暂不支持一键启用`, { duration: 2000 });
             }
         } catch (error) {
-            console.error('[SmartRecommendationBar] Enable failed:', error);
+            logger.error('SmartRecommendationBar', '[SmartRecommendationBar] Enable failed:', error);
             notify.error(`启用失败: ${error instanceof Error ? error.message : '未知错误'}`);
         } finally {
             setEnabling(false);

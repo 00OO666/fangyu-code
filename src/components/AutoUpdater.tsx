@@ -7,6 +7,7 @@
  * 3. 一键重启到新版本
  */
 
+import { logger } from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { RefreshCw, Download, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
@@ -280,7 +281,7 @@ export const UpdateIndicator: React.FC<{ onClick?: () => void }> = ({ onClick })
           setLatestVersion(info.latest_version);
         }
       } catch (err) {
-        console.error('检查更新失败:', err);
+        logger.error('AutoUpdater', '检查更新失败:', err);
       }
     };
 

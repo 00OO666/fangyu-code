@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { Component, ReactNode } from "react";
 import { AlertCircle, RefreshCw, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -60,7 +61,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     // Log the error to console
-    console.error("Error caught by boundary:", error, errorInfo);
+    logger.error('ErrorBoundary', "Error caught by boundary:", error, errorInfo);
 
     // ✅ NEW: Call optional error handler (e.g., for monitoring/logging)
     this.props.onError?.(error, errorInfo);

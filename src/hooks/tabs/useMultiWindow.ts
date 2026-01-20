@@ -8,6 +8,7 @@
  * _Requirements: 1.1_
  */
 
+import { logger } from '@/lib/logger';
 import { useCallback, useEffect, useRef } from 'react';
 import type { Tab, TabSession } from './types';
 import type { Session } from '@/lib/api';
@@ -112,12 +113,12 @@ export function useMultiWindow({
         async (tabId: string): Promise<string | null> => {
             const tab = tabs.find((t) => t.id === tabId);
             if (!tab) {
-                console.error('[useMultiWindow] Cannot detach: tab not found:', tabId);
+                logger.error('useMultiWindow', '[useMultiWindow] Cannot detach: tab not found:', tabId);
                 return null;
             }
 
             if (detachedTabsRef.current.has(tabId)) {
-                console.warn('[useMultiWindow] Tab already detached:', tabId);
+                logger.warn('useMultiWindow', '[useMultiWindow] Tab already detached:', tabId);
                 return null;
             }
 
@@ -142,7 +143,7 @@ export function useMultiWindow({
                 await forceCloseTab(tabId);
                 return windowLabel;
             } catch (error) {
-                console.error('[useMultiWindow] Failed to detach tab:', error);
+                logger.error('useMultiWindow', '[useMultiWindow] Failed to detach tab:', error);
                 return null;
             }
         },
@@ -195,7 +196,7 @@ export function useMultiWindow({
 
                 return windowLabel;
             } catch (error) {
-                console.error('[useMultiWindow] Failed to create new session as window:', error);
+                logger.error('useMultiWindow', '[useMultiWindow] Failed to create new session as window:', error);
                 return null;
             }
         },

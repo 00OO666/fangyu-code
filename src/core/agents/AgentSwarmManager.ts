@@ -14,6 +14,7 @@
  * - Swarms 框架的 DAG 编排
  */
 
+import { logger } from '@/lib/logger';
 import { BrowserEventEmitter } from '../../lib/BrowserEventEmitter';
 import { v4 as uuidv4 } from 'uuid';
 import type {
@@ -257,7 +258,7 @@ export class AgentSwarmManager extends BrowserEventEmitter {
     this.pool.idleAgents.add(agentId);
 
     this.emitEvent('agent:created', { agent });
-    console.log(`[AgentSwarm] Created agent: ${agent.name} (${agent.type})`);
+    logger.debug('AgentSwarmManager', `[AgentSwarm] Created agent: ${agent.name} (${agent.type});`);
 
     return agent;
   }
@@ -275,7 +276,7 @@ export class AgentSwarmManager extends BrowserEventEmitter {
       throw new Error(`Cannot clone: Maximum agent limit reached`);
     }
 
-    console.log(`[AgentSwarm] Cloning agent ${sourceAgent.name}: ${request.reason}`);
+    logger.debug('AgentSwarmManager', `[AgentSwarm] Cloning agent ${sourceAgent.name}: ${request.reason}`);
 
     const cloneId = uuidv4();
     const clone: Agent = {
@@ -344,7 +345,7 @@ export class AgentSwarmManager extends BrowserEventEmitter {
     this.pool.busyAgents.delete(agentId);
 
     this.emitEvent('agent:destroyed', { agent });
-    console.log(`[AgentSwarm] Destroyed agent: ${agent.name}`);
+    logger.debug('AgentSwarmManager', `[AgentSwarm] Destroyed agent: ${agent.name}`);
   }
 
   // ============================================
@@ -355,7 +356,7 @@ export class AgentSwarmManager extends BrowserEventEmitter {
    * 🎯 部署代理群并执行工作流
    */
   async deployAndExecute(workflow: WorkflowDAG): Promise<void> {
-    console.log(`[AgentSwarm] Deploying swarm for workflow: ${workflow.metadata.name}`);
+    logger.debug('AgentSwarmManager', `[AgentSwarm] Deploying swarm for workflow: ${workflow.metadata.name}`);
 
     this.scheduler.currentWorkflow = workflow;
     this.scheduler.isRunning = true;
@@ -413,7 +414,7 @@ export class AgentSwarmManager extends BrowserEventEmitter {
           try {
             await this.assignAndExecuteTask(task);
           } catch (error) {
-            console.error(`[AgentSwarm] Task assignment failed:`, error);
+            logger.error('AgentSwarmManager', `[AgentSwarm] Task assignment failed:`, error);
           }
         })
       );
@@ -470,7 +471,7 @@ export class AgentSwarmManager extends BrowserEventEmitter {
    */
   setMaxConcurrency(max: number): void {
     this.taskQueueManager.maxConcurrent = Math.max(1, max);
-    console.log(`[AgentSwarm] Max concurrency set to ${this.taskQueueManager.maxConcurrent}`);
+    logger.debug('AgentSwarmManager', `[AgentSwarm] Max concurrency set to ${this.taskQueueManager.maxConcurrent}`);
   }
 
   /**
@@ -531,7 +532,7 @@ export class AgentSwarmManager extends BrowserEventEmitter {
 
     // 执行任务
     this.executeTask(agent, task).catch(error => {
-      console.error(`[AgentSwarm] Task execution error:`, error);
+      logger.error('AgentSwarmManager', `[AgentSwarm] Task execution error:`, error);
       this.handleTaskFailure(task, agent, error);
     });
   }
@@ -553,12 +554,12 @@ export class AgentSwarmManager extends BrowserEventEmitter {
     // 返回分数最高的代理（如果分数 > 0）
     if (matchResults.length > 0 && matchResults[0].score > 0) {
       const bestMatch = matchResults[0];
-      console.log(`[AgentSwarm] Best match for task "${task.description.slice(0, 50)}...": ${bestMatch.agent.name} (score: ${bestMatch.score})`);
+      logger.debug('AgentSwarmManager', `[AgentSwarm] Best match for task "${task.description.slice(0, 50)}...": ${bestMatch.agent.name} (score: ${bestMatch.score})`);
       if (bestMatch.matchedSkills.length > 0) {
-        console.log(`[AgentSwarm]   Matched skills: ${bestMatch.matchedSkills.join(', ')}`);
+        logger.debug('AgentSwarmManager', `[AgentSwarm]   Matched skills: ${bestMatch.matchedSkills.join(', ')}`);
       }
       if (bestMatch.matchedTools.length > 0) {
-        console.log(`[AgentSwarm]   Matched tools: ${bestMatch.matchedTools.join(', ')}`);
+        logger.debug('AgentSwarmManager', `[AgentSwarm]   Matched tools: ${bestMatch.matchedTools.join(', ')}`);
       }
       return bestMatch.agent;
     }
@@ -746,7 +747,7 @@ export class AgentSwarmManager extends BrowserEventEmitter {
     this.emitEvent('agent:assigned', { agent, task });
     this.emitEvent('task:started', { task, agent });
 
-    console.log(`[AgentSwarm] Assigned task "${task.description}" to ${agent.name}`);
+    logger.debug('AgentSwarmManager', `[AgentSwarm] Assigned task "${task.description}" to ${agent.name}`);
   }
 
   /**
@@ -828,7 +829,7 @@ export class AgentSwarmManager extends BrowserEventEmitter {
     this.emitEvent('task:completed', { task, agent });
     this.emitEvent('agent:idle', { agent });
 
-    console.log(`[AgentSwarm] Task completed: "${task.description}" by ${agent.name}`);
+    logger.debug('AgentSwarmManager', `[AgentSwarm] Task completed: "${task.description}" by ${agent.name}`);
   }
 
   /**
@@ -853,7 +854,7 @@ export class AgentSwarmManager extends BrowserEventEmitter {
 
     // 检查是否应该重试
     if (task.metrics.retryCount < this.config.retryPolicy.maxRetries) {
-      console.log(`[AgentSwarm] Retrying task "${task.description}" (attempt ${task.metrics.retryCount + 1})`);
+      logger.debug('AgentSwarmManager', `[AgentSwarm] Retrying task "${task.description}" (attempt ${task.metrics.retryCount + 1});`);
       task.status = 'pending';
       this.scheduler.taskQueue.push(task);
     } else {

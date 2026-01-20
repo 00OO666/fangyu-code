@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useState } from "react";
 import { X, Maximize2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -37,7 +38,7 @@ interface ImagePreviewProps {
  * @example
  * <ImagePreview 
  *   images={["/path/to/image1.png", "/path/to/image2.jpg"]}
- *   onRemove={(index) => console.log('Remove image at', index)}
+ *   onRemove={(index) => logger.debug('ImagePreview', 'Remove image at', index);}
  * />
  */
 export const ImagePreview: React.FC<ImagePreviewProps> = ({

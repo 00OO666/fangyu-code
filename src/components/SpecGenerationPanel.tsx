@@ -4,6 +4,7 @@
  * 提供 UI 界面用于生成技术规范
  */
 
+import { logger } from '@/lib/logger';
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -46,7 +47,7 @@ export const SpecGenerationPanel: React.FC<SpecGenerationPanelProps> = ({
       setGeneratedSpec(spec);
       setActiveTab('output');
     } catch (error) {
-      console.error('Failed to generate spec:', error);
+      logger.error('SpecGenerationPanel', 'Failed to generate spec:', error);
     } finally {
       setIsGenerating(false);
     }

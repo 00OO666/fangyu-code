@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import { listen } from "@tauri-apps/api/event";
 import { useContext, useEffect, useRef } from "react";
 import { globalTaskActions } from "./useGlobalTaskState";
@@ -128,11 +129,11 @@ export const useSessionSync = () => {
               }
             }
           } else {
-            console.warn(`[SessionSync] No tab found for session ${session_id}`);
+            logger.warn('useSessionSync', `[SessionSync] No tab found for session ${session_id}`);
           }
         });
       } catch (error) {
-        console.error("[SessionSync] Failed to setup event listener:", error);
+        logger.error('useSessionSync', "[SessionSync] Failed to setup event listener:", error);
         // Fallback: Continue without real-time updates
         // The UI will still work with manual state management
       }

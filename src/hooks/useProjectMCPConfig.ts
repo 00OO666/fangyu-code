@@ -5,6 +5,7 @@
  * 支持读取、保存、切换项目级 MCP 服务器开关
  */
 
+import { logger } from '@/lib/logger';
 import { useCallback, useEffect, useState } from "react";
 import { api, type MCPProjectConfig, type MCPServerSpec } from "@/lib/api";
 
@@ -85,11 +86,11 @@ export function useProjectMCPConfig(
     } catch (err) {
       // 如果文件不存在，创建空配置
       if (err instanceof Error && err.message.includes("not found")) {
-        console.log("[useProjectMCPConfig] No .mcp.json found, initializing empty config");
+        logger.debug('useProjectMCPConfig', "[useProjectMCPConfig] No .mcp.json found, initializing empty config");
         setProjectConfig({ mcpServers: {} });
         setError(null);
       } else {
-        console.error("[useProjectMCPConfig] Failed to load project config:", err);
+        logger.error('useProjectMCPConfig', "[useProjectMCPConfig] Failed to load project config:", err);
         setError(err instanceof Error ? err.message : "加载项目配置失败");
       }
     } finally {
@@ -111,11 +112,11 @@ export function useProjectMCPConfig(
         setError(null);
         await api.mcpSaveProjectConfig(projectPath, config);
         setProjectConfig(config);
-        console.log("[useProjectMCPConfig] Project config saved:", config);
+        logger.debug('useProjectMCPConfig', "[useProjectMCPConfig] Project config saved:", config);
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : "保存项目配置失败";
         setError(errorMsg);
-        console.error("[useProjectMCPConfig] Failed to save project config:", err);
+        logger.error('useProjectMCPConfig', "[useProjectMCPConfig] Failed to save project config:", err);
         throw err;
       } finally {
         setLoading(false);
@@ -144,11 +145,11 @@ export function useProjectMCPConfig(
       if (enabled) {
         // 启用：添加到项目配置
         newConfig.mcpServers[serverId] = spec;
-        console.log(`[useProjectMCPConfig] Enabling server in project: ${serverId}`);
+        logger.debug('useProjectMCPConfig', `[useProjectMCPConfig] Enabling server in project: ${serverId}`);
       } else {
         // 禁用：从项目配置中移除
         delete newConfig.mcpServers[serverId];
-        console.log(`[useProjectMCPConfig] Disabling server in project: ${serverId}`);
+        logger.debug('useProjectMCPConfig', `[useProjectMCPConfig] Disabling server in project: ${serverId}`);
       }
 
       await saveProjectConfig(newConfig);

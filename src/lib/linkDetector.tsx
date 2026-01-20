@@ -3,6 +3,7 @@
  * Detects various URL formats including localhost addresses
  */
 
+import { logger } from '@/lib/logger';
 import { open } from "@tauri-apps/plugin-shell";
 import type React from "react";
 
@@ -128,7 +129,7 @@ export function makeLinksClickable(
           e.preventDefault();
           // 使用 Tauri shell.open 在外部浏览器中打开链接
           open(link.fullUrl).catch((err) => {
-            console.error("Failed to open URL:", err);
+            logger.error('linkDetector', "Failed to open URL:", err);
           });
           // 同时触发回调，支持应用内预览等功能
           onLinkClick(link.fullUrl);

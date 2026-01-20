@@ -13,6 +13,7 @@
  * - Claude Tasks Mode 的结构化规划
  */
 
+import { logger } from '@/lib/logger';
 import { v4 as uuidv4 } from 'uuid';
 import type {
   Task,
@@ -190,8 +191,8 @@ export class TaskPlanner {
     // 保存到历史
     this.planningHistory.set(workflow.metadata.id, result);
 
-    console.log(`[TaskPlanner] Generated workflow in ${Date.now() - startTime}ms`);
-    console.log(`[TaskPlanner] Tasks: ${workflow.tasks.length}, Parallel groups: ${workflow.parallelGroups.length}`);
+    logger.debug('TaskPlanner', `[TaskPlanner] Generated workflow in ${Date.now() - startTime}ms`);
+    logger.debug('TaskPlanner', `[TaskPlanner] Tasks: ${workflow.tasks.length}, Parallel groups: ${workflow.parallelGroups.length}`);
 
     return result;
   }

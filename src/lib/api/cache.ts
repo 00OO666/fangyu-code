@@ -1,3 +1,5 @@
+import { logger } from '@/lib/logger';
+
 /**
  * 会话列表缓存
  * 30天过期，像微信一样快速加载
@@ -27,11 +29,11 @@ function restoreCacheFromStorage() {
       const parsed = JSON.parse(stored);
       if (parsed.codexSessions && Date.now() - parsed.codexSessions.timestamp < CACHE_TTL) {
         SESSION_CACHE.codexSessions = parsed.codexSessions;
-        console.debug("[api] Restored Codex sessions cache from localStorage");
+        logger.debug('cache', "[api] Restored Codex sessions cache from localStorage");
       }
     }
   } catch (e) {
-    console.debug("[api] Failed to restore cache from localStorage:", e);
+    logger.debug('cache', "[api] Failed to restore cache from localStorage:", e);
   }
 }
 
@@ -43,7 +45,7 @@ function saveCacheToStorage() {
     };
     localStorage.setItem(CACHE_STORAGE_KEY, JSON.stringify(toSave));
   } catch (e) {
-    console.debug("[api] Failed to save cache to localStorage:", e);
+    logger.debug('cache', "[api] Failed to save cache to localStorage:", e);
   }
 }
 

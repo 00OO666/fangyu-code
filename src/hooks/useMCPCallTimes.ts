@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import { useEffect, useState } from "react";
 
 /**
@@ -19,7 +20,7 @@ function getAllCallTimes(): MCPCallTimeRecord {
     const stored = localStorage.getItem(STORAGE_KEY);
     return stored ? JSON.parse(stored) : {};
   } catch (error) {
-    console.error("Failed to load MCP call times:", error);
+    logger.error('useMCPCallTimes', "Failed to load MCP call times:", error);
     return {};
   }
 }
@@ -31,7 +32,7 @@ function saveAllCallTimes(times: MCPCallTimeRecord): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(times));
   } catch (error) {
-    console.error("Failed to save MCP call times:", error);
+    logger.error('useMCPCallTimes', "Failed to save MCP call times:", error);
   }
 }
 

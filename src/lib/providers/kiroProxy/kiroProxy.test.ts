@@ -4,6 +4,7 @@
  * 测试所有核心功能是否正常工作
  */
 
+import { logger } from '@/lib/logger';
 import { describe, it, expect, beforeAll } from 'vitest';
 import { toolTransformer } from './toolTransformer';
 import { outputParser } from './outputParser';
@@ -302,9 +303,9 @@ describe('Integration', () => {
 
 describe('Acceptance Report', () => {
   it('should pass all acceptance criteria', () => {
-    console.log('\n========================================');
-    console.log('  Kiro Proxy Integration - 验收报告');
-    console.log('========================================\n');
+    logger.debug('kiroProxy.test', '\n========================================');
+    logger.debug('kiroProxy.test', '  Kiro Proxy Integration - 验收报告');
+    logger.debug('kiroProxy.test', '========================================\n');
     
     const checks = [
       { name: 'Tool Transformer', status: '✅ PASS' },
@@ -315,12 +316,12 @@ describe('Acceptance Report', () => {
     ];
     
     checks.forEach(c => {
-      console.log(`  ${c.status} ${c.name}`);
+      logger.debug('kiroProxy.test', `  ${c.status} ${c.name}`);
     });
     
-    console.log('\n========================================');
-    console.log('  所有验收测试通过！');
-    console.log('========================================\n');
+    logger.debug('kiroProxy.test', '\n========================================');
+    logger.debug('kiroProxy.test', '  所有验收测试通过！');
+    logger.debug('kiroProxy.test', '========================================\n');
     
     expect(true).toBe(true);
   });

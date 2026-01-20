@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React from 'react';
 import { motion } from 'framer-motion';
 import { 
@@ -304,7 +305,7 @@ export function useErrorHandler() {
   const [error, setError] = React.useState<unknown>(null);
 
   const handleError = React.useCallback((error: unknown) => {
-    console.error('Error handled by useErrorHandler:', error);
+    logger.error('ErrorDisplay', 'Error handled by useErrorHandler:', error);
     setError(error);
   }, []);
 

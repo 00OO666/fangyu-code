@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Copy, Check, RefreshCw, Edit2, AlertCircle } from "lucide-react";
@@ -32,7 +33,7 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
       await clipboardService.writeText(content);
       setCopyState("success");
     } catch (error) {
-      console.error("[MessageActions] Copy failed:", error);
+      logger.error('MessageActions', "[MessageActions] Copy failed:", error);
       setCopyState("error");
     } finally {
       setTimeout(() => setCopyState("idle"), 2000);

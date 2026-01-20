@@ -4,6 +4,7 @@
  * 封装所有 Tauri Git 命令调用，提供类型安全的 API
  */
 
+import { logger } from '@/lib/logger';
 import { invoke } from '@tauri-apps/api/core';
 
 // ============================================================
@@ -78,7 +79,7 @@ export const gitService = {
     try {
       return await invoke<GitFileStatus[]>('git_status', { projectPath });
     } catch (error) {
-      console.error('[GitService] getStatus failed:', error);
+      logger.error('gitService', '[GitService] getStatus failed:', error);
       return [];
     }
   },
@@ -90,7 +91,7 @@ export const gitService = {
     try {
       return await invoke<GitCommitInfo[]>('git_log', { projectPath, count });
     } catch (error) {
-      console.error('[GitService] getLog failed:', error);
+      logger.error('gitService', '[GitService] getLog failed:', error);
       return [];
     }
   },
@@ -106,7 +107,7 @@ export const gitService = {
     try {
       return await invoke<string>('git_diff', { projectPath, filePath, staged });
     } catch (error) {
-      console.error('[GitService] getDiff failed:', error);
+      logger.error('gitService', '[GitService] getDiff failed:', error);
       return '';
     }
   },
@@ -123,7 +124,7 @@ export const gitService = {
         createBackup: options.createBackup ?? (options.mode === 'hard'),
       });
     } catch (error) {
-      console.error('[GitService] reset failed:', error);
+      logger.error('gitService', '[GitService] reset failed:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : String(error),
@@ -141,7 +142,7 @@ export const gitService = {
         commitHash,
       });
     } catch (error) {
-      console.error('[GitService] revert failed:', error);
+      logger.error('gitService', '[GitService] revert failed:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : String(error),
@@ -166,7 +167,7 @@ export const gitService = {
         staged,
       });
     } catch (error) {
-      console.error('[GitService] restore failed:', error);
+      logger.error('gitService', '[GitService] restore failed:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : String(error),
@@ -181,7 +182,7 @@ export const gitService = {
     try {
       return await invoke<string>('git_create_backup_branch', { projectPath });
     } catch (error) {
-      console.error('[GitService] createBackupBranch failed:', error);
+      logger.error('gitService', '[GitService] createBackupBranch failed:', error);
       return null;
     }
   },
@@ -193,7 +194,7 @@ export const gitService = {
     try {
       return await invoke<GitCommandResult>('git_add', { projectPath, files });
     } catch (error) {
-      console.error('[GitService] add failed:', error);
+      logger.error('gitService', '[GitService] add failed:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : String(error),
@@ -208,7 +209,7 @@ export const gitService = {
     try {
       return await invoke<GitCommandResult>('git_commit', { projectPath, message });
     } catch (error) {
-      console.error('[GitService] commit failed:', error);
+      logger.error('gitService', '[GitService] commit failed:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : String(error),

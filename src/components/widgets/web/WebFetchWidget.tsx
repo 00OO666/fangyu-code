@@ -5,6 +5,7 @@
  * 用于展示网页获取操作和内容预览
  */
 
+import { logger } from '@/lib/logger';
 import React, { useState } from "react";
 import { Globe, FileText, ChevronRight, Info, AlertCircle } from "lucide-react";
 import { open } from "@tauri-apps/plugin-shell";
@@ -84,7 +85,7 @@ export const WebFetchWidget: React.FC<WebFetchWidgetProps> = ({
     try {
       await open(url);
     } catch (error) {
-      console.error('Failed to open URL:', error);
+      logger.error('WebFetchWidget', 'Failed to open URL:', error);
     }
   };
 

@@ -2,6 +2,7 @@
  * HooksEditor component for managing Claude Code hooks configuration
  */
 
+import { logger } from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -202,7 +203,7 @@ export const HooksEditor: React.FC<HooksEditorProps> = ({
           setHasUnsavedChanges(false);
         })
         .catch((err) => {
-          console.error("[HooksEditor] Failed to load hooks configuration:", err);
+          logger.error('HooksEditor', "[HooksEditor] Failed to load hooks configuration:", err);
           setLoadError(err instanceof Error ? err.message : "Failed to load hooks configuration");
           setHooks({});
         })
@@ -314,7 +315,7 @@ export const HooksEditor: React.FC<HooksEditorProps> = ({
       setHooks(newHooks);
       setHasUnsavedChanges(false);
     } catch (error) {
-      console.error('Failed to save hooks:', error);
+      logger.error('HooksEditor', 'Failed to save hooks:', error);
       setLoadError(error instanceof Error ? error.message : 'Failed to save hooks');
     } finally {
       setIsSaving(false);

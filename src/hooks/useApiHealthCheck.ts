@@ -10,6 +10,7 @@
  * 4. 记录详细的错误日志
  */
 
+import { logger } from '@/lib/logger';
 import { emit, listen, type UnlistenFn } from "@tauri-apps/api/event";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
@@ -125,12 +126,12 @@ export function useApiHealthCheck(config: UseApiHealthCheckConfig = {}): UseApiH
         try {
           localStorage.setItem(`${STORAGE_KEY}_log`, JSON.stringify(newLog));
         } catch (e) {
-          console.warn("[ApiHealthCheck] Failed to save error log:", e);
+          logger.warn('useApiHealthCheck', "[ApiHealthCheck] Failed to save error log:", e);
         }
         return newLog;
       });
 
-      console.warn("[ApiHealthCheck] Error logged:", fullEntry);
+      logger.warn('useApiHealthCheck', "[ApiHealthCheck] Error logged:", fullEntry);
     },
     [sessionId],
   );
@@ -221,7 +222,7 @@ export function useApiHealthCheck(config: UseApiHealthCheckConfig = {}): UseApiH
       const result = await runHealthCheck();
 
       if (result) {
-        console.log("[ApiHealthCheck] Reconnect successful!");
+        logger.debug('useApiHealthCheck', "[ApiHealthCheck] Reconnect successful!");
         recordSuccess();
         setIsReconnecting(false);
 
@@ -232,7 +233,7 @@ export function useApiHealthCheck(config: UseApiHealthCheckConfig = {}): UseApiH
         throw new Error("Health check failed");
       }
     } catch (err) {
-      console.error("[ApiHealthCheck] Reconnect failed:", err);
+      logger.error('useApiHealthCheck', "[ApiHealthCheck] Reconnect failed:", err);
 
       if (retryCountRef.current < maxRetries) {
         // 继续重试
@@ -240,7 +241,7 @@ export function useApiHealthCheck(config: UseApiHealthCheckConfig = {}): UseApiH
         return triggerReconnect();
       } else {
         // 放弃重试
-        console.error("[ApiHealthCheck] Max retries reached, giving up");
+        logger.error('useApiHealthCheck', "[ApiHealthCheck] Max retries reached, giving up");
         setStatus("disconnected");
         setIsReconnecting(false);
 
@@ -262,7 +263,7 @@ export function useApiHealthCheck(config: UseApiHealthCheckConfig = {}): UseApiH
       await api.listProjects();
       return true;
     } catch (err) {
-      console.warn("[ApiHealthCheck] Health check failed:", err);
+      logger.warn('useApiHealthCheck', "[ApiHealthCheck] Health check failed:", err);
       return false;
     }
   }, []);

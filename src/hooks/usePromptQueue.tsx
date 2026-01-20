@@ -11,6 +11,7 @@
  * @version 1.0.0
  */
 
+import { logger } from '@/lib/logger';
 import { createContext, type ReactNode, useCallback, useContext, useMemo, useRef, useState } from "react";
 import type { ModelType } from "@/components/FloatingPromptInput/types";
 
@@ -183,7 +184,7 @@ export const PromptQueueProvider = ({ children }: PromptQueueProviderProps) => {
     });
 
     if (removedItem) {
-      console.log("[PromptQueue] 从队列移除:", itemId);
+      logger.debug('usePromptQueue', "[PromptQueue] 从队列移除:", itemId);
     }
 
     return removedItem;
@@ -200,7 +201,7 @@ export const PromptQueueProvider = ({ children }: PromptQueueProviderProps) => {
       const item = prev[index];
       // 只能撤回 pending 状态的项
       if (item.status !== "pending") {
-        console.warn("[PromptQueue] 无法撤回非 pending 状态的项:", item.status);
+        logger.warn('usePromptQueue', "[PromptQueue] 无法撤回非 pending 状态的项:", item.status);
         return prev;
       }
 
@@ -214,7 +215,7 @@ export const PromptQueueProvider = ({ children }: PromptQueueProviderProps) => {
     });
 
     if (revokedPrompt) {
-      console.log("[PromptQueue] 撤回到输入框:", itemId);
+      logger.debug('usePromptQueue', "[PromptQueue] 撤回到输入框:", itemId);
     }
 
     return revokedPrompt;
@@ -254,7 +255,7 @@ export const PromptQueueProvider = ({ children }: PromptQueueProviderProps) => {
     setItems([]);
     setCurrentItemId(null);
     setIsProcessing(false);
-    console.log("[PromptQueue] 队列已清空");
+    logger.debug('usePromptQueue', "[PromptQueue] 队列已清空");
   }, []);
 
   // 🔧 FIX: 移除 items 依赖，改用 itemsRef 访问最新值
@@ -293,7 +294,7 @@ export const PromptQueueProvider = ({ children }: PromptQueueProviderProps) => {
       const [removed] = updated.splice(currentIndex, 1);
       updated.splice(newIndex, 0, removed);
 
-      console.log("[PromptQueue] 移动队列项:", { itemId, from: currentIndex, to: newIndex });
+      logger.debug('usePromptQueue', "[PromptQueue] 移动队列项:", { itemId, from: currentIndex, to: newIndex });
       return updated;
     });
   }, []);
@@ -301,7 +302,7 @@ export const PromptQueueProvider = ({ children }: PromptQueueProviderProps) => {
   // 更新队列项模式
   const updateItemMode = useCallback((itemId: string, mode: PromptSendMode) => {
     setItems((prev) => prev.map((item) => (item.id === itemId ? { ...item, mode } : item)));
-    console.log("[PromptQueue] 更新模式:", { itemId, mode });
+    logger.debug('usePromptQueue', "[PromptQueue] 更新模式:", { itemId, mode });
   }, []);
 
   // 🆕 更新队列项提示词
@@ -311,7 +312,7 @@ export const PromptQueueProvider = ({ children }: PromptQueueProviderProps) => {
         item.id === itemId ? { ...item, prompt, estimatedTokens: estimateTokens(prompt) } : item,
       ),
     );
-    console.log("[PromptQueue] 更新提示词:", { itemId, promptPreview: prompt.substring(0, 50) });
+    logger.debug('usePromptQueue', "[PromptQueue] 更新提示词:", { itemId, promptPreview: prompt.substring(0, 50) });
   }, []);
 
   // 🔧 FIX: 移除 items 依赖，改用 itemsRef 访问最新值

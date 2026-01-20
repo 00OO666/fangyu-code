@@ -4,6 +4,7 @@
  * 整合 TokenManager 和 ApiClient，提供统一的引擎接口
  */
 
+import { logger } from '@/lib/logger';
 import type { 
   KiroEngineConfig, 
   KiroModel, 
@@ -48,9 +49,9 @@ export class KiroEngine {
     try {
       await this.tokenManager.loadToken();
       this.initialized = true;
-      console.log('[KiroEngine] 初始化成功');
+      logger.debug('KiroEngine', '[KiroEngine] 初始化成功');
     } catch (error) {
-      console.error('[KiroEngine] 初始化失败:', error);
+      logger.error('KiroEngine', '[KiroEngine] 初始化失败:', error);
       throw error;
     }
   }
@@ -120,7 +121,7 @@ export class KiroEngine {
   startNewConversation(): void {
     this.conversationId = null;
     this.history = [];
-    console.log('[KiroEngine] 开始新会话');
+    logger.debug('KiroEngine', '[KiroEngine] 开始新会话');
   }
 
   /**
@@ -145,7 +146,7 @@ export class KiroEngine {
    */
   setModel(modelId: string): void {
     this.config.modelId = modelId || undefined;
-    console.log('[KiroEngine] 设置模型:', modelId || 'Auto');
+    logger.debug('KiroEngine', '[KiroEngine] 设置模型:', modelId || 'Auto');
   }
 
   /**
@@ -236,7 +237,7 @@ export class KiroEngine {
     this.conversationId = null;
     this.history = [];
     this.initialized = false;
-    console.log('[KiroEngine] 已清理资源');
+    logger.debug('KiroEngine', '[KiroEngine] 已清理资源');
   }
 }
 

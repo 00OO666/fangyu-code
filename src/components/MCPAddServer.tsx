@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useState } from "react";
 import { Plus, Terminal, Globe, Trash2, Info, Loader2, ToggleLeft, ToggleRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -156,7 +157,7 @@ export const MCPAddServer: React.FC<MCPAddServerProps> = ({
       onServerAdded();
     } catch (error) {
       onError("Failed to add server");
-      console.error("Failed to add stdio server:", error);
+      logger.error('MCPAddServer', "Failed to add stdio server:", error);
     } finally {
       setSaving(false);
     }
@@ -215,7 +216,7 @@ export const MCPAddServer: React.FC<MCPAddServerProps> = ({
       onServerAdded();
     } catch (error) {
       onError("Failed to add server");
-      console.error("Failed to add SSE server:", error);
+      logger.error('MCPAddServer', "Failed to add SSE server:", error);
     } finally {
       setSaving(false);
     }

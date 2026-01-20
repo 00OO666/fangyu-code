@@ -3,6 +3,7 @@
  *
  * 提供文本翻译、语言检测和翻译缓存管理功能。
  */
+import { logger } from '@/lib/logger';
 import { invoke } from "@tauri-apps/api/core";
 import type { TranslationCacheStats, TranslationConfig } from "../types";
 
@@ -16,7 +17,7 @@ export async function translateText(text: string, targetLang?: string): Promise<
   try {
     return await invoke<string>("translate", { text, targetLang });
   } catch (error) {
-    console.error("Failed to translate text:", error);
+    logger.error('index', "Failed to translate text:", error);
     throw error;
   }
 }
@@ -31,7 +32,7 @@ export async function translateBatch(texts: string[], targetLang?: string): Prom
   try {
     return await invoke<string[]>("translate_batch", { texts, targetLang });
   } catch (error) {
-    console.error("Failed to batch translate texts:", error);
+    logger.error('index', "Failed to batch translate texts:", error);
     throw error;
   }
 }
@@ -44,7 +45,7 @@ export async function getTranslationConfig(): Promise<TranslationConfig> {
   try {
     return await invoke<TranslationConfig>("get_translation_config");
   } catch (error) {
-    console.error("Failed to get translation config:", error);
+    logger.error('index', "Failed to get translation config:", error);
     throw error;
   }
 }
@@ -58,7 +59,7 @@ export async function updateTranslationConfig(config: TranslationConfig): Promis
   try {
     return await invoke<string>("update_translation_config", { config });
   } catch (error) {
-    console.error("Failed to update translation config:", error);
+    logger.error('index', "Failed to update translation config:", error);
     throw error;
   }
 }
@@ -71,7 +72,7 @@ export async function clearTranslationCache(): Promise<string> {
   try {
     return await invoke<string>("clear_translation_cache");
   } catch (error) {
-    console.error("Failed to clear translation cache:", error);
+    logger.error('index', "Failed to clear translation cache:", error);
     throw error;
   }
 }
@@ -84,7 +85,7 @@ export async function getTranslationCacheStats(): Promise<TranslationCacheStats>
   try {
     return await invoke<TranslationCacheStats>("get_translation_cache_stats");
   } catch (error) {
-    console.error("Failed to get translation cache stats:", error);
+    logger.error('index', "Failed to get translation cache stats:", error);
     throw error;
   }
 }
@@ -98,7 +99,7 @@ export async function detectTextLanguage(text: string): Promise<string> {
   try {
     return await invoke<string>("detect_text_language", { text });
   } catch (error) {
-    console.error("Failed to detect text language:", error);
+    logger.error('index', "Failed to detect text language:", error);
     throw error;
   }
 }
@@ -112,7 +113,7 @@ export async function initTranslationService(config?: TranslationConfig): Promis
   try {
     return await invoke<string>("init_translation_service_command", { config });
   } catch (error) {
-    console.error("Failed to initialize translation service:", error);
+    logger.error('index', "Failed to initialize translation service:", error);
     throw error;
   }
 }

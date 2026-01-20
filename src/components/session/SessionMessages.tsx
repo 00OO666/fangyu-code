@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useImperativeHandle, forwardRef, useRef, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useVirtualizer } from "@tanstack/react-virtual";
@@ -226,7 +227,7 @@ export const SessionMessages = forwardRef<SessionMessagesRef, SessionMessagesPro
       }
 
       if (targetGroupIndex === -1) {
-        console.warn(`[scrollToPrompt] ❌ 未找到 promptIndex=${promptIndex}`);
+        logger.warn('SessionMessages', `[scrollToPrompt] ❌ 未找到 promptIndex=${promptIndex}`);
         return;
       }
 
@@ -272,7 +273,7 @@ export const SessionMessages = forwardRef<SessionMessagesRef, SessionMessagesPro
           const messageGroup = messageGroups[virtualItem.index];
 
           if (!messageGroup) {
-            console.warn('[SessionMessages] messageGroup is undefined for index:', virtualItem.index);
+            logger.warn('SessionMessages', '[SessionMessages] messageGroup is undefined for index:', virtualItem.index);
             return null;
           }
 

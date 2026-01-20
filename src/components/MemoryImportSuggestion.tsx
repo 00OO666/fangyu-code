@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, X, ChevronDown, ChevronUp } from 'lucide-react';
@@ -67,12 +68,12 @@ export const MemoryImportSuggestion: React.FC<MemoryImportSuggestionProps> = ({
         memory_files: Array.from(selectedFiles),
       });
 
-      console.log('[MemoryImportSuggestion] Import result:', result);
+      logger.debug('MemoryImportSuggestion', '[MemoryImportSuggestion] Import result:', result);
       onImportComplete?.();
       onClose?.();
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
-      console.error('[MemoryImportSuggestion] Import failed:', errorMsg);
+      logger.error('MemoryImportSuggestion', '[MemoryImportSuggestion] Import failed:', errorMsg);
       setImportError(errorMsg);
     } finally {
       setIsImporting(false);

@@ -14,6 +14,7 @@
  * - https://zuplo.com/learning-center/implementing-idempotency-keys-in-rest-apis-a-complete-guide
  */
 
+import { logger } from '@/lib/logger';
 import { useMemo } from "react";
 import type { ClaudeStreamMessage } from "@/types/claude";
 
@@ -138,11 +139,11 @@ export function useMessageDeduplication(
 
     // 调试日志
     if (debug && duplicateCount > 0) {
-      console.log(`[MessageDeduplication] 去重完成:`);
-      console.log(`  - 原始消息: ${originalCount} 条`);
-      console.log(`  - 去重后: ${deduplicatedCount} 条`);
-      console.log(`  - 移除重复: ${duplicateCount} 条 (${(duplicateRate * 100).toFixed(1)}%)`);
-      console.log(`  - 耗时: ${duration.toFixed(2)}ms`);
+      logger.debug('useMessageDeduplication', `[MessageDeduplication] 去重完成:`);
+      logger.debug('useMessageDeduplication', `  - 原始消息: ${originalCount} 条`);
+      logger.debug('useMessageDeduplication', `  - 去重后: ${deduplicatedCount} 条`);
+      logger.debug('useMessageDeduplication', `  - 移除重复: ${duplicateCount} 条 (${(duplicateRate * 100).toFixed(1)}%)`);
+      logger.debug('useMessageDeduplication', `  - 耗时: ${duration.toFixed(2)}ms`);
     }
 
     // 警告：重复率过高
@@ -150,7 +151,7 @@ export function useMessageDeduplication(
       console.warn(
         `[MessageDeduplication] ⚠️ 重复率过高: ${(duplicateRate * 100).toFixed(1)}% (${duplicateCount}/${originalCount})`
       );
-      console.warn(`  建议检查消息添加逻辑，可能存在重复提交问题`);
+      logger.warn('useMessageDeduplication', `  建议检查消息添加逻辑，可能存在重复提交问题`);
     }
 
     return {

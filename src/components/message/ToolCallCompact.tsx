@@ -8,6 +8,7 @@
  * 4. Glassmorphism 风格
  */
 
+import { logger } from '@/lib/logger';
 import React, { memo, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -112,7 +113,7 @@ const ToolCallCompactComponent: React.FC<ToolCallCompactProps> = ({
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
         } catch (error) {
-            console.error('Copy failed:', error);
+            logger.error('ToolCallCompact', 'Copy failed:', error);
         }
     };
 

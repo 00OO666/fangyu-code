@@ -15,10 +15,11 @@
  *
  * // Get optimization statistics
  * const stats = getStats();
- * console.log(`Saved ${stats.totalTokensSaved} tokens`);
+ * logger.debug('useTokenOptimization', `Saved ${stats.totalTokensSaved} tokens`);
  * ```
  */
 
+import { logger } from '@/lib/logger';
 import { useCallback, useMemo, useRef } from "react";
 import { isFeatureEnabled } from "@/config/featureFlags";
 import {

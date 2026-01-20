@@ -12,6 +12,7 @@
  * Feature: unified-workflow-system
  */
 
+import { logger } from '@/lib/logger';
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import {
     UnifiedWorkflowEngine,
@@ -194,7 +195,7 @@ export function useUnifiedWorkflow(
     // 初始化引擎
     const initialize = useCallback(async () => {
         if (engineRef.current) {
-            console.warn('[useUnifiedWorkflow] Engine already initialized');
+            logger.warn('useUnifiedWorkflow', '[useUnifiedWorkflow] Engine already initialized');
             return;
         }
 
@@ -290,7 +291,7 @@ export function useUnifiedWorkflow(
     // 暂停执行
     const pauseExecution = useCallback(() => {
         if (!engineRef.current) {
-            console.warn('[useUnifiedWorkflow] Engine not initialized');
+            logger.warn('useUnifiedWorkflow', '[useUnifiedWorkflow] Engine not initialized');
             return;
         }
 
@@ -316,7 +317,7 @@ export function useUnifiedWorkflow(
     // 取消执行
     const cancelExecution = useCallback(async () => {
         if (!engineRef.current) {
-            console.warn('[useUnifiedWorkflow] Engine not initialized');
+            logger.warn('useUnifiedWorkflow', '[useUnifiedWorkflow] Engine not initialized');
             return;
         }
 
@@ -366,7 +367,7 @@ export function useUnifiedWorkflow(
         handler: (event: WorkflowEvent) => void
     ): () => void => {
         if (!engineRef.current) {
-            console.warn('[useUnifiedWorkflow] Engine not initialized, subscription will be ignored');
+            logger.warn('useUnifiedWorkflow', '[useUnifiedWorkflow] Engine not initialized, subscription will be ignored');
             return () => { };
         }
 

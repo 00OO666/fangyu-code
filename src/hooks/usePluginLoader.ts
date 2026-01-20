@@ -11,6 +11,7 @@
  * 来源: VSCode Extension Host + Zed Plugin System
  */
 
+import { logger } from '@/lib/logger';
 import { useCallback, useEffect, useRef, useState } from "react";
 import type {
   ActivationEvent,
@@ -123,10 +124,10 @@ function createLogger(pluginId: string): Logger {
 
   return {
     trace: (message: string, ...args: any[]) => console.trace(prefix, message, ...args),
-    debug: (message: string, ...args: any[]) => console.debug(prefix, message, ...args),
+    debug: (message: string, ...args: any[]) => logger.debug('usePluginLoader', prefix, message, ...args),
     info: (message: string, ...args: any[]) => console.info(prefix, message, ...args),
-    warn: (message: string, ...args: any[]) => console.warn(prefix, message, ...args),
-    error: (message: string | Error, ...args: any[]) => console.error(prefix, message, ...args),
+    warn: (message: string, ...args: any[]) => logger.warn('usePluginLoader', prefix, message, ...args),
+    error: (message: string | Error, ...args: any[]) => logger.error('usePluginLoader', prefix, message, ...args),
   };
 }
 
@@ -135,11 +136,11 @@ function createPluginAPI(_pluginId: string, _permissions: PluginPermission[]): P
   return {
     commands: {
       registerCommand: (command, _callback) => {
-        console.log(`[Plugin API] Register command: ${command}`);
-        return { dispose: () => console.log(`[Plugin API] Unregister command: ${command}`) };
+        logger.debug('usePluginLoader', `[Plugin API] Register command: ${command}`);
+        return { dispose: () => logger.debug('usePluginLoader', `[Plugin API] Unregister command: ${command}`) };
       },
       executeCommand: async (command, ...args) => {
-        console.log(`[Plugin API] Execute command: ${command}`, args);
+        logger.debug('usePluginLoader', `[Plugin API] Execute command: ${command}`, args);
         return undefined as any;
       },
       getCommands: async () => [],
@@ -171,23 +172,23 @@ function createPluginAPI(_pluginId: string, _permissions: PluginPermission[]): P
     },
     window: {
       showInformationMessage: async (message) => {
-        console.log("[Info]", message);
+        logger.debug('usePluginLoader', "[Info]", message);
         return undefined;
       },
       showWarningMessage: async (message) => {
-        console.warn("[Warn]", message);
+        logger.warn('usePluginLoader', "[Warn]", message);
         return undefined;
       },
       showErrorMessage: async (message) => {
-        console.error("[Error]", message);
+        logger.error('usePluginLoader', "[Error]", message);
         return undefined;
       },
       showInputBox: async () => undefined,
       showQuickPick: async () => undefined,
       createOutputChannel: (name) => ({
         name,
-        append: (value) => console.log(`[${name}]`, value),
-        appendLine: (value) => console.log(`[${name}]`, value),
+        append: (value) => logger.debug('usePluginLoader', `[${name}]`, value),
+        appendLine: (value) => logger.debug('usePluginLoader', `[${name}]`, value),
         clear: () => {},
         show: () => {},
         hide: () => {},
@@ -263,7 +264,7 @@ export function usePluginLoader(options: UsePluginLoaderOptions = {}) {
       try {
         // 模拟读取清单文件
         // 实际实现需要调用 Tauri 文件系统 API
-        console.log(`[PluginLoader] Parsing manifest: ${manifestPath}`);
+        logger.debug('usePluginLoader', `[PluginLoader] Parsing manifest: ${manifestPath}`);
 
         // TODO: 实现实际的文件读取
         // const content = await readFile(manifestPath);
@@ -271,7 +272,7 @@ export function usePluginLoader(options: UsePluginLoaderOptions = {}) {
 
         return null;
       } catch (error) {
-        console.error(`[PluginLoader] Failed to parse manifest: ${manifestPath}`, error);
+        logger.error('usePluginLoader', `[PluginLoader] Failed to parse manifest: ${manifestPath}`, error);
         return null;
       }
     },
@@ -447,7 +448,7 @@ export function usePluginLoader(options: UsePluginLoaderOptions = {}) {
 
         // 加载插件模块（模拟）
         // 实际实现需要动态导入插件代码
-        console.log(`[PluginLoader] Activating plugin: ${pluginId}`);
+        logger.debug('usePluginLoader', `[PluginLoader] Activating plugin: ${pluginId}`);
 
         // TODO: 实现实际的插件加载和执行
         // const pluginModule = await import(pluginState.path);
@@ -538,7 +539,7 @@ export function usePluginLoader(options: UsePluginLoaderOptions = {}) {
 
         return true;
       } catch (error) {
-        console.error(`[PluginLoader] Failed to deactivate plugin: ${pluginId}`, error);
+        logger.error('usePluginLoader', `[PluginLoader] Failed to deactivate plugin: ${pluginId}`, error);
         return false;
       }
     },
@@ -676,7 +677,7 @@ export function usePluginLoader(options: UsePluginLoaderOptions = {}) {
         ? `${workspacePath}/${config.pluginsDir}`
         : config.pluginsDir;
 
-      console.log(`[PluginLoader] Discovering plugins in: ${pluginsPath}`);
+      logger.debug('usePluginLoader', `[PluginLoader] Discovering plugins in: ${pluginsPath}`);
 
       // TODO: 实现实际的目录扫描
       // const entries = await readDir(pluginsPath);

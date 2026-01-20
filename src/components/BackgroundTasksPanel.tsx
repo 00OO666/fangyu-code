@@ -11,6 +11,7 @@
  * 来源: Cursor Composer + Windsurf Background Tasks
  */
 
+import { logger } from '@/lib/logger';
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -129,7 +130,7 @@ export function BackgroundTasksPanel({ sessionId, className }: BackgroundTasksPa
       setTasks(taskList);
       setStats(taskStats);
     } catch (error) {
-      console.error('加载任务列表失败:', error);
+      logger.error('BackgroundTasksPanel', '加载任务列表失败:', error);
     } finally {
       setLoading(false);
     }
@@ -148,7 +149,7 @@ export function BackgroundTasksPanel({ sessionId, className }: BackgroundTasksPa
       await api.pauseBackgroundTask(taskId);
       loadTasks();
     } catch (error) {
-      console.error('暂停任务失败:', error);
+      logger.error('BackgroundTasksPanel', '暂停任务失败:', error);
     }
   };
 
@@ -157,7 +158,7 @@ export function BackgroundTasksPanel({ sessionId, className }: BackgroundTasksPa
       await api.resumeBackgroundTask(taskId);
       loadTasks();
     } catch (error) {
-      console.error('恢复任务失败:', error);
+      logger.error('BackgroundTasksPanel', '恢复任务失败:', error);
     }
   };
 
@@ -166,7 +167,7 @@ export function BackgroundTasksPanel({ sessionId, className }: BackgroundTasksPa
       await api.cancelBackgroundTask(taskId);
       loadTasks();
     } catch (error) {
-      console.error('取消任务失败:', error);
+      logger.error('BackgroundTasksPanel', '取消任务失败:', error);
     }
   };
 
@@ -175,7 +176,7 @@ export function BackgroundTasksPanel({ sessionId, className }: BackgroundTasksPa
       await api.retryBackgroundTask(taskId);
       loadTasks();
     } catch (error) {
-      console.error('重试任务失败:', error);
+      logger.error('BackgroundTasksPanel', '重试任务失败:', error);
     }
   };
 
@@ -184,7 +185,7 @@ export function BackgroundTasksPanel({ sessionId, className }: BackgroundTasksPa
       await api.deleteBackgroundTask(taskId);
       loadTasks();
     } catch (error) {
-      console.error('删除任务失败:', error);
+      logger.error('BackgroundTasksPanel', '删除任务失败:', error);
     }
   };
 

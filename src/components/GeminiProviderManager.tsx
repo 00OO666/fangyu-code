@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -74,13 +75,13 @@ export default function GeminiProviderManager({ onBack }: GeminiProviderManagerP
       try {
         customPresets = await api.getGeminiProviderPresets();
       } catch (error) {
-        console.warn('Failed to load custom Gemini presets, using defaults:', error);
+        logger.warn('GeminiProviderManager', 'Failed to load custom Gemini presets, using defaults:', error);
       }
 
       try {
         config = await api.getCurrentGeminiProviderConfig();
       } catch (error) {
-        console.warn('Failed to load current Gemini config:', error);
+        logger.warn('GeminiProviderManager', 'Failed to load current Gemini config:', error);
       }
 
       // 合并内置预设和自定义预设
@@ -101,7 +102,7 @@ export default function GeminiProviderManager({ onBack }: GeminiProviderManagerP
       setPresets([...builtInPresets, ...customPresets]);
       setCurrentConfig(config);
     } catch (error) {
-      console.error('Failed to load Gemini provider data:', error);
+      logger.error('GeminiProviderManager', 'Failed to load Gemini provider data:', error);
       setToastMessage({ message: t('provider.loadGeminiConfigFailed'), type: 'error' });
     } finally {
       setLoading(false);
@@ -115,7 +116,7 @@ export default function GeminiProviderManager({ onBack }: GeminiProviderManagerP
       setToastMessage({ message, type: 'success' });
       await loadData();
     } catch (error) {
-      console.error('Failed to switch Gemini provider:', error);
+      logger.error('GeminiProviderManager', 'Failed to switch Gemini provider:', error);
       setToastMessage({ message: t('provider.switchGeminiFailed'), type: 'error' });
     } finally {
       setSwitching(null);
@@ -129,7 +130,7 @@ export default function GeminiProviderManager({ onBack }: GeminiProviderManagerP
       setToastMessage({ message, type: 'success' });
       await loadData();
     } catch (error) {
-      console.error('Failed to clear Gemini provider:', error);
+      logger.error('GeminiProviderManager', 'Failed to clear Gemini provider:', error);
       setToastMessage({ message: t('provider.clearGeminiConfigFailed'), type: 'error' });
     } finally {
       setSwitching(null);
@@ -144,7 +145,7 @@ export default function GeminiProviderManager({ onBack }: GeminiProviderManagerP
       const message = await api.testGeminiProviderConnection(baseUrl, apiKey);
       setToastMessage({ message, type: 'success' });
     } catch (error) {
-      console.error('Failed to test Gemini connection:', error);
+      logger.error('GeminiProviderManager', 'Failed to test Gemini connection:', error);
       setToastMessage({ message: t('provider.connectionTestFailed'), type: 'error' });
     } finally {
       setTesting(null);
@@ -177,7 +178,7 @@ export default function GeminiProviderManager({ onBack }: GeminiProviderManagerP
       setDeleteDialogOpen(false);
       setProviderToDelete(null);
     } catch (error) {
-      console.error('Failed to delete Gemini provider:', error);
+      logger.error('GeminiProviderManager', 'Failed to delete Gemini provider:', error);
       setToastMessage({ message: t('provider.geminiDeleteFailed'), type: 'error' });
     } finally {
       setDeleting(null);
@@ -201,7 +202,7 @@ export default function GeminiProviderManager({ onBack }: GeminiProviderManagerP
             await api.switchGeminiProvider(updatedConfig);
             setToastMessage({ message: t('provider.geminiUpdateSyncSuccess'), type: 'success' });
           } catch (switchError) {
-            console.error('Failed to sync Gemini provider config:', switchError);
+            logger.error('GeminiProviderManager', 'Failed to sync Gemini provider config:', switchError);
             setToastMessage({ message: t('provider.geminiUpdateSyncFailed'), type: 'error' });
           }
         } else {
@@ -215,7 +216,7 @@ export default function GeminiProviderManager({ onBack }: GeminiProviderManagerP
       setEditingProvider(null);
       await loadData();
     } catch (error) {
-      console.error('Failed to save Gemini provider:', error);
+      logger.error('GeminiProviderManager', 'Failed to save Gemini provider:', error);
       setToastMessage({ message: editingProvider ? t('provider.geminiUpdateFailed') : t('provider.geminiAddFailed'), type: 'error' });
     }
   };

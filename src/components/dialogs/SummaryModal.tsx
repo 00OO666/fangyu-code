@@ -7,6 +7,7 @@
  * Requirements: 5.3, 5.4, 5.5, 5.6
  */
 
+import { logger } from '@/lib/logger';
 import React, { useState, useCallback, useEffect } from 'react';
 import {
     Copy, Check, ExternalLink, Loader2, RefreshCw,
@@ -123,7 +124,7 @@ export const SummaryModal: React.FC<SummaryModalProps> = ({
             onCopySuccess?.();
             setTimeout(() => setCopied(false), 2000);
         } catch (error) {
-            console.error('复制失败:', error);
+            logger.error('SummaryModal', '复制失败:', error);
         }
     }, [result, onCopySuccess]);
 

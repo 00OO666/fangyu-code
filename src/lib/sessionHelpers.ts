@@ -10,6 +10,7 @@
  * All functions are pure or have minimal side effects for better testability
  */
 
+import { logger } from '@/lib/logger';
 import { open } from "@tauri-apps/plugin-dialog";
 import { copyTextToClipboard } from "@/lib/clipboard";
 import type { ClaudeStreamMessage } from "@/types/claude";
@@ -59,7 +60,7 @@ export async function selectProjectPath(): Promise<string | null> {
 
     return selected as string | null;
   } catch (err) {
-    console.error("Failed to select directory:", err);
+    logger.error('sessionHelpers', "Failed to select directory:", err);
     throw new Error(
       `Failed to select directory: ${err instanceof Error ? err.message : String(err)}`,
     );

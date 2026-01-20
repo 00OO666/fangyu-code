@@ -5,6 +5,7 @@
  * 参考：https://docs.claude.com/en/docs/claude-code/costs
  */
 
+import { logger } from '@/lib/logger';
 import { useEffect, useMemo, useRef } from "react";
 import { formatCost as formatCostUtil, formatDuration, formatTokensK } from "@/lib/pricing";
 import { aggregateSessionCost } from "@/lib/sessionCost";
@@ -70,7 +71,7 @@ const EMPTY_STATS: SessionCostStats = {
  *
  * @example
  * const { stats, formatCost } = useSessionCostCalculation(messages, 'claude');
- * console.log(formatCost(stats.totalCost)); // "$0.0123"
+ * logger.debug('useSessionCostCalculation', formatCost(stats.totalCost);); // "$0.0123"
  */
 export function useSessionCostCalculation(
   messages: ClaudeStreamMessage[],

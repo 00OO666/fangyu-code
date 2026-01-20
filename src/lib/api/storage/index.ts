@@ -3,6 +3,7 @@
  *
  * 提供与 SQLite 数据库交互的方法，包括表管理、行操作和 SQL 执行。
  */
+import { logger } from '@/lib/logger';
 import { invoke } from "@tauri-apps/api/core";
 
 /**
@@ -13,7 +14,7 @@ export async function storageListTables(): Promise<any[]> {
   try {
     return await invoke<any[]>("storage_list_tables");
   } catch (error) {
-    console.error("Failed to list tables:", error);
+    logger.error('index', "Failed to list tables:", error);
     throw error;
   }
 }
@@ -40,7 +41,7 @@ export async function storageReadTable(
       searchQuery,
     });
   } catch (error) {
-    console.error("Failed to read table:", error);
+    logger.error('index', "Failed to read table:", error);
     throw error;
   }
 }
@@ -64,7 +65,7 @@ export async function storageUpdateRow(
       updates,
     });
   } catch (error) {
-    console.error("Failed to update row:", error);
+    logger.error('index', "Failed to update row:", error);
     throw error;
   }
 }
@@ -85,7 +86,7 @@ export async function storageDeleteRow(
       primaryKeyValues,
     });
   } catch (error) {
-    console.error("Failed to delete row:", error);
+    logger.error('index', "Failed to delete row:", error);
     throw error;
   }
 }
@@ -106,7 +107,7 @@ export async function storageInsertRow(
       values,
     });
   } catch (error) {
-    console.error("Failed to insert row:", error);
+    logger.error('index', "Failed to insert row:", error);
     throw error;
   }
 }
@@ -120,7 +121,7 @@ export async function storageExecuteSql(query: string): Promise<any> {
   try {
     return await invoke<any>("storage_execute_sql", { query });
   } catch (error) {
-    console.error("Failed to execute SQL:", error);
+    logger.error('index', "Failed to execute SQL:", error);
     throw error;
   }
 }
@@ -133,7 +134,7 @@ export async function storageResetDatabase(): Promise<void> {
   try {
     return await invoke<void>("storage_reset_database");
   } catch (error) {
-    console.error("Failed to reset database:", error);
+    logger.error('index', "Failed to reset database:", error);
     throw error;
   }
 }

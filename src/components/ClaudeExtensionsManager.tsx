@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useState, useEffect } from "react";
 import {
   Bot,
@@ -138,7 +139,7 @@ export const ClaudeExtensionsManager: React.FC<ClaudeExtensionsManagerProps> = (
       const result = await api.listPlugins(projectPath);
       setPlugins(result);
     } catch (error) {
-      console.error('[ClaudeExtensions] Failed to load plugins:', error);
+      logger.error('ClaudeExtensionsManager', '[ClaudeExtensions] Failed to load plugins:', error);
     } finally {
       setLoading(false);
     }
@@ -151,7 +152,7 @@ export const ClaudeExtensionsManager: React.FC<ClaudeExtensionsManagerProps> = (
       const result = await api.listSubagents(projectPath);
       setAgents(result);
     } catch (error) {
-      console.error('[ClaudeExtensions] Failed to load agents:', error);
+      logger.error('ClaudeExtensionsManager', '[ClaudeExtensions] Failed to load agents:', error);
     } finally {
       setLoading(false);
     }
@@ -164,7 +165,7 @@ export const ClaudeExtensionsManager: React.FC<ClaudeExtensionsManagerProps> = (
       const result = await api.listAgentSkills(projectPath);
       setSkills(result);
     } catch (error) {
-      console.error('[ClaudeExtensions] Failed to load skills:', error);
+      logger.error('ClaudeExtensionsManager', '[ClaudeExtensions] Failed to load skills:', error);
     } finally {
       setLoading(false);
     }
@@ -176,7 +177,7 @@ export const ClaudeExtensionsManager: React.FC<ClaudeExtensionsManagerProps> = (
       const dirPath = await api.openPluginsDirectory(projectPath);
       await api.openDirectoryInExplorer(dirPath);
     } catch (error) {
-      console.error('Failed to open plugins directory:', error);
+      logger.error('ClaudeExtensionsManager', 'Failed to open plugins directory:', error);
     }
   };
 
@@ -185,7 +186,7 @@ export const ClaudeExtensionsManager: React.FC<ClaudeExtensionsManagerProps> = (
       const dirPath = await api.openAgentsDirectory(projectPath);
       await api.openDirectoryInExplorer(dirPath);
     } catch (error) {
-      console.error('Failed to open agents directory:', error);
+      logger.error('ClaudeExtensionsManager', 'Failed to open agents directory:', error);
     }
   };
 
@@ -194,7 +195,7 @@ export const ClaudeExtensionsManager: React.FC<ClaudeExtensionsManagerProps> = (
       const dirPath = await api.openSkillsDirectory(projectPath);
       await api.openDirectoryInExplorer(dirPath);
     } catch (error) {
-      console.error('Failed to open skills directory:', error);
+      logger.error('ClaudeExtensionsManager', 'Failed to open skills directory:', error);
     }
   };
 
@@ -246,7 +247,7 @@ export const ClaudeExtensionsManager: React.FC<ClaudeExtensionsManagerProps> = (
       }
       setDialogOpen(false);
     } catch (error) {
-      console.error('Failed to create:', error);
+      logger.error('ClaudeExtensionsManager', 'Failed to create:', error);
       alert(`${t('errors.createFailed')}: ${error}`);
     } finally {
       setCreating(false);
@@ -618,7 +619,7 @@ export const ClaudeExtensionsManager: React.FC<ClaudeExtensionsManagerProps> = (
                               const result = await api.listAgentSkills(projectPath);
                               setSkills(result);
                             } catch (error) {
-                              console.error('切换技能状态失败:', error);
+                              logger.error('ClaudeExtensionsManager', '切换技能状态失败:', error);
                             }
                           }}
                           title={skill.isEnabled ? "点击禁用" : "点击启用"}

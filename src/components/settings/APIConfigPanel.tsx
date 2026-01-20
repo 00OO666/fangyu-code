@@ -6,6 +6,7 @@
  * Requirements: 2.4, 2.5
  */
 
+import { logger } from '@/lib/logger';
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   APIConfigManager,
@@ -284,7 +285,7 @@ export const APIConfigPanel: React.FC<APIConfigPanelProps> = ({
       refreshConfigs();
       onConfigChange?.(manager);
     } catch (error) {
-      console.error('Failed to set active provider:', error);
+      logger.error('APIConfigPanel', 'Failed to set active provider:', error);
     }
   }, [manager, refreshConfigs, onConfigChange]);
 

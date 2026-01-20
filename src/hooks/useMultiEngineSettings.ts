@@ -7,6 +7,7 @@
  * Task: 1.2, 3.2, 4.2, 5.2
  */
 
+import { logger } from '@/lib/logger';
 import { useState, useEffect, useCallback } from 'react';
 import {
     EngineType,
@@ -82,7 +83,7 @@ export function useMultiEngineSettings(): UseMultiEngineSettingsReturn {
             const defaultSettings = createDefaultMultiEngineSettings();
             setSettings(defaultSettings);
         } catch (error) {
-            console.error('Failed to load multi-engine settings:', error);
+            logger.error('useMultiEngineSettings', 'Failed to load multi-engine settings:', error);
             setSettings(createDefaultMultiEngineSettings());
         } finally {
             setLoading(false);
@@ -147,7 +148,7 @@ export function useMultiEngineSettings(): UseMultiEngineSettingsReturn {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
             setHasChanges(false);
         } catch (error) {
-            console.error('Failed to save multi-engine settings:', error);
+            logger.error('useMultiEngineSettings', 'Failed to save multi-engine settings:', error);
             throw error;
         }
     }, [settings]);

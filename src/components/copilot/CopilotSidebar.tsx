@@ -10,6 +10,7 @@
  * 6. 快捷命令（斜杠命令）
  */
 
+import { logger } from '@/lib/logger';
 import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -358,7 +359,7 @@ export const CopilotSidebar: React.FC<CopilotSidebarProps> = ({
       codeBlocks: inputValue.includes('/') ? [
         {
           language: 'typescript',
-          code: `// 示例代码\nfunction example() {\n  console.log('Hello, World!');\n}`
+          code: `// 示例代码\nfunction example() {\n  logger.debug('CopilotSidebar', 'Hello, World!');\n}`
         }
       ] : undefined,
       suggestions: [

@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useMemo, useState, useCallback, useRef, useEffect } from "react";
 import { List, X, Search, LayoutList, LayoutGrid, Hash, ChevronUp, ChevronDown, Zap, Wrench, Brain, Gauge, Cpu } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -137,7 +138,7 @@ const highlightText = (text: string, keyword: string): React.ReactNode => {
         : part
     );
   } catch (error) {
-    console.warn('[PromptNavigator] Failed to highlight text:', error);
+    logger.warn('PromptNavigator', '[PromptNavigator] Failed to highlight text:', error);
     return text;
   }
 };
@@ -403,11 +404,11 @@ export const PromptNavigator: React.FC<PromptNavigatorProps> = ({
 
           // 🔧 DEBUG: 记录每个 prompt 的详细信息（包括多模型诊断）
           // const modelsInfo = modelsUsed.size > 0 ? Array.from(modelsUsed).join(', ') : 'unknown (default pricing used!)';
-          // console.log(`[PromptNavigator] Prompt #${promptIndex + 1}: 💰 $${cost.toFixed(4)}, 🎯 models=[${modelsInfo}], 📊 消息数=${messagesProcessedForThisPrompt}, tokens=${totalTokens}`);
+          // logger.debug('PromptNavigator', `[PromptNavigator] Prompt #${promptIndex + 1}: 💰 $${cost.toFixed(4);}, 🎯 models=[${modelsInfo}], 📊 消息数=${messagesProcessedForThisPrompt}, tokens=${totalTokens}`);
           // if (modelsUsed.size === 0) {
-          //   console.warn(`[PromptNavigator] ⚠️ Prompt #${promptIndex + 1}: 所有消息都没有模型信息，使用了默认 Sonnet 定价！`);
+          //   logger.warn('PromptNavigator', `[PromptNavigator] ⚠️ Prompt #${promptIndex + 1}: 所有消息都没有模型信息，使用了默认 Sonnet 定价！`);
           // } else if (modelsUsed.size > 1) {
-          //   console.log(`[PromptNavigator] 📊 Prompt #${promptIndex + 1}: 检测到多模型场景 (${modelsUsed.size} 个不同模型)`);
+          //   logger.debug('PromptNavigator', `[PromptNavigator] 📊 Prompt #${promptIndex + 1}: 检测到多模型场景 (${modelsUsed.size} 个不同模型);`);
           // }
 
           items.push({
@@ -438,10 +439,10 @@ export const PromptNavigator: React.FC<PromptNavigatorProps> = ({
 
     // 🔧 DEBUG: 打印总费用统计
     // const navigatorTotalCost = items.reduce((sum, item) => sum + (item.cost || 0), 0);
-    // console.log(`[PromptNavigator] 📊 统计汇总:`);
-    // console.log(`  - 总 prompt 数: ${items.length}`);
-    // console.log(`  - PromptNavigator 计算总费用: $${navigatorTotalCost.toFixed(4)}`);
-    // console.log(`  - 提示：如果与 SessionCost 差异大，可能是模型识别错误或遗漏消息`);
+    // logger.debug('PromptNavigator', `[PromptNavigator] 📊 统计汇总:`);
+    // logger.debug('PromptNavigator', `  - 总 prompt 数: ${items.length}`);
+    // logger.debug('PromptNavigator', `  - PromptNavigator 计算总费用: $${navigatorTotalCost.toFixed(4);}`);
+    // logger.debug('PromptNavigator', `  - 提示：如果与 SessionCost 差异大，可能是模型识别错误或遗漏消息`);
 
     // 倒序排列：最新的指令排在最上方
     return items.reverse();

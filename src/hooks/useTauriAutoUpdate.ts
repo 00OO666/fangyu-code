@@ -10,6 +10,7 @@
  * 6. 支持暂时关闭更新提示
  */
 
+import { logger } from '@/lib/logger';
 import { relaunch } from "@tauri-apps/plugin-process";
 import { check, type Update } from "@tauri-apps/plugin-updater";
 import { useCallback, useEffect, useState } from "react";
@@ -86,7 +87,7 @@ export function useTauriAutoUpdate(
   const checkForUpdates = useCallback(async (force: boolean = false) => {
     // 开发模式下跳过更新检查
     if (import.meta.env.DEV) {
-      console.debug("[Auto Update] Skipping update check in development mode");
+      logger.debug('useTauriAutoUpdate', "[Auto Update] Skipping update check in development mode");
       return;
     }
 
@@ -100,22 +101,22 @@ export function useTauriAutoUpdate(
     for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
       try {
         if (attempt > 0) {
-          console.log(`[Auto Update] Retry attempt ${attempt + 1}/${MAX_RETRIES}...`);
+          logger.debug('useTauriAutoUpdate', `[Auto Update] Retry attempt ${attempt + 1}/${MAX_RETRIES}...`);
         } else {
-          console.log("[Auto Update] Checking for updates...");
+          logger.debug('useTauriAutoUpdate', "[Auto Update] Checking for updates...");
         }
 
         const update = await check();
 
         if (update) {
-          console.log("[Auto Update] Update available:", update);
+          logger.debug('useTauriAutoUpdate', "[Auto Update] Update available:", update);
 
           // 检查是否被跳过或暂时关闭
           const skipped = !force && isVersionSkipped(update.version);
           const dismissed = !force && isUpdateDismissed(update.version);
 
           if (skipped) {
-            console.log("[Auto Update] Version skipped by user:", update.version);
+            logger.debug('useTauriAutoUpdate', "[Auto Update] Version skipped by user:", update.version);
             setUpdateInfo(null);
             setChecking(false);
             return;
@@ -131,7 +132,7 @@ export function useTauriAutoUpdate(
           setPendingUpdate(update);
           setIsDismissed(dismissed);
         } else {
-          console.log("[Auto Update] No update available");
+          logger.debug('useTauriAutoUpdate', "[Auto Update] No update available");
           setUpdateInfo({
             available: false,
             currentVersion: "",
@@ -144,12 +145,12 @@ export function useTauriAutoUpdate(
         return;
       } catch (err) {
         lastError = err instanceof Error ? err : new Error(String(err));
-        console.warn(`[Auto Update] Check failed (attempt ${attempt + 1}):`, lastError.message);
+        logger.warn('useTauriAutoUpdate', `[Auto Update] Check failed (attempt ${attempt + 1});:`, lastError.message);
 
         // 如果不是最后一次尝试，等待后重试
         if (attempt < MAX_RETRIES - 1) {
           const delay = INITIAL_RETRY_DELAY * Math.pow(2, attempt);
-          console.log(`[Auto Update] Retrying in ${delay}ms...`);
+          logger.debug('useTauriAutoUpdate', `[Auto Update] Retrying in ${delay}ms...`);
           await new Promise(resolve => setTimeout(resolve, delay));
         }
       }
@@ -157,11 +158,11 @@ export function useTauriAutoUpdate(
 
     // 所有重试都失败
     const errorMsg = lastError?.message || "检查更新失败";
-    console.error("[Auto Update] All retries failed:", errorMsg);
+    logger.error('useTauriAutoUpdate', "[Auto Update] All retries failed:", errorMsg);
 
     // 网络错误时静默处理，不显示错误给用户
     if (errorMsg.includes('network') || errorMsg.includes('fetch') || errorMsg.includes('timeout')) {
-      console.debug("[Auto Update] Network unavailable, skipping update check silently");
+      logger.debug('useTauriAutoUpdate', "[Auto Update] Network unavailable, skipping update check silently");
     } else {
       setError(errorMsg);
     }
@@ -181,13 +182,13 @@ export function useTauriAutoUpdate(
     setDownloadProgress(0);
 
     try {
-      console.log("[Auto Update] Downloading update...");
+      logger.debug('useTauriAutoUpdate', "[Auto Update] Downloading update...");
 
       // 下载更新包
       await pendingUpdate.downloadAndInstall((event) => {
         switch (event.event) {
           case "Started":
-            console.log("[Auto Update] Download started, contentLength:", (event.data as any).contentLength);
+            logger.debug('useTauriAutoUpdate', "[Auto Update] Download started, contentLength:", (event.data as any).contentLength);
             setDownloadProgress(0);
             break;
           case "Progress": {
@@ -205,7 +206,7 @@ export function useTauriAutoUpdate(
 
             if (isNaN(progress)) {
               progress = 0;
-              console.warn("[Auto Update] Progress calculation resulted in NaN");
+              logger.warn('useTauriAutoUpdate', "[Auto Update] Progress calculation resulted in NaN");
             }
 
             console.log(
@@ -215,7 +216,7 @@ export function useTauriAutoUpdate(
             break;
           }
           case "Finished":
-            console.log("[Auto Update] Download finished");
+            logger.debug('useTauriAutoUpdate', "[Auto Update] Download finished");
             setDownloadProgress(100);
             break;
         }
@@ -225,14 +226,14 @@ export function useTauriAutoUpdate(
       setInstalling(true);
 
       // 安装完成，准备重启
-      console.log("[Auto Update] Installing update and restarting...");
+      logger.debug('useTauriAutoUpdate', "[Auto Update] Installing update and restarting...");
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // 重启应用
       await relaunch();
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : "更新失败";
-      console.error("[Auto Update] Install failed:", errorMsg);
+      logger.error('useTauriAutoUpdate', "[Auto Update] Install failed:", errorMsg);
       setError(errorMsg);
       setDownloading(false);
       setInstalling(false);
@@ -244,11 +245,11 @@ export function useTauriAutoUpdate(
     if (updateInfo?.latestVersion) {
       try {
         localStorage.setItem(STORAGE_KEY_SKIPPED, updateInfo.latestVersion);
-        console.log("[Auto Update] Version skipped:", updateInfo.latestVersion);
+        logger.debug('useTauriAutoUpdate', "[Auto Update] Version skipped:", updateInfo.latestVersion);
         setUpdateInfo(null);
         setPendingUpdate(null);
       } catch (err) {
-        console.error("[Auto Update] Failed to skip version:", err);
+        logger.error('useTauriAutoUpdate', "[Auto Update] Failed to skip version:", err);
       }
     }
   }, [updateInfo]);
@@ -258,10 +259,10 @@ export function useTauriAutoUpdate(
     if (updateInfo?.latestVersion) {
       try {
         localStorage.setItem(STORAGE_KEY_DISMISSED, updateInfo.latestVersion);
-        console.log("[Auto Update] Update dismissed:", updateInfo.latestVersion);
+        logger.debug('useTauriAutoUpdate', "[Auto Update] Update dismissed:", updateInfo.latestVersion);
         setIsDismissed(true);
       } catch (err) {
-        console.error("[Auto Update] Failed to dismiss update:", err);
+        logger.error('useTauriAutoUpdate', "[Auto Update] Failed to dismiss update:", err);
       }
     }
   }, [updateInfo]);
@@ -271,9 +272,9 @@ export function useTauriAutoUpdate(
     try {
       localStorage.removeItem(STORAGE_KEY_DISMISSED);
       setIsDismissed(false);
-      console.log("[Auto Update] Update shown again");
+      logger.debug('useTauriAutoUpdate', "[Auto Update] Update shown again");
     } catch (err) {
-      console.error("[Auto Update] Failed to show update:", err);
+      logger.error('useTauriAutoUpdate', "[Auto Update] Failed to show update:", err);
     }
   }, []);
 

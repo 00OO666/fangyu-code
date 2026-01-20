@@ -4,6 +4,7 @@
  * 调用 Biome 进行代码格式化，并解析结果
  */
 
+import { logger } from '@/lib/logger';
 import { invoke } from "@tauri-apps/api/core";
 import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
 import type { FormatChange } from "@/services/codeFormatService";
@@ -243,7 +244,7 @@ export async function checkFileFormat(filePath: string): Promise<{
       changes,
     };
   } catch (error) {
-    console.error("[CodeFormatter] Check failed:", error);
+    logger.error('codeFormatter', "[CodeFormatter] Check failed:", error);
     return {
       isFormatted: true, // 出错时假设已格式化，避免误报
       changes: [],

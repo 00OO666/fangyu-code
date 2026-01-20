@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import { getVersion } from "@tauri-apps/api/app";
 
 // 可选导入：在未注册插件或非 Tauri 环境下，调用时会抛错，外层需做兜底
@@ -123,7 +124,7 @@ export async function checkForUpdate(opts: CheckOptions = {}): Promise<CheckResu
   // 🔧 FIX: 网络不可用时静默跳过
   if (!isNetworkAvailable()) {
     if (silentOnNetworkError) {
-      console.debug("[Updater] Network unavailable, skipping update check");
+      logger.debug('updater', "[Updater] Network unavailable, skipping update check");
       const currentVersion = await getCurrentVersion();
       return { status: "up-to-date", currentVersion, skipped: true };
     }
@@ -158,7 +159,7 @@ export async function checkForUpdate(opts: CheckOptions = {}): Promise<CheckResu
       // 如果是网络错误且还有重试次数，进行重试
       if (isNetworkError(lastError) && attempt < maxRetries) {
         const backoffMs = Math.min(1000 * Math.pow(2, attempt - 1), 10000); // 1s, 2s, 4s... 最大 10s
-        console.debug(`[Updater] Attempt ${attempt}/${maxRetries} failed, retrying in ${backoffMs}ms...`);
+        logger.debug('updater', `[Updater] Attempt ${attempt}/${maxRetries} failed, retrying in ${backoffMs}ms...`);
         await delay(backoffMs);
         continue;
       }
@@ -169,7 +170,7 @@ export async function checkForUpdate(opts: CheckOptions = {}): Promise<CheckResu
   }
 
   // 所有重试都失败了
-  console.error("[Updater] Check failed after retries:", lastError);
+  logger.error('updater', "[Updater] Check failed after retries:", lastError);
 
   // 提供详细的错误信息
   let errorMessage = "检查更新失败";
@@ -179,7 +180,7 @@ export async function checkForUpdate(opts: CheckOptions = {}): Promise<CheckResu
 
     // 🔧 FIX: 网络错误时静默处理
     if (isNetworkError(lastError) && silentOnNetworkError) {
-      console.debug("[Updater] Network error, silently skipping");
+      logger.debug('updater', "[Updater] Network error, silently skipping");
       const currentVersion = await getCurrentVersion();
       return { status: "up-to-date", currentVersion, skipped: true };
     }

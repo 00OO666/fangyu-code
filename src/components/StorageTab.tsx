@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -132,7 +133,7 @@ export const StorageTab: React.FC = () => {
         setSelectedTable(result[0].name);
       }
     } catch (err) {
-      console.error("Failed to load tables:", err);
+      logger.error('StorageTab', "Failed to load tables:", err);
       setError(t('common.failedToLoadTables'));
     } finally {
       setLoading(false);
@@ -157,7 +158,7 @@ export const StorageTab: React.FC = () => {
       setTableData(result);
       setCurrentPage(page);
     } catch (err) {
-      console.error("Failed to load table data:", err);
+      logger.error('StorageTab', "Failed to load table data:", err);
       setError(t('common.failedToLoadTableData'));
     } finally {
       setLoading(false);
@@ -204,7 +205,7 @@ export const StorageTab: React.FC = () => {
       await loadTableData(currentPage);
       setEditingRow(null);
     } catch (err) {
-      console.error("Failed to update row:", err);
+      logger.error('StorageTab', "Failed to update row:", err);
       setError("更新行失败");
     } finally {
       setLoading(false);
@@ -224,7 +225,7 @@ export const StorageTab: React.FC = () => {
       await loadTableData(currentPage);
       setDeletingRow(null);
     } catch (err) {
-      console.error("Failed to delete row:", err);
+      logger.error('StorageTab', "Failed to delete row:", err);
       setError("删除行失败");
     } finally {
       setLoading(false);
@@ -243,7 +244,7 @@ export const StorageTab: React.FC = () => {
       await loadTableData(currentPage);
       setNewRow(null);
     } catch (err) {
-      console.error("Failed to insert row:", err);
+      logger.error('StorageTab', "Failed to insert row:", err);
       setError("插入行失败");
     } finally {
       setLoading(false);
@@ -268,7 +269,7 @@ export const StorageTab: React.FC = () => {
         }
       }
     } catch (err) {
-      console.error("Failed to execute SQL:", err);
+      logger.error('StorageTab', "Failed to execute SQL:", err);
       setSqlError(err instanceof Error ? err.message : t('common.failedToExecuteSQL'));
     } finally {
       setLoading(false);
@@ -291,7 +292,7 @@ export const StorageTab: React.FC = () => {
         type: "success",
       });
     } catch (err) {
-      console.error("Failed to reset database:", err);
+      logger.error('StorageTab', "Failed to reset database:", err);
       setError(t('common.failedToResetDatabase'));
       setToast({
         message: t('common.failedToResetDatabase'),

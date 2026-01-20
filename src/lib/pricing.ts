@@ -1,3 +1,5 @@
+import { logger } from '@/lib/logger';
+
 /**
  * 统一的 AI 模型定价模块
  * ⚠️ MUST MATCH: src-tauri/src/commands/usage.rs::ModelPricing
@@ -372,7 +374,7 @@ export function getPricingForModel(model?: string, engine?: string): ModelPricin
   // 每个未知模型只警告一次，避免控制台被刷屏
   if (!warnedModels.has(model)) {
     warnedModels.add(model);
-    console.debug(`[pricing] Unknown model: '${model}'. Using default pricing.`);
+    logger.debug('pricing', `[pricing] Unknown model: '${model}'. Using default pricing.`);
   }
   return MODEL_PRICING["default"];
 }

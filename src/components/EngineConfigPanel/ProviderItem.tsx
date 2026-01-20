@@ -3,6 +3,7 @@
  * 参考旧的 ProviderManager.tsx 的 UI 设计
  */
 
+import { logger } from '@/lib/logger';
 import React, { useState, useCallback } from 'react';
 import {
     Zap,
@@ -132,7 +133,7 @@ export function ProviderItem({
             await onEdit(updates);
             setIsEditing(false);
         } catch (error) {
-            console.error('保存失败:', error);
+            logger.error('ProviderItem', '保存失败:', error);
         } finally {
             setIsSaving(false);
         }

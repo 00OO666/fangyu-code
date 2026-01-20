@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useState, useEffect } from "react";
 import {
   Dialog,
@@ -303,7 +304,7 @@ export const MCPServerDialog: React.FC<MCPServerDialogProps> = ({
       onSaved();
       onClose();
     } catch (error) {
-      console.error("Failed to save MCP server:", error);
+      logger.error('MCPServerDialog', "Failed to save MCP server:", error);
       alert(`保存失败: ${error instanceof Error ? error.message : "未知错误"}`);
     } finally {
       setSaving(false);

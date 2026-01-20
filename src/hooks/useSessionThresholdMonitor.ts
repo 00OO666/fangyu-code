@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import { tokenExtractor } from "@/lib/tokenExtractor";
@@ -208,7 +209,7 @@ ${conversationText}`;
           apiKey = providerConfig.anthropic_api_key || providerConfig.anthropic_auth_token;
           apiBase = providerConfig.anthropic_base_url;
         } catch (e) {
-          console.warn("[useSessionThresholdMonitor] Failed to get provider config, using defaults:", e);
+          logger.warn('useSessionThresholdMonitor', "[useSessionThresholdMonitor] Failed to get provider config, using defaults:", e);
         }
 
         const summary = await api.generateTextWithLLM(summaryPrompt, "haiku", apiKey, apiBase);
@@ -230,7 +231,7 @@ ${conversationText}`;
             timestamp: new Date().toISOString(),
           },
         };
-        console.error("[useSessionThresholdMonitor] Failed to generate summary:", errorInfo);
+        logger.error('useSessionThresholdMonitor', "[useSessionThresholdMonitor] Failed to generate summary:", errorInfo);
         isGeneratingSummaryRef.current = false;
         setStatus((prev) => ({ ...prev, isGeneratingSummary: false }));
 

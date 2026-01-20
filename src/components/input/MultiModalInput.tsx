@@ -10,6 +10,7 @@
  * 6. OCR 文本识别（可选）
  */
 
+import { logger } from '@/lib/logger';
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -193,7 +194,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({ file, onClose, onDelete, enab
       const text = await performOCR(file.url);
       setOcrText(text);
     } catch (err) {
-      console.error('OCR failed:', err);
+      logger.error('MultiModalInput', 'OCR failed:', err);
     } finally {
       setIsOCRing(false);
     }
@@ -557,7 +558,7 @@ export const MultiModalInput: React.FC<MultiModalInputProps> = ({
             };
           });
         } catch (err) {
-          console.error('Failed to generate thumbnail:', err);
+          logger.error('MultiModalInput', 'Failed to generate thumbnail:', err);
         }
       }
 
@@ -566,7 +567,7 @@ export const MultiModalInput: React.FC<MultiModalInputProps> = ({
         try {
           mediaFile.extractedText = await extractPDFText(file);
         } catch (err) {
-          console.error('Failed to extract PDF text:', err);
+          logger.error('MultiModalInput', 'Failed to extract PDF text:', err);
         }
       }
 

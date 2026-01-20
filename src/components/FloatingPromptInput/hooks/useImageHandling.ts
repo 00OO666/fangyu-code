@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import { useState, useEffect, useRef } from "react";
 import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { api } from "@/lib/api";
@@ -129,7 +130,7 @@ export function useImageHandling({
           }
         });
       } catch (error) {
-        console.error('Failed to set up Tauri drag-drop listener:', error);
+        logger.error('useImageHandling', 'Failed to set up Tauri drag-drop listener:', error);
       }
     };
 
@@ -183,18 +184,18 @@ export function useImageHandling({
                 
                 setImageAttachments(prev => [...prev, newAttachment]);
               } else {
-                console.error('Failed to save clipboard image:', result.error);
+                logger.error('useImageHandling', 'Failed to save clipboard image:', result.error);
                 alert('保存剪贴板图片失败，请重试');
               }
             } catch (error) {
-              console.error('Failed to save clipboard image:', error);
+              logger.error('useImageHandling', 'Failed to save clipboard image:', error);
               alert('保存剪贴板图片失败，请重试');
             }
           };
           
           reader.readAsDataURL(blob);
         } catch (error) {
-          console.error('Failed to paste image:', error);
+          logger.error('useImageHandling', 'Failed to paste image:', error);
           alert('粘贴图片失败，请重试');
         }
       }
@@ -236,7 +237,7 @@ export function useImageHandling({
       onPromptChange(newPrompt.trim());
     } catch (error) {
       // 如果正则表达式创建失败，使用简单的字符串替换
-      console.error('[handleRemoveEmbeddedImage] Regex error:', error);
+      logger.error('useImageHandling', '[handleRemoveEmbeddedImage] Regex error:', error);
       const simplePatterns = [`@"${imagePath}"`, `@${imagePath}`];
       let newPrompt = prompt;
       for (const pattern of simplePatterns) {

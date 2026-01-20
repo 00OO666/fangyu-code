@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import { useState, useEffect } from "react";
 import { Download, RefreshCw, AlertCircle, ExternalLink } from "lucide-react";
 import { useUpdate } from "@/contexts/UpdateContext";
@@ -55,7 +56,7 @@ export function UpdateDialog({ open, onClose }: UpdateDialogProps) {
       await openUrl(releaseUrl);
       handleDismissAndClose();
     } catch (err) {
-      console.error("打开下载页面失败:", err);
+      logger.error('UpdateDialog', "打开下载页面失败:", err);
       setError("无法打开下载页面，请手动访问 GitHub Releases");
     }
   };
@@ -98,7 +99,7 @@ export function UpdateDialog({ open, onClose }: UpdateDialogProps) {
         setIsInstalled(true);
       }
     } catch (err) {
-      console.error("下载安装失败:", err);
+      logger.error('UpdateDialog', "下载安装失败:", err);
       const message = err instanceof Error ? err.message : "下载安装失败，请尝试手动下载";
       if (message.toLowerCase().includes("signature") || message.toLowerCase().includes("verify")) {
         setError("更新包签名校验失败，无法自动更新；请前往下载页面手动更新。");
@@ -116,7 +117,7 @@ export function UpdateDialog({ open, onClose }: UpdateDialogProps) {
     try {
       await relaunchApp();
     } catch (err) {
-      console.error("重启失败:", err);
+      logger.error('UpdateDialog', "重启失败:", err);
       setError("重启失败，请手动重启应用");
     }
   };

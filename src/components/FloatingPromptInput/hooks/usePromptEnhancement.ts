@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import { useState } from "react";
 import { api } from "@/lib/api";
 import { callEnhancementAPI, getProvider } from "@/lib/promptEnhancementService";
@@ -116,14 +117,14 @@ export function usePromptEnhancement({
           const extractedContext = contextMatch[0];
           return extractedContext;
         } else {
-          console.warn('[getProjectContext] Failed to extract context with regex');
+          logger.warn('usePromptEnhancement', '[getProjectContext] Failed to extract context with regex');
           return null;
         }
       }
 
       return null;
     } catch (error) {
-      console.error('[getProjectContext] Failed:', error);
+      logger.error('usePromptEnhancement', '[getProjectContext] Failed:', error);
       return null;
     }
   };
@@ -201,7 +202,7 @@ export function usePromptEnhancement({
         }
       }
     } catch (error) {
-      console.error('[handleEnhancePromptWithAPI] Failed:', error);
+      logger.error('usePromptEnhancement', '[handleEnhancePromptWithAPI] Failed:', error);
       let errorMessage = '未知错误';
       
       if (error instanceof Error) {

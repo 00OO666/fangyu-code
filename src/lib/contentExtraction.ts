@@ -5,6 +5,7 @@
  * 统一处理 Claude API 返回的多种消息格式
  */
 
+import { logger } from '@/lib/logger';
 import type { ClaudeStreamMessage } from "@/types/claude";
 
 /**
@@ -53,8 +54,8 @@ export interface ExtractedContent {
  * @example
  * const extracted = extractMessageContent(message);
  * if (extracted.hasContent) {
- *   console.log('Content:', extracted.text);
- *   console.log('Source:', extracted.sources[0]);
+ *   logger.debug('contentExtraction', 'Content:', extracted.text);
+ *   logger.debug('contentExtraction', 'Source:', extracted.sources[0]);
  * }
  */
 export function extractMessageContent(message: ClaudeStreamMessage): ExtractedContent {

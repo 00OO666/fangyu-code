@@ -8,6 +8,7 @@
  * - Codex/Gemini 会话管理
  */
 
+import { logger } from '@/lib/logger';
 import { invoke } from "@tauri-apps/api/core";
 import type { ConversionResult, Project } from "../types";
 
@@ -22,7 +23,7 @@ export async function listProjects(): Promise<Project[]> {
   try {
     return await invoke<Project[]>("list_projects");
   } catch (error) {
-    console.error("Failed to list projects:", error);
+    logger.error('index', "Failed to list projects:", error);
     throw error;
   }
 }
@@ -34,7 +35,7 @@ export async function deleteProject(projectId: string): Promise<string> {
   try {
     return await invoke<string>("delete_project", { projectId });
   } catch (error) {
-    console.error("Failed to delete project:", error);
+    logger.error('index', "Failed to delete project:", error);
     throw error;
   }
 }
@@ -46,7 +47,7 @@ export async function restoreProject(projectId: string): Promise<string> {
   try {
     return await invoke<string>("restore_project", { projectId });
   } catch (error) {
-    console.error("Failed to restore project:", error);
+    logger.error('index', "Failed to restore project:", error);
     throw error;
   }
 }
@@ -58,7 +59,7 @@ export async function listHiddenProjects(): Promise<string[]> {
   try {
     return await invoke<string[]>("list_hidden_projects");
   } catch (error) {
-    console.error("Failed to list hidden projects:", error);
+    logger.error('index', "Failed to list hidden projects:", error);
     throw error;
   }
 }
@@ -70,7 +71,7 @@ export async function deleteProjectPermanently(projectId: string): Promise<strin
   try {
     return await invoke<string>("delete_project_permanently", { projectId });
   } catch (error) {
-    console.error("Failed to permanently delete project:", error);
+    logger.error('index', "Failed to permanently delete project:", error);
     throw error;
   }
 }
@@ -86,7 +87,7 @@ export async function deleteSession(sessionId: string, projectId: string): Promi
   try {
     return await invoke<string>("delete_session", { sessionId, projectId });
   } catch (error) {
-    console.error("Failed to delete session:", error);
+    logger.error('index', "Failed to delete session:", error);
     throw error;
   }
 }
@@ -101,7 +102,7 @@ export async function deleteSessionsBatch(
   try {
     return await invoke<string>("delete_sessions_batch", { sessionIds, projectId });
   } catch (error) {
-    console.error("Failed to batch delete sessions:", error);
+    logger.error('index', "Failed to batch delete sessions:", error);
     throw error;
   }
 }
@@ -123,7 +124,7 @@ export async function deleteSessionsByPattern(
   try {
     return await invoke<DeleteByPatternResult>("delete_sessions_by_pattern", { projectId, pattern });
   } catch (error) {
-    console.error("Failed to delete sessions by pattern:", error);
+    logger.error('index', "Failed to delete sessions by pattern:", error);
     throw error;
   }
 }
@@ -151,7 +152,7 @@ export async function loadCodexSessionHistory(sessionId: string): Promise<any[]>
   try {
     return await invoke<any[]>("load_codex_session_history", { sessionId });
   } catch (error) {
-    console.error("Failed to load Codex session history:", error);
+    logger.error('index', "Failed to load Codex session history:", error);
     throw error;
   }
 }
