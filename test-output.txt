@@ -1,0 +1,992 @@
+
+> fangyu-code@2.8.1 test
+> vitest run
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mF:/Fangyu-Code-Dev[39m
+
+ [32m✓[39m src/core/spec/SpecExecutor.property.test.ts [2m([22m[2m17 tests[22m[2m)[22m[90m 111[2mms[22m[39m
+ [32m✓[39m src/core/api/APIErrorHandler.property.test.ts [2m([22m[2m19 tests[22m[2m)[22m[90m 164[2mms[22m[39m
+ [32m✓[39m src/services/multiEngineSettingsService.property.test.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 94[2mms[22m[39m
+ [32m✓[39m src/services/engineConfigService.property.test.ts [2m([22m[2m18 tests[22m[2m)[22m[90m 98[2mms[22m[39m
+ [32m✓[39m src/core/context/SmartContextManager.property.test.ts [2m([22m[2m15 tests[22m[2m)[22m[90m 104[2mms[22m[39m
+ [32m✓[39m src/hooks/useUnifiedWorkflow.property.test.ts [2m([22m[2m10 tests[22m[2m)[22m[90m 50[2mms[22m[39m
+ [32m✓[39m src/hooks/useConsoleMonitor.property.test.ts [2m([22m[2m7 tests[22m[2m)[22m[90m 118[2mms[22m[39m
+ [32m✓[39m src/core/agents/TaskQueue.property.test.ts [2m([22m[2m20 tests[22m[2m)[22m[90m 57[2mms[22m[39m
+ [32m✓[39m src/core/context/ReferenceResolver.property.test.ts [2m([22m[2m19 tests[22m[2m)[22m[90m 84[2mms[22m[39m
+ [32m✓[39m src/hooks/useMessageDeduplication.property.test.ts [2m([22m[2m8 tests[22m[2m)[22m[90m 241[2mms[22m[39m
+ [32m✓[39m src/hooks/useSessionThresholdMonitor.property.test.ts [2m([22m[2m8 tests[22m[2m)[22m[90m 83[2mms[22m[39m
+ [32m✓[39m src/core/hooks/EnhancedHookEngine.property.test.ts [2m([22m[2m12 tests[22m[2m)[22m[90m 130[2mms[22m[39m
+ [32m✓[39m src/core/tools/PowersManager.property.test.ts [2m([22m[2m20 tests[22m[2m)[22m[90m 66[2mms[22m[39m
+[90mstdout[2m | src/core/agents/AgentSwarmManager.property.test.ts[2m > [22m[2mAgentSwarmManager Property Tests[2m > [22m[2mProperty 4: Agent-Task Matching[2m > [22m[2magent with matching type should score higher than mismatched type
+[22m[39m[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: orchestrator-c1caf9d5 (orchestrator);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-fe944328 (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: orchestrator-c1caf9d5
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-fe944328
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: orchestrator-ff7d1a91 (orchestrator);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-480b788d (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: orchestrator-ff7d1a91
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-480b788d
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: docs-9ae532aa (docs);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-94f7495a (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: docs-9ae532aa
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-94f7495a
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: review-7b3ba5ae (review);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-bd348fda (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: review-7b3ba5ae
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-bd348fda
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: docs-88294d9b (docs);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-52a4978a (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: docs-88294d9b
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-52a4978a
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: docs-a4d1562d (docs);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-2c4e1dc9 (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: docs-a4d1562d
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-2c4e1dc9
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-d34fc855 (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: backend-c88fb84e (backend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-d34fc855
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: backend-c88fb84e
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: docs-adf673ac (docs);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-5eeafc54 (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: docs-adf673ac
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-5eeafc54
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-24b0cf28 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-7392cecd (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-24b0cf28
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-7392cecd
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: planner-7e27504e (planner);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-2dd49146 (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: planner-7e27504e
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-2dd49146
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: testing-cceeac44 (testing);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-23dc653a (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: testing-cceeac44
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-23dc653a
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-22abfad3 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-04457720 (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-22abfad3
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-04457720
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: review-a67939ac (review);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-0ac3dc14 (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: review-a67939ac
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-0ac3dc14
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: testing-3512e9dd (testing);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-e23e47ca (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: testing-3512e9dd
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-e23e47ca
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: testing-45b3031b (testing);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-b7320710 (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: testing-45b3031b
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-b7320710
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: docs-de7fb1f8 (docs);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-6644b8e9 (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: docs-de7fb1f8
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-6644b8e9
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: devops-07a325c8 (devops);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-0c787cd0 (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: devops-07a325c8
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-0c787cd0
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: fullstack-5a90a9e0 (fullstack);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-a8876f19 (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: fullstack-5a90a9e0
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-a8876f19
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: docs-570f1311 (docs);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-7e0bb34f (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: docs-570f1311
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-7e0bb34f
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: devops-4c7a1e92 (devops);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-f5a6576d (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: devops-4c7a1e92
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-f5a6576d
+
+[90mstdout[2m | src/core/agents/AgentSwarmManager.property.test.ts[2m > [22m[2mAgentSwarmManager Property Tests[2m > [22m[2mProperty 4: Agent-Task Matching[2m > [22m[2magent with matching skills should score higher
+[22m[39m[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-601fda19 (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: backend-f33e207b (backend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-601fda19
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: backend-f33e207b
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-99fbbe10 (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: backend-675d7b19 (backend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-99fbbe10
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: backend-675d7b19
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-a4a50f07 (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: backend-08687f25 (backend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-a4a50f07
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: backend-08687f25
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-0e63bdec (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: backend-b1df42e0 (backend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-0e63bdec
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: backend-b1df42e0
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-b29cac50 (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: backend-f598cd27 (backend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-b29cac50
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: backend-f598cd27
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-7c50e500 (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: backend-f855722d (backend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-7c50e500
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: backend-f855722d
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-595a6f98 (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: backend-31ed57d8 (backend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-595a6f98
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: backend-31ed57d8
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-edbe88f4 (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: backend-adfd1cfe (backend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-edbe88f4
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: backend-adfd1cfe
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-4ce51551 (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: backend-7b270541 (backend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-4ce51551
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: backend-7b270541
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-5f9ad96d (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: backend-d27a0145 (backend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-5f9ad96d
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: backend-d27a0145
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-67360228 (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: backend-0eacd14b (backend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-67360228
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: backend-0eacd14b
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-83c35a3e (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: backend-bd48be23 (backend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-83c35a3e
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: backend-bd48be23
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-46b62d3b (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: backend-413435f0 (backend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-46b62d3b
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: backend-413435f0
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-e92528d5 (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: backend-f81ed41a (backend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-e92528d5
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: backend-f81ed41a
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-f96b4f6a (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: backend-907a7108 (backend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-f96b4f6a
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: backend-907a7108
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-2a023196 (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: backend-190ed1bb (backend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-2a023196
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: backend-190ed1bb
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-f71fcc4f (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: backend-a2fa9e31 (backend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-f71fcc4f
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: backend-a2fa9e31
+
+[90mstdout[2m | src/core/agents/AgentSwarmManager.property.test.ts[2m > [22m[2mAgentSwarmManager Property Tests[2m > [22m[2mProperty 4: Agent-Task Matching[2m > [22m[2mmatch results should include all matched capabilities
+[22m[39m[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-94f51372 (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-94f51372
+
+[90mstdout[2m | src/core/agents/AgentSwarmManager.property.test.ts[2m > [22m[2mAgentSwarmManager Property Tests[2m > [22m[2mProperty 5: Concurrency Limit[2m > [22m[2mcurrent concurrency should never exceed max
+[22m[39m[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-2da22e49 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-55686f01 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-76e363ea (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-b48c5b6d (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-3119cabb (general);
+
+[90mstdout[2m | src/core/agents/AgentSwarmManager.property.test.ts[2m > [22m[2mAgentSwarmManager Property Tests[2m > [22m[2mProperty 5: Concurrency Limit[2m > [22m[2msetMaxConcurrency should update the limit
+[22m[39m[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 3
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 3
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 70
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 94
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 52
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 7
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 89
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 89
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 5
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 65
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 77
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 78
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 98
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 1
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 54
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 70
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 38
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 82
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 18
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 5
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 6
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 56
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 4
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 99
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 100
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 53
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 6
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 63
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 93
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 99
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 27
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 4
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 37
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 31
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 59
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 19
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 48
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 7
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 4
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 19
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 95
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 4
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 19
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 29
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 98
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 6
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 72
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 99
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 14
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 99
+
+[90mstdout[2m | src/core/agents/AgentSwarmManager.property.test.ts[2m > [22m[2mAgentSwarmManager Property Tests[2m > [22m[2mProperty 5: Concurrency Limit[2m > [22m[2msetMaxConcurrency should enforce minimum of 1
+[22m[39m[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 1
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 1
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 1
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 1
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 1
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 1
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 1
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 1
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 1
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 1
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 1
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 1
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 1
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 1
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 1
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 1
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 1
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 1
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 1
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Max concurrency set to 1
+
+[90mstdout[2m | src/core/agents/AgentSwarmManager.property.test.ts[2m > [22m[2mAgentSwarmManager Property Tests[2m > [22m[2mProperty 6: Agent Pool Lifecycle[2m > [22m[2mpool counts should be consistent after create operations
+[22m[39m[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: devops-06c1e900 (devops);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: fullstack-b31a525d (fullstack);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: orchestrator-4b571eda (orchestrator);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: docs-e73205ed (docs);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: review-4694d0a7 (review);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-87be706a (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: testing-8d6871a2 (testing);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: devops-06c1e900
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: fullstack-b31a525d
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: orchestrator-4b571eda
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: docs-e73205ed
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: review-4694d0a7
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-87be706a
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: testing-8d6871a2
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: docs-8c53ac82 (docs);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: devops-b4ee5fc4 (devops);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: docs-8c53ac82
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: devops-b4ee5fc4
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: orchestrator-24ce9c7d (orchestrator);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: testing-df978c12 (testing);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: docs-0da3b23b (docs);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-36c7402a (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: orchestrator-24ce9c7d
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: testing-df978c12
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: docs-0da3b23b
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-36c7402a
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: testing-7b2574a1 (testing);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: fullstack-d9fb64bb (fullstack);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: devops-0aa303e6 (devops);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: testing-7b2574a1
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: fullstack-d9fb64bb
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: devops-0aa303e6
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: testing-f6fa7b02 (testing);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: planner-d3e756dc (planner);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: docs-e24f4330 (docs);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: planner-c1855ba3 (planner);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: devops-a71131b6 (devops);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: backend-6f7d84f7 (backend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-59dba73f (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: review-a034bce5 (review);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: testing-f6fa7b02
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: planner-d3e756dc
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: docs-e24f4330
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: planner-c1855ba3
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: devops-a71131b6
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: backend-6f7d84f7
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-59dba73f
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: review-a034bce5
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: review-7bdd67a4 (review);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: review-7bdd67a4
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: planner-eb9cb06c (planner);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: docs-b3c7a160 (docs);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: fullstack-f6a480d9 (fullstack);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: testing-e062ba64 (testing);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: planner-eb9cb06c
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: docs-b3c7a160
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: fullstack-f6a480d9
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: testing-e062ba64
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: orchestrator-297b79b2 (orchestrator);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-ecd797f3 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: fullstack-81d4cff1 (fullstack);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-16695210 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: fullstack-c8a47de4 (fullstack);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: testing-4ddb846d (testing);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: orchestrator-297b79b2
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-ecd797f3
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: fullstack-81d4cff1
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-16695210
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: fullstack-c8a47de4
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: testing-4ddb846d
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: planner-6407f881 (planner);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-f4dbd23a (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-2ecfb472 (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: backend-c2bcf6bc (backend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: testing-fe46569c (testing);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: planner-6407f881
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-f4dbd23a
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-2ecfb472
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: backend-c2bcf6bc
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: testing-fe46569c
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: orchestrator-8e8ce372 (orchestrator);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: planner-325450a8 (planner);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: planner-7e3bccd1 (planner);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: orchestrator-8e8ce372
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: planner-325450a8
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: planner-7e3bccd1
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: devops-001a4ffb (devops);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: devops-3adbb93f (devops);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: planner-e58c2d66 (planner);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: devops-2859a8d9 (devops);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: backend-d5ee1fc6 (backend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-84010c43 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-d5e0c67e (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: devops-001a4ffb
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: devops-3adbb93f
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: planner-e58c2d66
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: devops-2859a8d9
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: backend-d5ee1fc6
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-84010c43
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-d5e0c67e
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: review-0b492dc7 (review);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: orchestrator-07f8b556 (orchestrator);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: backend-5d63a184 (backend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: docs-0b0410ec (docs);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-8769d321 (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: fullstack-289e475f (fullstack);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-1c080337 (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: review-0b492dc7
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: orchestrator-07f8b556
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: backend-5d63a184
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: docs-0b0410ec
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-8769d321
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: fullstack-289e475f
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-1c080337
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: fullstack-9601ff62 (fullstack);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: review-42b6ca4d (review);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: testing-37dcd860 (testing);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: devops-880ad973 (devops);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: orchestrator-80e09b5b (orchestrator);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: fullstack-9601ff62
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: review-42b6ca4d
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: testing-37dcd860
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: devops-880ad973
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: orchestrator-80e09b5b
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: review-608d2375 (review);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: devops-9cc5c277 (devops);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: docs-1ace8065 (docs);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: review-608d2375
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: devops-9cc5c277
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: docs-1ace8065
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: docs-e37fc07a (docs);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-fcc7be24 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: docs-d4effd96 (docs);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: docs-e37fc07a
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-fcc7be24
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: docs-d4effd96
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: devops-19c2b0cc (devops);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: review-8999f4f7 (review);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: devops-19c2b0cc
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: review-8999f4f7
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: backend-103b7792 (backend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: backend-5d98e25e (backend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: backend-7ac2c068 (backend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-3e3044c6 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: backend-103b7792
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: backend-5d98e25e
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: backend-7ac2c068
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-3e3044c6
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: fullstack-24de4cda (fullstack);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: review-d22925cd (review);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: planner-03dee0c9 (planner);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: docs-ac3cb99b (docs);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: review-529ea32a (review);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: testing-ac2b43a7 (testing);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: frontend-3f8a0098 (frontend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: fullstack-24de4cda
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: review-d22925cd
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: planner-03dee0c9
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: docs-ac3cb99b
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: review-529ea32a
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: testing-ac2b43a7
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: frontend-3f8a0098
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: fullstack-2d9efa79 (fullstack);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: review-df8ac9bf (review);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: backend-5e66ea0c (backend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: fullstack-2d9efa79
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: review-df8ac9bf
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: backend-5e66ea0c
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: docs-3768b67a (docs);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: planner-8b5ca3c2 (planner);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: backend-f9d2c713 (backend);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: docs-3768b67a
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: planner-8b5ca3c2
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: backend-f9d2c713
+
+[90mstdout[2m | src/core/agents/AgentSwarmManager.property.test.ts[2m > [22m[2mAgentSwarmManager Property Tests[2m > [22m[2mProperty 6: Agent Pool Lifecycle[2m > [22m[2mpool counts should be consistent after destroy operations
+[22m[39m[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-8bed10e2 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-8bed10e2
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-50111ec2 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-fb76bbe4 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-94ea581f (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-9c20779e (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-be5a6aa1 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-50111ec2
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-fb76bbe4
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-94ea581f
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-9c20779e
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-be5a6aa1
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-dc54d414 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-d225cb6d (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-94bdb895 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-a931ba59 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-68e39eca (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-dc54d414
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-d225cb6d
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-94bdb895
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-a931ba59
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-68e39eca
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-44d97583 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-060752bb (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-dcd857b1 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-613e5571 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-e5a1204e (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-44d97583
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-060752bb
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-dcd857b1
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-613e5571
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-e5a1204e
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-140c3ef3 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-49b1c596 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-aa90e6bf (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-15aef4ba (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-140c3ef3
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-49b1c596
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-aa90e6bf
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-15aef4ba
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-5becbdb8 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-5becbdb8
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-186c21a3 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-c4b667e8 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-186c21a3
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-c4b667e8
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-affc1df2 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-f5696aff (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-25aabc43 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-affc1df2
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-f5696aff
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-25aabc43
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-ee6279df (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-b3848009 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-dc0baca2 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-ee6279df
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-b3848009
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-dc0baca2
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-d4ebd644 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-c6e06eb5 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-d4ebd644
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-c6e06eb5
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-b4b0a579 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-26221260 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-b4b0a579
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-26221260
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-41a4139b (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-2338186c (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-41a4139b
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-2338186c
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-059691cf (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-e4dc1780 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-b9d5b0d7 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-dd149f67 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-34934c60 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-059691cf
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-e4dc1780
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-b9d5b0d7
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-dd149f67
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-34934c60
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-35a9029c (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-cb0c1285 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-c3054eed (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-12aa74f0 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-35a9029c
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-cb0c1285
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-c3054eed
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-12aa74f0
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-e41c8700 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-ea4be9f8 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-e41c8700
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-ea4be9f8
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-8b98dc3a (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-c355052a (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-052db36b (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-629556df (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-8b98dc3a
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-c355052a
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-052db36b
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-629556df
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-630baae1 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-d21359b2 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-ca1d1cbe (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-630baae1
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-d21359b2
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-ca1d1cbe
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-30e8bd9a (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-40e6b241 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-59701fff (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-30e8bd9a
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-40e6b241
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-59701fff
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-2e67ef52 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-ed0fe873 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-2e67ef52
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-ed0fe873
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-5ca8f306 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Destroyed agent: general-5ca8f306
+
+[90mstdout[2m | src/core/agents/AgentSwarmManager.property.test.ts[2m > [22m[2mAgentSwarmManager Property Tests[2m > [22m[2mProperty 6: Agent Pool Lifecycle[2m > [22m[2mpool should enforce max agent limit
+[22m[39m[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-ea992920 (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-0e1c1c6b (general);
+[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-8f7cde9d (general);
+
+[90mstdout[2m | src/core/agents/AgentSwarmManager.property.test.ts[2m > [22m[2mAgentSwarmManager Property Tests[2m > [22m[2mProperty 7: Task Queue Preservation[2m > [22m[2mscheduler status should track task states correctly
+[22m[39m[02:41:35] [DEBUG] [AgentSwarmManager] [AgentSwarm] Created agent: general-ca0efe85 (general);
+
+ [32m✓[39m src/core/agents/AgentSwarmManager.property.test.ts [2m([22m[2m13 tests[22m[2m)[22m[90m 185[2mms[22m[39m
+ [32m✓[39m src/core/hooks/SteeringLoader.property.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 1251[2mms[22m[39m
+   [33m[2m✓[22m[39m SteeringLoader Property Tests[2m > [22mSteering File Loading[2m > [22mProperty 7.6: always 模式的文件应始终被加载 [33m391[2mms[22m[39m
+   [33m[2m✓[22m[39m SteeringLoader Property Tests[2m > [22mSteering File Loading[2m > [22mProperty 7.9: 优先级排序应正确 [33m331[2mms[22m[39m
+ [31m❯[39m src/services/engineConfigService.test.ts [2m([22m[2m21 tests[22m[2m | [22m[31m18 failed[39m[2m)[22m[90m 55[2mms[22m[39m
+[31m   [31m×[31m EngineConfigService[2m > [22mgetProviders[2m > [22m没有数据时应返回空数组[90m 11[2mms[22m[31m[39m
+[31m     → service.getProviders is not a function[39m
+[31m     → service.getProviders is not a function[39m
+[31m   [31m×[31m EngineConfigService[2m > [22mgetProviders[2m > [22m应返回指定引擎的代理商[90m 1[2mms[22m[31m[39m
+[31m     → service.getProviders is not a function[39m
+[31m     → service.getProviders is not a function[39m
+[31m   [31m×[31m EngineConfigService[2m > [22mgetProviders[2m > [22m应按 sortOrder 排序[90m 1[2mms[22m[31m[39m
+[31m     → service.getProviders is not a function[39m
+[31m     → service.getProviders is not a function[39m
+[31m   [31m×[31m EngineConfigService[2m > [22maddProvider[2m > [22m应正确添加代理商[90m 1[2mms[22m[31m[39m
+[31m     → service.addProvider is not a function[39m
+[31m     → service.addProvider is not a function[39m
+[31m   [31m×[31m EngineConfigService[2m > [22maddProvider[2m > [22m添加第二个代理商时 sortOrder 应递增[90m 1[2mms[22m[31m[39m
+[31m     → service.addProvider is not a function[39m
+[31m     → service.addProvider is not a function[39m
+[31m   [31m×[31m EngineConfigService[2m > [22mupdateProvider[2m > [22m应正确更新代理商[90m 1[2mms[22m[31m[39m
+[31m     → service.addProvider is not a function[39m
+[31m     → service.addProvider is not a function[39m
+[31m   [31m×[31m EngineConfigService[2m > [22mdeleteProvider[2m > [22m应正确删除代理商[90m 1[2mms[22m[31m[39m
+[31m     → service.addProvider is not a function[39m
+[31m     → service.addProvider is not a function[39m
+[31m   [31m×[31m EngineConfigService[2m > [22mreorderProviders[2m > [22m应正确重新排序代理商[90m 1[2mms[22m[31m[39m
+[31m     → service.addProvider is not a function[39m
+[31m     → service.addProvider is not a function[39m
+[31m   [31m×[31m EngineConfigService[2m > [22mgetCurrentEngine[2m > [22m默认应返回 claude[90m 1[2mms[22m[31m[39m
+[31m     → service.getCurrentEngine is not a function[39m
+[31m     → service.getCurrentEngine is not a function[39m
+[31m   [31m×[31m EngineConfigService[2m > [22mgetCurrentEngine[2m > [22m设置后应返回新引擎[90m 6[2mms[22m[31m[39m
+[31m     → service.getCurrentEngine is not a function[39m
+[31m     → service.getCurrentEngine is not a function[39m
+[31m   [31m×[31m EngineConfigService[2m > [22msetCurrentEngine[2m > [22m应正确设置当前引擎[90m 1[2mms[22m[31m[39m
+[31m     → service.getCurrentEngine is not a function[39m
+[31m     → service.getCurrentEngine is not a function[39m
+[31m   [31m×[31m EngineConfigService[2m > [22mgetCurrentProvider[2m > [22m没有代理商时应返回 null[90m 1[2mms[22m[31m[39m
+[31m     → service.getCurrentProvider is not a function[39m
+[31m     → service.getCurrentProvider is not a function[39m
+[31m   [31m×[31m EngineConfigService[2m > [22mgetCurrentProvider[2m > [22m应返回当前选中的代理商[90m 1[2mms[22m[31m[39m
+[31m     → service.addProvider is not a function[39m
+[31m     → service.addProvider is not a function[39m
+[31m   [31m×[31m EngineConfigService[2m > [22mexportConfig[2m > [22m应正确导出配置[90m 1[2mms[22m[31m[39m
+[31m     → service.addProvider is not a function[39m
+[31m     → service.addProvider is not a function[39m
+[31m   [31m×[31m EngineConfigService[2m > [22mexportConfig[2m > [22mincludeSensitive 为 true 时应包含 API Key[90m 1[2mms[22m[31m[39m
+[31m     → service.addProvider is not a function[39m
+[31m     → service.addProvider is not a function[39m
+[31m   [31m×[31m EngineConfigService[2m > [22mimportConfig[2m > [22m应正确导入配置（合并模式）[90m 1[2mms[22m[31m[39m
+[31m     → service.addProvider is not a function[39m
+[31m     → service.addProvider is not a function[39m
+[31m   [31m×[31m EngineConfigService[2m > [22mimportConfig[2m > [22m应正确导入配置（替换模式）[90m 1[2mms[22m[31m[39m
+[31m     → service.addProvider is not a function[39m
+[31m     → service.addProvider is not a function[39m
+[31m   [31m×[31m EngineConfigService[2m > [22mimportConfig[2m > [22m无效数据应抛出错误[90m 18[2mms[22m[31m[39m
+[31m     → promise resolved "{ success: false, …(3) }" instead of rejecting[39m
+[31m     → promise resolved "{ success: false, …(3) }" instead of rejecting[39m
+ [32m✓[39m src/core/api/TokenTracker.property.test.ts [2m([22m[2m17 tests[22m[2m)[22m[90m 108[2mms[22m[39m
+ [32m✓[39m src/core/api/RealAPIClient.property.test.ts [2m([22m[2m19 tests[22m[2m)[22m[90m 148[2mms[22m[39m
+ [32m✓[39m src/services/setupStateService.property.test.ts [2m([22m[2m15 tests[22m[2m)[22m[90m 74[2mms[22m[39m
+ [32m✓[39m src/core/api/APIConfigManager.property.test.ts [2m([22m[2m16 tests[22m[2m)[22m[90m 55[2mms[22m[39m
+ [32m✓[39m src/core/tools/IDEToolchain.property.test.ts [2m([22m[2m13 tests[22m[2m)[22m[90m 37[2mms[22m[39m
+ [32m✓[39m src/core/workflow/UnifiedWorkflowEngine.property.test.ts [2m([22m[2m7 tests[22m[2m)[22m[90m 19[2mms[22m[39m
+ [32m✓[39m src/core/autonomy/AutonomyController.property.test.ts [2m([22m[2m14 tests[22m[2m)[22m[90m 66[2mms[22m[39m
+ [32m✓[39m src/hooks/useValidation.property.test.ts [2m([22m[2m15 tests[22m[2m)[22m[90m 109[2mms[22m[39m
+ [31m❯[39m src/tests/summaryConfigStore.property.test.ts [2m([22m[2m9 tests[22m[2m | [22m[31m3 failed[39m[2m)[22m[90m 251[2mms[22m[39m
+[31m   [31m×[31m SummaryConfigStore Property Tests[2m > [22mProperty 6: Configuration Persistence Round-Trip[2m > [22mshould preserve config through save-load cycle[90m 162[2mms[22m[31m[39m
+[31m     → Property failed after 15 tests
+{ seed: 5532343, path: "14:1:0:0:1:32:32", endOnFailure: true }
+Counterexample: [{"engine":"siliconflow","model":"deepseek-ai/DeepSeek-V3","apiEndpoint":undefined,"apiKey":undefined,"customParams":{"maxTokens":undefined,"temperature":Number.NaN,"focusAreas":undefined,"includeCodeSnippets":undefined},"updatedAt":0}]
+Shrunk 6 time(s)
+Got AssertionError: expected null to be NaN // Object.is equality
+    at F:\Fangyu-Code-Dev\src\tests\summaryConfigStore.property.test.ts:180:66
+    at AsyncProperty.run (file:///F:/Fangyu-Code-Dev/node_modules/fast-check/lib/esm/check/property/AsyncProperty.generic.js:46:28)
+    at asyncRunIt (file:///F:/Fangyu-Code-Dev/node_modules/fast-check/lib/esm/check/runner/Runner.js:33:21)
+    at F:\Fangyu-Code-Dev\src\tests\summaryConfigStore.property.test.ts:157:13
+    at file:///F:/Fangyu-Code-Dev/node_modules/@vitest/runner/dist/index.js:533:5
+    at runTest (file:///F:/Fangyu-Code-Dev/node_modules/@vitest/runner/dist/index.js:1056:11)
+    at runSuite (file:///F:/Fangyu-Code-Dev/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (file:///F:/Fangyu-Code-Dev/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (file:///F:/Fangyu-Code-Dev/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runFiles (file:///F:/Fangyu-Code-Dev/node_modules/@vitest/runner/dist/index.js:1262:5)
+
+Hint: Enable verbose mode in order to have the list of all failing values encountered during the run[39m
+[31m     → Property failed after 43 tests
+{ seed: -647638545, path: "42:1:0:0:1:32:32", endOnFailure: true }
+Counterexample: [{"engine":"gemini","model":"gemini-1.5-pro","apiEndpoint":undefined,"apiKey":undefined,"customParams":{"maxTokens":undefined,"temperature":Number.NaN,"focusAreas":undefined,"includeCodeSnippets":undefined},"updatedAt":0}]
+Shrunk 6 time(s)
+Got AssertionError: expected null to be NaN // Object.is equality
+    at F:\Fangyu-Code-Dev\src\tests\summaryConfigStore.property.test.ts:180:66
+    at AsyncProperty.run (file:///F:/Fangyu-Code-Dev/node_modules/fast-check/lib/esm/check/property/AsyncProperty.generic.js:46:28)
+    at asyncRunIt (file:///F:/Fangyu-Code-Dev/node_modules/fast-check/lib/esm/check/runner/Runner.js:33:21)
+    at F:\Fangyu-Code-Dev\src\tests\summaryConfigStore.property.test.ts:157:13
+    at file:///F:/Fangyu-Code-Dev/node_modules/@vitest/runner/dist/index.js:533:5
+    at runTest (file:///F:/Fangyu-Code-Dev/node_modules/@vitest/runner/dist/index.js:1056:11)
+    at runSuite (file:///F:/Fangyu-Code-Dev/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (file:///F:/Fangyu-Code-Dev/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (file:///F:/Fangyu-Code-Dev/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runFiles (file:///F:/Fangyu-Code-Dev/node_modules/@vitest/runner/dist/index.js:1262:5)
+
+Hint: Enable verbose mode in order to have the list of all failing values encountered during the run[39m
+[31m   [31m×[31m SummaryConfigStore Property Tests[2m > [22mConfig Store Operations[2m > [22mshould return default config when storage is empty[90m 10[2mms[22m[31m[39m
+[31m     → expected 'claude-sonnet-4-5-20250929' to be 'claude-3-haiku-20240307' // Object.is equality[39m
+[31m     → expected 'claude-sonnet-4-5-20250929' to be 'claude-3-haiku-20240307' // Object.is equality[39m
+[31m   [31m×[31m SummaryConfigStore Property Tests[2m > [22mConfig Store Operations[2m > [22mshould reset to defaults correctly[90m 2[2mms[22m[31m[39m
+[31m     → expected 'claude-sonnet-4-5-20250929' to be 'claude-3-haiku-20240307' // Object.is equality[39m
+[31m     → expected 'claude-sonnet-4-5-20250929' to be 'claude-3-haiku-20240307' // Object.is equality[39m
+ [32m✓[39m src/core/security/SecurityGuard.property.test.ts [2m([22m[2m22 tests[22m[2m)[22m[90m 72[2mms[22m[39m
+ [32m✓[39m src/core/sandbox/SandboxManager.property.test.ts [2m([22m[2m7 tests[22m[2m)[22m[90m 179[2mms[22m[39m
+ [32m✓[39m src/lib/pricing.property.test.ts [2m([22m[2m8 tests[22m[2m)[22m[90m 142[2mms[22m[39m
+ [32m✓[39m src/core/tools/ASTGrepTools.property.test.ts [2m([22m[2m16 tests[22m[2m)[22m[90m 71[2mms[22m[39m
+ [32m✓[39m src/tests/summaryGenerator.property.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 528[2mms[22m[39m
+ [32m✓[39m src/tests/e2e/agent-flow.e2e.test.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 35[2mms[22m[39m
+ [32m✓[39m src/components/common/VirtualList.test.tsx [2m([22m[2m26 tests[22m[2m)[22m[90m 8[2mms[22m[39m
+ [31m❯[39m src/hooks/useEngineConfig.test.ts [2m([22m[2m0 test[22m[2m)[22m
+[90mstdout[2m | src/lib/providers/kiroProxy/kiroProxy.test.ts[2m > [22m[2mAcceptance Report[2m > [22m[2mshould pass all acceptance criteria
+[22m[39m[02:43:10] [DEBUG] [kiroProxy.test] 
+========================================
+[02:43:11] [DEBUG] [kiroProxy.test]   Kiro Proxy Integration - 验收报告
+[02:43:11] [DEBUG] [kiroProxy.test] ========================================
+
+[02:43:11] [DEBUG] [kiroProxy.test]   ✅ PASS Tool Transformer
+[02:43:11] [DEBUG] [kiroProxy.test]   ✅ PASS Output Parser
+[02:43:11] [DEBUG] [kiroProxy.test]   ✅ PASS Response Transformer
+[02:43:11] [DEBUG] [kiroProxy.test]   ✅ PASS Agent Loop
+[02:43:11] [DEBUG] [kiroProxy.test]   ✅ PASS Integration
+[02:43:11] [DEBUG] [kiroProxy.test] 
+========================================
+[02:43:11] [DEBUG] [kiroProxy.test]   所有验收测试通过！
+[02:43:11] [DEBUG] [kiroProxy.test] ========================================
+
+
+ [32m✓[39m src/lib/providers/kiroProxy/kiroProxy.test.ts [2m([22m[2m18 tests[22m[2m)[22m[90m 37[2mms[22m[39m
+ [32m✓[39m src/tests/git-rollback.test.ts [2m([22m[2m20 tests[22m[2m)[22m[90m 53[2mms[22m[39m
+ [32m✓[39m src/lib/userFriendlyErrors.property.test.ts [2m([22m[2m14 tests[22m[2m)[22m[90m 122[2mms[22m[39m
+ [32m✓[39m src/hooks/useEventCleanup.property.test.ts [2m([22m[2m7 tests[22m[2m)[22m[90m 199[2mms[22m[39m
+ [32m✓[39m src/hooks/useProgressIndicator.property.test.ts [2m([22m[2m12 tests[22m[2m)[22m[90m 83[2mms[22m[39m
+ [32m✓[39m src/tests/engineSelector.property.test.ts [2m([22m[2m8 tests[22m[2m)[22m[90m 27[2mms[22m[39m
+ [32m✓[39m src/tests/inputArea.property.test.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 56[2mms[22m[39m
+ [32m✓[39m src/components/ui/accessible-dialog.property.test.ts [2m([22m[2m9 tests[22m[2m)[22m[90m 26[2mms[22m[39m
+ [32m✓[39m src/tests/theme.property.test.ts [2m([22m[2m12 tests[22m[2m)[22m[90m 57[2mms[22m[39m
+ [32m✓[39m src/core/files/PreciseFileOps.property.test.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 81[2mms[22m[39m
+ [32m✓[39m src/lib/services/retryService.property.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 910[2mms[22m[39m
+   [33m[2m✓[22m[39m RetryService Property Tests[2m > [22m延迟记录准确性[2m > [22mdelays 数组应记录每次重试的延迟 [33m717[2mms[22m[39m
+ [32m✓[39m src/core/agents/BackgroundAgentManager.property.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 2504[2mms[22m[39m
+   [33m[2m✓[22m[39m BackgroundAgentManager Property Tests[2m > [22mProperty 16: Concurrency Limit Compliance[2m > [22mshould never exceed provider concurrency limits [33m909[2mms[22m[39m
+   [33m[2m✓[22m[39m BackgroundAgentManager Property Tests[2m > [22mProperty 16: Concurrency Limit Compliance[2m > [22mshould never exceed total concurrency limit [33m1092[2mms[22m[39m
+ [32m✓[39m src/lib/apiKeyValidator.property.test.ts [2m([22m[2m21 tests[22m[2m)[22m[90m 71[2mms[22m[39m
+ [32m✓[39m src/tests/useDraggable.test.ts [2m([22m[2m19 tests[22m[2m)[22m[90m 6[2mms[22m[39m
+[90mstdout[2m | src/config/featureFlags.test.ts[2m > [22m[2mFeature Flags[2m > [22m[2menableFeature[2m > [22m[2m应该成功启用无依赖的标志
+[22m[39m[02:43:51] [DEBUG] [featureFlags] [FeatureFlags] Enabled: CONTEXT_WINDOW_PRUNING
+
+[90mstdout[2m | src/config/featureFlags.test.ts[2m > [22m[2mFeature Flags[2m > [22m[2menableFeature[2m > [22m[2m应该在依赖满足时成功启用
+[22m[39m[02:43:51] [DEBUG] [featureFlags] [FeatureFlags] Enabled: CONTEXT_WINDOW_PRUNING
+[02:43:51] [DEBUG] [featureFlags] [FeatureFlags] Enabled: NEW_CONTEXT_ARCHITECTURE
+
+[90mstdout[2m | src/config/featureFlags.test.ts[2m > [22m[2mFeature Flags[2m > [22m[2mdisableFeature[2m > [22m[2m应该禁用标志
+[22m[39m[02:43:51] [DEBUG] [featureFlags] [FeatureFlags] Enabled: CONTEXT_WINDOW_PRUNING
+[02:43:51] [DEBUG] [featureFlags] [FeatureFlags] Disabled: CONTEXT_WINDOW_PRUNING
+[02:43:51] [DEBUG] [featureFlags] [FeatureFlags] Disabled: NEW_CONTEXT_ARCHITECTURE
+[02:43:51] [DEBUG] [featureFlags] [FeatureFlags] Disabled: INTELLIGENT_CONTEXT_CACHING
+
+[90mstdout[2m | src/config/featureFlags.test.ts[2m > [22m[2mFeature Flags[2m > [22m[2mdisableFeature[2m > [22m[2m应该级联禁用依赖的标志
+[22m[39m[02:43:51] [DEBUG] [featureFlags] [FeatureFlags] Enabled: CONTEXT_WINDOW_PRUNING
+[02:43:51] [DEBUG] [featureFlags] [FeatureFlags] Enabled: NEW_CONTEXT_ARCHITECTURE
+[02:43:51] [DEBUG] [featureFlags] [FeatureFlags] Disabled: CONTEXT_WINDOW_PRUNING
+[02:43:51] [DEBUG] [featureFlags] [FeatureFlags] Disabled: NEW_CONTEXT_ARCHITECTURE
+[02:43:51] [DEBUG] [featureFlags] [FeatureFlags] Disabled: INTELLIGENT_CONTEXT_CACHING
+
+[90mstdout[2m | src/config/featureFlags.test.ts[2m > [22m[2mFeature Flags[2m > [22m[2mresetFeature[2m > [22m[2m应该重置标志到默认值
+[22m[39m[02:43:51] [DEBUG] [featureFlags] [FeatureFlags] Enabled: CONTEXT_WINDOW_PRUNING
+[02:43:51] [DEBUG] [featureFlags] [FeatureFlags] Reset to default: CONTEXT_WINDOW_PRUNING
+
+[90mstdout[2m | src/config/featureFlags.test.ts[2m > [22m[2mFeature Flags[2m > [22m[2mresetFeature[2m > [22m[2m应该从 localStorage 移除覆盖
+[22m[39m[02:43:51] [DEBUG] [featureFlags] [FeatureFlags] Enabled: VIRTUAL_SCROLLING
+[02:43:51] [DEBUG] [featureFlags] [FeatureFlags] Reset to default: VIRTUAL_SCROLLING
+
+[90mstdout[2m | src/config/featureFlags.test.ts[2m > [22m[2mFeature Flags[2m > [22m[2mgetAllFeatureFlags[2m > [22m[2m应该反映 localStorage 覆盖
+[22m[39m[02:43:51] [DEBUG] [featureFlags] [FeatureFlags] Enabled: VIRTUAL_SCROLLING
+
+[90mstdout[2m | src/config/featureFlags.test.ts[2m > [22m[2mFeature Flags[2m > [22m[2mgetAllFeatureFlagInfo[2m > [22m[2m应该包含当前启用状态
+[22m[39m[02:43:51] [DEBUG] [featureFlags] [FeatureFlags] Enabled: CONTEXT_WINDOW_PRUNING
+
+ [32m✓[39m src/config/featureFlags.test.ts [2m([22m[2m22 tests[22m[2m)[22m[90m 29[2mms[22m[39m
+ [32m✓[39m src/tests/smartRecommendationBar.property.test.ts [2m([22m[2m8 tests[22m[2m)[22m[90m 70[2mms[22m[39m
+ [32m✓[39m src/tests/e2e/api-connection.e2e.test.ts [2m([22m[2m8 tests[22m[2m)[22m[90m 211[2mms[22m[39m
+ [32m✓[39m src/core/process/ProcessManager.property.test.ts [2m([22m[2m22 tests[22m[2m)[22m[90m 18[2mms[22m[39m
+ [31m❯[39m src/services/connectionTester.test.ts [2m([22m[2m14 tests[22m[2m | [22m[31m14 failed[39m[2m)[22m[90m 27[2mms[22m[39m
+[31m   [31m×[31m ConnectionTester[2m > [22mtestConnection[2m > [22mClaude 引擎连接成功应返回 success[90m 15[2mms[22m[31m[39m
+[31m     → tester.testConnection is not a function[39m
+[31m     → tester.testConnection is not a function[39m
+[31m   [31m×[31m ConnectionTester[2m > [22mtestConnection[2m > [22mCodex 引擎连接成功应返回 success[90m 1[2mms[22m[31m[39m
+[31m     → tester.testConnection is not a function[39m
+[31m     → tester.testConnection is not a function[39m
+[31m   [31m×[31m ConnectionTester[2m > [22mtestConnection[2m > [22mGemini 引擎连接成功应返回 success[90m 1[2mms[22m[31m[39m
+[31m     → tester.testConnection is not a function[39m
+[31m     → tester.testConnection is not a function[39m
+[31m   [31m×[31m ConnectionTester[2m > [22mtestConnection[2m > [22mSiliconFlow 引擎连接成功应返回 success[90m 1[2mms[22m[31m[39m
+[31m     → tester.testConnection is not a function[39m
+[31m     → tester.testConnection is not a function[39m
+[31m   [31m×[31m ConnectionTester[2m > [22mtestConnection[2m > [22m401 错误应返回认证失败[90m 1[2mms[22m[31m[39m
+[31m     → tester.testConnection is not a function[39m
+[31m     → tester.testConnection is not a function[39m
+[31m   [31m×[31m ConnectionTester[2m > [22mtestConnection[2m > [22m403 错误应返回权限不足[90m 1[2mms[22m[31m[39m
+[31m     → tester.testConnection is not a function[39m
+[31m     → tester.testConnection is not a function[39m
+[31m   [31m×[31m ConnectionTester[2m > [22mtestConnection[2m > [22m404 错误应返回端点不存在[90m 1[2mms[22m[31m[39m
+[31m     → tester.testConnection is not a function[39m
+[31m     → tester.testConnection is not a function[39m
+[31m   [31m×[31m ConnectionTester[2m > [22mtestConnection[2m > [22m429 错误应返回请求过多[90m 1[2mms[22m[31m[39m
+[31m     → tester.testConnection is not a function[39m
+[31m     → tester.testConnection is not a function[39m
+[31m   [31m×[31m ConnectionTester[2m > [22mtestConnection[2m > [22m500 错误应返回服务器错误[90m 1[2mms[22m[31m[39m
+[31m     → tester.testConnection is not a function[39m
+[31m     → tester.testConnection is not a function[39m
+[31m   [31m×[31m ConnectionTester[2m > [22mtestConnection[2m > [22m网络错误应返回连接失败[90m 1[2mms[22m[31m[39m
+[31m     → tester.testConnection is not a function[39m
+[31m     → tester.testConnection is not a function[39m
+[31m   [31m×[31m ConnectionTester[2m > [22mtestConnection[2m > [22m超时应返回超时错误[90m 1[2mms[22m[31m[39m
+[31m     → tester.testConnection is not a function[39m
+[31m     → tester.testConnection is not a function[39m
+[31m   [31m×[31m ConnectionTester[2m > [22mtestConnection[2m > [22m缺少 API Key 应返回错误[90m 1[2mms[22m[31m[39m
+[31m     → tester.testConnection is not a function[39m
+[31m     → tester.testConnection is not a function[39m
+[31m   [31m×[31m ConnectionTester[2m > [22mtestConnection[2m > [22m缺少 baseUrl 应返回错误[90m 1[2mms[22m[31m[39m
+[31m     → tester.testConnection is not a function[39m
+[31m     → tester.testConnection is not a function[39m
+[31m   [31m×[31m ConnectionTester[2m > [22mgetErrorMessage[2m > [22m应正确映射常见错误码[90m 1[2mms[22m[31m[39m
+[31m     → tester.testConnection is not a function[39m
+[31m     → tester.testConnection is not a function[39m
+[90mstdout[2m | src/services/configMigrator.test.ts[2m > [22m[2mConfigMigrator[2m > [22m[2mmigrate[2m > [22m[2m应正确迁移 v1 数据到 v2
+[22m[39m[02:43:58] [DEBUG] [configMigrator] [ConfigMigrator] 新存储为空，尝试从旧格式迁移...
+[02:43:58] [DEBUG] [configMigrator] [ConfigMigrator] 从旧格式迁移了 0 个代理商配置
+[02:43:58] [DEBUG] [configMigrator] [ConfigMigrator] 没有找到旧配置数据
+[02:43:58] [DEBUG] [configMigrator] [ConfigMigrator] 新存储为空，尝试从旧格式迁移...
+[02:43:58] [DEBUG] [configMigrator] [ConfigMigrator] 从旧格式迁移了 0 个代理商配置
+[02:43:58] [DEBUG] [configMigrator] [ConfigMigrator] 没有找到旧配置数据
+
+[90mstdout[2m | src/services/configMigrator.test.ts[2m > [22m[2mConfigMigrator[2m > [22m[2mmigrate[2m > [22m[2m没有需要迁移的数据时应返回成功
+[22m[39m[02:43:58] [DEBUG] [configMigrator] [ConfigMigrator] 新存储为空，尝试从旧格式迁移...
+[02:43:58] [DEBUG] [configMigrator] [ConfigMigrator] 从旧格式迁移了 0 个代理商配置
+[02:43:58] [DEBUG] [configMigrator] [ConfigMigrator] 没有找到旧配置数据
+[02:43:58] [DEBUG] [configMigrator] [ConfigMigrator] 新存储为空，尝试从旧格式迁移...
+[02:43:58] [DEBUG] [configMigrator] [ConfigMigrator] 从旧格式迁移了 0 个代理商配置
+[02:43:58] [DEBUG] [configMigrator] [ConfigMigrator] 没有找到旧配置数据
+
+[90mstdout[2m | src/services/configMigrator.test.ts[2m > [22m[2mConfigMigrator[2m > [22m[2mmigrate[2m > [22m[2m应迁移旧格式 Claude 配置
+[22m[39m[02:43:58] [DEBUG] [configMigrator] [ConfigMigrator] 新存储为空，尝试从旧格式迁移...
+[02:43:58] [DEBUG] [configMigrator] [ConfigMigrator] 检测到 localStorage 旧格式数据: [ [32m'claudeConfig'[39m ]
+[02:43:58] [DEBUG] [configMigrator] [ConfigMigrator] 从旧格式迁移了 1 个代理商配置
+
+[90mstdout[2m | src/services/configMigrator.test.ts[2m > [22m[2mConfigMigrator[2m > [22m[2mmigrate[2m > [22m[2m应迁移旧格式 Codex 配置
+[22m[39m[02:43:58] [DEBUG] [configMigrator] [ConfigMigrator] 新存储为空，尝试从旧格式迁移...
+[02:43:58] [DEBUG] [configMigrator] [ConfigMigrator] 检测到 localStorage 旧格式数据: [ [32m'codexConfig'[39m ]
+[02:43:58] [DEBUG] [configMigrator] [ConfigMigrator] 从旧格式迁移了 1 个代理商配置
+
+[90mstdout[2m | src/services/configMigrator.test.ts[2m > [22m[2mConfigMigrator[2m > [22m[2mmigrate[2m > [22m[2m应迁移旧格式 Gemini 配置
+[22m[39m[02:43:58] [DEBUG] [configMigrator] [ConfigMigrator] 新存储为空，尝试从旧格式迁移...
+[02:43:58] [DEBUG] [configMigrator] [ConfigMigrator] 检测到 localStorage 旧格式数据: [ [32m'geminiConfig'[39m ]
+[02:43:58] [DEBUG] [configMigrator] [ConfigMigrator] 从旧格式迁移了 1 个代理商配置
+
+[90mstdout[2m | src/services/configMigrator.test.ts[2m > [22m[2mConfigMigrator[2m > [22m[2mgetMigrationLog[2m > [22m[2m应返回迁移日志
+[22m[39m[02:43:58] [DEBUG] [configMigrator] [ConfigMigrator] 新存储为空，尝试从旧格式迁移...
+[02:43:58] [DEBUG] [configMigrator] [ConfigMigrator] 从旧格式迁移了 0 个代理商配置
+[02:43:58] [DEBUG] [configMigrator] [ConfigMigrator] 没有找到旧配置数据
+
+ [31m❯[39m src/services/configMigrator.test.ts [2m([22m[2m17 tests[22m[2m | [22m[31m11 failed[39m[2m)[22m[90m 77[2mms[22m[39m
+[31m   [31m×[31m ConfigMigrator[2m > [22mcheckNeedsMigration[2m > [22m没有旧数据时应返回 false[90m 19[2mms[22m[31m[39m
+[31m     → expected Promise{…} to be false // Object.is equality[39m
+[31m     → expected Promise{…} to be false // Object.is equality[39m
+[31m   [31m×[31m ConfigMigrator[2m > [22mcheckNeedsMigration[2m > [22m有 v1 数据时应返回 true[90m 3[2mms[22m[31m[39m
+[31m     → expected Promise{…} to be true // Object.is equality[39m
+[31m     → expected Promise{…} to be true // Object.is equality[39m
+[31m   [31m×[31m ConfigMigrator[2m > [22mcheckNeedsMigration[2m > [22m已有 v2 数据时应返回 false[90m 2[2mms[22m[31m[39m
+[31m     → expected Promise{…} to be false // Object.is equality[39m
+[31m     → expected Promise{…} to be false // Object.is equality[39m
+[31m   [31m×[31m ConfigMigrator[2m > [22mcheckNeedsMigration[2m > [22m有旧格式 Claude 配置时应返回 true[90m 1[2mms[22m[31m[39m
+[31m     → expected Promise{…} to be true // Object.is equality[39m
+[31m     → expected Promise{…} to be true // Object.is equality[39m
+[31m   [31m×[31m ConfigMigrator[2m > [22mcheckNeedsMigration[2m > [22m有旧格式 Codex 配置时应返回 true[90m 2[2mms[22m[31m[39m
+[31m     → expected Promise{…} to be true // Object.is equality[39m
+[31m     → expected Promise{…} to be true // Object.is equality[39m
+[31m   [31m×[31m ConfigMigrator[2m > [22mcreateBackup[2m > [22m应创建备份[90m 2[2mms[22m[31m[39m
+[31m     → migrator.createBackup is not a function[39m
+[31m     → migrator.createBackup is not a function[39m
+[31m   [31m×[31m ConfigMigrator[2m > [22mcreateBackup[2m > [22m没有数据时应返回 null[90m 1[2mms[22m[31m[39m
+[31m     → migrator.createBackup is not a function[39m
+[31m     → migrator.createBackup is not a function[39m
+[31m   [31m×[31m ConfigMigrator[2m > [22mrestoreBackup[2m > [22m应正确恢复备份[90m 0[2mms[22m[31m[39m
+[31m     → migrator.restoreBackup is not a function[39m
+[31m     → migrator.restoreBackup is not a function[39m
+[31m   [31m×[31m ConfigMigrator[2m > [22mrestoreBackup[2m > [22m备份不存在时应返回 false[90m 1[2mms[22m[31m[39m
+[31m     → migrator.restoreBackup is not a function[39m
+[31m     → migrator.restoreBackup is not a function[39m
+[31m   [31m×[31m ConfigMigrator[2m > [22mmigrate[2m > [22m应正确迁移 v1 数据到 v2[90m 29[2mms[22m[31m[39m
+[31m     → expected undefined to be 1 // Object.is equality[39m
+[31m     → expected undefined to be 1 // Object.is equality[39m
+[31m   [31m×[31m ConfigMigrator[2m > [22mmigrate[2m > [22m没有需要迁移的数据时应返回成功[90m 4[2mms[22m[31m[39m
+[31m     → expected undefined to be +0 // Object.is equality[39m
+[31m     → expected undefined to be +0 // Object.is equality[39m
+ [32m✓[39m src/tests/summaryUI.property.test.ts [2m([22m[2m9 tests[22m[2m)[22m[90m 35[2mms[22m[39m
+ [32m✓[39m src/v3-features.test.ts [2m([22m[2m30 tests[22m[2m)[22m[90m 181[2mms[22m[39m
+ [32m✓[39m src/tests/engineModelPersistence.property.test.ts [2m([22m[2m9 tests[22m[2m)[22m[90m 42[2mms[22m[39m
+ [32m✓[39m src/tests/sidebar.property.test.ts [2m([22m[2m7 tests[22m[2m)[22m[90m 32[2mms[22m[39m
+ [32m✓[39m src/hooks/useEngineStatus.property.test.ts [2m([22m[2m12 tests[22m[2m)[22m[90m 42[2mms[22m[39m
+ [32m✓[39m src/lib/secureStorage.property.test.ts [2m([22m[2m13 tests[22m[2m)[22m[90m 43[2mms[22m[39m
+[90mstdout[2m | src/core/agents/UnifiedAgentOrchestrator.property.test.ts[2m > [22m[2mUnifiedAgentOrchestrator Property Tests[2m > [22m[2mAgent Cloning Properties[2m > [22m[2mshould clone agents with identical configuration
+[22m[39m[02:44:03] [DEBUG] [UnifiedAgentOrchestrator] Cloned agent cce29dd7-4271-4a80-8e1d-1d5ce6c69179 -> 7ba5015c-dbdc-488e-8b7b-95d5f851f64f, reason: high demand
+
+ [32m✓[39m src/core/agents/UnifiedAgentOrchestrator.property.test.ts [2m([22m[2m7 tests[22m[2m)[22m[90m 36[2mms[22m[39m
+[90mstdout[2m | src/core/lsp/LSPClient.test.ts[2m > [22m[2mLSPClient[2m > [22m[2m缓存功能[2m > [22m[2m应该能够清除所有缓存
+[22m[39m[02:44:32] [DEBUG] [LSPClient] All caches cleared
+
+[90mstdout[2m | src/core/lsp/LSPClient.test.ts[2m > [22m[2mLSPClient[2m > [22m[2m缓存功能[2m > [22m[2m应该能够清除特定文件的缓存
+[22m[39m[02:44:32] [DEBUG] [LSPClient] Cache cleared for file: test.ts
+
+[90mstdout[2m | src/core/lsp/LSPClient.test.ts[2m > [22m[2mLSPClient[2m > [22m[2mLSP 方法[2m > [22m[2mrename 方法应该返回 Promise
+[22m[39m[02:44:32] [DEBUG] [LSPClient] All caches cleared
+
+ [32m✓[39m src/core/lsp/LSPClient.test.ts [2m([22m[2m22 tests[22m[2m)[22m[90m 40[2mms[22m[39m
+ [32m✓[39m src/tests/monitoring.test.ts [2m([22m[2m9 tests[22m[2m | [22m[33m2 skipped[39m[2m)[22m[90m 6[2mms[22m[39m
+ [32m✓[39m src/components/EngineConfigPanel/EngineCardGrid.property.test.ts [2m([22m[2m7 tests[22m[2m)[22m[90m 50[2mms[22m[39m
+ [32m✓[39m src/tests/summaryActions.property.test.ts [2m([22m[2m9 tests[22m[2m)[22m[90m 29[2mms[22m[39m
+ [32m✓[39m src/core/models/ModelRouter.property.test.ts [2m([22m[2m12 tests[22m[2m)[22m[90m 6[2mms[22m[39m
+ [32m✓[39m src/services/cryptoService.test.ts [2m([22m[2m14 tests[22m[2m)[22m[90m 39[2mms[22m[39m
+[90mstdout[2m | src/core/diff/DiffManager.test.ts[2m > [22m[2mDiffManager[2m > [22m[2m应用修改[2m > [22m[2m应该只应用accepted的修改
+[22m[39mApplying change to file1.ts
+
+ [32m✓[39m src/core/diff/DiffManager.test.ts [2m([22m[2m14 tests[22m[2m)[22m[90m 8[2mms[22m[39m
+ [32m✓[39m src/core/plugin/PluginManager.test.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 4[2mms[22m[39m
+ [32m✓[39m src/core/profiler/Profiler.test.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 4[2mms[22m[39m
+ [32m✓[39m src/core/snippet/SnippetManager.test.ts [2m([22m[2m4 tests[22m[2m)[22m[90m 4[2mms[22m[39m
+ [32m✓[39m src/core/template/TemplateEngine.test.ts [2m([22m[2m4 tests[22m[2m)[22m[90m 3[2mms[22m[39m
+ [32m✓[39m src/core/test/TestRunner.test.ts [2m([22m[2m5 tests[22m[2m)[22m[90m 3[2mms[22m[39m
+ [32m✓[39m src/core/git/GitManager.test.ts [2m([22m[2m4 tests[22m[2m)[22m[90m 3[2mms[22m[39m
+ [31m❯[39m src/services/cryptoService.property.test.ts [2m([22m[2m10 tests[22m[2m | [22m[31m8 failed[39m[2m)[22m[33m 487[2mms[22m[39m
+[31m   [31m×[31m CryptoService Property Tests[2m > [22m加密解密往返一致性[2m > [22m任意字符串加密后解密应得到原始值[90m 24[2mms[22m[31m[39m
+[31m     → Property failed after 1 tests
+{ seed: 327179339, path: "0:0", endOnFailure: true }
+Counterexample: [""]
+Shrunk 1 time(s)
+Got error: Property failed by returning false
+
+Hint: Enable verbose mode in order to have the list of all failing values encountered during the run[39m
+[31m     → Property failed after 1 tests
+{ seed: -1782998589, path: "0:0", endOnFailure: true }
+Counterexample: [""]
+Shrunk 1 time(s)
+Got error: Property failed by returning false
+
+Hint: Enable verbose mode in order to have the list of all failing values encountered during the run[39m
+[31m   [31m×[31m CryptoService Property Tests[2m > [22m加密解密往返一致性[2m > [22m空字符串加密解密应正确处理[90m 4[2mms[22m[31m[39m
+[31m     → expected Promise{…} to be '' // Object.is equality[39m
+[31m     → expected Promise{…} to be '' // Object.is equality[39m
+[31m   [31m×[31m CryptoService Property Tests[2m > [22m加密解密往返一致性[2m > [22m特殊字符加密解密应正确处理[90m 4[2mms[22m[31m[39m
+[31m     → Property failed after 1 tests
+{ seed: -510087315, path: "0:0", endOnFailure: true }
+Counterexample: [""]
+Shrunk 1 time(s)
+Got error: Property failed by returning false
+
+Hint: Enable verbose mode in order to have the list of all failing values encountered during the run[39m
+[31m     → Property failed after 1 tests
+{ seed: 1693751684, path: "0:0", endOnFailure: true }
+Counterexample: [""]
+Shrunk 1 time(s)
+Got error: Property failed by returning false
+
+Hint: Enable verbose mode in order to have the list of all failing values encountered during the run[39m
+[31m   [31m×[31m CryptoService Property Tests[2m > [22m加密解密往返一致性[2m > [22m长字符串加密解密应正确处理[33m 441[2mms[22m[31m[39m
+[31m     → Property failed after 1 tests
+{ seed: 1645580905, path: "0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0", endOnFailure: true }
+Counterexample: ["                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        "]
+Shrunk 955 time(s)
+Got error: Property failed by returning false
+
+Hint: Enable verbose mode in order to have the list of all failing values encountered during the run[39m
+[31m     → Property failed after 1 tests
+{ seed: 417165453, path: "0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0", endOnFailure: true }
+Counterexample: ["                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        "]
+Shrunk 987 time(s)
+Got error: Property failed by returning false
+
+Hint: Enable verbose mode in order to have the list of all failing values encountered during the run[39m
+[31m   [31m×[31m CryptoService Property Tests[2m > [22mIV 唯一性[2m > [22m每次加密应生成唯一的 IV[90m 3[2mms[22m[31m[39m
+[31m     → Property failed after 1 tests
+{ seed: -1469180981, path: "0:0", endOnFailure: true }
+Counterexample: [""]
+Shrunk 1 time(s)
+Got error: Property failed by returning false
+
+Hint: Enable verbose mode in order to have the list of all failing values encountered during the run[39m
+[31m     → Property failed after 1 tests
+{ seed: -135188754, path: "0:0", endOnFailure: true }
+Counterexample: [""]
+Shrunk 1 time(s)
+Got error: Property failed by returning false
+
+Hint: Enable verbose mode in order to have the list of all failing values encountered during the run[39m
+[31m   [31m×[31m CryptoService Property Tests[2m > [22mIV 唯一性[2m > [22m相同明文加密后密文应不同（由于 IV 不同）[90m 4[2mms[22m[31m[39m
+[31m     → Property failed after 1 tests
+{ seed: -576929433, path: "0:0:0", endOnFailure: true }
+Counterexample: [" "]
+Shrunk 2 time(s)
+Got error: Property failed by returning false
+
+Hint: Enable verbose mode in order to have the list of all failing values encountered during the run[39m
+[31m     → Property failed after 1 tests
+{ seed: 1496030851, path: "0:0:0", endOnFailure: true }
+Counterexample: [" "]
+Shrunk 2 time(s)
+Got error: Property failed by returning false
+
+Hint: Enable verbose mode in order to have the list of all failing values encountered during the run[39m
+[31m   [31m×[31m CryptoService Property Tests[2m > [22mmaskApiKey 函数[2m > [22m空字符串应返回空字符串[90m 2[2mms[22m[31m[39m
+[31m     → expected '••••••••' to be '' // Object.is equality[39m
+[31m     → expected '••••••••' to be '' // Object.is equality[39m
+[31m   [31m×[31m CryptoService Property Tests[2m > [22mmaskApiKey 函数[2m > [22mundefined 应返回空字符串[90m 1[2mms[22m[31m[39m
+[31m     → expected '••••••••' to be '' // Object.is equality[39m
+[31m     → expected '••••••••' to be '' // Object.is equality[39m
+ [32m✓[39m src/components/editor/CodeEditor.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[90m 6[2mms[22m[39m
+ [32m✓[39m src/components/Terminal/Terminal.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[90m 2[2mms[22m[39m
+ [32m✓[39m src/components/LSP/HoverTooltip.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[90m 2[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m6 failed[39m[22m[2m | [22m[1m[32m71 passed[39m[22m[90m (77)[39m
+[2m      Tests [22m [1m[31m54 failed[39m[22m[2m | [22m[1m[32m897 passed[39m[22m[2m | [22m[33m2 skipped[39m[90m (953)[39m
+[2m   Start at [22m 02:40:00
+[2m   Duration [22m 289.63s[2m (transform 11.49s, setup 18.93s, collect 304.77s, tests 10.56s, environment 3517.81s, prepare 236.75s)[22m
+

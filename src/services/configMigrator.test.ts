@@ -4,6 +4,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { ConfigMigrator } from './configMigrator';
+import { PROVIDER_STORAGE_KEY } from '../types/provider';
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -34,95 +35,97 @@ describe('ConfigMigrator', () => {
     });
 
     describe('checkNeedsMigration', () => {
-        it('没有旧数据时应返回 false', () => {
-            const result = migrator.checkNeedsMigration();
-            expect(result).toBe(false);
+        it('没有旧数据时应返回 true（总是尝试从 Tauri 后端迁移）', async () => {
+            const result = await migrator.checkNeedsMigration();
+            expect(result).toBe(true);
         });
 
-        it('有 v1 数据时应返回 true', () => {
-            localStorageMock.setItem('fangyu-provider-storage', JSON.stringify({
+        it('有 v1 数据时应返回 true', async () => {
+            localStorageMock.setItem(PROVIDER_STORAGE_KEY, JSON.stringify({
                 version: 1,
                 providers: [],
             }));
 
-            const result = migrator.checkNeedsMigration();
+            const result = await migrator.checkNeedsMigration();
             expect(result).toBe(true);
         });
 
-        it('已有 v2 数据时应返回 false', () => {
-            localStorageMock.setItem('fangyu-provider-storage', JSON.stringify({
+        it('已有 v2 数据且有代理商时应返回 false', async () => {
+            localStorageMock.setItem(PROVIDER_STORAGE_KEY, JSON.stringify({
                 version: 2,
-                providers: [],
+                providers: [{ id: '1', name: 'Test' }],
             }));
 
-            const result = migrator.checkNeedsMigration();
+            const result = await migrator.checkNeedsMigration();
             expect(result).toBe(false);
         });
 
-        it('有旧格式 Claude 配置时应返回 true', () => {
+        it('有旧格式 Claude 配置时应返回 true', async () => {
             localStorageMock.setItem('claude-provider-config', JSON.stringify({
                 apiKey: 'test-key',
                 baseUrl: 'https://api.anthropic.com',
             }));
 
-            const result = migrator.checkNeedsMigration();
+            const result = await migrator.checkNeedsMigration();
             expect(result).toBe(true);
         });
 
-        it('有旧格式 Codex 配置时应返回 true', () => {
+        it('有旧格式 Codex 配置时应返回 true', async () => {
             localStorageMock.setItem('codex-provider-config', JSON.stringify({
                 apiKey: 'test-key',
                 baseUrl: 'https://api.openai.com',
             }));
 
-            const result = migrator.checkNeedsMigration();
+            const result = await migrator.checkNeedsMigration();
             expect(result).toBe(true);
         });
     });
 
     describe('createBackup', () => {
-        it('应创建备份', () => {
-            localStorageMock.setItem('fangyu-provider-storage', JSON.stringify({
+        it('应创建备份', async () => {
+            localStorageMock.setItem(PROVIDER_STORAGE_KEY, JSON.stringify({
                 version: 1,
                 providers: [{ id: '1', name: 'Test' }],
             }));
 
-            const backupKey = migrator.createBackup();
+            const backupId = await migrator.createBackup();
 
-            expect(backupKey).toContain('fangyu-provider-backup-');
+            expect(backupId).toBeTruthy();
+            expect(typeof backupId).toBe('string');
             expect(localStorageMock.setItem).toHaveBeenCalled();
         });
 
-        it('没有数据时应返回 null', () => {
-            const backupKey = migrator.createBackup();
-            expect(backupKey).toBeNull();
+        it('没有数据时应返回 null', async () => {
+            const backupId = await migrator.createBackup();
+            expect(backupId).toBeNull();
         });
     });
 
     describe('restoreBackup', () => {
-        it('应正确恢复备份', () => {
+        it('应正确恢复备份', async () => {
             const backupData = JSON.stringify({
                 version: 1,
                 providers: [{ id: '1', name: 'Test' }],
             });
-            const backupKey = 'fangyu-provider-backup-123';
+            const backupId = '123';
+            const backupKey = `fangyu-config-backup-${backupId}`;
             localStorageMock.setItem(backupKey, backupData);
 
-            const result = migrator.restoreBackup(backupKey);
+            const result = await migrator.restoreBackup(backupId);
 
             expect(result).toBe(true);
-            expect(localStorageMock.getItem('fangyu-provider-storage')).toBe(backupData);
+            expect(localStorageMock.getItem(PROVIDER_STORAGE_KEY)).toBe(backupData);
         });
 
-        it('备份不存在时应返回 false', () => {
-            const result = migrator.restoreBackup('non-existent-backup');
+        it('备份不存在时应返回 false', async () => {
+            const result = await migrator.restoreBackup('non-existent-backup');
             expect(result).toBe(false);
         });
     });
 
     describe('migrate', () => {
         it('应正确迁移 v1 数据到 v2', async () => {
-            localStorageMock.setItem('fangyu-provider-storage', JSON.stringify({
+            localStorageMock.setItem(PROVIDER_STORAGE_KEY, JSON.stringify({
                 version: 1,
                 providers: [
                     {
@@ -139,7 +142,7 @@ describe('ConfigMigrator', () => {
             const result = await migrator.migrate();
 
             expect(result.success).toBe(true);
-            expect(result.migratedCount).toBe(1);
+            expect(result.migratedProviders).toBeGreaterThanOrEqual(1);
         });
 
         it('迁移失败时应自动回滚', async () => {
@@ -163,7 +166,7 @@ describe('ConfigMigrator', () => {
             const result = await migrator.migrate();
 
             expect(result.success).toBe(true);
-            expect(result.migratedCount).toBe(0);
+            expect(result.migratedProviders).toBe(0);
         });
 
         it('应迁移旧格式 Claude 配置', async () => {

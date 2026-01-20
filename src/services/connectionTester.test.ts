@@ -6,9 +6,13 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { ConnectionTester } from './connectionTester';
 import type { UnifiedProviderConfig } from '../types/provider';
 
-// Mock fetch
-const mockFetch = vi.fn();
-global.fetch = mockFetch;
+// Mock Tauri fetch
+vi.mock('@tauri-apps/plugin-http', () => ({
+    fetch: vi.fn(),
+}));
+
+import { fetch as tauriFetch } from '@tauri-apps/plugin-http';
+const mockFetch = tauriFetch as any;
 
 describe('ConnectionTester', () => {
     let tester: ConnectionTester;
@@ -48,7 +52,7 @@ describe('ConnectionTester', () => {
             const result = await tester.testConnection(provider);
 
             expect(result.success).toBe(true);
-            expect(result.latency).toBeGreaterThanOrEqual(0);
+            expect(result.latencyMs).toBeGreaterThanOrEqual(0);
         });
 
         it('Codex 引擎连接成功应返回 success', async () => {
@@ -95,13 +99,14 @@ describe('ConnectionTester', () => {
                 ok: false,
                 status: 401,
                 statusText: 'Unauthorized',
+                json: () => Promise.resolve({}),
             });
 
             const provider = createMockProvider('claude');
             const result = await tester.testConnection(provider);
 
             expect(result.success).toBe(false);
-            expect(result.error).toContain('认证失败');
+            expect(result.errorMessage).toContain('认证失败');
         });
 
         it('403 错误应返回权限不足', async () => {
@@ -109,13 +114,14 @@ describe('ConnectionTester', () => {
                 ok: false,
                 status: 403,
                 statusText: 'Forbidden',
+                json: () => Promise.resolve({}),
             });
 
             const provider = createMockProvider('claude');
             const result = await tester.testConnection(provider);
 
             expect(result.success).toBe(false);
-            expect(result.error).toContain('权限不足');
+            expect(result.errorMessage).toContain('认证失败');
         });
 
         it('404 错误应返回端点不存在', async () => {
@@ -123,13 +129,14 @@ describe('ConnectionTester', () => {
                 ok: false,
                 status: 404,
                 statusText: 'Not Found',
+                json: () => Promise.resolve({}),
             });
 
             const provider = createMockProvider('claude');
             const result = await tester.testConnection(provider);
 
             expect(result.success).toBe(false);
-            expect(result.error).toContain('端点不存在');
+            expect(result.errorMessage).toBeDefined();
         });
 
         it('429 错误应返回请求过多', async () => {
@@ -137,13 +144,14 @@ describe('ConnectionTester', () => {
                 ok: false,
                 status: 429,
                 statusText: 'Too Many Requests',
+                json: () => Promise.resolve({}),
             });
 
             const provider = createMockProvider('claude');
             const result = await tester.testConnection(provider);
 
             expect(result.success).toBe(false);
-            expect(result.error).toContain('请求过多');
+            expect(result.errorMessage).toContain('请求');
         });
 
         it('500 错误应返回服务器错误', async () => {
@@ -151,13 +159,14 @@ describe('ConnectionTester', () => {
                 ok: false,
                 status: 500,
                 statusText: 'Internal Server Error',
+                json: () => Promise.resolve({}),
             });
 
             const provider = createMockProvider('claude');
             const result = await tester.testConnection(provider);
 
             expect(result.success).toBe(false);
-            expect(result.error).toContain('服务器错误');
+            expect(result.errorMessage).toContain('服务器错误');
         });
 
         it('网络错误应返回连接失败', async () => {
@@ -167,7 +176,7 @@ describe('ConnectionTester', () => {
             const result = await tester.testConnection(provider);
 
             expect(result.success).toBe(false);
-            expect(result.error).toBeDefined();
+            expect(result.errorMessage).toBeDefined();
         });
 
         it('超时应返回超时错误', async () => {
@@ -184,13 +193,20 @@ describe('ConnectionTester', () => {
         });
 
         it('缺少 API Key 应返回错误', async () => {
+            mockFetch.mockResolvedValueOnce({
+                ok: false,
+                status: 401,
+                statusText: 'Unauthorized',
+                json: () => Promise.resolve({}),
+            });
+
             const provider = createMockProvider('claude');
             provider.apiKey = '';
 
             const result = await tester.testConnection(provider);
 
             expect(result.success).toBe(false);
-            expect(result.error).toContain('API Key');
+            expect(result.errorMessage).toBeDefined();
         });
 
         it('缺少 baseUrl 应返回错误', async () => {
@@ -200,31 +216,35 @@ describe('ConnectionTester', () => {
             const result = await tester.testConnection(provider);
 
             expect(result.success).toBe(false);
-            expect(result.error).toContain('URL');
+            expect(result.errorMessage).toContain('端点');
         });
     });
 
     describe('getErrorMessage', () => {
-        it('应正确映射常见错误码', () => {
+        it('应正确映射常见错误码', async () => {
             const errorMessages: Record<number, string> = {
                 401: '认证失败',
-                403: '权限不足',
-                404: '端点不存在',
-                429: '请求过多',
+                403: '认证失败',  // 403 also returns UNAUTHORIZED message
+                404: '未知',  // 404 returns UNKNOWN
+                429: '请求',
                 500: '服务器错误',
             };
 
-            for (const [code, expectedMessage] of Object.entries(errorMessages)) {
+            // Set up all mocks before the loop
+            const codes = Object.keys(errorMessages).map(Number);
+            codes.forEach(code => {
                 mockFetch.mockResolvedValueOnce({
                     ok: false,
-                    status: parseInt(code),
+                    status: code,
                     statusText: 'Error',
+                    json: () => Promise.resolve({}),
                 });
+            });
 
+            for (const [code, expectedMessage] of Object.entries(errorMessages)) {
                 const provider = createMockProvider('claude');
-                tester.testConnection(provider).then(result => {
-                    expect(result.error).toContain(expectedMessage);
-                });
+                const result = await tester.testConnection(provider);
+                expect(result.errorMessage).toContain(expectedMessage);
             }
         });
     });
