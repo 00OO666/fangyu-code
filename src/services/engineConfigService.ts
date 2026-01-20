@@ -670,12 +670,7 @@ export async function importConfig(
 ): Promise<ImportResult> {
     const validation = validateImportConfig(data);
     if (!validation.valid) {
-        return {
-            success: false,
-            importedProviders: 0,
-            errors: validation.errors,
-            warnings: validation.warnings,
-        };
+        throw new Error(validation.errors.join('; '));
     }
 
     const storage = readStorage();
@@ -980,6 +975,9 @@ export class EngineConfigService {
     async createProvider(config: Omit<UnifiedProviderConfig, 'id' | 'createdAt' | 'updatedAt'>) {
         return createProvider(config);
     }
+    async addProvider(config: Omit<UnifiedProviderConfig, 'id' | 'createdAt' | 'updatedAt'>) {
+        return createProvider(config);
+    }
     async updateProvider(id: string, updates: Partial<UnifiedProviderConfig>) {
         return updateProvider(id, updates);
     }
@@ -989,17 +987,37 @@ export class EngineConfigService {
     getProvider(id: string) {
         return getProvider(id);
     }
+    getProviders(engine: EngineType) {
+        return getProvidersByEngine(engine);
+    }
     getProvidersByEngine(engine: EngineType) {
         return getProvidersByEngine(engine);
     }
     async reorderProviders(engine: EngineType, orderedIds: string[]) {
         return reorderProviders(engine, orderedIds);
     }
+    getCurrentEngine() {
+        return getCurrentEngine();
+    }
     async setCurrentEngine(engine: EngineType) {
         return setCurrentEngine(engine);
     }
-    async setCurrentProvider(engine: EngineType, providerId: string | null) {
-        return setCurrentProvider(engine, providerId);
+    getCurrentProvider(engine: EngineType) {
+        return getCurrentProvider(engine);
+    }
+    async setCurrentProvider(engineOrProviderId: EngineType | string, providerId?: string | null) {
+        // Support both signatures: setCurrentProvider(providerId) and setCurrentProvider(engine, providerId)
+        if (typeof engineOrProviderId === 'string' && providerId === undefined) {
+            // Called with just providerId - infer engine from provider
+            const provider = getProvider(engineOrProviderId);
+            if (!provider) {
+                throw new Error(`Provider not found: ${engineOrProviderId}`);
+            }
+            return setCurrentProvider(provider.engine, engineOrProviderId);
+        } else {
+            // Called with engine and providerId
+            return setCurrentProvider(engineOrProviderId as EngineType, providerId ?? null);
+        }
     }
     async testConnection(config: Partial<UnifiedProviderConfig>) {
         return testProviderConnection(config);

@@ -218,7 +218,7 @@ describe('SummaryConfigStore Property Tests', () => {
                     (temperature) => {
                         const config: SummaryAPIConfig = {
                             engine: 'claude',
-                            model: 'claude-3-haiku-20240307',
+                            model: 'claude-sonnet-4-5-20250929',
                             customParams: { temperature },
                             updatedAt: Date.now(),
                         };
@@ -239,7 +239,7 @@ describe('SummaryConfigStore Property Tests', () => {
                     (maxTokens) => {
                         const config: SummaryAPIConfig = {
                             engine: 'claude',
-                            model: 'claude-3-haiku-20240307',
+                            model: 'claude-sonnet-4-5-20250929',
                             customParams: { maxTokens },
                             updatedAt: Date.now(),
                         };
@@ -263,7 +263,7 @@ describe('SummaryConfigStore Property Tests', () => {
             const config = await store.loadConfig();
 
             expect(config.engine).toBe('claude');
-            expect(config.model).toBe('claude-3-haiku-20240307');
+            expect(config.model).toBe('claude-sonnet-4-5-20250929');
         });
 
         it('should update partial config correctly', async () => {
@@ -295,7 +295,7 @@ describe('SummaryConfigStore Property Tests', () => {
             const reset = await store.resetToDefaults();
 
             expect(reset.engine).toBe('claude');
-            expect(reset.model).toBe('claude-3-haiku-20240307');
+            expect(reset.model).toBe('claude-sonnet-4-5-20250929');
         });
 
         it('should return correct models for each engine', () => {

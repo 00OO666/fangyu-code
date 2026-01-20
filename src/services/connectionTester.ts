@@ -354,6 +354,18 @@ export class ConnectionTester {
     async test(config: TestConfig): Promise<ConnectionTestResult> {
         return testConnection(config);
     }
+
+    async testConnection(config: TestConfig | any): Promise<ConnectionTestResult> {
+        // Support both TestConfig and UnifiedProviderConfig
+        const testConfig: TestConfig = {
+            engine: config.engine,
+            baseUrl: config.baseUrl,
+            apiKey: config.apiKey,
+            model: config.model,
+            timeout: config.timeout,
+        };
+        return testConnection(testConfig);
+    }
 }
 
 export default new ConnectionTester();

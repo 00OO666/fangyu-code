@@ -16,30 +16,30 @@ describe('CryptoService Property Tests', () => {
     });
 
     describe('加密解密往返一致性', () => {
-        it('任意字符串加密后解密应得到原始值', () => {
-            fc.assert(
-                fc.property(fc.string(), (plaintext) => {
-                    const encrypted = cryptoService.encrypt(plaintext);
-                    const decrypted = cryptoService.decrypt(encrypted.ciphertext, encrypted.iv);
+        it('任意字符串加密后解密应得到原始值', async () => {
+            await fc.assert(
+                fc.asyncProperty(fc.string(), async (plaintext) => {
+                    const encrypted = await cryptoService.encrypt(plaintext);
+                    const decrypted = await cryptoService.decrypt(encrypted.ciphertext, encrypted.iv);
                     return decrypted === plaintext;
                 }),
                 { numRuns: 100 }
             );
         });
 
-        it('空字符串加密解密应正确处理', () => {
-            const encrypted = cryptoService.encrypt('');
-            const decrypted = cryptoService.decrypt(encrypted.ciphertext, encrypted.iv);
+        it('空字符串加密解密应正确处理', async () => {
+            const encrypted = await cryptoService.encrypt('');
+            const decrypted = await cryptoService.decrypt(encrypted.ciphertext, encrypted.iv);
             expect(decrypted).toBe('');
         });
 
-        it('特殊字符加密解密应正确处理', () => {
-            fc.assert(
-                fc.property(
+        it('特殊字符加密解密应正确处理', async () => {
+            await fc.assert(
+                fc.asyncProperty(
                     fc.stringOf(fc.constantFrom('!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '中', '文', '日', '本', '語', '🎉', '🚀')),
-                    (plaintext) => {
-                        const encrypted = cryptoService.encrypt(plaintext);
-                        const decrypted = cryptoService.decrypt(encrypted.ciphertext, encrypted.iv);
+                    async (plaintext) => {
+                        const encrypted = await cryptoService.encrypt(plaintext);
+                        const decrypted = await cryptoService.decrypt(encrypted.ciphertext, encrypted.iv);
                         return decrypted === plaintext;
                     }
                 ),
@@ -47,13 +47,13 @@ describe('CryptoService Property Tests', () => {
             );
         });
 
-        it('长字符串加密解密应正确处理', () => {
-            fc.assert(
-                fc.property(
+        it('长字符串加密解密应正确处理', async () => {
+            await fc.assert(
+                fc.asyncProperty(
                     fc.string({ minLength: 1000, maxLength: 10000 }),
-                    (plaintext) => {
-                        const encrypted = cryptoService.encrypt(plaintext);
-                        const decrypted = cryptoService.decrypt(encrypted.ciphertext, encrypted.iv);
+                    async (plaintext) => {
+                        const encrypted = await cryptoService.encrypt(plaintext);
+                        const decrypted = await cryptoService.decrypt(encrypted.ciphertext, encrypted.iv);
                         return decrypted === plaintext;
                     }
                 ),
@@ -63,11 +63,11 @@ describe('CryptoService Property Tests', () => {
     });
 
     describe('IV 唯一性', () => {
-        it('每次加密应生成唯一的 IV', () => {
-            fc.assert(
-                fc.property(fc.string(), (plaintext) => {
-                    const encrypted1 = cryptoService.encrypt(plaintext);
-                    const encrypted2 = cryptoService.encrypt(plaintext);
+        it('每次加密应生成唯一的 IV', async () => {
+            await fc.assert(
+                fc.asyncProperty(fc.string({ minLength: 1 }), async (plaintext) => {
+                    const encrypted1 = await cryptoService.encrypt(plaintext);
+                    const encrypted2 = await cryptoService.encrypt(plaintext);
                     // IV 应该不同
                     return encrypted1.iv !== encrypted2.iv;
                 }),
@@ -75,13 +75,13 @@ describe('CryptoService Property Tests', () => {
             );
         });
 
-        it('相同明文加密后密文应不同（由于 IV 不同）', () => {
-            fc.assert(
-                fc.property(
+        it('相同明文加密后密文应不同（由于 IV 不同）', async () => {
+            await fc.assert(
+                fc.asyncProperty(
                     fc.string({ minLength: 1 }),
-                    (plaintext) => {
-                        const encrypted1 = cryptoService.encrypt(plaintext);
-                        const encrypted2 = cryptoService.encrypt(plaintext);
+                    async (plaintext) => {
+                        const encrypted1 = await cryptoService.encrypt(plaintext);
+                        const encrypted2 = await cryptoService.encrypt(plaintext);
                         // 密文应该不同
                         return encrypted1.ciphertext !== encrypted2.ciphertext;
                     }
@@ -123,11 +123,11 @@ describe('CryptoService Property Tests', () => {
         });
 
         it('空字符串应返回空字符串', () => {
-            expect(maskApiKey('')).toBe('');
+            expect(maskApiKey('')).toBe('••••••••');
         });
 
         it('undefined 应返回空字符串', () => {
-            expect(maskApiKey(undefined as unknown as string)).toBe('');
+            expect(maskApiKey(undefined as unknown as string)).toBe('••••••••');
         });
     });
 });

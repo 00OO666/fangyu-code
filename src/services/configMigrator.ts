@@ -633,6 +633,24 @@ export class ConfigMigrator {
         }
     }
 
+    async createBackup(): Promise<string | null> {
+        const data = localStorage.getItem(PROVIDER_STORAGE_KEY);
+        if (!data) return null;
+        try {
+            const storage = JSON.parse(data);
+            return await createBackup(storage);
+        } catch {
+            return null;
+        }
+    }
+
+    async restoreBackup(backupId: string): Promise<boolean> {
+        const storage = await restoreBackup(backupId);
+        if (!storage) return false;
+        localStorage.setItem(PROVIDER_STORAGE_KEY, JSON.stringify(storage));
+        return true;
+    }
+
     getMigrationLog(): MigrationLogEntry[] {
         return getMigrationLog();
     }

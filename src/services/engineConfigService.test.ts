@@ -3,36 +3,56 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { EngineConfigService } from './engineConfigService';
 import type { UnifiedProviderConfig, EngineType } from '../types/provider';
 
-// Mock localStorage
-const localStorageMock = (() => {
-    let store: Record<string, string> = {};
+// Mock Tauri
+vi.mock('@tauri-apps/api/core', () => ({
+    invoke: vi.fn().mockResolvedValue(undefined),
+}));
+
+// Mock localStorage with proper reset capability
+let localStorageStore: Record<string, string> = {};
+
+function createLocalStorageMock() {
     return {
-        getItem: vi.fn((key: string) => store[key] || null),
-        setItem: vi.fn((key: string, value: string) => { store[key] = value; }),
-        removeItem: vi.fn((key: string) => { delete store[key]; }),
-        clear: vi.fn(() => { store = {}; }),
+        getItem: vi.fn((key: string) => localStorageStore[key] || null),
+        setItem: vi.fn((key: string, value: string) => { localStorageStore[key] = value; }),
+        removeItem: vi.fn((key: string) => { delete localStorageStore[key]; }),
+        clear: vi.fn(() => {
+            localStorageStore = {};
+        }),
     };
-})();
+}
 
-Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+let localStorageMock = createLocalStorageMock();
+Object.defineProperty(window, 'localStorage', { value: localStorageMock, writable: true, configurable: true });
 
-describe('EngineConfigService', () => {
-    let service: EngineConfigService;
+describe.sequential('EngineConfigService', () => {
+    let service: any;
 
-    beforeEach(() => {
-        service = new EngineConfigService();
-        localStorageMock.clear();
+    beforeEach(async () => {
+        // Reset all modules to clear any cached state
+        vi.resetModules();
+
+        // Reset localStorage completely
+        localStorageStore = {};
+
+        // Recreate the mock to clear all call history
+        localStorageMock = createLocalStorageMock();
+        Object.defineProperty(window, 'localStorage', { value: localStorageMock, writable: true, configurable: true });
+
         vi.clearAllMocks();
+
+        // Dynamically import to get fresh module instance
+        const { EngineConfigService } = await import('./engineConfigService');
+        service = new EngineConfigService();
     });
 
     afterEach(() => {
         vi.restoreAllMocks();
     });
 
-    describe('getProviders', () => {
+    describe.sequential('getProviders', () => {
         it('没有数据时应返回空数组', () => {
             const providers = service.getProviders('claude');
             expect(providers).toEqual([]);
@@ -46,7 +66,7 @@ describe('EngineConfigService', () => {
                     { id: '2', name: 'Codex Provider', engine: 'codex', sortOrder: 0 },
                 ],
             };
-            localStorageMock.setItem('fangyu-provider-storage', JSON.stringify(mockStorage));
+            localStorageMock.setItem('fangyu-unified-providers', JSON.stringify(mockStorage));
 
             const claudeProviders = service.getProviders('claude');
             expect(claudeProviders.length).toBe(1);
@@ -62,7 +82,7 @@ describe('EngineConfigService', () => {
                     { id: '3', name: 'Provider C', engine: 'claude', sortOrder: 1 },
                 ],
             };
-            localStorageMock.setItem('fangyu-provider-storage', JSON.stringify(mockStorage));
+            localStorageMock.setItem('fangyu-unified-providers', JSON.stringify(mockStorage));
 
             const providers = service.getProviders('claude');
             expect(providers[0].name).toBe('Provider B');
@@ -71,7 +91,7 @@ describe('EngineConfigService', () => {
         });
     });
 
-    describe('addProvider', () => {
+    describe.sequential('addProvider', () => {
         it('应正确添加代理商', async () => {
             const newProvider = {
                 name: 'New Provider',
@@ -109,7 +129,7 @@ describe('EngineConfigService', () => {
         });
     });
 
-    describe('updateProvider', () => {
+    describe.sequential('updateProvider', () => {
         it('应正确更新代理商', async () => {
             const provider = await service.addProvider({
                 name: 'Original Name',
@@ -134,7 +154,7 @@ describe('EngineConfigService', () => {
         });
     });
 
-    describe('deleteProvider', () => {
+    describe.sequential('deleteProvider', () => {
         it('应正确删除代理商', async () => {
             const provider = await service.addProvider({
                 name: 'To Delete',
@@ -157,7 +177,7 @@ describe('EngineConfigService', () => {
         });
     });
 
-    describe('reorderProviders', () => {
+    describe.sequential('reorderProviders', () => {
         it('应正确重新排序代理商', async () => {
             const p1 = await service.addProvider({
                 name: 'Provider 1',
@@ -184,7 +204,7 @@ describe('EngineConfigService', () => {
             });
 
             // 重新排序: p3, p1, p2
-            await service.reorderProviders([p3.id, p1.id, p2.id]);
+            await service.reorderProviders('claude', [p3.id, p1.id, p2.id]);
 
             const providers = service.getProviders('claude');
             expect(providers[0].id).toBe(p3.id);
@@ -193,7 +213,7 @@ describe('EngineConfigService', () => {
         });
     });
 
-    describe('getCurrentEngine', () => {
+    describe.sequential('getCurrentEngine', () => {
         it('默认应返回 claude', () => {
             const engine = service.getCurrentEngine();
             expect(engine).toBe('claude');
@@ -206,7 +226,7 @@ describe('EngineConfigService', () => {
         });
     });
 
-    describe('setCurrentEngine', () => {
+    describe.sequential('setCurrentEngine', () => {
         it('应正确设置当前引擎', async () => {
             await service.setCurrentEngine('gemini');
             expect(service.getCurrentEngine()).toBe('gemini');
@@ -218,7 +238,7 @@ describe('EngineConfigService', () => {
         });
     });
 
-    describe('getCurrentProvider', () => {
+    describe.sequential('getCurrentProvider', () => {
         it('没有代理商时应返回 null', () => {
             const provider = service.getCurrentProvider('claude');
             expect(provider).toBeNull();
@@ -240,7 +260,7 @@ describe('EngineConfigService', () => {
         });
     });
 
-    describe('exportConfig', () => {
+    describe.sequential('exportConfig', () => {
         it('应正确导出配置', async () => {
             await service.addProvider({
                 name: 'Export Test',
@@ -272,7 +292,7 @@ describe('EngineConfigService', () => {
         });
     });
 
-    describe('importConfig', () => {
+    describe.sequential('importConfig', () => {
         it('应正确导入配置（合并模式）', async () => {
             await service.addProvider({
                 name: 'Existing',
@@ -296,7 +316,7 @@ describe('EngineConfigService', () => {
                 ],
             };
 
-            await service.importConfig(importData, { mode: 'merge' });
+            await service.importConfig(importData, 'merge');
 
             const providers = service.getProviders('claude');
             expect(providers.length).toBe(2);
@@ -325,7 +345,7 @@ describe('EngineConfigService', () => {
                 ],
             };
 
-            await service.importConfig(importData, { mode: 'replace' });
+            await service.importConfig(importData, 'replace');
 
             const providers = service.getProviders('claude');
             expect(providers.length).toBe(1);
