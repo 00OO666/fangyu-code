@@ -8,6 +8,7 @@ use std::process::{Command, Stdio};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use tauri::State;
+use uuid::Uuid;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TerminalOutput {
@@ -17,7 +18,7 @@ pub struct TerminalOutput {
 }
 
 pub struct TerminalManager {
-    sessions: Arc<Mutex<Vec<u32>>>,
+    sessions: Arc<Mutex<Vec<String>>>,
 }
 
 impl TerminalManager {
@@ -57,14 +58,14 @@ pub async fn terminal_execute(
 #[tauri::command]
 pub async fn terminal_create_session(
     _state: State<'_, TerminalManager>,
-) -> Result<u32, String> {
-    let session_id = rand::random::<u32>();
+) -> Result<String, String> {
+    let session_id = Uuid::new_v4().to_string();
     Ok(session_id)
 }
 
 #[tauri::command]
 pub async fn terminal_close_session(
-    session_id: u32,
+    _session_id: String,
     _state: State<'_, TerminalManager>,
 ) -> Result<(), String> {
     Ok(())
