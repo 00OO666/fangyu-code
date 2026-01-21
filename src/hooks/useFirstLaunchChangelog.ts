@@ -18,7 +18,7 @@ import { getVersion } from "@tauri-apps/api/app";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const STORAGE_KEY = "fangyu-code-last-seen-version";
-const FALLBACK_VERSION = "2.8.1"; // 🔧 Fallback 版本（获取失败时使用）
+const FALLBACK_VERSION = "2.9.0"; // 🔧 Fallback 版本（获取失败时使用）
 
 // 🔧 DEBUG: 全局变量用于强制显示更新日志（调试用）
 declare global {
@@ -30,6 +30,28 @@ declare global {
 
 // 版本更新日志（从新到旧）
 export const CHANGELOGS = {
+  "2.9.0": {
+    title: "v2.9.0 - 🚀 Token 限制移除与会话功能增强",
+    date: "2026-01-21",
+    features: [
+      "🔓 移除 max_tokens 限制 - 支持长输出和完整工具调用，让 Claude 自由发挥",
+      "💾 会话继续功能改进 - 优化数据库集成，支持更稳定的会话恢复",
+      "⚙️ 引擎配置优化 - 多个配置组件更新，提升用户体验",
+    ],
+    improvements: [
+      "✅ 无限制输出 - 不再因 token 限制截断 Claude 的回复",
+      "✅ 工具调用完整性 - 复杂工具调用不会被中断",
+      "✅ 会话数据持久化 - 改进会话存储和恢复机制",
+      "✅ 配置界面优化 - 更新多个设置和配置面板",
+    ],
+    bugfixes: [],
+    technical: [
+      "permission_config.rs - 移除 max_tokens 限制，添加详细注释",
+      "session_continue.rs - 添加 AppHandle 和数据库连接支持",
+      "多个前端组件更新 - AdvancedSettings, InlineModelTester, ProviderItem 等",
+      "版本号同步到 v2.9.0 - package.json, tauri.conf.json, Cargo.toml",
+    ],
+  },
   "2.8.1": {
     title: "v2.8.1 - 🔧 统一日志管理系统",
     date: "2026-01-20",
