@@ -84,7 +84,7 @@ export function ProviderItem({
     const [editForm, setEditForm] = useState({
         name: provider.name || '',
         baseUrl: provider.baseUrl || '',
-        apiKey: '',
+        apiKey: provider.apiKey || '',
         model: provider.model || '',
     });
 
@@ -96,7 +96,7 @@ export function ProviderItem({
             setEditForm({
                 name: provider.name || '',
                 baseUrl: provider.baseUrl || '',
-                apiKey: '',
+                apiKey: provider.apiKey || '',
                 model: provider.model || '',
             });
         }
@@ -113,7 +113,7 @@ export function ProviderItem({
         setEditForm({
             name: provider.name || '',
             baseUrl: provider.baseUrl || '',
-            apiKey: '',
+            apiKey: provider.apiKey || '',
             model: provider.model || '',
         });
     }, [provider]);
@@ -126,10 +126,8 @@ export function ProviderItem({
                 name: editForm.name,
                 baseUrl: editForm.baseUrl,
                 model: editForm.model,
+                apiKey: editForm.apiKey,
             };
-            if (editForm.apiKey) {
-                updates.apiKey = editForm.apiKey;
-            }
             await onEdit(updates);
             setIsEditing(false);
         } catch (error) {
@@ -203,7 +201,7 @@ export function ProviderItem({
                             <div>
                                 <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">API Key</label>
                                 <div className="relative">
-                                    <input type={showApiKey ? 'text' : 'password'} value={editForm.apiKey} onChange={(e) => setEditForm(prev => ({ ...prev, apiKey: e.target.value }))} className="w-full px-3 py-2 pr-10 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono" placeholder="留空保持不变" />
+                                    <input type={showApiKey ? 'text' : 'password'} value={editForm.apiKey} onChange={(e) => setEditForm(prev => ({ ...prev, apiKey: e.target.value }))} className="w-full px-3 py-2 pr-10 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono" placeholder="sk-..." />
                                     <button type="button" onClick={() => setShowApiKey(!showApiKey)} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600">
                                         {showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                     </button>

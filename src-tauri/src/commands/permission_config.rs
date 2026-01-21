@@ -164,11 +164,13 @@ pub fn build_execution_args(config: &ClaudeExecutionConfig, model: &str) -> Vec<
         args.push(timeout.to_string());
     }
 
-    // 添加token限制
+    // 添加token限制（设置为 None 表示无限制，让 Claude 自己管理）
+    // 移除 max_tokens 限制以支持长输出和工具调用
     if let Some(max_tokens) = config.max_tokens {
         args.push("--max-tokens".to_string());
         args.push(max_tokens.to_string());
     }
+    // 注意：不设置 max_tokens 参数时，Claude CLI 会使用模型的默认上下文窗口
 
     // 添加thinking token限制（Extended Thinking 功能）
     // 🔥 修复：使用官方标准的参数名称: --max-thinking-tokens (短横线分隔,不是驼峰)
