@@ -40,7 +40,7 @@
   },
   "plugins": {
     "updater": {
-      "active": true,
+      "active": false,
       "endpoints": [
         "https://github.com/00OO666/fangyu-code/releases/latest/download/latest.json"
       ],
