@@ -28,6 +28,7 @@ import type { CodexRateLimits } from "@/types/codex";
 import { useHooksCount } from "@/hooks/useHooksCount";
 import { loadSiliconFlowConfig } from "@/config/siliconflowConfig";
 import { TodayUsagePopover } from "@/components/TodayUsagePopover";
+import { VoiceInput } from "@/components/VoiceInput";
 import { ApiHealthPanel } from "@/components/ApiHealthPanel";
 import { useApiHealthCheck } from "@/hooks/useApiHealthCheck";
 
@@ -76,6 +77,8 @@ interface ControlBarProps {
   onToggleQueuePanel?: () => void;
   // 🆕 图像生成回调
   onImageGenerated?: (imageBase64: string, mimeType: string) => void;
+  // 🆕 语音输入回调
+  onVoiceTextRecognized?: (text: string) => void;
 }
 
 export const ControlBar: React.FC<ControlBarProps> = ({
@@ -121,6 +124,7 @@ export const ControlBar: React.FC<ControlBarProps> = ({
   showQueuePanel,
   onToggleQueuePanel,
   onImageGenerated,
+  onVoiceTextRecognized,
 }) => {
   const { t } = useTranslation();
   const { count: hooksCount } = useHooksCount();
@@ -743,6 +747,14 @@ export const ControlBar: React.FC<ControlBarProps> = ({
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
+      )}
+
+      {/* Voice Input Button */}
+      {onVoiceTextRecognized && (
+        <VoiceInput
+          onTextRecognized={onVoiceTextRecognized}
+          disabled={disabled}
+        />
       )}
 
       {/* Send/Cancel Button */}

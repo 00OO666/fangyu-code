@@ -7,13 +7,15 @@ import React, { useState } from 'react';
 import type { DiffChange } from '@/core/diff/DiffManager';
 
 interface DiffPreviewProps {
-  changes: DiffChange[];
-  onAccept: (changeId: string) => void;
-  onReject: (changeId: string) => void;
-  onApply: () => void;
+  diff?: string;
+  changes?: DiffChange[];
+  onAccept?: (changeId?: string) => void;
+  onReject?: (changeId?: string) => void;
+  onApply?: () => void;
 }
 
 export const DiffPreview: React.FC<DiffPreviewProps> = ({
+  diff,
   changes,
   onAccept,
   onReject,
@@ -21,7 +23,30 @@ export const DiffPreview: React.FC<DiffPreviewProps> = ({
 }) => {
   const [viewMode, setViewMode] = useState<'side-by-side' | 'inline'>('side-by-side');
 
-  if (changes.length === 0) {
+  // 如果传入的是 diff 字符串，显示简单的 diff 视图
+  if (diff) {
+    return (
+      <div className="flex flex-col h-full">
+        <div className="flex items-center justify-between p-2 border-b">
+          <h3 className="font-semibold">Code Diff</h3>
+          {onApply && (
+            <button
+              onClick={onApply}
+              className="px-4 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+            >
+              Apply
+            </button>
+          )}
+        </div>
+        <div className="flex-1 overflow-y-auto p-4">
+          <pre className="font-mono text-sm bg-muted p-4 rounded">{diff}</pre>
+        </div>
+      </div>
+    );
+  }
+
+  // 原有的 changes 数组逻辑
+  if (!changes || changes.length === 0) {
     return <div className="p-4 text-muted-foreground">No changes to preview</div>;
   }
 
@@ -57,14 +82,14 @@ export const DiffPreview: React.FC<DiffPreviewProps> = ({
               <span className="font-mono text-sm">{change.filePath}</span>
               <div className="flex gap-2">
                 <button
-                  onClick={() => onAccept(change.id)}
+                  onClick={() => onAccept?.(change.id)}
                   className="px-3 py-1 bg-green-600 text-white rounded text-sm"
                   disabled={change.status === 'accepted'}
                 >
                   Accept
                 </button>
                 <button
-                  onClick={() => onReject(change.id)}
+                  onClick={() => onReject?.(change.id)}
                   className="px-3 py-1 bg-red-600 text-white rounded text-sm"
                   disabled={change.status === 'rejected'}
                 >
