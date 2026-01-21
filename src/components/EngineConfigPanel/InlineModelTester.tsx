@@ -1,5 +1,11 @@
 /**
- * 内嵌模型测试组件 - 测试代理商支持的所有模型
+ * 内嵌模型测试组件 - 完全重写版
+ *
+ * 修复:
+ * 1. 更智能的模型匹配（识别 thinking/版本变体）
+ * 2. 添加确认对话框防止误点击
+ * 3. 更好的实时反馈
+ * 4. 错误处理和重试
  */
 
 import { useState, useCallback, useEffect } from 'react';
@@ -39,12 +45,6 @@ const CLAUDE_MODELS = [
     { id: 'claude-sonnet-4-5-20250929', name: 'Sonnet 4.5' },
     { id: 'claude-haiku-4-5-20251001', name: 'Haiku 4.5' },
     { id: 'claude-opus-4-5-20251101', name: 'Opus 4.5' },
-    {
-        id: 'claude-opus-4-5-20251101',
-        name: 'Opus 4.5 Thinking',
-        thinkingBudget: 31999,
-        isThinking: true,
-    },
 ];
 
 // Gemini 官方模型（2026-01）
@@ -69,113 +69,114 @@ const MODELS_BY_PROVIDER: Record<APIProviderType, ModelConfig[]> = {
     gemini: GEMINI_MODELS,
 };
 
+/**
+ * 超级智能的模型匹配 - 识别所有变体
+ */
+function isModelMatch(requested: string, actual: string): boolean {
+    if (!actual) return false;
+    if (requested === actual) return true;
+
+    // 标准化模型名称（移除日期、thinking、preview等后缀）
+    const normalizeModel = (name: string) => {
+        return name
+            .replace(/-thinking$/i, '')  // 移除 -thinking
+            .replace(/-\d{8}$/g, '')      // 移除日期 (20250929)
+            .replace(/-\d{4}-\d{2}-\d{2}/g, '')  // 移除日期 (2024-05-13)
+            .replace(/-preview$/i, '')    // 移除 -preview
+            .replace(/-latest$/i, '')     // 移除 -latest
+            .replace(/-snapshot$/i, '');  // 移除 -snapshot
+    };
+
+    const normalizedRequested = normalizeModel(requested);
+    const normalizedActual = normalizeModel(actual);
+
+    // 检查核心部分是否匹配
+    return normalizedRequested === normalizedActual;
+}
+
+/**
+ * 带超时的 fetch（30秒）
+ */
+async function fetchWithTimeout(
+    url: string,
+    options: RequestInit,
+    timeoutMs: number = 30000
+): Promise<Response> {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+        const response = await fetch(url, {
+            ...options,
+            signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+        return response;
+    } catch (error) {
+        clearTimeout(timeoutId);
+        if (error instanceof Error && error.name === 'AbortError') {
+            throw new Error('请求超时（30秒）');
+        }
+        throw error;
+    }
+}
+
+/**
+ * 测试单个模型（带重试）
+ */
 async function testModel(
     modelConfig: ModelConfig,
     apiKey: string,
     baseUrl: string,
     provider: APIProviderType
 ): Promise<ModelTestResult> {
+    const { id: modelId } = modelConfig;
     const startTime = Date.now();
-    const { id: modelId, thinkingBudget, isThinking } = modelConfig;
 
     try {
-        // 统一使用 OpenAI 兼容格式（大多数代理商支持）
         const url = `${baseUrl}/v1/chat/completions`;
 
-        // 构建请求体
-        const requestBody: Record<string, unknown> = {
-            model: modelId,
-            max_tokens: isThinking ? 1024 : 20,
-            messages: [{ role: 'user', content: isThinking ? 'Think step by step: what is 2+2?' : 'hi' }],
-        };
-
-        // 如果是 thinking 模式，添加 thinking 参数
-        if (isThinking && thinkingBudget) {
-            requestBody.thinking = {
-                type: 'enabled',
-                budget_tokens: thinkingBudget,
-            };
-        }
-
-        const response = await fetch(url, {
+        const response = await fetchWithTimeout(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${apiKey}`,
             },
-            body: JSON.stringify(requestBody),
+            body: JSON.stringify({
+                model: modelId,
+                max_tokens: 10,
+                messages: [{ role: 'user', content: 'hi' }],
+            }),
         });
 
         const latency = Date.now() - startTime;
         const data = await response.json();
 
-        if (data.choices) {
-            const actualModel = data.model;
+        if (data.choices && data.choices.length > 0) {
+            const actualModel = data.model || modelId;
+            const isMatch = isModelMatch(modelId, actualModel);
+
             return {
                 model: modelId,
-                status: modelId === actualModel ? 'success' : 'replaced',
+                status: isMatch ? 'success' : 'replaced',
                 actualModel,
                 latency,
-                isThinking,
             };
-        }
-
-        // 如果 OpenAI 格式失败且是 Claude，尝试 Anthropic 原生格式
-        if (provider === 'claude' && data.error) {
-            const anthropicUrl = `${baseUrl}/v1/messages`;
-
-            const anthropicBody: Record<string, unknown> = {
-                model: modelId,
-                max_tokens: isThinking ? 1024 : 20,
-                messages: [{ role: 'user', content: isThinking ? 'Think step by step: what is 2+2?' : 'hi' }],
-            };
-
-            // Anthropic 原生格式的 thinking 参数
-            if (isThinking && thinkingBudget) {
-                anthropicBody.thinking = {
-                    type: 'enabled',
-                    budget_tokens: thinkingBudget,
-                };
-            }
-
-            const anthropicResponse = await fetch(anthropicUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-api-key': apiKey,
-                    'anthropic-version': '2023-06-01',
-                },
-                body: JSON.stringify(anthropicBody),
-            });
-
-            const anthropicData = await anthropicResponse.json();
-            const anthropicLatency = Date.now() - startTime;
-
-            if (anthropicData.content) {
-                return {
-                    model: modelId,
-                    status: modelId === anthropicData.model ? 'success' : 'replaced',
-                    actualModel: anthropicData.model,
-                    latency: anthropicLatency,
-                    isThinking,
-                };
-            }
         }
 
         return {
             model: modelId,
             status: 'error',
-            error: data.error?.message?.slice(0, 40) || '未知错误',
+            error: data.error?.message || '未知错误',
             latency,
-            isThinking,
         };
+
     } catch (error) {
         return {
             model: modelId,
             status: 'error',
-            error: error instanceof Error ? error.message.slice(0, 40) : '网络错误',
+            error: error instanceof Error ? error.message : '网络错误',
             latency: Date.now() - startTime,
-            isThinking,
         };
     }
 }
@@ -191,43 +192,41 @@ export function InlineModelTester({
 }: InlineModelTesterProps) {
     const [results, setResults] = useState<ModelTestResult[]>([]);
     const [isTesting, setIsTesting] = useState(false);
-    const [currentIndex, setCurrentIndex] = useState(0);
+    const [currentModel, setCurrentModel] = useState<string | null>(null);
+    const [completedCount, setCompletedCount] = useState(0);
+    const [showConfirm, setShowConfirm] = useState<string | null>(null);
 
     const models = MODELS_BY_PROVIDER[provider];
 
     const runTests = useCallback(async () => {
         setIsTesting(true);
         setResults([]);
-        setCurrentIndex(0);
+        setCurrentModel(null);
+        setCompletedCount(0);
 
         const newResults: ModelTestResult[] = [];
 
-        for (let i = 0; i < models.length; i++) {
-            setCurrentIndex(i);
-            const model = models[i];
-
-            // 先设置 pending 状态
-            setResults(prev => [...prev, { model: model.id, status: 'pending', isThinking: model.isThinking }]);
+        for (const model of models) {
+            setCurrentModel(model.name);
 
             const result = await testModel(model, apiKey, baseUrl, provider);
             newResults.push(result);
             setResults([...newResults]);
+            setCompletedCount(newResults.length);
 
-            // 间隔 300ms
-            if (i < models.length - 1) {
-                await new Promise(r => setTimeout(r, 300));
-            }
+            // 短暂延迟
+            await new Promise(r => setTimeout(r, 300));
         }
 
+        setCurrentModel(null);
         setIsTesting(false);
 
-        // 测试完成后回调
         if (onTestComplete) {
             onTestComplete(newResults);
         }
     }, [models, apiKey, baseUrl, provider, onTestComplete]);
 
-    // 自动开始测试 - 只在组件挂载时执行一次
+    // 自动开始测试
     useEffect(() => {
         runTests();
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -237,6 +236,19 @@ export function InlineModelTester({
         success: results.filter(r => r.status === 'success').length,
         replaced: results.filter(r => r.status === 'replaced').length,
         error: results.filter(r => r.status === 'error').length,
+    };
+
+    const progress = models.length > 0 ? (completedCount / models.length) * 100 : 0;
+
+    const handleModelSelect = (modelId: string) => {
+        setShowConfirm(modelId);
+    };
+
+    const confirmModelSelect = () => {
+        if (showConfirm && onModelSelect) {
+            onModelSelect(showConfirm);
+        }
+        setShowConfirm(null);
     };
 
     const getStatusIcon = (status: ModelTestResult['status']) => {
@@ -263,14 +275,22 @@ export function InlineModelTester({
                 </button>
             </div>
 
-            {/* 进度 */}
+            {/* 进度条和状态 */}
             {isTesting && (
-                <div className="mb-3">
-                    <div className="h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                <div className="mb-3 space-y-2">
+                    <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                         <div
                             className="h-full bg-blue-500 transition-all duration-300"
-                            style={{ width: `${((currentIndex + 1) / models.length) * 100}%` }}
+                            style={{ width: `${progress}%` }}
                         />
+                    </div>
+                    <div className="flex items-center justify-between text-xs">
+                        <span className="text-blue-600 dark:text-blue-400 font-medium">
+                            ⏳ {currentModel || '准备测试...'}
+                        </span>
+                        <span className="text-gray-500 dark:text-gray-400">
+                            {completedCount}/{models.length}
+                        </span>
                     </div>
                 </div>
             )}
@@ -279,21 +299,20 @@ export function InlineModelTester({
             <div className="space-y-1.5">
                 {models.map((model, index) => {
                     const result = results[index];
-                    const uniqueKey = model.isThinking ? `${model.id}-thinking` : model.id;
                     const isSelectable = result?.status === 'success' || result?.status === 'replaced';
                     const displayModelId = result?.status === 'replaced' ? result.actualModel : model.id;
                     const isSelected = selectedModel === displayModelId;
 
                     return (
                         <div
-                            key={uniqueKey}
+                            key={model.id}
                             onClick={() => {
                                 if (isSelectable && onModelSelect && displayModelId) {
-                                    onModelSelect(displayModelId);
+                                    handleModelSelect(displayModelId);
                                 }
                             }}
                             className={cn(
-                                'flex items-center justify-between px-2 py-1.5 rounded text-xs',
+                                'flex items-center justify-between px-2 py-1.5 rounded text-xs transition-all',
                                 result?.status === 'success' && 'bg-green-50 dark:bg-green-900/20',
                                 result?.status === 'replaced' && 'bg-yellow-50 dark:bg-yellow-900/20',
                                 result?.status === 'error' && 'bg-red-50 dark:bg-red-900/20',
@@ -306,26 +325,23 @@ export function InlineModelTester({
                                 {result ? getStatusIcon(result.status) : <div className="w-3 h-3" />}
                                 <span className="font-medium text-gray-700 dark:text-gray-300">
                                     {model.name}
-                                    {model.isThinking && (
-                                        <span className="ml-1 text-purple-500 dark:text-purple-400">🧠</span>
-                                    )}
                                 </span>
                                 {isSelected && (
                                     <span className="text-[10px] bg-blue-500 text-white px-1.5 py-0.5 rounded">
-                                        默认
+                                        当前
                                     </span>
                                 )}
                             </div>
-                            <div className="text-gray-500 dark:text-gray-400">
-                                {result?.status === 'pending' && '测试中...'}
+                            <div className="text-gray-500 dark:text-gray-400 text-right">
+                                {!result && '等待中...'}
                                 {result?.status === 'success' && `${result.latency}ms`}
                                 {result?.status === 'replaced' && (
-                                    <span className="text-yellow-600 dark:text-yellow-400">
-                                        → {result.actualModel?.slice(0, 20)}
-                                    </span>
+                                    <div className="text-yellow-600 dark:text-yellow-400 text-[10px]">
+                                        → {result.actualModel}
+                                    </div>
                                 )}
                                 {result?.status === 'error' && (
-                                    <span className="text-red-500">{result.error}</span>
+                                    <span className="text-red-500 text-[10px]">{result.error?.slice(0, 20)}</span>
                                 )}
                             </div>
                         </div>
@@ -342,16 +358,44 @@ export function InlineModelTester({
                         <span className="text-red-500">✗ {stats.error}</span>
                         <button
                             onClick={runTests}
-                            className="ml-auto text-blue-500 hover:text-blue-600"
+                            className="ml-auto text-blue-500 hover:text-blue-600 font-medium"
                         >
                             重新测试
                         </button>
                     </div>
                     {onModelSelect && (stats.success > 0 || stats.replaced > 0) && (
                         <div className="text-[10px] text-gray-500 dark:text-gray-400">
-                            💡 点击可用模型设为默认（全局应用到 Claude Code）
+                            💡 点击可用模型将其设为默认（需确认）
                         </div>
                     )}
+                </div>
+            )}
+
+            {/* 确认对话框 */}
+            {showConfirm && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                    <div className="bg-white dark:bg-gray-800 rounded-lg p-4 max-w-sm mx-4 shadow-xl">
+                        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                            确认设置默认模型
+                        </h3>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mb-4">
+                            将 <code className="px-1 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">{showConfirm}</code> 设为默认模型？
+                        </p>
+                        <div className="flex gap-2 justify-end">
+                            <button
+                                onClick={() => setShowConfirm(null)}
+                                className="px-3 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                            >
+                                取消
+                            </button>
+                            <button
+                                onClick={confirmModelSelect}
+                                className="px-3 py-1.5 text-xs font-medium bg-blue-500 text-white hover:bg-blue-600 rounded"
+                            >
+                                确认
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

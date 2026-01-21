@@ -770,6 +770,8 @@ fn main() {
             get_chat_history_stats,
             // Smart Session Continue (智能会话续接系统)
             commands::session_continue::create_continued_session,
+            commands::session_continue::set_session_storage_path,
+            commands::session_continue::get_session_storage_path_setting,
             // LSP (Language Server Protocol) Integration
             commands::lsp::lsp_start,
             commands::lsp::lsp_shutdown,

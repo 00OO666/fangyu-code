@@ -62,6 +62,10 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
   const [showResetDialog, setShowResetDialog] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
 
+  // Session storage path state
+  const [sessionStoragePath, setSessionStoragePath] = useState<string>("");
+  const [isSessionPathCustom, setIsSessionPathCustom] = useState(false);
+
   // Prompt Suggestions state
   const [enablePromptSuggestion, setEnablePromptSuggestion] = useState(() => {
     try {
@@ -94,6 +98,47 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
       setSiliconFlowEnabled(isEnabled);
     }
   }, [settings]);
+
+  // Load session storage path
+  useEffect(() => {
+    const loadSessionPath = async () => {
+      try {
+        const path = await api.invoke<string | null>("get_session_storage_path_setting");
+        if (path) {
+          setSessionStoragePath(path);
+          setIsSessionPathCustom(true);
+        }
+      } catch (error) {
+        logger.warn('GeneralSettings', "Failed to load session storage path:", error);
+      }
+    };
+    loadSessionPath();
+  }, []);
+
+  // Handle session storage path change
+  const handleSetSessionPath = async () => {
+    try {
+      await api.invoke("set_session_storage_path", { path: sessionStoragePath });
+      setToast({ message: "会话存储路径已更新", type: "success" });
+      setIsSessionPathCustom(true);
+    } catch (error) {
+      logger.error('GeneralSettings', "Failed to set session storage path:", error);
+      setToast({ message: "设置失败: " + String(error), type: "error" });
+    }
+  };
+
+  // Handle reset session storage path to default
+  const handleResetSessionPath = async () => {
+    try {
+      await api.invoke("set_session_storage_path", { path: "" });
+      setSessionStoragePath("");
+      setIsSessionPathCustom(false);
+      setToast({ message: "已恢复默认存储路径", type: "success" });
+    } catch (error) {
+      logger.error('GeneralSettings', "Failed to reset session storage path:", error);
+      setToast({ message: "重置失败: " + String(error), type: "error" });
+    }
+  };
 
   /**
    * 初始化时加载当前 Codex 路径，并在 refresh 事件触发时同步
@@ -818,6 +863,71 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
                             <li>C:\Users\username\AppData\Roaming\npm\codex.ps1</li>
                             <li>D:\nodejs\node_global\codex.ps1</li>
                           </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+
+          {/* Session Storage Path */}
+          <div className="border-t pt-6 mt-6">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <Label className="text-sm font-medium">智能会话存储路径</Label>
+                  <p className="text-xs text-muted-foreground">
+                    自定义智能会话续接系统的存储位置（留空使用默认路径）
+                  </p>
+                </div>
+                <Switch
+                  checked={isSessionPathCustom}
+                  onCheckedChange={(checked) => {
+                    if (!checked) {
+                      handleResetSessionPath();
+                    }
+                    setIsSessionPathCustom(checked);
+                  }}
+                />
+              </div>
+
+              <AnimatePresence>
+                {isSessionPathCustom && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="space-y-3"
+                  >
+                    <div className="flex gap-2">
+                      <Input
+                        value={sessionStoragePath}
+                        onChange={(e) => setSessionStoragePath(e.target.value)}
+                        placeholder="例如: E:\FangyuCode\Sessions"
+                        className="flex-1"
+                      />
+                      <Button
+                        onClick={handleSetSessionPath}
+                        size="sm"
+                        disabled={!sessionStoragePath.trim()}
+                      >
+                        <Save className="h-3 w-3 mr-1" />
+                        保存
+                      </Button>
+                    </div>
+
+                    <div className="p-3 bg-muted rounded-md">
+                      <div className="flex items-start gap-2">
+                        <AlertCircle className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                        <div className="flex-1">
+                          <p className="text-xs text-muted-foreground">
+                            <strong>提示：</strong>会话文件将存储在指定目录的 sessions 子目录下
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            默认路径：{"{AppData}"}/sessions/
+                          </p>
                         </div>
                       </div>
                     </div>

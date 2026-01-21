@@ -4,14 +4,13 @@
  * 功能：
  * 1. 应用启动时自动检查更新
  * 2. 下载并验证更新包
- * 3. 安装后自动重启
+ * 3. 安装后自动重启（由 downloadAndInstall 自动处理）
  * 4. 支持手动触发检查
  * 5. 支持跳过特定版本
  * 6. 支持暂时关闭更新提示
  */
 
 import { logger } from '@/lib/logger';
-import { relaunch } from "@tauri-apps/plugin-process";
 import { check, type Update } from "@tauri-apps/plugin-updater";
 import { useCallback, useEffect, useState } from "react";
 
@@ -222,15 +221,10 @@ export function useTauriAutoUpdate(
         }
       });
 
+      // downloadAndInstall 会自动安装并重启应用，无需手动调用 relaunch
+      logger.debug('useTauriAutoUpdate', "[Auto Update] Update installed successfully, app will restart automatically");
       setDownloading(false);
       setInstalling(true);
-
-      // 安装完成，准备重启
-      logger.debug('useTauriAutoUpdate', "[Auto Update] Installing update and restarting...");
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // 重启应用
-      await relaunch();
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : "更新失败";
       logger.error('useTauriAutoUpdate', "[Auto Update] Install failed:", errorMsg);
