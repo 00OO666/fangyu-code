@@ -1069,6 +1069,10 @@ const FloatingPromptInputInner = (
             onToggleQueuePanel={handleToggleQueuePanel}
             // 🆕 图像生成回调
             onImageGenerated={handleImageGenerated}
+            // 🆕 语音输入回调
+            onVoiceTextRecognized={(text) => {
+              dispatch({ type: 'SET_PROMPT', payload: state.prompt + text });
+            }}
           />
         </div>
       </div>

@@ -28,6 +28,7 @@ import { HookToggleManager } from '@/components/HookToggleManager';
 import { SuperAgentCenter } from '@/components/SuperAgentCenter';
 import { DeveloperTools } from '@/components/DeveloperTools';
 import { SpecGenerationPanel } from '@/components/SpecGenerationPanel';
+import { V3FeaturesCenter } from '@/components/V3FeaturesCenter';
 import { WorkflowManagerPanel } from '@/components/WorkflowManagerPanel';
 import NewFeaturesDemo from '@/examples/NewFeaturesDemo';
 // import { ProjectCardSkeleton, SessionListItemSkeleton } from '@/components/ui/skeleton'; // Unused in new GlobalSessionCenter
@@ -320,6 +321,9 @@ export const ViewRouter: React.FC = () => {
 
       case "super-agent":
         return <SuperAgentCenter onBack={goBack} />;
+
+      case "v3-features":
+        return <V3FeaturesCenter onBack={goBack} />;
 
       case "developer-tools":
         return <DeveloperTools onBack={goBack} />;

@@ -19,7 +19,8 @@ export type View =
   | "super-agent" // v2.4.0 Super Agent 控制中心
   | "developer-tools" // v2.5.0 开发工具
   | "spec-generation" // v2.5.0 规范生成引擎
-  | "workflow-manager"; // v2.5.0 工作流管理器
+  | "workflow-manager" // v2.5.0 工作流管理器
+  | "v3-features"; // v3.0 功能中心
 
 export interface NavigationState {
   currentView: View;

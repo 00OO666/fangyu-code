@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   FolderOpen, Settings, BarChart2, Terminal, Layers, FileText, Package,
   FileCode, ChevronLeft, ChevronRight, HelpCircle, Sparkles, Puzzle, Zap,
-  Activity, Search, Bot,
+  Activity, Search, Bot, Code2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { View } from '@/types/navigation';
@@ -81,6 +81,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { view: 'projects', icon: FolderOpen, label: t('common.ccProjectsTitle'), shortcut: '1' },
     { view: 'claude-tab-manager', icon: Terminal, label: t('sidebar.sessionManagement'), shortcut: '2' },
     { view: 'super-agent', icon: Bot, label: 'Super Agent', shortcut: '3' },
+    { view: 'v3-features', icon: Code2, label: 'V3.0 功能', shortcut: '0' },
     { view: 'editor', icon: FileText, label: t('sidebar.claudePrompts'), shortcut: '4' },
     { view: 'codex-editor', icon: FileCode, label: t('sidebar.codexPrompts'), shortcut: '5' },
     { view: 'gemini-editor', icon: Sparkles, label: t('sidebar.geminiPrompts'), shortcut: '6' },
