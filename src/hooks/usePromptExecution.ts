@@ -1713,6 +1713,10 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                       currentSessionId = msg.session_id;
                       setClaudeSessionId(msg.session_id);
 
+                      // 🔧 FIX: 设置 isFirstPrompt 为 false，确保后续消息能正确继续会话
+                      setIsFirstPrompt(false);
+                      logger.info('usePromptExecution', `[usePromptExecution] ✅ Session initialized: sessionId=${msg.session_id}, isFirstPrompt set to false`);
+
                       // If we haven't extracted session info before, do it now
                       if (!extractedSessionInfo) {
                         const projectId = projectPath.replace(/[^a-zA-Z0-9]/g, "-");
@@ -2375,6 +2379,9 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
 
           // 🚀 性能监控：记录 API 调用前的耗时
           logger.debug('usePromptExecution', `[usePromptExecution] ⏱️ Pre-API processing took ${(performance.now() - perfStart).toFixed(0)}ms`);
+
+          // 🔧 DEBUG: 记录会话状态，帮助诊断上下文丢失问题
+          logger.info('usePromptExecution', `[usePromptExecution] 📊 Session State: isFirstPrompt=${isFirstPrompt}, hasEffectiveSession=${!!effectiveSession}, sessionId=${effectiveSession?.id || 'none'}`);
 
           if (effectiveSession && !isFirstPrompt) {
             // Resume existing session
