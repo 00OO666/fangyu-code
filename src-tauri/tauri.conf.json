@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Fangyu Code",
-  "version": "2.9.0",
+  "version": "2.9.1",
   "identifier": "com.fangyu.code",
   "build": {
     "beforeDevCommand": "npm run dev",
@@ -40,7 +40,7 @@
   },
   "plugins": {
     "updater": {
-      "active": false,
+      "active": true,
       "endpoints": [
         "https://github.com/00OO666/fangyu-code/releases/latest/download/latest.json"
       ],

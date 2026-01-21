@@ -30,6 +30,37 @@ declare global {
 
 // 版本更新日志（从新到旧）
 export const CHANGELOGS = {
+  "2.9.1": {
+    title: "v2.9.1 - ✨ V3.0 功能中心与语音输入完整实现",
+    date: "2026-01-22",
+    features: [
+      "🎤 语音输入功能 - MediaRecorder API + FlashSpeech API 完整实现，支持 Ctrl+Shift+V 快捷键",
+      "🎯 V3.0 功能中心 - 4个核心功能已实现：LSP 功能可视化、Diff 预览器、内置终端、语音输入",
+      "🚧 6个功能开发中 - 代码片段库、Git 可视化、测试集成、项目模板、性能分析器、插件系统",
+      "🔧 DiffPreview 接口兼容性修复 - 支持 diff 字符串和 changes 数组两种模式",
+    ],
+    improvements: [
+      "✅ LSP 功能 - 代码智能提示、跳转定义、查找引用、重命名符号（前后端完整实现）",
+      "✅ Diff 预览器 - Side-by-side 和 Inline 视图切换，Accept/Reject 操作",
+      "✅ 内置终端 - xterm.js 集成，PTY 通信，AI 助手命令支持",
+      "✅ 诚实标注 - 开发中功能显示明确的占位页面，不再误导用户",
+      "✅ 自动更新功能改进 - 修复浏览器错误提示问题",
+    ],
+    bugfixes: [
+      "修复 DiffPreview 接口不匹配 - V3FeaturesCenter 传递 diff 字符串但组件期望 changes 数组",
+      "修复虚假功能误导 - 6个功能添加\"开发中\"占位视图",
+      "修复使用说明不准确 - 更新为准确反映实现状态",
+    ],
+    technical: [
+      "语音输入 - VoiceInput.tsx + flashSpeechService.ts 完整实现",
+      "LSP 功能 - LSPAutoLoader.ts + lsp.rs 前后端齐全",
+      "Diff 预览器 - DiffPreview.tsx 接口兼容性修复",
+      "内置终端 - Terminal.tsx + terminal.rs 前后端齐全",
+      "V3FeaturesCenter.tsx - 添加开发中功能占位视图",
+      "测试脚本 - test-voice-input.cjs, test-all-v3-features.cjs, test-v3-deep.cjs",
+      "测试报告 - V3_FEATURES_TEST_REPORT.md 完整测试文档",
+    ],
+  },
   "2.9.0": {
     title: "v2.9.0 - 🚀 Token 限制移除与会话功能增强",
     date: "2026-01-21",
