@@ -13,7 +13,7 @@ import FileCode2 from 'lucide-react/dist/esm/icons/file-code-2'
 import Copy from 'lucide-react/dist/esm/icons/copy'
 import History from 'lucide-react/dist/esm/icons/history'
 import Save from 'lucide-react/dist/esm/icons/save'
-import Loader2 from 'lucide-react/dist/esm/icons/loader--2';
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
 import { SummaryButton } from '@/components/session/SummaryButton';
 import { SummaryModal } from '@/components/dialogs/SummaryModal';
 import { useSummaryGenerator } from '@/hooks/useSummaryGenerator';

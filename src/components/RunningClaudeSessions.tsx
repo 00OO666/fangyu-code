@@ -1,7 +1,7 @@
 import { logger } from '@/lib/logger';
 import React, { useState, useEffect } from "react";
 import Play from 'lucide-react/dist/esm/icons/play'
-import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
 import Terminal from 'lucide-react/dist/esm/icons/terminal'
 import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
 import { listen, type UnlistenFn } from '@tauri-apps/api/event';

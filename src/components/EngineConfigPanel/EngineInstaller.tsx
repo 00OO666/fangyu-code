@@ -5,7 +5,7 @@
 
 import { useState, useCallback } from 'react';
 import Download from 'lucide-react/dist/esm/icons/download'
-import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
 import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
 import XCircle from 'lucide-react/dist/esm/icons/x-circle'
 import ExternalLink from 'lucide-react/dist/esm/icons/external-link'

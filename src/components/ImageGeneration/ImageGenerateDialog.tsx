@@ -12,7 +12,7 @@ import { logger } from '@/lib/logger';
 import React, { useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ImagePlus from 'lucide-react/dist/esm/icons/image-plus'
-import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
 import Download from 'lucide-react/dist/esm/icons/download'
 import Copy from 'lucide-react/dist/esm/icons/copy'
 import Trash2 from 'lucide-react/dist/esm/icons/trash-2'

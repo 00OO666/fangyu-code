@@ -12,7 +12,7 @@ import React, { useState, useCallback, useMemo } from "react";
 import Clock from 'lucide-react/dist/esm/icons/clock'
 import Plus from 'lucide-react/dist/esm/icons/plus'
 import Search from 'lucide-react/dist/esm/icons/search'
-import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
 import FileText from 'lucide-react/dist/esm/icons/file-text'
 import Trash2 from 'lucide-react/dist/esm/icons/trash-2'
 import CheckSquare from 'lucide-react/dist/esm/icons/check-square'

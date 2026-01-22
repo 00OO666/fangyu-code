@@ -19,7 +19,7 @@ import Shield from 'lucide-react/dist/esm/icons/shield'
 import PlayCircle from 'lucide-react/dist/esm/icons/play-circle'
 import Info from 'lucide-react/dist/esm/icons/info'
 import Save from 'lucide-react/dist/esm/icons/save'
-import Loader2 from 'lucide-react/dist/esm/icons/loader--2';
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';

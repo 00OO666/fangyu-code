@@ -14,7 +14,7 @@ import Image as ImageIcon from 'lucide-react/dist/esm/icons/image as -image-icon
 import FileSpreadsheet from 'lucide-react/dist/esm/icons/file-spreadsheet'
 import Presentation from 'lucide-react/dist/esm/icons/presentation'
 import File from 'lucide-react/dist/esm/icons/file'
-import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
 import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';

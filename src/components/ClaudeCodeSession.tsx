@@ -8,7 +8,7 @@ import X from 'lucide-react/dist/esm/icons/x'
 import List from 'lucide-react/dist/esm/icons/list'
 import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle'
 import FileText from 'lucide-react/dist/esm/icons/file-text'
-import Loader2 from 'lucide-react/dist/esm/icons/loader--2';
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
 import { Button } from "@/components/ui/button";
 import { api, type Session, type Project } from "@/lib/api";
 import { cn } from "@/lib/utils";

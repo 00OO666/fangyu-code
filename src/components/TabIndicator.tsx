@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import MessageSquare from 'lucide-react/dist/esm/icons/message-square'
 import Clock from 'lucide-react/dist/esm/icons/clock'
 import Eye from 'lucide-react/dist/esm/icons/eye'
-import Loader2 from 'lucide-react/dist/esm/icons/loader--2';
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {

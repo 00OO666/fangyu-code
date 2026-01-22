@@ -12,7 +12,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PlayCircle from 'lucide-react/dist/esm/icons/play-circle'
 import XCircle from 'lucide-react/dist/esm/icons/x-circle'
-import Loader2 from 'lucide-react/dist/esm/icons/loader--2';
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';

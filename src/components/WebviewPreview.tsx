@@ -6,7 +6,7 @@ import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
 import X from 'lucide-react/dist/esm/icons/x'
 import Minimize2 from 'lucide-react/dist/esm/icons/minimize-2'
 import Maximize2 from 'lucide-react/dist/esm/icons/maximize-2'
-import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
 import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
 import Globe from 'lucide-react/dist/esm/icons/globe'
 import Home from 'lucide-react/dist/esm/icons/home';

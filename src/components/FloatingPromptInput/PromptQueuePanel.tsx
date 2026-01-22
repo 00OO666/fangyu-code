@@ -27,7 +27,7 @@ import Clock from 'lucide-react/dist/esm/icons/clock'
 import Send from 'lucide-react/dist/esm/icons/send'
 import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
 import CheckCircle2 from 'lucide-react/dist/esm/icons/check-circle-2'
-import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
 import Wand2 from 'lucide-react/dist/esm/icons/wand-2'
 import Plus from 'lucide-react/dist/esm/icons/plus';
 import { Button } from '@/components/ui/button';

@@ -12,7 +12,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import Copy from 'lucide-react/dist/esm/icons/copy'
 import Check from 'lucide-react/dist/esm/icons/check'
 import ExternalLink from 'lucide-react/dist/esm/icons/external-link'
-import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
 import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
 import MessageSquare from 'lucide-react/dist/esm/icons/message-square'
 import Coins from 'lucide-react/dist/esm/icons/coins'

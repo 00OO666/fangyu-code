@@ -16,7 +16,7 @@ import Folder from 'lucide-react/dist/esm/icons/folder'
 import Copy from 'lucide-react/dist/esm/icons/copy'
 import Power from 'lucide-react/dist/esm/icons/power'
 import Terminal from 'lucide-react/dist/esm/icons/terminal'
-import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
 import Check from 'lucide-react/dist/esm/icons/check'
 import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
 import {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Mic from 'lucide-react/dist/esm/icons/mic'
 import MicOff from 'lucide-react/dist/esm/icons/mic-off'
-import Loader2 from 'lucide-react/dist/esm/icons/loader--2';
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { getFlashSpeechService } from '@/services/flashSpeechService';

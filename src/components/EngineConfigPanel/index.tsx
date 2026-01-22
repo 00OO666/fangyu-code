@@ -5,7 +5,7 @@
 import { logger } from '@/lib/logger';
 import React, { useState, useCallback } from 'react';
 import Plus from 'lucide-react/dist/esm/icons/plus'
-import Loader2 from 'lucide-react/dist/esm/icons/loader--2';
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
 import { useEngineConfig } from '../../hooks/useEngineConfig';
 import type { UnifiedProviderConfig, PresetProvider } from '../../types/provider';
 import { ENGINE_DISPLAY_NAMES } from '../../types/provider';
