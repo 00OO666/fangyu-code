@@ -156,9 +156,7 @@ async function decryptDataWithFallback(encoded: string): Promise<string | null> 
     const decoded = atob(encoded);
     // 如果成功解码且看起来像有效数据，记录警告并返回
     if (decoded && decoded.length > 0) {
-      console.warn(
-        '[SecureStorage] ⚠️ 检测到旧格式数据（Base64），建议重新保存以使用加密存储'
-      );
+      logger.warn('secureStorage', '⚠️ 检测到旧格式数据（Base64），建议重新保存以使用加密存储');
       return decoded;
     }
   } catch {
@@ -189,10 +187,8 @@ function isTauriEnvironment(): boolean {
  */
 function logSecurityWarning(): void {
   if (!isTauriEnvironment()) {
-    console.warn(
-      '[SecureStorage] ⚠️ 安全警告: 当前运行在开发环境，使用 Web Crypto API 加密。' +
-      '生产环境请使用 Tauri 安全存储以获得更高安全性。'
-    );
+    logger.warn('secureStorage', '⚠️ 安全警告: 当前运行在开发环境，使用 Web Crypto API 加密。' +
+      '生产环境请使用 Tauri 安全存储以获得更高安全性。');
   }
 }
 

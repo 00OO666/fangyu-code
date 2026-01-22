@@ -9,7 +9,7 @@ import FileText from 'lucide-react/dist/esm/icons/file-text'
 import ExternalLink from 'lucide-react/dist/esm/icons/external-link'
 import X from 'lucide-react/dist/esm/icons/x';
 import { createPortal } from "react-dom";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { Prism as SyntaxHighlighter } from "@/lib/lightSyntaxHighlighter";
 import { getClaudeSyntaxTheme } from "@/lib/claudeSyntaxTheme";
 import { useTheme } from "@/contexts/ThemeContext";
 import ReactMarkdown from "react-markdown";

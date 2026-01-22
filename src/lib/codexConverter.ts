@@ -342,12 +342,7 @@ export class CodexEventConverter {
         return null;
 
       default:
-        console.warn(
-          "[CodexConverter] Unknown event type:",
-          (event as any).type,
-          "Full event:",
-          event,
-        );
+        logger.warn('codexConverter', 'Unknown event type:', (event as any).type, 'Full event:', event);
         return null;
     }
   }
@@ -410,21 +405,21 @@ export class CodexEventConverter {
     const totalUsage =
       total && typeof total === "object"
         ? {
-            input_tokens: Number(total.input_tokens) || 0,
-            cached_input_tokens:
-              total.cached_input_tokens !== undefined ? Number(total.cached_input_tokens) || 0 : 0,
-            output_tokens: Number(total.output_tokens) || 0,
-          }
+          input_tokens: Number(total.input_tokens) || 0,
+          cached_input_tokens:
+            total.cached_input_tokens !== undefined ? Number(total.cached_input_tokens) || 0 : 0,
+          output_tokens: Number(total.output_tokens) || 0,
+        }
         : null;
 
     const lastUsage =
       last && typeof last === "object"
         ? {
-            input_tokens: Number(last.input_tokens) || 0,
-            cached_input_tokens:
-              last.cached_input_tokens !== undefined ? Number(last.cached_input_tokens) || 0 : 0,
-            output_tokens: Number(last.output_tokens) || 0,
-          }
+          input_tokens: Number(last.input_tokens) || 0,
+          cached_input_tokens:
+            last.cached_input_tokens !== undefined ? Number(last.cached_input_tokens) || 0 : 0,
+          output_tokens: Number(last.output_tokens) || 0,
+        }
         : null;
 
     // Prefer explicit delta (last_token_usage). If absent, derive delta from totals.
@@ -444,7 +439,7 @@ export class CodexEventConverter {
         ),
         cached_input_tokens: Math.max(
           (totalUsage.cached_input_tokens || 0) -
-            (this.lastTokenCountTotal.cached_input_tokens || 0),
+          (this.lastTokenCountTotal.cached_input_tokens || 0),
           0,
         ),
         output_tokens: Math.max(

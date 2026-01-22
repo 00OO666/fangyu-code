@@ -2,6 +2,7 @@ import { fileURLToPath, URL } from "node:url";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
+import { visualizer } from "rollup-plugin-visualizer";
 
 const host = process.env.TAURI_DEV_HOST;
 
@@ -10,6 +11,12 @@ export default defineConfig(async () => ({
   plugins: [
     react(),
     tailwindcss(),
+    visualizer({
+      filename: './dist/stats.html',
+      open: false,
+      gzipSize: true,
+      brotliSize: true,
+    }),
   ],
 
   // Use lightningcss for CSS processing (fixes Tailwind 4 unicode issues)
@@ -84,6 +91,7 @@ export default defineConfig(async () => ({
           "icons-vendor": ["lucide-react"],
           "motion-vendor": ["framer-motion"],
           "editor-vendor": ["@uiw/react-md-editor"],
+          "monaco-vendor": ["@monaco-editor/react", "monaco-editor"],
           "syntax-vendor": ["react-syntax-highlighter"],
           utils: ["clsx", "tailwind-merge"],
         },

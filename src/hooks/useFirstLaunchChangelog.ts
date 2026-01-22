@@ -30,6 +30,27 @@ declare global {
 
 // 版本更新日志（从新到旧）
 export const CHANGELOGS = {
+  "2.9.2": {
+    title: "v2.9.2 - 🔧 会话上下文与日志系统修复",
+    date: "2026-01-23",
+    features: [],
+    improvements: [
+      "🔧 修复会话历史不显示的问题 - useSessionStream 依赖项修复",
+      "🔧 统一日志系统 - 64 处 console.log/warn/error 替换为 logger 服务",
+      "🔍 添加会话诊断日志 - 帮助定位上下文断连和会话继续问题",
+    ],
+    bugfixes: [
+      "修复点击历史会话后显示空白的问题",
+      "修复 loadSessionHistory 的 useCallback 依赖项缺失",
+      "修复会话状态追踪不准确导致的上下文丢失",
+    ],
+    technical: [
+      "useSessionStream.ts - 添加 initializeProcessedIds 到依赖项",
+      "usePromptExecution.ts - 添加完整会话状态诊断日志",
+      "ClaudeCodeSession.tsx - 添加 handleSendPromptWithScroll 诊断日志",
+      "28 个文件的 console 调用替换为 logger 服务",
+    ],
+  },
   "2.9.1": {
     title: "v2.9.1 - ✨ V3.0 功能中心与语音输入完整实现",
     date: "2026-01-22",

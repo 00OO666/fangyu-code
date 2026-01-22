@@ -14,7 +14,7 @@ import { logger } from '@/lib/logger';
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Upload from 'lucide-react/dist/esm/icons/upload'
-import Image as ImageIcon from 'lucide-react/dist/esm/icons/image as -image-icon'
+import Image from 'lucide-react/dist/esm/icons/image'
 import FileText from 'lucide-react/dist/esm/icons/file-text'
 import X from 'lucide-react/dist/esm/icons/x'
 import Eye from 'lucide-react/dist/esm/icons/eye'
@@ -218,7 +218,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({ file, onClose, onDelete, enab
           <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center gap-2">
               {file.type === 'image' ? (
-                <ImageIcon className="w-5 h-5" />
+                <Image className="w-5 h-5" />
               ) : (
                 <FileText className="w-5 h-5" />
               )}
@@ -433,7 +433,7 @@ const FileCard: React.FC<FileCardProps> = ({ file, onPreview, onDelete }) => {
         <div className="p-3 space-y-2">
           <div className="flex items-center gap-2">
             {file.type === 'image' ? (
-              <ImageIcon className="w-4 h-4 text-blue-500" />
+              <Image className="w-4 h-4 text-blue-500" />
             ) : file.type === 'pdf' ? (
               <FileText className="w-4 h-4 text-red-500" />
             ) : (
@@ -693,7 +693,7 @@ export const MultiModalInput: React.FC<MultiModalInputProps> = ({
                   size="sm"
                   onClick={() => fileInputRef.current?.click()}
                 >
-                  <ImageIcon className="w-4 h-4 mr-2" />
+                  <Image className="w-4 h-4 mr-2" />
                   选择文件
                 </Button>
 

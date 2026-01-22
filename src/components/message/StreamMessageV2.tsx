@@ -72,10 +72,10 @@ const StreamMessageV2Component: React.FC<StreamMessageV2Props> = ({
 
       // 验证必要的数据结构
       if (!group ||
-          !group.taskMessage ||
-          !Array.isArray(group.subagentMessages)) {
+        !group.taskMessage ||
+        !Array.isArray(group.subagentMessages)) {
         if (process.env.NODE_ENV !== 'production') {
-          console.error('[StreamMessageV2] Invalid subagent group structure:', {
+          logger.error('StreamMessageV2', 'Invalid subagent group structure:', {
             hasGroup: !!group,
             hasTaskMessage: !!group?.taskMessage,
             hasSubagentMessages: Array.isArray(group?.subagentMessages),
@@ -313,7 +313,7 @@ const isMessageEqual = (prev: ClaudeStreamMessage | undefined, next: ClaudeStrea
   const prevUsage = prev.usage || prev.message?.usage;
   const nextUsage = next.usage || next.message?.usage;
   if (prevUsage?.input_tokens !== nextUsage?.input_tokens ||
-      prevUsage?.output_tokens !== nextUsage?.output_tokens) {
+    prevUsage?.output_tokens !== nextUsage?.output_tokens) {
     return false;
   }
 
@@ -361,7 +361,7 @@ const isMessageGroupEqual = (prev: MessageGroup | undefined, next: MessageGroup 
       }
     }
   }
-  
+
   // 对于聚合消息组
   if (prev.type === 'aggregated' && next.type === 'aggregated') {
     if (prev.messages.length !== next.messages.length) return false;

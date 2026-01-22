@@ -10,7 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Upload from 'lucide-react/dist/esm/icons/upload'
 import X from 'lucide-react/dist/esm/icons/x'
 import FileText from 'lucide-react/dist/esm/icons/file-text'
-import Image as ImageIcon from 'lucide-react/dist/esm/icons/image as -image-icon'
+import Image from 'lucide-react/dist/esm/icons/image'
 import FileSpreadsheet from 'lucide-react/dist/esm/icons/file-spreadsheet'
 import Presentation from 'lucide-react/dist/esm/icons/presentation'
 import File from 'lucide-react/dist/esm/icons/file'
@@ -69,7 +69,7 @@ export interface FileDropZoneProps {
 // =============================================================================
 
 const FILE_TYPE_ICONS: Record<SupportedFileType, React.ReactNode> = {
-    image: <ImageIcon className="h-4 w-4 text-blue-500" />,
+    image: <Image className="h-4 w-4 text-blue-500" />,
     pdf: <FileText className="h-4 w-4 text-red-500" />,
     word: <FileText className="h-4 w-4 text-blue-600" />,
     excel: <FileSpreadsheet className="h-4 w-4 text-green-500" />,

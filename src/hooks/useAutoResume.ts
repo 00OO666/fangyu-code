@@ -165,7 +165,7 @@ function detectIncompleteTasksFromTodo(todos: any[]): boolean {
   if (hasInProgress) {
     const inProgressTasks = todos.filter((t) => t.status === "in_progress");
     const pendingTasks = todos.filter((t) => t.status === "pending");
-    console.log("[useAutoResume] 🎯 Found incomplete tasks:", {
+    logger.debug('useAutoResume', '🎯 Found incomplete tasks:', {
       in_progress: inProgressTasks.length,
       pending: pendingTasks.length,
     });
@@ -237,10 +237,7 @@ function detectIncompleteTasksFromContent(messages: ClaudeStreamMessage[]): bool
 
       // 如果有继续标记或工具错误，且没有明确结束，认为需要继续
       if ((hasContinueMarker || hasToolError) && !hasEndMarker) {
-        console.log(
-          "[useAutoResume] 🎯 Detected incomplete task from content:",
-          content.slice(0, 100),
-        );
+        logger.debug('useAutoResume', '🎯 Detected incomplete task from content:', content.slice(0, 100));
         return true;
       }
 
@@ -402,17 +399,11 @@ export function useAutoResume(config: AutoResumeConfig): AutoResumeReturn {
         const timeSinceLastMessage = now - lastMessageTime;
 
         if (timeSinceLastMessage > inactiveTimeout) {
-          console.log(
-            "[useAutoResume] ⏰ Session inactive for too long:",
-            timeSinceLastMessage,
-            "ms",
-          );
+          logger.debug('useAutoResume', '⏰ Session inactive for too long:', timeSinceLastMessage, 'ms');
           return;
         }
       } else {
-        console.log(
-          "[useAutoResume] ℹ️ Message has no timestamp, skipping timeout check (likely historical data)",
-        );
+        logger.debug('useAutoResume', 'ℹ️ Message has no timestamp, skipping timeout check (likely historical data)');
       }
     }
 

@@ -137,11 +137,7 @@ export function useBackgroundCompact(
       };
 
       setDeltaMessages((prev) => [...prev, deltaMsg]);
-      console.log(
-        "[BackgroundCompact] 🔄 Captured delta message:",
-        message.type,
-        message.content.slice(0, 50),
-      );
+      logger.debug('useBackgroundCompact', '🔄 Captured delta message:', message.type, message.content.slice(0, 50));
     },
     [isCompacting],
   );
@@ -323,7 +319,7 @@ export function useBackgroundCompact(
 
     // 🔧 v2.8.1: 添加调试日志，帮助诊断压缩功能失效问题
     if (import.meta.env.DEV) {
-      console.log('[BackgroundCompact] 🔍 Auto-compact check:', {
+      logger.debug('useBackgroundCompact', '🔍 Auto-compact check:', {
         autoCompact,
         sessionId: sessionId?.slice(0, 8),
         calculatedUsage: (calculatedUsage * 100).toFixed(1) + '%',
@@ -337,12 +333,8 @@ export function useBackgroundCompact(
 
     // 达到 75% 阈值时触发后台压缩
     if (calculatedUsage >= compactThreshold) {
-      console.log(
-        `[BackgroundCompact] 📊 Context usage ${(calculatedUsage * 100).toFixed(1)}% >= ${(compactThreshold * 100).toFixed(1)}% threshold`,
-      );
-      console.log(
-        "[BackgroundCompact] 🔄 Auto-triggering background compact (user can continue working)",
-      );
+      logger.debug('useBackgroundCompact', `📊 Context usage ${(calculatedUsage * 100).toFixed(1)}% >= ${(compactThreshold * 100).toFixed(1)}% threshold`);
+      logger.debug('useBackgroundCompact', '🔄 Auto-triggering background compact (user can continue working)');
       hasTriggeredCompactRef.current = true;
       executeCompact();
     }

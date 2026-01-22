@@ -44,6 +44,10 @@ pub fn encode_project_path(path: &str) -> String {
 /// Decodes a project directory name back to its original path
 /// The directory names in ~/.claude/projects are encoded paths
 /// DEPRECATED: Use get_project_path_from_sessions instead when possible
+/// 
+/// ⚡ FIX: 改进解码逻辑，处理多斜杠问题
+/// 例如：F--Claude-Projects-----51- 应该解码为 F:\Claude-Projects\51\
+/// 而不是 F\\Claude\Projects\\\\51\
 pub fn decode_project_path(encoded: &str) -> String {
     // This is a fallback - the encoding isn't reversible when paths contain hyphens
     // For example: -Users-mufeedvh-dev-jsonl-viewer could be /Users/mufeedvh/dev/jsonl-viewer
@@ -54,10 +58,34 @@ pub fn decode_project_path(encoded: &str) -> String {
     #[cfg(target_os = "windows")]
     {
         let mut windows_path = decoded.replace('/', "\\");
+        
+        // ⚡ FIX: 压缩连续多个反斜杠为单个
+        // 例如：F\\Claude\Projects\\\\51\ -> F:\Claude-Projects\51\
+        while windows_path.contains("\\\\") {
+            windows_path = windows_path.replace("\\\\", "\\");
+        }
+        
         // Remove Windows long path prefix if present
         if windows_path.starts_with("\\\\?\\") {
             windows_path = windows_path[4..].to_string();
         }
+        
+        // ⚡ FIX: 处理驱动器号格式
+        // 编码后 F: 会变成 F（冒号被移除），解码后需要恢复
+        // 检测模式：单个字母开头后跟 \
+        if windows_path.len() >= 2 {
+            let chars: Vec<char> = windows_path.chars().collect();
+            if chars[0].is_ascii_alphabetic() && chars[1] == '\\' {
+                // 在驱动器号后插入冒号：F\ -> F:\
+                windows_path = format!("{}:{}", chars[0], &windows_path[1..]);
+            }
+        }
+        
+        // 移除末尾的反斜杠（如果路径不只是驱动器根目录）
+        if windows_path.len() > 3 && windows_path.ends_with('\\') {
+            windows_path.pop();
+        }
+        
         windows_path
     }
 

@@ -9,7 +9,7 @@ import React, { useRef, useEffect, useState } from "react";
 import Maximize2 from 'lucide-react/dist/esm/icons/maximize-2';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { Prism as SyntaxHighlighter } from "@/lib/lightSyntaxHighlighter";
 import { getClaudeSyntaxTheme } from "@/lib/claudeSyntaxTheme";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useTypewriter } from "@/hooks/useTypewriter";

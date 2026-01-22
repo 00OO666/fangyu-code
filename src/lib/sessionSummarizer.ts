@@ -397,7 +397,7 @@ export async function generateSessionSummary(
   try {
     // 1. 提取 TodoList 状态
     const todoList = extractTodoList(messages);
-    console.log("[SessionSummarizer] TodoList extracted:", {
+    logger.debug('sessionSummarizer', "[SessionSummarizer] TodoList extracted:", {
       completed: todoList?.completed?.length ?? 0,
       inProgress: todoList?.inProgress?.length ?? 0,
       pending: todoList?.pending?.length ?? 0,

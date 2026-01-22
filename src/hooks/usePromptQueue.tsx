@@ -160,7 +160,7 @@ export const PromptQueueProvider = ({ children }: PromptQueueProviderProps) => {
       };
 
       setItems((prev) => [...prev, newItem]);
-      console.log("[PromptQueue] 添加到队列:", {
+      logger.debug('usePromptQueue', '添加到队列:', {
         id: newItem.id,
         mode,
         promptPreview: prompt.substring(0, 50),

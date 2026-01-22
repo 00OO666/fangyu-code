@@ -157,9 +157,7 @@ export function useMessageDeduplication(
 
     // 警告：重复率过高
     if (duplicateRate > warningThreshold) {
-      console.warn(
-        `[MessageDeduplication] ⚠️ 重复率过高: ${(duplicateRate * 100).toFixed(1)}% (${duplicateCount}/${originalCount})`
-      );
+      logger.warn('useMessageDeduplication', `⚠️ 重复率过高: ${(duplicateRate * 100).toFixed(1)}% (${duplicateCount}/${originalCount})`);
       logger.warn('useMessageDeduplication', `  建议检查消息添加逻辑，可能存在重复提交问题`);
     }
 

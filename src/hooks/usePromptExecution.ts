@@ -378,6 +378,26 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
         const perfStart = performance.now();
         logger.debug('usePromptExecution', "[usePromptExecution] ⏱️ Message send started");
 
+        // 🔧 DIAGNOSTIC: 完整的会话状态日志，帮助诊断上下文断连问题
+        logger.info('usePromptExecution', `[usePromptExecution] 🔍 DIAGNOSTIC - Session State at prompt entry:`, {
+          isFirstPrompt,
+          hasEffectiveSession: !!effectiveSession,
+          effectiveSessionId: effectiveSession?.id || 'null',
+          claudeSessionId: claudeSessionId || 'null',
+          extractedSessionInfoId: extractedSessionInfo?.sessionId || 'null',
+          executionEngine,
+          projectPath,
+          promptPreview: prompt.substring(0, 50),
+        });
+
+        // 🔧 DIAGNOSTIC: 警告可能导致新会话的情况
+        if (isFirstPrompt && effectiveSession) {
+          logger.warn('usePromptExecution', `[usePromptExecution] ⚠️ POTENTIAL BUG: isFirstPrompt=true but effectiveSession exists! This will create a NEW session instead of continuing.`);
+        }
+        if (!isFirstPrompt && !effectiveSession) {
+          logger.warn('usePromptExecution', `[usePromptExecution] ⚠️ POTENTIAL BUG: isFirstPrompt=false but effectiveSession is null! Resume will fail.`);
+        }
+
         setIsLoading(true);
         setError(null);
         hasActiveSessionRef.current = true;
@@ -1597,9 +1617,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                       logger.error('usePromptExecution', "[Prompt Revert] Failed to mark completed:", err);
                     });
                 } else {
-                  console.warn(
-                    "[Prompt Revert] Cannot mark completed: missing sessionId or projectId",
-                  );
+                  logger.warn('usePromptExecution', 'Cannot mark completed: missing sessionId or projectId');
                 }
               }
 
@@ -1828,9 +1846,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                 // 🔧 FIX: 检测 thinking blocks 错误并提供友好提示
                 // 这是 Claude Code CLI 2.0.76 的已知 bug
                 if (isThinkingBlocksError(errorPayload)) {
-                  console.warn(
-                    "[usePromptExecution] Detected thinking blocks error (Claude Code CLI bug)",
-                  );
+                  logger.warn('usePromptExecution', 'Detected thinking blocks error (Claude Code CLI bug)');
                   const friendlyMessage =
                     "⚠️ 会话历史包含无法处理的 thinking 块（Claude Code CLI 已知问题）\n\n" +
                     "解决方案：\n" +
@@ -1892,10 +1908,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                 }
               }
             } catch (translationError) {
-              console.error(
-                "[usePromptExecution] Translation failed, using original prompt:",
-                translationError,
-              );
+              logger.error('usePromptExecution', 'Translation failed, using original prompt:', translationError);
               // Continue with original prompt if translation fails
             }
           }
@@ -1964,18 +1977,15 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
             };
 
             // 🔧 DEBUG: 在添加消息前打印日志
-            console.log("[usePromptExecution] Adding user message:", {
+            logger.debug('usePromptExecution', 'Adding user message:', {
               type: userMessage.type,
               content: userMessage.message?.content,
               sentAt: userMessage.sentAt,
-              prompt: prompt.substring(0, 50) + (prompt.length > 50 ? "..." : ""),
+              prompt: prompt.substring(0, 50) + (prompt.length > 50 ? '...' : ''),
             });
 
             setMessages((prev) => {
-              console.log(
-                "[usePromptExecution] setMessages called, current messages count:",
-                prev.length,
-              );
+              logger.debug('usePromptExecution', 'setMessages called, current messages count:', prev.length);
               return [...prev, userMessage];
             });
           }
@@ -2385,6 +2395,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
 
           if (effectiveSession && !isFirstPrompt) {
             // Resume existing session
+            logger.info('usePromptExecution', `[usePromptExecution] ▶️ RESUMING session: ${effectiveSession.id}`);
             try {
               await api.resumeClaudeCode(
                 projectPath,
@@ -2400,9 +2411,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
 
               // 🔧 FIX: 检测会话文件不存在错误，自动创建新会话
               if (isSessionNotFoundError(resumeError)) {
-                console.warn(
-                  "[usePromptExecution] Session file not found, falling back to NEW session",
-                );
+                logger.warn('usePromptExecution', "Session file not found, falling back to NEW session");
 
                 // 重置会话状态，强制创建新会话
                 setClaudeSessionId(null);
@@ -2557,6 +2566,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
             }
           } else {
             // Start new session
+            logger.info('usePromptExecution', `[usePromptExecution] 🆕 STARTING NEW session (isFirstPrompt=${isFirstPrompt}, effectiveSession=${!!effectiveSession})`);
             setIsFirstPrompt(false);
             await api.executeClaudeCode(
               projectPath,

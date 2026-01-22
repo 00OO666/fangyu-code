@@ -129,14 +129,8 @@ export const filterMCPServers = (
 
   const excluded = availableServers.filter((s) => !filtered.includes(s));
   if (excluded.length > 0) {
-    console.log(
-      `[MCPContextManager] Excluded ${excluded.length} servers:`,
-      excluded.join(", "),
-    );
-    console.log(
-      `[MCPContextManager] Included ${filtered.length} servers:`,
-      filtered.join(", "),
-    );
+    logger.debug('mcpContextManager', `Excluded ${excluded.length} servers: ${excluded.join(", ")}`);
+    logger.debug('mcpContextManager', `Included ${filtered.length} servers: ${filtered.join(", ")}`);
   }
 
   return filtered;

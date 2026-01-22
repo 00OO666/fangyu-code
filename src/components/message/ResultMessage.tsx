@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { Prism as SyntaxHighlighter } from "@/lib/lightSyntaxHighlighter";
 import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/contexts/ThemeContext";

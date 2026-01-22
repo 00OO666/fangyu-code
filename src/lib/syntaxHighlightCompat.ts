@@ -8,6 +8,8 @@
  * 以便在不支持的浏览器上优雅降级为纯文本显示。
  */
 
+import { logger } from '@/lib/logger';
+
 /**
  * 检测浏览器是否支持语法高亮所需的正则表达式特性
  *
@@ -35,10 +37,7 @@ export const checkSyntaxHighlightSupport = (() => {
 
       cachedResult = true;
     } catch {
-      console.warn(
-        "[SyntaxHighlight] Browser does not support required regex features. " +
-          "Falling back to plain text code blocks.",
-      );
+      logger.warn('syntaxHighlightCompat', 'Browser does not support required regex features. Falling back to plain text code blocks.');
       cachedResult = false;
     }
 

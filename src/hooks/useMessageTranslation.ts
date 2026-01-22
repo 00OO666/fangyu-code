@@ -94,7 +94,7 @@ function mergeMessageContent(
 
   // 🔍 DEBUG: 记录合并过程
   if (import.meta.env.DEV) {
-    console.log('[useMessageTranslation] 🔀 Merging messages:', {
+    logger.debug('useMessageTranslation', '🔀 Merging messages:', {
       existingId: (existing as any)?.message?.id || existing.uuid,
       existingHasText: existingHasRealText,
       incomingHasText: incomingHasRealText,
@@ -577,10 +577,7 @@ export function useMessageTranslation(
             onMessagesUpdate((prev) => [...prev, processedMessage]);
           }
         } catch (usageError) {
-          console.warn(
-            "[useMessageTranslation] Error normalizing usage data, adding message without usage:",
-            usageError,
-          );
+          logger.warn('useMessageTranslation', 'Error normalizing usage data, adding message without usage:', usageError);
           // Remove problematic usage data and add message anyway
           const safeMessage = { ...processedMessage };
           delete safeMessage.usage;
@@ -654,10 +651,7 @@ export function useMessageTranslation(
 
         setTranslationStates(initialStates);
       } catch (error) {
-        console.error(
-          "[useMessageTranslation] Failed to initialize progressive translation:",
-          error,
-        );
+        logger.error('useMessageTranslation', 'Failed to initialize progressive translation:', error);
       }
     },
     [handleTranslationComplete],

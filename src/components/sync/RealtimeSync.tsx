@@ -69,9 +69,7 @@ export const RealtimeSync: React.FC<RealtimeSyncProps> = ({
         onMessagesUpdate &&
         payload.messages.length > 0
       ) {
-        console.log(
-          `[RealtimeSync] Received ${payload.messages.length} new messages from remote window`
-        );
+        logger.debug('RealtimeSync', `Received ${payload.messages.length} new messages from remote window`);
         onMessagesUpdate(payload.messages);
       }
     },
@@ -83,10 +81,7 @@ export const RealtimeSync: React.FC<RealtimeSyncProps> = ({
     (payload: SessionStatusPayload) => {
       // 只处理当前会话的状态
       if (sessionId && payload.sessionId === sessionId) {
-        console.log(
-          `[RealtimeSync] Session status changed to: ${payload.status}`,
-          payload.error
-        );
+        logger.debug('RealtimeSync', `Session status changed to: ${payload.status}`, payload.error);
         // TODO: 根据状态更新 UI
       }
     },
@@ -147,9 +142,7 @@ export const RealtimeSync: React.FC<RealtimeSyncProps> = ({
       send('session:message', payload);
       lastSentCountRef.current = messages.length;
 
-      console.log(
-        `[RealtimeSync] Sent ${newMessages.length} new messages to remote windows`
-      );
+      logger.debug('RealtimeSync', `Sent ${newMessages.length} new messages to remote windows`);
     }
   }, [
     enabled,

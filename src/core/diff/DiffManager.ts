@@ -3,6 +3,8 @@
  * 管理代码差异的解析和应用
  */
 
+import { logger } from '@/lib/logger';
+
 export interface DiffChange {
   id: string;
   filePath: string;
@@ -82,7 +84,7 @@ export class DiffManager {
       if (change.status === 'accepted') {
         // In a real implementation, this would write to files
         // For now, we just mark as applied
-        console.log(`Applying change to ${change.filePath}`);
+        logger.debug('DiffManager', `Applying change to ${change.filePath}`);
       }
     }
   }

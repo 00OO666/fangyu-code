@@ -5,6 +5,7 @@
 
 import React, { useRef, useEffect, useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
+import { logger } from '@/lib/logger';
 
 interface TerminalProps {
   onCommand?: (command: string) => void;
@@ -32,7 +33,7 @@ export const Terminal: React.FC<TerminalProps> = ({
         const id = await invoke<number>('terminal_create_session');
         setSessionId(id);
       } catch (error) {
-        console.error('Failed to create terminal session:', error);
+        logger.error('Terminal', 'Failed to create terminal session:', error);
       }
     };
 
@@ -40,7 +41,7 @@ export const Terminal: React.FC<TerminalProps> = ({
 
     return () => {
       if (sessionId) {
-        invoke('terminal_close_session', { sessionId }).catch(console.error);
+        invoke('terminal_close_session', { sessionId }).catch((err) => logger.error('Terminal', err));
       }
     };
   }, []);
@@ -50,7 +51,8 @@ export const Terminal: React.FC<TerminalProps> = ({
     if (!input.trim()) return;
 
     const commandLine = `$ ${input}`;
-    setHistory([...history, commandLine]);
+    // 🔧 FIX: 使用函数式更新避免闭包问题
+    setHistory(prev => [...prev, commandLine]);
     onCommand?.(input);
 
     try {
@@ -75,9 +77,11 @@ export const Terminal: React.FC<TerminalProps> = ({
         outputLines.push(`Exit code: ${output.exit_code}`);
       }
 
-      setHistory([...history, commandLine, ...outputLines]);
+      // 🔧 FIX: 使用函数式更新避免覆盖之前的命令行
+      setHistory(prev => [...prev, ...outputLines]);
     } catch (error) {
-      setHistory([...history, commandLine, `Error: ${error}`]);
+      // 🔧 FIX: 使用函数式更新
+      setHistory(prev => [...prev, `Error: ${error}`]);
     }
 
     setInput('');

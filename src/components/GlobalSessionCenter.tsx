@@ -103,7 +103,7 @@ export const GlobalSessionCenter: React.FC<GlobalSessionCenterProps> = ({
   // 切换单个选择
   const toggleSelect = useCallback((session: Session) => {
     const key = getSessionKey(session);
-    console.log('[Select] Session:', {
+    logger.debug('GlobalSessionCenter', '[Select] Session:', {
       id: session.id,
       project_id: session.project_id,
       project_path: session.project_path,

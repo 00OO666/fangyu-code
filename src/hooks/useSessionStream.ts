@@ -365,10 +365,31 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
       if (deduplicatedMessages.length < processedMessages.length) {
         const removed = processedMessages.length - deduplicatedMessages.length;
         const rate = ((removed / processedMessages.length) * 100).toFixed(1);
-        logger.debug('useSessionStream', `[useSessionStream] 🧹 历史消息去重: 移除 ${removed} 条重复 (${rate}%);`);
+        logger.debug('useSessionStream', `[useSessionStream] 🧹 历史消息去重: 移除 ${removed} 条重复 (${rate}%)`);
       }
 
+      // 🔧 DIAGNOSTIC: 记录历史加载详情，帮助调试消息不显示问题
+      logger.info('useSessionStream', `[useSessionStream] 📊 DIAGNOSTIC - History loaded:`, {
+        sessionId: currentSessionId,
+        engine,
+        rawHistoryCount: history.length,
+        processedCount: processedMessages.length,
+        deduplicatedCount: deduplicatedMessages.length,
+        messageTypes: deduplicatedMessages.reduce((acc, msg) => {
+          acc[msg.type || 'unknown'] = (acc[msg.type || 'unknown'] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>),
+        firstMessagePreview: deduplicatedMessages[0] ? {
+          type: deduplicatedMessages[0].type,
+          hasContent: !!deduplicatedMessages[0].message?.content,
+          contentLength: Array.isArray(deduplicatedMessages[0].message?.content)
+            ? deduplicatedMessages[0].message?.content.length
+            : 'n/a'
+        } : 'no messages',
+      });
+
       // 更新状态
+      logger.info('useSessionStream', `[useSessionStream] 📤 Calling setMessages with ${deduplicatedMessages.length} messages`);
       setMessages(deduplicatedMessages);
       setRawJsonlOutput(history.map((h) => JSON.stringify(h)));
 
@@ -378,6 +399,7 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
       }
 
       setIsLoading(false);
+      logger.info('useSessionStream', `[useSessionStream] ✅ History load complete`);
     } catch (err) {
       logger.error('useSessionStream', "[useSessionStream] Failed to load session history:", err);
 
@@ -410,6 +432,7 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
     setRawJsonlOutput,
     setCodexRateLimits,
     onSessionNotFound,
+    initializeProcessedIds,  // 🔧 FIX: 添加缺失的依赖项
   ]);
 
   /**
@@ -467,7 +490,7 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
                     .filter((t: string) => t.length > 0)
                     .join(' | ');
 
-                  console.log('[useSessionStream] 📨 Received assistant message:', {
+                  logger.debug('useSessionStream', '📨 Received assistant message:', {
                     uuid: parsed.uuid,
                     messageId: parsed.message?.id,
                     hasText,
