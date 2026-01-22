@@ -9,13 +9,16 @@
  */
 
 import { logger } from '@/lib/logger';
-import React, { memo, useMemo, Suspense, lazy, useCallback, useState, useEffect } from "react";
+import React, { memo, useMemo, Suspense, lazy, useCallback, useState, useEffect, useRef, useDeferredValue } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/contexts/ThemeContext";
 import { copyTextToClipboard } from "@/lib/clipboard";
-import { Check, Copy, ChevronDown, ChevronUp } from "lucide-react";
+import Check from 'lucide-react/dist/esm/icons/check'
+import Copy from 'lucide-react/dist/esm/icons/copy'
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
+import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up';
 
 // 懒加载语法高亮组件
 const SyntaxHighlighter = lazy(() =>
@@ -209,6 +212,18 @@ const OptimizedMarkdownComponent: React.FC<OptimizedMarkdownProps> = ({
     const { theme } = useTheme();
     const isDark = theme === "dark";
 
+    // 🚀 性能优化: 流式输出时使用 deferred value 降低渲染优先级
+    const deferredContent = useDeferredValue(content);
+    // 当正在流式输出时，使用延迟内容；否则使用实时内容
+    const displayContent = isStreaming ? deferredContent : content;
+
+    // 内容缓存，用于增量渲染检测
+    const lastContentRef = useRef<string>("");
+
+    useEffect(() => {
+        lastContentRef.current = content;
+    }, [content]);
+
     // 缓存 Markdown 组件配置
     const components = useMemo(
         () => ({
@@ -395,7 +410,7 @@ const OptimizedMarkdownComponent: React.FC<OptimizedMarkdownProps> = ({
             )}
         >
             <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
-                {content}
+                {displayContent}
             </ReactMarkdown>
 
             {/* 流式输出光标 */}

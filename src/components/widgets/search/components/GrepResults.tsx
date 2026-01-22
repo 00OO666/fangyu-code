@@ -6,7 +6,11 @@
 
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { FileText, AlertCircle, Info, ChevronDown, ChevronRight } from "lucide-react";
+import FileText from 'lucide-react/dist/esm/icons/file-text'
+import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
+import Info from 'lucide-react/dist/esm/icons/info'
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
 import { cn } from "@/lib/utils";
 
 export interface GrepMatch {

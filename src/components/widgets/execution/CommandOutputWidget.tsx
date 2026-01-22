@@ -6,7 +6,8 @@
  */
 
 import React from "react";
-import { ChevronRight, CheckCircle2 } from "lucide-react";
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
+import CheckCircle2 from 'lucide-react/dist/esm/icons/check-circle-2';
 import { detectLinks, makeLinksClickable } from "@/lib/linkDetector";
 
 export interface CommandOutputWidgetProps {

@@ -6,7 +6,7 @@
  */
 
 import React, { useRef, useEffect, useState } from "react";
-import { Maximize2 } from "lucide-react";
+import Maximize2 from 'lucide-react/dist/esm/icons/maximize-2';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";

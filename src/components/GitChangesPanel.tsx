@@ -32,31 +32,29 @@ import {
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
-import {
-  GitCommit,
-  GitBranch,
-  History,
-  RotateCcw,
-  Clock,
-  FileText,
-  Check,
-  X,
-  Settings,
-  Play,
-  Pause,
-  Map,
-  ChevronDown,
-  ChevronRight,
-  Plus,
-  Minus,
-  Loader2,
-  AlertTriangle,
-  Undo2,
-  FilePlus,
-  FileX,
-  FileQuestion,
-  ArrowLeftRight,
-} from 'lucide-react';
+import GitCommit from 'lucide-react/dist/esm/icons/git-commit'
+import GitBranch from 'lucide-react/dist/esm/icons/git-branch'
+import History from 'lucide-react/dist/esm/icons/history'
+import RotateCcw from 'lucide-react/dist/esm/icons/rotate-ccw'
+import Clock from 'lucide-react/dist/esm/icons/clock'
+import FileText from 'lucide-react/dist/esm/icons/file-text'
+import Check from 'lucide-react/dist/esm/icons/check'
+import X from 'lucide-react/dist/esm/icons/x'
+import Settings from 'lucide-react/dist/esm/icons/settings'
+import Play from 'lucide-react/dist/esm/icons/play'
+import Pause from 'lucide-react/dist/esm/icons/pause'
+import Map from 'lucide-react/dist/esm/icons/map'
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
+import Plus from 'lucide-react/dist/esm/icons/plus'
+import Minus from 'lucide-react/dist/esm/icons/minus'
+import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle'
+import Undo2 from 'lucide-react/dist/esm/icons/undo-2'
+import FilePlus from 'lucide-react/dist/esm/icons/file-plus'
+import FileX from 'lucide-react/dist/esm/icons/file-x'
+import FileQuestion from 'lucide-react/dist/esm/icons/file-question'
+import ArrowLeftRight from 'lucide-react/dist/esm/icons/arrow-left-right';
 
 // ============================================================
 // 类型定义

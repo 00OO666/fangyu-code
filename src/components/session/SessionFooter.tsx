@@ -1,7 +1,12 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronUp, ChevronDown, X, AlertTriangle, Loader2, FileText } from 'lucide-react';
+import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up'
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
+import X from 'lucide-react/dist/esm/icons/x'
+import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle'
+import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import FileText from 'lucide-react/dist/esm/icons/file-text';
 import { Button } from '@/components/ui/button';
 import { FloatingPromptInput, type FloatingPromptInputRef, type ModelType } from '../FloatingPromptInput';
 import { ErrorBoundary } from '../ErrorBoundary';

@@ -6,7 +6,11 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, XCircle, Info, AlertTriangle, X } from 'lucide-react';
+import CheckCircle2 from 'lucide-react/dist/esm/icons/check-circle-2'
+import XCircle from 'lucide-react/dist/esm/icons/x-circle'
+import Info from 'lucide-react/dist/esm/icons/info'
+import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle'
+import X from 'lucide-react/dist/esm/icons/x';
 import { cn } from '@/lib/utils';
 import { Notification, NotificationType } from '@/types/notification';
 import { notificationService } from '@/services/notificationService';

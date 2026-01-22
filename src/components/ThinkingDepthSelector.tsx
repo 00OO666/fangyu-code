@@ -26,20 +26,18 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
-import {
-  Brain,
-  Zap,
-  Sparkles,
-  Loader2,
-  Clock,
-  BarChart2,
-  ChevronDown,
-  X,
-  Check,
-  Info,
-  Settings,
-  History,
-} from 'lucide-react';
+import Brain from 'lucide-react/dist/esm/icons/brain'
+import Zap from 'lucide-react/dist/esm/icons/zap'
+import Sparkles from 'lucide-react/dist/esm/icons/sparkles'
+import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import Clock from 'lucide-react/dist/esm/icons/clock'
+import BarChart2 from 'lucide-react/dist/esm/icons/bar-chart--2'
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
+import X from 'lucide-react/dist/esm/icons/x'
+import Check from 'lucide-react/dist/esm/icons/check'
+import Info from 'lucide-react/dist/esm/icons/info'
+import Settings from 'lucide-react/dist/esm/icons/settings'
+import History from 'lucide-react/dist/esm/icons/history';
 
 // ============================================================
 // 组件

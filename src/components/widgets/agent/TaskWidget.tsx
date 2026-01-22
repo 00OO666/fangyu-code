@@ -6,7 +6,10 @@
  */
 
 import React, { useState } from "react";
-import { Bot, Sparkles, Zap, ChevronRight } from "lucide-react";
+import Bot from 'lucide-react/dist/esm/icons/bot'
+import Sparkles from 'lucide-react/dist/esm/icons/sparkles'
+import Zap from 'lucide-react/dist/esm/icons/zap'
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
 import { cn } from "@/lib/utils";
 
 export interface TaskWidgetProps {

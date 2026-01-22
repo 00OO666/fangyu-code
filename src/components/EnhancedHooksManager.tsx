@@ -1,19 +1,17 @@
 import { logger } from '@/lib/logger';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  ArrowLeft,
-  Play,
-  Settings,
-  Zap,
-  Clock,
-  CheckCircle,
-  XCircle,
-  Save,
-  Info,
-  Terminal,
-  Layers
-} from 'lucide-react';
+import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left'
+import Play from 'lucide-react/dist/esm/icons/play'
+import Settings from 'lucide-react/dist/esm/icons/settings'
+import Zap from 'lucide-react/dist/esm/icons/zap'
+import Clock from 'lucide-react/dist/esm/icons/clock'
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
+import XCircle from 'lucide-react/dist/esm/icons/x-circle'
+import Save from 'lucide-react/dist/esm/icons/save'
+import Info from 'lucide-react/dist/esm/icons/info'
+import Terminal from 'lucide-react/dist/esm/icons/terminal'
+import Layers from 'lucide-react/dist/esm/icons/layers';
 import { api } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';

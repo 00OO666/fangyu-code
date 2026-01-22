@@ -1,5 +1,10 @@
 import React, { useState } from "react";
-import { Info, Terminal, AlertCircle, Command, ChevronDown, ChevronUp } from "lucide-react";
+import Info from 'lucide-react/dist/esm/icons/info'
+import Terminal from 'lucide-react/dist/esm/icons/terminal'
+import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
+import Command from 'lucide-react/dist/esm/icons/command'
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
+import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up';
 import { cn } from "@/lib/utils";
 import { toolRegistry } from "@/lib/toolRegistry";
 import type { ClaudeStreamMessage } from "@/types/claude";

@@ -3,7 +3,9 @@
  * 显示测试成功的模型列表，支持点击选择默认模型
  */
 
-import { CheckCircle, AlertTriangle, Zap } from 'lucide-react';
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
+import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle'
+import Zap from 'lucide-react/dist/esm/icons/zap';
 import { cn } from '../../lib/utils';
 
 export interface TestedModel {

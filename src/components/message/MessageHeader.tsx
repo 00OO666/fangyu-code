@@ -1,5 +1,7 @@
 import React from "react";
-import { User, Bot, Clock } from "lucide-react";
+import User from 'lucide-react/dist/esm/icons/user'
+import Bot from 'lucide-react/dist/esm/icons/bot'
+import Clock from 'lucide-react/dist/esm/icons/clock';
 import { cn } from "@/lib/utils";
 import { formatTimestamp } from "@/lib/messageUtils";
 

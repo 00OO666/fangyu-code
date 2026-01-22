@@ -6,7 +6,10 @@
  */
 
 import React from "react";
-import { CheckCircle2, Clock, Circle, FileEdit } from "lucide-react";
+import CheckCircle2 from 'lucide-react/dist/esm/icons/check-circle-2'
+import Clock from 'lucide-react/dist/esm/icons/clock'
+import Circle from 'lucide-react/dist/esm/icons/circle'
+import FileEdit from 'lucide-react/dist/esm/icons/file-edit';
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useToolTranslation } from "../common/useToolTranslation";

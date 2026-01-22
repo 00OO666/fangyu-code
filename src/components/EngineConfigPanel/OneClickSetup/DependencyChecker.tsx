@@ -4,14 +4,12 @@
  */
 
 import { useState, useCallback, useEffect } from 'react';
-import {
-    CheckCircle,
-    XCircle,
-    Loader2,
-    ExternalLink,
-    RefreshCw,
-    AlertTriangle,
-} from 'lucide-react';
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
+import XCircle from 'lucide-react/dist/esm/icons/x-circle'
+import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import ExternalLink from 'lucide-react/dist/esm/icons/external-link'
+import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
+import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle';
 import { invoke } from '@tauri-apps/api/core';
 import { open } from '@tauri-apps/plugin-shell';
 import type { EngineType } from '../../../types/provider';

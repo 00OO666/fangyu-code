@@ -7,7 +7,12 @@
  */
 
 import React, { memo, useState, useMemo, useRef, useEffect } from 'react';
-import { ChevronDown, ChevronRight, Wrench, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
+import Wrench from 'lucide-react/dist/esm/icons/wrench'
+import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
+import Loader2 from 'lucide-react/dist/esm/icons/loader--2';
 import { cn } from '@/lib/utils';
 import { toolRegistry } from '@/lib/toolRegistry';
 import { useToolResults } from '@/hooks/useToolResults';

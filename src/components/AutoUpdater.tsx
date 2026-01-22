@@ -10,7 +10,11 @@
 import { logger } from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
-import { RefreshCw, Download, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
+import Download from 'lucide-react/dist/esm/icons/download'
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
+import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
+import Loader2 from 'lucide-react/dist/esm/icons/loader--2';
 
 interface VersionInfo {
   current_version: string;

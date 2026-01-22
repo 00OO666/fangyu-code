@@ -1,7 +1,17 @@
 import { logger } from '@/lib/logger';
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { X, Plus, MoreHorizontal, MessageSquare, ArrowLeft, ExternalLink, Zap, Bot, Sparkles, Loader2, Search } from 'lucide-react';
+import X from 'lucide-react/dist/esm/icons/x'
+import Plus from 'lucide-react/dist/esm/icons/plus'
+import MoreHorizontal from 'lucide-react/dist/esm/icons/more-horizontal'
+import MessageSquare from 'lucide-react/dist/esm/icons/message-square'
+import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left'
+import ExternalLink from 'lucide-react/dist/esm/icons/external-link'
+import Zap from 'lucide-react/dist/esm/icons/zap'
+import Bot from 'lucide-react/dist/esm/icons/bot'
+import Sparkles from 'lucide-react/dist/esm/icons/sparkles'
+import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import Search from 'lucide-react/dist/esm/icons/search';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import {

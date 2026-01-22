@@ -1,13 +1,11 @@
 import { logger } from '@/lib/logger';
 import React from 'react';
 import { motion } from 'framer-motion';
-import { 
-  AlertCircle, 
-  RefreshCw, 
-  ExternalLink,
-  X,
-  AlertTriangle
-} from 'lucide-react';
+import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
+import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
+import ExternalLink from 'lucide-react/dist/esm/icons/external-link'
+import X from 'lucide-react/dist/esm/icons/x'
+import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';

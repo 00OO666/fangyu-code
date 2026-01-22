@@ -6,16 +6,14 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { invoke } from '@tauri-apps/api/core';
-import { 
-  Cloud, 
-  RefreshCw, 
-  CheckCircle, 
-  XCircle, 
-  AlertCircle,
-  Clock,
-  User,
-  Info,
-} from 'lucide-react';
+import Cloud from 'lucide-react/dist/esm/icons/cloud'
+import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
+import XCircle from 'lucide-react/dist/esm/icons/x-circle'
+import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
+import Clock from 'lucide-react/dist/esm/icons/clock'
+import User from 'lucide-react/dist/esm/icons/user'
+import Info from 'lucide-react/dist/esm/icons/info';
 import { cn } from '../../lib/utils';
 import { KIRO_MODELS, DEFAULT_KIRO_TOKEN_PATH } from '../../services/kiro/types';
 import type { KiroTokenStatus } from '../../services/kiro/types';

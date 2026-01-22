@@ -11,15 +11,13 @@
 import { logger } from '@/lib/logger';
 import React, { memo, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-    ChevronRight,
-    Loader2,
-    CheckCircle,
-    AlertCircle,
-    Clock,
-    Copy,
-    Check,
-} from 'lucide-react';
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
+import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
+import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
+import Clock from 'lucide-react/dist/esm/icons/clock'
+import Copy from 'lucide-react/dist/esm/icons/copy'
+import Check from 'lucide-react/dist/esm/icons/check';
 import { cn } from '@/lib/utils';
 
 export type ToolCallStatus = 'pending' | 'running' | 'success' | 'error';

@@ -1,6 +1,8 @@
 import { logger } from '@/lib/logger';
 import { useState, useEffect } from "react";
-import { Info, ExternalLink, Sparkles } from "lucide-react";
+import Info from 'lucide-react/dist/esm/icons/info'
+import ExternalLink from 'lucide-react/dist/esm/icons/external-link'
+import Sparkles from 'lucide-react/dist/esm/icons/sparkles';
 import { open as openUrl } from "@tauri-apps/plugin-shell";
 import { getVersion } from "@tauri-apps/api/app";
 import {

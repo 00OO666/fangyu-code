@@ -8,7 +8,12 @@
  */
 
 import React, { useState } from 'react';
-import { Cpu, ChevronDown, ChevronRight, CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import Cpu from 'lucide-react/dist/esm/icons/cpu'
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
+import XCircle from 'lucide-react/dist/esm/icons/x-circle'
+import Loader2 from 'lucide-react/dist/esm/icons/loader--2';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

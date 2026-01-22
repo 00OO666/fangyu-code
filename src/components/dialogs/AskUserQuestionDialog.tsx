@@ -8,7 +8,11 @@
  */
 
 import { useState, useMemo } from "react";
-import { HelpCircle, Send, XCircle, CheckCircle, Check } from "lucide-react";
+import HelpCircle from 'lucide-react/dist/esm/icons/help-circle'
+import Send from 'lucide-react/dist/esm/icons/send'
+import XCircle from 'lucide-react/dist/esm/icons/x-circle'
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
+import Check from 'lucide-react/dist/esm/icons/check';
 import {
   Dialog,
   DialogContent,

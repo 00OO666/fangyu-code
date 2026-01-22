@@ -4,7 +4,10 @@
 
 import { logger } from '@/lib/logger';
 import React, { useState, useCallback } from 'react';
-import { Eye, EyeOff, Clipboard, Check } from 'lucide-react';
+import Eye from 'lucide-react/dist/esm/icons/eye'
+import EyeOff from 'lucide-react/dist/esm/icons/eye-off'
+import Clipboard from 'lucide-react/dist/esm/icons/clipboard'
+import Check from 'lucide-react/dist/esm/icons/check';
 import { maskApiKey } from '../../services/cryptoService';
 import { cn } from '../../lib/utils';
 

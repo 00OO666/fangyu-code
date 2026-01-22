@@ -1,5 +1,11 @@
 import React from "react";
-import { ChevronUp, Check, Star, Sparkles, Brain, FlaskConical, Gauge } from "lucide-react";
+import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up'
+import Check from 'lucide-react/dist/esm/icons/check'
+import Star from 'lucide-react/dist/esm/icons/star'
+import Sparkles from 'lucide-react/dist/esm/icons/sparkles'
+import Brain from 'lucide-react/dist/esm/icons/brain'
+import FlaskConical from 'lucide-react/dist/esm/icons/flask-conical'
+import Gauge from 'lucide-react/dist/esm/icons/gauge';
 import { Button } from "@/components/ui/button";
 import { Popover } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";

@@ -8,7 +8,9 @@
 
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Search, ChevronDown, ChevronUp } from "lucide-react";
+import Search from 'lucide-react/dist/esm/icons/search'
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
+import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up';
 import { cn } from "@/lib/utils";
 
 /** 自动折叠的高度阈值 (px) */

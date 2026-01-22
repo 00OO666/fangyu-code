@@ -19,7 +19,17 @@ import {
   CollapsibleContent,
   CollapsibleTrigger
 } from '@/components/ui/collapsible';
-import { X, User, Bot, Wrench, Clock, CheckCircle, XCircle, RefreshCw, ChevronDown, ChevronRight, Cpu } from 'lucide-react';
+import X from 'lucide-react/dist/esm/icons/x'
+import User from 'lucide-react/dist/esm/icons/user'
+import Bot from 'lucide-react/dist/esm/icons/bot'
+import Wrench from 'lucide-react/dist/esm/icons/wrench'
+import Clock from 'lucide-react/dist/esm/icons/clock'
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
+import XCircle from 'lucide-react/dist/esm/icons/x-circle'
+import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
+import Cpu from 'lucide-react/dist/esm/icons/cpu';
 import ReactMarkdown from 'react-markdown';
 
 interface GeminiSessionDetailViewerProps {

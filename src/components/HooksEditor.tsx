@@ -5,23 +5,21 @@
 import { logger } from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Plus, 
-  Trash2, 
-  AlertTriangle, 
-  Code2,
-  Terminal,
-  FileText,
-  ChevronRight,
-  ChevronDown,
-  Clock,
-  Zap,
-  Shield,
-  PlayCircle,
-  Info,
-  Save,
-  Loader2
-} from 'lucide-react';
+import Plus from 'lucide-react/dist/esm/icons/plus'
+import Trash2 from 'lucide-react/dist/esm/icons/trash-2'
+import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle'
+import Code2 from 'lucide-react/dist/esm/icons/code-2'
+import Terminal from 'lucide-react/dist/esm/icons/terminal'
+import FileText from 'lucide-react/dist/esm/icons/file-text'
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
+import Clock from 'lucide-react/dist/esm/icons/clock'
+import Zap from 'lucide-react/dist/esm/icons/zap'
+import Shield from 'lucide-react/dist/esm/icons/shield'
+import PlayCircle from 'lucide-react/dist/esm/icons/play-circle'
+import Info from 'lucide-react/dist/esm/icons/info'
+import Save from 'lucide-react/dist/esm/icons/save'
+import Loader2 from 'lucide-react/dist/esm/icons/loader--2';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';

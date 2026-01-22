@@ -4,7 +4,14 @@
  */
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Bot, FileText, Activity, Puzzle, Settings2, Play, Pause } from 'lucide-react';
+import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left'
+import Bot from 'lucide-react/dist/esm/icons/bot'
+import FileText from 'lucide-react/dist/esm/icons/file-text'
+import Activity from 'lucide-react/dist/esm/icons/activity'
+import Puzzle from 'lucide-react/dist/esm/icons/puzzle'
+import Settings2 from 'lucide-react/dist/esm/icons/settings-2'
+import Play from 'lucide-react/dist/esm/icons/play'
+import Pause from 'lucide-react/dist/esm/icons/pause';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';

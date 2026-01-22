@@ -1,17 +1,15 @@
 import { logger } from '@/lib/logger';
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Network,
-  Globe,
-  Terminal,
-  Trash2,
-  Loader2,
-  RefreshCw,
-  ChevronDown,
-  ChevronUp,
-  Copy
-} from "lucide-react";
+import Network from 'lucide-react/dist/esm/icons/network'
+import Globe from 'lucide-react/dist/esm/icons/globe'
+import Terminal from 'lucide-react/dist/esm/icons/terminal'
+import Trash2 from 'lucide-react/dist/esm/icons/trash-2'
+import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
+import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up'
+import Copy from 'lucide-react/dist/esm/icons/copy';
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { api, type McpServer } from "@/lib/api";

@@ -7,7 +7,11 @@
 
 import { logger } from '@/lib/logger';
 import React, { useState } from "react";
-import { Globe, FileText, ChevronRight, Info, AlertCircle } from "lucide-react";
+import Globe from 'lucide-react/dist/esm/icons/globe'
+import FileText from 'lucide-react/dist/esm/icons/file-text'
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
+import Info from 'lucide-react/dist/esm/icons/info'
+import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
 import { open } from "@tauri-apps/plugin-shell";
 import { cn } from "@/lib/utils";
 

@@ -13,18 +13,16 @@
 import { logger } from '@/lib/logger';
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Search,
-  Zap,
-  Network,
-  Puzzle,
-  Webhook,
-  ChevronRight,
-  Settings,
-  Play,
-  X,
-  Filter,
-} from 'lucide-react';
+import Search from 'lucide-react/dist/esm/icons/search'
+import Zap from 'lucide-react/dist/esm/icons/zap'
+import Network from 'lucide-react/dist/esm/icons/network'
+import Puzzle from 'lucide-react/dist/esm/icons/puzzle'
+import Webhook from 'lucide-react/dist/esm/icons/webhook'
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
+import Settings from 'lucide-react/dist/esm/icons/settings'
+import Play from 'lucide-react/dist/esm/icons/play'
+import X from 'lucide-react/dist/esm/icons/x'
+import Filter from 'lucide-react/dist/esm/icons/filter';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';

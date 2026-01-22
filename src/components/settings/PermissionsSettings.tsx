@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Plus, Trash2 } from "lucide-react";
+import Plus from 'lucide-react/dist/esm/icons/plus'
+import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

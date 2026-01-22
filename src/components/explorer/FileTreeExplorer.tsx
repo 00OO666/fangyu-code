@@ -14,34 +14,32 @@
 
 import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Folder,
-  FolderOpen,
-  File,
-  FileCode,
-  FileText,
-  FileJson,
-  FileImage,
-  FileCog,
-  ChevronRight,
-  ChevronDown,
-  Search,
-  RefreshCw,
-  FolderPlus,
-  FilePlus,
-  Trash2,
-  Copy,
-  Scissors,
-  ClipboardPaste,
-  Edit2,
-  ExternalLink,
-  MoreVertical,
-  X,
-  FolderTree,
-  Eye,
-  EyeOff,
-  Filter
-} from 'lucide-react';
+import Folder from 'lucide-react/dist/esm/icons/folder'
+import FolderOpen from 'lucide-react/dist/esm/icons/folder-open'
+import File from 'lucide-react/dist/esm/icons/file'
+import FileCode from 'lucide-react/dist/esm/icons/file-code'
+import FileText from 'lucide-react/dist/esm/icons/file-text'
+import FileJson from 'lucide-react/dist/esm/icons/file-json'
+import FileImage from 'lucide-react/dist/esm/icons/file-image'
+import FileCog from 'lucide-react/dist/esm/icons/file-cog'
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
+import Search from 'lucide-react/dist/esm/icons/search'
+import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
+import FolderPlus from 'lucide-react/dist/esm/icons/folder-plus'
+import FilePlus from 'lucide-react/dist/esm/icons/file-plus'
+import Trash2 from 'lucide-react/dist/esm/icons/trash-2'
+import Copy from 'lucide-react/dist/esm/icons/copy'
+import Scissors from 'lucide-react/dist/esm/icons/scissors'
+import ClipboardPaste from 'lucide-react/dist/esm/icons/clipboard-paste'
+import Edit2 from 'lucide-react/dist/esm/icons/edit-2'
+import ExternalLink from 'lucide-react/dist/esm/icons/external-link'
+import MoreVertical from 'lucide-react/dist/esm/icons/more-vertical'
+import X from 'lucide-react/dist/esm/icons/x'
+import FolderTree from 'lucide-react/dist/esm/icons/folder-tree'
+import Eye from 'lucide-react/dist/esm/icons/eye'
+import EyeOff from 'lucide-react/dist/esm/icons/eye-off'
+import Filter from 'lucide-react/dist/esm/icons/filter';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';

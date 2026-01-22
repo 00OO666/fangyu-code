@@ -1,5 +1,10 @@
 import React from "react";
-import { ChevronUp, Check, Star, Brain, Cpu, Rocket } from "lucide-react";
+import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up'
+import Check from 'lucide-react/dist/esm/icons/check'
+import Star from 'lucide-react/dist/esm/icons/star'
+import Brain from 'lucide-react/dist/esm/icons/brain'
+import Cpu from 'lucide-react/dist/esm/icons/cpu'
+import Rocket from 'lucide-react/dist/esm/icons/rocket';
 import { Button } from "@/components/ui/button";
 import { Popover } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";

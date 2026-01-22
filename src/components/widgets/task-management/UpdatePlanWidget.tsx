@@ -14,13 +14,11 @@
  */
 
 import React, { useState } from "react";
-import {
-  ClipboardList,
-  CheckCircle2,
-  Circle,
-  ChevronDown,
-  ChevronUp,
-} from "lucide-react";
+import ClipboardList from 'lucide-react/dist/esm/icons/clipboard-list'
+import CheckCircle2 from 'lucide-react/dist/esm/icons/check-circle-2'
+import Circle from 'lucide-react/dist/esm/icons/circle'
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
+import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up';
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 

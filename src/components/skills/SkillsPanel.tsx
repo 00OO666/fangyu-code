@@ -5,17 +5,15 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { 
-  Sparkles, 
-  Search, 
-  RefreshCw, 
-  ChevronRight,
-  Workflow,
-  ListTodo,
-  BookOpen,
-  Tag,
-  Zap
-} from 'lucide-react';
+import Sparkles from 'lucide-react/dist/esm/icons/sparkles'
+import Search from 'lucide-react/dist/esm/icons/search'
+import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
+import Workflow from 'lucide-react/dist/esm/icons/workflow'
+import ListTodo from 'lucide-react/dist/esm/icons/list-todo'
+import BookOpen from 'lucide-react/dist/esm/icons/book-open'
+import Tag from 'lucide-react/dist/esm/icons/tag'
+import Zap from 'lucide-react/dist/esm/icons/zap';
 import { useSkills } from '../../hooks/useSkills';
 import type { Skill, SkillMode } from '../../core/skills';
 

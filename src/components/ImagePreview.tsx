@@ -1,6 +1,7 @@
 import { logger } from '@/lib/logger';
 import React, { useState } from "react";
-import { X, Maximize2 } from "lucide-react";
+import X from 'lucide-react/dist/esm/icons/x'
+import Maximize2 from 'lucide-react/dist/esm/icons/maximize-2';
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";

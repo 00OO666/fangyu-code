@@ -7,7 +7,12 @@
 
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Search, FolderOpen, FilePlus, X, ChevronUp, ChevronDown } from "lucide-react";
+import Search from 'lucide-react/dist/esm/icons/search'
+import FolderOpen from 'lucide-react/dist/esm/icons/folder-open'
+import FilePlus from 'lucide-react/dist/esm/icons/file-plus'
+import X from 'lucide-react/dist/esm/icons/x'
+import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up'
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
 import { GrepResults } from "./components/GrepResults";
 
 export interface GrepWidgetProps {

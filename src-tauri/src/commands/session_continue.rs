@@ -107,7 +107,23 @@ fn get_session_storage_path(app: &AppHandle) -> Option<PathBuf> {
         |row| row.get(0),
     );
 
-    result.ok().map(PathBuf::from)
+    // 规范化路径：确保路径格式正确
+    result.ok().and_then(|path_str| {
+        if path_str.is_empty() {
+            None
+        } else {
+            let normalized = PathBuf::from(&path_str);
+            // 验证路径是否有效
+            if normalized.to_string_lossy().contains("\\\\\\\\") {
+                log::warn!("[session_continue] Detected malformed path with repeated backslashes: {}", path_str);
+                // 尝试修复路径
+                let fixed_path = path_str.replace("\\\\\\\\", "\\");
+                Some(PathBuf::from(fixed_path))
+            } else {
+                Some(normalized)
+            }
+        }
+    })
 }
 
 /// 设置会话存储路径
@@ -128,13 +144,22 @@ pub async fn set_session_storage_path(app: AppHandle, path: String) -> Result<()
     )
     .map_err(|e| format!("Failed to create table: {}", e))?;
 
+    // 规范化路径：移除重复的反斜杠和多余的分隔符
+    let normalized_path = if path.is_empty() {
+        String::new()
+    } else {
+        PathBuf::from(&path)
+            .to_string_lossy()
+            .to_string()
+    };
+
     conn.execute(
         "INSERT OR REPLACE INTO app_settings (key, value) VALUES (?1, ?2)",
-        rusqlite::params!["session_storage_path", path],
+        rusqlite::params!["session_storage_path", normalized_path],
     )
     .map_err(|e| format!("Failed to save setting: {}", e))?;
 
-    log::info!("[session_continue] Session storage path set to: {}", path);
+    log::info!("[session_continue] Session storage path set to: {}", normalized_path);
     Ok(())
 }
 

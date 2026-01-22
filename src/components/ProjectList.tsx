@@ -1,16 +1,14 @@
 import { logger } from '@/lib/logger';
 import React, { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  FolderOpen,
-  FileText,
-  Settings,
-  MoreVertical,
-  Trash2,
-  Archive,
-  LayoutGrid,
-  List
-} from "lucide-react";
+import FolderOpen from 'lucide-react/dist/esm/icons/folder-open'
+import FileText from 'lucide-react/dist/esm/icons/file-text'
+import Settings from 'lucide-react/dist/esm/icons/settings'
+import MoreVertical from 'lucide-react/dist/esm/icons/more-vertical'
+import Trash2 from 'lucide-react/dist/esm/icons/trash-2'
+import Archive from 'lucide-react/dist/esm/icons/archive'
+import LayoutGrid from 'lucide-react/dist/esm/icons/layout-grid'
+import List from 'lucide-react/dist/esm/icons/list';
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
 import type { CodexSession } from "@/types/codex";

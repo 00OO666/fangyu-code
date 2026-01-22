@@ -2,15 +2,13 @@ import { logger } from '@/lib/logger';
 import React, { useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { motion } from "framer-motion";
-import {
-  Activity,
-  CheckCircle2,
-  AlertTriangle,
-  XCircle,
-  Wrench,
-  RefreshCw,
-  Info,
-} from "lucide-react";
+import Activity from 'lucide-react/dist/esm/icons/activity'
+import CheckCircle2 from 'lucide-react/dist/esm/icons/check-circle-2'
+import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle'
+import XCircle from 'lucide-react/dist/esm/icons/x-circle'
+import Wrench from 'lucide-react/dist/esm/icons/wrench'
+import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
+import Info from 'lucide-react/dist/esm/icons/info';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";

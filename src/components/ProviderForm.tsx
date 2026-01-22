@@ -5,14 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Save,
-  X,
-  Eye,
-  EyeOff,
-  Info,
-  Loader2
-} from 'lucide-react';
+import Save from 'lucide-react/dist/esm/icons/save'
+import X from 'lucide-react/dist/esm/icons/x'
+import Eye from 'lucide-react/dist/esm/icons/eye'
+import EyeOff from 'lucide-react/dist/esm/icons/eye-off'
+import Info from 'lucide-react/dist/esm/icons/info'
+import Loader2 from 'lucide-react/dist/esm/icons/loader--2';
 import { type ProviderConfig } from '@/lib/api';
 import { Toast } from '@/components/ui/toast';
 import { cn } from '@/lib/utils';
