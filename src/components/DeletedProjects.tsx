@@ -1,14 +1,12 @@
 import { logger } from '@/lib/logger';
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Trash2, 
-  RotateCcw, 
-  FolderOpen, 
-  AlertTriangle,
-  Archive,
-  CheckCircle2
-} from "lucide-react";
+import Trash2 from 'lucide-react/dist/esm/icons/trash-2'
+import RotateCcw from 'lucide-react/dist/esm/icons/rotate-ccw'
+import FolderOpen from 'lucide-react/dist/esm/icons/folder-open'
+import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle'
+import Archive from 'lucide-react/dist/esm/icons/archive'
+import CheckCircle2 from 'lucide-react/dist/esm/icons/check-circle-2';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {

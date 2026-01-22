@@ -9,10 +9,18 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import {
-    Settings, Check, ExternalLink, AlertCircle, Eye, EyeOff, Loader2,
-    TestTube, CheckCircle2, XCircle, Clock, Zap
-} from 'lucide-react';
+import Settings from 'lucide-react/dist/esm/icons/settings'
+import Check from 'lucide-react/dist/esm/icons/check'
+import ExternalLink from 'lucide-react/dist/esm/icons/external-link'
+import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
+import Eye from 'lucide-react/dist/esm/icons/eye'
+import EyeOff from 'lucide-react/dist/esm/icons/eye-off'
+import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import TestTube from 'lucide-react/dist/esm/icons/test-tube'
+import CheckCircle2 from 'lucide-react/dist/esm/icons/check-circle-2'
+import XCircle from 'lucide-react/dist/esm/icons/x-circle'
+import Clock from 'lucide-react/dist/esm/icons/clock'
+import Zap from 'lucide-react/dist/esm/icons/zap';
 import {
     Dialog,
     DialogContent,

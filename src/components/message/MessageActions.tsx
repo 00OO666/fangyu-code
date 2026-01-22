@@ -1,7 +1,11 @@
 import { logger } from '@/lib/logger';
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Copy, Check, RefreshCw, Edit2, AlertCircle } from "lucide-react";
+import Copy from 'lucide-react/dist/esm/icons/copy'
+import Check from 'lucide-react/dist/esm/icons/check'
+import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
+import Edit2 from 'lucide-react/dist/esm/icons/edit-2'
+import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,

@@ -9,7 +9,9 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { X, Maximize2, Minimize2 } from 'lucide-react';
+import X from 'lucide-react/dist/esm/icons/x'
+import Maximize2 from 'lucide-react/dist/esm/icons/maximize-2'
+import Minimize2 from 'lucide-react/dist/esm/icons/minimize-2';
 import { Button } from '@/components/ui/button';
 import { CanvasPanel } from './CanvasPanel';
 

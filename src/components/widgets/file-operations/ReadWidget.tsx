@@ -7,7 +7,8 @@
 
 import React from "react";
 import { ReadResultWidget } from './ReadResultWidget';
-import { Loader2, FileText } from "lucide-react";
+import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import FileText from 'lucide-react/dist/esm/icons/file-text';
 
 export interface ReadWidgetProps {
   /** 文件路径 */

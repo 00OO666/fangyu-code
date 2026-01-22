@@ -9,7 +9,16 @@
 
 import { logger } from '@/lib/logger';
 import React, { useState, useCallback, useMemo } from "react";
-import { Clock, Plus, Search, Loader2, FileText, Trash2, CheckSquare, Square, X, AlertTriangle } from "lucide-react";
+import Clock from 'lucide-react/dist/esm/icons/clock'
+import Plus from 'lucide-react/dist/esm/icons/plus'
+import Search from 'lucide-react/dist/esm/icons/search'
+import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import FileText from 'lucide-react/dist/esm/icons/file-text'
+import Trash2 from 'lucide-react/dist/esm/icons/trash-2'
+import CheckSquare from 'lucide-react/dist/esm/icons/check-square'
+import Square from 'lucide-react/dist/esm/icons/square'
+import X from 'lucide-react/dist/esm/icons/x'
+import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";

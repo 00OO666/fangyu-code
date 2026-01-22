@@ -18,10 +18,15 @@
  */
 
 import React, { useState, useCallback } from 'react';
-import {
-    Settings, Check, Monitor, Terminal, ChevronRight,
-    ExternalLink, AlertCircle, ChevronDown, Loader2
-} from 'lucide-react';
+import Settings from 'lucide-react/dist/esm/icons/settings'
+import Check from 'lucide-react/dist/esm/icons/check'
+import Monitor from 'lucide-react/dist/esm/icons/monitor'
+import Terminal from 'lucide-react/dist/esm/icons/terminal'
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
+import ExternalLink from 'lucide-react/dist/esm/icons/external-link'
+import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
+import Loader2 from 'lucide-react/dist/esm/icons/loader--2';
 import { Button } from '@/components/ui/button';
 import {
     Select,

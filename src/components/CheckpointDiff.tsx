@@ -9,16 +9,14 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  FileDiff,
-  ChevronDown,
-  ChevronRight,
-  Plus,
-  Minus,
-  FileEdit,
-  File,
-  Loader2,
-} from 'lucide-react';
+import FileDiff from 'lucide-react/dist/esm/icons/file-diff'
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
+import Plus from 'lucide-react/dist/esm/icons/plus'
+import Minus from 'lucide-react/dist/esm/icons/minus'
+import FileEdit from 'lucide-react/dist/esm/icons/file-edit'
+import File from 'lucide-react/dist/esm/icons/file'
+import Loader2 from 'lucide-react/dist/esm/icons/loader--2';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { Button } from '@/components/ui/button';

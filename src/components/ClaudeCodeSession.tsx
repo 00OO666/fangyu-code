@@ -1,16 +1,14 @@
 import { logger } from '@/lib/logger';
-import React, { useState, useEffect, useRef, useMemo, useCallback, lazy, Suspense } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback, lazy, Suspense, useTransition } from "react";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  ChevronDown,
-  ChevronUp,
-  X,
-  List,
-  AlertTriangle,
-  FileText,
-  Loader2
-} from "lucide-react";
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
+import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up'
+import X from 'lucide-react/dist/esm/icons/x'
+import List from 'lucide-react/dist/esm/icons/list'
+import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle'
+import FileText from 'lucide-react/dist/esm/icons/file-text'
+import Loader2 from 'lucide-react/dist/esm/icons/loader--2';
 import { Button } from "@/components/ui/button";
 import { api, type Session, type Project } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -499,6 +497,9 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   const [showPreview, setShowPreview] = useState(false);
   const [previewUrl, setPreviewUrl] = useState("");
 
+  // 🚀 性能优化: 使用 useTransition 降低消息更新优先级
+  const [isPending, startTransition] = useTransition();
+
   // Translation state
   const [lastTranslationResult, setLastTranslationResult] = useState<TranslationResult | null>(null);
   const [showPreviewPrompt, setShowPreviewPrompt] = useState(false);
@@ -553,7 +554,12 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
     unlistenRefs,
     setIsLoading,
     setError,
-    setMessages,
+    // 🔧 FIX: 使用 startTransition 包装 setMessages，降低渲染优先级
+    setMessages: (updater) => {
+      startTransition(() => {
+        setMessages(updater);
+      });
+    },
     setRawJsonlOutput,
     setClaudeSessionId,
     setCodexRateLimits,

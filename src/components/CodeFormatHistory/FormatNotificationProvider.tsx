@@ -5,7 +5,8 @@
  */
 
 import { AnimatePresence, motion } from "framer-motion";
-import { CheckCircle, X } from "lucide-react";
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
+import X from 'lucide-react/dist/esm/icons/x';
 import { useCallback, useEffect, useState } from "react";
 import { codeFormatService, type FormatChange } from "@/services/codeFormatService";
 import { FormatHistoryDialog } from "./FormatHistoryDialog";

@@ -6,7 +6,7 @@
  */
 
 import React from "react";
-import { Terminal } from "lucide-react";
+import Terminal from 'lucide-react/dist/esm/icons/terminal';
 
 export interface CommandWidgetProps {
   /** 命令名称 */

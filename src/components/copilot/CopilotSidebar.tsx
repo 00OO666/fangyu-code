@@ -13,30 +13,28 @@
 import { logger } from '@/lib/logger';
 import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Sparkles,
-  Send,
-  History,
-  Code,
-  FileCode,
-  FileText,
-  Wand2,
-  TestTube,
-  MessageSquare,
-  X,
-  Copy,
-  Check,
-  Loader2,
-  BookOpen,
-  Bug,
-  Zap,
-  Trash2,
-  User,
-  Maximize2,
-  Minimize2,
-  Pin,
-  PinOff
-} from 'lucide-react';
+import Sparkles from 'lucide-react/dist/esm/icons/sparkles'
+import Send from 'lucide-react/dist/esm/icons/send'
+import History from 'lucide-react/dist/esm/icons/history'
+import Code from 'lucide-react/dist/esm/icons/code'
+import FileCode from 'lucide-react/dist/esm/icons/file-code'
+import FileText from 'lucide-react/dist/esm/icons/file-text'
+import Wand2 from 'lucide-react/dist/esm/icons/wand-2'
+import TestTube from 'lucide-react/dist/esm/icons/test-tube'
+import MessageSquare from 'lucide-react/dist/esm/icons/message-square'
+import X from 'lucide-react/dist/esm/icons/x'
+import Copy from 'lucide-react/dist/esm/icons/copy'
+import Check from 'lucide-react/dist/esm/icons/check'
+import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import BookOpen from 'lucide-react/dist/esm/icons/book-open'
+import Bug from 'lucide-react/dist/esm/icons/bug'
+import Zap from 'lucide-react/dist/esm/icons/zap'
+import Trash2 from 'lucide-react/dist/esm/icons/trash-2'
+import User from 'lucide-react/dist/esm/icons/user'
+import Maximize2 from 'lucide-react/dist/esm/icons/maximize-2'
+import Minimize2 from 'lucide-react/dist/esm/icons/minimize-2'
+import Pin from 'lucide-react/dist/esm/icons/pin'
+import PinOff from 'lucide-react/dist/esm/icons/pin-off';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';

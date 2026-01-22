@@ -5,11 +5,26 @@
  */
 
 import React from "react";
-import {
-  Wrench, CheckSquare, Terminal, FolderSearch, Search, List, LogOut,
-  FileText, Edit3, FilePlus, Book, BookOpen, Globe, ListChecks, ListPlus,
-  Globe2, Package, Package2, ChevronDown, type LucideIcon
-} from "lucide-react";
+import Wrench from 'lucide-react/dist/esm/icons/wrench'
+import CheckSquare from 'lucide-react/dist/esm/icons/check-square'
+import Terminal from 'lucide-react/dist/esm/icons/terminal'
+import FolderSearch from 'lucide-react/dist/esm/icons/folder-search'
+import Search from 'lucide-react/dist/esm/icons/search'
+import List from 'lucide-react/dist/esm/icons/list'
+import LogOut from 'lucide-react/dist/esm/icons/log-out'
+import FileText from 'lucide-react/dist/esm/icons/file-text'
+import Edit3 from 'lucide-react/dist/esm/icons/edit-3'
+import FilePlus from 'lucide-react/dist/esm/icons/file-plus'
+import Book from 'lucide-react/dist/esm/icons/book'
+import BookOpen from 'lucide-react/dist/esm/icons/book-open'
+import Globe from 'lucide-react/dist/esm/icons/globe'
+import ListChecks from 'lucide-react/dist/esm/icons/list-checks'
+import ListPlus from 'lucide-react/dist/esm/icons/list-plus'
+import Globe2 from 'lucide-react/dist/esm/icons/globe-2'
+import Package from 'lucide-react/dist/esm/icons/package'
+import Package2 from 'lucide-react/dist/esm/icons/package-2'
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
+import type LucideIcon from 'lucide-react/dist/esm/icons/type -lucide-icon';
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 

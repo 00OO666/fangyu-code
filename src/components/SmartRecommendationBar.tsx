@@ -12,19 +12,17 @@
 import { logger } from '@/lib/logger';
 import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-    Network,
-    Zap,
-    Bot,
-    Wrench,
-    Check,
-    X,
-    Clock,
-    ChevronLeft,
-    ChevronRight,
-    Loader2,
-    Sparkles,
-} from 'lucide-react';
+import Network from 'lucide-react/dist/esm/icons/network'
+import Zap from 'lucide-react/dist/esm/icons/zap'
+import Bot from 'lucide-react/dist/esm/icons/bot'
+import Wrench from 'lucide-react/dist/esm/icons/wrench'
+import Check from 'lucide-react/dist/esm/icons/check'
+import X from 'lucide-react/dist/esm/icons/x'
+import Clock from 'lucide-react/dist/esm/icons/clock'
+import ChevronLeft from 'lucide-react/dist/esm/icons/chevron-left'
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
+import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import Sparkles from 'lucide-react/dist/esm/icons/sparkles';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { api } from '@/lib/api';

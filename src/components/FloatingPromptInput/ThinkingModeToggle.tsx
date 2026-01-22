@@ -1,5 +1,5 @@
 import React from "react";
-import { Brain } from "lucide-react";
+import Brain from 'lucide-react/dist/esm/icons/brain';
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";

@@ -148,7 +148,7 @@ export const SessionMessages = forwardRef<SessionMessagesRef, SessionMessagesPro
     getScrollElement: () => parentRef.current,
     estimateSize,
     getItemKey,
-    overscan: 10, // 增加 overscan 减少滚动时的测量
+    overscan: 5, // 🔧 FIX: 减少 overscan 从 10 到 5，避免流式输出时渲染过多不可见元素
 
     /**
      * 🔧 v3.3: 智能滚动位置调整
@@ -156,8 +156,8 @@ export const SessionMessages = forwardRef<SessionMessagesRef, SessionMessagesPro
      * - 程序滚动时：启用调整，保持视觉连续性
      */
     shouldAdjustScrollPositionOnItemSizeChange: () => {
-      // 用户正在滚动时，不调整位置
-      return !isUserScrollingRef.current;
+      // 用户正在滚动时，或者正在加载（流式输出）时，不调整位置
+      return !isUserScrollingRef.current && !isLoading;
     },
   });
 

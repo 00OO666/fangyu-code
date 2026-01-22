@@ -4,13 +4,11 @@
  */
 
 import { useState, useCallback } from 'react';
-import {
-    Key,
-    CheckCircle,
-    Loader2,
-    ExternalLink,
-    Sparkles,
-} from 'lucide-react';
+import Key from 'lucide-react/dist/esm/icons/key'
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
+import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import ExternalLink from 'lucide-react/dist/esm/icons/external-link'
+import Sparkles from 'lucide-react/dist/esm/icons/sparkles';
 import { open } from '@tauri-apps/plugin-shell';
 import type { EngineSetupProgress } from '../../../services/setupStateService';
 import { cn } from '../../../lib/utils';

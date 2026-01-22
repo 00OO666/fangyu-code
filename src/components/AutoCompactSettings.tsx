@@ -7,27 +7,25 @@
 
 import { logger } from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
-import {
-  Settings2,
-  Zap,
-  Clock,
-  BarChart3,
-  AlertTriangle,
-  CheckCircle2,
-  XCircle,
-  RefreshCw,
-  Save,
-  Loader2,
-  Info,
-  Activity,
-  Brain,
-  Gauge,
-  Timer,
-  MessageSquare,
-  TrendingUp,
-  Sparkles,
-  Shield
-} from 'lucide-react';
+import Settings2 from 'lucide-react/dist/esm/icons/settings-2'
+import Zap from 'lucide-react/dist/esm/icons/zap'
+import Clock from 'lucide-react/dist/esm/icons/clock'
+import BarChart3 from 'lucide-react/dist/esm/icons/bar-chart-3'
+import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle'
+import CheckCircle2 from 'lucide-react/dist/esm/icons/check-circle-2'
+import XCircle from 'lucide-react/dist/esm/icons/x-circle'
+import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
+import Save from 'lucide-react/dist/esm/icons/save'
+import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import Info from 'lucide-react/dist/esm/icons/info'
+import Activity from 'lucide-react/dist/esm/icons/activity'
+import Brain from 'lucide-react/dist/esm/icons/brain'
+import Gauge from 'lucide-react/dist/esm/icons/gauge'
+import Timer from 'lucide-react/dist/esm/icons/timer'
+import MessageSquare from 'lucide-react/dist/esm/icons/message-square'
+import TrendingUp from 'lucide-react/dist/esm/icons/trending-up'
+import Sparkles from 'lucide-react/dist/esm/icons/sparkles'
+import Shield from 'lucide-react/dist/esm/icons/shield';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';

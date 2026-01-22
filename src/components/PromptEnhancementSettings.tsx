@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from "react";
-import {
-  Plus,
-  Trash2,
-  Edit,
-  Save,
-  Loader2,
-  CheckCircle,
-  AlertCircle,
-  Sparkles
-} from "lucide-react";
+import Plus from 'lucide-react/dist/esm/icons/plus'
+import Trash2 from 'lucide-react/dist/esm/icons/trash-2'
+import Edit from 'lucide-react/dist/esm/icons/edit'
+import Save from 'lucide-react/dist/esm/icons/save'
+import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
+import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
+import Sparkles from 'lucide-react/dist/esm/icons/sparkles';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

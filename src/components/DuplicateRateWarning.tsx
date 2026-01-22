@@ -5,7 +5,10 @@
  */
 
 import React from "react";
-import { TrendingUp, AlertTriangle, CheckCircle, X } from "lucide-react";
+import TrendingUp from 'lucide-react/dist/esm/icons/trending-up'
+import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle'
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
+import X from 'lucide-react/dist/esm/icons/x';
 import { cn } from "@/lib/utils";
 
 interface DuplicateRateWarningProps {

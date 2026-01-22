@@ -6,7 +6,7 @@
  */
 
 import React from "react";
-import { Info } from "lucide-react";
+import Info from 'lucide-react/dist/esm/icons/info';
 import { useToolTranslation } from "../common/useToolTranslation";
 
 export interface SummaryWidgetProps {

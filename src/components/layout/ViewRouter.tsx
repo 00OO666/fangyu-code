@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-// import { Plus } from "lucide-react"; // Unused in new GlobalSessionCenter
+// import Plus from 'lucide-react/dist/esm/icons/plus'; // Unused in new GlobalSessionCenter
+import Loader2 from 'lucide-react/dist/esm/icons/loader--2';
 import { listen, type UnlistenFn } from '@tauri-apps/api/event';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence, Transition } from "framer-motion"; // ✨ Added for transitions
@@ -7,10 +8,11 @@ import { Button } from "@/components/ui/button";
 // import { ProjectList } from "@/components/ProjectList"; // Unused in new GlobalSessionCenter
 // import { SessionList } from "@/components/SessionList"; // Unused in new GlobalSessionCenter
 // import { RunningClaudeSessions } from "@/components/RunningClaudeSessions"; // Unused in new GlobalSessionCenter
-import { MarkdownEditor } from "@/components/MarkdownEditor";
-import { CodexMarkdownEditor } from "@/components/CodexMarkdownEditor";
-import { GeminiMarkdownEditor } from "@/components/GeminiMarkdownEditor";
-import { ClaudeFileEditor } from "@/components/ClaudeFileEditor";
+// 🔧 FIX: 动态导入重型 Markdown 编辑器组件 (~150KB)
+const MarkdownEditor = React.lazy(() => import("@/components/MarkdownEditor").then(m => ({ default: m.MarkdownEditor })));
+const CodexMarkdownEditor = React.lazy(() => import("@/components/CodexMarkdownEditor").then(m => ({ default: m.CodexMarkdownEditor })));
+const GeminiMarkdownEditor = React.lazy(() => import("@/components/GeminiMarkdownEditor").then(m => ({ default: m.GeminiMarkdownEditor })));
+const ClaudeFileEditor = React.lazy(() => import("@/components/ClaudeFileEditor").then(m => ({ default: m.ClaudeFileEditor })));
 import { Settings } from "@/components/Settings";
 import { ClaudeCodeSession } from "@/components/ClaudeCodeSession";
 import { TabManager } from "@/components/TabManager";
@@ -206,21 +208,27 @@ export const ViewRouter: React.FC = () => {
       case "editor":
         return (
           <div className="flex-1 overflow-hidden">
-            <MarkdownEditor onBack={goBack} />
+            <React.Suspense fallback={<div className="flex items-center justify-center h-full"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
+              <MarkdownEditor onBack={goBack} />
+            </React.Suspense>
           </div>
         );
 
       case "codex-editor":
         return (
           <div className="flex-1 overflow-hidden">
-            <CodexMarkdownEditor onBack={goBack} />
+            <React.Suspense fallback={<div className="flex items-center justify-center h-full"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
+              <CodexMarkdownEditor onBack={goBack} />
+            </React.Suspense>
           </div>
         );
 
       case "gemini-editor":
         return (
           <div className="flex-1 overflow-hidden">
-            <GeminiMarkdownEditor onBack={goBack} />
+            <React.Suspense fallback={<div className="flex items-center justify-center h-full"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
+              <GeminiMarkdownEditor onBack={goBack} />
+            </React.Suspense>
           </div>
         );
 
@@ -255,10 +263,12 @@ export const ViewRouter: React.FC = () => {
 
       case "claude-file-editor":
         return viewParams.file ? (
-          <ClaudeFileEditor
-            file={viewParams.file}
-            onBack={goBack}
-          />
+          <React.Suspense fallback={<div className="flex items-center justify-center h-full"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
+            <ClaudeFileEditor
+              file={viewParams.file}
+              onBack={goBack}
+            />
+          </React.Suspense>
         ) : null;
 
       case "claude-code-session":

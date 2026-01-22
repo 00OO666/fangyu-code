@@ -13,19 +13,17 @@
 import { logger } from '@/lib/logger';
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Search,
-  Clock,
-  Filter,
-  Edit,
-  Send,
-  Copy,
-  Check,
-  Terminal,
-  Code2,
-  Sparkles,
-  Folder,
-} from 'lucide-react';
+import Search from 'lucide-react/dist/esm/icons/search'
+import Clock from 'lucide-react/dist/esm/icons/clock'
+import Filter from 'lucide-react/dist/esm/icons/filter'
+import Edit from 'lucide-react/dist/esm/icons/edit'
+import Send from 'lucide-react/dist/esm/icons/send'
+import Copy from 'lucide-react/dist/esm/icons/copy'
+import Check from 'lucide-react/dist/esm/icons/check'
+import Terminal from 'lucide-react/dist/esm/icons/terminal'
+import Code2 from 'lucide-react/dist/esm/icons/code-2'
+import Sparkles from 'lucide-react/dist/esm/icons/sparkles'
+import Folder from 'lucide-react/dist/esm/icons/folder';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { Input } from '@/components/ui/input';

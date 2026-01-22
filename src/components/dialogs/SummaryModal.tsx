@@ -9,10 +9,16 @@
 
 import { logger } from '@/lib/logger';
 import React, { useState, useCallback, useEffect } from 'react';
-import {
-    Copy, Check, ExternalLink, Loader2, RefreshCw,
-    MessageSquare, Coins, Clock, AlertCircle, Settings
-} from 'lucide-react';
+import Copy from 'lucide-react/dist/esm/icons/copy'
+import Check from 'lucide-react/dist/esm/icons/check'
+import ExternalLink from 'lucide-react/dist/esm/icons/external-link'
+import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
+import MessageSquare from 'lucide-react/dist/esm/icons/message-square'
+import Coins from 'lucide-react/dist/esm/icons/coins'
+import Clock from 'lucide-react/dist/esm/icons/clock'
+import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
+import Settings from 'lucide-react/dist/esm/icons/settings';
 import {
     Dialog,
     DialogContent,

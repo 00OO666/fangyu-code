@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { X, ZoomIn } from "lucide-react";
+import X from 'lucide-react/dist/esm/icons/x'
+import ZoomIn from 'lucide-react/dist/esm/icons/zoom-in';
 import { createPortal } from "react-dom";
 import { ImagePreview } from "../ImagePreview";
 

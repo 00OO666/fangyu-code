@@ -15,23 +15,21 @@
 import { logger } from '@/lib/logger';
 import React, { useCallback, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  ListOrdered,
-  X,
-  Undo2,
-  Zap,
-  Package,
-  Trash2,
-  ChevronUp,
-  ChevronDown,
-  Clock,
-  Send,
-  AlertCircle,
-  CheckCircle2,
-  Loader2,
-  Wand2,
-  Plus,
-} from 'lucide-react';
+import ListOrdered from 'lucide-react/dist/esm/icons/list-ordered'
+import X from 'lucide-react/dist/esm/icons/x'
+import Undo2 from 'lucide-react/dist/esm/icons/undo-2'
+import Zap from 'lucide-react/dist/esm/icons/zap'
+import Package from 'lucide-react/dist/esm/icons/package'
+import Trash2 from 'lucide-react/dist/esm/icons/trash-2'
+import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up'
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
+import Clock from 'lucide-react/dist/esm/icons/clock'
+import Send from 'lucide-react/dist/esm/icons/send'
+import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
+import CheckCircle2 from 'lucide-react/dist/esm/icons/check-circle-2'
+import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import Wand2 from 'lucide-react/dist/esm/icons/wand-2'
+import Plus from 'lucide-react/dist/esm/icons/plus';
 import { Button } from '@/components/ui/button';
 import {
   Tooltip,

@@ -8,7 +8,13 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Brain, MessageSquare, Code2, Image, Sparkles, Check, ExternalLink } from "lucide-react";
+import Brain from 'lucide-react/dist/esm/icons/brain'
+import MessageSquare from 'lucide-react/dist/esm/icons/message-square'
+import Code2 from 'lucide-react/dist/esm/icons/code-2'
+import Image from 'lucide-react/dist/esm/icons/image'
+import Sparkles from 'lucide-react/dist/esm/icons/sparkles'
+import Check from 'lucide-react/dist/esm/icons/check'
+import ExternalLink from 'lucide-react/dist/esm/icons/external-link';
 import { cn } from "@/lib/utils";
 import {
   SILICONFLOW_MODELS,

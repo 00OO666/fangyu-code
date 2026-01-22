@@ -97,8 +97,17 @@ export function useMessageDeduplication(
               }
             });
           } else {
-            // 否则使用新消息（新消息更完整）
-            messageMap.set(id, msg);
+            // 🔧 FIX: 流式输出时，只保留最新（最长）的内容
+            // 避免合并流式输出的中间状态导致重复
+            const existingContentStr = JSON.stringify(existingContent);
+            const newContentStr = JSON.stringify(newContent);
+
+            // 如果新内容包含旧内容（长度更长），或者完全不同，则更新
+            // 防止旧的短内容覆盖新的长内容（通过 Map 顺序保证）
+            if (newContentStr.length >= existingContentStr.length) {
+              messageMap.set(id, msg);
+            }
+            // 否则保留 Map 中已有的版本（如果是乱序到达的旧包，丢弃之）
           }
         } else {
           // 没有 content 或第一次遇到，直接设置

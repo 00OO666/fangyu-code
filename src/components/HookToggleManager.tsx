@@ -34,18 +34,16 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
-import {
-  Zap,
-  FolderOpen,
-  RefreshCw,
-  Terminal,
-  Play,
-  Pause,
-  AlertCircle,
-  CheckCircle,
-  Info,
-  ArrowLeft,
-} from 'lucide-react';
+import Zap from 'lucide-react/dist/esm/icons/zap'
+import FolderOpen from 'lucide-react/dist/esm/icons/folder-open'
+import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
+import Terminal from 'lucide-react/dist/esm/icons/terminal'
+import Play from 'lucide-react/dist/esm/icons/play'
+import Pause from 'lucide-react/dist/esm/icons/pause'
+import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
+import Info from 'lucide-react/dist/esm/icons/info'
+import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left';
 import { open } from '@tauri-apps/plugin-shell';
 
 // ============================================================

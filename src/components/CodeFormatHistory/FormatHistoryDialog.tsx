@@ -5,7 +5,13 @@
  */
 
 import { AnimatePresence, motion } from "framer-motion";
-import { AlertCircle, CheckCircle, Clock, Copy, FileText, Trash2, X } from "lucide-react";
+import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
+import Clock from 'lucide-react/dist/esm/icons/clock'
+import Copy from 'lucide-react/dist/esm/icons/copy'
+import FileText from 'lucide-react/dist/esm/icons/file-text'
+import Trash2 from 'lucide-react/dist/esm/icons/trash-2'
+import X from 'lucide-react/dist/esm/icons/x';
 import { useMemo, useState } from "react";
 import { codeFormatService, type FormatChange } from "@/services/codeFormatService";
 import { notify } from "@/services/notificationService";

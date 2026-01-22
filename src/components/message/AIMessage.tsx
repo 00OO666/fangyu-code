@@ -13,6 +13,7 @@ import { tokenExtractor } from "@/lib/tokenExtractor";
 import { formatTimestamp } from "@/lib/messageUtils";
 import type { ClaudeStreamMessage } from '@/types/claude';
 import { useSession } from "@/contexts/SessionContext";
+import { useStreamingBuffer } from "@/hooks/useStreamingBuffer";
 
 interface AIMessageProps {
   /** 消息数据 */
@@ -193,6 +194,17 @@ const AIMessageComponent: React.FC<AIMessageProps> = ({
   //   return null;
   // }
 
+  // 🆕 使用缓冲 Hook 优化流式输出
+  const bufferedText = useStreamingBuffer(text, {
+    enabled: isStreaming,
+    isStreaming: isStreaming,
+    bufferSize: 5,   // 每 5 个字符更新一次
+    maxDelay: 30     // 最多延迟 30ms
+  });
+
+  // 使用缓冲后的文本进行渲染，而不是原始文本
+  const displayText = isStreaming ? bufferedText : text;
+
   // 提取 tokens 统计
   const tokenStats = message.message?.usage ? (() => {
     const extractedTokens = tokenExtractor.extract({
@@ -210,7 +222,7 @@ const AIMessageComponent: React.FC<AIMessageProps> = ({
   })() : null;
 
   const assistantName = isGeminiMessage ? 'Gemini' : isCodexMessage ? 'Codex' : 'Claude';
-  
+
   // Select icon based on engine
   const Icon = isGeminiMessage ? GeminiIcon : isCodexMessage ? CodexIcon : ClaudeIcon;
 
@@ -237,7 +249,7 @@ const AIMessageComponent: React.FC<AIMessageProps> = ({
 
         {/* Actions Toolbar - Visible on Hover */}
         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-          <MessageActions content={text || thinkingContent} />
+          <MessageActions content={displayText || thinkingContent} />
         </div>
 
         {/* Content: All left-aligned, no left padding */}
@@ -255,10 +267,10 @@ const AIMessageComponent: React.FC<AIMessageProps> = ({
           )}
 
           {/* Main Text Content - Compact */}
-          {text && (
+          {displayText && (
             <div className="prose prose-neutral dark:prose-invert max-w-none text-sm leading-[1.5]">
               <MessageContent
-                content={text}
+                content={displayText}
                 isStreaming={enableTypewriter && !hasTools && !hasThinking}
                 enableTypewriter={enableTypewriter && !hasTools && !hasThinking}
               />

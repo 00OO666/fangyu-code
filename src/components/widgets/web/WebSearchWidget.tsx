@@ -7,7 +7,8 @@
 
 import { logger } from '@/lib/logger';
 import React, { useState } from "react";
-import { Globe, AlertCircle } from "lucide-react";
+import Globe from 'lucide-react/dist/esm/icons/globe'
+import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
 import { open } from "@tauri-apps/plugin-shell";
 import ReactMarkdown from "react-markdown";
 import { SearchResults, SearchLink } from "./components/SearchResults";

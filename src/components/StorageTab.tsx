@@ -1,22 +1,20 @@
 import { logger } from '@/lib/logger';
 import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Database,
-  Search,
-  Plus,
-  Edit3,
-  Trash2,
-  RefreshCw,
-  ChevronLeft,
-  ChevronRight,
-  Terminal,
-  AlertTriangle,
-  Check,
-  X,
-  Table,
-  Loader2,
-} from "lucide-react";
+import Database from 'lucide-react/dist/esm/icons/database'
+import Search from 'lucide-react/dist/esm/icons/search'
+import Plus from 'lucide-react/dist/esm/icons/plus'
+import Edit3 from 'lucide-react/dist/esm/icons/edit-3'
+import Trash2 from 'lucide-react/dist/esm/icons/trash-2'
+import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
+import ChevronLeft from 'lucide-react/dist/esm/icons/chevron-left'
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
+import Terminal from 'lucide-react/dist/esm/icons/terminal'
+import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle'
+import Check from 'lucide-react/dist/esm/icons/check'
+import X from 'lucide-react/dist/esm/icons/x'
+import Table from 'lucide-react/dist/esm/icons/table'
+import Loader2 from 'lucide-react/dist/esm/icons/loader--2';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

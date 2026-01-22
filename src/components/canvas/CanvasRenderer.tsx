@@ -11,19 +11,17 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Code,
-  Eye,
-  SplitSquareHorizontal,
-  Maximize2,
-  Minimize2,
-  Play,
-  Download,
-  Copy,
-  Check,
-  AlertCircle,
-  Settings,
-} from 'lucide-react';
+import Code from 'lucide-react/dist/esm/icons/code'
+import Eye from 'lucide-react/dist/esm/icons/eye'
+import SplitSquareHorizontal from 'lucide-react/dist/esm/icons/split-square-horizontal'
+import Maximize2 from 'lucide-react/dist/esm/icons/maximize-2'
+import Minimize2 from 'lucide-react/dist/esm/icons/minimize-2'
+import Play from 'lucide-react/dist/esm/icons/play'
+import Download from 'lucide-react/dist/esm/icons/download'
+import Copy from 'lucide-react/dist/esm/icons/copy'
+import Check from 'lucide-react/dist/esm/icons/check'
+import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
+import Settings from 'lucide-react/dist/esm/icons/settings';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';

@@ -1,22 +1,20 @@
 import React, { useEffect, useState, useCallback } from 'react'
-import {
-  FolderOpen,
-  Settings,
-  BarChart2,
-  Terminal,
-  Layers,
-  FileText,
-  Package,
-  FileCode,
-  Sparkles,
-  Puzzle,
-  Zap,
-  Activity,
-  Moon,
-  Sun,
-  RefreshCw,
-  Info,
-} from 'lucide-react'
+import FolderOpen from 'lucide-react/dist/esm/icons/folder-open'
+import Settings from 'lucide-react/dist/esm/icons/settings'
+import BarChart2 from 'lucide-react/dist/esm/icons/bar-chart--2'
+import Terminal from 'lucide-react/dist/esm/icons/terminal'
+import Layers from 'lucide-react/dist/esm/icons/layers'
+import FileText from 'lucide-react/dist/esm/icons/file-text'
+import Package from 'lucide-react/dist/esm/icons/package'
+import FileCode from 'lucide-react/dist/esm/icons/file-code'
+import Sparkles from 'lucide-react/dist/esm/icons/sparkles'
+import Puzzle from 'lucide-react/dist/esm/icons/puzzle'
+import Zap from 'lucide-react/dist/esm/icons/zap'
+import Activity from 'lucide-react/dist/esm/icons/activity'
+import Moon from 'lucide-react/dist/esm/icons/moon'
+import Sun from 'lucide-react/dist/esm/icons/sun'
+import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
+import Info from 'lucide-react/dist/esm/icons/info'
 import {
   CommandDialog,
   CommandEmpty,

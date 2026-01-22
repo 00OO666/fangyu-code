@@ -1,5 +1,6 @@
 import React from 'react';
-import { Moon, Sun } from 'lucide-react';
+import Moon from 'lucide-react/dist/esm/icons/moon'
+import Sun from 'lucide-react/dist/esm/icons/sun';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/contexts/ThemeContext';
 import { cn } from '@/lib/utils';

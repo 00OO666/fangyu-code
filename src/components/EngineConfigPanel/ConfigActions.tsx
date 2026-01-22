@@ -3,7 +3,11 @@
  */
 
 import React, { useState, useCallback, useRef } from 'react';
-import { Download, Upload, RefreshCw, AlertTriangle, Loader2 } from 'lucide-react';
+import Download from 'lucide-react/dist/esm/icons/download'
+import Upload from 'lucide-react/dist/esm/icons/upload'
+import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
+import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle'
+import Loader2 from 'lucide-react/dist/esm/icons/loader--2';
 import type { ExportedConfig } from '../../types/provider';
 import type { ExportOptions, ImportResult } from '../../services/engineConfigService';
 import { cn } from '../../lib/utils';

@@ -9,7 +9,10 @@
  * - 添加计划分析统计
  */
 
-import { XCircle, FileText, Play, ListChecks } from "lucide-react";
+import XCircle from 'lucide-react/dist/esm/icons/x-circle'
+import FileText from 'lucide-react/dist/esm/icons/file-text'
+import Play from 'lucide-react/dist/esm/icons/play'
+import ListChecks from 'lucide-react/dist/esm/icons/list-checks';
 import {
   Dialog,
   DialogContent,

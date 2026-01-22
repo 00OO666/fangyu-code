@@ -6,7 +6,10 @@
  */
 
 import React from "react";
-import { Eye, Brain, Wrench, RotateCcw } from "lucide-react";
+import Eye from 'lucide-react/dist/esm/icons/eye'
+import Brain from 'lucide-react/dist/esm/icons/brain'
+import Wrench from 'lucide-react/dist/esm/icons/wrench'
+import RotateCcw from 'lucide-react/dist/esm/icons/rotate-ccw';
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";

@@ -19,22 +19,20 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  Play,
-  Pause,
-  RotateCcw,
-  Square,
-  CheckCircle,
-  XCircle,
-  Clock,
-  Loader2,
-  AlertCircle,
-  ChevronRight,
-  GitBranch,
-  Users,
-  Zap,
-  Settings,
-} from 'lucide-react';
+import Play from 'lucide-react/dist/esm/icons/play'
+import Pause from 'lucide-react/dist/esm/icons/pause'
+import RotateCcw from 'lucide-react/dist/esm/icons/rotate-ccw'
+import Square from 'lucide-react/dist/esm/icons/square'
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
+import XCircle from 'lucide-react/dist/esm/icons/x-circle'
+import Clock from 'lucide-react/dist/esm/icons/clock'
+import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
+import GitBranch from 'lucide-react/dist/esm/icons/git-branch'
+import Users from 'lucide-react/dist/esm/icons/users'
+import Zap from 'lucide-react/dist/esm/icons/zap'
+import Settings from 'lucide-react/dist/esm/icons/settings';
 import { useUnifiedWorkflow } from '@/hooks/useUnifiedWorkflow';
 import type { Task, WorkflowLog } from '@/core/types/workflow';
 

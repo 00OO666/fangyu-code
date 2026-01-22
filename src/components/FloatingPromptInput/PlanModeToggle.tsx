@@ -1,5 +1,5 @@
 import React from "react";
-import { Search } from "lucide-react";
+import Search from 'lucide-react/dist/esm/icons/search';
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";

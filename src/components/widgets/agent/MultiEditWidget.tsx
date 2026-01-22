@@ -6,7 +6,9 @@
  */
 
 import React, { useState } from "react";
-import { FileEdit, FileText, ChevronRight } from "lucide-react";
+import FileEdit from 'lucide-react/dist/esm/icons/file-edit'
+import FileText from 'lucide-react/dist/esm/icons/file-text'
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
 import { cn } from "@/lib/utils";
 import * as Diff from 'diff';
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";

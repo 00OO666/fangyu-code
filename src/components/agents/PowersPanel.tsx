@@ -13,17 +13,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Switch } from '@/components/ui/switch';
-import {
-  Search,
-  Zap,
-  Settings,
-  RefreshCw,
-  ExternalLink,
-  ChevronRight,
-  Package,
-  Server,
-  FileText,
-} from 'lucide-react';
+import Search from 'lucide-react/dist/esm/icons/search'
+import Zap from 'lucide-react/dist/esm/icons/zap'
+import Settings from 'lucide-react/dist/esm/icons/settings'
+import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
+import ExternalLink from 'lucide-react/dist/esm/icons/external-link'
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
+import Package from 'lucide-react/dist/esm/icons/package'
+import Server from 'lucide-react/dist/esm/icons/server'
+import FileText from 'lucide-react/dist/esm/icons/file-text';
 
 // =============================================================================
 // 类型定义

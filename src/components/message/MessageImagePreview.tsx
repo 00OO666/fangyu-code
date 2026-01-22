@@ -1,5 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { X, ZoomIn, ZoomOut, ChevronLeft, ChevronRight } from "lucide-react";
+import X from 'lucide-react/dist/esm/icons/x'
+import ZoomIn from 'lucide-react/dist/esm/icons/zoom-in'
+import ZoomOut from 'lucide-react/dist/esm/icons/zoom-out'
+import ChevronLeft from 'lucide-react/dist/esm/icons/chevron-left'
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";

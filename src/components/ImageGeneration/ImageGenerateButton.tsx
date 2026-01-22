@@ -5,7 +5,8 @@
  */
 
 import React, { useState } from 'react';
-import { ImagePlus, Loader2 } from 'lucide-react';
+import ImagePlus from 'lucide-react/dist/esm/icons/image-plus'
+import Loader2 from 'lucide-react/dist/esm/icons/loader--2';
 import { Button } from '@/components/ui/button';
 import {
     Tooltip,

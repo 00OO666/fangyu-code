@@ -12,15 +12,13 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import {
-  Brain,
-  ChevronDown,
-  ChevronRight,
-  Lightbulb,
-  Link2,
-  Target,
-  CheckCircle,
-} from 'lucide-react';
+import Brain from 'lucide-react/dist/esm/icons/brain'
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
+import Lightbulb from 'lucide-react/dist/esm/icons/lightbulb'
+import Link2 from 'lucide-react/dist/esm/icons/link-2'
+import Target from 'lucide-react/dist/esm/icons/target'
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';
 
 // ============================================================
 // 类型定义

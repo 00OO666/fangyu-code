@@ -1,6 +1,10 @@
 import { logger } from '@/lib/logger';
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { Undo2, AlertTriangle, ChevronDown, ChevronUp, User } from "lucide-react";
+import Undo2 from 'lucide-react/dist/esm/icons/undo-2'
+import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle'
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
+import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up'
+import User from 'lucide-react/dist/esm/icons/user';
 import { MessageBubble } from "./MessageBubble";
 import { MessageImagePreview, extractImagesFromContent, extractImagePathsFromText } from "./MessageImagePreview";
 import { MessageActions } from "./MessageActions";

@@ -5,7 +5,15 @@
 
 import { logger } from '@/lib/logger';
 import React, { useState, useCallback, useMemo } from 'react';
-import { FileDown, Check, FileText, FileJson, FileCode2, Copy, History, Save, Loader2 } from 'lucide-react';
+import FileDown from 'lucide-react/dist/esm/icons/file-down'
+import Check from 'lucide-react/dist/esm/icons/check'
+import FileText from 'lucide-react/dist/esm/icons/file-text'
+import FileJson from 'lucide-react/dist/esm/icons/file-json'
+import FileCode2 from 'lucide-react/dist/esm/icons/file-code-2'
+import Copy from 'lucide-react/dist/esm/icons/copy'
+import History from 'lucide-react/dist/esm/icons/history'
+import Save from 'lucide-react/dist/esm/icons/save'
+import Loader2 from 'lucide-react/dist/esm/icons/loader--2';
 import { SummaryButton } from '@/components/session/SummaryButton';
 import { SummaryModal } from '@/components/dialogs/SummaryModal';
 import { useSummaryGenerator } from '@/hooks/useSummaryGenerator';

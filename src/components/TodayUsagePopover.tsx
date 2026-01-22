@@ -9,7 +9,10 @@
  */
 
 import React, { useMemo } from "react";
-import { Calendar, TrendingUp, Zap, Clock } from "lucide-react";
+import Calendar from 'lucide-react/dist/esm/icons/calendar'
+import TrendingUp from 'lucide-react/dist/esm/icons/trending-up'
+import Zap from 'lucide-react/dist/esm/icons/zap'
+import Clock from 'lucide-react/dist/esm/icons/clock';
 import { Button } from "@/components/ui/button";
 import { Popover } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";

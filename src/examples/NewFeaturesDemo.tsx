@@ -6,16 +6,14 @@
  */
 
 import { motion } from "framer-motion";
-import {
-  Bug,
-  Calendar,
-  CheckCircle,
-  ChevronRight,
-  History,
-  Sparkles,
-  Star,
-  Zap,
-} from "lucide-react";
+import Bug from 'lucide-react/dist/esm/icons/bug'
+import Calendar from 'lucide-react/dist/esm/icons/calendar'
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
+import History from 'lucide-react/dist/esm/icons/history'
+import Sparkles from 'lucide-react/dist/esm/icons/sparkles'
+import Star from 'lucide-react/dist/esm/icons/star'
+import Zap from 'lucide-react/dist/esm/icons/zap';
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";

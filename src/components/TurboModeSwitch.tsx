@@ -26,20 +26,18 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
-import {
-  Zap,
-  ZapOff,
-  Shield,
-  AlertTriangle,
-  Settings,
-  Clock,
-  History,
-  Plus,
-  Trash2,
-  ChevronDown,
-  Check,
-  Info,
-} from 'lucide-react';
+import Zap from 'lucide-react/dist/esm/icons/zap'
+import ZapOff from 'lucide-react/dist/esm/icons/zap-off'
+import Shield from 'lucide-react/dist/esm/icons/shield'
+import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle'
+import Settings from 'lucide-react/dist/esm/icons/settings'
+import Clock from 'lucide-react/dist/esm/icons/clock'
+import History from 'lucide-react/dist/esm/icons/history'
+import Plus from 'lucide-react/dist/esm/icons/plus'
+import Trash2 from 'lucide-react/dist/esm/icons/trash-2'
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
+import Check from 'lucide-react/dist/esm/icons/check'
+import Info from 'lucide-react/dist/esm/icons/info';
 
 // ============================================================
 // 组件

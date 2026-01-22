@@ -4,7 +4,15 @@
  */
 
 import { useState, useCallback } from 'react';
-import { ChevronDown, ChevronRight, Settings2, Terminal, Eye, EyeOff, Info, FileText, List } from 'lucide-react';
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
+import Settings2 from 'lucide-react/dist/esm/icons/settings-2'
+import Terminal from 'lucide-react/dist/esm/icons/terminal'
+import Eye from 'lucide-react/dist/esm/icons/eye'
+import EyeOff from 'lucide-react/dist/esm/icons/eye-off'
+import Info from 'lucide-react/dist/esm/icons/info'
+import FileText from 'lucide-react/dist/esm/icons/file-text'
+import List from 'lucide-react/dist/esm/icons/list';
 import type { EngineType, RuntimeConfig, RuntimeMode, ClaudeEnvVars } from '../../types/provider';
 import { cn } from '../../lib/utils';
 

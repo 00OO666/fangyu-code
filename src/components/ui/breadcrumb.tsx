@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronRight } from 'lucide-react';
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
 import { cn } from '@/lib/utils';
 
 export interface BreadcrumbsProps {

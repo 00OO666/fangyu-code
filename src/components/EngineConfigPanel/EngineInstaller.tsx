@@ -4,17 +4,15 @@
  */
 
 import { useState, useCallback } from 'react';
-import {
-    Download,
-    Loader2,
-    CheckCircle,
-    XCircle,
-    ExternalLink,
-    Terminal,
-    AlertTriangle,
-    ChevronDown,
-    ChevronUp,
-} from 'lucide-react';
+import Download from 'lucide-react/dist/esm/icons/download'
+import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
+import XCircle from 'lucide-react/dist/esm/icons/x-circle'
+import ExternalLink from 'lucide-react/dist/esm/icons/external-link'
+import Terminal from 'lucide-react/dist/esm/icons/terminal'
+import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle'
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
+import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up';
 import { invoke } from '@tauri-apps/api/core';
 import { open } from '@tauri-apps/plugin-shell';
 import type { EngineType } from '../../types/provider';
