@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import FolderOpen from 'lucide-react/dist/esm/icons/folder-open'
 import Settings from 'lucide-react/dist/esm/icons/settings'
-import BarChart2 from 'lucide-react/dist/esm/icons/bar-chart--2'
+import BarChart2 from 'lucide-react/dist/esm/icons/bar-chart-2'
 import Terminal from 'lucide-react/dist/esm/icons/terminal'
 import Layers from 'lucide-react/dist/esm/icons/layers'
 import FileText from 'lucide-react/dist/esm/icons/file-text'

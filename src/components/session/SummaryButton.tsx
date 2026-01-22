@@ -10,7 +10,7 @@
 import React from 'react';
 import FileText from 'lucide-react/dist/esm/icons/file-text'
 import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle'
-import Loader2 from 'lucide-react/dist/esm/icons/loader--2';
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
 import { Button } from '@/components/ui/button';
 import {
     Tooltip,

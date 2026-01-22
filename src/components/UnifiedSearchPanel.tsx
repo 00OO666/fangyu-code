@@ -13,7 +13,7 @@ import { logger } from '@/lib/logger';
 import { AnimatePresence, motion } from "framer-motion";
 import FileCode from 'lucide-react/dist/esm/icons/file-code'
 import Filter from 'lucide-react/dist/esm/icons/filter'
-import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
 import Network from 'lucide-react/dist/esm/icons/network'
 import Puzzle from 'lucide-react/dist/esm/icons/puzzle'
 import Search from 'lucide-react/dist/esm/icons/search'

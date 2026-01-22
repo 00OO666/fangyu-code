@@ -16,7 +16,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { getHourlyDataForDate } from "@/hooks/useHourlyUsageTracker";
 import Calendar from 'lucide-react/dist/esm/icons/calendar'
 import Filter from 'lucide-react/dist/esm/icons/filter'
-import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
 import Briefcase from 'lucide-react/dist/esm/icons/briefcase'
 import ChevronLeft from 'lucide-react/dist/esm/icons/chevron-left'
 import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'

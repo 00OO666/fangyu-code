@@ -17,7 +17,7 @@ import EyeOff from 'lucide-react/dist/esm/icons/eye-off'
 import Globe from 'lucide-react/dist/esm/icons/globe'
 import Key from 'lucide-react/dist/esm/icons/key'
 import Server from 'lucide-react/dist/esm/icons/server'
-import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
 import Save from 'lucide-react/dist/esm/icons/save'
 import X from 'lucide-react/dist/esm/icons/x';
 import type { UnifiedProviderConfig } from '../../types/provider';

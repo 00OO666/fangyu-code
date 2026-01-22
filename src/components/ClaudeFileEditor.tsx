@@ -4,7 +4,7 @@ import MDEditor from "@uiw/react-md-editor";
 import { motion } from "framer-motion";
 import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left'
 import Save from 'lucide-react/dist/esm/icons/save'
-import Loader2 from 'lucide-react/dist/esm/icons/loader--2';
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
 import { Button } from "@/components/ui/button";
 import { Toast, ToastContainer } from "@/components/ui/toast";
 import { api, type ClaudeMdFile } from "@/lib/api";

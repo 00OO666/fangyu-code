@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import Download from 'lucide-react/dist/esm/icons/download'
 import Upload from 'lucide-react/dist/esm/icons/upload'
 import FileText from 'lucide-react/dist/esm/icons/file-text'
-import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
 import Info from 'lucide-react/dist/esm/icons/info'
 import Settings2 from 'lucide-react/dist/esm/icons/settings-2';
 import { Button } from "@/components/ui/button";

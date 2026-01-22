@@ -14,7 +14,7 @@ import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up'
 import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
 import CheckCircle2 from 'lucide-react/dist/esm/icons/check-circle-2'
 import XCircle from 'lucide-react/dist/esm/icons/x-circle'
-import Loader2 from 'lucide-react/dist/esm/icons/loader--2';
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { getClaudeSyntaxTheme } from "@/lib/claudeSyntaxTheme";
 import { useTheme } from "@/contexts/ThemeContext";

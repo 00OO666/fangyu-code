@@ -28,7 +28,7 @@ import Clock from 'lucide-react/dist/esm/icons/clock'
 import Download from 'lucide-react/dist/esm/icons/download'
 import ExternalLink from 'lucide-react/dist/esm/icons/external-link'
 import Settings from 'lucide-react/dist/esm/icons/settings'
-import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
 import FolderOpen from 'lucide-react/dist/esm/icons/folder-open';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

@@ -26,7 +26,7 @@ import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
 import ExternalLink from 'lucide-react/dist/esm/icons/external-link'
 import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
 import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
-import Loader2 from 'lucide-react/dist/esm/icons/loader--2';
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
 import { Button } from '@/components/ui/button';
 import {
     Select,

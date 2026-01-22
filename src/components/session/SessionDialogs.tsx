@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from 'react';
-import Loader2 from 'lucide-react/dist/esm/icons/loader--2';
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
 import { RevertPromptPicker } from '../RevertPromptPicker';
 import { PlanApprovalDialog } from '../dialogs/PlanApprovalDialog';
 import { AskUserQuestionDialog } from '../dialogs/AskUserQuestionDialog';

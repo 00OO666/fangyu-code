@@ -10,7 +10,7 @@ import ExternalLink from 'lucide-react/dist/esm/icons/external-link'
 import Zap from 'lucide-react/dist/esm/icons/zap'
 import Bot from 'lucide-react/dist/esm/icons/bot'
 import Sparkles from 'lucide-react/dist/esm/icons/sparkles'
-import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
 import Search from 'lucide-react/dist/esm/icons/search';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';

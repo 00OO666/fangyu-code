@@ -1,5 +1,5 @@
 import React from "react";
-import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
 import CheckCircle2 from 'lucide-react/dist/esm/icons/check-circle-2'
 import XCircle from 'lucide-react/dist/esm/icons/x-circle';
 import { ClaudeIcon } from "@/components/icons/ClaudeIcon";

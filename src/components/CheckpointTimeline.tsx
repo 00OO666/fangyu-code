@@ -22,7 +22,7 @@ import Wrench from 'lucide-react/dist/esm/icons/wrench'
 import Hand from 'lucide-react/dist/esm/icons/hand'
 import Zap from 'lucide-react/dist/esm/icons/zap'
 import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
-import Loader2 from 'lucide-react/dist/esm/icons/loader--2';
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
 import { Button } from '@/components/ui/button';
 import {
   Collapsible,

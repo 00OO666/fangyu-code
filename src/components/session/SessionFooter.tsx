@@ -5,7 +5,7 @@ import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up'
 import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
 import X from 'lucide-react/dist/esm/icons/x'
 import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle'
-import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
 import FileText from 'lucide-react/dist/esm/icons/file-text';
 import { Button } from '@/components/ui/button';
 import { FloatingPromptInput, type FloatingPromptInputRef, type ModelType } from '../FloatingPromptInput';

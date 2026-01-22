@@ -20,7 +20,7 @@ import FilePlus from 'lucide-react/dist/esm/icons/file-plus'
 import FileX from 'lucide-react/dist/esm/icons/file-x'
 import FileEdit from 'lucide-react/dist/esm/icons/file-edit'
 import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
-import Loader2 from 'lucide-react/dist/esm/icons/loader--2';
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
 import { cn } from '@/lib/utils';
 import { api } from '@/lib/api';
 import type { RewindMode, RewindCapabilities, GitFileChange } from '@/lib/api';

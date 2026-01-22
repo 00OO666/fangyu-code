@@ -21,7 +21,7 @@ import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
 import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
 import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
 import Clock from 'lucide-react/dist/esm/icons/clock'
-import Loader2 from 'lucide-react/dist/esm/icons/loader--2';
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
 
 // =============================================================================
 // 类型定义

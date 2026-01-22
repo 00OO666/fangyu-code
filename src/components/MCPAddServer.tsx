@@ -5,7 +5,7 @@ import Terminal from 'lucide-react/dist/esm/icons/terminal'
 import Globe from 'lucide-react/dist/esm/icons/globe'
 import Trash2 from 'lucide-react/dist/esm/icons/trash-2'
 import Info from 'lucide-react/dist/esm/icons/info'
-import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
 import ToggleLeft from 'lucide-react/dist/esm/icons/toggle-left'
 import ToggleRight from 'lucide-react/dist/esm/icons/toggle-right';
 import { Button } from "@/components/ui/button";

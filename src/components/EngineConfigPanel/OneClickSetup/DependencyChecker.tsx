@@ -6,7 +6,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
 import XCircle from 'lucide-react/dist/esm/icons/x-circle'
-import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
 import ExternalLink from 'lucide-react/dist/esm/icons/external-link'
 import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
 import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle';

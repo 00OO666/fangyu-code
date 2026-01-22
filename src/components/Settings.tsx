@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left'
 import Save from 'lucide-react/dist/esm/icons/save'
 import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
-import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
 import Settings2 from 'lucide-react/dist/esm/icons/settings-2'
 import Cpu from 'lucide-react/dist/esm/icons/cpu'
 import Languages from 'lucide-react/dist/esm/icons/languages'

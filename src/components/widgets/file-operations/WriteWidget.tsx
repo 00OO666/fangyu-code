@@ -13,7 +13,7 @@ import ExternalLink from 'lucide-react/dist/esm/icons/external-link'
 import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up'
 import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
 import CheckCircle2 from 'lucide-react/dist/esm/icons/check-circle-2'
-import Loader2 from 'lucide-react/dist/esm/icons/loader--2';
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";

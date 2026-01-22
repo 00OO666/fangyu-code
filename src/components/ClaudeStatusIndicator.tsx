@@ -3,7 +3,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
 import XCircle from 'lucide-react/dist/esm/icons/x-circle'
-import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
 import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
 import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
 import Settings from 'lucide-react/dist/esm/icons/settings'

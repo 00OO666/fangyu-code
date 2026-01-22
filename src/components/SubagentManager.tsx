@@ -23,7 +23,7 @@ import Download from 'lucide-react/dist/esm/icons/download'
 import Play from 'lucide-react/dist/esm/icons/play'
 import CheckCircle2 from 'lucide-react/dist/esm/icons/check-circle-2'
 import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
-import Loader2 from 'lucide-react/dist/esm/icons/loader--2'
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
 import Star from 'lucide-react/dist/esm/icons/star'
 import Globe from 'lucide-react/dist/esm/icons/globe';
 import { Button } from '@/components/ui/button';
