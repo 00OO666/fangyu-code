@@ -552,12 +552,9 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
     unlistenRefs,
     setIsLoading,
     setError,
-    // 🔧 FIX: 使用 startTransition 包装 setMessages，降低渲染优先级
-    setMessages: (updater) => {
-      startTransition(() => {
-        setMessages(updater);
-      });
-    },
+    // 🔧 FIX v2.9.2: 移除 startTransition 包装，直接传递 setMessages
+    // startTransition 会导致状态更新被延迟，在某些情况下可能导致历史消息不显示
+    setMessages,
     setRawJsonlOutput,
     setClaudeSessionId,
     setCodexRateLimits,
