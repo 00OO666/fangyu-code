@@ -20,10 +20,10 @@ import Copy from 'lucide-react/dist/esm/icons/copy'
 import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
 import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up';
 
-// 懒加载语法高亮组件
+// 🔧 FIX: 使用轻量级语法高亮（只包含常用语言，减少 ~1.4 MB）
 const SyntaxHighlighter = lazy(() =>
-    import("react-syntax-highlighter").then((mod) => ({
-        default: mod.Prism,
+    import("@/lib/lightSyntaxHighlighter").then((mod) => ({
+        default: mod.SyntaxHighlighter,
     }))
 );
 

@@ -178,7 +178,7 @@ function getTechnicalMessageType(message: ClaudeStreamMessage): "tool" | "thinki
         hasText = true;
         // 🔍 DEBUG: 记录包含文本的消息（开发环境）
         if (import.meta.env.DEV) {
-          console.log('[subagentGrouping] ✅ Message has real text, NOT aggregating:', {
+          logger.debug('subagentGrouping', '✅ Message has real text, NOT aggregating:', {
             uuid: message.uuid,
             textPreview: trimmedText.substring(0, 100),
             textLength: trimmedText.length

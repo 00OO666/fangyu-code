@@ -312,7 +312,7 @@ export function useTabState() {
             tabId: string,
             firstMessage: string
         ): Promise<{ projectPath: string; title: string } | null> => {
-            console.log('[useTabState] upgradeSmartSession called', {
+            logger.debug('useTabState', 'upgradeSmartSession called', {
                 tabId,
                 messageLength: firstMessage?.length,
             });
@@ -320,7 +320,7 @@ export function useTabState() {
             const tab = tabs.find((t) => t.id === tabId);
 
             if (!tab || !tab.smartMode) {
-                console.warn('[useTabState] Cannot upgrade: not a smart tab', {
+                logger.warn('useTabState', 'Cannot upgrade: not a smart tab', {
                     tabId,
                     tabFound: !!tab,
                     smartMode: tab?.smartMode,

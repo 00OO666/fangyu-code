@@ -6,9 +6,9 @@
 
 import { logger } from '@/lib/logger';
 import { invoke } from '@tauri-apps/api/core';
-import type { 
-  KiroChatMessage, 
-  KiroChatOptions, 
+import type {
+  KiroChatMessage,
+  KiroChatOptions,
   KiroChatResponse,
   KiroApiRequestBody,
 } from './types';
@@ -46,7 +46,7 @@ export class KiroApiClient {
       } catch {
         throw new KiroApiError('TOKEN_EXPIRED', 'Token 已过期，请重新登录 Kiro IDE');
       }
-      
+
       if (!this.tokenManager.isValid()) {
         throw new KiroApiError('TOKEN_EXPIRED', 'Token 已过期，请重新登录 Kiro IDE');
       }
@@ -168,7 +168,7 @@ export class KiroApiClient {
       throw new KiroApiError('NO_TOKEN', 'Token 不存在');
     }
 
-    console.log('[KiroApiClient] 发送请求:', {
+    logger.debug('KiroApiClient', '发送请求:', {
       endpoint,
       region,
       conversationId,
@@ -192,19 +192,19 @@ export class KiroApiClient {
       };
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      
+
       // 解析 HTTP 错误
       const httpMatch = message.match(/HTTP (\d+):/);
       if (httpMatch) {
         const statusCode = parseInt(httpMatch[1], 10);
         throw KiroApiError.fromHttpStatus(statusCode, message);
       }
-      
+
       // 网络错误
       if (message.includes('请求失败') || message.includes('网络')) {
         throw new KiroApiError('NETWORK_ERROR', message);
       }
-      
+
       throw new KiroApiError('UNKNOWN_ERROR', message);
     }
   }
@@ -219,11 +219,11 @@ export class KiroApiClient {
     try {
       // 使用 Tauri 后端解析
       const content = await invoke<string>('parse_kiro_sse_response', { response });
-      
+
       if (onChunk && content) {
         onChunk(content);
       }
-      
+
       return content;
     } catch (error) {
       // 回退到前端解析

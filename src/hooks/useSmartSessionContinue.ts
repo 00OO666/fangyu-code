@@ -288,10 +288,8 @@ export function useSmartSessionContinue(
 
     // 达到阈值时触发
     if (contextUsage >= threshold) {
-      console.log(
-        `[useSmartSessionContinue] 📊 Context usage ${(contextUsage * 100).toFixed(1)}% >= ${(threshold * 100).toFixed(1)}% threshold`,
-      );
-      logger.debug('useSmartSessionContinue', "[useSmartSessionContinue] 🔄 Auto-triggering session continue");
+      logger.debug('useSmartSessionContinue', `📊 Context usage ${(contextUsage * 100).toFixed(1)}% >= ${(threshold * 100).toFixed(1)}% threshold`);
+      logger.debug('useSmartSessionContinue', '🔄 Auto-triggering session continue');
       hasTriggeredRef.current = true;
       generateSummary();
     }

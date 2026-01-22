@@ -211,9 +211,7 @@ export function useApiHealthCheck(config: UseApiHealthCheckConfig = {}): UseApiH
     retryCountRef.current += 1;
 
     const delay = retryBaseDelay * 2 ** (retryCountRef.current - 1);
-    console.log(
-      `[ApiHealthCheck] Attempting reconnect (${retryCountRef.current}/${maxRetries}) in ${delay}ms...`,
-    );
+    logger.debug('useApiHealthCheck', `Attempting reconnect (${retryCountRef.current}/${maxRetries}) in ${delay}ms...`);
 
     await new Promise((resolve) => setTimeout(resolve, delay));
 

@@ -21,8 +21,8 @@ export function useStreamingBuffer(
     isStreaming?: boolean;
   } = {}
 ) {
-  const { 
-    bufferSize = 10, 
+  const {
+    bufferSize = 10,
     maxDelay = 50,
     enabled = true,
     isStreaming = false
@@ -32,17 +32,15 @@ export function useStreamingBuffer(
   const [isPending, startTransition] = useTransition();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastUpdateRef = useRef<number>(Date.now());
-  
-  // 如果禁用了缓冲或是初始加载，直接返回原始内容
-  if (!enabled || !isStreaming) {
-    if (bufferedContent !== content && !isStreaming) {
-      // 流式结束时确保内容同步
-      setBufferedContent(content);
-    }
-    return isStreaming ? bufferedContent : content;
-  }
 
+  // 🔧 FIX: 将 useEffect 移到条件返回之前，确保 hooks 调用顺序一致
+  // React Hooks 规则要求：hooks 必须在每次渲染时以相同的顺序被调用
   useEffect(() => {
+    // 如果禁用了缓冲，不执行任何操作
+    if (!enabled || !isStreaming) {
+      return;
+    }
+
     // 清除之前的定时器
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -50,13 +48,13 @@ export function useStreamingBuffer(
 
     const now = Date.now();
     const timeSinceLastUpdate = now - lastUpdateRef.current;
-    
+
     // 检查是否在代码块中（简单的奇偶校验）
     const codeBlockCount = (content.match(/```/g) || []).length;
     const isInCodeBlock = codeBlockCount % 2 === 1;
 
     // 决定是否更新
-    const shouldUpdate = 
+    const shouldUpdate =
       // 1. 内容变化量超过缓冲区大小
       Math.abs(content.length - bufferedContent.length) >= bufferSize ||
       // 2. 超过最大延迟时间
@@ -85,7 +83,20 @@ export function useStreamingBuffer(
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [content, bufferSize, maxDelay, bufferedContent.length]);
+  }, [content, bufferSize, maxDelay, bufferedContent.length, enabled, isStreaming]);
+
+  // 🔧 FIX: 使用 useEffect 同步非流式状态下的内容
+  useEffect(() => {
+    if (!isStreaming && bufferedContent !== content) {
+      // 流式结束时确保内容同步
+      setBufferedContent(content);
+    }
+  }, [content, isStreaming, bufferedContent]);
+
+  // 如果禁用了缓冲或是初始加载，直接返回原始内容
+  if (!enabled || !isStreaming) {
+    return content;
+  }
 
   return bufferedContent;
 }

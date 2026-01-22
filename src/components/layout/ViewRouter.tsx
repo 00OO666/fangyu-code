@@ -13,6 +13,8 @@ const MarkdownEditor = React.lazy(() => import("@/components/MarkdownEditor").th
 const CodexMarkdownEditor = React.lazy(() => import("@/components/CodexMarkdownEditor").then(m => ({ default: m.CodexMarkdownEditor })));
 const GeminiMarkdownEditor = React.lazy(() => import("@/components/GeminiMarkdownEditor").then(m => ({ default: m.GeminiMarkdownEditor })));
 const ClaudeFileEditor = React.lazy(() => import("@/components/ClaudeFileEditor").then(m => ({ default: m.ClaudeFileEditor })));
+// 🔧 FIX: 动态导入 V3FeaturesCenter (包含 Monaco Editor ~1.7MB)
+const V3FeaturesCenter = React.lazy(() => import("@/components/V3FeaturesCenter").then(m => ({ default: m.V3FeaturesCenter })));
 import { Settings } from "@/components/Settings";
 import { ClaudeCodeSession } from "@/components/ClaudeCodeSession";
 import { TabManager } from "@/components/TabManager";
@@ -30,7 +32,6 @@ import { HookToggleManager } from '@/components/HookToggleManager';
 import { SuperAgentCenter } from '@/components/SuperAgentCenter';
 import { DeveloperTools } from '@/components/DeveloperTools';
 import { SpecGenerationPanel } from '@/components/SpecGenerationPanel';
-import { V3FeaturesCenter } from '@/components/V3FeaturesCenter';
 import { WorkflowManagerPanel } from '@/components/WorkflowManagerPanel';
 import NewFeaturesDemo from '@/examples/NewFeaturesDemo';
 // import { ProjectCardSkeleton, SessionListItemSkeleton } from '@/components/ui/skeleton'; // Unused in new GlobalSessionCenter
@@ -333,7 +334,11 @@ export const ViewRouter: React.FC = () => {
         return <SuperAgentCenter onBack={goBack} />;
 
       case "v3-features":
-        return <V3FeaturesCenter onBack={goBack} />;
+        return (
+          <React.Suspense fallback={<div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin" /></div>}>
+            <V3FeaturesCenter onBack={goBack} />
+          </React.Suspense>
+        );
 
       case "developer-tools":
         return <DeveloperTools onBack={goBack} />;

@@ -91,13 +91,15 @@ pub async fn restart_to_new_version(app: AppHandle) -> Result<(), String> {
         }
     }
 
-    // 启动新版本
+    // 启动新版本（直接启动，不通过 cmd）
     #[cfg(target_os = "windows")]
     {
         use std::os::windows::process::CommandExt;
-        Command::new("cmd")
-            .args(&["/C", "start", "", dev_build_path])
-            .creation_flags(0x08000000) // CREATE_NO_WINDOW
+        const CREATE_NO_WINDOW: u32 = 0x08000000;
+        const DETACHED_PROCESS: u32 = 0x00000008;
+
+        Command::new(dev_build_path)
+            .creation_flags(CREATE_NO_WINDOW | DETACHED_PROCESS)
             .spawn()
             .map_err(|e| format!("无法启动新版本: {}", e))?;
     }

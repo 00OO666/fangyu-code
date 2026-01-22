@@ -165,9 +165,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   // 🔥 Token Optimization: Log deduplication stats
   useEffect(() => {
     if (rawMessages?.length > 0 && duplicateCount > 0) {
-      console.log(`[Token Optimization] 📊 Deduplication Stats:
-  - Raw messages: ${rawMessages.length}
-  - After deduplication: ${deduplicatedMessages.length} (removed ${duplicateCount} duplicates, ${(duplicateRate * 100).toFixed(1)}%)`);
+      logger.debug('ClaudeCodeSession', `[Token Optimization] 📊 Deduplication Stats: Raw=${rawMessages.length}, After=${deduplicatedMessages.length} (removed ${duplicateCount}, ${(duplicateRate * 100).toFixed(1)}%)`);
     }
   }, [rawMessages?.length, deduplicatedMessages?.length, duplicateCount, duplicateRate]);
 
@@ -623,7 +621,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   // 🔧 v2.8.1: 调试上下文使用率，帮助诊断压缩功能失效问题
   useEffect(() => {
     if (import.meta.env.DEV && messages.length > 0) {
-      console.log('[ContextUsage] 📊 Current context usage:', {
+      logger.debug('ClaudeCodeSession', '[ContextUsage] 📊 Current context usage:', {
         hasData: contextUsage.hasData,
         percentage: contextUsage.percentage.toFixed(1) + '%',
         currentTokens: contextUsage.currentTokens,
@@ -844,11 +842,18 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   // 🆕 智能会话：在发送第一条消息时自动创建项目文件夹
   // 🆕 插队模式：支持 forceImmediate 参数，绕过 usePromptExecution 的队列检查
   const handleSendPromptWithScroll = useCallback(async (prompt: string, model: ModelType, maxThinkingTokens?: number, forceImmediate?: boolean) => {
-    console.log('[ClaudeCodeSession] handleSendPromptWithScroll called', {
+    // 🔧 DIAGNOSTIC: 完整的会话状态日志
+    logger.info('ClaudeCodeSession', '[ClaudeCodeSession] 🔍 DIAGNOSTIC - handleSendPromptWithScroll entry:', {
       hasProjectPath: !!projectPath,
+      projectPath: projectPath || 'null',
       hasUpgradeCallback: !!onSmartSessionUpgrade,
       isFirstPrompt,
-      promptLength: prompt?.length
+      hasEffectiveSession: !!effectiveSession,
+      effectiveSessionId: effectiveSession?.id || 'null',
+      extractedSessionInfoId: extractedSessionInfo?.sessionId || 'null',
+      claudeSessionId: claudeSessionId || 'null',
+      promptLength: prompt?.length,
+      promptPreview: prompt?.substring(0, 30),
     });
 
     // 🆕 智能会话升级：如果没有项目路径且有升级回调，先创建项目文件夹
@@ -875,7 +880,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
       } catch (err) {
         logger.error('ClaudeCodeSession', '[ClaudeCodeSession] Smart session upgrade failed with error:', err);
         logger.error('ClaudeCodeSession', '[ClaudeCodeSession] Error stack:', err instanceof Error ? err.stack : 'No stack');
-        console.error('[ClaudeCodeSession] Error details:', {
+        logger.error('ClaudeCodeSession', 'Error details:', {
           name: err instanceof Error ? err.name : 'Unknown',
           message: err instanceof Error ? err.message : String(err)
         });

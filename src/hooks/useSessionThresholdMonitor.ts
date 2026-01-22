@@ -297,8 +297,7 @@ ${conversationText}`;
     const now = Date.now();
     if (percentage > 1.0 && now - lastExceedWarningTimeRef.current > WARNING_INTERVAL) {
       lastExceedWarningTimeRef.current = now;
-      console.warn(
-        `[useSessionThresholdMonitor] ⚠️ Token usage exceeds 100%:`,
+      logger.warn('useSessionThresholdMonitor', `⚠️ Token usage exceeds 100%:`,
         `\n  Current tokens: ${currentTokens.toLocaleString()}`,
         `\n  Max tokens: ${config.maxContextTokens.toLocaleString()}`,
         `\n  Percentage: ${(percentage * 100).toFixed(1)}%`,

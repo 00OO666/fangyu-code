@@ -642,9 +642,7 @@ export class TranslationMiddleware {
               detectedLanguage,
             };
           } else {
-            console.warn(
-              "[TranslationMiddleware] ⚠️ Translation returned empty or unchanged result, using original text",
-            );
+            logger.warn('translationMiddleware', '⚠️ Translation returned empty or unchanged result, using original text');
           }
         } catch (error) {
           logger.error('translationMiddleware', "[TranslationMiddleware] ❌ Translation failed:", error);

@@ -1,17 +1,7 @@
-/**
- * Message Context Optimizer - Lazy History Loading
- *
- * Optimizes token usage by intelligently managing message history
- * sent to Claude API. Implements windowing and summarization strategies.
- *
- * Strategy:
- * - Recent messages (last 10): Full content
- * - Mid-range messages (11-50): Summarized (future phase)
- * - Old messages (51+): Metadata only (future phase)
- */
-
+import { logger } from '@/lib/logger';
 import { isFeatureEnabled } from "@/config/featureFlags";
 import type { ClaudeStreamMessage } from "@/types/claude";
+import { getFirstTextContent, getMessageRole } from "@/lib/messageTypeGuards";
 
 export interface MessageWindow {
   /** Start index of the window */
@@ -75,12 +65,8 @@ export const getOptimizedMessageContext = (
   const avgTokensPerMessage = 500;
   const estimatedTokensSaved = excludedCount * avgTokensPerMessage;
 
-  console.log(
-    `[MessageContextOptimizer] Optimized context: ${totalMessages} → ${optimizedMessages.length} messages`,
-  );
-  console.log(
-    `[MessageContextOptimizer] Excluded ${excludedCount} old messages, saved ~${estimatedTokensSaved} tokens`,
-  );
+  logger.debug('MessageContextOptimizer', `Optimized context: ${totalMessages} → ${optimizedMessages.length} messages`);
+  logger.debug('MessageContextOptimizer', `Excluded ${excludedCount} old messages, saved ~${estimatedTokensSaved} tokens`);
 
   return {
     messages: optimizedMessages,
@@ -108,7 +94,8 @@ export const calculateOptimalWindowSize = (
   const recentMessages = messages.slice(-20);
   const avgContentLength =
     recentMessages.reduce((sum, msg) => {
-      const content = (msg as any)?.message?.content?.[0]?.text || "";
+      // 使用类型守卫获取文本内容
+      const content = getFirstTextContent(msg);
       return sum + content.length;
     }, 0) / recentMessages.length;
 
@@ -126,8 +113,9 @@ export const calculateOptimalWindowSize = (
  * Check if a message should always be included (system messages, errors, etc.)
  */
 export const isEssentialMessage = (message: ClaudeStreamMessage): boolean => {
-  const role = (message as any)?.message?.role || (message as any)?.role;
-  const content = (message as any)?.message?.content?.[0]?.text || "";
+  // 使用类型守卫获取角色和内容
+  const role = getMessageRole(message);
+  const content = getFirstTextContent(message);
 
   // Always include system messages
   if (role === "system") return true;

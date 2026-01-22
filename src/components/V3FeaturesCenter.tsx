@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Code2 from 'lucide-react/dist/esm/icons/code-2'
 import GitBranch from 'lucide-react/dist/esm/icons/git-branch'
-import Terminal as TerminalIcon from 'lucide-react/dist/esm/icons/terminal as -terminal-icon'
+import TerminalIcon from 'lucide-react/dist/esm/icons/terminal'
 import FileCode from 'lucide-react/dist/esm/icons/file-code'
 import TestTube from 'lucide-react/dist/esm/icons/test-tube'
 import Layout from 'lucide-react/dist/esm/icons/layout'

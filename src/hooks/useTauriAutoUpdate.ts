@@ -208,9 +208,7 @@ export function useTauriAutoUpdate(
               logger.warn('useTauriAutoUpdate', "[Auto Update] Progress calculation resulted in NaN");
             }
 
-            console.log(
-              `[Auto Update] Download progress: ${progress}% (${downloaded}/${total} bytes)`,
-            );
+            logger.debug('useTauriAutoUpdate', `Download progress: ${progress}% (${downloaded}/${total} bytes)`);
             setDownloadProgress(progress);
             break;
           }

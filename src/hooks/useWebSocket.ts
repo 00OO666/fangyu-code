@@ -218,9 +218,7 @@ export function useWebSocket(config: WebSocketConfig = {}) {
 
           reconnectTimerRef.current = setTimeout(() => {
             reconnectCountRef.current++;
-            console.log(
-              `[WebSocket] Reconnecting... (${reconnectCountRef.current}/${configRef.current.maxReconnectAttempts})`,
-            );
+            logger.debug('useWebSocket', `Reconnecting... (${reconnectCountRef.current}/${configRef.current.maxReconnectAttempts})`);
             connect();
           }, configRef.current.reconnectInterval);
         } else {

@@ -9,7 +9,7 @@ import React, { useState } from "react";
 import FileText from 'lucide-react/dist/esm/icons/file-text'
 import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up'
 import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { Prism as SyntaxHighlighter } from "@/lib/lightSyntaxHighlighter";
 import { getClaudeSyntaxTheme } from "@/lib/claudeSyntaxTheme";
 import { useTheme } from "@/contexts/ThemeContext";
 import { getLanguage } from "../common/languageDetector";

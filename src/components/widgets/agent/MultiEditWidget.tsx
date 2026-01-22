@@ -11,7 +11,7 @@ import FileText from 'lucide-react/dist/esm/icons/file-text'
 import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
 import { cn } from "@/lib/utils";
 import * as Diff from 'diff';
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { Prism as SyntaxHighlighter } from "@/lib/lightSyntaxHighlighter";
 import { getClaudeSyntaxTheme } from "@/lib/claudeSyntaxTheme";
 import { useTheme } from "@/contexts/ThemeContext";
 import { getLanguage } from "../common/languageDetector";

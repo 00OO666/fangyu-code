@@ -671,18 +671,26 @@ fn get_project_path_from_sessions(project_dir: &Path) -> Result<String, String> 
                                 let normalized_cwd = normalize_macos_path(&cleaned_cwd);
 
                                 #[cfg(target_os = "windows")]
-                                let normalized_cwd = Path::new(&cleaned_cwd)
-                                    .canonicalize()
-                                    .map(|p| {
-                                        let path_str = p.to_string_lossy().to_string();
-                                        // Remove Windows long path prefix (\\?\)
-                                        if path_str.starts_with("\\\\?\\") {
-                                            path_str[4..].to_string()
-                                        } else {
-                                            path_str
-                                        }
-                                    })
-                                    .unwrap_or_else(|_| cleaned_cwd.clone());
+                                let normalized_cwd = {
+                                    // 尝试规范化路径，但如果失败（如路径含特殊字符或不存在）
+                                    // 直接使用 cleaned_cwd，因为它来自会话文件的真实 cwd
+                                    Path::new(&cleaned_cwd)
+                                        .canonicalize()
+                                        .map(|p| {
+                                            let path_str = p.to_string_lossy().to_string();
+                                            // Remove Windows long path prefix (\\?\)
+                                            if path_str.starts_with("\\\\?\\") {
+                                                path_str[4..].to_string()
+                                            } else {
+                                                path_str
+                                            }
+                                        })
+                                        .unwrap_or_else(|_| {
+                                            // ⚡ FIX: 直接使用 cleaned_cwd，它已经是正确的路径
+                                            // 不要 fallback 到 decode_project_path，因为那会产生多斜杠问题
+                                            cleaned_cwd.clone()
+                                        })
+                                };
 
                                 #[cfg(not(any(target_os = "macos", target_os = "windows")))]
                                 let normalized_cwd = cleaned_cwd.clone();

@@ -63,12 +63,8 @@ export function useTokenOptimization() {
 
       // Log optimization results
       if (result.excludedCount > 0) {
-        console.log(
-          `[TokenOptimization] Message optimization: ${result.totalMessages} → ${result.messages.length} messages`,
-        );
-        console.log(
-          `[TokenOptimization] Estimated tokens saved: ${result.estimatedTokensSaved}`,
-        );
+        logger.debug('TokenOptimization', `Message optimization: ${result.totalMessages} → ${result.messages.length} messages`);
+        logger.debug('TokenOptimization', `Estimated tokens saved: ${result.estimatedTokensSaved}`);
       }
 
       return result;
@@ -96,12 +92,8 @@ export function useTokenOptimization() {
 
       // Log optimization results
       if (savings.savedServers > 0) {
-        console.log(
-          `[TokenOptimization] MCP optimization: ${availableServers.length} → ${filtered.length} servers`,
-        );
-        console.log(
-          `[TokenOptimization] Estimated tokens saved: ${savings.estimatedTokensSaved} (${savings.savingsPercent.toFixed(1)}%)`,
-        );
+        logger.debug('TokenOptimization', `MCP optimization: ${availableServers.length} → ${filtered.length} servers`);
+        logger.debug('TokenOptimization', `Estimated tokens saved: ${savings.estimatedTokensSaved} (${savings.savingsPercent.toFixed(1)}%)`);
       }
 
       return filtered;

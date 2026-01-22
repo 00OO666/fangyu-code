@@ -5,6 +5,7 @@
  */
 
 import { invoke } from '@tauri-apps/api/core';
+import { logger } from '@/lib/logger';
 import type { KiroToken, KiroTokenStatus, KiroAccountType } from './types';
 import { DEFAULT_KIRO_TOKEN_PATH } from './types';
 import { KiroApiError, maskToken } from './errors';
@@ -37,28 +38,28 @@ export class KiroTokenManager {
     }
 
     try {
-      const content = await invoke<string>('read_kiro_token', { 
-        path: this.expandPath(this.tokenPath) 
+      const content = await invoke<string>('read_kiro_token', {
+        path: this.expandPath(this.tokenPath)
       });
-      
+
       this.token = JSON.parse(content) as KiroToken;
       this.lastLoadTime = Date.now();
-      
-      console.log('[KiroTokenManager] Token 加载成功:', {
+
+      logger.debug('KiroTokenManager', 'Token 加载成功:', {
         region: this.token.region,
         expiresAt: this.token.expiresAt,
         hasProfileArn: !!this.token.profileArn,
         tokenPreview: maskToken(this.token.accessToken),
       });
-      
+
       return this.token;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      
+
       if (message.includes('不存在') || message.includes('not found')) {
         throw new KiroApiError('TOKEN_NOT_FOUND', `Token 文件不存在: ${this.tokenPath}`);
       }
-      
+
       throw new KiroApiError('TOKEN_INVALID', `无法读取 Token: ${message}`);
     }
   }
@@ -68,7 +69,7 @@ export class KiroTokenManager {
    */
   isValid(): boolean {
     if (!this.token) return false;
-    
+
     try {
       const expiresAt = new Date(this.token.expiresAt);
       return expiresAt > new Date();
@@ -94,7 +95,7 @@ export class KiroTokenManager {
       const expiresAt = new Date(this.token.expiresAt);
       const now = new Date();
       const expiresIn = Math.max(0, Math.floor((expiresAt.getTime() - now.getTime()) / 1000));
-      
+
       return {
         isValid: expiresAt > now,
         expiresIn,
@@ -174,18 +175,18 @@ export class KiroTokenManager {
    */
   formatExpiresIn(): string {
     const status = this.getStatus();
-    
+
     if (!status.isValid) {
       return '已过期';
     }
-    
+
     const hours = Math.floor(status.expiresIn / 3600);
     const minutes = Math.floor((status.expiresIn % 3600) / 60);
-    
+
     if (hours > 0) {
       return `${hours}小时${minutes}分钟后过期`;
     }
-    
+
     return `${minutes}分钟后过期`;
   }
 }

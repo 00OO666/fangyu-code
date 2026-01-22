@@ -83,10 +83,7 @@ export function useSmartSession(tabId: string): UseSmartSessionReturn {
 
       try {
         upgradeInProgressRef.current = true;
-        console.log(
-          "[useSmartSession] Upgrading smart session with message:",
-          firstMessage.substring(0, 50),
-        );
+        logger.debug('useSmartSession', 'Upgrading smart session with message:', firstMessage.substring(0, 50));
 
         const result = await upgradeSmartSession(tabId, firstMessage);
 

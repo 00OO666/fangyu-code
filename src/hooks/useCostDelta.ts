@@ -107,7 +107,7 @@ export function useCostDelta(sessionId: string | undefined, currentCost: number,
             lastUserMessageIndexRef.current = snapshot.lastUserMessageIndex;
             prevCostRef.current = currentCost;
 
-            console.log("[useCostDelta] ✅ 恢复快照:", {
+            logger.debug('useCostDelta', '✅ 恢复快照:', {
               sessionId,
               baseline: snapshot.lastUserMessageCost,
               currentCost,
@@ -137,7 +137,7 @@ export function useCostDelta(sessionId: string | undefined, currentCost: number,
 
       saveSnapshot(initialSnapshot);
 
-      console.log("[useCostDelta] 🆕 新会话初始化:", {
+      logger.debug('useCostDelta', '🆕 新会话初始化:', {
         sessionId,
         baseline: currentCost,
         msgIndex: currentMsgIndex,
@@ -163,7 +163,7 @@ export function useCostDelta(sessionId: string | undefined, currentCost: number,
       setLastUserMessageCost(baselineCost);
       lastUserMessageIndexRef.current = currentUserMsgIndex;
 
-      console.log("[useCostDelta] 🆕 新指令，设置 baseline:", {
+      logger.debug('useCostDelta', '🆕 新指令，设置 baseline:', {
         baselineCost,
         currentCost,
         msgIndex: currentUserMsgIndex,
