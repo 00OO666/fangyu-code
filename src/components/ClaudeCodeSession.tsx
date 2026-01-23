@@ -144,6 +144,11 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
     setFilterConfig
   } = useMessagesContext();
 
+  // 🚀 性能优化: 保留 useTransition 调用以维持 hooks 顺序一致性
+  // 注意：虽然当前不使用 startTransition（因为会导致消息延迟显示），
+  // 但必须保留此调用，否则会导致 "Rendered fewer hooks than expected" 错误
+  const [_isPending, _startTransition] = useTransition();
+
   // 🔥 Token Optimization: Apply message deduplication
   const { messages: deduplicatedMessages = [], duplicateCount = 0, duplicateRate = 0 } = useMessageDeduplication(rawMessages || [], {
     debug: true,
