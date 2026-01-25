@@ -352,7 +352,7 @@ export const ExecutionEngineSelector: React.FC<ExecutionEngineSelectorProps> = (
             size="sm"
             role="combobox"
             aria-expanded={showSettings}
-            className={`h-8 justify-between border-border/50 bg-background/50 hover:bg-accent/50 ${className}`}
+            className={`h-8 justify-between light-glass hover:medium-glass ${className}`}
           >
             <div className="flex items-center gap-2">
               <EngineIcon className={`h-4 w-4 ${currentEngine.color}`} />

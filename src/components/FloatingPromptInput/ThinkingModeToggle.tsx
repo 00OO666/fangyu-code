@@ -34,13 +34,13 @@ export const ThinkingModeToggle: React.FC<ThinkingModeToggleProps> = ({
             className={cn(
               "h-8 gap-2 transition-all duration-200",
               isEnabled
-                ? "bg-amber-600 hover:bg-amber-700 text-white border-amber-600 shadow-sm shadow-amber-500/20"
-                : "bg-background/50 hover:bg-accent/50 text-muted-foreground border-border/50"
+                ? "btn-glass-orange"
+                : "light-glass hover:medium-glass text-white/70"
             )}
           >
             <Brain className={cn(
               "h-4 w-4 transition-all duration-200",
-              isEnabled ? "animate-pulse text-white" : "text-muted-foreground"
+              isEnabled ? "animate-pulse text-white" : "text-white/70"
             )} />
             <span className="text-sm font-medium">
               {isEnabled ? t('promptInput.thinkingOn') : t('promptInput.thinkingOff')}
