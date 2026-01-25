@@ -340,7 +340,7 @@ export const Popover: React.FC<PopoverProps> = ({
           exit={{ opacity: 0, scale: 0.95, ...animation?.exit }}
           transition={{ duration: 0.15 }}
           className={cn(
-            "z-50 min-w-[200px] rounded-xl border border-border bg-popover p-4 text-popover-foreground shadow-md overflow-auto",
+            "z-50 min-w-[200px] rounded-xl medium-glass p-4 text-white shadow-md overflow-auto",
             className
           )}
           style={

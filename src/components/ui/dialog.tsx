@@ -41,9 +41,9 @@ const DialogContent = React.forwardRef<
         "max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-4rem)]",
         // 内容布局
         "gap-4",
-        // 视觉样式
-        "border border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-xl",
-        "p-4 sm:p-6 shadow-[var(--glass-shadow)] rounded-xl",
+        // 视觉样式 - Deep Glass
+        "deep-glass rounded-xl",
+        "p-4 sm:p-6",
         // 滚动
         "overflow-y-auto",
         // 动画
