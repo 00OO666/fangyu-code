@@ -33,18 +33,18 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   void handleCheckUpdate;
 
   return (
-    <div className="h-screen w-screen overflow-hidden bg-background flex text-foreground selection:bg-primary/20 selection:text-primary relative">
-      {/* ✨ Neo-Modern Fluid Background */}
+    <div className="h-screen w-screen overflow-hidden flex text-foreground selection:bg-primary/20 selection:text-primary relative bg-deep-glass-animated">
+      {/* 🌟 Deep Glass Pro Background - Blue-Green Gradient */}
       <div className="absolute inset-0 pointer-events-none z-0">
-        {/* Noise Texture */}
+        {/* Subtle Radial Gradient Overlay */}
+        <div className="absolute inset-0 opacity-40 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-cyan-500/20 via-transparent to-transparent" />
+        {/* Noise Texture for Depth */}
         <div
-          className="absolute inset-0 opacity-[0.015] dark:opacity-[0.03] mix-blend-overlay"
+          className="absolute inset-0 opacity-[0.02] mix-blend-overlay"
           style={{
             backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
           }}
         />
-        {/* Subtle Gradient Mesh */}
-        <div className="absolute inset-0 opacity-30 dark:opacity-20 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/10 via-background to-background" />
       </div>
 
       {/* Sidebar */}
