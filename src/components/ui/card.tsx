@@ -14,7 +14,7 @@ const cardVariants = cva(
       variant: {
         default: "bg-card text-card-foreground border-border shadow-sm",
         subtle: "bg-muted/30 border-border/50 text-card-foreground",
-        glass: "bg-[var(--glass-bg)] backdrop-blur-[var(--glass-blur)] border-[var(--glass-border)] shadow-[var(--glass-shadow)] text-card-foreground",
+        glass: "light-glass text-white shadow-sm",
         outline: "bg-transparent border-border text-card-foreground",
         ghost: "bg-transparent border-transparent text-card-foreground hover:bg-muted/50",
       },
