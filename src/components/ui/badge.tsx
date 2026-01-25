@@ -21,7 +21,7 @@ const badgeVariants = cva(
         info:
           "border-transparent bg-blue-500/15 text-blue-600 dark:text-blue-400 hover:bg-blue-500/25",
         outline: "text-foreground border-border",
-        glass: "border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-sm text-foreground shadow-sm",
+        glass: "light-glass text-white shadow-sm",
       },
       size: {
         sm: "px-2 py-0.5 text-[10px]",

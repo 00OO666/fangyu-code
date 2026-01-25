@@ -71,8 +71,8 @@ export function AboutDialog({ open, onClose, onViewNewFeatures }: AboutDialogPro
         </DialogHeader>
 
         {/* Description */}
-        <div className="p-4 bg-muted/50 rounded-lg">
-          <p className="text-sm text-muted-foreground text-center">
+        <div className="p-4 light-glass rounded-lg">
+          <p className="text-sm text-white/70 text-center">
             {t('about.description')}
           </p>
         </div>

@@ -85,7 +85,7 @@ export const Toast: React.FC<ToastProps> = ({
       exit={{ opacity: 0, y: -20, scale: 0.95 }}
       transition={{ duration: 0.2 }}
       className={cn(
-        "flex items-center space-x-3 rounded-lg border border-border bg-card px-4 py-3 shadow-lg",
+        "flex items-center space-x-3 rounded-lg medium-glass px-4 py-3 shadow-lg text-white",
         className
       )}
     >
