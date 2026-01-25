@@ -361,7 +361,7 @@ export const Settings: React.FC<SettingsProps> = ({
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
-          className="relative flex items-center justify-between p-5 border-b border-border/50 backdrop-blur-xl bg-background/80"
+          className="relative flex items-center justify-between p-5 border-b border-border/50 light-glass"
         >
           {/* Subtle gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-purple-500/5 pointer-events-none" />
@@ -445,38 +445,38 @@ export const Settings: React.FC<SettingsProps> = ({
           <div className="flex-1 overflow-y-auto p-5">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               {/* Premium Tab Navigation */}
-              <TabsList className="grid grid-cols-7 w-full h-auto p-1.5 bg-muted/50 rounded-2xl backdrop-blur-sm border border-border/50 gap-1">
+              <TabsList className="grid grid-cols-7 w-full h-auto p-1.5 light-glass rounded-2xl gap-1">
                 <TabsTrigger
                   value="general"
-                  className="gap-2 py-2.5 rounded-xl data-[state=active]:bg-background data-[state=active]:shadow-lg data-[state=active]:shadow-black/5 transition-all duration-200"
+                  className="gap-2 py-2.5 rounded-xl data-[state=active]:medium-glass data-[state=active]:shadow-lg transition-all duration-200"
                 >
                   <Settings2 className="h-4 w-4" />
                   <span className="hidden lg:inline">{t('settings.general')}</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="engines"
-                  className="gap-2 py-2.5 rounded-xl data-[state=active]:bg-background data-[state=active]:shadow-lg data-[state=active]:shadow-black/5 transition-all duration-200"
+                  className="gap-2 py-2.5 rounded-xl data-[state=active]:medium-glass data-[state=active]:shadow-lg transition-all duration-200"
                 >
                   <Cpu className="h-4 w-4" />
                   <span className="hidden lg:inline">引擎配置</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="translation"
-                  className="gap-2 py-2.5 rounded-xl data-[state=active]:bg-background data-[state=active]:shadow-lg data-[state=active]:shadow-black/5 transition-all duration-200"
+                  className="gap-2 py-2.5 rounded-xl data-[state=active]:medium-glass data-[state=active]:shadow-lg transition-all duration-200"
                 >
                   <Languages className="h-4 w-4" />
                   <span className="hidden lg:inline">{t('settings.translation')}</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="prompt-api"
-                  className="gap-2 py-2.5 rounded-xl data-[state=active]:bg-background data-[state=active]:shadow-lg data-[state=active]:shadow-black/5 transition-all duration-200"
+                  className="gap-2 py-2.5 rounded-xl data-[state=active]:medium-glass data-[state=active]:shadow-lg transition-all duration-200"
                 >
                   <Sparkles className="h-4 w-4" />
                   <span className="hidden lg:inline">{t('settings.promptApi')}</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="storage"
-                  className="gap-2 py-2.5 rounded-xl data-[state=active]:bg-background data-[state=active]:shadow-lg data-[state=active]:shadow-black/5 transition-all duration-200"
+                  className="gap-2 py-2.5 rounded-xl data-[state=active]:medium-glass data-[state=active]:shadow-lg transition-all duration-200"
                 >
                   <Database className="h-4 w-4" />
                   <span className="hidden lg:inline">{t('settings.storage')}</span>
