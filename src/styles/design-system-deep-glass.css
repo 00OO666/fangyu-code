@@ -403,3 +403,107 @@
 .glass-scrollbar::-webkit-scrollbar-thumb:hover {
     background: var(--glass-bg-strong);
 }
+
+/* ========================================
+   13. MESSAGE BUBBLES - Deep Glass Style
+   ======================================== */
+
+/* User Message - Orange-Gold Gradient */
+.ds-message-user {
+    background: var(--accent-gradient);
+    color: white;
+    border-radius: 16px 4px 16px 16px;
+    padding: 12px 16px;
+    max-width: 80%;
+    margin-left: auto;
+    box-shadow: var(--glow-orange);
+    position: relative;
+    overflow: hidden;
+}
+
+.ds-message-user::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, transparent 100%);
+    pointer-events: none;
+}
+
+/* Assistant Message - Deep Glass */
+.ds-message-assistant {
+    background: var(--glass-bg-deep);
+    backdrop-filter: var(--glass-blur-medium);
+    -webkit-backdrop-filter: var(--glass-blur-medium);
+    border: var(--glass-border);
+    border-radius: 4px 16px 16px 16px;
+    padding: 12px 16px;
+    max-width: 85%;
+    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.2);
+    color: rgba(255, 255, 255, 0.95);
+}
+
+/* Code Block in Messages */
+.ds-message-assistant pre {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 12px;
+    margin: 8px 0;
+    overflow-x: auto;
+}
+
+.ds-message-assistant code {
+    color: rgba(255, 255, 255, 0.9);
+    font-family: var(--ds-font-mono);
+}
+
+/* Terminal Result in Messages */
+.terminal-result {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 8px;
+    padding: 12px;
+    margin: 8px 0;
+    font-family: var(--ds-font-mono);
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.terminal-result-success {
+    border-color: rgba(16, 185, 129, 0.5);
+    box-shadow: var(--status-success-glow);
+}
+
+.terminal-result-error {
+    border-color: rgba(239, 68, 68, 0.5);
+    box-shadow: var(--status-error-glow);
+}
+
+/* Thinking Process Panel */
+.thinking-process {
+    background: var(--glass-bg-medium);
+    backdrop-filter: var(--glass-blur-light);
+    -webkit-backdrop-filter: var(--glass-blur-light);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 8px;
+    padding: 12px;
+    margin: 8px 0;
+    box-shadow: var(--glow-blue);
+}
+
+.thinking-process-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(59, 130, 246, 0.9);
+    font-weight: 500;
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.thinking-process-content {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
