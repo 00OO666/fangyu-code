@@ -10,6 +10,7 @@ import "./styles.css";
 import "./i18n"; // ✅ i18n 必须同步加载（App 立即需要使用）
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { isSessionWindow } from "./lib/windowManager";
+import { Agentation } from "agentation";
 
 // ⚡ 优化：只异步加载 toolRegistry（可以延迟）
 // import { initializeToolRegistry } from "./lib/toolRegistryInit"; // ❌ 改为异步
@@ -58,6 +59,7 @@ const AppWrapper: React.FC = () => {
       <ErrorBoundary>
         <ThemeProvider>
           <NavigationProvider>
+            {isDev && <Agentation />}
             <React.Suspense
               fallback={
                 <div className="h-screen w-screen flex items-center justify-center bg-background">
@@ -76,6 +78,7 @@ const AppWrapper: React.FC = () => {
   return (
     <ErrorBoundary>
       <ThemeProvider>
+        {isDev && <Agentation />}
         <App />
       </ThemeProvider>
     </ErrorBoundary>

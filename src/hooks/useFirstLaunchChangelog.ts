@@ -30,6 +30,19 @@ declare global {
 
 // 版本更新日志（从新到旧）
 export const CHANGELOGS = {
+  "2.9.3": {
+    title: "v2.9.3 - 🔧 React Hooks 顺序修复",
+    date: "2026-01-23",
+    features: [],
+    improvements: [],
+    bugfixes: [
+      "修复 'Rendered fewer hooks than expected' 错误",
+      "恢复 useTransition 调用以保持 hooks 顺序一致性",
+    ],
+    technical: [
+      "ClaudeCodeSession.tsx - 恢复 useTransition() 调用",
+    ],
+  },
   "2.9.2": {
     title: "v2.9.2 - 🔧 会话上下文与日志系统修复",
     date: "2026-01-23",
