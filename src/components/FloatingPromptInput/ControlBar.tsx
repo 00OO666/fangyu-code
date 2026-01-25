@@ -787,7 +787,7 @@ export const ControlBar: React.FC<ControlBarProps> = ({
         onClick={onSend}
         disabled={(!prompt.trim() && !hasAttachments) || disabled}
         size="default"
-        className="h-8 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-sm transition-all duration-200"
+        className="h-8 btn-glass-orange"
       >
         {t('promptInput.send')}
       </Button>

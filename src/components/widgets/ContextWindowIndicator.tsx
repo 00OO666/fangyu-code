@@ -99,9 +99,9 @@ export const ContextWindowIndicator: React.FC<ContextWindowIndicatorProps> = ({
           >
             <Layers className={cn('h-3 w-3', colors.text)} />
             {/* 迷你进度条 - 带 auto-compact 阈值线 */}
-            <div className="w-12 h-1.5 bg-muted rounded-full overflow-hidden relative">
+            <div className="progress-glass w-12 h-1.5 relative">
               <div
-                className={cn('h-full transition-all duration-300', colors.progress)}
+                className="progress-glass-fill"
                 style={{ width: `${Math.min(usage.percentage, 100)}%` }}
               />
               {/* Auto-compact 阈值线（仅 Claude） */}
@@ -151,9 +151,9 @@ export const ContextWindowIndicator: React.FC<ContextWindowIndicatorProps> = ({
                 </span>
               </div>
               {/* 自定义进度条以支持阈值线 */}
-              <div className="relative h-2 w-full overflow-hidden rounded-full bg-secondary">
+              <div className="progress-glass relative h-2 w-full">
                 <div
-                  className={cn('h-full transition-all duration-300', colors.progress)}
+                  className="progress-glass-fill"
                   style={{ width: `${Math.min(usage.percentage, 100)}%` }}
                 />
                 {/* Auto-compact 阈值线（仅 Claude） */}
