@@ -166,7 +166,7 @@ export const SlashCommandMenu: React.FC<SlashCommandMenuProps> = ({
       ref={menuRef}
       className={cn(
         "absolute z-50 w-80 max-h-64 overflow-y-auto",
-        "bg-popover border border-border rounded-lg shadow-lg",
+        "medium-glass rounded-lg shadow-lg",
         "animate-in fade-in-0 zoom-in-95 duration-100"
       )}
       style={position ? {
@@ -179,7 +179,7 @@ export const SlashCommandMenu: React.FC<SlashCommandMenuProps> = ({
       }}
     >
       {/* 标题 */}
-      <div className="sticky top-0 bg-popover border-b border-border px-3 py-2">
+      <div className="sticky top-0 light-glass border-b border-border/50 px-3 py-2">
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <Command className="h-3.5 w-3.5" />
           <span>斜杠命令</span>
@@ -254,7 +254,7 @@ export const SlashCommandMenu: React.FC<SlashCommandMenuProps> = ({
       </div>
 
       {/* 底部提示 */}
-      <div className="sticky bottom-0 bg-popover border-t border-border px-3 py-1.5">
+      <div className="sticky bottom-0 light-glass border-t border-border/50 px-3 py-1.5">
         <div className="flex items-center justify-between text-[10px] text-muted-foreground/60">
           <span>
             <kbd className="px-1 py-0.5 bg-muted rounded text-[9px]">↑↓</kbd> 导航

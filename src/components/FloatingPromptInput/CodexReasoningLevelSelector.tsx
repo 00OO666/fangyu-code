@@ -128,7 +128,7 @@ export const CodexReasoningLevelSelector: React.FC<CodexReasoningLevelSelectorPr
           variant="outline"
           size="sm"
           disabled={disabled || isSaving}
-          className="h-8 gap-2 min-w-[120px] justify-start border-border/50 bg-background/50 hover:bg-accent/50"
+          className="h-8 gap-2 min-w-[120px] justify-start light-glass hover:medium-glass"
         >
           {selectedLevelData.icon}
           <span className="flex-1 text-left">推理: {selectedLevelData.name}</span>
