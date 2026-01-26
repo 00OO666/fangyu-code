@@ -11,7 +11,8 @@ import Languages from 'lucide-react/dist/esm/icons/languages'
 import Sparkles from 'lucide-react/dist/esm/icons/sparkles'
 import Database from 'lucide-react/dist/esm/icons/database'
 import Bot from 'lucide-react/dist/esm/icons/bot'
-import Wrench from 'lucide-react/dist/esm/icons/wrench';
+import Wrench from 'lucide-react/dist/esm/icons/wrench'
+import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw';
 import { notify } from "@/components/notifications";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -41,6 +42,7 @@ import { GeneralSettings } from "./settings/GeneralSettings";
 import { ConfigManagerEmbedded } from "./ConfigManager";
 import { OutputDisplaySettings } from "./settings/OutputDisplaySettings";
 import { SuperAgentSettings } from "./settings/SuperAgentSettings";
+import { ConfigSyncPanel } from "./settings/ConfigSyncPanel";
 
 interface SettingsProps {
   /**
@@ -445,7 +447,7 @@ export const Settings: React.FC<SettingsProps> = ({
           <div className="flex-1 overflow-y-auto p-5">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               {/* Premium Tab Navigation */}
-              <TabsList className="grid grid-cols-7 w-full h-auto p-1.5 light-glass rounded-2xl gap-1">
+              <TabsList className="grid grid-cols-8 w-full h-auto p-1.5 light-glass rounded-2xl gap-1">
                 <TabsTrigger
                   value="general"
                   className="gap-2 py-2.5 rounded-xl data-[state=active]:medium-glass data-[state=active]:shadow-lg transition-all duration-200"
@@ -487,6 +489,13 @@ export const Settings: React.FC<SettingsProps> = ({
                 >
                   <Bot className="h-4 w-4" />
                   <span className="hidden lg:inline">Super Agent</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="sync"
+                  className="gap-2 py-2.5 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500/10 data-[state=active]:to-cyan-500/10 data-[state=active]:shadow-lg transition-all duration-200 text-blue-500"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                  <span className="hidden lg:inline">配置同步</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="config"
@@ -544,6 +553,13 @@ export const Settings: React.FC<SettingsProps> = ({
               {/* Super Agent Tab - Super Agent 配置 */}
               <TabsContent value="super-agent">
                 <SuperAgentSettings />
+              </TabsContent>
+
+              {/* Config Sync Tab - 配置同步 */}
+              <TabsContent value="sync">
+                <div className="space-y-4">
+                  <ConfigSyncPanel />
+                </div>
               </TabsContent>
 
               {/* Config Manager Tab - 配置管理中心 */}
