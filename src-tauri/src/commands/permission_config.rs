@@ -140,6 +140,16 @@ pub fn build_execution_args(config: &ClaudeExecutionConfig, model: &str) -> Vec<
 
     // prompt 通过 stdin 传递，不再作为命令行参数
 
+    // 🔥 新增：使用 --settings 参数指定配置文件，实现配置隔离
+    // 这样 Fangyu Code 和 Claude Code CLI 可以同时运行而不会互相干扰
+    if let Some(home_dir) = dirs::home_dir() {
+        let settings_path = home_dir.join(".claude").join("settings.json");
+        if settings_path.exists() {
+            args.push("--settings".to_string());
+            args.push(settings_path.to_string_lossy().to_string());
+        }
+    }
+
     // 🔥 修复：仅为内置模型添加 --model 参数
     // 对于自定义模型（非 sonnet/opus/sonnet[1m]），通过 ANTHROPIC_MODEL 环境变量设置
     // 避免命令行参数与环境变量冲突导致发送失败
