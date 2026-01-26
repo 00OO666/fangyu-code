@@ -1,509 +1,520 @@
 /* ========================================
    FANGYU CODE DEEP GLASS DESIGN SYSTEM
    Deep Glass Pro AI Station V1 Style
+   深色玻璃拟态 AI 工作站 UI
    ======================================== */
 
 /* ========================================
-   1. DESIGN TOKENS - Deep Glass Variables
+   1. DESIGN TOKENS - 设计令牌
    ======================================== */
 
 :root {
-    /* === Deep Glass Background Gradients === */
-    --bg-gradient-main: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
-    --bg-gradient-overlay: linear-gradient(180deg, rgba(15,32,39,0.9) 0%, rgba(44,83,100,0.8) 100%);
-    --bg-gradient-subtle: radial-gradient(ellipse at top, rgba(44, 83, 100, 0.3) 0%, transparent 70%);
+    /* === 背景与层级 === */
+    /* 主背景 - 非纯黑，偏深蓝/深灰/冷色调 */
+    --bg-main: #0b0f14;
 
-    /* === Deep Glass Colors === */
-    --glass-bg-deep: rgba(15, 32, 39, 0.4);
-    --glass-bg-medium: rgba(15, 32, 39, 0.6);
-    --glass-bg-strong: rgba(15, 32, 39, 0.8);
-    --glass-bg-subtle: rgba(44, 83, 100, 0.2);
+    /* 玻璃层 - 半透明深色 */
+    --bg-glass: rgba(20, 25, 34, 0.65);
+    --bg-panel: rgba(30, 35, 45, 0.75);
+    --bg-glass-light: rgba(20, 25, 34, 0.45);
+    --bg-glass-strong: rgba(30, 35, 45, 0.85);
 
-    /* === Glass Blur Effects === */
-    --glass-blur-deep: blur(30px);
-    --glass-blur-medium: blur(20px);
-    --glass-blur-light: blur(10px);
+    /* 边框 - 极低对比度 */
+    --border-glass: rgba(255, 255, 255, 0.08);
+    --border-glass-strong: rgba(255, 255, 255, 0.12);
+    --border-glass-subtle: rgba(255, 255, 255, 0.04);
 
-    /* === Orange-Gold Accent Colors === */
-    --accent-orange: #FF8C42;
-    --accent-orange-light: #FFA366;
-    --accent-orange-dark: #E67A30;
-    --accent-gold: #FFB84D;
-    --accent-gold-light: #FFC870;
-    --accent-gold-dark: #E6A43B;
-    --accent-gradient: linear-gradient(135deg, #FF8C42 0%, #FFB84D 100%);
-    --accent-gradient-hover: linear-gradient(135deg, #FFA366 0%, #FFC870 100%);
+    /* === 文本颜色 - 禁止纯白 === */
+    --text-primary: #e5e7eb;      /* 主文本 */
+    --text-secondary: #9ca3af;    /* 次级信息 */
+    --text-muted: #6b7280;        /* 弱化文本 */
+    --text-disabled: #4b5563;     /* 禁用状态 */
 
-    /* === Glow Effects === */
-    --glow-orange: 0 0 20px rgba(255, 140, 66, 0.5);
-    --glow-orange-strong: 0 0 30px rgba(255, 140, 66, 0.7);
-    --glow-blue: 0 0 30px rgba(59, 130, 246, 0.3);
-    --glow-blue-strong: 0 0 40px rgba(59, 130, 246, 0.5);
-    --glow-green: 0 0 20px rgba(16, 185, 129, 0.5);
-    --glow-white: 0 0 15px rgba(255, 255, 255, 0.2);
+    /* === 强调色 - 低饱和度 === */
+    --accent-blue: #3b82f6;       /* 激活 / 选中 */
+    --accent-blue-dim: rgba(59, 130, 246, 0.6);
+    --accent-green: #22c55e;      /* 成功 / 执行完成 */
+    --accent-green-dim: rgba(34, 197, 94, 0.6);
+    --accent-yellow: #facc15;     /* 模型 / thinking */
+    --accent-yellow-dim: rgba(250, 204, 21, 0.6);
+    --accent-orange: #f97316;     /* 警告 / 重要 */
+    --accent-orange-dim: rgba(249, 115, 22, 0.6);
+    --accent-red: #ef4444;        /* 错误 / 危险 */
+    --accent-red-dim: rgba(239, 68, 68, 0.6);
 
-    /* === Glass Borders === */
-    --glass-border: 1px solid rgba(255, 255, 255, 0.1);
-    --glass-border-strong: 1px solid rgba(255, 255, 255, 0.15);
-    --glass-border-subtle: 1px solid rgba(255, 255, 255, 0.05);
+    /* === 模糊效果 === */
+    --blur-glass: blur(28px);
+    --blur-glass-light: blur(16px);
+    --blur-glass-strong: blur(40px);
 
-    /* === Gradient Progress Bar === */
-    --progress-gradient: linear-gradient(90deg, #3B82F6 0%, #06B6D4 100%);
-    --progress-glow: 0 0 20px rgba(59, 130, 246, 0.5);
+    /* === 圆角 === */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
 
-    /* === Status Colors with Glow === */
-    --status-success: #10B981;
-    --status-success-glow: 0 0 15px rgba(16, 185, 129, 0.5);
-    --status-warning: #F59E0B;
-    --status-warning-glow: 0 0 15px rgba(245, 158, 11, 0.5);
-    --status-error: #EF4444;
-    --status-error-glow: 0 0 15px rgba(239, 68, 68, 0.5);
-    --status-info: #3B82F6;
-    --status-info-glow: 0 0 15px rgba(59, 130, 246, 0.5);
+    /* === 间距 === */
+    --space-xs: 6px;
+    --space-sm: 10px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+
+    /* === 阴影 - 轻微、克制 === */
+    --shadow-glass: 0 8px 24px rgba(0, 0, 0, 0.3);
+    --shadow-glass-strong: 0 12px 32px rgba(0, 0, 0, 0.4);
+    --shadow-glass-subtle: 0 4px 12px rgba(0, 0, 0, 0.2);
+
+    /* === 微光效果 - 极低强度 === */
+    --glow-blue: 0 0 20px rgba(59, 130, 246, 0.2);
+    --glow-blue-strong: 0 0 30px rgba(59, 130, 246, 0.3);
+    --glow-green: 0 0 20px rgba(34, 197, 94, 0.2);
+    --glow-yellow: 0 0 20px rgba(250, 204, 21, 0.2);
+    --glow-orange: 0 0 20px rgba(249, 115, 22, 0.2);
+
+    /* === 动画时长 - 慢速、平滑 === */
+    --duration-fast: 150ms;
+    --duration-normal: 250ms;
+    --duration-slow: 300ms;
+    --easing: ease-in-out;
 }
 
 /* ========================================
-   2. DEEP GLASS UTILITY CLASSES
+   2. 玻璃拟态工具类
    ======================================== */
 
-/* Deep Glass Card */
+/* 深色玻璃 - 主要容器 */
 .deep-glass {
-    background: var(--glass-bg-deep);
-    backdrop-filter: var(--glass-blur-deep) saturate(180%);
-    -webkit-backdrop-filter: var(--glass-blur-deep) saturate(180%);
-    border: var(--glass-border);
-    box-shadow:
-        0 8px 32px 0 rgba(0, 0, 0, 0.37),
-        inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+    background: var(--bg-glass);
+    backdrop-filter: var(--blur-glass) saturate(120%);
+    -webkit-backdrop-filter: var(--blur-glass) saturate(120%);
+    border: 1px solid var(--border-glass);
+    box-shadow: var(--shadow-glass);
 }
 
-/* Medium Glass */
+/* 中等玻璃 - 弹出层、菜单 */
 .medium-glass {
-    background: var(--glass-bg-medium);
-    backdrop-filter: var(--glass-blur-medium) saturate(150%);
-    -webkit-backdrop-filter: var(--glass-blur-medium) saturate(150%);
-    border: var(--glass-border);
-    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.25);
+    background: var(--bg-panel);
+    backdrop-filter: var(--blur-glass) saturate(120%);
+    -webkit-backdrop-filter: var(--blur-glass) saturate(120%);
+    border: 1px solid var(--border-glass);
+    box-shadow: var(--shadow-glass-strong);
 }
 
-/* Light Glass */
+/* 轻量玻璃 - 次级元素 */
 .light-glass {
-    background: var(--glass-bg-subtle);
-    backdrop-filter: var(--glass-blur-light) saturate(120%);
-    -webkit-backdrop-filter: var(--glass-blur-light) saturate(120%);
-    border: var(--glass-border-subtle);
+    background: var(--bg-glass-light);
+    backdrop-filter: var(--blur-glass-light) saturate(110%);
+    -webkit-backdrop-filter: var(--blur-glass-light) saturate(110%);
+    border: 1px solid var(--border-glass-subtle);
+    box-shadow: var(--shadow-glass-subtle);
+}
+
+/* 强化玻璃 - 激活状态 */
+.strong-glass {
+    background: var(--bg-glass-strong);
+    backdrop-filter: var(--blur-glass) saturate(130%);
+    -webkit-backdrop-filter: var(--blur-glass) saturate(130%);
+    border: 1px solid var(--border-glass-strong);
+    box-shadow: var(--shadow-glass-strong);
 }
 
 /* ========================================
-   3. GLOW BORDER EFFECTS
+   3. 按钮样式
    ======================================== */
 
-/* Orange-Gold Glow Border */
-.glow-border-orange {
-    position: relative;
-    border: 1px solid transparent;
-}
-
-.glow-border-orange::before {
-    content: '';
-    position: absolute;
-    inset: -1px;
-    border-radius: inherit;
-    padding: 1px;
-    background: var(--accent-gradient);
-    -webkit-mask:
-        linear-gradient(#fff 0 0) content-box,
-        linear-gradient(#fff 0 0);
-    mask:
-        linear-gradient(#fff 0 0) content-box,
-        linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    opacity: 0.6;
-    transition: opacity 0.3s ease;
-}
-
-.glow-border-orange:hover::before {
-    opacity: 1;
-}
-
-/* White Glow Border */
-.glow-border-white {
-    position: relative;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: var(--glow-white);
-}
-
-/* Blue Glow Border */
-.glow-border-blue {
-    position: relative;
-    border: 1px solid rgba(59, 130, 246, 0.3);
-    box-shadow: var(--glow-blue);
-}
-
-/* ========================================
-   4. GRADIENT BACKGROUNDS
-   ======================================== */
-
-/* Main Background Gradient */
-.bg-deep-glass-gradient {
-    background: var(--bg-gradient-main);
-    position: relative;
-}
-
-.bg-deep-glass-gradient::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: var(--bg-gradient-subtle);
-    pointer-events: none;
-}
-
-/* Animated Gradient Background */
-.bg-deep-glass-animated {
-    background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
-    background-size: 200% 200%;
-    animation: gradientShift 15s ease infinite;
-}
-
-@keyframes gradientShift {
-    0%, 100% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-}
-
-/* ========================================
-   5. BUTTON STYLES
-   ======================================== */
-
-/* Orange-Gold Glass Button */
-.btn-glass-orange {
-    background: var(--accent-gradient);
-    color: white;
-    border: none;
-    box-shadow: var(--glow-orange);
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.btn-glass-orange::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 100%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.btn-glass-orange:hover {
-    background: var(--accent-gradient-hover);
-    box-shadow: var(--glow-orange-strong);
-    transform: translateY(-1px);
-}
-
-.btn-glass-orange:hover::before {
-    opacity: 1;
-}
-
-.btn-glass-orange:active {
-    transform: translateY(0);
-}
-
-/* Glass Button (Neutral) */
+/* 玻璃按钮 - 默认 */
 .btn-glass {
-    background: var(--glass-bg-medium);
-    backdrop-filter: var(--glass-blur-medium);
-    -webkit-backdrop-filter: var(--glass-blur-medium);
-    border: var(--glass-border);
-    color: rgba(255, 255, 255, 0.9);
-    transition: all 0.3s ease;
+    background: var(--bg-glass-light);
+    backdrop-filter: var(--blur-glass-light);
+    -webkit-backdrop-filter: var(--blur-glass-light);
+    border: 1px solid var(--border-glass);
+    color: var(--text-primary);
+    transition: all var(--duration-normal) var(--easing);
 }
 
 .btn-glass:hover {
-    background: var(--glass-bg-strong);
-    border-color: rgba(255, 255, 255, 0.2);
-    box-shadow: var(--glow-white);
+    background: var(--bg-panel);
+    border-color: var(--border-glass-strong);
+}
+
+.btn-glass:active {
+    background: var(--bg-glass-strong);
+}
+
+/* 蓝色强调按钮 - 激活/选中 */
+.btn-glass-blue {
+    background: var(--accent-blue-dim);
+    backdrop-filter: var(--blur-glass-light);
+    -webkit-backdrop-filter: var(--blur-glass-light);
+    border: 1px solid var(--accent-blue);
+    color: var(--text-primary);
+    box-shadow: var(--glow-blue);
+    transition: all var(--duration-normal) var(--easing);
+}
+
+.btn-glass-blue:hover {
+    background: var(--accent-blue);
+    box-shadow: var(--glow-blue-strong);
+}
+
+/* 橙色强调按钮 - 发送/执行 */
+.btn-glass-orange {
+    background: var(--accent-orange-dim);
+    backdrop-filter: var(--blur-glass-light);
+    -webkit-backdrop-filter: var(--blur-glass-light);
+    border: 1px solid var(--accent-orange);
+    color: var(--text-primary);
+    box-shadow: var(--glow-orange);
+    transition: all var(--duration-normal) var(--easing);
+}
+
+.btn-glass-orange:hover {
+    background: var(--accent-orange);
+    box-shadow: var(--glow-orange);
+}
+
+/* 绿色强调按钮 - 成功 */
+.btn-glass-green {
+    background: var(--accent-green-dim);
+    backdrop-filter: var(--blur-glass-light);
+    -webkit-backdrop-filter: var(--blur-glass-light);
+    border: 1px solid var(--accent-green);
+    color: var(--text-primary);
+    box-shadow: var(--glow-green);
+    transition: all var(--duration-normal) var(--easing);
+}
+
+.btn-glass-green:hover {
+    background: var(--accent-green);
+    box-shadow: var(--glow-green);
 }
 
 /* ========================================
-   6. INPUT STYLES
+   4. 输入框样式
    ======================================== */
 
-/* Glass Input */
+/* 玻璃输入框 */
 .input-glass {
-    background: var(--glass-bg-deep);
-    backdrop-filter: var(--glass-blur-medium);
-    -webkit-backdrop-filter: var(--glass-blur-medium);
-    border: var(--glass-border);
-    color: rgba(255, 255, 255, 0.9);
-    transition: all 0.3s ease;
+    background: var(--bg-glass);
+    backdrop-filter: var(--blur-glass-light);
+    -webkit-backdrop-filter: var(--blur-glass-light);
+    border: 1px solid var(--border-glass);
+    color: var(--text-primary);
+    transition: all var(--duration-normal) var(--easing);
 }
 
 .input-glass:focus {
     outline: none;
-    border-color: var(--accent-orange);
-    box-shadow: var(--glow-orange);
+    border-color: var(--accent-blue);
+    box-shadow: var(--glow-blue);
 }
 
 .input-glass::placeholder {
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--text-muted);
 }
 
 /* ========================================
-   7. PROGRESS BAR
+   5. 进度条样式
    ======================================== */
 
-/* Gradient Progress Bar */
+/* 玻璃进度条 */
 .progress-glass {
-    background: var(--glass-bg-deep);
+    background: var(--bg-glass);
     border-radius: 9999px;
     overflow: hidden;
-    height: 8px;
+    height: 6px;
 }
 
 .progress-glass-fill {
-    background: var(--progress-gradient);
-    box-shadow: var(--progress-glow);
+    background: linear-gradient(90deg, var(--accent-blue) 0%, var(--accent-green) 100%);
     height: 100%;
-    transition: width 0.3s ease;
+    transition: width var(--duration-slow) var(--easing);
 }
 
 /* ========================================
-   8. STATUS INDICATORS
+   6. 状态指示器
    ======================================== */
 
-/* Success Status */
+/* 成功状态 */
 .status-success {
-    color: var(--status-success);
-    filter: drop-shadow(var(--status-success-glow));
+    color: var(--accent-green);
 }
 
-/* Warning Status */
+/* 警告状态 */
 .status-warning {
-    color: var(--status-warning);
-    filter: drop-shadow(var(--status-warning-glow));
+    color: var(--accent-yellow);
 }
 
-/* Error Status */
+/* 错误状态 */
 .status-error {
-    color: var(--status-error);
-    filter: drop-shadow(var(--status-error-glow));
+    color: var(--accent-red);
 }
 
-/* Info Status */
+/* 信息状态 */
 .status-info {
-    color: var(--status-info);
-    filter: drop-shadow(var(--status-info-glow));
+    color: var(--accent-blue);
 }
 
 /* ========================================
-   9. ANIMATIONS
+   7. 消息气泡样式
    ======================================== */
 
-/* Pulse Glow Animation */
-@keyframes pulseGlow {
-    0%, 100% {
-        box-shadow: 0 0 20px rgba(255, 140, 66, 0.3);
-    }
-    50% {
-        box-shadow: 0 0 30px rgba(255, 140, 66, 0.6);
-    }
-}
-
-.animate-pulse-glow {
-    animation: pulseGlow 2s ease-in-out infinite;
-}
-
-/* Shimmer Effect */
-@keyframes shimmer {
-    0% {
-        background-position: -1000px 0;
-    }
-    100% {
-        background-position: 1000px 0;
-    }
-}
-
-.shimmer {
-    background: linear-gradient(
-        90deg,
-        transparent 0%,
-        rgba(255, 255, 255, 0.1) 50%,
-        transparent 100%
-    );
-    background-size: 1000px 100%;
-    animation: shimmer 2s infinite;
-}
-
-/* ========================================
-   10. PERFORMANCE OPTIMIZATIONS
-   ======================================== */
-
-/* Optimize backdrop-filter performance */
-.deep-glass,
-.medium-glass,
-.light-glass {
-    will-change: backdrop-filter;
-    transform: translateZ(0);
-}
-
-/* Reduce motion for accessibility */
-@media (prefers-reduced-motion: reduce) {
-    .animate-pulse-glow,
-    .shimmer,
-    .bg-deep-glass-animated {
-        animation: none;
-    }
-
-    .btn-glass-orange,
-    .btn-glass,
-    .input-glass {
-        transition: none;
-    }
-}
-
-/* ========================================
-   11. RESPONSIVE ADJUSTMENTS
-   ======================================== */
-
-/* Reduce blur on mobile for performance */
-@media (max-width: 768px) {
-    .deep-glass {
-        backdrop-filter: var(--glass-blur-medium) saturate(150%);
-        -webkit-backdrop-filter: var(--glass-blur-medium) saturate(150%);
-    }
-
-    .medium-glass {
-        backdrop-filter: var(--glass-blur-light) saturate(120%);
-        -webkit-backdrop-filter: var(--glass-blur-light) saturate(120%);
-    }
-}
-
-/* ========================================
-   12. SCROLLBAR STYLING
-   ======================================== */
-
-/* Glass Scrollbar */
-.glass-scrollbar::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-.glass-scrollbar::-webkit-scrollbar-track {
-    background: var(--glass-bg-subtle);
-    border-radius: 4px;
-}
-
-.glass-scrollbar::-webkit-scrollbar-thumb {
-    background: var(--glass-bg-medium);
-    border-radius: 4px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.glass-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: var(--glass-bg-strong);
-}
-
-/* ========================================
-   13. MESSAGE BUBBLES - Deep Glass Style
-   ======================================== */
-
-/* User Message - Orange-Gold Gradient */
+/* 用户消息 - 橙色强调 */
 .ds-message-user {
-    background: var(--accent-gradient);
-    color: white;
-    border-radius: 16px 4px 16px 16px;
+    background: var(--accent-orange-dim);
+    backdrop-filter: var(--blur-glass-light);
+    -webkit-backdrop-filter: var(--blur-glass-light);
+    border: 1px solid var(--accent-orange);
+    border-radius: var(--radius-lg) var(--radius-sm) var(--radius-lg) var(--radius-lg);
     padding: 12px 16px;
     max-width: 80%;
     margin-left: auto;
-    box-shadow: var(--glow-orange);
-    position: relative;
-    overflow: hidden;
+    color: var(--text-primary);
 }
 
-.ds-message-user::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, transparent 100%);
-    pointer-events: none;
-}
-
-/* Assistant Message - Deep Glass */
+/* 助手消息 - 深色玻璃 */
 .ds-message-assistant {
-    background: var(--glass-bg-deep);
-    backdrop-filter: var(--glass-blur-medium);
-    -webkit-backdrop-filter: var(--glass-blur-medium);
-    border: var(--glass-border);
-    border-radius: 4px 16px 16px 16px;
+    background: var(--bg-glass);
+    backdrop-filter: var(--blur-glass);
+    -webkit-backdrop-filter: var(--blur-glass);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-sm) var(--radius-lg) var(--radius-lg) var(--radius-lg);
     padding: 12px 16px;
     max-width: 85%;
-    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.2);
-    color: rgba(255, 255, 255, 0.95);
+    box-shadow: var(--shadow-glass);
+    color: var(--text-primary);
 }
 
-/* Code Block in Messages */
+/* 代码块 - 深黑背景 */
 .ds-message-assistant pre {
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    padding: 12px;
+    background: #05070a;
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-md);
+    padding: 14px;
     margin: 8px 0;
     overflow-x: auto;
 }
 
 .ds-message-assistant code {
-    color: rgba(255, 255, 255, 0.9);
-    font-family: var(--ds-font-mono);
+    color: var(--text-primary);
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
 }
 
-/* Terminal Result in Messages */
+/* 终端执行块 */
 .terminal-result {
-    background: rgba(0, 0, 0, 0.5);
-    border: 1px solid rgba(16, 185, 129, 0.3);
-    border-radius: 8px;
+    background: #05070a;
+    border: 1px solid var(--accent-green);
+    border-radius: var(--radius-md);
     padding: 12px;
     margin: 8px 0;
-    font-family: var(--ds-font-mono);
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
     font-size: 13px;
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--text-primary);
 }
 
 .terminal-result-success {
-    border-color: rgba(16, 185, 129, 0.5);
-    box-shadow: var(--status-success-glow);
+    border-color: var(--accent-green);
+    box-shadow: var(--glow-green);
 }
 
 .terminal-result-error {
-    border-color: rgba(239, 68, 68, 0.5);
-    box-shadow: var(--status-error-glow);
+    border-color: var(--accent-red);
 }
 
-/* Thinking Process Panel */
+/* 思考过程面板 */
 .thinking-process {
-    background: var(--glass-bg-medium);
-    backdrop-filter: var(--glass-blur-light);
-    -webkit-backdrop-filter: var(--glass-blur-light);
-    border: 1px solid rgba(59, 130, 246, 0.3);
-    border-radius: 8px;
+    background: var(--bg-glass-light);
+    backdrop-filter: var(--blur-glass-light);
+    -webkit-backdrop-filter: var(--blur-glass-light);
+    border: 1px solid var(--accent-yellow);
+    border-radius: var(--radius-md);
     padding: 12px;
     margin: 8px 0;
-    box-shadow: var(--glow-blue);
+    box-shadow: var(--glow-yellow);
 }
 
 .thinking-process-header {
     display: flex;
     align-items: center;
     gap: 8px;
-    color: rgba(59, 130, 246, 0.9);
+    color: var(--accent-yellow);
     font-weight: 500;
     font-size: 13px;
     margin-bottom: 8px;
 }
 
 .thinking-process-content {
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--text-secondary);
     font-size: 13px;
     line-height: 1.6;
 }
 
+/* ========================================
+   8. 滚动条样式
+   ======================================== */
+
+/* 玻璃滚动条 */
+.glass-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.glass-scrollbar::-webkit-scrollbar-track {
+    background: var(--bg-glass-light);
+    border-radius: 4px;
+}
+
+.glass-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--bg-panel);
+    border-radius: 4px;
+    border: 1px solid var(--border-glass);
+}
+
+.glass-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--bg-glass-strong);
+}
+
+/* ========================================
+   9. 动画 - 慢速、平滑、克制
+   ======================================== */
+
+/* 淡入动画 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn var(--duration-normal) var(--easing);
+}
+
+/* 滑入动画 */
+@keyframes slideUp {
+    from {
+        transform: translateY(10px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.animate-slide-up {
+    animation: slideUp var(--duration-normal) var(--easing);
+}
+
+/* 微光脉冲 - 极低强度 */
+@keyframes pulseGlow {
+    0%, 100% {
+        opacity: 0.6;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+.animate-pulse-glow {
+    animation: pulseGlow 2s var(--easing) infinite;
+}
+
+/* ========================================
+   10. 性能优化
+   ======================================== */
+
+/* 优化 backdrop-filter 性能 */
+.deep-glass,
+.medium-glass,
+.light-glass,
+.strong-glass {
+    will-change: backdrop-filter;
+    transform: translateZ(0);
+}
+
+/* 减少动画（无障碍） */
+@media (prefers-reduced-motion: reduce) {
+    .animate-fade-in,
+    .animate-slide-up,
+    .animate-pulse-glow {
+        animation: none;
+    }
+
+    .btn-glass,
+    .btn-glass-blue,
+    .btn-glass-orange,
+    .btn-glass-green,
+    .input-glass {
+        transition: none;
+    }
+}
+
+/* ========================================
+   11. 响应式调整
+   ======================================== */
+
+/* 移动端降低模糊度以提升性能 */
+@media (max-width: 768px) {
+    .deep-glass,
+    .medium-glass {
+        backdrop-filter: var(--blur-glass-light) saturate(110%);
+        -webkit-backdrop-filter: var(--blur-glass-light) saturate(110%);
+    }
+
+    .light-glass {
+        backdrop-filter: blur(12px) saturate(105%);
+        -webkit-backdrop-filter: blur(12px) saturate(105%);
+    }
+}
+
+/* ========================================
+   12. 辅助工具类
+   ======================================== */
+
+/* 文本颜色 */
+.text-primary {
+    color: var(--text-primary);
+}
+
+.text-secondary {
+    color: var(--text-secondary);
+}
+
+.text-muted {
+    color: var(--text-muted);
+}
+
+/* 边框 */
+.border-glass {
+    border: 1px solid var(--border-glass);
+}
+
+.border-glass-strong {
+    border: 1px solid var(--border-glass-strong);
+}
+
+/* 圆角 */
+.rounded-glass-sm {
+    border-radius: var(--radius-sm);
+}
+
+.rounded-glass-md {
+    border-radius: var(--radius-md);
+}
+
+.rounded-glass-lg {
+    border-radius: var(--radius-lg);
+}
+
+/* 阴影 */
+.shadow-glass {
+    box-shadow: var(--shadow-glass);
+}
+
+.shadow-glass-strong {
+    box-shadow: var(--shadow-glass-strong);
+}
