@@ -294,6 +294,9 @@ export const ConfigSyncPanel: React.FC = () => {
                 <strong>同步到 CLI</strong>: 将 Fangyu Code 的 MCP 配置同步到 Claude Code CLI
               </li>
               <li>
+                <strong>配置隔离</strong>: Fangyu Code 运行时优先使用 settings.json，可与 Claude CLI 同时运行
+              </li>
+              <li>
                 配置文件位置:
                 <ul className="list-circle list-inside ml-4 mt-0.5">
                   <li>Fangyu Code: <code className="text-[10px] bg-muted px-1 rounded">~/.claude/settings.json</code></li>
