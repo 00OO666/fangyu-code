@@ -1,7 +1,6 @@
 import React from 'react';
-import Moon from 'lucide-react/dist/esm/icons/moon'
-import Sun from 'lucide-react/dist/esm/icons/sun';
-import { Button } from '@/components/ui/button';
+import Sparkles from 'lucide-react/dist/esm/icons/sparkles'
+import Zap from 'lucide-react/dist/esm/icons/zap';
 import { useTheme } from '@/contexts/ThemeContext';
 import { cn } from '@/lib/utils';
 import {
@@ -27,35 +26,60 @@ interface ThemeToggleProps {
 }
 
 /**
- * 主题切换组件
- * 支持亮色/暗色主题切换
+ * 主题切换组件 - Deep Glass Sci-Fi 风格
+ * 参考游戏大厅侧边栏设计
  */
 export const ThemeToggle: React.FC<ThemeToggleProps> = ({
   variant = 'icon-only',
   size = 'sm',
   className = '',
 }) => {
-  const { theme, toggleTheme } = useTheme();
+  const { themeName, toggleTheme, isLoading } = useTheme();
+
+  if (isLoading) {
+    return null;
+  }
+
+  const isSciFi = themeName === 'deep-glass-scifi';
 
   const button = (
-    <Button
-      variant="ghost"
-      size={size}
+    <button
       onClick={toggleTheme}
-      className={cn("transition-all duration-200 hover:scale-105 rounded-full", className)}
+      className={cn(
+        "flex items-center gap-2 text-slate-400 hover:text-white transition-all duration-200 cursor-pointer",
+        size === 'sm' && "text-sm",
+        size === 'default' && "text-base",
+        size === 'lg' && "text-lg",
+        isSciFi && "text-amber-500 hover:text-amber-400",
+        className
+      )}
     >
-      {theme === 'dark' ? (
+      {isSciFi ? (
         <>
-          <Sun className="h-3.5 w-3.5" strokeWidth={2} />
-          {variant === 'with-text' && <span className="ml-1.5">主题</span>}
+          <Sparkles className={cn(
+            "flex-shrink-0",
+            size === 'sm' && "w-4 h-4",
+            size === 'default' && "w-5 h-5",
+            size === 'lg' && "w-6 h-6"
+          )} strokeWidth={2} />
+          {variant === 'with-text' && (
+            <span className="font-display text-xs tracking-wider uppercase">Pro</span>
+          )}
         </>
       ) : (
         <>
-          <Moon className="h-3.5 w-3.5" strokeWidth={2} />
-          {variant === 'with-text' && <span className="ml-1.5">主题</span>}
+          <Zap className={cn(
+            "flex-shrink-0",
+            size === 'sm' && "w-4 h-4",
+            size === 'default' && "w-5 h-5",
+            size === 'lg' && "w-6 h-6"
+          )} strokeWidth={2} />
+          {variant === 'with-text' && (
+            <span className="font-display text-xs tracking-wider uppercase">Sci-Fi</span>
+          )}
         </>
       )}
-    </Button>
+    </button>
   );
 
   // 仅图标模式时显示 tooltip
@@ -65,7 +89,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
         <Tooltip>
           <TooltipTrigger asChild>{button}</TooltipTrigger>
           <TooltipContent>
-            <p>{theme === 'dark' ? '切换到亮色主题' : '切换到暗色主题'}</p>
+            <p>{isSciFi ? '切换到 Pro 主题' : '切换到 Sci-Fi 主题'}</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>

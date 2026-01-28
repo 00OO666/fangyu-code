@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="deep-glass-scifi" class="dark enable-scanline enable-neon-glow enable-background-glow">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deep Glass Sci-Fi Theme Preview</title>
+    <link rel="stylesheet" href="../src/styles/theme-scifi.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=JetBrains+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0c10;
+            color: #f1f5f9;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            padding: 1.5rem;
+            border-radius: 12px;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .input {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 8px;
+            border: none;
+            margin-top: 0.5rem;
+        }
+
+        .status-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1 class="neon-text-amber" style="font-size: 2.5rem; margin-bottom: 0.5rem;">
+                DEEP GLASS SCI-FI
+            </h1>
+            <p class="neon-text-blue" style="font-size: 1.2rem; font-family: 'Orbitron', sans-serif;">
+                ENHANCED THEME PREVIEW
+            </p>
+        </div>
+
+        <!-- Cards Grid -->
+        <div class="grid">
+            <!-- Card 1: Buttons -->
+            <div class="card glass-panel">
+                <h2 style="margin-bottom: 1rem; font-size: 1.2rem;">BUTTONS</h2>
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <button class="btn btn-primary">PRIMARY BUTTON</button>
+                    <button class="btn btn-secondary">SECONDARY BUTTON</button>
+                </div>
+            </div>
+
+            <!-- Card 2: Input -->
+            <div class="card glass-panel">
+                <h2 style="margin-bottom: 1rem; font-size: 1.2rem;">INPUT FIELD</h2>
+                <input type="text" class="input input-glass" placeholder="ENTER COMMAND...">
+            </div>
+
+            <!-- Card 3: Status Indicators -->
+            <div class="card glass-panel">
+                <h2 style="margin-bottom: 1rem; font-size: 1.2rem;">STATUS</h2>
+                <div class="status-row">
+                    <div class="status-indicator active"></div>
+                    <span>SYSTEM ONLINE</span>
+                </div>
+                <div class="status-row">
+                    <div class="status-indicator warning"></div>
+                    <span>WARNING DETECTED</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Message Example -->
+        <div class="card glass-panel" style="margin-bottom: 2rem;">
+            <h2 style="margin-bottom: 1rem; font-size: 1.2rem;">MESSAGE PREVIEW</h2>
+            <div class="ds-message-user" style="max-width: 80%; margin-left: auto; padding: 1rem; border-radius: 12px; margin-bottom: 1rem;">
+                This is a user message with glowing border effect.
+            </div>
+            <div style="padding: 1rem;">
+                <h3 class="neon-text-amber" style="font-size: 1.1rem; margin-bottom: 0.5rem;">AI RESPONSE</h3>
+                <p style="color: #cbd5e1;">This is an AI response with enhanced text visibility and neon glow effects.</p>
+            </div>
+        </div>
+
+        <!-- Timeline Example -->
+        <div class="card glass-panel">
+            <h2 style="margin-bottom: 1rem; font-size: 1.2rem;">TIMELINE</h2>
+            <div style="position: relative; padding-left: 2rem;">
+                <div class="timeline-line" style="position: absolute; left: 0.5rem; top: 0; bottom: 0; width: 2px;"></div>
+                <div style="position: relative; margin-bottom: 1.5rem;">
+                    <div class="timeline-dot" style="position: absolute; left: -1.5rem; top: 0.25rem;"></div>
+                    <p style="color: #cbd5e1;">Event 1: System initialized</p>
+                </div>
+                <div style="position: relative;">
+                    <div class="timeline-dot" style="position: absolute; left: -1.5rem; top: 0.25rem;"></div>
+                    <p style="color: #cbd5e1;">Event 2: Connection established</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

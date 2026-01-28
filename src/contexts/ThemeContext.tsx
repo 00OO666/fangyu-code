@@ -1,17 +1,16 @@
+/**
+ * 主题上下文 - Theme Context
+ * 管理应用主题状态和切换
+ * 支持 Deep Glass Pro 和 Deep Glass Sci-Fi 主题
+ */
+
 import { logger } from '@/lib/logger';
 import React, { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
 import { invoke } from '@tauri-apps/api/core';
+import { Theme, ThemeName, ThemeContextValue } from '@/types/theme';
+import { themes, defaultTheme } from '@/themes';
 
-type Theme = 'light' | 'dark';
-
-interface ThemeContextType {
-  theme: Theme;
-  setTheme: (theme: Theme) => void;
-  toggleTheme: () => void;
-  isTransitioning: boolean;
-}
-
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
 export const useTheme = () => {
   const context = useContext(ThemeContext);
@@ -26,84 +25,137 @@ interface ThemeProviderProps {
 }
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  const [theme, setThemeState] = useState<Theme>('dark');
+  const [themeName, setThemeName] = useState<ThemeName>('deep-glass-pro');
+  const [theme, setThemeState] = useState<Theme>(defaultTheme);
+  const [isLoading, setIsLoading] = useState(true);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
 
+  // 从 localStorage 加载主题偏好
   useEffect(() => {
-    // 挂载时从 localStorage 加载主题
-    // Load theme from localStorage on mount
-    const savedTheme = localStorage.getItem('theme') as Theme;
-    if (savedTheme) {
-      setThemeState(savedTheme);
+    try {
+      const savedTheme = localStorage.getItem('fangyu-theme') as ThemeName;
+      if (savedTheme && themes[savedTheme]) {
+        setThemeName(savedTheme);
+        setThemeState(themes[savedTheme]);
+      }
+    } catch (error) {
+      logger.error('ThemeContext', 'Failed to load theme:', error);
+    } finally {
+      setIsLoading(false);
     }
-
-    // 防止初始加载时的过渡动画
-    // Prevent transition on initial load
-    document.documentElement.classList.add('no-transition');
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        document.documentElement.classList.remove('no-transition');
-        setIsInitialized(true);
-      });
-    });
   }, []);
 
+  // 应用主题到 CSS 变量和 DOM
   useEffect(() => {
-    // 将主题应用到文档
-    // Apply theme to document
     const root = document.documentElement;
-    root.classList.remove('light', 'dark');
-    root.classList.add(theme);
 
-    // 为 markdown 编辑器更新 data-color-mode
-    // Update data-color-mode for markdown editor
-    document.documentElement.setAttribute('data-color-mode', theme);
+    // 应用颜色变量
+    Object.entries(theme.colors).forEach(([key, value]) => {
+      const cssVar = `--${key.replace(/([A-Z])/g, '-$1').toLowerCase()}`;
+      root.style.setProperty(cssVar, value);
+    });
 
-    // 将主题保存到 localStorage
-    // Save theme to localStorage
-    localStorage.setItem('theme', theme);
+    // 应用字体变量
+    root.style.setProperty('--font-display', theme.fonts.display);
+    root.style.setProperty('--font-mono', theme.fonts.mono);
+    root.style.setProperty('--font-sans', theme.fonts.sans);
 
-    // 更新 Windows 标题栏颜色以匹配主题
-    // Update Windows title bar color to match theme
-    invoke('set_titlebar_theme', { isDark: theme === 'dark' }).catch((err) => {
+    // 应用模糊效果变量
+    root.style.setProperty('--blur-glass', theme.effects.blurGlass);
+    root.style.setProperty('--blur-glass-light', theme.effects.blurGlassLight);
+    root.style.setProperty('--blur-glass-strong', theme.effects.blurGlassStrong);
+
+    // 设置主题属性
+    root.setAttribute('data-theme', theme.name);
+
+    // 保持 dark 类（兼容现有代码）
+    root.classList.add('dark');
+
+    // 控制特效类名
+    if (theme.effects.enableScanline) {
+      root.classList.add('enable-scanline');
+    } else {
+      root.classList.remove('enable-scanline');
+    }
+
+    if (theme.effects.enableNeonGlow) {
+      root.classList.add('enable-neon-glow');
+    } else {
+      root.classList.remove('enable-neon-glow');
+    }
+
+    if (theme.effects.enableBackgroundGlow) {
+      root.classList.add('enable-background-glow');
+    } else {
+      root.classList.remove('enable-background-glow');
+    }
+
+    // 加载 Sci-Fi 字体（如果需要）
+    if (theme.name === 'deep-glass-scifi') {
+      loadSciFiFonts();
+    }
+
+    // 更新 Windows 标题栏颜色
+    invoke('set_titlebar_theme', { isDark: true }).catch((err) => {
       logger.warn('ThemeContext', 'Failed to update titlebar theme:', err);
     });
   }, [theme]);
 
-  // 带过渡动画的主题切换
-  // Theme switching with transition animation
-  const setTheme = useCallback((newTheme: Theme) => {
-    if (newTheme === theme || !isInitialized) {
-      setThemeState(newTheme);
-      return;
+  const setTheme = useCallback(async (name: ThemeName) => {
+    if (themes[name]) {
+      // 添加过渡效果
+      document.documentElement.classList.add('theme-transitioning');
+      setIsTransitioning(true);
+
+      setThemeName(name);
+      setThemeState(themes[name]);
+
+      // 保存到 localStorage
+      try {
+        localStorage.setItem('fangyu-theme', name);
+        logger.info('ThemeContext', `Theme changed to: ${name}`);
+      } catch (error) {
+        logger.error('ThemeContext', 'Failed to save theme:', error);
+      }
+
+      // 移除过渡类
+      setTimeout(() => {
+        document.documentElement.classList.remove('theme-transitioning');
+        setIsTransitioning(false);
+      }, 300);
     }
-
-    // 添加过渡类
-    // Add transition class
-    document.documentElement.classList.add('theme-transitioning');
-    setIsTransitioning(true);
-
-    // 设置新主题
-    setThemeState(newTheme);
-
-    // 移除过渡类
-    // Remove transition class after animation
-    const timer = setTimeout(() => {
-      document.documentElement.classList.remove('theme-transitioning');
-      setIsTransitioning(false);
-    }, 300); // 匹配 --ds-duration-slow
-
-    return () => clearTimeout(timer);
-  }, [theme, isInitialized]);
+  }, []);
 
   const toggleTheme = useCallback(() => {
-    setTheme(theme === 'light' ? 'dark' : 'light');
-  }, [theme, setTheme]);
+    const newTheme = themeName === 'deep-glass-pro'
+      ? 'deep-glass-scifi'
+      : 'deep-glass-pro';
+    setTheme(newTheme);
+  }, [themeName, setTheme]);
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme, isTransitioning }}>
+    <ThemeContext.Provider value={{ theme, themeName, setTheme, toggleTheme, isLoading }}>
       {children}
     </ThemeContext.Provider>
   );
 };
+
+// 加载 Sci-Fi 字体
+async function loadSciFiFonts() {
+  try {
+    // 检查字体是否已加载
+    if (document.fonts.check('1em Orbitron')) {
+      return;
+    }
+
+    // 创建 link 元素加载 Google Fonts
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&display=swap';
+    document.head.appendChild(link);
+
+    logger.info('ThemeContext', 'Sci-Fi fonts loaded');
+  } catch (error) {
+    logger.error('ThemeContext', 'Failed to load Sci-Fi fonts:', error);
+  }
+}

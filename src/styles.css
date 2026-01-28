@@ -1,5 +1,21 @@
 @import "tailwindcss";
 
+/* ========================================
+   FONT CONFIGURATION - 中国用户喜爱的字体
+   ======================================== */
+@theme {
+  --font-sans: "Poppins", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "Cascadia Code", "Fira Code", "Consolas", ui-monospace, "Source Code Pro", Menlo, monospace;
+
+  /* Sci-Fi 主题字体 */
+  --font-display: "Orbitron", "Poppins", ui-sans-serif, system-ui, sans-serif;
+
+  /* Deep Glass 颜色扩展 */
+  --color-amber: #f59e0b;
+  --color-scifi-blue: #00f2ff;
+  --color-glass-dark: rgba(15, 18, 24, 0.4);
+}
+
 /*
  * MODERN DESIGN SYSTEM - Material 3 Inspired
  *
@@ -8,10 +24,12 @@
  */
 
 @import "./styles/theme.css";
-@import "./styles/design-system-v3.css";
+/* @import "./styles/design-system-v3.css"; */ /* ❌ 已弃用：被 Deep Glass 替代 */
 /* 🆕 v3 Design System with Glassmorphism */
 @import "./styles/design-system-deep-glass.css";
-/* 🌟 Deep Glass Pro AI Station V1 Style */
+/* 🌟 Deep Glass Pro AI Station V1 Style - 主设计系统 */
+@import "./styles/theme-scifi.css";
+/* 🚀 Deep Glass Sci-Fi Theme - 科幻主题 */
 @import "./styles/typography.css";
 @import "./styles/animations.css";
 @import "./styles/components.css";

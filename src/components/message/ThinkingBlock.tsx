@@ -6,6 +6,7 @@ import { useTypewriter } from "@/hooks/useTypewriter";
 import { useTranslation } from "@/hooks/useTranslation";
 import { MessageContent } from "./MessageContent";
 import { getGlobalOutputDisplaySettings } from "@/hooks/useOutputDisplaySettings";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface ThinkingBlockProps {
   content: string;
@@ -28,6 +29,8 @@ export const ThinkingBlock: React.FC<ThinkingBlockProps> = ({
   onToggle
 }) => {
   const { t } = useTranslation();
+  const { themeName } = useTheme();
+  const isSciFi = themeName === 'deep-glass-scifi';
 
   // 🆕 获取全局设置，控制默认展开状态
   const globalSettings = getGlobalOutputDisplaySettings();
@@ -64,7 +67,7 @@ export const ThinkingBlock: React.FC<ThinkingBlockProps> = ({
       return (
         <div className="prose prose-sm prose-neutral dark:prose-invert max-w-none">
           <MessageContent content={textToDisplay} isStreaming={false} enableTypewriter={false} />
-          {isTyping && <span className="inline-block w-1 h-3 ml-0.5 bg-amber-500 animate-pulse rounded-sm" />}
+          {isTyping && <span className={cn("inline-block w-1 h-3 ml-0.5 animate-pulse rounded-sm", isSciFi ? "bg-amber-500" : "bg-amber-500")} />}
         </div>
       );
     }
@@ -73,16 +76,16 @@ export const ThinkingBlock: React.FC<ThinkingBlockProps> = ({
       <React.Fragment key={index}>
         {index > 0 && (
           <div className="flex items-center gap-2 my-3 opacity-50 select-none">
-            <div className="h-px bg-amber-500/30 flex-1" />
-            <div className="text-[10px] text-amber-700/50 dark:text-amber-300/50 font-mono">STEP {index + 1}</div>
-            <div className="h-px bg-amber-500/30 flex-1" />
+            <div className={cn("h-px flex-1", isSciFi ? "bg-amber-500/30" : "bg-amber-500/30")} />
+            <div className={cn("text-[10px] font-mono", isSciFi ? "text-amber-300/50" : "text-amber-700/50 dark:text-amber-300/50")}>STEP {index + 1}</div>
+            <div className={cn("h-px flex-1", isSciFi ? "bg-amber-500/30" : "bg-amber-500/30")} />
           </div>
         )}
         <div className="prose prose-sm prose-neutral dark:prose-invert max-w-none">
           <MessageContent content={part.trim()} isStreaming={false} enableTypewriter={false} />
         </div>
         {index === parts.length - 1 && isTyping && (
-          <span className="inline-block w-1 h-3 ml-0.5 bg-amber-500 animate-pulse rounded-sm" />
+          <span className={cn("inline-block w-1 h-3 ml-0.5 animate-pulse rounded-sm", isSciFi ? "bg-amber-500" : "bg-amber-500")} />
         )}
       </React.Fragment>
     ));
@@ -92,37 +95,46 @@ export const ThinkingBlock: React.FC<ThinkingBlockProps> = ({
 
   if (!content) return null;
 
+  // 根据主题选择颜色
+  const borderColor = isSciFi ? 'rgba(245, 158, 11, 0.4)' : 'rgba(59, 130, 246, 0.4)';
+  const hoverBgColor = isSciFi ? 'rgba(245, 158, 11, 0.1)' : 'rgba(59, 130, 246, 0.1)';
+  const textHoverColor = isSciFi ? 'hover:text-amber-400' : 'hover:text-blue-400';
+  const dotColor = isSciFi ? 'bg-amber-400' : 'bg-blue-400';
+  const bgGradient = isSciFi
+    ? 'linear-gradient(to right, rgba(245, 158, 11, 0.15), transparent)'
+    : 'linear-gradient(to right, rgba(59, 130, 246, 0.15), transparent)';
+
   return (
     <div
-      className="inline-block border-l-2 rounded-md overflow-hidden shadow-sm"
+      className={cn("inline-block border-l-2 rounded-md overflow-hidden shadow-sm", isSciFi && "glowing-border-amber")}
       style={{
-        borderLeftColor: 'color-mix(in srgb, rgb(245 158 11) 40%, transparent)'
+        borderLeftColor: borderColor
       }}
     >
       <button
         onClick={handleToggle}
-        className="cursor-pointer px-1.5 py-1 text-[10px] text-amber-700 dark:text-amber-300 font-medium transition-all duration-200 select-none flex items-center gap-1 outline-none text-left rounded-md"
+        className={cn("cursor-pointer px-1.5 py-1 text-[10px] text-white/70 font-medium transition-all duration-200 select-none flex items-center gap-1 outline-none text-left rounded-md", textHoverColor)}
         style={{ backgroundColor: 'transparent' }}
-        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'color-mix(in srgb, rgb(245 158 11) 15%, transparent)'}
+        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = hoverBgColor}
         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
       >
         <BrainCircuit className="w-3 h-3 opacity-80" />
         <span className="font-medium">Thinking Process</span>
         {isTyping && (
           <span className="inline-flex gap-0.5">
-            <span className="inline-block w-1 h-1 bg-amber-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-            <span className="inline-block w-1 h-1 bg-amber-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-            <span className="inline-block w-1 h-1 bg-amber-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+            <span className={cn("inline-block w-1 h-1 rounded-full animate-bounce", dotColor)} style={{ animationDelay: '0ms' }} />
+            <span className={cn("inline-block w-1 h-1 rounded-full animate-bounce", dotColor)} style={{ animationDelay: '150ms' }} />
+            <span className={cn("inline-block w-1 h-1 rounded-full animate-bounce", dotColor)} style={{ animationDelay: '300ms' }} />
           </span>
         )}
-        <span className="text-[9px] opacity-70 font-mono">{content.length} chars</span>
+        <span className="text-[9px] opacity-50 font-mono">{content.length} chars</span>
         <ChevronDown className={cn("w-3 h-3 opacity-70 transition-transform duration-300", isOpen ? "rotate-180" : "")} />
       </button>
       <div className={cn("overflow-hidden transition-all duration-300 ease-out motion-reduce:transition-none", isOpen ? "max-h-none opacity-100" : "max-h-0 opacity-0")}>
         <div
           className="px-1.5 pb-1.5 pt-0.5"
           style={{
-            background: 'linear-gradient(to right, color-mix(in srgb, rgb(245 158 11) 8%, transparent), transparent)'
+            background: bgGradient
           }}
           onDoubleClick={handleDoubleClick}
           title={isTyping ? t('thinking.doubleClickSkip') : undefined}

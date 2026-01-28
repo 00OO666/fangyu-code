@@ -10,6 +10,7 @@ import { SuggestionOverlay } from "./components/SuggestionOverlay";
 import { SlashCommandMenu } from "./SlashCommandMenu";
 import type { PromptSuggestion } from "./hooks/usePromptSuggestion";
 import type { SlashCommand } from "./slashCommands";
+import { useTheme } from "@/contexts/ThemeContext";
 
 /** 执行引擎类型 */
 type ExecutionEngine = 'claude' | 'gemini' | 'codex' | 'siliconflow';
@@ -91,6 +92,8 @@ export const InputArea = forwardRef<HTMLTextAreaElement, InputAreaProps>(({
   engine = 'claude',
 }, ref) => {
   const { t } = useTranslation();
+  const { themeName } = useTheme();
+  const isSciFi = themeName === 'deep-glass-scifi';
 
   // 当启用 Prompt Suggestions 时，完全隐藏 placeholder
   // 让 AI 建议作为智能 placeholder 替代
@@ -129,7 +132,9 @@ export const InputArea = forwardRef<HTMLTextAreaElement, InputAreaProps>(({
           "bg-background/50 backdrop-blur-sm border-border/50 focus:border-primary/50 focus:ring-primary/20",
           dragActive && "border-primary ring-2 ring-primary/20",
           // 🆕 建议存在时文字颜色正常，让叠加层可见
-          suggestion && "caret-primary"
+          suggestion && "caret-primary",
+          // 🆕 Sci-Fi 主题下添加发光效果
+          isSciFi && "input-glass"
         )}
         rows={1}
         style={{ height: 'auto' }}

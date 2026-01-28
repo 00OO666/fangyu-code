@@ -7,6 +7,7 @@
  * - 减少不必要的重渲染
  *
  * Provider 层级说明:
+ * 0. ThemeProvider - 主题管理（新增）
  * 1. UpdateProvider - 应用更新状态
  * 2. GlobalTaskStateProvider - 全局任务状态
  * 3. OutputCacheProvider - 输出缓存
@@ -20,6 +21,7 @@
  */
 
 import { ReactNode } from 'react';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 import { NavigationProvider } from '@/contexts/NavigationContext';
 import { ProjectProvider } from '@/contexts/ProjectContext';
 import { TabProvider } from '@/hooks/useTabs';
@@ -40,19 +42,21 @@ interface AppProvidersProps {
  */
 export function AppProviders({ children }: AppProvidersProps) {
     return (
-        <UpdateProvider>
-            <GlobalTaskStateProvider>
-                <OutputCacheProvider>
-                    <NavigationProvider>
-                        <ProjectProvider>
-                            <TabProvider>
-                                <PromptQueueProvider>{children}</PromptQueueProvider>
-                            </TabProvider>
-                        </ProjectProvider>
-                    </NavigationProvider>
-                </OutputCacheProvider>
-            </GlobalTaskStateProvider>
-        </UpdateProvider>
+        <ThemeProvider>
+            <UpdateProvider>
+                <GlobalTaskStateProvider>
+                    <OutputCacheProvider>
+                        <NavigationProvider>
+                            <ProjectProvider>
+                                <TabProvider>
+                                    <PromptQueueProvider>{children}</PromptQueueProvider>
+                                </TabProvider>
+                            </ProjectProvider>
+                        </NavigationProvider>
+                    </OutputCacheProvider>
+                </GlobalTaskStateProvider>
+            </UpdateProvider>
+        </ThemeProvider>
     );
 }
 
