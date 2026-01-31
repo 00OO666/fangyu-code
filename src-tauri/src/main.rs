@@ -8,6 +8,7 @@ mod lsp; // LSP 模块
 mod process;
 mod utils; // 新增：通用工具模块
 mod memory_index; // 智能记忆导入功能
+mod cli_monitor; // CLI 监控模块
 
 // MCP 多应用支持模块
 mod mcp;
@@ -299,6 +300,9 @@ fn main() {
 
             // Initialize LSP Manager
             app.manage(commands::lsp::LSPManager::new());
+
+            // Initialize CLI Monitor State
+            app.manage(cli_monitor::CliMonitorState::new());
 
             // Initialize auto-compact manager for context management
             let auto_compact_manager =
@@ -807,6 +811,11 @@ fn main() {
             send_kiro_request,
             parse_kiro_sse_response,
             kiro_chat,
+            // CLI Monitor (CLI 监控系统)
+            cli_monitor::scan_cli_sessions,
+            cli_monitor::get_running_processes,
+            cli_monitor::watch_sessions,
+            cli_monitor::scan_windows,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
