@@ -36,6 +36,7 @@ import { WorkflowManagerPanel } from '@/components/WorkflowManagerPanel';
 import NewFeaturesDemo from '@/examples/NewFeaturesDemo';
 // import { ProjectCardSkeleton, SessionListItemSkeleton } from '@/components/ui/skeleton'; // Unused in new GlobalSessionCenter
 import { GlobalSessionCenter } from '@/components/GlobalSessionCenter';
+import { CliMonitorPanel } from '@/components/cli-monitor';
 import { useNavigation } from '@/contexts/NavigationContext';
 import { useProject } from '@/contexts/ProjectContext';
 import { useTabs } from '@/hooks/useTabs';
@@ -370,6 +371,13 @@ export const ViewRouter: React.FC = () => {
           );
         }
         break;
+
+      case "cli-monitor":
+        return (
+          <div className="flex-1 overflow-hidden">
+            <CliMonitorPanel />
+          </div>
+        );
 
       default:
         return null;

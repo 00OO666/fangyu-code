@@ -722,7 +722,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
     sessionId: effectiveSession?.id,
     projectPath,
     compactThreshold: 0.80, // 🔧 FIX: 与 Claude Code 一致，使用 80% 阈值
-    autoCompact: true, // 🔧 FIX: 启用自动压缩（之前被错误禁用）
+    autoCompact: false, // 🔧 FIX: 暂时禁用自动压缩（后端 execute_compact 命令存在问题）
     contextUsage: contextUsage.hasData ? contextUsage.percentage / 100 : 0,
     maxTokens: contextUsage.contextWindowSize,
     currentTokens: contextUsage.currentTokens,

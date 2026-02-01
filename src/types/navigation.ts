@@ -20,7 +20,8 @@ export type View =
   | "developer-tools" // v2.5.0 开发工具
   | "spec-generation" // v2.5.0 规范生成引擎
   | "workflow-manager" // v2.5.0 工作流管理器
-  | "v3-features"; // v3.0 功能中心
+  | "v3-features" // v3.0 功能中心
+  | "cli-monitor"; // v3.1.0 CLI 监控
 
 export interface NavigationState {
   currentView: View;

@@ -13,6 +13,8 @@ import { useState, useCallback, useRef, useMemo } from 'react';
 import type { Tab, TabSession } from './types';
 import type { Session } from '@/lib/api';
 import { api } from '@/lib/api';
+import { getDefaultTheme, getSessionThemePreference, setSessionThemePreference } from '@/lib/themePreferences';
+import type { ThemeName } from '@/types/theme';
 
 /**
  * 基础标签页状态管理 Hook
@@ -64,6 +66,20 @@ export function useTabState() {
     );
 
     /**
+     * 解析标签页主题（会话优先，其次项目路径，最后默认）
+     */
+    const resolveTabTheme = useCallback(
+        (session?: Session, projectPath?: string): ThemeName => {
+            const preferred = getSessionThemePreference({
+                sessionId: session?.id,
+                projectPath: projectPath || session?.project_path,
+            });
+            return preferred || getDefaultTheme();
+        },
+        []
+    );
+
+    /**
      * 计算带 isActive 标记的标签页列表
      * 🔧 FIX (v2.7.6): 使用 useMemo 缓存，避免每次渲染都创建新数组
      */
@@ -88,6 +104,7 @@ export function useTabState() {
                 projectPath: projectPath || session?.project_path,
                 session,
                 engine: session?.engine,
+                themeName: resolveTabTheme(session, projectPath),
                 state: 'idle',
                 hasUnsavedChanges: false,
                 createdAt: Date.now(),
@@ -102,7 +119,7 @@ export function useTabState() {
 
             return newTabId;
         },
-        [generateTabId, generateTabTitle]
+        [generateTabId, generateTabTitle, resolveTabTheme]
     );
 
     /**
@@ -118,6 +135,7 @@ export function useTabState() {
                 smartMode: true,
                 projectPath: undefined,
                 engine: 'claude',
+                themeName: resolveTabTheme(undefined, undefined),
                 state: 'idle',
                 hasUnsavedChanges: false,
                 createdAt: Date.now(),
@@ -133,7 +151,7 @@ export function useTabState() {
             logger.debug('useTabState', '[useTabState] Created smart tab:', newTabId);
             return newTabId;
         },
-        [generateTabId]
+        [generateTabId, resolveTabTheme]
     );
 
     /**
@@ -263,6 +281,17 @@ export function useTabState() {
     );
 
     /**
+     * 更新标签页主题
+     */
+    const updateTabTheme = useCallback((tabId: string, themeName: ThemeName) => {
+        setTabs((prev) =>
+            prev.map((tab) =>
+                tab.id === tabId ? { ...tab, themeName, lastActiveAt: Date.now() } : tab
+            )
+        );
+    }, []);
+
+    /**
      * 更新标签页会话信息
      */
     const updateTabSession = useCallback(
@@ -275,10 +304,13 @@ export function useTabState() {
                 engine?: 'claude' | 'codex' | 'gemini' | 'siliconflow' | 'kiro';
             }
         ) => {
+            let themeToPersist: ThemeName | null = null;
             setTabs((prev) =>
                 prev.map((tab) => {
                     if (tab.id !== tabId) return tab;
                     if (tab.session?.id === sessionInfo.sessionId) return tab;
+
+                    themeToPersist = tab.themeName || resolveTabTheme(undefined, sessionInfo.projectPath);
 
                     const newSession: Session = {
                         id: sessionInfo.sessionId,
@@ -296,12 +328,20 @@ export function useTabState() {
                         session: newSession,
                         projectPath: sessionInfo.projectPath,
                         engine: sessionInfo.engine || tab.engine,
+                        themeName: themeToPersist || tab.themeName,
                         lastActiveAt: Date.now(),
                     };
                 })
             );
+
+            if (themeToPersist) {
+                setSessionThemePreference(
+                    { sessionId: sessionInfo.sessionId, projectPath: sessionInfo.projectPath },
+                    themeToPersist
+                );
+            }
         },
-        []
+        [resolveTabTheme]
     );
 
     /**
@@ -524,6 +564,7 @@ export function useTabState() {
         updateTabChanges,
         updateTabTitle,
         updateTabEngine,
+        updateTabTheme,
         updateTabSession,
         upgradeSmartSession,
 

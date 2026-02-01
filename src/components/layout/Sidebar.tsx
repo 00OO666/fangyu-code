@@ -7,6 +7,7 @@ import Layers from 'lucide-react/dist/esm/icons/layers'
 import FileText from 'lucide-react/dist/esm/icons/file-text'
 import Package from 'lucide-react/dist/esm/icons/package'
 import FileCode from 'lucide-react/dist/esm/icons/file-code'
+import Grid3x3 from 'lucide-react/dist/esm/icons/grid-3x3'
 import ChevronLeft from 'lucide-react/dist/esm/icons/chevron-left'
 import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
 import HelpCircle from 'lucide-react/dist/esm/icons/help-circle'
@@ -26,6 +27,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { UnifiedEngineStatus } from '@/components/UnifiedEngineStatus';
 import { UpdateBadge } from '@/components/common/UpdateBadge';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { WindowDropdown } from '@/components/cli-monitor';
 
 interface SidebarProps {
   currentView: View;
@@ -93,6 +95,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const mainNavItems: NavItem[] = [
     { view: 'projects', icon: FolderOpen, label: t('common.ccProjectsTitle'), shortcut: '1' },
     { view: 'claude-tab-manager', icon: Terminal, label: t('sidebar.sessionManagement'), shortcut: '2' },
+    { view: 'cli-monitor', icon: Grid3x3, label: 'CLI 监控', shortcut: 'M' },
     { view: 'super-agent', icon: Bot, label: 'Super Agent', shortcut: '3' },
     { view: 'v3-features', icon: Code2, label: 'V3.0 功能', shortcut: '0' },
     { view: 'editor', icon: FileText, label: t('sidebar.claudePrompts'), shortcut: '4' },
@@ -177,6 +180,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* 底部状态区域 */}
       <div className={cn("flex flex-col w-full mt-auto pt-3 border-t border-white/10 flex-shrink-0", isExpanded ? "space-y-2" : "items-center space-y-2")}>
+        {isExpanded && (
+          <div className="px-2">
+            <WindowDropdown
+              onSelect={(window) => {
+                console.log('Selected window:', window);
+              }}
+            />
+          </div>
+        )}
         <div className={cn(isExpanded ? "w-full" : "flex justify-center w-full")}><UnifiedEngineStatus compact={!isExpanded} /></div>
         {isExpanded && <div className="px-1"><UpdateBadge onClick={onUpdateClick} /></div>}
         <div className={cn("flex items-center gap-1", isExpanded ? "justify-around px-1" : "flex-col")}>

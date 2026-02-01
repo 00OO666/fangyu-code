@@ -89,6 +89,10 @@ interface UseBackgroundCompactReturn {
   shouldSwitchSession: boolean;
   /** 确认切换完成（由使用方调用，确认已切换） */
   confirmSwitch: () => void;
+  /** 🆕 重置重试计数（手动重置，允许再次尝试） */
+  resetRetryCount: () => void;
+  /** 🆕 当前重试次数 */
+  retryCount: number;
 }
 
 export function useBackgroundCompact(
@@ -118,6 +122,12 @@ export function useBackgroundCompact(
   const hasTriggeredCompactRef = useRef(false);
   const compactStartTimeRef = useRef<number>(0);
   const compactNotificationIdRef = useRef<string | null>(null); // 🆕 存储通知 ID
+  const retryCountRef = useRef<number>(0); // 🆕 重试计数器
+  const lastErrorTimeRef = useRef<number>(0); // 🆕 上次错误时间
+
+  // 🆕 重试配置
+  const MAX_RETRY_COUNT = 3; // 最多重试 3 次
+  const RETRY_RESET_INTERVAL = 5 * 60 * 1000; // 5 分钟后重置重试计数
 
   // 计算上下文使用率
   const calculatedUsage = contextUsage || (maxTokens > 0 ? currentTokens / maxTokens : 0);
@@ -157,6 +167,19 @@ export function useBackgroundCompact(
   // 执行压缩（后台，不阻塞用户操作）
   const executeCompact = useCallback(async () => {
     if (!sessionId || !projectPath || compactTaskRef.current) {
+      return;
+    }
+
+    // 🆕 检查重试限制
+    const now = Date.now();
+    if (now - lastErrorTimeRef.current > RETRY_RESET_INTERVAL) {
+      // 超过 5 分钟，重置重试计数
+      retryCountRef.current = 0;
+    }
+
+    if (retryCountRef.current >= MAX_RETRY_COUNT) {
+      logger.warn('useBackgroundCompact', `[BackgroundCompact] ⚠️ Max retry count (${MAX_RETRY_COUNT}) reached, skipping compact`);
+      logger.warn('useBackgroundCompact', '[BackgroundCompact] 💡 Tip: You can manually trigger compact or wait 5 minutes for retry count reset');
       return;
     }
 
@@ -266,7 +289,16 @@ export function useBackgroundCompact(
       unlistenRefs.current.forEach((fn) => fn());
       unlistenRefs.current = [];
 
-      logger.error('useBackgroundCompact', "[BackgroundCompact] ❌ Compact failed:", error.message);
+      // 🔧 改进错误处理：输出完整的错误信息
+      const errorMessage = error?.message || String(err) || "Unknown error";
+      const errorStack = error?.stack || "No stack trace available";
+      logger.error('useBackgroundCompact', "[BackgroundCompact] ❌ Compact failed:", error);
+      logger.debug('useBackgroundCompact', "[BackgroundCompact] Error details:", {
+        message: errorMessage,
+        stack: errorStack,
+        type: typeof err,
+        fullError: err,
+      });
       setStatus("idle");
 
       // 🆕 关闭"后台压缩中"通知，显示错误通知
@@ -275,12 +307,25 @@ export function useBackgroundCompact(
         compactNotificationIdRef.current = null;
       }
 
-      const errorMessage = error.message === "Compact timeout"
+      // 🔧 改进错误消息：确保显示有意义的错误信息
+      const displayMessage = errorMessage === "Compact timeout"
         ? "压缩超时（60 秒）"
-        : error.message;
+        : errorMessage || "压缩失败（未知错误）";
 
-      const errorTemplate = NotificationTemplates.compactError(errorMessage);
+      const errorTemplate = NotificationTemplates.compactError(displayMessage);
       notify.error(errorTemplate.message, errorTemplate);
+
+      // 🆕 增加重试计数
+      retryCountRef.current += 1;
+      lastErrorTimeRef.current = Date.now();
+
+      if (retryCountRef.current >= MAX_RETRY_COUNT) {
+        logger.warn('useBackgroundCompact', `[BackgroundCompact] ⚠️ Reached max retry count (${MAX_RETRY_COUNT}), auto-compact will be disabled for 5 minutes`);
+        const warningTemplate = NotificationTemplates.compactError(
+          `自动压缩已暂停（失败 ${MAX_RETRY_COUNT} 次），5 分钟后自动恢复`
+        );
+        notify.warning(warningTemplate.message, warningTemplate);
+      }
 
       // 重置状态
       hasTriggeredCompactRef.current = false;
@@ -309,6 +354,13 @@ export function useBackgroundCompact(
     setDeltaMessages([]);
     setNewSessionId(undefined);
     hasTriggeredCompactRef.current = false;
+  }, []);
+
+  // 🆕 重置重试计数
+  const resetRetryCount = useCallback(() => {
+    logger.debug('useBackgroundCompact', "[BackgroundCompact] 🔄 Retry count reset manually");
+    retryCountRef.current = 0;
+    lastErrorTimeRef.current = 0;
   }, []);
 
   // 自动压缩逻辑
@@ -376,6 +428,8 @@ export function useBackgroundCompact(
     newSessionId,
     shouldSwitchSession,
     confirmSwitch,
+    resetRetryCount,
+    retryCount: retryCountRef.current,
   };
 }
 

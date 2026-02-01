@@ -67,7 +67,7 @@ export interface Theme {
 export interface ThemeContextValue {
   theme: Theme;
   themeName: ThemeName;
-  setTheme: (name: ThemeName) => void;
+  setTheme: (name: ThemeName, options?: { persistLast?: boolean }) => void;
   toggleTheme: () => void;
   isLoading: boolean;
 }

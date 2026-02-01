@@ -13,6 +13,8 @@ import Database from 'lucide-react/dist/esm/icons/database'
 import Bot from 'lucide-react/dist/esm/icons/bot'
 import Wrench from 'lucide-react/dist/esm/icons/wrench'
 import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw';
+import Image from 'lucide-react/dist/esm/icons/image';
+import Type from 'lucide-react/dist/esm/icons/type';
 import { notify } from "@/components/notifications";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -43,6 +45,8 @@ import { ConfigManagerEmbedded } from "./ConfigManager";
 import { OutputDisplaySettings } from "./settings/OutputDisplaySettings";
 import { SuperAgentSettings } from "./settings/SuperAgentSettings";
 import { ConfigSyncPanel } from "./settings/ConfigSyncPanel";
+import { BackgroundSettings } from "./settings/BackgroundSettings";
+import { FontSettings } from "./settings/FontSettings";
 
 interface SettingsProps {
   /**
@@ -447,7 +451,7 @@ export const Settings: React.FC<SettingsProps> = ({
           <div className="flex-1 overflow-y-auto p-5">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               {/* Premium Tab Navigation */}
-              <TabsList className="grid grid-cols-8 w-full h-auto p-1.5 light-glass rounded-2xl gap-1">
+              <TabsList className="grid grid-cols-10 w-full h-auto p-1.5 light-glass rounded-2xl gap-1">
                 <TabsTrigger
                   value="general"
                   className="gap-2 py-2.5 rounded-xl data-[state=active]:medium-glass data-[state=active]:shadow-lg transition-all duration-200"
@@ -503,6 +507,20 @@ export const Settings: React.FC<SettingsProps> = ({
                 >
                   <Wrench className="h-4 w-4" />
                   <span className="hidden lg:inline">配置管理</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="background"
+                  className="gap-2 py-2.5 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500/10 data-[state=active]:to-emerald-500/10 data-[state=active]:shadow-lg transition-all duration-200 text-green-500"
+                >
+                  <Image className="h-4 w-4" />
+                  <span className="hidden lg:inline">背景设置</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="font"
+                  className="gap-2 py-2.5 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/10 data-[state=active]:to-pink-500/10 data-[state=active]:shadow-lg transition-all duration-200 text-purple-500"
+                >
+                  <Type className="h-4 w-4" />
+                  <span className="hidden lg:inline">字体设置</span>
                 </TabsTrigger>
               </TabsList>
 
@@ -570,6 +588,27 @@ export const Settings: React.FC<SettingsProps> = ({
                   </div>
                   <ConfigManagerEmbedded />
                 </div>
+              </TabsContent>
+
+              {/* Background Settings Tab - 背景设置 */}
+              <TabsContent value="background">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <BackgroundSettings />
+                </motion.div>
+              </TabsContent>
+
+              <TabsContent value="font">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <FontSettings />
+                </motion.div>
               </TabsContent>
 
             </Tabs>

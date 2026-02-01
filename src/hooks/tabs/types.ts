@@ -9,6 +9,7 @@
  */
 
 import type { Session } from '@/lib/api';
+import type { ThemeName } from '@/types/theme';
 
 /**
  * Tab 接口 - 简化的标签页数据结构
@@ -22,6 +23,7 @@ export interface Tab {
     projectPath?: string;
     session?: Session;
     engine?: 'claude' | 'codex' | 'gemini' | 'siliconflow' | 'kiro';
+    themeName?: ThemeName;
 
     // Smart mode flag (智能会话模式)
     smartMode?: boolean;
@@ -59,6 +61,7 @@ export interface TabContextValue {
     updateTabChanges: (tabId: string, hasChanges: boolean) => void;
     updateTabTitle: (tabId: string, title: string) => void;
     updateTabEngine: (tabId: string, engine: 'claude' | 'codex' | 'gemini' | 'siliconflow' | 'kiro') => void;
+    updateTabTheme: (tabId: string, themeName: ThemeName) => void;
     updateTabSession: (
         tabId: string,
         sessionInfo: {

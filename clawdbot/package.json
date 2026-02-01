@@ -1,0 +1,51 @@
+{
+  "name": "clawdbot",
+  "version": "1.0.0",
+  "description": "Clawdbot 7x24 持续运行解决方案 - Gateway-Client 架构",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev:gateway": "ts-node src/gateway/index.ts",
+    "dev:client": "ts-node src/client/index.ts",
+    "start:gateway": "node dist/gateway/index.js",
+    "start:client": "node dist/client/index.js",
+    "docker:build:gateway": "docker build -f Dockerfile.gateway -t clawdbot-gateway .",
+    "docker:build:client": "docker build -f Dockerfile.client -t clawdbot-client .",
+    "docker:up:gateway": "docker-compose -f docker-compose.gateway.yml up -d",
+    "docker:up:client": "docker-compose -f docker-compose.client.yml up -d",
+    "docker:down:gateway": "docker-compose -f docker-compose.gateway.yml down",
+    "docker:down:client": "docker-compose -f docker-compose.client.yml down",
+    "docker:logs:gateway": "docker-compose -f docker-compose.gateway.yml logs -f",
+    "docker:logs:client": "docker-compose -f docker-compose.client.yml logs -f"
+  },
+  "keywords": [
+    "telegram",
+    "bot",
+    "claude",
+    "ai",
+    "automation"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.1",
+    "axios": "^1.7.9",
+    "better-sqlite3": "^11.7.0",
+    "drizzle-orm": "^0.36.4",
+    "node-telegram-bot-api": "^0.66.0",
+    "nodemailer": "^6.9.16",
+    "playwright": "^1.48.2",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/node": "^22.10.2",
+    "@types/node-telegram-bot-api": "^0.64.7",
+    "@types/nodemailer": "^6.4.17",
+    "drizzle-kit": "^0.28.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
+  }
+}

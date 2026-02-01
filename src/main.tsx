@@ -4,6 +4,7 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { FontProvider } from "./contexts/FontContext";
 import { NavigationProvider } from "./contexts/NavigationContext";
 import "./assets/shimmer.css";
 import "./styles.css";
@@ -58,18 +59,20 @@ const AppWrapper: React.FC = () => {
     return (
       <ErrorBoundary>
         <ThemeProvider>
-          <NavigationProvider>
-            {isDev && <Agentation />}
-            <React.Suspense
-              fallback={
-                <div className="h-screen w-screen flex items-center justify-center bg-background">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-                </div>
-              }
-            >
-              <SessionWindow />
-            </React.Suspense>
-          </NavigationProvider>
+          <FontProvider>
+            <NavigationProvider>
+              {isDev && <Agentation />}
+              <React.Suspense
+                fallback={
+                  <div className="h-screen w-screen flex items-center justify-center bg-background">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+                  </div>
+                }
+              >
+                <SessionWindow />
+              </React.Suspense>
+            </NavigationProvider>
+          </FontProvider>
         </ThemeProvider>
       </ErrorBoundary>
     );
@@ -78,8 +81,10 @@ const AppWrapper: React.FC = () => {
   return (
     <ErrorBoundary>
       <ThemeProvider>
-        {isDev && <Agentation />}
-        <App />
+        <FontProvider>
+          {isDev && <Agentation />}
+          <App />
+        </FontProvider>
       </ThemeProvider>
     </ErrorBoundary>
   );

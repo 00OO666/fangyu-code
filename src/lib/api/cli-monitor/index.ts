@@ -193,3 +193,132 @@ export async function focusWindow(hwnd: number): Promise<void> {
     throw new Error(`Failed to focus window: ${error}`);
   }
 }
+
+/**
+ * 开始监控文件系统变化
+ */
+export async function startFileWatching(): Promise<void> {
+  try {
+    logger.info("[CLI Monitor] Starting file system watching...");
+    await invoke<void>("start_file_watching");
+    logger.info("[CLI Monitor] File system watching started");
+  } catch (error) {
+    logger.error("[CLI Monitor] Failed to start file watching:", error);
+    throw new Error(`Failed to start file watching: ${error}`);
+  }
+}
+
+/**
+ * 停止监控文件系统变化
+ */
+export async function stopFileWatching(): Promise<void> {
+  try {
+    logger.info("[CLI Monitor] Stopping file system watching...");
+    await invoke<void>("stop_file_watching");
+    logger.info("[CLI Monitor] File system watching stopped");
+  } catch (error) {
+    logger.error("[CLI Monitor] Failed to stop file watching:", error);
+    throw new Error(`Failed to stop file watching: ${error}`);
+  }
+}
+
+/**
+ * 获取文件变化事件
+ */
+export async function getFileEvents(): Promise<FileChangeEvent[]> {
+  try {
+    const events = await invoke<FileChangeEvent[]>("get_file_events");
+    return events;
+  } catch (error) {
+    logger.error("[CLI Monitor] Failed to get file events:", error);
+    throw new Error(`Failed to get file events: ${error}`);
+  }
+}
+
+/**
+ * 检查是否正在监控文件系统
+ */
+export async function isFileWatching(): Promise<boolean> {
+  try {
+    const watching = await invoke<boolean>("is_file_watching");
+    return watching;
+  } catch (error) {
+    logger.error("[CLI Monitor] Failed to check file watching status:", error);
+    throw new Error(`Failed to check file watching status: ${error}`);
+  }
+}
+
+/**
+ * 文件变化事件类型
+ */
+export interface FileChangeEvent {
+  path: string;
+  change_type: "Created" | "Modified" | "Deleted";
+  timestamp: number;
+}
+
+/**
+ * 会话消息
+ */
+export interface SessionMessage {
+  role: string;
+  content: string;
+  timestamp?: number;
+}
+
+/**
+ * 会话内容
+ */
+export interface SessionContent {
+  session_id: string;
+  messages: SessionMessage[];
+  total_messages: number;
+}
+
+/**
+ * 读取会话内容
+ * @param sessionId - 会话 ID
+ */
+export async function readSessionContent(sessionId: string): Promise<SessionContent> {
+  try {
+    logger.info(`[CLI Monitor] Reading session content: ${sessionId}`);
+    const content = await invoke<SessionContent>("read_session_content", { sessionId });
+    logger.info(`[CLI Monitor] Read ${content.total_messages} messages from session ${sessionId}`);
+    return content;
+  } catch (error) {
+    logger.error(`[CLI Monitor] Failed to read session content (${sessionId}):`, error);
+    throw new Error(`Failed to read session content: ${error}`);
+  }
+}
+
+/**
+ * 读取会话的最后 N 条消息
+ * @param sessionId - 会话 ID
+ * @param count - 消息数量
+ */
+export async function readLastMessages(sessionId: string, count: number): Promise<SessionContent> {
+  try {
+    logger.info(`[CLI Monitor] Reading last ${count} messages from session ${sessionId}`);
+    const content = await invoke<SessionContent>("read_last_messages", { sessionId, count });
+    logger.info(`[CLI Monitor] Read ${content.messages.length} messages from session ${sessionId}`);
+    return content;
+  } catch (error) {
+    logger.error(`[CLI Monitor] Failed to read last messages (${sessionId}):`, error);
+    throw new Error(`Failed to read last messages: ${error}`);
+  }
+}
+
+/**
+ * 获取会话摘要
+ * @param sessionId - 会话 ID
+ * @param maxChars - 最大字符数
+ */
+export async function getSessionSummary(sessionId: string, maxChars: number = 100): Promise<string> {
+  try {
+    const summary = await invoke<string>("get_session_summary", { sessionId, maxChars });
+    return summary;
+  } catch (error) {
+    logger.error(`[CLI Monitor] Failed to get session summary (${sessionId}):`, error);
+    throw new Error(`Failed to get session summary: ${error}`);
+  }
+}

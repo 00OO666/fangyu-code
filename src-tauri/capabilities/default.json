@@ -45,8 +45,18 @@
     "fs:allow-lstat",
     "fs:allow-mkdir",
     "fs:allow-read-dir",
+    "fs:allow-read-file",
     "fs:allow-remove",
     "fs:allow-write",
+    "fs:allow-write-file",
+    {
+      "identifier": "fs:scope",
+      "allow": [
+        {
+          "path": "$APPDATA/**"
+        }
+      ]
+    },
     "fs:allow-read",
     "process:allow-restart",
     "process:allow-exit",

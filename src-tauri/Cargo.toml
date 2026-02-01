@@ -50,10 +50,12 @@ sha2 = "0.10"
 zstd = "0.13"
 uuid = { version = "1.6", features = ["v4", "serde"] }
 walkdir = "2"
+sysinfo = "0.32"
 serde_yaml = "0.9"
 once_cell = "1.19"
 urlencoding = "2.1"
 keyring = { version = "3.6", features = ["windows-native"] }
+notify = "6.1"
 
 [target.'cfg(windows)'.dependencies]
 windows = { version = "0.58", features = [
@@ -63,6 +65,7 @@ windows = { version = "0.58", features = [
     "Win32_Security",
     "Win32_Graphics_Dwm",
 ] }
+winapi = { version = "0.3", features = ["winuser", "processthreadsapi"] }
 
 # Fast build profile for development/testing
 [profile.dev-release]

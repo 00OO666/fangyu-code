@@ -6,3 +6,6 @@ export { SessionCard } from "./SessionCard";
 export { SessionGridView } from "./SessionGridView";
 export { ViewModeToggle } from "./ViewModeToggle";
 export { WindowDropdown } from "./WindowDropdown";
+export { CliMonitorPanel } from "./CliMonitorPanel";
+export { SessionDetailPanel } from "./SessionDetailPanel";
+export { SessionThumbnail } from "./SessionThumbnail";

@@ -1,0 +1,35 @@
+# Dockerfile.client
+FROM node:20-alpine
+
+WORKDIR /app
+
+# 安装 Playwright 依赖
+RUN apk add --no-cache \
+    chromium \
+    nss \
+    freetype \
+    harfbuzz \
+    ca-certificates \
+    ttf-freefont \
+    python3
+
+# 设置 Playwright 使用系统 Chromium
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 \
+    PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium-browser
+
+# 安装依赖
+COPY package*.json ./
+RUN npm ci --only=production
+
+# 复制源代码
+COPY . .
+
+# 构建 TypeScript
+RUN npm run build
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD node healthcheck.js || exit 1
+
+# 启动服务
+CMD ["node", "dist/client/index.js"]

@@ -9,6 +9,7 @@ import React, { createContext, useContext, useEffect, useState, ReactNode, useCa
 import { invoke } from '@tauri-apps/api/core';
 import { Theme, ThemeName, ThemeContextValue } from '@/types/theme';
 import { themes, defaultTheme } from '@/themes';
+import { getDefaultTheme, setLastTheme } from '@/lib/themePreferences';
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
@@ -33,7 +34,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   // 从 localStorage 加载主题偏好
   useEffect(() => {
     try {
-      const savedTheme = localStorage.getItem('fangyu-theme') as ThemeName;
+      const savedTheme = getDefaultTheme();
       if (savedTheme && themes[savedTheme]) {
         setThemeName(savedTheme);
         setThemeState(themes[savedTheme]);
@@ -101,7 +102,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     });
   }, [theme]);
 
-  const setTheme = useCallback(async (name: ThemeName) => {
+  const setTheme = useCallback(async (name: ThemeName, options?: { persistLast?: boolean }) => {
     if (themes[name]) {
       // 添加过渡效果
       document.documentElement.classList.add('theme-transitioning');
@@ -111,11 +112,13 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       setThemeState(themes[name]);
 
       // 保存到 localStorage
-      try {
-        localStorage.setItem('fangyu-theme', name);
-        logger.info('ThemeContext', `Theme changed to: ${name}`);
-      } catch (error) {
-        logger.error('ThemeContext', 'Failed to save theme:', error);
+      if (options?.persistLast !== false) {
+        try {
+          setLastTheme(name);
+          logger.info('ThemeContext', `Theme changed to: ${name}`);
+        } catch (error) {
+          logger.error('ThemeContext', 'Failed to save theme:', error);
+        }
       }
 
       // 移除过渡类
