@@ -5,11 +5,15 @@ pub mod window_scanner;
 pub mod window_focuser;
 pub mod file_watcher;
 pub mod content_reader;
+pub mod input_injector;
+pub mod process_communicator;
 
 use process_detector::ProcessDetector;
 use scanner::SessionScanner;
 use file_watcher::FileSystemWatcher;
 use content_reader::SessionContentReader;
+use input_injector::InputInjector;
+use process_communicator::ProcessCommunicator;
 use std::sync::Mutex;
 use types::{CliSession, ProcessInfo, ScanResult, WindowScanResult};
 
@@ -18,6 +22,7 @@ pub use window_scanner::WindowScanner;
 pub use window_focuser::WindowFocuser;
 pub use file_watcher::{FileChangeEvent, FileChangeType};
 pub use content_reader::{SessionContent, SessionMessage};
+pub use process_communicator::ProcessOutput;
 
 /// CLI 监控状态
 pub struct CliMonitorState {
@@ -25,6 +30,8 @@ pub struct CliMonitorState {
     detector: Mutex<ProcessDetector>,
     window_scanner: Mutex<WindowScanner>,
     file_watcher: Mutex<FileSystemWatcher>,
+    input_injector: Mutex<InputInjector>,
+    process_communicator: Mutex<ProcessCommunicator>,
 }
 
 impl CliMonitorState {
@@ -34,6 +41,8 @@ impl CliMonitorState {
             detector: Mutex::new(ProcessDetector::new()),
             window_scanner: Mutex::new(WindowScanner::new()),
             file_watcher: Mutex::new(FileSystemWatcher::new().unwrap()),
+            input_injector: Mutex::new(InputInjector::new()),
+            process_communicator: Mutex::new(ProcessCommunicator::new()),
         }
     }
 }
@@ -144,4 +153,80 @@ pub fn read_last_messages(session_id: String, count: usize) -> Result<SessionCon
 #[tauri::command]
 pub fn get_session_summary(session_id: String, max_chars: usize) -> Result<String, String> {
     SessionContentReader::get_session_summary(&session_id, max_chars)
+}
+
+/// 启动 Claude CLI 进程并准备输入注入
+#[tauri::command]
+pub fn start_input_injection(state: tauri::State<CliMonitorState>, working_dir: String) -> Result<(), String> {
+    let injector = state.input_injector.lock().unwrap();
+    injector.start_process(&working_dir).map_err(|e| e.to_string())
+}
+
+/// 注入输入到 Claude CLI 进程
+#[tauri::command]
+pub fn inject_input(state: tauri::State<CliMonitorState>, input: String) -> Result<(), String> {
+    let injector = state.input_injector.lock().unwrap();
+    injector.inject_input(&input).map_err(|e| e.to_string())
+}
+
+/// 停止输入注入进程
+#[tauri::command]
+pub fn stop_input_injection(state: tauri::State<CliMonitorState>) -> Result<(), String> {
+    let injector = state.input_injector.lock().unwrap();
+    injector.stop_process().map_err(|e| e.to_string())
+}
+
+/// 检查输入注入进程是否正在运行
+#[tauri::command]
+pub fn is_input_injection_running(state: tauri::State<CliMonitorState>) -> Result<bool, String> {
+    let injector = state.input_injector.lock().unwrap();
+    Ok(injector.is_running())
+}
+
+/// 启动外部进程通信
+#[tauri::command]
+pub fn start_process_communication(
+    state: tauri::State<CliMonitorState>,
+    command: String,
+    args: Vec<String>,
+    working_dir: String,
+) -> Result<(), String> {
+    let communicator = state.process_communicator.lock().unwrap();
+    communicator.start_process(&command, &args, &working_dir).map_err(|e| e.to_string())
+}
+
+/// 发送输入到外部进程
+#[tauri::command]
+pub fn send_process_input(state: tauri::State<CliMonitorState>, input: String) -> Result<(), String> {
+    let communicator = state.process_communicator.lock().unwrap();
+    communicator.send_input(&input).map_err(|e| e.to_string())
+}
+
+/// 获取外部进程输出
+#[tauri::command]
+pub fn get_process_output(state: tauri::State<CliMonitorState>) -> Result<Vec<ProcessOutput>, String> {
+    let communicator = state.process_communicator.lock().unwrap();
+    Ok(communicator.get_output())
+}
+
+/// 清除外部进程输出缓冲区
+#[tauri::command]
+pub fn clear_process_output(state: tauri::State<CliMonitorState>) -> Result<(), String> {
+    let communicator = state.process_communicator.lock().unwrap();
+    communicator.clear_output();
+    Ok(())
+}
+
+/// 停止外部进程通信
+#[tauri::command]
+pub fn stop_process_communication(state: tauri::State<CliMonitorState>) -> Result<(), String> {
+    let communicator = state.process_communicator.lock().unwrap();
+    communicator.stop_process().map_err(|e| e.to_string())
+}
+
+/// 检查外部进程是否正在运行
+#[tauri::command]
+pub fn is_process_communication_running(state: tauri::State<CliMonitorState>) -> Result<bool, String> {
+    let communicator = state.process_communicator.lock().unwrap();
+    Ok(communicator.is_running())
 }

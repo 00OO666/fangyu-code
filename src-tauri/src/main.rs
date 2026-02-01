@@ -824,6 +824,16 @@ fn main() {
             cli_monitor::read_session_content,
             cli_monitor::read_last_messages,
             cli_monitor::get_session_summary,
+            cli_monitor::start_input_injection,
+            cli_monitor::inject_input,
+            cli_monitor::stop_input_injection,
+            cli_monitor::is_input_injection_running,
+            cli_monitor::start_process_communication,
+            cli_monitor::send_process_input,
+            cli_monitor::get_process_output,
+            cli_monitor::clear_process_output,
+            cli_monitor::stop_process_communication,
+            cli_monitor::is_process_communication_running,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

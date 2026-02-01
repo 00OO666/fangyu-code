@@ -9,3 +9,4 @@ export { WindowDropdown } from "./WindowDropdown";
 export { CliMonitorPanel } from "./CliMonitorPanel";
 export { SessionDetailPanel } from "./SessionDetailPanel";
 export { SessionThumbnail } from "./SessionThumbnail";
+export { EmbeddedTerminal } from "./EmbeddedTerminal";

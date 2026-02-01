@@ -34,11 +34,12 @@ impl SessionContentReader {
 
         // 解析 JSONL 格式
         let messages = Self::parse_jsonl(&content)?;
+        let total_messages = messages.len();
 
         Ok(SessionContent {
             session_id: session_id.to_string(),
             messages,
-            total_messages: messages.len(),
+            total_messages,
         })
     }
 
