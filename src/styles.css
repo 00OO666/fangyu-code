@@ -1,11 +1,25 @@
+/* ========================================
+   ALL @IMPORT RULES MUST BE AT THE TOP
+   ======================================== */
+
 @import "tailwindcss";
 
-/* ========================================
-   FONT IMPORTS - Google Fonts CDN (临时方案)
-   ======================================== */
+/* FONT IMPORTS - Google Fonts CDN (临时方案) */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
+
+/* MODULAR CSS FILES */
+@import "./styles/theme.css";
+/* @import "./styles/design-system-v3.css"; */ /* ❌ 已弃用：被 Deep Glass 替代 */
+/* 🆕 v3 Design System with Glassmorphism */
+@import "./styles/design-system-deep-glass.css";
+/* 🌟 Deep Glass Pro AI Station V1 Style - 主设计系统 */
+@import "./styles/theme-scifi.css";
+/* 🚀 Deep Glass Sci-Fi Theme - 科幻主题 */
+@import "./styles/typography.css";
+@import "./styles/animations.css";
+@import "./styles/components.css";
 
 /* ========================================
    FONT CONFIGURATION - 中国用户喜爱的字体
@@ -29,17 +43,6 @@
  * This file now serves as the main entry point for styles,
  * importing modularized CSS files for better maintainability.
  */
-
-@import "./styles/theme.css";
-/* @import "./styles/design-system-v3.css"; */ /* ❌ 已弃用：被 Deep Glass 替代 */
-/* 🆕 v3 Design System with Glassmorphism */
-@import "./styles/design-system-deep-glass.css";
-/* 🌟 Deep Glass Pro AI Station V1 Style - 主设计系统 */
-/* @import "./styles/theme-scifi.css"; */ /* ⚠️ 临时禁用：CSS 语法错误 */
-/* 🚀 Deep Glass Sci-Fi Theme - 科幻主题 */
-@import "./styles/typography.css";
-@import "./styles/animations.css";
-@import "./styles/components.css";
 
 /* ========================================
    CUSTOM STYLES
