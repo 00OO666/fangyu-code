@@ -178,3 +178,18 @@ export async function scanWindows(): Promise<WindowScanResult> {
     throw new Error(`Failed to scan windows: ${error}`);
   }
 }
+
+/**
+ * 聚焦指定窗口
+ * @param hwnd - 窗口句柄
+ */
+export async function focusWindow(hwnd: number): Promise<void> {
+  try {
+    logger.info(`[CLI Monitor] Focusing window: hwnd=${hwnd}`);
+    await invoke<void>("focus_window", { hwnd });
+    logger.info(`[CLI Monitor] Successfully focused window: hwnd=${hwnd}`);
+  } catch (error) {
+    logger.error(`[CLI Monitor] Failed to focus window (hwnd=${hwnd}):`, error);
+    throw new Error(`Failed to focus window: ${error}`);
+  }
+}

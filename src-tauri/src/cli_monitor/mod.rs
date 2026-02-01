@@ -76,3 +76,9 @@ pub fn scan_windows(state: tauri::State<CliMonitorState>) -> Result<WindowScanRe
     let mut window_scanner = state.window_scanner.lock().unwrap();
     window_scanner.scan().map_err(|e| e.to_string())
 }
+
+/// 聚焦指定窗口
+#[tauri::command]
+pub fn focus_window(hwnd: isize) -> Result<(), String> {
+    WindowFocuser::focus_window(hwnd).map_err(|e| e.to_string())
+}

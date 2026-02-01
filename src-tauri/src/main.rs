@@ -816,6 +816,7 @@ fn main() {
             cli_monitor::get_running_processes,
             cli_monitor::watch_sessions,
             cli_monitor::scan_windows,
+            cli_monitor::focus_window,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
