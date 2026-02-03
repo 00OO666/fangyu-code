@@ -26,8 +26,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { UnifiedEngineStatus } from '@/components/UnifiedEngineStatus';
 import { UpdateBadge } from '@/components/common/UpdateBadge';
-import { ThemeToggle } from '@/components/ui/theme-toggle';
-import { WindowDropdown } from '@/components/cli-monitor';
 
 interface SidebarProps {
   currentView: View;
@@ -180,19 +178,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* 底部状态区域 */}
       <div className={cn("flex flex-col w-full mt-auto pt-3 border-t border-white/10 flex-shrink-0", isExpanded ? "space-y-2" : "items-center space-y-2")}>
-        {isExpanded && (
-          <div className="px-2">
-            <WindowDropdown
-              onSelect={(window) => {
-                console.log('Selected window:', window);
-              }}
-            />
-          </div>
-        )}
         <div className={cn(isExpanded ? "w-full" : "flex justify-center w-full")}><UnifiedEngineStatus compact={!isExpanded} /></div>
         {isExpanded && <div className="px-1"><UpdateBadge onClick={onUpdateClick} /></div>}
         <div className={cn("flex items-center gap-1", isExpanded ? "justify-around px-1" : "flex-col")}>
-          <TooltipProvider><Tooltip><TooltipTrigger asChild><div><ThemeToggle size="sm" className="w-8 h-8" /></div></TooltipTrigger>{!isExpanded && <TooltipContent side="right"><p>{t('sidebar.themeToggle')}</p></TooltipContent>}</Tooltip></TooltipProvider>
           <TooltipProvider><Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" onClick={onAboutClick} className="w-8 h-8 text-white/70 hover:text-white" aria-label={t('sidebar.about')}><HelpCircle className="w-4 h-4" /></Button></TooltipTrigger>{!isExpanded && <TooltipContent side="right"><p>{t('sidebar.about')}</p></TooltipContent>}</Tooltip></TooltipProvider>
         </div>
         <div className={cn("flex items-center gap-1 pt-2 border-t border-white/10", isExpanded ? "justify-between px-1" : "flex-col")}>
