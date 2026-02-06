@@ -48,7 +48,7 @@ interface RevertPromptPickerProps {
   /** 项目路径（Gemini 需要） */
   projectPath?: string;
   /** 会话引擎（claude/codex/gemini），用于选择正确的撤回接口 */
-  engine?: 'claude' | 'codex' | 'gemini' | 'siliconflow';
+  engine?: 'claude' | 'codex' | 'gemini';
   /** 选择回调 */
   onSelect: (promptIndex: number, mode: RewindMode) => void;
   /** 关闭回调 */

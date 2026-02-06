@@ -59,7 +59,7 @@ export const DeveloperTools: React.FC<DeveloperToolsProps> = ({ onBack }) => {
           </div>
         </div>
         <p className="text-sm text-muted-foreground mt-2">
-          规范驱动开发工具集 - 灵感来自 OpenCode 和 Kiro
+          规范驱动开发工具集 - 灵感来自业界多种规范化流程
         </p>
       </div>
 

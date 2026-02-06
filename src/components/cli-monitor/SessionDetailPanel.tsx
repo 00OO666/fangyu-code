@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { X, MessageSquare, Clock, GitBranch, Folder } from "lucide-react";
 import type { CliSession } from "@/types/cli-monitor";
-import type { SessionContent, SessionMessage } from "@/lib/api/cli-monitor";
+import type { SessionContent } from "@/lib/api/cli-monitor";
 import { readSessionContent, readLastMessages } from "@/lib/api/cli-monitor";
 import { logger } from "@/lib/logger";
 
@@ -20,40 +20,69 @@ export const SessionDetailPanel: React.FC<SessionDetailPanelProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showFullContent, setShowFullContent] = useState(false);
+  const isMountedRef = useRef(true);
+  const requestIdRef = useRef(0);
 
   useEffect(() => {
-    loadSessionContent();
+    requestIdRef.current += 1;
+    const requestId = requestIdRef.current;
+    loadSessionContent(requestId);
   }, [session.session_id]);
 
-  const loadSessionContent = async () => {
-    setLoading(true);
-    setError(null);
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  const loadSessionContent = async (requestId: number) => {
+    if (isMountedRef.current) {
+      setLoading(true);
+      setError(null);
+    }
 
     try {
       // 默认只加载最后 20 条消息
       const sessionContent = await readLastMessages(session.session_id, 20);
-      setContent(sessionContent);
+      if (isMountedRef.current && requestIdRef.current === requestId) {
+        setContent(sessionContent);
+        setShowFullContent(false);
+      }
     } catch (err) {
       logger.error("[SessionDetailPanel] Failed to load session content:", err);
-      setError(err instanceof Error ? err.message : String(err));
+      if (isMountedRef.current && requestIdRef.current === requestId) {
+        setError(err instanceof Error ? err.message : String(err));
+      }
     } finally {
-      setLoading(false);
+      if (isMountedRef.current && requestIdRef.current === requestId) {
+        setLoading(false);
+      }
     }
   };
 
   const loadFullContent = async () => {
-    setLoading(true);
-    setError(null);
+    requestIdRef.current += 1;
+    const requestId = requestIdRef.current;
+    if (isMountedRef.current) {
+      setLoading(true);
+      setError(null);
+    }
 
     try {
       const sessionContent = await readSessionContent(session.session_id);
-      setContent(sessionContent);
-      setShowFullContent(true);
+      if (isMountedRef.current && requestIdRef.current === requestId) {
+        setContent(sessionContent);
+        setShowFullContent(true);
+      }
     } catch (err) {
       logger.error("[SessionDetailPanel] Failed to load full content:", err);
-      setError(err instanceof Error ? err.message : String(err));
+      if (isMountedRef.current && requestIdRef.current === requestId) {
+        setError(err instanceof Error ? err.message : String(err));
+      }
     } finally {
-      setLoading(false);
+      if (isMountedRef.current && requestIdRef.current === requestId) {
+        setLoading(false);
+      }
     }
   };
 

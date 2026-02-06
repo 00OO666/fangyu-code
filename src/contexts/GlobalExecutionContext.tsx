@@ -35,7 +35,7 @@ export interface TabExecutionState {
   /** 项目路径 */
   projectPath: string;
   /** 执行引擎 */
-  engine: 'claude' | 'codex' | 'gemini' | 'siliconflow';
+  engine: 'claude' | 'codex' | 'gemini';
   /** 开始时间 */
   startedAt: number;
   /** 最后更新时间 */

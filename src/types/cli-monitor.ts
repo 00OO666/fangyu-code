@@ -132,6 +132,10 @@ export interface WindowInfo {
   project_path: string | null;
   /** 最后活动时间 */
   last_active: string;
+  /** 会话 ID（从进程命令行提取） */
+  session_id: string | null;
+  /** 会话摘要（来自 sessions-index.json） */
+  session_summary: string | null;
 }
 
 /**

@@ -1,7 +1,7 @@
 /**
  * Summary Generator Service
  *
- * 摘要生成服务，支持四引擎 API 调用
+ * 摘要生成服务，支持三引擎 API 调用
  *
  * Requirements: 1.2, 2.4, 2.6
  */
@@ -16,7 +16,6 @@ import {
 } from '@/types/summary';
 import type { ClaudeStreamMessage } from '@/types/claude';
 import { getSummaryConfigStore } from './summaryConfigStore';
-import { loadSiliconFlowConfig } from '@/config/siliconflowConfig';
 import { getCurrentProvider } from '@/services/engineConfigService';
 
 // =============================================================================
@@ -188,31 +187,6 @@ async function callGeminiAPI(config: APICallConfig): Promise<string> {
     return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
 }
 
-/** 调用 SiliconFlow API */
-async function callSiliconFlowAPI(config: APICallConfig): Promise<string> {
-    const response = await fetch(config.endpoint || 'https://api.siliconflow.cn/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${config.apiKey}`,
-        },
-        body: JSON.stringify({
-            model: config.model,
-            messages: [{ role: 'user', content: config.prompt }],
-            max_tokens: config.maxTokens,
-            temperature: config.temperature,
-        }),
-    });
-
-    if (!response.ok) {
-        const error = await response.text();
-        throw new Error(`SiliconFlow API error: ${response.status} - ${error}`);
-    }
-
-    const data = await response.json();
-    return data.choices?.[0]?.message?.content || '';
-}
-
 // =============================================================================
 // SummaryGeneratorService 类
 // =============================================================================
@@ -283,10 +257,6 @@ export class SummaryGeneratorService {
                 // Claude 引擎：从当前代理商配置获取
                 const claudeProvider = getCurrentProvider('claude');
                 return claudeProvider?.apiKey || '';
-            }
-            case 'siliconflow': {
-                const sfConfig = loadSiliconFlowConfig();
-                return sfConfig.apiKey || '';
             }
             default:
                 return '';
@@ -373,9 +343,6 @@ export class SummaryGeneratorService {
                     break;
                 case 'gemini':
                     summary = await callGeminiAPI(apiConfig);
-                    break;
-                case 'siliconflow':
-                    summary = await callSiliconFlowAPI(apiConfig);
                     break;
                 default:
                     throw new Error(`不支持的引擎: ${config.engine}`);

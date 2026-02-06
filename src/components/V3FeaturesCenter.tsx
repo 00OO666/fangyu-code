@@ -162,33 +162,35 @@ export const V3FeaturesCenter: React.FC<V3FeaturesCenterProps> = ({ onBack }) =>
       case 'template':
       case 'profiler':
       case 'plugin':
-        const featureInfo = features.find(f => f.id === currentView);
-        return (
-          <div className="h-full flex flex-col">
-            <div className="flex items-center gap-2 mb-4 p-4">
-              <Button variant="ghost" size="sm" onClick={() => setCurrentView('home')}>
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                返回
-              </Button>
-              <h2 className="text-xl font-bold">{featureInfo?.title}</h2>
-            </div>
-            <div className="flex-1 flex items-center justify-center p-8">
-              <div className="text-center max-w-md">
-                {featureInfo && <featureInfo.icon className={`w-24 h-24 mx-auto mb-6 ${featureInfo.color}`} />}
-                <h3 className="text-2xl font-bold mb-4">{featureInfo?.title}</h3>
-                <p className="text-muted-foreground mb-6">{featureInfo?.description}</p>
-                <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-                  <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-200 mb-2">
-                    🚧 功能开发中
-                  </p>
-                  <p className="text-xs text-yellow-700 dark:text-yellow-300">
-                    此功能正在积极开发中，敬请期待后续版本更新
-                  </p>
+        {
+          const featureInfo = features.find(f => f.id === currentView);
+          return (
+            <div className="h-full flex flex-col">
+              <div className="flex items-center gap-2 mb-4 p-4">
+                <Button variant="ghost" size="sm" onClick={() => setCurrentView('home')}>
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  返回
+                </Button>
+                <h2 className="text-xl font-bold">{featureInfo?.title}</h2>
+              </div>
+              <div className="flex-1 flex items-center justify-center p-8">
+                <div className="text-center max-w-md">
+                  {featureInfo && <featureInfo.icon className={`w-24 h-24 mx-auto mb-6 ${featureInfo.color}`} />}
+                  <h3 className="text-2xl font-bold mb-4">{featureInfo?.title}</h3>
+                  <p className="text-muted-foreground mb-6">{featureInfo?.description}</p>
+                  <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+                    <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-200 mb-2">
+                      🚧 功能开发中
+                    </p>
+                    <p className="text-xs text-yellow-700 dark:text-yellow-300">
+                      此功能正在积极开发中，敬请期待后续版本更新
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        );
+          );
+        }
 
       case 'home':
       default:

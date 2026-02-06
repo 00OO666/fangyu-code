@@ -44,6 +44,14 @@ export interface CommandResult {
   duration_ms: number;
 }
 
+/** 二进制检测结果 */
+export interface BinaryCheckResult {
+  installed: boolean;
+  path?: string;
+  version?: string;
+  source?: string;
+}
+
 /** 进程信息 */
 export interface ProcessInfo {
   id: number;
@@ -120,6 +128,13 @@ export async function executeCommand(
     cwd: options?.cwd,
     timeout_ms: options?.timeoutMs,
   });
+}
+
+/**
+ * 检测二进制是否可用（用于 Node/npm 等）
+ */
+export async function checkBinary(tool: string): Promise<BinaryCheckResult> {
+  return invoke<BinaryCheckResult>('super_agent_check_binary', { tool });
 }
 
 /**

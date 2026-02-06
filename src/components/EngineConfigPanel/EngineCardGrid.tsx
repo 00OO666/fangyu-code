@@ -16,7 +16,7 @@ interface EngineCardGridProps {
     onRefreshStatus?: () => void;
 }
 
-const ALL_ENGINES: EngineType[] = ['claude', 'codex', 'gemini', 'siliconflow', 'kiro'];
+const ALL_ENGINES: EngineType[] = ['claude', 'codex', 'gemini'];
 
 export function EngineCardGrid({
     engines,

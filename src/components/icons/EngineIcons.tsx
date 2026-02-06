@@ -114,52 +114,6 @@ export const GeminiEngineIcon: React.FC<IconProps> = ({
 };
 
 // =============================================================================
-// SiliconFlow Icon - 紫色渐变
-// =============================================================================
-
-export const SiliconFlowEngineIcon: React.FC<IconProps> = ({
-    className,
-    size = 24,
-    ...props
-}) => {
-    const gradientId = useId();
-    return (
-        <svg
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-            className={cn("", className)}
-            width={size}
-            height={size}
-            {...props}
-        >
-            <defs>
-                <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#7C3AED" />
-                    <stop offset="100%" stopColor="#A855F7" />
-                </linearGradient>
-            </defs>
-            {/* 芯片/流动图标 */}
-            <rect x="4" y="4" width="16" height="16" rx="2" fill={`url(#${gradientId})`} />
-            <path
-                d="M8 2v2M16 2v2M8 20v2M16 20v2M2 8h2M2 16h2M20 8h2M20 16h2"
-                stroke={`url(#${gradientId})`}
-                strokeWidth="2"
-                strokeLinecap="round"
-            />
-            {/* 内部电路图案 */}
-            <path
-                d="M9 9h6v6H9zM12 9v-2M12 17v-2M9 12h-2M17 12h-2"
-                stroke="white"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                fill="none"
-            />
-            <circle cx="12" cy="12" r="1.5" fill="white" />
-        </svg>
-    );
-};
-
-// =============================================================================
 // 统一导出
 // =============================================================================
 
@@ -167,7 +121,6 @@ export const EngineIcons = {
     claude: ClaudeEngineIcon,
     codex: CodexEngineIcon,
     gemini: GeminiEngineIcon,
-    siliconflow: SiliconFlowEngineIcon,
 };
 
 /** 根据引擎 ID 获取图标组件 */
@@ -179,8 +132,6 @@ export function getEngineIcon(engine: string): React.FC<IconProps> {
             return CodexEngineIcon;
         case 'gemini':
             return GeminiEngineIcon;
-        case 'siliconflow':
-            return SiliconFlowEngineIcon;
         default:
             return ClaudeEngineIcon;
     }

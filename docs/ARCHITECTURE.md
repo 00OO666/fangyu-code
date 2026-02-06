@@ -125,7 +125,7 @@ fangyu-code/
 │   └── tauri.conf.json
 │
 ├── docs/                        # 文档
-├── .kiro/                       # Kiro 配置
+├── .fangyu/                     # 项目配置
 │   ├── specs/                   # 功能规格
 │   ├── steering/                # Steering 文件
 │   └── hooks/                   # Agent Hooks

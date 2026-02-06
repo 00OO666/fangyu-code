@@ -12,6 +12,7 @@ import { logger } from '@/lib/logger';
 import { useEffect, useCallback, useRef } from 'react';
 import type { Tab, PersistedTabState } from './types';
 import { TAB_STORAGE_KEY } from './types';
+import { getDefaultTheme, getSessionThemePreference } from '@/lib/themePreferences';
 
 interface UseTabPersistenceOptions {
     tabs: Tab[];
@@ -66,13 +67,23 @@ export function useTabPersistence({
                     }
                     return true;
                 })
-                .map((tab) => ({
-                    ...tab,
-                    type: tab.type || (tab.session ? 'session' : 'new'),
-                    state: tab.state || 'idle',
-                    hasUnsavedChanges: tab.hasUnsavedChanges ?? false,
-                    smartMode: tab.smartMode ?? false,
-                })) as Tab[];
+                .map((tab) => {
+                    const themeName =
+                        tab.themeName ||
+                        getSessionThemePreference({
+                            sessionId: tab.session?.id,
+                            projectPath: tab.projectPath,
+                        }) ||
+                        getDefaultTheme();
+                    return {
+                        ...tab,
+                        type: tab.type || (tab.session ? 'session' : 'new'),
+                        state: tab.state || 'idle',
+                        hasUnsavedChanges: tab.hasUnsavedChanges ?? false,
+                        smartMode: tab.smartMode ?? false,
+                        themeName,
+                    };
+                }) as Tab[];
 
             // Validate activeTabId
             const validActiveTabId = validTabs.find((t) => t.id === savedActiveTabId)

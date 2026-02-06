@@ -268,7 +268,7 @@ export function useTabState() {
      * 更新标签页引擎
      */
     const updateTabEngine = useCallback(
-        (tabId: string, engine: 'claude' | 'codex' | 'gemini' | 'siliconflow') => {
+        (tabId: string, engine: 'claude' | 'codex' | 'gemini') => {
             setTabs((prev) =>
                 prev.map((tab) => {
                     if (tab.id !== tabId) return tab;
@@ -301,7 +301,7 @@ export function useTabState() {
                 sessionId: string;
                 projectId: string;
                 projectPath: string;
-                engine?: 'claude' | 'codex' | 'gemini' | 'siliconflow' | 'kiro';
+                engine?: 'claude' | 'codex' | 'gemini';
             }
         ) => {
             let themeToPersist: ThemeName | null = null;

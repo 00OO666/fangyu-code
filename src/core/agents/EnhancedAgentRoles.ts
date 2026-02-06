@@ -1,7 +1,7 @@
 /**
  * Enhanced Agent Roles - 增强的代理角色
  *
- * 扩展现有的代理系统，添加 Kiro 风格的专门代理：
+ * 扩展现有的代理系统，添加专门的代理：
  * - CodeGenerator: 专门的代码生成代理
  * - TestWriter: 专门的测试编写代理
  * - Deployer: 专门的部署执行代理

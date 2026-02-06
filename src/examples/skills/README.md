@@ -134,4 +134,3 @@ Skills 可以与 Spec 模式配合使用：
 ## 📚 参考
 
 - [Claude Code Skills 文档](https://docs.anthropic.com/claude-code/skills)
-- [Kiro Steering 文件](https://kiro.dev/docs/steering)

@@ -20,7 +20,10 @@ impl InputInjector {
 
     /// 启动 Claude CLI 进程
     pub fn start_process(&self, working_dir: &str) -> Result<()> {
-        let mut process = self.process.lock().unwrap();
+        let mut process = self
+            .process
+            .lock()
+            .map_err(|_| anyhow::anyhow!("Input injector lock poisoned"))?;
 
         // 如果已经有进程在运行，先停止
         if let Some(mut child) = process.take() {
@@ -32,8 +35,8 @@ impl InputInjector {
         let child = Command::new("claude")
             .current_dir(working_dir)
             .stdin(Stdio::piped())
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped())
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
             .spawn()
             .context("Failed to start Claude CLI process")?;
 
@@ -45,7 +48,10 @@ impl InputInjector {
 
     /// 注入输入到进程
     pub fn inject_input(&self, input: &str) -> Result<()> {
-        let mut process = self.process.lock().unwrap();
+        let mut process = self
+            .process
+            .lock()
+            .map_err(|_| anyhow::anyhow!("Input injector lock poisoned"))?;
 
         if let Some(child) = process.as_mut() {
             if let Some(stdin) = child.stdin.as_mut() {
@@ -68,11 +74,14 @@ impl InputInjector {
 
     /// 停止进程
     pub fn stop_process(&self) -> Result<()> {
-        let mut process = self.process.lock().unwrap();
+        let mut process = self
+            .process
+            .lock()
+            .map_err(|_| anyhow::anyhow!("Input injector lock poisoned"))?;
 
         if let Some(mut child) = process.take() {
-            child.kill().context("Failed to kill process")?;
-            child.wait().context("Failed to wait for process")?;
+            let _ = child.kill();
+            let _ = child.wait();
             log::info!("[InputInjector] Stopped Claude CLI process");
             Ok(())
         } else {
@@ -82,24 +91,23 @@ impl InputInjector {
 
     /// 检查进程是否正在运行
     pub fn is_running(&self) -> bool {
-        let process = self.process.lock().unwrap();
-        process.is_some()
+        match self.process.lock() {
+            Ok(guard) => guard.is_some(),
+            Err(poison) => poison.into_inner().is_some(),
+        }
     }
 
     /// 读取进程输出
     pub fn read_output(&self) -> Result<String> {
-        let mut process = self.process.lock().unwrap();
+        let mut process = self
+            .process
+            .lock()
+            .map_err(|_| anyhow::anyhow!("Input injector lock poisoned"))?;
 
-        if let Some(child) = process.as_mut() {
-            if let Some(stdout) = child.stdout.as_mut() {
-                use std::io::Read;
-                let mut buffer = String::new();
-                stdout.read_to_string(&mut buffer)
-                    .context("Failed to read stdout")?;
-                Ok(buffer)
-            } else {
-                Err(anyhow::anyhow!("Process stdout not available"))
-            }
+        if process.is_some() {
+            Err(anyhow::anyhow!(
+                "Output capture is disabled for InputInjector"
+            ))
         } else {
             Err(anyhow::anyhow!("No process running"))
         }

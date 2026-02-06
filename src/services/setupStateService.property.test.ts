@@ -24,7 +24,7 @@ vi.mock('@tauri-apps/api/core', () => ({
 }));
 
 // 引擎类型生成器
-const engineTypeArb = fc.constantFrom<EngineType>('claude', 'codex', 'gemini', 'siliconflow');
+const engineTypeArb = fc.constantFrom<EngineType>('claude', 'codex', 'gemini');
 
 // 配置进度生成器
 const setupProgressArb = (engine: EngineType): fc.Arbitrary<EngineSetupProgress> => {

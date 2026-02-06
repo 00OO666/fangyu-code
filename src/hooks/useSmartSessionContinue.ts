@@ -31,14 +31,19 @@ const DEFAULT_CONFIG: Required<
   summaryVerbosity: "detailed",
 };
 
+function isMissingSessionFile(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return message.includes("Session file not found");
+}
+
 /**
  * 从数据库读取会话历史
  */
-async function loadSessionHistory(sessionId: string, projectId: string): Promise<any[]> {
+async function loadSessionHistory(sessionId: string, projectPath: string): Promise<any[]> {
   try {
     const history = await invoke<string>("load_session_history", {
       sessionId,
-      projectId
+      projectId: projectPath,
     });
     const messages = history
       .split("\n")
@@ -54,6 +59,10 @@ async function loadSessionHistory(sessionId: string, projectId: string): Promise
 
     return messages;
   } catch (error) {
+    if (isMissingSessionFile(error)) {
+      logger.info('useSmartSessionContinue', "[useSmartSessionContinue] Session history missing, treating as empty:", error);
+      return [];
+    }
     logger.error('useSmartSessionContinue', "[useSmartSessionContinue] Failed to load session history:", error);
     return [];
   }
@@ -152,7 +161,7 @@ export function useSmartSessionContinue(
       }
 
       if (messages.length === 0) {
-        logger.warn('useSmartSessionContinue', "[useSmartSessionContinue] ⚠️ No messages found in session history, skipping summary generation");
+        logger.info('useSmartSessionContinue', "[useSmartSessionContinue] No messages found in session history, skipping summary generation");
         setStatus("idle");
         return;
       }

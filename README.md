@@ -278,15 +278,20 @@ Cache: 78% ↑
 
 ---
 
+## 📚 文档索引
+
+- [架构文档](docs/ARCHITECTURE.md)
+- [一键配置依赖与安装](docs/ONE_CLICK_SETUP_DEPENDENCIES.md)
+
+---
+
 ## 📝 更新日志
 
 ### v2.2.4 (2026-01-04)
 
 **🚀 功能增强与稳定性优化**
-- ✨ SiliconFlow 流式输出支持（SSE API）
 - 🔄 跨窗口任务状态同步
 - 🧹 自动任务清理机制（5min/30min TTL）
-- 🔧 完善 SiliconFlow 引擎类型系统
 
 ### v2.2.3 (2026-01-03)
 

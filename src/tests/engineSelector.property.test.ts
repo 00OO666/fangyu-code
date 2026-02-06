@@ -19,15 +19,13 @@ import { SummaryEngine, ENGINE_MODELS } from '@/types/summary';
 const engineArb: fc.Arbitrary<SummaryEngine> = fc.constantFrom(
     'claude',
     'codex',
-    'gemini',
-    'siliconflow'
+    'gemini'
 );
 
 const engineAvailabilityArb: fc.Arbitrary<Record<SummaryEngine, boolean>> = fc.record({
     claude: fc.boolean(),
     codex: fc.boolean(),
     gemini: fc.boolean(),
-    siliconflow: fc.constant(true), // API 引擎始终可用
 });
 
 // =============================================================================
@@ -74,8 +72,6 @@ function getDisabledReason(
             return 'Codex CLI 未安装';
         case 'gemini':
             return 'Gemini CLI 未安装';
-        case 'siliconflow':
-            return null; // API 引擎始终可用
         default:
             return '未知引擎';
     }
@@ -147,26 +143,6 @@ describe('Engine Selector Property Tests', () => {
                     }
                 ),
                 { numRuns: 100 }
-            );
-        });
-
-        it('should always allow SiliconFlow selection (API engine)', () => {
-            fc.assert(
-                fc.property(
-                    engineArb,
-                    engineAvailabilityArb,
-                    (currentEngine, availability) => {
-                        const state: EngineState = {
-                            selectedEngine: currentEngine,
-                            availability,
-                        };
-
-                        // SiliconFlow 应该始终可选
-                        const newState = selectEngine(state, 'siliconflow');
-                        expect(newState.selectedEngine).toBe('siliconflow');
-                    }
-                ),
-                { numRuns: 50 }
             );
         });
 

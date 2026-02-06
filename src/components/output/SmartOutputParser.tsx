@@ -116,7 +116,7 @@ const isDependencyTree = (str: string, command?: string): boolean => {
   if (command?.includes('npm list') || command?.includes('yarn list')) {
     return true;
   }
-  return /[├└─│]\s+[\w@\/]/.test(str);
+  return /[├└─│]\s+[\w@/]/.test(str);
 };
 
 /**
@@ -144,6 +144,7 @@ const isTestResult = (str: string, command?: string): boolean => {
  * 检测 ANSI 颜色代码
  */
 const hasANSI = (str: string): boolean => {
+  // eslint-disable-next-line no-control-regex
   return /\x1b\[[0-9;]*m/.test(str);
 };
 

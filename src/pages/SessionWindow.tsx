@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { MessagesProvider } from "@/contexts/MessagesContext";
 import { PlanModeProvider } from "@/contexts/PlanModeContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import type { Session } from "@/lib/api";
 import {
   emitWindowSyncEvent,
@@ -28,6 +29,7 @@ import {
 } from "@/lib/windowManager";
 import { taskDelegationService } from "@/lib/taskDelegationService";
 import { useEventCleanup } from "@/hooks/useEventCleanup";
+import { getDefaultTheme, getSessionThemePreference } from "@/lib/themePreferences";
 
 interface SessionWindowState {
   isLoading: boolean;
@@ -35,7 +37,7 @@ interface SessionWindowState {
   session: Session | null;
   projectPath: string | null;
   tabId: string | null;
-  engine: "claude" | "codex" | "gemini" | "siliconflow" | null;
+  engine: "claude" | "codex" | "gemini" | null;
 }
 
 /**
@@ -56,6 +58,7 @@ export const SessionWindow: React.FC = () => {
 
   // Use centralized event cleanup hook for Tauri listeners
   const { registerWindowListener } = useEventCleanup();
+  const { themeName, setTheme } = useTheme();
 
   // Parse URL parameters on mount
   const windowParams = useMemo(() => parseSessionWindowParams(), []);
@@ -73,6 +76,15 @@ export const SessionWindow: React.FC = () => {
       }
 
       try {
+        const preferredTheme =
+          windowParams.themeName ||
+          getSessionThemePreference({
+            sessionId: windowParams.sessionId,
+            projectPath: windowParams.projectPath,
+          }) ||
+          getDefaultTheme();
+        setTheme(preferredTheme, { persistLast: false });
+
         // Set basic params including engine
         const engine = windowParams.engine || null;
         setState((prev) => ({
@@ -116,7 +128,7 @@ export const SessionWindow: React.FC = () => {
     };
 
     initializeSession();
-  }, [windowParams]);
+  }, [windowParams, setTheme]);
 
   // Listen for window sync events
   useEffect(() => {
@@ -263,6 +275,7 @@ export const SessionWindow: React.FC = () => {
           tabId: state.tabId,
           sessionId: state.session?.id,
           projectPath: state.projectPath || undefined,
+          themeName: themeName,
           data: {
             session: sessionWithEngine,
           },

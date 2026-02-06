@@ -21,6 +21,7 @@ import { SplitPane } from "@/components/ui/split-pane";
 import { WebviewPreview } from "./WebviewPreview";
 import { type TranslationResult } from '@/lib/translationMiddleware';
 import { useSessionCostCalculation } from '@/hooks/useSessionCostCalculation';
+import { useSessionCostWorker } from '@/hooks/useSessionCostWorker';
 import { useDisplayableMessages } from '@/hooks/useDisplayableMessages';
 import { useGroupedMessages } from '@/hooks/useGroupedMessages';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
@@ -92,12 +93,12 @@ interface ClaudeCodeSessionProps {
   /**
    * 🆕 Callback when execution engine changes (for updating tab icon)
    */
-  onEngineChange?: (engine: 'claude' | 'codex' | 'gemini' | 'siliconflow') => void;
+  onEngineChange?: (engine: 'claude' | 'codex' | 'gemini') => void;
   /**
    * 🔧 FIX: Callback when session info is extracted (for persisting new session to tab)
    * Called when a new session receives its sessionId and projectId from backend
    */
-  onSessionInfoChange?: (info: { sessionId: string; projectId: string; projectPath: string; engine?: 'claude' | 'codex' | 'gemini' | 'siliconflow' }) => void;
+  onSessionInfoChange?: (info: { sessionId: string; projectId: string; projectPath: string; engine?: 'claude' | 'codex' | 'gemini' }) => void;
   /**
    * Whether this session is currently active (for event listener management)
    */
@@ -182,6 +183,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   const [sessionNotFound, setSessionNotFound] = useState(false);
   const [claudeSessionId, setClaudeSessionId] = useState<string | null>(null);
   const [codexRateLimits, setCodexRateLimits] = useState<CodexRateLimits | null>(null);
+  const lastKnownProjectIdRef = useRef<string | null>(null);
 
   // 🔧 v2.3.1: 消息持久化 - 解决消息丢失问题
   // 🔧 v2.8.1: 减少防抖延迟到 300ms，提高保存及时性
@@ -574,6 +576,16 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
     queuedPromptsRef.current = queuedPrompts;
   }, [queuedPrompts]);
 
+  useEffect(() => {
+    if (session?.project_id) {
+      lastKnownProjectIdRef.current = session.project_id;
+      return;
+    }
+    if (extractedSessionInfo?.projectId) {
+      lastKnownProjectIdRef.current = extractedSessionInfo.projectId;
+    }
+  }, [session?.project_id, extractedSessionInfo?.projectId]);
+
   // 🔧 NEW: Notify parent when project path changes (for tab title update)
   useEffect(() => {
     // Only notify if projectPath is valid and not the initial placeholder
@@ -610,8 +622,39 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
         engine: extractedSessionInfo.engine, // 🔧 FIX: Include engine field
       } as Session;
     }
+    if (claudeSessionId && projectPath) {
+      const projectId =
+        lastKnownProjectIdRef.current ||
+        projectPath.replace(/[\\/]/g, '-').replace(/:/g, '');
+      return {
+        id: claudeSessionId,
+        project_id: projectId,
+        project_path: projectPath,
+        created_at: Date.now(),
+        engine: executionEngineConfig.engine,
+      } as Session;
+    }
     return null;
-  }, [session, extractedSessionInfo, projectPath, sessionNotFound]);
+  }, [
+    session,
+    extractedSessionInfo,
+    projectPath,
+    sessionNotFound,
+    claudeSessionId,
+    executionEngineConfig.engine,
+  ]);
+
+  // 🆕 Prompt cost summary via Web Worker (avoid UI jank on large sessions)
+  const { summary: promptCostSummary } = useSessionCostWorker({
+    messages,
+    sessionId:
+      effectiveSession?.id ||
+      extractedSessionInfo?.sessionId ||
+      claudeSessionId ||
+      session?.id ||
+      null,
+    projectPath,
+  });
 
   // 🆕 上下文窗口使用率（用于触发后台压缩）
   const contextUsage = useContextWindowUsage(
@@ -800,7 +843,6 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
     codexModel: executionEngineConfig.codexModel,  // 🆕 Codex integration
     geminiModel: executionEngineConfig.geminiModel,           // 🆕 Gemini integration
     geminiApprovalMode: executionEngineConfig.geminiApprovalMode, // 🆕 Gemini integration
-    kiroModel: executionEngineConfig.kiroModel,    // 🆕 Kiro integration
     hasActiveSessionRef,
     unlistenRefs,
     isMountedRef,
@@ -998,6 +1040,12 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
       initializeSession();
     }
   }, [session]); // Remove hasLoadedSession dependency to ensure it runs on mount
+
+  useEffect(() => {
+    if (claudeSessionId && !sessionNotFound) {
+      setIsFirstPrompt(false);
+    }
+  }, [claudeSessionId, sessionNotFound]);
 
   // 🔧 v2.8.1: Tab 失活时立即保存消息，避免防抖延迟导致数据丢失
   useEffect(() => {
@@ -2039,6 +2087,9 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
       {/* 🔧 REVERT: 改回使用 messages，避免 displayableMessages 导致无限渲染 */}
       <PromptNavigator
         messages={messages}
+        promptItems={promptCostSummary.items}
+        promptsTotalCost={promptCostSummary.promptsTotalCost}
+        sessionTotalCost={promptCostSummary.sessionTotalCost}
         isOpen={showPromptNavigator}
         onClose={() => setShowPromptNavigator(false)}
         onPromptClick={handlePromptNavigation}
@@ -2116,4 +2167,3 @@ export const ClaudeCodeSession: React.FC<ClaudeCodeSessionProps> = (props) => {
     </MessagesProvider>
   );
 };
-

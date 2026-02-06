@@ -22,7 +22,7 @@ export interface Tab {
     // Session data
     projectPath?: string;
     session?: Session;
-    engine?: 'claude' | 'codex' | 'gemini' | 'siliconflow' | 'kiro';
+    engine?: 'claude' | 'codex' | 'gemini';
     themeName?: ThemeName;
 
     // Smart mode flag (智能会话模式)
@@ -60,7 +60,7 @@ export interface TabContextValue {
     updateTabState: (tabId: string, state: Tab['state'], errorMessage?: string) => void;
     updateTabChanges: (tabId: string, hasChanges: boolean) => void;
     updateTabTitle: (tabId: string, title: string) => void;
-    updateTabEngine: (tabId: string, engine: 'claude' | 'codex' | 'gemini' | 'siliconflow' | 'kiro') => void;
+    updateTabEngine: (tabId: string, engine: 'claude' | 'codex' | 'gemini') => void;
     updateTabTheme: (tabId: string, themeName: ThemeName) => void;
     updateTabSession: (
         tabId: string,
@@ -68,7 +68,7 @@ export interface TabContextValue {
             sessionId: string;
             projectId: string;
             projectPath: string;
-            engine?: 'claude' | 'codex' | 'gemini' | 'siliconflow' | 'kiro';
+            engine?: 'claude' | 'codex' | 'gemini';
         }
     ) => void;
     upgradeSmartSession: (

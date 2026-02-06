@@ -6,9 +6,11 @@ use winapi::um::winuser::{EnumWindows, GetWindowTextW, GetWindowThreadProcessId}
 #[cfg(windows)]
 use winapi::shared::windef::HWND;
 
+#[cfg(windows)]
+use crate::cli_monitor::process_detector::ProcessDetector;
 use crate::cli_monitor::types::{WindowInfo, WindowScanResult};
 use chrono::Utc;
-use sysinfo::{System, Pid, ProcessRefreshKind};
+use sysinfo::{System, Pid, ProcessRefreshKind, UpdateKind};
 use std::sync::{Arc, Mutex};
 
 /// 回调上下文
@@ -16,6 +18,69 @@ use std::sync::{Arc, Mutex};
 struct CallbackContext {
     windows: Arc<Mutex<Vec<WindowInfo>>>,
     system_ptr: *const System,
+}
+
+#[cfg(windows)]
+fn extract_project_path_from_cmd(cmd: &[std::ffi::OsString]) -> Option<String> {
+    for (i, arg) in cmd.iter().enumerate() {
+        let arg_str = arg.to_string_lossy();
+        if arg_str.starts_with("--project=") || arg_str.starts_with("-p=") {
+            return arg_str.split('=').nth(1).map(|s| s.to_string());
+        }
+        if arg_str == "--project" || arg_str == "-p" {
+            if let Some(next_arg) = cmd.get(i + 1) {
+                return Some(next_arg.to_string_lossy().to_string());
+            }
+        }
+    }
+    None
+}
+
+#[cfg(windows)]
+fn is_descendant_process(system: &System, mut pid: Pid, root: Pid) -> bool {
+    let mut seen = std::collections::HashSet::new();
+    loop {
+        if pid == root {
+            return true;
+        }
+        if !seen.insert(pid) {
+            return false;
+        }
+        let Some(process) = system.process(pid) else {
+            return false;
+        };
+        let Some(parent) = process.parent() else {
+            return false;
+        };
+        pid = parent;
+    }
+}
+
+#[cfg(windows)]
+fn find_descendant_context(system: &System, root: Pid) -> (Option<String>, Option<String>) {
+    let mut session_id = None;
+    let mut project_path = None;
+
+    for (pid, process) in system.processes() {
+        if !is_descendant_process(system, *pid, root) {
+            continue;
+        }
+
+        if session_id.is_none() {
+            session_id = ProcessDetector::extract_session_id_from_cmd(process.cmd());
+        }
+
+        if project_path.is_none() {
+            project_path = extract_project_path_from_cmd(process.cmd())
+                .or_else(|| process.cwd().and_then(|p| p.to_str()).map(|s| s.to_string()));
+        }
+
+        if session_id.is_some() && project_path.is_some() {
+            break;
+        }
+    }
+
+    (session_id, project_path)
 }
 
 /// 窗口扫描器
@@ -36,11 +101,12 @@ impl WindowScanner {
     pub fn scan(&mut self) -> anyhow::Result<WindowScanResult> {
         // 刷新进程信息
         use sysinfo::ProcessesToUpdate;
-        self.system.refresh_processes_specifics(
-            ProcessesToUpdate::All,
-            true,
-            ProcessRefreshKind::everything(),
-        );
+        let refresh_kind = ProcessRefreshKind::new()
+            .with_cmd(UpdateKind::Always)
+            .with_cwd(UpdateKind::Always)
+            .with_exe(UpdateKind::Always);
+        self.system
+            .refresh_processes_specifics(ProcessesToUpdate::All, true, refresh_kind);
 
         // 用于存储扫描结果的共享容器
         let windows = Arc::new(Mutex::new(Vec::new()));
@@ -108,22 +174,30 @@ unsafe extern "system" fn enum_window_callback(
         if is_claude_cli && process_id > 0 {
             // 获取进程信息
             let pid = Pid::from_u32(process_id);
-            let (exe_path, project_path) = if let Some(process) = system.process(pid) {
+            let (exe_path, mut project_path, mut session_id) = if let Some(process) = system.process(pid) {
                 let exe = process.exe().and_then(|p| p.to_str()).map(|s| s.to_string());
 
                 // 从命令行参数推断项目路径
-                let project = process.cmd()
-                    .iter()
-                    .filter_map(|arg| arg.to_str())
-                    .find(|arg| arg.starts_with("--project=") || arg.starts_with("-p="))
-                    .and_then(|arg| {
-                        arg.split('=').nth(1).map(|s| s.to_string())
-                    });
+                let project = extract_project_path_from_cmd(process.cmd())
+                    .or_else(|| process.cwd().and_then(|p| p.to_str()).map(|s| s.to_string()));
 
-                (exe, project)
+                let session_id = ProcessDetector::extract_session_id_from_cmd(process.cmd());
+
+                (exe, project, session_id)
             } else {
-                (None, None)
+                (None, None, None)
             };
+
+            if session_id.is_none() || project_path.is_none() {
+                let (desc_session_id, desc_project_path) =
+                    find_descendant_context(system, pid);
+                if session_id.is_none() {
+                    session_id = desc_session_id;
+                }
+                if project_path.is_none() {
+                    project_path = desc_project_path;
+                }
+            }
 
             // 创建窗口信息
             let window_info = WindowInfo {
@@ -133,6 +207,8 @@ unsafe extern "system" fn enum_window_callback(
                 exe_path,
                 project_path,
                 last_active: Utc::now(),
+                session_id,
+                session_summary: None,
             };
 
             // 添加到结果列表

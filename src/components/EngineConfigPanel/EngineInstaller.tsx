@@ -1,6 +1,6 @@
 /**
  * 引擎安装器组件
- * 提供四种引擎的一键下载安装功能
+ * 提供引擎的一键下载安装功能
  */
 
 import { useState, useCallback } from 'react';
@@ -66,15 +66,6 @@ const ENGINE_INSTALL_CONFIG: Record<EngineType, EngineInstallInfo> = {
         postInstall: '安装完成后需要登录 Google 账号',
         docsUrl: 'https://www.geminicli.net/en/blog/gemini-cli-npm-installation-guide',
         description: 'Google 官方 CLI 工具，支持 Gemini 模型的代码生成',
-    },
-    siliconflow: {
-        name: 'SiliconFlow',
-        command: null,
-        requiresNodejs: false,
-        postInstall: '注册账号并获取 API Key',
-        docsUrl: 'https://docs.siliconflow.com/en/userguide/quickstart',
-        registrationUrl: 'https://cloud.siliconflow.cn/account/ak',
-        description: '国产 AI 模型聚合平台，提供 OpenAI 兼容 API，无需安装 CLI',
     },
 };
 
@@ -220,7 +211,7 @@ export function EngineInstaller({ engine, onInstallComplete, onClose }: EngineIn
         if (config.command) {
             await runInstall();
         } else if (config.registrationUrl) {
-            // SiliconFlow 等无需安装的引擎
+            // 无需安装的引擎
             addLog(`打开注册页面: ${config.registrationUrl}`);
             await open(config.registrationUrl);
             setState(prev => ({

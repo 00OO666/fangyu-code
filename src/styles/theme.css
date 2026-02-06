@@ -148,6 +148,11 @@
 }
 
 /* Base Styles */
+html {
+  /* 基础字体大小 */
+  font-size: 16px;  /* 标准大小，配合 150% DPI 测试 */
+}
+
 * {
   border-color: var(--color-border);
 }
@@ -155,10 +160,40 @@
 body {
   background-color: var(--color-background);
   color: var(--color-foreground);
-  font-family:
-    "Inter", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  font-family: var(--font-sans, "Inter", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+
+  /* 字体平滑 - Windows 优化（启用子像素渲染 ClearType） */
+  -webkit-font-smoothing: subpixel-antialiased;  /* 🆕 使用子像素渲染，在 Windows 上更清晰 */
+  -moz-osx-font-smoothing: auto;                 /* 🆕 macOS 使用系统默认 */
+  text-rendering: optimizeLegibility;
+  font-smooth: auto;                             /* 🆕 让浏览器自动选择最佳渲染方式 */
+
+  /* 🆕 增加字体粗细，改善笔画饱满度 */
+  font-weight: 450;  /* 比默认的 400 稍粗，改善笔画边界 */
+
+  /* 字体特性 */
+  font-feature-settings: "kern" 1;      /* 🆕 启用字距调整 */
+  font-kerning: normal;                 /* 🆕 标准字距 */
+}
+
+/* Global text rendering improvements - Windows 优化 */
+*,
+*::before,
+*::after {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: subpixel-antialiased;  /* 🆕 启用子像素渲染 */
+  -moz-osx-font-smoothing: auto;
+}
+
+/* Heading optimization */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "kern" 1, "liga" 1;
 }
 
 /* Monospace font optimization */
@@ -170,9 +205,21 @@ samp,
   font-family:
     "JetBrains Mono", "Fira Code", "Menlo", "Monaco", "Consolas", "Liberation Mono", "Courier New",
     monospace;
+  text-rendering: optimizeSpeed;
   font-feature-settings:
     "liga" 1,
-    "calt" 1; /* Enable ligatures */
+    "calt" 1,
+    "zero" 1; /* Enable ligatures and slashed zero */
+}
+
+/* 🆕 中文字体特别优化 - 增加笔画饱满度 */
+:lang(zh),
+:lang(zh-CN),
+:lang(zh-TW),
+:lang(ja),
+:lang(ko) {
+  font-weight: 500;  /* 中文字体使用更粗的字重 */
+  letter-spacing: 0.01em;  /* 轻微增加字间距，改善可读性 */
 }
 
 /* Cursor pointer for all interactive elements */

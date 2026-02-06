@@ -209,7 +209,7 @@ export function useBatchUpdate<T>(
   return {
     displayedItems,
     isLoading: currentIndex < items.length,
-    progress: Math.min((currentIndex / items.length) * 100, 100),
+    progress: items.length === 0 ? 100 : Math.min((currentIndex / items.length) * 100, 100),
   };
 }
 

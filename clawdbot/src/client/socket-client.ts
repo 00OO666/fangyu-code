@@ -106,13 +106,13 @@ export class SocketClient {
     });
 
     // 重连成功
-    this.socket.on('reconnect', (attemptNumber) => {
+    this.socket.on('reconnect' as any, (attemptNumber: number) => {
       logger.info(`Reconnected after ${attemptNumber} attempts`);
       sendTelegramAlert(`✅ Node Client 重连成功（尝试 ${attemptNumber} 次）`, 'info');
     });
 
     // 重连失败
-    this.socket.on('reconnect_failed', () => {
+    this.socket.on('reconnect_failed' as any, () => {
       logger.error('Reconnection failed');
       sendTelegramAlert('🚨 Node Client 重连失败', 'critical');
     });

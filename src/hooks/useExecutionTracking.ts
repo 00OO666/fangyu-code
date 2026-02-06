@@ -30,7 +30,7 @@ interface UseExecutionTrackingConfig {
   /** 项目路径 */
   projectPath: string;
   /** 执行引擎 */
-  engine: "claude" | "codex" | "gemini" | "siliconflow" | "kiro";
+  engine: "claude" | "codex" | "gemini";
   /** Tab 是否激活 */
   isActive: boolean;
   /** 当前提示词（可选） */
@@ -54,7 +54,7 @@ const globalExecutionStore = {
     tabId: string,
     sessionId: string | null,
     projectPath: string,
-    engine: "claude" | "codex" | "gemini" | "siliconflow" | "kiro",
+    engine: "claude" | "codex" | "gemini",
     prompt?: string,
   ) {
     const existing = this.states.get(tabId);

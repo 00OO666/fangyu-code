@@ -18,6 +18,8 @@ interface CliMonitorPanelProps {
 export const CliMonitorPanel: React.FC<CliMonitorPanelProps> = ({
   className,
 }) => {
+  const getWindowLabel = (window: WindowInfo) =>
+    window.session_summary || window.project_path || window.title;
   const [windows, setWindows] = useState<WindowInfo[]>([]);
   const [sessions, setSessions] = useState<CliSession[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -145,7 +147,9 @@ export const CliMonitorPanel: React.FC<CliMonitorPanelProps> = ({
         <h2 className="text-lg font-semibold text-white mb-4">窗口切换</h2>
         <WindowDropdown
           onSelect={(window) => {
-            logger.info(`[CliMonitorPanel] Window selected: ${window.title}`);
+            logger.info(
+              `[CliMonitorPanel] Window selected: ${getWindowLabel(window)}`
+            );
           }}
         />
       </div>
@@ -183,10 +187,18 @@ export const CliMonitorPanel: React.FC<CliMonitorPanelProps> = ({
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-medium text-white truncate">
-                      {window.title}
+                      {getWindowLabel(window)}
                     </div>
                     <div className="mt-1 flex items-center gap-2 text-xs text-gray-400">
                       <span>PID: {window.process_id}</span>
+                      {window.session_id && (
+                        <>
+                          <span>•</span>
+                          <span className="truncate">
+                            Session: {window.session_id.slice(0, 8)}
+                          </span>
+                        </>
+                      )}
                       {window.project_path && (
                         <>
                           <span>•</span>

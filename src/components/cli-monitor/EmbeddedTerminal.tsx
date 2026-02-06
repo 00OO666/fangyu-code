@@ -27,6 +27,8 @@ export const EmbeddedTerminal: React.FC<EmbeddedTerminalProps> = ({
   const [isRunning, setIsRunning] = useState(false);
   const [loading, setLoading] = useState(false);
   const outputRef = useRef<HTMLDivElement>(null);
+  const isMountedRef = useRef(true);
+  const isPollingRef = useRef(false);
 
   useEffect(() => {
     // 自动滚动到底部
@@ -39,11 +41,22 @@ export const EmbeddedTerminal: React.FC<EmbeddedTerminalProps> = ({
     // 定时获取输出
     if (isRunning) {
       const interval = setInterval(async () => {
+        if (isPollingRef.current) return;
+        isPollingRef.current = true;
         try {
-          const newOutput = await invoke<ProcessOutput[]>("get_process_output");
+          const [newOutput, running] = await Promise.all([
+            invoke<ProcessOutput[]>("get_process_output"),
+            invoke<boolean>("is_process_communication_running"),
+          ]);
+          if (!isMountedRef.current) return;
           setOutput(newOutput);
+          if (!running) {
+            setIsRunning(false);
+          }
         } catch (error) {
           logger.error("[EmbeddedTerminal] Failed to get output:", error);
+        } finally {
+          isPollingRef.current = false;
         }
       }, 500);
 
@@ -51,33 +64,54 @@ export const EmbeddedTerminal: React.FC<EmbeddedTerminalProps> = ({
     }
   }, [isRunning]);
 
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+      invoke("stop_process_communication").catch((error) => {
+        logger.error("[EmbeddedTerminal] Failed to stop process on unmount:", error);
+      });
+    };
+  }, []);
+
   const startProcess = async () => {
-    setLoading(true);
+    if (isMountedRef.current) {
+      setLoading(true);
+    }
     try {
       await invoke("start_process_communication", {
         command: "claude",
         args: [],
         workingDir,
       });
-      setIsRunning(true);
+      if (isMountedRef.current) {
+        setIsRunning(true);
+      }
       logger.info("[EmbeddedTerminal] Started process");
     } catch (error) {
       logger.error("[EmbeddedTerminal] Failed to start process:", error);
     } finally {
-      setLoading(false);
+      if (isMountedRef.current) {
+        setLoading(false);
+      }
     }
   };
 
   const stopProcess = async () => {
-    setLoading(true);
+    if (isMountedRef.current) {
+      setLoading(true);
+    }
     try {
       await invoke("stop_process_communication");
-      setIsRunning(false);
+      if (isMountedRef.current) {
+        setIsRunning(false);
+      }
       logger.info("[EmbeddedTerminal] Stopped process");
     } catch (error) {
       logger.error("[EmbeddedTerminal] Failed to stop process:", error);
     } finally {
-      setLoading(false);
+      if (isMountedRef.current) {
+        setLoading(false);
+      }
     }
   };
 
@@ -86,7 +120,9 @@ export const EmbeddedTerminal: React.FC<EmbeddedTerminalProps> = ({
 
     try {
       await invoke("send_process_input", { input: input.trim() });
-      setInput("");
+      if (isMountedRef.current) {
+        setInput("");
+      }
       logger.info("[EmbeddedTerminal] Sent input:", input);
     } catch (error) {
       logger.error("[EmbeddedTerminal] Failed to send input:", error);
@@ -96,7 +132,9 @@ export const EmbeddedTerminal: React.FC<EmbeddedTerminalProps> = ({
   const clearOutput = async () => {
     try {
       await invoke("clear_process_output");
-      setOutput([]);
+      if (isMountedRef.current) {
+        setOutput([]);
+      }
       logger.info("[EmbeddedTerminal] Cleared output");
     } catch (error) {
       logger.error("[EmbeddedTerminal] Failed to clear output:", error);

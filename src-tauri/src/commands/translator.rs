@@ -32,9 +32,9 @@ impl Default for TranslationConfig {
     fn default() -> Self {
         Self {
             enabled: false, // 🔧 修复：默认禁用翻译功能，需用户配置API密钥后启用
-            api_base_url: "https://api.siliconflow.cn/v1".to_string(),
+            api_base_url: "https://api.openai.com/v1".to_string(),
             api_key: String::new(), // 🔧 修复：要求用户自定义输入API密钥
-            model: "tencent/Hunyuan-MT-7B".to_string(),
+            model: "gpt-4o-mini".to_string(),
             timeout_seconds: 30,
             cache_ttl_seconds: 3600, // 1小时
         }
@@ -218,7 +218,7 @@ impl TranslationService {
         // 检查API密钥是否已配置
         if self.config.api_key.is_empty() {
             return Err(anyhow::anyhow!(
-                "API密钥未配置，请在设置中填写您的Silicon Flow API密钥"
+                "API密钥未配置，请在设置中填写您的翻译服务 API 密钥"
             ));
         }
         let system_prompt = match (from_lang, to_lang) {

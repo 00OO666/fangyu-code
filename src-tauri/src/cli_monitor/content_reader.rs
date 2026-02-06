@@ -1,5 +1,7 @@
 use super::types::CliSession;
+use std::collections::VecDeque;
 use std::fs;
+use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
 use serde::{Deserialize, Serialize};
 
@@ -28,12 +30,18 @@ impl SessionContentReader {
         // 获取会话文件路径
         let session_file = Self::find_session_file(session_id)?;
 
-        // 读取文件内容
-        let content = fs::read_to_string(&session_file)
-            .map_err(|e| format!("Failed to read session file: {}", e))?;
+        let file = fs::File::open(&session_file)
+            .map_err(|e| format!("Failed to open session file: {}", e))?;
+        let reader = BufReader::new(file);
 
-        // 解析 JSONL 格式
-        let messages = Self::parse_jsonl(&content)?;
+        let mut messages = Vec::new();
+        for (line_num, line) in reader.lines().enumerate() {
+            let line = line.map_err(|e| format!("Failed to read session file: {}", e))?;
+            if let Some(message) = Self::parse_json_line(&line, line_num + 1) {
+                messages.push(message);
+            }
+        }
+
         let total_messages = messages.len();
 
         Ok(SessionContent {
@@ -45,15 +53,32 @@ impl SessionContentReader {
 
     /// 读取会话的最后 N 条消息
     pub fn read_last_messages(session_id: &str, count: usize) -> Result<SessionContent, String> {
-        let mut content = Self::read_session_content(session_id)?;
+        let session_file = Self::find_session_file(session_id)?;
+        let file = fs::File::open(&session_file)
+            .map_err(|e| format!("Failed to open session file: {}", e))?;
+        let reader = BufReader::new(file);
 
-        // 只保留最后 N 条消息
-        if content.messages.len() > count {
-            let start = content.messages.len() - count;
-            content.messages = content.messages[start..].to_vec();
+        let mut buffer: VecDeque<SessionMessage> = VecDeque::with_capacity(count);
+        let mut total_messages = 0usize;
+
+        for (line_num, line) in reader.lines().enumerate() {
+            let line = line.map_err(|e| format!("Failed to read session file: {}", e))?;
+            if let Some(message) = Self::parse_json_line(&line, line_num + 1) {
+                total_messages += 1;
+                if count > 0 {
+                    if buffer.len() == count {
+                        buffer.pop_front();
+                    }
+                    buffer.push_back(message);
+                }
+            }
         }
 
-        Ok(content)
+        Ok(SessionContent {
+            session_id: session_id.to_string(),
+            messages: buffer.into_iter().collect(),
+            total_messages,
+        })
     }
 
     /// 查找会话文件
@@ -85,79 +110,85 @@ impl SessionContentReader {
         Err(format!("Session file not found for session_id: {}", session_id))
     }
 
-    /// 解析 JSONL 格式
-    fn parse_jsonl(content: &str) -> Result<Vec<SessionMessage>, String> {
-        let mut messages = Vec::new();
-
-        for (line_num, line) in content.lines().enumerate() {
-            if line.trim().is_empty() {
-                continue;
-            }
-
-            // 解析 JSON 行
-            match serde_json::from_str::<serde_json::Value>(line) {
-                Ok(json) => {
-                    // 提取消息信息
-                    if let Some(role) = json.get("role").and_then(|v| v.as_str()) {
-                        if let Some(content_array) = json.get("content").and_then(|v| v.as_array()) {
-                            // 合并所有 content 块
-                            let mut full_content = String::new();
-                            for content_item in content_array {
-                                if let Some(text) = content_item.get("text").and_then(|v| v.as_str()) {
-                                    full_content.push_str(text);
-                                }
-                            }
-
-                            // 提取时间戳（如果有）
-                            let timestamp = json.get("timestamp")
-                                .and_then(|v| v.as_i64());
-
-                            messages.push(SessionMessage {
-                                role: role.to_string(),
-                                content: full_content,
-                                timestamp,
-                            });
-                        }
-                    }
-                }
-                Err(e) => {
-                    log::warn!("[SessionContentReader] Failed to parse line {}: {}", line_num + 1, e);
-                    // 继续处理下一行，不中断整个解析过程
-                }
-            }
+    /// 解析 JSONL 单行
+    fn parse_json_line(line: &str, line_num: usize) -> Option<SessionMessage> {
+        if line.trim().is_empty() {
+            return None;
         }
 
-        Ok(messages)
+        match serde_json::from_str::<serde_json::Value>(line) {
+            Ok(json) => {
+                if let Some(role) = json.get("role").and_then(|v| v.as_str()) {
+                    if let Some(content_array) = json.get("content").and_then(|v| v.as_array()) {
+                        let mut full_content = String::new();
+                        for content_item in content_array {
+                            if let Some(text) = content_item.get("text").and_then(|v| v.as_str()) {
+                                full_content.push_str(text);
+                            }
+                        }
+
+                        let timestamp = json.get("timestamp").and_then(|v| v.as_i64());
+
+                        return Some(SessionMessage {
+                            role: role.to_string(),
+                            content: full_content,
+                            timestamp,
+                        });
+                    }
+                }
+                None
+            }
+            Err(e) => {
+                log::warn!(
+                    "[SessionContentReader] Failed to parse line {}: {}",
+                    line_num,
+                    e
+                );
+                None
+            }
+        }
     }
 
     /// 获取会话摘要（前 N 个字符）
     pub fn get_session_summary(session_id: &str, max_chars: usize) -> Result<String, String> {
-        let content = Self::read_session_content(session_id)?;
+        let session_file = Self::find_session_file(session_id)?;
+        let file = fs::File::open(&session_file)
+            .map_err(|e| format!("Failed to open session file: {}", e))?;
+        let reader = BufReader::new(file);
 
-        if content.messages.is_empty() {
-            return Ok(String::new());
-        }
+        let mut first_message: Option<SessionMessage> = None;
 
-        // 获取第一条用户消息
-        for message in &content.messages {
-            if message.role == "user" {
-                let summary = if message.content.len() > max_chars {
-                    format!("{}...", &message.content[..max_chars])
-                } else {
-                    message.content.clone()
-                };
-                return Ok(summary);
+        for (line_num, line) in reader.lines().enumerate() {
+            let line = line.map_err(|e| format!("Failed to read session file: {}", e))?;
+            if let Some(message) = Self::parse_json_line(&line, line_num + 1) {
+                if first_message.is_none() {
+                    first_message = Some(message.clone());
+                }
+
+                if message.role == "user" {
+                    let summary = if message.content.chars().count() > max_chars {
+                        format!("{}...", Self::truncate_text(&message.content, max_chars))
+                    } else {
+                        message.content
+                    };
+                    return Ok(summary);
+                }
             }
         }
 
-        // 如果没有用户消息，返回第一条消息
-        let first_message = &content.messages[0];
-        let summary = if first_message.content.len() > max_chars {
-            format!("{}...", &first_message.content[..max_chars])
-        } else {
-            first_message.content.clone()
-        };
+        if let Some(message) = first_message {
+            let summary = if message.content.chars().count() > max_chars {
+                format!("{}...", Self::truncate_text(&message.content, max_chars))
+            } else {
+                message.content
+            };
+            return Ok(summary);
+        }
 
-        Ok(summary)
+        Ok(String::new())
+    }
+
+    fn truncate_text(text: &str, max_chars: usize) -> String {
+        text.chars().take(max_chars).collect()
     }
 }

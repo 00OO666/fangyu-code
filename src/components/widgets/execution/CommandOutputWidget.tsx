@@ -46,6 +46,7 @@ export const CommandOutputWidget: React.FC<CommandOutputWidgetProps> = ({
   // ANSI 样式解析函数
   const parseAnsiToReact = (text: string) => {
     // 简单的 ANSI 解析 - 处理粗体 (\u001b[1m) 和重置 (\u001b[22m)
+    // eslint-disable-next-line no-control-regex
     const parts = text.split(/(\u001b\[\d+m)/);
     let isBold = false;
     const elements: React.ReactNode[] = [];
@@ -57,6 +58,7 @@ export const CommandOutputWidget: React.FC<CommandOutputWidgetProps> = ({
       } else if (part === '\u001b[22m') {
         isBold = false;
         return;
+      // eslint-disable-next-line no-control-regex
       } else if (part.match(/\u001b\[\d+m/)) {
         // 忽略其他 ANSI 代码
         return;

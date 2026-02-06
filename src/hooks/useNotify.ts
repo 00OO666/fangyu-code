@@ -206,7 +206,7 @@ export const notify = {
     position: NotificationPosition,
     ...args: Parameters<(typeof NotificationTemplates)[K]>
   ): string => {
-    // @ts-expect-error
+    // @ts-expect-error -- dynamic template parameter inference
     const template = NotificationTemplates[templateName](...args);
     return notificationService.notify(template.message, {
       ...template,

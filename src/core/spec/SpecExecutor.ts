@@ -92,7 +92,7 @@ export class SpecExecutor {
   private progressListeners: ProgressListener[] = [];
   private specBasePath: string;
 
-  constructor(fs?: SpecFileSystem, basePath: string = '.kiro/specs') {
+  constructor(fs?: SpecFileSystem, basePath: string = '.fangyu/specs') {
     this.fs = fs ?? new MockSpecFileSystem();
     this.specBasePath = basePath;
   }

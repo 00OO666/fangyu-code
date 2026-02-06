@@ -2,7 +2,7 @@
  * Summary Model Tester Service
  *
  * 测试摘要引擎的模型可用性
- * 复用 InlineAPITester 的测试逻辑，支持四引擎
+ * 复用 InlineAPITester 的测试逻辑，支持三引擎
  */
 
 import { logger } from '@/lib/logger';
@@ -194,59 +194,11 @@ async function testGeminiModel(
     }
 }
 
-async function testSiliconFlowModel(
-    modelId: string,
-    apiKey: string,
-    baseUrl: string
-): Promise<ModelTestResult> {
-    const startTime = Date.now();
-    try {
-        const endpoint = baseUrl || 'https://api.siliconflow.cn';
-        const response = await fetch(`${endpoint}/v1/chat/completions`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`,
-            },
-            body: JSON.stringify({
-                model: modelId,
-                max_tokens: 5,
-                messages: [{ role: 'user', content: 'hi' }],
-            }),
-        });
-        const latency = Date.now() - startTime;
-        const data = await response.json();
-
-        if (data.choices) {
-            return {
-                modelId,
-                status: 'success',
-                actualModel: data.model || modelId,
-                latency,
-            };
-        }
-        return {
-            modelId,
-            status: 'error',
-            error: data.error?.message?.slice(0, 50) || data.message?.slice(0, 50) || '未知错误',
-            latency,
-        };
-    } catch (error) {
-        return {
-            modelId,
-            status: 'error',
-            error: error instanceof Error ? error.message.slice(0, 50) : '网络错误',
-            latency: Date.now() - startTime,
-        };
-    }
-}
-
 // 测试函数映射
 const TEST_FUNCTIONS: Record<SummaryEngine, typeof testClaudeModel> = {
     claude: testClaudeModel,
     codex: testOpenAIModel,
     gemini: testGeminiModel,
-    siliconflow: testSiliconFlowModel,
 };
 
 // =============================================================================

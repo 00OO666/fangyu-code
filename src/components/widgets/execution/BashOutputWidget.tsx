@@ -54,6 +54,7 @@ export const BashOutputWidget: React.FC<BashOutputWidgetProps> = ({
 
   // 清除 ANSI 转义序列
   const stripAnsiCodes = (text: string): string => {
+    // eslint-disable-next-line no-control-regex
     return text.replace(/\x1b\[[0-9;]*[mGKHJfABCD]/g, '');
   };
 

@@ -12,6 +12,7 @@ import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
 import { Prism as SyntaxHighlighter } from "@/lib/lightSyntaxHighlighter";
 import { getClaudeSyntaxTheme } from "@/lib/claudeSyntaxTheme";
 import { useTheme } from "@/contexts/ThemeContext";
+import { isDarkTheme } from "@/lib/themeUtils";
 import { getLanguage } from "../common/languageDetector";
 import { cn } from "@/lib/utils";
 
@@ -141,7 +142,7 @@ export const ReadResultWidget: React.FC<ReadResultWidgetProps> = ({ content, fil
           <div className="relative overflow-x-auto">
             <SyntaxHighlighter
               language={language}
-              style={getClaudeSyntaxTheme(theme === 'dark')}
+              style={getClaudeSyntaxTheme(isDarkTheme(theme))}
               showLineNumbers
               startingLineNumber={startLineNumber}
               wrapLongLines={false}

@@ -11,6 +11,7 @@ import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
 import { Prism as SyntaxHighlighter } from "@/lib/lightSyntaxHighlighter";
 import { getClaudeSyntaxTheme } from "@/lib/claudeSyntaxTheme";
 import { useTheme } from "@/contexts/ThemeContext";
+import { isDarkTheme } from "@/lib/themeUtils";
 import { getLanguage } from "../common/languageDetector";
 
 export interface EditResultWidgetProps {
@@ -83,7 +84,7 @@ export const EditResultWidget: React.FC<EditResultWidgetProps> = ({ content }) =
       <div className="overflow-x-auto max-h-[440px]">
         <SyntaxHighlighter
           language={language}
-          style={getClaudeSyntaxTheme(theme === 'dark')}
+          style={getClaudeSyntaxTheme(isDarkTheme(theme))}
           showLineNumbers
           startingLineNumber={startLineNumber}
           wrapLongLines={false}

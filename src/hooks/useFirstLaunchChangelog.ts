@@ -231,7 +231,7 @@ export const CHANGELOGS = {
     ],
     improvements: [
       "✅ Token 阈值警告 - 80% 时显示警告，90% 时显示危险提示",
-      "✅ 四引擎支持 - Claude/OpenAI/Gemini/SiliconFlow 任选",
+      "✅ 三引擎支持 - Claude/OpenAI/Gemini 任选",
       "✅ 配置持久化 - 引擎和模型选择自动保存，下次启动恢复",
       "✅ API Key 加密存储 - 使用 Web Crypto API 加密敏感信息",
     ],
@@ -263,7 +263,7 @@ export const CHANGELOGS = {
     title: "v2.7.3 - 🔄 统一工作流系统",
     date: "2026-01-12",
     features: [
-      "🔄 统一工作流引擎 - 合并 Kiro 风格和 Devin 风格工作流为统一系统",
+      "🔄 统一工作流引擎 - 合并 Spec 风格和 Devin 风格工作流为统一系统",
       "📊 DAG 可视化 - 任务依赖关系图形化展示，支持并行任务识别",
       "🤖 智能代理调度 - 基于能力匹配的代理-任务分配算法",
       "⏸️ 执行控制 - 支持暂停/恢复/重试/取消工作流执行",
@@ -450,7 +450,7 @@ export const CHANGELOGS = {
       "📊 Agent 仪表盘 - 实时查看 Agent 池状态和任务队列",
       "📋 Spec 工作流面板 - 管理和执行 Spec 驱动的开发任务",
       "📈 上下文监控 - 实时监控 Token 使用量和阈值状态",
-      "🧩 Powers 管理面板 - 配置和管理 Kiro Powers",
+      "🧩 Powers 管理面板 - 配置和管理 Powers",
     ],
     improvements: [
       "✅ 侧边栏新增 Super Agent 入口 - 快捷键 ⌘3",
@@ -825,10 +825,8 @@ export const CHANGELOGS = {
     title: "v2.2.4 - 🚀 功能增强与稳定性优化",
     date: "2026-01-04",
     features: [
-      "✨ SiliconFlow 流式输出 - 新增完整的 SSE 流式 API 支持，实时显示生成内容",
       "🔄 跨窗口同步 - 重新启用任务状态跨窗口同步，支持多窗口协同工作",
       "🧹 自动清理机制 - 已完成任务 5 分钟后自动清理，过期任务 30 分钟后清理",
-      "🔧 类型系统完善 - 系统性添加 SiliconFlow 引擎类型支持，覆盖 20+ 文件",
     ],
     improvements: [
       "📝 条件化日志 - Debug 日志仅在开发环境输出，减少生产环境噪音",
@@ -839,7 +837,6 @@ export const CHANGELOGS = {
       "LLMApiService.callStream() - 实现 OpenAI 兼容的 SSE 流式 API",
       "GlobalTaskStore.cleanupStaleTasks() - 定时清理过期任务（每 2 分钟）",
       "useGlobalTaskState - 重新启用跨窗口事件监听器",
-      "TypeScript 类型修复 - 修复 siliconflow 相关类型错误",
     ],
   },
   "2.2.3": {
@@ -1199,24 +1196,6 @@ export const CHANGELOGS = {
       "快速更新脚本 v2.0 - 自动复制安装包",
     ],
   },
-  "1.2.2": {
-    title: "v1.2.2 - SiliconFlow 模型集成",
-    date: "2025-12-29",
-    features: [
-      "SiliconFlow 模型选择器 - 17 个国产 AI 模型",
-      "推理模型：DeepSeek-R1, DeepSeek-R1-Distill-32B, Qwen QwQ-32B",
-      "对话模型：DeepSeek-V3, Qwen2.5-72B/32B/30B-A3B, Llama-3.3-70B",
-      "代码模型：Qwen2.5-Coder-32B, DeepSeek-Coder-V2",
-      "免费模型：Qwen2.5-7B, Llama-3.1-8B (9B 以下永久免费)",
-      "一键测试模型连接",
-      "配置持久化到 localStorage",
-    ],
-    improvements: [
-      "使用 llmApiService 统一 API 层",
-      "100% 兼容 OpenAI 格式",
-      "添加 sonner Toast 通知库",
-    ],
-  },
   "1.2.1": {
     title: "v1.2.1 - 使用统计增强与费用追踪",
     date: "2025-12-29",
@@ -1387,5 +1366,3 @@ export const useFirstLaunchChangelog = () => {
 };
 
 export default useFirstLaunchChangelog;
-
-

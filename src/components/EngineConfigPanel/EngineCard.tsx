@@ -6,8 +6,6 @@ import React from 'react';
 import Bot from 'lucide-react/dist/esm/icons/bot'
 import FileCode from 'lucide-react/dist/esm/icons/file-code'
 import Sparkles from 'lucide-react/dist/esm/icons/sparkles'
-import Zap from 'lucide-react/dist/esm/icons/zap'
-import Cloud from 'lucide-react/dist/esm/icons/cloud'
 import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
 import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
 import XCircle from 'lucide-react/dist/esm/icons/x-circle'
@@ -27,8 +25,6 @@ const ENGINE_ICON_MAP: Record<EngineType, React.ComponentType<{ className?: stri
     claude: Bot,
     codex: FileCode,
     gemini: Sparkles,
-    siliconflow: Zap,
-    kiro: Cloud,
 };
 
 function getStatusInfo(status: EngineStatusInfo): {

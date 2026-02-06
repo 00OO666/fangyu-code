@@ -52,15 +52,6 @@ export const PRESET_PROVIDERS = {
     enabled: false,
     apiKey: "",
   },
-  siliconflow: {
-    id: "siliconflow",
-    name: "SiliconFlow Qwen",
-    apiUrl: "https://api.siliconflow.cn/v1",
-    model: "Qwen/Qwen2.5-72B-Instruct",
-    apiFormat: "openai" as const,
-    enabled: false,
-    apiKey: "",
-  },
   gemini: {
     id: "gemini",
     name: "Google Gemini 2.0",

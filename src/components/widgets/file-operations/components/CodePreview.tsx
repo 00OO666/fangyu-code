@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Prism as SyntaxHighlighter } from "@/lib/lightSyntaxHighlighter";
 import { getClaudeSyntaxTheme } from "@/lib/claudeSyntaxTheme";
 import { useTheme } from "@/contexts/ThemeContext";
+import { isDarkTheme } from "@/lib/themeUtils";
 import { useTypewriter } from "@/hooks/useTypewriter";
 import { checkSyntaxHighlightSupport } from "@/lib/syntaxHighlightCompat";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -137,7 +138,7 @@ export const CodePreview: React.FC<CodePreviewProps> = ({
           >
             <SyntaxHighlighter
               language={language}
-              style={getClaudeSyntaxTheme(theme === 'dark')}
+              style={getClaudeSyntaxTheme(isDarkTheme(theme))}
               customStyle={{
                 margin: 0,
                 padding: '1rem',

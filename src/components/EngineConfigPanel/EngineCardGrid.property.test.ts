@@ -20,7 +20,7 @@ vi.mock('@tauri-apps/api/core', () => ({
 }));
 
 // 引擎类型生成器
-const engineTypeArb = fc.constantFrom<EngineType>('claude', 'codex', 'gemini', 'siliconflow');
+const engineTypeArb = fc.constantFrom<EngineType>('claude', 'codex', 'gemini');
 
 describe('配置状态显示属性测试', () => {
     /**

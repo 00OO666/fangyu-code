@@ -3,7 +3,7 @@
  * 用于选择和切换 Claude CLI 窗口
  */
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Listbox } from "@headlessui/react";
 import { ChevronDown, Monitor, Loader2, CheckCircle2, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -20,68 +20,108 @@ export const WindowDropdown: React.FC<WindowDropdownProps> = ({
   onSelect,
   className,
 }) => {
+  const getWindowLabel = useCallback(
+    (window: WindowInfo) =>
+      window.session_summary || window.project_path || window.title,
+    []
+  );
   const [windows, setWindows] = useState<WindowInfo[]>([]);
   const [selectedWindow, setSelectedWindow] = useState<WindowInfo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isFocusing, setIsFocusing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const isMountedRef = useRef(true);
+  const successTimerRef = useRef<number | null>(null);
+  const errorTimerRef = useRef<number | null>(null);
 
   // 加载窗口列表
   const loadWindows = async () => {
-    setIsLoading(true);
-    setError(null);
+    if (isMountedRef.current) {
+      setIsLoading(true);
+      setError(null);
+    }
     try {
       const result = await scanWindows();
-      setWindows(result.windows);
+      if (isMountedRef.current) {
+        setWindows(result.windows);
+      }
       logger.info(`[WindowDropdown] Loaded ${result.windows.length} windows`);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
-      setError(errorMessage);
+      if (isMountedRef.current) {
+        setError(errorMessage);
+      }
       logger.error("[WindowDropdown] Failed to load windows:", err);
     } finally {
-      setIsLoading(false);
+      if (isMountedRef.current) {
+        setIsLoading(false);
+      }
     }
   };
 
   // 组件挂载时加载窗口列表
   useEffect(() => {
     loadWindows();
+    return () => {
+      isMountedRef.current = false;
+      if (successTimerRef.current) {
+        window.clearTimeout(successTimerRef.current);
+      }
+      if (errorTimerRef.current) {
+        window.clearTimeout(errorTimerRef.current);
+      }
+    };
   }, []);
 
   // 处理窗口选择（带防抖）
   const handleSelect = useCallback(
-    async (window: WindowInfo) => {
-      setSelectedWindow(window);
-      setIsFocusing(true);
-      setError(null);
-      setSuccessMessage(null);
+    async (selected: WindowInfo) => {
+      setSelectedWindow(selected);
+      if (isMountedRef.current) {
+        setIsFocusing(true);
+        setError(null);
+        setSuccessMessage(null);
+      }
 
       try {
         // 调用 focusWindow API
-        await focusWindow(window.hwnd);
+        await focusWindow(selected.hwnd);
 
         // 显示成功消息
-        setSuccessMessage(`已切换到窗口: ${window.title}`);
-        logger.info(`[WindowDropdown] Successfully focused window: ${window.title}`);
+        const windowLabel = getWindowLabel(selected);
+        if (isMountedRef.current) {
+          setSuccessMessage(`已切换到窗口: ${windowLabel}`);
+        }
+        logger.info(`[WindowDropdown] Successfully focused window: ${windowLabel}`);
 
         // 3秒后清除成功消息
-        setTimeout(() => setSuccessMessage(null), 3000);
+        if (successTimerRef.current) {
+          window.clearTimeout(successTimerRef.current);
+        }
+        successTimerRef.current = window.setTimeout(() => setSuccessMessage(null), 3000);
 
         // 调用父组件的回调
-        onSelect(window);
+        onSelect(selected);
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : String(err);
-        setError(`切换窗口失败: ${errorMessage}`);
+        if (isMountedRef.current) {
+          setError(`切换窗口失败: ${errorMessage}`);
+        }
         logger.error("[WindowDropdown] Failed to focus window:", err);
 
         // 5秒后清除错误消息
-        setTimeout(() => setError(null), 5000);
+        if (errorTimerRef.current) {
+          window.clearTimeout(errorTimerRef.current);
+        }
+        errorTimerRef.current = window.setTimeout(() => setError(null), 5000);
       } finally {
-        setIsFocusing(false);
+        if (isMountedRef.current) {
+          setIsFocusing(false);
+        }
       }
     },
-    [onSelect]
+    [getWindowLabel, onSelect]
   );
 
   return (
@@ -131,7 +171,7 @@ export const WindowDropdown: React.FC<WindowDropdownProps> = ({
                       : isLoading
                       ? "加载中..."
                       : selectedWindow
-                      ? selectedWindow.title
+                      ? getWindowLabel(selectedWindow)
                       : windows.length > 0
                       ? "选择窗口"
                       : "无可用窗口"}
@@ -191,10 +231,18 @@ export const WindowDropdown: React.FC<WindowDropdownProps> = ({
                             selected ? "text-blue-300" : "text-white"
                           )}
                         >
-                          {window.title}
+                          {getWindowLabel(window)}
                         </div>
                         <div className="flex items-center gap-2 text-xs text-gray-400">
                           <span>PID: {window.process_id}</span>
+                          {window.session_id && (
+                            <>
+                              <span>•</span>
+                              <span className="truncate">
+                                Session: {window.session_id.slice(0, 8)}
+                              </span>
+                            </>
+                          )}
                           {window.project_path && (
                             <>
                               <span>•</span>

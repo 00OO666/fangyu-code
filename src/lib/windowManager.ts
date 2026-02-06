@@ -7,6 +7,7 @@
 import { logger } from '@/lib/logger';
 import { invoke } from "@tauri-apps/api/core";
 import { emit, listen, type UnlistenFn } from "@tauri-apps/api/event";
+import type { ThemeName } from "@/types/theme";
 
 // ============================================================================
 // Types
@@ -17,8 +18,9 @@ export interface CreateSessionWindowParams {
   sessionId?: string;
   projectPath?: string;
   title: string;
-  /** Execution engine: 'claude' | 'codex' | 'gemini' | 'siliconflow' | 'kiro' */
-  engine?: "claude" | "codex" | "gemini" | "siliconflow" | "kiro";
+  themeName?: ThemeName;
+  /** Execution engine: 'claude' | 'codex' | 'gemini' */
+  engine?: "claude" | "codex" | "gemini";
 }
 
 export interface WindowCreationResult {
@@ -32,6 +34,7 @@ export interface WindowSyncEvent {
   tabId: string;
   sessionId?: string;
   projectPath?: string;
+  themeName?: ThemeName;
   data?: any;
 }
 
@@ -53,6 +56,7 @@ export async function createSessionWindow(params: CreateSessionWindowParams): Pr
         session_id: params.sessionId || null,
         project_path: params.projectPath || null,
         title: params.title,
+        theme: params.themeName || null,
         engine: params.engine || null,
       },
     });
@@ -203,6 +207,7 @@ export function parseSessionWindowParams(): {
   tabId?: string;
   sessionId?: string;
   projectPath?: string;
+  themeName?: ThemeName;
   engine?: "claude" | "codex" | "gemini";
 } {
   const params = new URLSearchParams(window.location.search);
@@ -217,10 +222,17 @@ export function parseSessionWindowParams(): {
   const projectPath = params.get("project_path")
     ? decodeURIComponent(params.get("project_path")!)
     : undefined;
+  const themeParam = params.get("theme");
+  const themeName =
+    themeParam === "deep-glass-pro" || themeParam === "deep-glass-scifi"
+      ? (themeParam as ThemeName)
+      : undefined;
   const engineParam = params.get("engine");
   // 🔧 FIX: 支持 gemini 引擎
   const engine =
-    engineParam === "claude" || engineParam === "codex" || engineParam === "gemini"
+    engineParam === "claude" ||
+    engineParam === "codex" ||
+    engineParam === "gemini"
       ? engineParam
       : undefined;
   return {
@@ -228,6 +240,7 @@ export function parseSessionWindowParams(): {
     tabId,
     sessionId,
     projectPath,
+    themeName,
     engine,
   };
 }

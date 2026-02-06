@@ -30,8 +30,7 @@ import {
 const engineArb: fc.Arbitrary<SummaryEngine> = fc.constantFrom(
     'claude',
     'codex',
-    'gemini',
-    'siliconflow'
+    'gemini'
 );
 
 /** 生成有效的模型 ID（基于引擎） */

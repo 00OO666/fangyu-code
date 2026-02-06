@@ -757,31 +757,26 @@ export class AgentSwarmManager extends BrowserEventEmitter {
     const startTime = Date.now();
     task.metrics.startTime = startTime;
 
-    try {
-      // 这里将调用实际的任务执行逻辑
-      // 例如：发送给 Claude API 并在沙箱中执行
-      const result = await this.runTaskInSandbox(agent, task);
+    // 这里将调用实际的任务执行逻辑
+    // 例如：发送给 Claude API 并在沙箱中执行
+    const result = await this.runTaskInSandbox(agent, task);
 
-      // 更新任务状态
-      task.status = 'completed';
-      task.progress = 100;
-      task.result = result;
-      task.metrics.endTime = Date.now();
-      task.metrics.duration = task.metrics.endTime - startTime;
+    // 更新任务状态
+    task.status = 'completed';
+    task.progress = 100;
+    task.result = result;
+    task.metrics.endTime = Date.now();
+    task.metrics.duration = task.metrics.endTime - startTime;
 
-      // 更新代理状态
-      agent.performance.tasksCompleted++;
-      agent.performance.avgCompletionTime = this.updateAverage(
-        agent.performance.avgCompletionTime,
-        agent.performance.tasksCompleted,
-        task.metrics.duration
-      );
+    // 更新代理状态
+    agent.performance.tasksCompleted++;
+    agent.performance.avgCompletionTime = this.updateAverage(
+      agent.performance.avgCompletionTime,
+      agent.performance.tasksCompleted,
+      task.metrics.duration
+    );
 
-      this.completeTask(task, agent);
-
-    } catch (error: any) {
-      throw error;
-    }
+    this.completeTask(task, agent);
   }
 
   /**

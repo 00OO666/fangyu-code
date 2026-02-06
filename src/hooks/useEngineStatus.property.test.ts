@@ -17,7 +17,7 @@ import {
 } from './useEngineStatus';
 
 // 引擎类型生成器
-const engineTypeArb = fc.constantFrom<EngineType>('claude', 'codex', 'gemini', 'siliconflow');
+const engineTypeArb = fc.constantFrom<EngineType>('claude', 'codex', 'gemini');
 
 // 错误消息生成器
 const errorMessageArb = fc.oneof(

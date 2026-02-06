@@ -4,7 +4,7 @@
  * 架构说明：
  * - 前端使用 localStorage 存储统一配置（支持多引擎）
  * - Claude 引擎需要同步到 Tauri 后端（~/.claude/settings.json 和 providers.json）
- * - 其他引擎（Codex、Gemini、Siliconflow）仅使用前端存储
+ * - 其他引擎（Codex、Gemini）仅使用前端存储
  */
 
 import { logger } from '@/lib/logger';
@@ -684,8 +684,6 @@ export async function importConfig(
                 claude: null,
                 codex: null,
                 gemini: null,
-                siliconflow: null,
-                kiro: null,
             };
         }
 
@@ -956,6 +954,76 @@ async function syncClaudeEnvVarsFromBackend(): Promise<void> {
 }
 
 /**
+ * 从后端 CLI 配置自动导入 Provider（仅当该引擎尚无 Provider）
+ * - Claude: 读取 ~/.claude/settings.json 的 env
+ * - Codex: 读取 ~/.codex/auth.json + config.toml（通过后端命令）
+ */
+async function syncProvidersFromBackend(): Promise<void> {
+    try {
+        const hasEngineProvider = (engine: EngineType) =>
+            readStorage().providers.some(p => p.engine === engine);
+
+        // Claude: 从当前配置导入
+        if (!hasEngineProvider('claude')) {
+            const currentConfig = await invoke<{
+                anthropic_base_url?: string;
+                anthropic_auth_token?: string;
+                anthropic_api_key?: string;
+                anthropic_model?: string;
+            }>('get_current_provider_config');
+
+            const baseUrl = currentConfig.anthropic_base_url || 'https://api.anthropic.com';
+            const apiKey = currentConfig.anthropic_api_key || '';
+            const authToken = currentConfig.anthropic_auth_token || '';
+
+            if (apiKey || authToken) {
+                await createProvider({
+                    engine: 'claude',
+                    name: '当前配置',
+                    description: '自动从 ~/.claude/settings.json 导入',
+                    baseUrl,
+                    apiKey: apiKey || undefined,
+                    authToken: authToken || undefined,
+                    model: currentConfig.anthropic_model || undefined,
+                    enabled: true,
+                    isOfficial: baseUrl === 'https://api.anthropic.com',
+                    isPartner: false,
+                });
+                logger.debug('engineConfigService', '[EngineConfigService] 已自动导入 Claude Provider');
+            }
+        }
+
+        // Codex: 从当前配置导入（需要 API Key）
+        if (!hasEngineProvider('codex')) {
+            const currentCodex = await invoke<{
+                api_key?: string | null;
+                base_url?: string | null;
+                model?: string | null;
+            }>('get_current_codex_config');
+
+            const apiKey = currentCodex.api_key || '';
+            if (apiKey) {
+                const baseUrl = currentCodex.base_url || 'https://api.openai.com/v1';
+                await createProvider({
+                    engine: 'codex',
+                    name: '当前配置',
+                    description: '自动从 ~/.codex 导入',
+                    baseUrl,
+                    apiKey,
+                    model: currentCodex.model || undefined,
+                    enabled: true,
+                    isOfficial: baseUrl === 'https://api.openai.com/v1',
+                    isPartner: false,
+                });
+                logger.debug('engineConfigService', '[EngineConfigService] 已自动导入 Codex Provider');
+            }
+        }
+    } catch (error) {
+        logger.warn('engineConfigService', '[EngineConfigService] 自动导入 Provider 失败:', error);
+    }
+}
+
+/**
  * 初始化服务（应用启动时调用）
  */
 export async function initializeService(): Promise<void> {
@@ -968,6 +1036,9 @@ export async function initializeService(): Promise<void> {
     // 从后端同步 Claude 环境变量到前端
     // 确保前端显示的配置与 ~/.claude/settings.json 一致
     await syncClaudeEnvVarsFromBackend();
+
+    // 从后端自动导入 Provider（仅当该引擎尚无 Provider）
+    await syncProvidersFromBackend();
 }
 
 // 导出类接口（兼容设计文档）

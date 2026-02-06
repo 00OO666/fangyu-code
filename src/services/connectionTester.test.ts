@@ -26,7 +26,7 @@ describe('ConnectionTester', () => {
         vi.restoreAllMocks();
     });
 
-    const createMockProvider = (engine: 'claude' | 'codex' | 'gemini' | 'siliconflow'): UnifiedProviderConfig => ({
+    const createMockProvider = (engine: 'claude' | 'codex' | 'gemini'): UnifiedProviderConfig => ({
         id: 'test-id',
         name: 'Test Provider',
         engine,
@@ -76,19 +76,6 @@ describe('ConnectionTester', () => {
             });
 
             const provider = createMockProvider('gemini');
-            const result = await tester.testConnection(provider);
-
-            expect(result.success).toBe(true);
-        });
-
-        it('SiliconFlow 引擎连接成功应返回 success', async () => {
-            mockFetch.mockResolvedValueOnce({
-                ok: true,
-                status: 200,
-                json: () => Promise.resolve({ data: [{ id: 'model-1' }] }),
-            });
-
-            const provider = createMockProvider('siliconflow');
             const result = await tester.testConnection(provider);
 
             expect(result.success).toBe(true);

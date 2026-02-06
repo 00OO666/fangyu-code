@@ -2,8 +2,6 @@ use notify::{Config, Event, RecommendedWatcher, RecursiveMode, Watcher};
 use std::path::PathBuf;
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::sync::{Arc, Mutex};
-use std::thread;
-use std::time::Duration;
 
 /// 文件变化事件类型
 #[derive(Debug, Clone, serde::Serialize)]
@@ -30,21 +28,24 @@ pub struct FileSystemWatcher {
 
 impl FileSystemWatcher {
     /// 创建新的文件系统监控器
-    pub fn new() -> Result<Self, String> {
-        let (tx, rx) = channel();
+    pub fn new() -> Self {
+        let (_tx, rx) = channel();
 
-        Ok(Self {
+        Self {
             watcher: None,
             event_receiver: Arc::new(Mutex::new(rx)),
             is_watching: Arc::new(Mutex::new(false)),
-        })
+        }
     }
 
     /// 开始监控指定目录
     pub fn start_watching(&mut self, path: PathBuf) -> Result<(), String> {
         // 检查是否已经在监控
         {
-            let is_watching = self.is_watching.lock().unwrap();
+            let is_watching = self
+                .is_watching
+                .lock()
+                .map_err(|_| "Watcher state lock poisoned".to_string())?;
             if *is_watching {
                 return Err("Already watching".to_string());
             }
@@ -73,7 +74,10 @@ impl FileSystemWatcher {
         self.event_receiver = Arc::new(Mutex::new(rx));
 
         {
-            let mut is_watching = self.is_watching.lock().unwrap();
+            let mut is_watching = self
+                .is_watching
+                .lock()
+                .map_err(|_| "Watcher state lock poisoned".to_string())?;
             *is_watching = true;
         }
 
@@ -84,7 +88,10 @@ impl FileSystemWatcher {
     /// 停止监控
     pub fn stop_watching(&mut self) -> Result<(), String> {
         {
-            let mut is_watching = self.is_watching.lock().unwrap();
+            let mut is_watching = self
+                .is_watching
+                .lock()
+                .map_err(|_| "Watcher state lock poisoned".to_string())?;
             if !*is_watching {
                 return Err("Not watching".to_string());
             }
@@ -98,7 +105,10 @@ impl FileSystemWatcher {
 
     /// 获取文件变化事件
     pub fn get_events(&self) -> Vec<FileChangeEvent> {
-        let receiver = self.event_receiver.lock().unwrap();
+        let receiver = match self.event_receiver.lock() {
+            Ok(guard) => guard,
+            Err(poison) => poison.into_inner(),
+        };
         let mut events = Vec::new();
 
         // 非阻塞地获取所有可用事件
@@ -143,12 +153,15 @@ impl FileSystemWatcher {
 
     /// 检查是否正在监控
     pub fn is_watching(&self) -> bool {
-        *self.is_watching.lock().unwrap()
+        match self.is_watching.lock() {
+            Ok(guard) => *guard,
+            Err(poison) => *poison.into_inner(),
+        }
     }
 }
 
 impl Default for FileSystemWatcher {
     fn default() -> Self {
-        Self::new().unwrap()
+        Self::new()
     }
 }

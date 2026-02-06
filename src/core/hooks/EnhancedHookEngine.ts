@@ -240,22 +240,24 @@ export class EnhancedHookEngine {
     }
     
     switch (condition.type) {
-      case 'fileMatch':
+      case 'fileMatch': {
         if (!condition.pattern || !context.data.filePath) {
           return false;
         }
         // 简单的文件匹配
         const filePath = String(context.data.filePath);
-        return filePath.includes(condition.pattern) || 
+        return filePath.includes(condition.pattern) ||
                new RegExp(condition.pattern, 'i').test(filePath);
+      }
         
-      case 'contentMatch':
+      case 'contentMatch': {
         if (!condition.pattern || !context.data.content) {
           return false;
         }
         const content = String(context.data.content);
         return content.includes(condition.pattern) ||
                new RegExp(condition.pattern, 'i').test(content);
+      }
         
       case 'custom':
         if (!condition.predicate) {

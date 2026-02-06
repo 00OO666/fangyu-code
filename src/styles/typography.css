@@ -259,102 +259,41 @@
   border-bottom-color: var(--color-border);
 }
 
-/* --- DPI and Resolution Scaling Support --- */
+/* --- UI Scale (SessionToolbar only) --- */
 
-/* High DPI (Retina) displays */
-@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-  /* Increase font sizes slightly for better readability on high DPI displays */
-  body {
-    font-size: 14px;
-    line-height: 1.6;
+:root {
+  --ui-scale: 1;
+}
+
+@media (min-resolution: 120dpi) {
+  :root {
+    --ui-scale: 1.05;
   }
 }
 
-/* Very high DPI displays (300dpi+) */
-@media (-webkit-min-device-pixel-ratio: 3), (min-resolution: 288dpi) {
-  body {
-    font-size: 15px;
-    line-height: 1.65;
-  }
-
-  .text-xs {
-    font-size: 0.8rem;
-  }
-  .text-sm {
-    font-size: 0.9rem;
-  }
-  .text-base {
-    font-size: 1rem;
-  }
-  .text-lg {
-    font-size: 1.15rem;
-  }
-}
-
-/* Windows DPI scaling support */
-@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
-  /* Windows specific DPI adjustments */
-  body {
-    zoom: 1; /* Reset zoom to prevent double scaling */
-  }
-}
-
-/* Support for Windows Display Scale Settings */
 @media (min-resolution: 144dpi) {
-  /* 150% scaling */
-  .text-xs {
-    font-size: 0.8rem;
+  :root {
+    --ui-scale: 1.1;
   }
-  .text-sm {
-    font-size: 0.9rem;
+}
+
+@media (min-resolution: 168dpi) {
+  :root {
+    --ui-scale: 1.15;
   }
 }
 
 @media (min-resolution: 192dpi) {
-  /* 200% scaling */
-  .text-xs {
-    font-size: 0.85rem;
-  }
-  .text-sm {
-    font-size: 0.95rem;
+  :root {
+    --ui-scale: 1.2;
   }
 }
 
-@media (min-resolution: 288dpi) {
-  /* 300% scaling */
-  .text-xs {
-    font-size: 0.9rem;
-  }
-  .text-sm {
-    font-size: 1rem;
-  }
-}
-
-/* Ultra-wide and large displays */
-@media (min-width: 1920px) {
-  /* Larger displays can handle slightly larger base font sizes */
-  body {
-    font-size: 15px;
-  }
-
-  .text-xs {
-    font-size: 0.8rem;
-  }
-  .text-sm {
-    font-size: 0.9rem;
-  }
-}
-
-@media (min-width: 2560px) {
-  /* 4K and above */
-  body {
-    font-size: 16px;
-  }
-
-  .text-xs {
-    font-size: 0.85rem;
-  }
-  .text-sm {
-    font-size: 0.95rem;
-  }
+.session-toolbar {
+  transform: scale(var(--ui-scale));
+  transform-origin: right center;
+  /* 🆕 移除 GPU 加速相关属性，避免文本模糊 */
+  /* will-change: transform; */
+  /* backface-visibility: hidden; */
+  /* transform-style: preserve-3d; */
 }

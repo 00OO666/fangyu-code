@@ -10,11 +10,12 @@
  * _Requirements: 1.1_
  */
 
-import { createContext, useContext, useCallback, useMemo, type ReactNode } from 'react';
+import { createContext, useContext, useCallback, useMemo, useEffect, type ReactNode } from 'react';
 import type { Tab, TabSession, TabContextValue } from './types';
 import { useTabState } from './useTabState';
 import { useTabPersistence } from './useTabPersistence';
 import { useMultiWindow } from './useMultiWindow';
+import { useTheme } from '@/contexts/ThemeContext';
 
 // Re-export types
 export type { Tab, TabSession, TabSessionData, TabContextValue } from './types';
@@ -34,6 +35,7 @@ interface TabProviderProps {
 export const TabProvider: React.FC<TabProviderProps> = ({ children }) => {
     // 基础状态管理
     const tabState = useTabState();
+    const { themeName, setTheme } = useTheme();
 
     // 持久化
     useTabPersistence({
@@ -53,6 +55,18 @@ export const TabProvider: React.FC<TabProviderProps> = ({ children }) => {
         generateTabId: tabState.generateTabId,
     });
 
+    const activeTab = useMemo(
+        () => tabState.tabs.find((tab) => tab.id === tabState.activeTabId),
+        [tabState.tabs, tabState.activeTabId]
+    );
+
+    // 🔧 FIX: 激活标签页时同步主题，但不覆盖“最近一次主题”记录
+    useEffect(() => {
+        if (!activeTab?.themeName) return;
+        if (activeTab.themeName === themeName) return;
+        setTheme(activeTab.themeName, { persistLast: false });
+    }, [activeTab?.themeName, themeName, setTheme]);
+
     // 🔧 FIX (v2.7.6): 使用 useMemo 缓存 contextValue，避免不必要的重渲染
     const contextValue: TabContextValue = useMemo(() => ({
         tabs: tabState.tabsWithActive,
@@ -65,6 +79,7 @@ export const TabProvider: React.FC<TabProviderProps> = ({ children }) => {
         updateTabChanges: tabState.updateTabChanges,
         updateTabTitle: tabState.updateTabTitle,
         updateTabEngine: tabState.updateTabEngine,
+        updateTabTheme: tabState.updateTabTheme,
         updateTabSession: tabState.updateTabSession,
         upgradeSmartSession: tabState.upgradeSmartSession,
         getTabById: tabState.getTabById,
@@ -96,6 +111,7 @@ export const TabProvider: React.FC<TabProviderProps> = ({ children }) => {
         tabState.updateTabChanges,
         tabState.updateTabTitle,
         tabState.updateTabEngine,
+        tabState.updateTabTheme,
         tabState.updateTabSession,
         tabState.upgradeSmartSession,
         tabState.getTabById,
@@ -175,7 +191,7 @@ export const useTabSession = (tabId: string) => {
     );
 
     const updateEngine = useCallback(
-        (engine: 'claude' | 'codex' | 'gemini' | 'siliconflow') => {
+        (engine: 'claude' | 'codex' | 'gemini') => {
             updateTabEngine(tabId, engine);
         },
         [tabId, updateTabEngine]
@@ -186,7 +202,7 @@ export const useTabSession = (tabId: string) => {
             sessionId: string;
             projectId: string;
             projectPath: string;
-            engine?: 'claude' | 'codex' | 'gemini' | 'siliconflow';
+            engine?: 'claude' | 'codex' | 'gemini';
         }) => {
             updateTabSession(tabId, sessionInfo);
         },

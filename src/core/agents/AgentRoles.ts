@@ -2,7 +2,7 @@
  * Agent Roles Configuration
  * 
  * Defines the 10 specialized agent roles for the Super AI Agent Desktop,
- * combining features from Kiro, OpenCode, and Fangyu Code.
+ * combining features from multiple agent systems and Fangyu Code.
  */
 
 import type {

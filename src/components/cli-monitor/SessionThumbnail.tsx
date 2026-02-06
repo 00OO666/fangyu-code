@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { MessageSquare, Clock, GitBranch, Folder, Eye } from "lucide-react";
 import type { CliSession } from "@/types/cli-monitor";
 import { getSessionSummary } from "@/lib/api/cli-monitor";
@@ -17,21 +17,39 @@ export const SessionThumbnail: React.FC<SessionThumbnailProps> = ({
 }) => {
   const [summary, setSummary] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  const isMountedRef = useRef(true);
+  const requestIdRef = useRef(0);
 
   useEffect(() => {
-    loadSummary();
+    requestIdRef.current += 1;
+    const requestId = requestIdRef.current;
+    loadSummary(requestId);
   }, [session.session_id]);
 
-  const loadSummary = async () => {
-    setLoading(true);
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  const loadSummary = async (requestId: number) => {
+    if (isMountedRef.current) {
+      setLoading(true);
+    }
     try {
       const sessionSummary = await getSessionSummary(session.session_id, 150);
-      setSummary(sessionSummary);
+      if (isMountedRef.current && requestIdRef.current === requestId) {
+        setSummary(sessionSummary);
+      }
     } catch (err) {
       logger.error("[SessionThumbnail] Failed to load summary:", err);
-      setSummary(session.summary || "无摘要");
+      if (isMountedRef.current && requestIdRef.current === requestId) {
+        setSummary(session.summary || "无摘要");
+      }
     } finally {
-      setLoading(false);
+      if (isMountedRef.current && requestIdRef.current === requestId) {
+        setLoading(false);
+      }
     }
   };
 

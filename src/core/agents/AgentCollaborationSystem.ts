@@ -1,13 +1,13 @@
 /**
  * Agent Collaboration System - 代理协作系统
  *
- * 实现 Kiro 风格的 Agentic 协作机制：
+ * 实现多代理的 Agentic 协作机制：
  * 1. 任务依赖管理
  * 2. 代理间数据传递
  * 3. 工作流编排
  * 4. 结果聚合
  *
- * 灵感来源：Kiro 的多代理协作架构
+ * 灵感来源：多代理协作架构实践
  */
 
 import type { TechnicalSpec, ImplementationPhase, TaskSpec } from '../spec/SpecGenerationEngine';

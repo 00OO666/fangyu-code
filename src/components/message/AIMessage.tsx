@@ -14,6 +14,7 @@ import { formatTimestamp } from "@/lib/messageUtils";
 import type { ClaudeStreamMessage } from '@/types/claude';
 import { useSession } from "@/contexts/SessionContext";
 import { useStreamingBuffer } from "@/hooks/useStreamingBuffer";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface AIMessageProps {
   /** 消息数据 */
@@ -172,10 +173,12 @@ const AIMessageComponent: React.FC<AIMessageProps> = ({
   // 🔧 FIX: 提取 messageId 用于 ThinkingBlock
   const messageId = (message as any).uuid || (message as any).id;
 
+  const { t } = useTranslation();
+
   const text = extractAIText(message);
   const hasTools = hasToolCalls(message);
   const hasThinking = hasThinkingBlock(message);
-  const thinkingContent = hasThinking ? extractThinkingContent(message) : '';
+  const rawThinkingContent = hasThinking ? extractThinkingContent(message) : '';
 
   // 🆕 从 SessionContext 获取 Thinking 状态管理函数
   const { getThinkingOpenState, onThinkingToggle } = useSession();
@@ -183,6 +186,16 @@ const AIMessageComponent: React.FC<AIMessageProps> = ({
   // Detect engine type for avatar styling
   const isCodexMessage = (message as any).engine === 'codex';
   const isGeminiMessage = (message as any).geminiMetadata?.provider === 'gemini' || (message as any).engine === 'gemini';
+
+  // 🆕 Placeholder for engines without visible thinking output
+  const trimmedThinking = rawThinkingContent.trim();
+  const shouldShowThinkingPlaceholder = trimmedThinking.length === 0 && (isCodexMessage || isGeminiMessage);
+  const thinkingContent = trimmedThinking.length > 0
+    ? rawThinkingContent
+    : shouldShowThinkingPlaceholder
+      ? t('thinking.unavailable', 'thinking 不可用')
+      : '';
+  const shouldRenderThinking = hasThinking || shouldShowThinkingPlaceholder;
 
   // 打字机效果只在流式输出时启用
   // isStreaming=true 表示：当前是最后一条消息 && 会话正在进行中
@@ -255,10 +268,10 @@ const AIMessageComponent: React.FC<AIMessageProps> = ({
         {/* Content: All left-aligned, no left padding */}
         <div className="space-y-1">
           {/* Thinking Block - Compact */}
-          {hasThinking && thinkingContent && (
+          {shouldRenderThinking && thinkingContent && (
             <ThinkingBlock
               content={thinkingContent}
-              isStreaming={enableTypewriter}
+              isStreaming={enableTypewriter && hasThinking && trimmedThinking.length > 0}
               autoCollapseDelay={2500}
               messageId={messageId}
               isOpen={getThinkingOpenState?.(messageId)}

@@ -1,4 +1,4 @@
-use super::types::{CliSession, SessionMetadata, SessionsIndex};
+use super::types::{CliSession, SessionsIndex};
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -6,20 +6,26 @@ use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 use walkdir::WalkDir;
 
+/// 扫描器内部状态（避免多锁死锁）
+struct ScannerState {
+    cache: HashMap<String, CliSession>,
+    last_scan: Option<Instant>,
+}
+
 /// 会话扫描器
 pub struct SessionScanner {
-    /// 缓存的会话数据
-    cache: Arc<Mutex<HashMap<String, CliSession>>>,
-    /// 上次扫描时间
-    last_scan: Arc<Mutex<Option<Instant>>>,
+    /// 扫描器状态（缓存 + 上次扫描时间）
+    state: Arc<Mutex<ScannerState>>,
 }
 
 impl SessionScanner {
     /// 创建新的扫描器
     pub fn new() -> Self {
         Self {
-            cache: Arc::new(Mutex::new(HashMap::new())),
-            last_scan: Arc::new(Mutex::new(None)),
+            state: Arc::new(Mutex::new(ScannerState {
+                cache: HashMap::new(),
+                last_scan: None,
+            })),
         }
     }
 
@@ -27,11 +33,13 @@ impl SessionScanner {
     pub fn scan_sessions(&self) -> Result<Vec<CliSession>, String> {
         // 防抖：如果距离上次扫描不到 5 秒，返回缓存
         {
-            let last_scan = self.last_scan.lock().unwrap();
-            if let Some(last_time) = *last_scan {
+            let state = self
+                .state
+                .lock()
+                .map_err(|_| "Scanner state lock poisoned".to_string())?;
+            if let Some(last_time) = state.last_scan {
                 if last_time.elapsed() < Duration::from_secs(5) {
-                    let cache = self.cache.lock().unwrap();
-                    return Ok(cache.values().cloned().collect());
+                    return Ok(state.cache.values().cloned().collect());
                 }
             }
         }
@@ -64,17 +72,15 @@ impl SessionScanner {
 
         // 更新缓存
         {
-            let mut cache = self.cache.lock().unwrap();
-            cache.clear();
+            let mut state = self
+                .state
+                .lock()
+                .map_err(|_| "Scanner state lock poisoned".to_string())?;
+            state.cache.clear();
             for session in &sessions {
-                cache.insert(session.session_id.clone(), session.clone());
+                state.cache.insert(session.session_id.clone(), session.clone());
             }
-        }
-
-        // 更新扫描时间
-        {
-            let mut last_scan = self.last_scan.lock().unwrap();
-            *last_scan = Some(Instant::now());
+            state.last_scan = Some(Instant::now());
         }
 
         Ok(sessions)
@@ -94,8 +100,28 @@ impl SessionScanner {
         let mut sessions = Vec::new();
         for meta in index.entries {
             // 解析ISO 8601时间字符串为时间戳
-            let created = Self::parse_iso8601(&meta.created).unwrap_or(0);
-            let modified = Self::parse_iso8601(&meta.modified).unwrap_or(0);
+            let created = match Self::parse_iso8601(&meta.created) {
+                Ok(ts) => ts,
+                Err(e) => {
+                    log::warn!(
+                        "[SessionScanner] Invalid created timestamp for {}: {}",
+                        meta.session_id,
+                        e
+                    );
+                    0
+                }
+            };
+            let modified = match Self::parse_iso8601(&meta.modified) {
+                Ok(ts) => ts,
+                Err(e) => {
+                    log::warn!(
+                        "[SessionScanner] Invalid modified timestamp for {}: {}",
+                        meta.session_id,
+                        e
+                    );
+                    0
+                }
+            };
 
             sessions.push(CliSession {
                 session_id: meta.session_id,
@@ -128,46 +154,9 @@ impl SessionScanner {
 
     /// 解析ISO 8601时间字符串为Unix时间戳（秒）
     fn parse_iso8601(time_str: &str) -> Result<i64, String> {
-        // 格式：2026-01-20T15:51:26.746Z
-        // 简单的手动解析方法
-        if time_str.len() < 19 {
-            return Err("Invalid ISO 8601 format".to_string());
-        }
-
-        // 提取日期和时间部分
-        let date_time = &time_str[..19]; // "2026-01-20T15:51:26"
-        let parts: Vec<&str> = date_time.split('T').collect();
-        if parts.len() != 2 {
-            return Err("Invalid ISO 8601 format".to_string());
-        }
-
-        let date_parts: Vec<&str> = parts[0].split('-').collect();
-        let time_parts: Vec<&str> = parts[1].split(':').collect();
-
-        if date_parts.len() != 3 || time_parts.len() != 3 {
-            return Err("Invalid ISO 8601 format".to_string());
-        }
-
-        let year: i32 = date_parts[0].parse().map_err(|_| "Invalid year")?;
-        let month: u32 = date_parts[1].parse().map_err(|_| "Invalid month")?;
-        let day: u32 = date_parts[2].parse().map_err(|_| "Invalid day")?;
-        let hour: u32 = time_parts[0].parse().map_err(|_| "Invalid hour")?;
-        let minute: u32 = time_parts[1].parse().map_err(|_| "Invalid minute")?;
-        let second: u32 = time_parts[2].parse().map_err(|_| "Invalid second")?;
-
-        // 计算Unix时间戳（简化版本，不考虑闰年等复杂情况）
-        // 使用一个简单的公式
-        let days_since_epoch = (year - 1970) * 365 + (year - 1969) / 4 - (year - 1901) / 100 + (year - 1601) / 400;
-        let days_in_month = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
-        let mut days = days_since_epoch as i64 + days_in_month[(month - 1) as usize] as i64 + (day - 1) as i64;
-
-        // 闰年调整
-        if month > 2 && ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0) {
-            days += 1;
-        }
-
-        let timestamp = days * 86400 + hour as i64 * 3600 + minute as i64 * 60 + second as i64;
-        Ok(timestamp)
+        chrono::DateTime::parse_from_rfc3339(time_str)
+            .map(|dt| dt.timestamp())
+            .map_err(|e| format!("Invalid ISO 8601 format: {}", e))
     }
 
     /// 获取 Claude 项目目录
@@ -178,15 +167,20 @@ impl SessionScanner {
 
     /// 获取缓存的会话
     pub fn get_cached_sessions(&self) -> Vec<CliSession> {
-        let cache = self.cache.lock().unwrap();
-        cache.values().cloned().collect()
+        let state = match self.state.lock() {
+            Ok(guard) => guard,
+            Err(poison) => poison.into_inner(),
+        };
+        state.cache.values().cloned().collect()
     }
 
     /// 清除缓存
     pub fn clear_cache(&self) {
-        let mut cache = self.cache.lock().unwrap();
-        cache.clear();
-        let mut last_scan = self.last_scan.lock().unwrap();
-        *last_scan = None;
+        let mut state = match self.state.lock() {
+            Ok(guard) => guard,
+            Err(poison) => poison.into_inner(),
+        };
+        state.cache.clear();
+        state.last_scan = None;
     }
 }

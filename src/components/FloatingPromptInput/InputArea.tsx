@@ -13,7 +13,7 @@ import type { SlashCommand } from "./slashCommands";
 import { useTheme } from "@/contexts/ThemeContext";
 
 /** 执行引擎类型 */
-type ExecutionEngine = 'claude' | 'gemini' | 'codex' | 'siliconflow';
+type ExecutionEngine = 'claude' | 'gemini' | 'codex';
 
 interface InputAreaProps {
   prompt: string;

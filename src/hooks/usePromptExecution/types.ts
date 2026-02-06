@@ -52,12 +52,11 @@ export interface UsePromptExecutionConfig {
   extractedSessionInfo: { sessionId: string; projectId: string } | null;
 
   // Execution Engine Integration
-  executionEngine?: "claude" | "codex" | "gemini" | "siliconflow" | "kiro";
+  executionEngine?: "claude" | "codex" | "gemini";
   codexMode?: CodexExecutionMode;
   codexModel?: string;
   geminiModel?: string;
   geminiApprovalMode?: "auto_edit" | "yolo" | "default";
-  kiroModel?: string; // Kiro 模型 (e.g., 'claude-opus-4.5')
 
   // Refs
   hasActiveSessionRef: React.MutableRefObject<boolean>;
@@ -78,7 +77,7 @@ export interface UsePromptExecutionConfig {
     React.SetStateAction<{
       sessionId: string;
       projectId: string;
-      engine?: "claude" | "codex" | "gemini" | "kiro";
+      engine?: "claude" | "codex" | "gemini";
     } | null>
   >;
   setIsFirstPrompt: (isFirst: boolean) => void;

@@ -13,14 +13,13 @@ import DollarSign from 'lucide-react/dist/esm/icons/dollar-sign'
 import Info from 'lucide-react/dist/esm/icons/info'
 import Settings from 'lucide-react/dist/esm/icons/settings'
 import Code2 from 'lucide-react/dist/esm/icons/code-2'
-import Zap from 'lucide-react/dist/esm/icons/zap'
 import Sparkles from 'lucide-react/dist/esm/icons/sparkles'
 import Hash from 'lucide-react/dist/esm/icons/hash'
 import Webhook from 'lucide-react/dist/esm/icons/webhook'
-import Cpu from 'lucide-react/dist/esm/icons/cpu'
 import BarChart3 from 'lucide-react/dist/esm/icons/bar-chart-3'
 import Network from 'lucide-react/dist/esm/icons/network'
 import ListOrdered from 'lucide-react/dist/esm/icons/list-ordered'
+import Zap from 'lucide-react/dist/esm/icons/zap'
 import ImagePlus from 'lucide-react/dist/esm/icons/image-plus';
 import { ImageGenerateButton } from "@/components/ImageGeneration";
 import { useCostDelta } from "@/hooks/useCostDelta";
@@ -33,14 +32,12 @@ import { CodexModelSelector } from "./CodexModelSelector";
 import { CodexReasoningLevelSelector, type CodexReasoningLevel } from "./CodexReasoningLevelSelector";
 import { CodexRateLimitBadge } from "./CodexRateLimitBadge";
 import { GeminiModelSelector } from "./GeminiModelSelector";
-import { SiliconFlowModelSelector } from "./SiliconFlowModelSelector";
 import { ThinkingModeToggle } from "./ThinkingModeToggle";
 import { PlanModeToggle } from "./PlanModeToggle";
 import { ContextWindowIndicator } from "@/components/widgets/ContextWindowIndicator";
 import { ModelType, ModelConfig } from "./types";
 import type { CodexRateLimits } from "@/types/codex";
 import { useHooksCount } from "@/hooks/useHooksCount";
-import { loadSiliconFlowConfig } from "@/config/siliconflowConfig";
 import { TodayUsagePopover } from "@/components/TodayUsagePopover";
 import { VoiceInput } from "@/components/VoiceInput";
 import { ApiHealthPanel } from "@/components/ApiHealthPanel";
@@ -142,8 +139,6 @@ export const ControlBar: React.FC<ControlBarProps> = ({
 }) => {
   const { t } = useTranslation();
   const { count: hooksCount } = useHooksCount();
-  const [siliconFlowDialogOpen, setSiliconFlowDialogOpen] = useState(false);
-  const siliconFlowConfig = loadSiliconFlowConfig();
 
   // 🆕 API 健康检查
   const { status: apiStatus, consecutiveFailures } = useApiHealthCheck({
@@ -551,38 +546,6 @@ export const ControlBar: React.FC<ControlBarProps> = ({
           )}
         </div>
       )}
-
-      {/* SiliconFlow Button - 硅基流动模型选择 */}
-      <Button
-        variant="outline"
-        size="default"
-        onClick={() => setSiliconFlowDialogOpen(true)}
-        className={cn(
-          "gap-1 h-8 border-border/50 bg-background/50 hover:bg-accent/50 transition-all hidden lg:flex",
-          siliconFlowConfig.apiKey && "border-cyan-500/30"
-        )}
-        title={siliconFlowConfig.apiKey
-          ? `SiliconFlow: ${siliconFlowConfig.selectedModel.split('/').pop()}`
-          : "SiliconFlow 模型选择 - 点击配置"
-        }
-      >
-        <Cpu className={cn(
-          "h-3.5 w-3.5",
-          siliconFlowConfig.apiKey ? "text-cyan-500" : "text-muted-foreground"
-        )} />
-        <span className="text-xs hidden 2xl:inline">
-          {siliconFlowConfig.apiKey
-            ? siliconFlowConfig.selectedModel.split('/').pop()?.slice(0, 12) || 'SiliconFlow'
-            : 'SiliconFlow'
-          }
-        </span>
-      </Button>
-
-      {/* SiliconFlow Model Selector Dialog */}
-      <SiliconFlowModelSelector
-        open={siliconFlowDialogOpen}
-        onOpenChange={setSiliconFlowDialogOpen}
-      />
 
       {/* Enhance Button */}
       <DropdownMenu>

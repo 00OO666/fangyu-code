@@ -4,20 +4,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
 import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
 import RotateCcw from 'lucide-react/dist/esm/icons/rotate-ccw'
-import HelpCircle from 'lucide-react/dist/esm/icons/help-circle'
-import Sparkles from 'lucide-react/dist/esm/icons/sparkles'
 import Download from 'lucide-react/dist/esm/icons/download';
+import Save from 'lucide-react/dist/esm/icons/save';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Card } from "@/components/ui/card";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-  TooltipProvider,
-} from "@/components/ui/tooltip";
 import {
   Dialog,
   DialogContent,
@@ -28,10 +21,12 @@ import {
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { LanguageSelector } from "../LanguageSelector";
-import { useTheme } from "@/contexts/ThemeContext";
 import { useTranslation } from "@/hooks/useTranslation";
 import { api, type ClaudeSettings } from "@/lib/api";
 import type { HooksConfiguration } from "@/types/hooks";
+import { getDefaultTheme, getDefaultThemeMode, setDefaultTheme, setDefaultThemeMode } from "@/lib/themePreferences";
+import type { ThemeDefaultMode } from "@/lib/themePreferences";
+import type { ThemeName } from "@/types/theme";
 
 interface GeneralSettingsProps {
   settings: ClaudeSettings | null;
@@ -49,7 +44,25 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
   setToast
 }) => {
   const { t } = useTranslation();
-  const { theme, setTheme } = useTheme();
+  const [defaultThemeMode, setDefaultThemeModeState] = useState<ThemeDefaultMode>(() => getDefaultThemeMode());
+  const [fixedTheme, setFixedTheme] = useState<ThemeName>(() => getDefaultTheme());
+
+  useEffect(() => {
+    try {
+      setDefaultThemeMode(defaultThemeMode);
+    } catch (error) {
+      logger.warn('GeneralSettings', 'Failed to persist default theme mode:', error);
+    }
+  }, [defaultThemeMode]);
+
+  useEffect(() => {
+    if (defaultThemeMode !== 'fixed') return;
+    try {
+      setDefaultTheme(fixedTheme);
+    } catch (error) {
+      logger.warn('GeneralSettings', 'Failed to persist fixed theme:', error);
+    }
+  }, [defaultThemeMode, fixedTheme]);
 
   // Custom Claude path state
   const [customClaudePath, setCustomClaudePath] = useState<string>("");
@@ -80,29 +93,6 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
       return true;
     }
   });
-
-  // SiliconFlow state (从 settings.json 读取 MCP 配置)
-  const [siliconFlowEnabled, setSiliconFlowEnabled] = useState(false);
-
-  // 加载 SiliconFlow 状态
-  useEffect(() => {
-    // 从 settings 中读取 mcpServers 配置
-    const mcpServers = (settings as any)?.mcpServers;
-    if (mcpServers && typeof mcpServers === 'object') {
-      // 检查是否存在且未被禁用
-      const siliconflow = mcpServers['siliconflow'];
-      const siliconflowVision = mcpServers['siliconflow-vision'];
-      const siliconflowR1 = mcpServers['siliconflow-r1'];
-
-      // 只要有一个 SiliconFlow 服务器启用，就认为是启用状态
-      const isEnabled =
-        (siliconflow && !siliconflow.disabled) ||
-        (siliconflowVision && !siliconflowVision.disabled) ||
-        (siliconflowR1 && !siliconflowR1.disabled);
-
-      setSiliconFlowEnabled(isEnabled);
-    }
-  }, [settings]);
 
   // Load session storage path
   useEffect(() => {
@@ -339,51 +329,6 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
   };
 
   /**
-   * Handle SiliconFlow toggle
-   */
-  const handleSiliconFlowToggle = async (checked: boolean) => {
-    try {
-      setSiliconFlowEnabled(checked);
-
-      // 读取当前设置
-      const currentSettings = await api.getClaudeSettings();
-      const mcpServers = (currentSettings as any)?.mcpServers || {};
-
-      // 更新所有 SiliconFlow 相关的 MCP 服务器状态
-      const updatedMcpServers = { ...mcpServers };
-
-      ['siliconflow', 'siliconflow-vision', 'siliconflow-r1'].forEach(name => {
-        if (updatedMcpServers[name]) {
-          updatedMcpServers[name] = {
-            ...updatedMcpServers[name],
-            disabled: !checked
-          };
-        }
-      });
-
-      // 保存更新后的设置
-      await api.saveClaudeSettings({
-        ...currentSettings,
-        mcpServers: updatedMcpServers
-      });
-
-      setToast({
-        message: checked
-          ? 'SiliconFlow 辅助模式已启用'
-          : 'SiliconFlow 辅助模式已禁用',
-        type: 'success'
-      });
-    } catch (error) {
-      logger.error('GeneralSettings', 'Failed to toggle SiliconFlow:', error);
-      setSiliconFlowEnabled(!checked); // 恢复状态
-      setToast({
-        message: `切换失败: ${error}`,
-        type: 'error'
-      });
-    }
-  };
-
-  /**
    * Handle reset all settings
    * 重置所有设置：清除环境变量中的模型配置，禁用所有 Hook 和 MCP
    */
@@ -453,31 +398,62 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
           {/* Language Selector */}
           <LanguageSelector />
 
-          {/* Theme Selector */}
+          {/* Theme Preferences */}
           <div className="flex items-center justify-between">
             <div className="space-y-0.5 flex-1">
-              <Label htmlFor="theme">{t('settings.theme')}</Label>
+              <Label>{t('settings.themeDefaultMode')}</Label>
               <p className="text-xs text-muted-foreground">
-                {t('settings.themeDescription')}
+                {t('settings.themeDefaultModeDescription')}
               </p>
             </div>
             <div className="flex items-center gap-2">
               <Button
-                variant={theme === 'light' ? 'default' : 'outline'}
+                variant={defaultThemeMode === 'last' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setTheme('light')}
+                onClick={() => setDefaultThemeModeState('last')}
               >
-                {t('settings.themeLight')}
+                {t('settings.themeRememberLast')}
               </Button>
               <Button
-                variant={theme === 'dark' ? 'default' : 'outline'}
+                variant={defaultThemeMode === 'fixed' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setTheme('dark')}
+                onClick={() => setDefaultThemeModeState('fixed')}
               >
-                {t('settings.themeDark')}
+                {t('settings.themeFixed')}
               </Button>
             </div>
           </div>
+
+          {defaultThemeMode === 'fixed' && (
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5 flex-1">
+                <Label>{t('settings.themeDefault')}</Label>
+                <p className="text-xs text-muted-foreground">
+                  {t('settings.themeDefaultDescription')}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant={fixedTheme === 'deep-glass-pro' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setFixedTheme('deep-glass-pro')}
+                >
+                  {t('settings.themePro')}
+                </Button>
+                <Button
+                  variant={fixedTheme === 'deep-glass-scifi' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setFixedTheme('deep-glass-scifi')}
+                >
+                  {t('settings.themeSciFi')}
+                </Button>
+              </div>
+            </div>
+          )}
+
+          <p className="text-xs text-muted-foreground">
+            {t('settings.themeSessionHint')}
+          </p>
 
           {/* Show System Initialization Info */}
           <div className="flex items-center justify-between">
@@ -596,52 +572,6 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
               id="promptSuggestion"
               checked={enablePromptSuggestion}
               onCheckedChange={handlePromptSuggestionToggle}
-            />
-          </div>
-
-          {/* SiliconFlow 辅助模式 */}
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5 flex-1">
-              <div className="flex items-center gap-2">
-                <Label htmlFor="siliconflow" className="flex items-center gap-1.5">
-                  <Sparkles className="h-3.5 w-3.5 text-blue-500" />
-                  SiliconFlow 辅助模式
-                </Label>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
-                    </TooltipTrigger>
-                    <TooltipContent side="right" className="max-w-sm">
-                      <div className="space-y-2">
-                        <p className="font-medium">如何使用 SiliconFlow</p>
-                        <p className="text-xs">在提示词中使用以下指令调用 SiliconFlow 模型：</p>
-                        <ul className="list-disc list-inside space-y-1 text-xs">
-                          <li><code className="bg-muted px-1 rounded">@siliconflow</code> - 通用文本模型</li>
-                          <li><code className="bg-muted px-1 rounded">@siliconflow-vision</code> - 视觉模型（支持图片）</li>
-                          <li><code className="bg-muted px-1 rounded">@siliconflow-r1</code> - 推理模型</li>
-                        </ul>
-                        <div className="pt-1 border-t">
-                          <p className="text-xs text-muted-foreground">
-                            示例: "@siliconflow 帮我分析这段代码"
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            适用场景: 简单查询、代码分析、图片识别等，节省 Claude API 额度
-                          </p>
-                        </div>
-                      </div>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                启用后可在提示词中通过 @siliconflow 调用替代模型，节省 API 额度
-              </p>
-            </div>
-            <Switch
-              id="siliconflow"
-              checked={siliconFlowEnabled}
-              onCheckedChange={handleSiliconFlowToggle}
             />
           </div>
 

@@ -11,7 +11,7 @@
 // =============================================================================
 
 /** 支持的执行引擎 */
-export type SummaryEngine = 'claude' | 'codex' | 'gemini' | 'siliconflow' | 'kiro';
+export type SummaryEngine = 'claude' | 'codex' | 'gemini';
 
 /** 模型信息 */
 export interface ModelInfo {
@@ -179,7 +179,7 @@ export interface SessionStats {
 // 引擎模型注册表
 // =============================================================================
 
-/** 四引擎模型注册表 */
+/** 三引擎模型注册表 */
 export const ENGINE_MODELS: Record<SummaryEngine, ModelInfo[]> = {
     claude: [
         // Claude 4.5 系列（最新）
@@ -203,12 +203,6 @@ export const ENGINE_MODELS: Record<SummaryEngine, ModelInfo[]> = {
         { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', costPer1k: 0.00125, maxContext: 2000000 },
         { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash', costPer1k: 0.000075, maxContext: 1000000, recommended: true },
         { id: 'gemini-2.0-flash-exp', name: 'Gemini 2.0 Flash', costPer1k: 0.0001, maxContext: 1000000 },
-    ],
-    siliconflow: [
-        { id: 'deepseek-ai/DeepSeek-V3', name: 'DeepSeek V3', costPer1k: 0.001, maxContext: 64000, recommended: true },
-        { id: 'Qwen/Qwen2.5-72B-Instruct', name: 'Qwen 2.5 72B', costPer1k: 0.0008, maxContext: 32000 },
-        { id: 'Qwen/Qwen2.5-32B-Instruct', name: 'Qwen 2.5 32B', costPer1k: 0.0004, maxContext: 32000 },
-        { id: 'THUDM/glm-4-9b-chat', name: 'GLM-4 9B', costPer1k: 0.0002, maxContext: 128000 },
     ],
 };
 
@@ -242,12 +236,6 @@ export const ENGINE_DISPLAY_INFO: Record<SummaryEngine, Omit<EngineInfo, 'availa
         name: 'Gemini',
         color: '#4285F4',
         gradient: 'linear-gradient(135deg, #4285F4 0%, #34A853 33%, #FBBC05 66%, #EA4335 100%)',
-    },
-    siliconflow: {
-        id: 'siliconflow',
-        name: 'SiliconFlow',
-        color: '#7C3AED',
-        gradient: 'linear-gradient(135deg, #7C3AED 0%, #A855F7 100%)',
     },
 };
 

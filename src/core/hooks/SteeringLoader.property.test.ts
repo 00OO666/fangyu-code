@@ -25,7 +25,7 @@ let steeringDir: string;
 // 创建临时测试环境
 function setupTestEnv() {
   tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'steering-test-'));
-  steeringDir = path.join(tempDir, '.kiro', 'steering');
+  steeringDir = path.join(tempDir, '.fangyu', 'steering');
   fs.mkdirSync(steeringDir, { recursive: true });
 }
 

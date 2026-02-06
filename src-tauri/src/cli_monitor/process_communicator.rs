@@ -1,4 +1,5 @@
 use std::process::{Child, Command, Stdio};
+use std::collections::VecDeque;
 use std::sync::{Arc, Mutex};
 use std::io::{BufRead, BufReader, Write};
 use std::thread;
@@ -18,7 +19,7 @@ pub struct ProcessCommunicator {
     /// 进程句柄
     process: Arc<Mutex<Option<Child>>>,
     /// 输出缓冲区
-    output_buffer: Arc<Mutex<Vec<ProcessOutput>>>,
+    output_buffer: Arc<Mutex<VecDeque<ProcessOutput>>>,
     /// 是否正在运行
     is_running: Arc<Mutex<bool>>,
 }
@@ -28,7 +29,7 @@ impl ProcessCommunicator {
     pub fn new() -> Self {
         Self {
             process: Arc::new(Mutex::new(None)),
-            output_buffer: Arc::new(Mutex::new(Vec::new())),
+            output_buffer: Arc::new(Mutex::new(VecDeque::new())),
             is_running: Arc::new(Mutex::new(false)),
         }
     }
@@ -37,6 +38,7 @@ impl ProcessCommunicator {
     pub fn start_process(&self, command: &str, args: &[String], working_dir: &str) -> Result<()> {
         // 停止现有进程
         self.stop_process()?;
+        self.clear_output();
 
         // 启动新进程
         let mut child = Command::new(command)
@@ -53,20 +55,30 @@ impl ProcessCommunicator {
         let stderr = child.stderr.take().context("Failed to get stderr")?;
 
         // 存储进程句柄
-        {
-            let mut process = self.process.lock().unwrap();
+        let process_handle = {
+            let mut process = self
+                .process
+                .lock()
+                .map_err(|_| anyhow::anyhow!("Process communicator lock poisoned"))?;
             *process = Some(child);
-        }
+            Arc::clone(&self.process)
+        };
 
         // 设置运行状态
         {
-            let mut is_running = self.is_running.lock().unwrap();
+            let mut is_running = self
+                .is_running
+                .lock()
+                .map_err(|_| anyhow::anyhow!("Process communicator lock poisoned"))?;
             *is_running = true;
         }
 
         // 启动输出读取线程
         self.start_output_reader(stdout, "stdout");
         self.start_output_reader(stderr, "stderr");
+
+        // 启动进程状态监控线程
+        self.start_process_watcher(process_handle);
 
         log::info!("[ProcessCommunicator] Started process: {} {:?}", command, args);
         Ok(())
@@ -83,7 +95,10 @@ impl ProcessCommunicator {
             for line in buf_reader.lines() {
                 // 检查是否还在运行
                 {
-                    let running = is_running.lock().unwrap();
+                    let running = match is_running.lock() {
+                        Ok(guard) => guard,
+                        Err(poison) => poison.into_inner(),
+                    };
                     if !*running {
                         break;
                     }
@@ -96,21 +111,68 @@ impl ProcessCommunicator {
                         timestamp: chrono::Utc::now().timestamp(),
                     };
 
-                    let mut buffer = output_buffer.lock().unwrap();
-                    buffer.push(output);
+                    let mut buffer = match output_buffer.lock() {
+                        Ok(guard) => guard,
+                        Err(poison) => poison.into_inner(),
+                    };
+                    buffer.push_back(output);
 
                     // 限制缓冲区大小（最多保留 1000 条）
                     if buffer.len() > 1000 {
-                        buffer.remove(0);
+                        buffer.pop_front();
                     }
                 }
             }
         });
     }
 
+    /// 启动进程状态监控线程
+    fn start_process_watcher(&self, process: Arc<Mutex<Option<Child>>>) {
+        let is_running = Arc::clone(&self.is_running);
+        thread::spawn(move || loop {
+            {
+                let running = match is_running.lock() {
+                    Ok(guard) => guard,
+                    Err(poison) => poison.into_inner(),
+                };
+                if !*running {
+                    break;
+                }
+            }
+
+            let exited = {
+                let mut process = match process.lock() {
+                    Ok(guard) => guard,
+                    Err(poison) => poison.into_inner(),
+                };
+                if let Some(child) = process.as_mut() {
+                    match child.try_wait() {
+                        Ok(Some(_status)) => true,
+                        Ok(None) => false,
+                        Err(_) => true,
+                    }
+                } else {
+                    true
+                }
+            };
+
+            if exited {
+                if let Ok(mut running) = is_running.lock() {
+                    *running = false;
+                }
+                break;
+            }
+
+            thread::sleep(std::time::Duration::from_millis(500));
+        });
+    }
+
     /// 发送输入到进程
     pub fn send_input(&self, input: &str) -> Result<()> {
-        let mut process = self.process.lock().unwrap();
+        let mut process = self
+            .process
+            .lock()
+            .map_err(|_| anyhow::anyhow!("Process communicator lock poisoned"))?;
 
         if let Some(child) = process.as_mut() {
             if let Some(stdin) = child.stdin.as_mut() {
@@ -133,13 +195,19 @@ impl ProcessCommunicator {
 
     /// 获取输出
     pub fn get_output(&self) -> Vec<ProcessOutput> {
-        let buffer = self.output_buffer.lock().unwrap();
-        buffer.clone()
+        let buffer = match self.output_buffer.lock() {
+            Ok(guard) => guard,
+            Err(poison) => poison.into_inner(),
+        };
+        buffer.iter().cloned().collect()
     }
 
     /// 清除输出缓冲区
     pub fn clear_output(&self) {
-        let mut buffer = self.output_buffer.lock().unwrap();
+        let mut buffer = match self.output_buffer.lock() {
+            Ok(guard) => guard,
+            Err(poison) => poison.into_inner(),
+        };
         buffer.clear();
     }
 
@@ -147,15 +215,19 @@ impl ProcessCommunicator {
     pub fn stop_process(&self) -> Result<()> {
         // 设置运行状态为 false
         {
-            let mut is_running = self.is_running.lock().unwrap();
-            *is_running = false;
+            if let Ok(mut is_running) = self.is_running.lock() {
+                *is_running = false;
+            }
         }
 
-        let mut process = self.process.lock().unwrap();
+        let mut process = self
+            .process
+            .lock()
+            .map_err(|_| anyhow::anyhow!("Process communicator lock poisoned"))?;
 
         if let Some(mut child) = process.take() {
-            child.kill().context("Failed to kill process")?;
-            child.wait().context("Failed to wait for process")?;
+            let _ = child.kill();
+            let _ = child.wait();
             log::info!("[ProcessCommunicator] Stopped process");
             Ok(())
         } else {
@@ -165,8 +237,10 @@ impl ProcessCommunicator {
 
     /// 检查进程是否正在运行
     pub fn is_running(&self) -> bool {
-        let is_running = self.is_running.lock().unwrap();
-        *is_running
+        match self.is_running.lock() {
+            Ok(guard) => *guard,
+            Err(poison) => *poison.into_inner(),
+        }
     }
 }
 

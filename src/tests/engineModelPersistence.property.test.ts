@@ -70,7 +70,7 @@ describe('Property 2: Engine-Model Selection Persistence', () => {
     });
 
     // 引擎生成器
-    const engineArb = fc.constantFrom<SummaryEngine>('claude', 'codex', 'gemini', 'siliconflow');
+    const engineArb = fc.constantFrom<SummaryEngine>('claude', 'codex', 'gemini');
 
     // 根据引擎生成有效模型
     const engineModelArb = engineArb.chain(engine => {
@@ -223,7 +223,7 @@ describe('Property 2: Engine-Model Selection Persistence', () => {
     });
 
     it('should have valid models for each engine in ENGINE_MODELS', () => {
-        const engines: SummaryEngine[] = ['claude', 'codex', 'gemini', 'siliconflow'];
+        const engines: SummaryEngine[] = ['claude', 'codex', 'gemini'];
 
         for (const engine of engines) {
             const models = ENGINE_MODELS[engine];
@@ -240,7 +240,7 @@ describe('Property 2: Engine-Model Selection Persistence', () => {
     });
 
     it('should have at least one recommended model per engine', () => {
-        const engines: SummaryEngine[] = ['claude', 'codex', 'gemini', 'siliconflow'];
+        const engines: SummaryEngine[] = ['claude', 'codex', 'gemini'];
 
         for (const engine of engines) {
             const models = ENGINE_MODELS[engine];

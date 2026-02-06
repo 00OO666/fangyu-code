@@ -56,18 +56,6 @@ export const ENGINE_SETUP_STEPS: Record<EngineType, Omit<SetupStep, 'status'>[]>
         { id: 'login', title: '登录账号', description: '使用 Google 账号登录' },
         { id: 'verify', title: '验证安装', description: '验证 CLI 可用' },
     ],
-    siliconflow: [
-        { id: 'register', title: '注册账号', description: '打开 SiliconFlow 注册页面', optional: true },
-        { id: 'get_api_key', title: '获取 API Key', description: '从控制台获取 API Key' },
-        { id: 'verify', title: '验证连接', description: '测试 API 连接' },
-        { id: 'select_model', title: '选择模型', description: '设置默认模型' },
-    ],
-    kiro: [
-        { id: 'check_kiro', title: '检查 Kiro', description: '检测 Kiro IDE 是否安装' },
-        { id: 'login', title: '登录账号', description: '使用 AWS Builder ID 登录' },
-        { id: 'verify', title: '验证连接', description: '验证 Token 可用' },
-        { id: 'select_model', title: '选择模型', description: '设置默认模型', optional: true },
-    ],
 };
 
 // 存储键前缀

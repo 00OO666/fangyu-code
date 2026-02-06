@@ -30,7 +30,7 @@ E2E 测试框架 - 已创建文件：
 ```
 
 ## 关键文件
-- `.kiro/specs/api-integration-v2.5/tasks.md` - 任务清单
+- `.fangyu/specs/api-integration-v2.5/tasks.md` - 任务清单
 - `src/core/api/` - API 客户端代码
 - `src/tests/e2e/` - E2E 测试
 

@@ -15,7 +15,6 @@ import { ProviderForm } from './ProviderForm';
 import { EmptyState } from './EmptyState';
 import { AdvancedSettings } from './AdvancedSettings';
 import { ConfigActions } from './ConfigActions';
-import { KiroSettings } from './KiroSettings';
 import { cn } from '../../lib/utils';
 import { applyModelToClaudeCode } from '../../services/engineConfigService';
 import { notify } from '../notifications';
@@ -53,11 +52,6 @@ export function EngineConfigPanel() {
     const [formState, setFormState] = useState<FormState>({ mode: 'closed' });
     const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
     
-    // Kiro 配置状态
-    const [kiroTokenPath, setKiroTokenPath] = useState('');
-    const [kiroModelId, setKiroModelId] = useState('');
-
-
     // 打开添加表单
     const handleOpenAddForm = useCallback(() => {
         setFormState({ mode: 'add' });
@@ -181,7 +175,7 @@ export function EngineConfigPanel() {
             <section>
                 <div className="flex items-center justify-between mb-3">
                     <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {ENGINE_DISPLAY_NAMES[currentEngine]} {currentEngine === 'kiro' ? '配置' : '代理商'}
+                        {ENGINE_DISPLAY_NAMES[currentEngine]} 代理商
                     </h3>
                     <div className="flex items-center gap-2">
                         <ConfigActions
@@ -189,7 +183,7 @@ export function EngineConfigPanel() {
                             onImport={importConfig}
                             onRefresh={refreshEngineStatus}
                         />
-                        {currentEngine !== 'kiro' && providers.length > 0 && formState.mode === 'closed' && (
+                        {providers.length > 0 && formState.mode === 'closed' && (
                             <button
                                 type="button"
                                 onClick={handleOpenAddForm}
@@ -206,48 +200,36 @@ export function EngineConfigPanel() {
                     </div>
                 </div>
 
-                {/* Kiro 引擎特殊配置 */}
-                {currentEngine === 'kiro' ? (
-                    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
-                        <KiroSettings
-                            tokenPath={kiroTokenPath}
-                            modelId={kiroModelId}
-                            onTokenPathChange={setKiroTokenPath}
-                            onModelChange={setKiroModelId}
-                        />
-                    </div>
+                {/* 代理商列表或空状态 */}
+                {providers.length === 0 && formState.mode === 'closed' ? (
+                    <EmptyState
+                        engine={currentEngine}
+                        onAddProvider={handleOpenAddForm}
+                        onSelectPreset={handleSelectPreset}
+                    />
                 ) : (
-                    /* 代理商列表或空状态 */
-                    providers.length === 0 && formState.mode === 'closed' ? (
-                        <EmptyState
-                            engine={currentEngine}
-                            onAddProvider={handleOpenAddForm}
-                            onSelectPreset={handleSelectPreset}
+                    <div className="space-y-3">
+                        <ProviderList
+                            providers={providers}
+                            activeProviderId={currentProvider?.id || null}
+                            onSelect={handleSelectProvider}
+                            onReorder={reorderProviders}
+                            onEdit={handleEditProvider}
+                            onDelete={(id) => setDeleteConfirm(id)}
+                            onTest={handleTestProvider}
+                            onModelSelect={handleModelSelect}
                         />
-                    ) : (
-                        <div className="space-y-3">
-                            <ProviderList
-                                providers={providers}
-                                activeProviderId={currentProvider?.id || null}
-                                onSelect={handleSelectProvider}
-                                onReorder={reorderProviders}
-                                onEdit={handleEditProvider}
-                                onDelete={(id) => setDeleteConfirm(id)}
-                                onTest={handleTestProvider}
-                                onModelSelect={handleModelSelect}
-                            />
 
-                            {/* 添加表单 */}
-                            {formState.mode === 'add' && (
-                                <ProviderForm
-                                    engine={currentEngine}
-                                    onSave={handleSaveProvider}
-                                    onCancel={handleCloseForm}
-                                    onTest={testConnection}
-                                />
-                            )}
-                        </div>
-                    )
+                        {/* 添加表单 */}
+                        {formState.mode === 'add' && (
+                            <ProviderForm
+                                engine={currentEngine}
+                                onSave={handleSaveProvider}
+                                onCancel={handleCloseForm}
+                                onTest={testConnection}
+                            />
+                        )}
+                    </div>
                 )}
             </section>
 

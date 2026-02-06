@@ -233,7 +233,7 @@ describe.sequential('EngineConfigService', () => {
         });
 
         it('应持久化到 localStorage', async () => {
-            await service.setCurrentEngine('siliconflow');
+            await service.setCurrentEngine('codex');
             expect(localStorageMock.setItem).toHaveBeenCalled();
         });
     });

@@ -264,7 +264,7 @@ export async function mcpGetUnifiedServers(): Promise<Record<string, McpServer>>
  * 获取指定引擎的 MCP 服务器列表
  */
 export async function mcpGetEngineServers(
-  engine: "claude" | "codex" | "gemini" | "siliconflow" | "kiro",
+  engine: "claude" | "codex" | "gemini",
 ): Promise<Record<string, MCPServerSpec>> {
   try {
     return await invoke<Record<string, MCPServerSpec>>("mcp_get_engine_servers", {
@@ -280,7 +280,7 @@ export async function mcpGetEngineServers(
  * 在指定引擎中添加或更新 MCP 服务器
  */
 export async function mcpUpsertEngineServer(
-  engine: "claude" | "codex" | "gemini" | "siliconflow" | "kiro",
+  engine: "claude" | "codex" | "gemini",
   id: string,
   serverSpec: MCPServerSpec,
 ): Promise<string> {
@@ -300,7 +300,7 @@ export async function mcpUpsertEngineServer(
  * 从指定引擎中删除 MCP 服务器
  */
 export async function mcpDeleteEngineServer(
-  engine: "claude" | "codex" | "gemini" | "siliconflow" | "kiro",
+  engine: "claude" | "codex" | "gemini",
   id: string,
 ): Promise<string> {
   try {
@@ -318,7 +318,7 @@ export async function mcpDeleteEngineServer(
  * 切换指定引擎中 MCP 服务器的启用状态
  */
 export async function mcpToggleEngineServer(
-  engine: "claude" | "codex" | "gemini" | "siliconflow" | "kiro",
+  engine: "claude" | "codex" | "gemini",
   id: string,
   serverSpec: MCPServerSpec,
   enabled: boolean,
@@ -340,7 +340,7 @@ export async function mcpToggleEngineServer(
  * 获取指定引擎的 MCP 服务器列表（包含禁用的服务器）
  */
 export async function mcpGetEngineServersWithStatus(
-  engine: "claude" | "codex" | "gemini" | "siliconflow" | "kiro",
+  engine: "claude" | "codex" | "gemini",
 ): Promise<McpServerWithStatus[]> {
   try {
     return await invoke<McpServerWithStatus[]>("mcp_get_engine_servers_with_status", {

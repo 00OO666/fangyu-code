@@ -6,7 +6,7 @@
  * 2. 生成包含架构、API、测试、部署的完整规范
  * 3. 支持多种输出格式（JSON、YAML、Markdown）
  *
- * 灵感来源：Kiro 的 Spec-Driven 架构
+ * 灵感来源：Spec-Driven 架构实践
  */
 
 import { logger } from '@/lib/logger';

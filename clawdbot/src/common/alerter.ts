@@ -45,7 +45,7 @@ export async function sendEmailAlert(subject: string, message: string) {
   }
 
   try {
-    const transporter = nodemailer.createTransporter({
+    const transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
       port: 587,
       secure: false,

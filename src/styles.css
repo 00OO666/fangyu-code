@@ -13,6 +13,7 @@
 @import "./styles/theme-scifi.css";
 /* 🚀 Deep Glass Sci-Fi Theme - 科幻主题 */
 @import "./styles/typography.css";
+@import "./styles/font-loading.css";
 @import "./styles/animations.css";
 @import "./styles/components.css";
 

@@ -14,6 +14,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/contexts/ThemeContext";
+import { isDarkTheme } from "@/lib/themeUtils";
 import { copyTextToClipboard } from "@/lib/clipboard";
 import Check from 'lucide-react/dist/esm/icons/check'
 import Copy from 'lucide-react/dist/esm/icons/copy'
@@ -207,10 +208,10 @@ interface OptimizedMarkdownProps {
 const OptimizedMarkdownComponent: React.FC<OptimizedMarkdownProps> = ({
     content,
     isStreaming = false,
-    className,
+  className,
 }) => {
-    const { theme } = useTheme();
-    const isDark = theme === "dark";
+  const { theme } = useTheme();
+  const isDark = isDarkTheme(theme);
 
     // 🚀 性能优化: 流式输出时使用 deferred value 降低渲染优先级
     const deferredContent = useDeferredValue(content);

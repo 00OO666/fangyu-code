@@ -22,7 +22,7 @@ const localStorageMock = (() => {
 Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 
 // 引擎类型生成器
-const engineTypeArb = fc.constantFrom<EngineType>('claude', 'codex', 'gemini', 'siliconflow');
+const engineTypeArb = fc.constantFrom<EngineType>('claude', 'codex', 'gemini');
 
 // 代理商配置生成器
 const providerConfigArb = (engine: EngineType): fc.Arbitrary<Omit<UnifiedProviderConfig, 'id' | 'createdAt' | 'updatedAt' | 'sortOrder'>> =>
@@ -244,7 +244,7 @@ describe('EngineConfigService Property Tests', () => {
      * **Validates: Requirements 2.6**
      * 
      * For any update to Claude engine configuration, the configurations of 
-     * Codex, Gemini, and SiliconFlow engines SHALL remain unchanged.
+     * Codex and Gemini engines SHALL remain unchanged.
      */
     describe('引擎配置隔离 (Property 3)', () => {
         // 模拟多引擎配置存储
@@ -252,7 +252,6 @@ describe('EngineConfigService Property Tests', () => {
             claude: { model: string; apiKey: string };
             codex: { model: string; apiKey: string };
             gemini: { model: string; apiKey: string };
-            siliconflow: { model: string; apiKey: string };
         }
 
         // 模拟更新 Claude 配置的函数
@@ -283,10 +282,6 @@ describe('EngineConfigService Property Tests', () => {
                             model: fc.string({ minLength: 1, maxLength: 50 }),
                             apiKey: fc.string({ minLength: 10, maxLength: 50 }),
                         }),
-                        siliconflow: fc.record({
-                            model: fc.string({ minLength: 1, maxLength: 50 }),
-                            apiKey: fc.string({ minLength: 10, maxLength: 50 }),
-                        }),
                     }),
                     // 生成新的 Claude 模型
                     fc.string({ minLength: 1, maxLength: 50 }),
@@ -294,7 +289,6 @@ describe('EngineConfigService Property Tests', () => {
                         // 保存其他引擎的原始配置
                         const originalCodex = { ...initialConfigs.codex };
                         const originalGemini = { ...initialConfigs.gemini };
-                        const originalSiliconflow = { ...initialConfigs.siliconflow };
 
                         // 更新 Claude 配置
                         const updatedConfigs = updateClaudeConfig(initialConfigs, newClaudeModel);
@@ -305,7 +299,6 @@ describe('EngineConfigService Property Tests', () => {
                         // 验证其他引擎配置未变
                         expect(updatedConfigs.codex).toEqual(originalCodex);
                         expect(updatedConfigs.gemini).toEqual(originalGemini);
-                        expect(updatedConfigs.siliconflow).toEqual(originalSiliconflow);
 
                         return true;
                     }
@@ -331,10 +324,6 @@ describe('EngineConfigService Property Tests', () => {
                             model: fc.string({ minLength: 1, maxLength: 50 }),
                             apiKey: fc.string({ minLength: 10, maxLength: 50 }),
                         }),
-                        siliconflow: fc.record({
-                            model: fc.string({ minLength: 1, maxLength: 50 }),
-                            apiKey: fc.string({ minLength: 10, maxLength: 50 }),
-                        }),
                     }),
                     // 生成多个 Claude 模型更新
                     fc.array(fc.string({ minLength: 1, maxLength: 50 }), { minLength: 1, maxLength: 10 }),
@@ -342,7 +331,6 @@ describe('EngineConfigService Property Tests', () => {
                         // 保存其他引擎的原始配置
                         const originalCodex = { ...initialConfigs.codex };
                         const originalGemini = { ...initialConfigs.gemini };
-                        const originalSiliconflow = { ...initialConfigs.siliconflow };
 
                         // 连续多次更新 Claude 配置
                         let currentConfigs = initialConfigs;
@@ -353,7 +341,6 @@ describe('EngineConfigService Property Tests', () => {
                         // 验证其他引擎配置仍未变
                         expect(currentConfigs.codex).toEqual(originalCodex);
                         expect(currentConfigs.gemini).toEqual(originalGemini);
-                        expect(currentConfigs.siliconflow).toEqual(originalSiliconflow);
 
                         return true;
                     }

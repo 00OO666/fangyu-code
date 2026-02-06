@@ -34,8 +34,7 @@ import {
 const engineArb: fc.Arbitrary<SummaryEngine> = fc.constantFrom(
     'claude',
     'codex',
-    'gemini',
-    'siliconflow'
+    'gemini'
 );
 
 const modelForEngineArb = (engine: SummaryEngine): fc.Arbitrary<string> => {
@@ -271,7 +270,7 @@ describe('Summary Generator Property Tests', () => {
                         expect(providedConfig.engine).toBeTruthy();
 
                         // Both should be valid engines
-                        const validEngines: SummaryEngine[] = ['claude', 'codex', 'gemini', 'siliconflow'];
+                        const validEngines: SummaryEngine[] = ['claude', 'codex', 'gemini'];
                         expect(validEngines).toContain(storedConfig.engine);
                         expect(validEngines).toContain(providedConfig.engine);
                     }

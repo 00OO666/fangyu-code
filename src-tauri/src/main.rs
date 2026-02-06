@@ -104,6 +104,12 @@ use commands::window_attention::{
     delegate_task_to_active_window, report_delegated_task_completion,
     WindowRegistryState,
 };
+use commands::super_agent::{
+    execute_command, super_agent_execute_command, super_agent_check_binary, super_agent_read_file,
+    super_agent_write_file, super_agent_delete_file, super_agent_str_replace,
+    super_agent_is_long_running, super_agent_validate_command, super_agent_validate_path,
+    super_agent_assess_risk, super_agent_redact_sensitive,
+};
 
 use memory_index::{detect_memory_keywords, import_memories};
 
@@ -192,23 +198,6 @@ use commands::gemini::{
     update_gemini_provider_config,
     GeminiProcessState,
 };
-// Kiro CLI Integration (第五引擎)
-use commands::kiro::{
-    check_kiro_cli_installed,
-    check_kiro_cli_logged_in,
-    get_kiro_cli_version,
-    get_kiro_models,
-    execute_kiro_chat,
-    cancel_kiro_execution,
-    open_kiro_login,
-    KiroProcessState,
-    // Kiro API 模式（直接调用 Amazon Q API）
-    read_kiro_token,
-    get_kiro_token_status,
-    send_kiro_request,
-    parse_kiro_sse_response,
-    kiro_chat,
-};
 use commands::checkpoint_manager::{
     create_checkpoint, delete_checkpoint, delete_session_checkpoints, get_latest_checkpoint,
     init_checkpoint_manager, list_checkpoints, restore_checkpoint, GlobalCheckpointManager,
@@ -238,6 +227,32 @@ use tauri::{Manager, WindowEvent};
 use tauri_plugin_window_state::Builder as WindowStatePlugin;
 
 fn main() {
+    #[cfg(target_os = "windows")]
+    {
+        use windows::Win32::UI::HiDpi::{
+            SetProcessDpiAwarenessContext,
+            SetThreadDpiAwarenessContext,
+            DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE,
+            DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2,
+        };
+
+        unsafe {
+            match SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2) {
+                Ok(_) => log::info!("DPI awareness set: PerMonitorV2"),
+                Err(err) => {
+                    log::warn!("SetProcessDpiAwarenessContext(PerMonitorV2) failed: {err}");
+                    if let Err(err) = SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE) {
+                        log::warn!("SetProcessDpiAwarenessContext(PerMonitor) failed: {err}");
+                    } else {
+                        log::info!("DPI awareness set: PerMonitor");
+                    }
+                }
+            }
+
+            let _ = SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+        }
+    }
+
     // Initialize logger
     env_logger::init();
 
@@ -281,8 +296,6 @@ fn main() {
             // Initialize Gemini process state
             app.manage(GeminiProcessState::default());
 
-            // Initialize Kiro process state (第五引擎)
-            app.manage(KiroProcessState::default());
 
             // Initialize Checkpoint Manager
             app.manage(GlobalCheckpointManager(Mutex::new(None)));
@@ -797,20 +810,6 @@ fn main() {
             commands::docker::docker_exec_command,
             commands::docker::docker_container_status,
             commands::docker::docker_container_stats,
-            // Kiro CLI Integration (第五引擎 - Kiro CLI)
-            check_kiro_cli_installed,
-            check_kiro_cli_logged_in,
-            get_kiro_cli_version,
-            get_kiro_models,
-            execute_kiro_chat,
-            cancel_kiro_execution,
-            open_kiro_login,
-            // Kiro API 模式（直接调用 Amazon Q API）
-            read_kiro_token,
-            get_kiro_token_status,
-            send_kiro_request,
-            parse_kiro_sse_response,
-            kiro_chat,
             // CLI Monitor (CLI 监控系统)
             cli_monitor::scan_cli_sessions,
             cli_monitor::get_running_processes,
@@ -834,6 +833,19 @@ fn main() {
             cli_monitor::clear_process_output,
             cli_monitor::stop_process_communication,
             cli_monitor::is_process_communication_running,
+            // Super Agent Commands (环境检测、命令执行等)
+            execute_command,
+            super_agent_execute_command,
+            super_agent_check_binary,
+            super_agent_read_file,
+            super_agent_write_file,
+            super_agent_delete_file,
+            super_agent_str_replace,
+            super_agent_is_long_running,
+            super_agent_validate_command,
+            super_agent_validate_path,
+            super_agent_assess_risk,
+            super_agent_redact_sensitive,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

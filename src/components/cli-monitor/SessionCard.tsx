@@ -42,13 +42,31 @@ export const SessionCard: React.FC<SessionCardProps> = ({
   // 提取项目名称
   const projectName = session.project_path.split(/[/\\]/).pop() || "未知项目";
 
-  // 颜色类名映射
-  const colorClasses = {
-    border: `border-${color}-500`,
-    bg: `bg-${color}-500/10`,
-    text: `text-${color}-600`,
-    dot: `bg-${color}-500`,
+  // 颜色类名映射（避免 Tailwind 动态类被移除）
+  const colorClassMap: Record<
+    string,
+    { border: string; bg: string; text: string; dot: string }
+  > = {
+    blue: { border: "border-blue-500", bg: "bg-blue-500/10", text: "text-blue-600", dot: "bg-blue-500" },
+    green: { border: "border-green-500", bg: "bg-green-500/10", text: "text-green-600", dot: "bg-green-500" },
+    yellow: { border: "border-yellow-500", bg: "bg-yellow-500/10", text: "text-yellow-600", dot: "bg-yellow-500" },
+    red: { border: "border-red-500", bg: "bg-red-500/10", text: "text-red-600", dot: "bg-red-500" },
+    purple: { border: "border-purple-500", bg: "bg-purple-500/10", text: "text-purple-600", dot: "bg-purple-500" },
+    pink: { border: "border-pink-500", bg: "bg-pink-500/10", text: "text-pink-600", dot: "bg-pink-500" },
+    indigo: { border: "border-indigo-500", bg: "bg-indigo-500/10", text: "text-indigo-600", dot: "bg-indigo-500" },
+    cyan: { border: "border-cyan-500", bg: "bg-cyan-500/10", text: "text-cyan-600", dot: "bg-cyan-500" },
+    teal: { border: "border-teal-500", bg: "bg-teal-500/10", text: "text-teal-600", dot: "bg-teal-500" },
+    orange: { border: "border-orange-500", bg: "bg-orange-500/10", text: "text-orange-600", dot: "bg-orange-500" },
+    lime: { border: "border-lime-500", bg: "bg-lime-500/10", text: "text-lime-600", dot: "bg-lime-500" },
+    emerald: { border: "border-emerald-500", bg: "bg-emerald-500/10", text: "text-emerald-600", dot: "bg-emerald-500" },
+    sky: { border: "border-sky-500", bg: "bg-sky-500/10", text: "text-sky-600", dot: "bg-sky-500" },
+    violet: { border: "border-violet-500", bg: "bg-violet-500/10", text: "text-violet-600", dot: "bg-violet-500" },
+    fuchsia: { border: "border-fuchsia-500", bg: "bg-fuchsia-500/10", text: "text-fuchsia-600", dot: "bg-fuchsia-500" },
+    rose: { border: "border-rose-500", bg: "bg-rose-500/10", text: "text-rose-600", dot: "bg-rose-500" },
+    amber: { border: "border-amber-500", bg: "bg-amber-500/10", text: "text-amber-600", dot: "bg-amber-500" },
+    slate: { border: "border-slate-500", bg: "bg-slate-500/10", text: "text-slate-600", dot: "bg-slate-500" },
   };
+  const colorClasses = color ? colorClassMap[color] || colorClassMap.blue : colorClassMap.blue;
 
   return (
     <div

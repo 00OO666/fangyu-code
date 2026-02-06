@@ -8,8 +8,6 @@
 - [x] 创建 Codex 引擎模块 (`engines/codex.ts`)
 - [x] 创建 Gemini 引擎模块 (`engines/gemini.ts`)
 - [x] 创建 Claude 引擎模块 (`engines/claude.ts`)
-- [x] 创建 Kiro 引擎模块 (`engines/kiro.ts`)
-- [x] 创建 SiliconFlow 引擎模块 (`engines/siliconflow.ts`)
 - [x] 创建引擎统一导出 (`engines/index.ts`)
 
 ### 🔄 待完成（阶段 2）
@@ -29,9 +27,7 @@ src/hooks/usePromptExecution/
     ├── index.ts          # 引擎统一导出
     ├── codex.ts          # Codex 引擎 (250 行)
     ├── gemini.ts         # Gemini 引擎 (350 行)
-    ├── claude.ts         # Claude 引擎 (280 行)
-    ├── kiro.ts           # Kiro 引擎 (90 行)
-    └── siliconflow.ts    # SiliconFlow 引擎 (95 行)
+    └── claude.ts         # Claude 引擎 (280 行)
 ```
 
 ## 🔧 如何使用新的引擎模块
@@ -66,33 +62,12 @@ const unlisteners = await setupCodexEventListeners(context);
 unlistenRefs.current = unlisteners;
 ```
 
-### 示例：执行 Kiro 请求
-
-```typescript
-import { executeKiroRequest, type KiroEngineContext } from '@/hooks/usePromptExecution/engines';
-
-const context: KiroEngineContext = {
-  config: {
-    projectPath,
-    setMessages,
-    setIsLoading,
-    setError,
-    // ... 其他配置
-  },
-  prompt: "你好",
-  model: "claude-opus-4.5",
-  maxThinkingTokens: 4096,
-};
-
-await executeKiroRequest(context);
-```
-
 ## 📊 重构收益
 
 | 指标 | 重构前 | 重构后 | 改进 |
 |------|--------|--------|------|
 | 主文件行数 | 2640 行 | ~800 行（预期） | ↓ 70% |
-| 引擎模块数 | 0 | 5 | +5 |
+| 引擎模块数 | 0 | 3 | +3 |
 | 代码重复率 | ~20% | < 5%（预期） | ↓ 75% |
 | 可维护性 | 低 | 高 | ↑ 显著 |
 
@@ -116,8 +91,6 @@ await executeKiroRequest(context);
 - [ ] Codex 引擎功能正常
 - [ ] Gemini 引擎功能正常
 - [ ] Claude 引擎功能正常
-- [ ] Kiro 引擎功能正常
-- [ ] SiliconFlow 引擎功能正常
 - [ ] 会话恢复功能正常
 - [ ] 消息去重功能正常
 - [ ] 错误处理功能正常

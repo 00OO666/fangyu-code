@@ -50,7 +50,7 @@ export interface StoredAPIKey {
 }
 
 /** API 密钥提供商 */
-export type APIKeyProvider = 'claude' | 'openai' | 'gemini' | 'siliconflow' | 'hiapi' | 'other';
+export type APIKeyProvider = 'claude' | 'openai' | 'gemini' | 'hiapi' | 'other';
 
 // =============================================================================
 // Web Crypto API 加密工具（开发环境使用）

@@ -12,6 +12,7 @@ import { createPortal } from "react-dom";
 import { Prism as SyntaxHighlighter } from "@/lib/lightSyntaxHighlighter";
 import { getClaudeSyntaxTheme } from "@/lib/claudeSyntaxTheme";
 import { useTheme } from "@/contexts/ThemeContext";
+import { isDarkTheme } from "@/lib/themeUtils";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -124,7 +125,7 @@ export const FullScreenPreview: React.FC<FullScreenPreviewProps> = ({
             ) : (
               <SyntaxHighlighter
                 language={language}
-                style={getClaudeSyntaxTheme(theme === 'dark')}
+                style={getClaudeSyntaxTheme(isDarkTheme(theme))}
                 customStyle={{
                   margin: 0,
                   background: 'transparent',

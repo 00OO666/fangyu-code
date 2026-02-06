@@ -2,7 +2,7 @@
 
 ## 概述
 
-Powers 是 Fangyu Code 的扩展能力系统，类似于 Kiro 的 Powers 概念，提供模块化的 AI 能力扩展。
+Powers 是 Fangyu Code 的扩展能力系统，参考业界的 Powers 概念，提供模块化的 AI 能力扩展。
 
 ## 核心组件
 

@@ -71,14 +71,6 @@ const VALIDATION_RULES: ValidationRule[] = [
     description: 'Gemini API 密钥应以 "AI" 开头',
   },
   {
-    provider: 'siliconflow',
-    prefixPattern: /^sf-/,
-    fullPattern: /^sf-[a-zA-Z0-9_-]{30,}$/,
-    minLength: 35,
-    maxLength: 100,
-    description: 'SiliconFlow API 密钥应以 "sf-" 开头',
-  },
-  {
     provider: 'hiapi',
     prefixPattern: /^hi-/,
     fullPattern: /^hi-[a-zA-Z0-9_-]{20,}$/,
@@ -215,7 +207,6 @@ export function getProviderDisplayName(provider: APIKeyProvider | 'unknown'): st
     claude: 'Claude (Anthropic)',
     openai: 'OpenAI',
     gemini: 'Google Gemini',
-    siliconflow: 'SiliconFlow',
     hiapi: 'HiAPI',
     other: '其他',
     unknown: '未知',

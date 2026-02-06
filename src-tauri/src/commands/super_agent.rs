@@ -10,6 +10,7 @@ use std::process::Stdio;
 use tauri::command;
 use tokio::process::Command;
 use tokio::io::{AsyncBufReadExt, BufReader};
+use crate::claude_binary::detect_binary_for_tool;
 
 // =============================================================================
 // 类型定义
@@ -57,6 +58,15 @@ pub struct CommandResult {
     pub stderr: String,
     pub exit_code: Option<i32>,
     pub duration_ms: u64,
+}
+
+/// 二进制检测结果
+#[derive(Debug, Serialize, Deserialize)]
+pub struct BinaryCheckResult {
+    pub installed: bool,
+    pub path: Option<String>,
+    pub version: Option<String>,
+    pub source: Option<String>,
 }
 
 /// 进程信息
@@ -266,6 +276,28 @@ pub async fn super_agent_str_replace(
 // Shell 执行命令
 // =============================================================================
 
+/// 执行 Shell 命令（简化版 - 用于环境检测）
+/// 接受 command 和 args 参数，自动组合成完整命令
+#[command]
+pub async fn execute_command(
+    command: String,
+    args: Vec<String>,
+) -> Result<String, String> {
+    let full_command = if args.is_empty() {
+        command.clone()
+    } else {
+        format!("{} {}", command, args.join(" "))
+    };
+
+    let result = super_agent_execute_command(full_command, None, Some(10000)).await?;
+
+    if result.success {
+        Ok(result.stdout)
+    } else {
+        Err(result.stderr)
+    }
+}
+
 /// 执行 Shell 命令
 /// Requirements: 8.2
 #[command]
@@ -342,6 +374,35 @@ pub async fn super_agent_execute_command(
             duration_ms: start.elapsed().as_millis() as u64,
         }),
     }
+}
+
+/// 检测二进制工具是否可用（Node/npm 等）
+/// Requirements: 8.2
+#[command]
+pub fn super_agent_check_binary(tool: String) -> Result<BinaryCheckResult, String> {
+    let env_key = match tool.as_str() {
+        "claude" => "CLAUDE_PATH".to_string(),
+        "codex" => "CODEX_PATH".to_string(),
+        "gemini" => "GEMINI_CLI_PATH".to_string(),
+        _ => format!("ANYCODE_{}_PATH", tool.to_uppercase()),
+    };
+    let (_env_info, detected) = detect_binary_for_tool(&tool, &env_key, &tool);
+
+    if let Some(install) = detected {
+        return Ok(BinaryCheckResult {
+            installed: true,
+            path: Some(install.path),
+            version: install.version,
+            source: Some(install.source),
+        });
+    }
+
+    Ok(BinaryCheckResult {
+        installed: false,
+        path: None,
+        version: None,
+        source: None,
+    })
 }
 
 /// 检查命令是否为长时间运行命令

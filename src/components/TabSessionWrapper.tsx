@@ -36,7 +36,7 @@ const TabSessionWrapperComponent: React.FC<TabSessionWrapperProps> = ({
   // 🆕 执行状态追踪 - 记录是否正在执行
   const [isCurrentlyStreaming, setIsCurrentlyStreaming] = useState(false);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
-  const [currentEngine, setCurrentEngine] = useState<'claude' | 'codex' | 'gemini' | 'siliconflow'>('claude');
+  const [currentEngine, setCurrentEngine] = useState<'claude' | 'codex' | 'gemini'>('claude');
 
   // 🆕 集成 GlobalExecutionContext
   useExecutionTracking({
@@ -90,14 +90,14 @@ const TabSessionWrapperComponent: React.FC<TabSessionWrapperProps> = ({
   }, [extractProjectName, updateTitle]);
 
   // 🆕 Handle engine change - 更新标签页显示的引擎类型
-  const handleEngineChange = useCallback((engine: 'claude' | 'codex' | 'gemini' | 'siliconflow') => {
+  const handleEngineChange = useCallback((engine: 'claude' | 'codex' | 'gemini') => {
     setCurrentEngine(engine);
     updateEngine(engine);
   }, [updateEngine]);
 
   // 🔧 FIX: Handle session info change - 持久化新建会话的信息
   // 解决路由切换后新建会话消息丢失的问题
-  const handleSessionInfoChange = useCallback((info: { sessionId: string; projectId: string; projectPath: string; engine?: 'claude' | 'codex' | 'gemini' | 'siliconflow' }) => {
+  const handleSessionInfoChange = useCallback((info: { sessionId: string; projectId: string; projectPath: string; engine?: 'claude' | 'codex' | 'gemini' }) => {
     logger.debug('TabSessionWrapper', '[TabSessionWrapper] Session info received, updating tab:', { tabId, info });
     updateSession(info);
   }, [tabId, updateSession]);

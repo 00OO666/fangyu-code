@@ -96,11 +96,13 @@ export function parseFrontMatter(content: string): { frontMatter: SteeringFrontM
         frontMatter.description = value;
         break;
       case 'priority':
-        const num = parseInt(value, 10);
-        if (!isNaN(num)) {
-          frontMatter.priority = num;
+        {
+          const num = parseInt(value, 10);
+          if (!isNaN(num)) {
+            frontMatter.priority = num;
+          }
+          break;
         }
-        break;
     }
   }
   
@@ -166,7 +168,7 @@ export class SteeringLoader {
   private loaded: boolean = false;
   
   constructor(workspaceRoot: string) {
-    this.steeringDir = path.join(workspaceRoot, '.kiro', 'steering');
+    this.steeringDir = path.join(workspaceRoot, '.fangyu', 'steering');
   }
   
   /**

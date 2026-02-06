@@ -55,7 +55,7 @@ interface ProjectMCPQuickConfigProps {
   /**
    * 引擎类型（默认 claude）
    */
-  engine?: 'claude' | 'codex' | 'gemini' | 'siliconflow';
+  engine?: 'claude' | 'codex' | 'gemini';
 }
 
 /**

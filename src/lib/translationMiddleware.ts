@@ -213,8 +213,7 @@ export class TranslationMiddleware {
 
     expired.forEach((key) => this.translationCache.delete(key));
 
-    if (expired.length > 0) {
-    }
+    void expired;
   }
 
   /**
@@ -421,15 +420,15 @@ export class TranslationMiddleware {
     } catch (error) {
       logger.warn('translationMiddleware', "[TranslationMiddleware] ⚠️ Failed to load saved config, using default:", error);
       this.config = {
-        enabled: true, // 🔧 修复：默认启用翻译功能
-        api_base_url: "https://api.siliconflow.cn/v1",
-        api_key: "sk-ednywbvnfwerfcxnqjkmnhxvgcqoyuhmjvfywrshpxsgjbzm",
-        model: "tencent/Hunyuan-MT-7B",
+        enabled: false, // 默认禁用翻译功能，需用户配置后启用
+        api_base_url: "https://api.openai.com/v1",
+        api_key: "",
+        model: "gpt-4o-mini",
         timeout_seconds: 30,
         cache_ttl_seconds: 3600,
       };
       this.initialized = true;
-      this.cachedIsEnabled = true; // 🚀 缓存状态
+      this.cachedIsEnabled = this.config.enabled; // 🚀 缓存状态
     }
   }
 
@@ -625,6 +624,7 @@ export class TranslationMiddleware {
       const isChineseByContent = this.detectChineseContent(userInput);
 
       // 优先信任内容检测，因为它更准确
+      // eslint-disable-next-line no-control-regex
       const isAsciiOnly = /^[\u0000-\u007F]*$/.test(userInput);
       const shouldTranslate = isChineseByContent || (isChineseByCode && !isAsciiOnly);
 

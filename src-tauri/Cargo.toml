@@ -64,6 +64,7 @@ windows = { version = "0.58", features = [
     "Win32_System_Threading",
     "Win32_Security",
     "Win32_Graphics_Dwm",
+    "Win32_UI_HiDpi",
 ] }
 winapi = { version = "0.3", features = ["winuser", "processthreadsapi"] }
 
@@ -94,4 +95,3 @@ opt-level = "z"     # Optimize all dependencies for size
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!
 custom-protocol = ["tauri/custom-protocol"]
-

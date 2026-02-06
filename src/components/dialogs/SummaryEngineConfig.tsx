@@ -48,7 +48,6 @@ import {
     ClaudeEngineIcon,
     CodexEngineIcon,
     GeminiEngineIcon,
-    SiliconFlowEngineIcon,
 } from '@/components/icons/EngineIcons';
 import { getSummaryConfigStore } from '@/services/summaryConfigStore';
 import type { SummaryEngine, SummaryAPIConfig, TestedModelInfo, ModelTestStatus } from '@/types/summary';
@@ -114,19 +113,6 @@ const ENGINE_CONFIG = {
         needsApiKey: true,
         configUrl: 'https://aistudio.google.com/app/apikey',
         defaultEndpoint: '',
-    },
-    siliconflow: {
-        id: 'siliconflow' as const,
-        name: 'SiliconFlow',
-        Icon: SiliconFlowEngineIcon,
-        color: '#7C3AED',
-        bgClass: 'bg-purple-500/10 hover:bg-purple-500/20',
-        borderClass: 'border-purple-500/30',
-        textClass: 'text-purple-500',
-        description: '国产高性价比 AI 平台',
-        needsApiKey: true,
-        configUrl: 'https://siliconflow.cn/account/ak',
-        defaultEndpoint: 'https://api.siliconflow.cn/v1/chat/completions',
     },
 };
 

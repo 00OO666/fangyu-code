@@ -18,8 +18,12 @@ export function PluginDemo() {
 
         <PluginManager
           workspacePath={undefined}
-          onInstall={(id) => logger.debug('PluginDemo', "安装插件:", id);}
-          onUninstall={(id) => logger.debug('PluginDemo', "卸载插件:", id);}
+          onInstall={(id) => {
+            logger.debug('PluginDemo', "安装插件:", id);
+          }}
+          onUninstall={(id) => {
+            logger.debug('PluginDemo', "卸载插件:", id);
+          }}
         />
       </div>
     </div>

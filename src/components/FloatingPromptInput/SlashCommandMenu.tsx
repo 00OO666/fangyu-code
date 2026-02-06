@@ -22,7 +22,7 @@ import {
 import { GEMINI_BUILT_IN_SLASH_COMMANDS } from './geminiSlashCommands';
 
 /** 执行引擎类型 */
-type ExecutionEngine = 'claude' | 'gemini' | 'codex' | 'siliconflow';
+type ExecutionEngine = 'claude' | 'gemini' | 'codex';
 
 interface SlashCommandMenuProps {
   /** 是否显示菜单 */

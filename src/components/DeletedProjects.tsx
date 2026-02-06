@@ -235,7 +235,7 @@ export const DeletedProjects: React.FC<DeletedProjectsProps> = ({
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="font-semibold text-foreground/80 truncate">
-                      {project.path.split(/[\\\/]/).pop() || project.path}
+                      {project.path.split(/[\\/]/).pop() || project.path}
                     </p>
                     <p className="text-xs text-muted-foreground font-mono truncate mt-0.5 bg-muted/30 inline-block px-1.5 py-0.5 rounded">
                       {project.path}

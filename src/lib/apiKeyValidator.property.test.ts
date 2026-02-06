@@ -8,7 +8,6 @@
  * - Claude: 以 `sk-ant-` 开头，总长度 100-200
  * - OpenAI: 以 `sk-` 开头（非 sk-ant-），总长度 40-100
  * - Gemini: 以 `AI` 开头，总长度 35-60
- * - SiliconFlow: 以 `sf-` 开头，总长度 35-100
  */
 
 import { describe, it, expect } from 'vitest';
@@ -51,13 +50,6 @@ const validGeminiKey = fc
   })
   .map((s) => `AI${s}`);
 
-// SiliconFlow: minLength=35, maxLength=100, prefix='sf-' (3 chars)
-const validSiliconFlowKey = fc
-  .stringOf(fc.constantFrom(...alphanumericWithSpecialChars.split('')), {
-    minLength: 32, // 35 - 3 = 32
-    maxLength: 60,
-  })
-  .map((s) => `sf-${s}`);
 
 describe('API Key Validator Property Tests', () => {
   describe('Property 8: API 密钥格式验证', () => {
@@ -88,17 +80,6 @@ describe('API Key Validator Property Tests', () => {
         fc.property(validGeminiKey, (key) => {
           const result = validateAPIKey(key, 'gemini');
           expect(result.detectedProvider).toBe('gemini');
-          expect(result.isValid).toBe(true);
-        }),
-        { numRuns: 100 }
-      );
-    });
-
-    it('SiliconFlow 密钥应以 sf- 开头', () => {
-      fc.assert(
-        fc.property(validSiliconFlowKey, (key) => {
-          const result = validateAPIKey(key, 'siliconflow');
-          expect(result.detectedProvider).toBe('siliconflow');
           expect(result.isValid).toBe(true);
         }),
         { numRuns: 100 }
@@ -151,14 +132,6 @@ describe('API Key Validator Property Tests', () => {
       );
     });
 
-    it('应正确检测 SiliconFlow 密钥', () => {
-      fc.assert(
-        fc.property(validSiliconFlowKey, (key) => {
-          expect(detectProvider(key)).toBe('siliconflow');
-        }),
-        { numRuns: 50 }
-      );
-    });
   });
 
 
@@ -199,7 +172,7 @@ describe('API Key Validator Property Tests', () => {
     it('有效密钥应通过快速验证', () => {
       fc.assert(
         fc.property(
-          fc.oneof(validClaudeKey, validOpenAIKey, validGeminiKey, validSiliconFlowKey),
+          fc.oneof(validClaudeKey, validOpenAIKey, validGeminiKey),
           (key) => {
             expect(quickValidateAPIKey(key)).toBe(true);
           }
@@ -242,7 +215,6 @@ describe('API Key Validator Property Tests', () => {
         'claude',
         'openai',
         'gemini',
-        'siliconflow',
         'hiapi',
         'other',
         'unknown',
@@ -268,7 +240,6 @@ describe('API Key Validator Property Tests', () => {
       expect(providers).toContain('claude');
       expect(providers).toContain('openai');
       expect(providers).toContain('gemini');
-      expect(providers).toContain('siliconflow');
     });
   });
 

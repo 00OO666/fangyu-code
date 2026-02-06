@@ -284,10 +284,10 @@ mod tests {
 
     #[test]
     fn test_real_world_urls() {
-        // SiliconFlow
+        // OpenAI 官方
         assert_eq!(
-            normalize_api_url("https://api.siliconflow.cn/v1", ApiEndpointType::OpenAI),
-            "https://api.siliconflow.cn/v1/chat/completions"
+            normalize_api_url("https://api.openai.com/v1", ApiEndpointType::OpenAI),
+            "https://api.openai.com/v1/chat/completions"
         );
 
         // Anthropic 官方

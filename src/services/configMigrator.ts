@@ -23,7 +23,6 @@ const LEGACY_KEYS = {
     claudeProviders: 'claude-providers',
     codexProviders: 'codex-providers',
     geminiProviders: 'gemini-providers',
-    siliconflowProviders: 'siliconflow-providers',
     // 旧的单个配置 keys
     claudeConfig: 'claude-provider-config',
     codexConfig: 'codex-provider-config',
@@ -258,7 +257,6 @@ async function migrateFromLegacy(): Promise<ProviderStorage> {
         { key: LEGACY_KEYS.claudeProviders, engine: 'claude' },
         { key: LEGACY_KEYS.codexProviders, engine: 'codex' },
         { key: LEGACY_KEYS.geminiProviders, engine: 'gemini' },
-        { key: LEGACY_KEYS.siliconflowProviders, engine: 'siliconflow' },
     ];
 
     for (const { key, engine } of engineKeys) {
@@ -335,7 +333,7 @@ async function migrateFromLegacy(): Promise<ProviderStorage> {
 
     // 5. 读取当前选择
     const currentEngine = localStorage.getItem(LEGACY_KEYS.currentEngine);
-    if (currentEngine && ['claude', 'codex', 'gemini', 'siliconflow'].includes(currentEngine)) {
+    if (currentEngine && ['claude', 'codex', 'gemini'].includes(currentEngine)) {
         storage.currentEngine = currentEngine as EngineType;
     }
 

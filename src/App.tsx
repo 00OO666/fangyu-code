@@ -37,10 +37,6 @@ function App() {
 
   // 🔧 FIX: 开发模式下确保面板显示（解决 HMR 热更新后状态丢失问题）
   useEffect(() => {
-    if (import.meta.env.DEV && !showErrorMonitor) {
-      setShowErrorMonitor(true);
-    }
-    
     // 🔧 FIX: 清除可能导致面板不可见的旧位置数据
     const savedPos = localStorage.getItem('fangyu-error-panel-position');
     if (savedPos) {

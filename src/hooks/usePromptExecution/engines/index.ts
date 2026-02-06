@@ -7,5 +7,3 @@
 export { setupCodexEventListeners, type CodexEngineContext } from './codex';
 export { setupGeminiEventListeners, type GeminiEngineContext } from './gemini';
 export { setupClaudeEventListeners, type ClaudeEngineContext } from './claude';
-export { executeKiroRequest, type KiroEngineContext } from './kiro';
-export { executeSiliconFlowRequest, type SiliconFlowEngineContext } from './siliconflow';

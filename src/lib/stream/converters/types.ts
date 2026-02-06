@@ -9,7 +9,7 @@ import type { ClaudeStreamMessage } from "@/types/claude";
 /**
  * 引擎类型
  */
-export type EngineType = "claude" | "codex" | "gemini" | "siliconflow" | "kiro";
+export type EngineType = "claude" | "codex" | "gemini";
 
 /**
  * 消息转换器接口

@@ -18,14 +18,20 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { calculateMessageCost, formatCost as formatCostUtil } from "@/lib/pricing";
-import { aggregateSessionCost } from "@/lib/sessionCost";
-import { tokenExtractor } from "@/lib/tokenExtractor";
+import { formatCost as formatCostUtil } from "@/lib/pricing";
+import { calculatePromptCostSummary } from "@/lib/promptCostCalculator";
+import type { PromptCostItem } from "@/lib/promptCostTypes";
 import type { ClaudeStreamMessage } from "@/types/claude";
 
 interface PromptNavigatorProps {
   /** 所有消息列表 */
   messages: ClaudeStreamMessage[];
+  /** 预计算的提示词列表（可选） */
+  promptItems?: PromptCostItem[];
+  /** 预计算的提示词总费用（可选） */
+  promptsTotalCost?: number;
+  /** 预计算的会话总费用（可选） */
+  sessionTotalCost?: number;
   /** 是否显示导航面板 */
   isOpen: boolean;
   /** 关闭面板回调 */
@@ -33,93 +39,6 @@ interface PromptNavigatorProps {
   /** 点击提示词回调 */
   onPromptClick: (promptIndex: number) => void;
 }
-
-/** 费用明细项 */
-interface CostDetailItem {
-  /** 消息类型 */
-  type: 'system' | 'tool_call' | 'thinking' | 'assistant' | 'other';
-  /** 描述 */
-  description: string;
-  /** 费用 */
-  cost: number;
-  /** Token 统计 */
-  tokens?: {
-    input: number;
-    output: number;
-    cacheRead: number;
-    cacheWrite: number;
-  };
-  /** 模型 */
-  model?: string;
-  /** 引擎 */
-  engine?: string;
-  /** 消息索引 */
-  messageIndex?: number;
-}
-
-interface PromptItem {
-  promptIndex: number;
-  content: string;
-  timestamp?: string;
-  tokens?: {
-    input: number;
-    output: number;
-    cacheRead: number;
-    cacheWrite: number;
-    total: number;
-  };
-  cost?: number;
-  /** 工具调用统计 */
-  toolCalls?: {
-    total: number;
-    byType: Record<string, number>;
-  };
-  /** 思考统计 */
-  thinking?: {
-    count: number;
-    tokens: number;
-  };
-  /** 缓存命中率百分比 (0-100) */
-  cacheHitRate?: number;
-  /** 引擎 */
-  engine?: string;
-  /** 模型 */
-  model?: string;
-  /** 费用明细列表 */
-  costDetails?: CostDetailItem[];
-}
-
-/**
- * 提取用户消息的纯文本内容
- */
-const extractUserText = (message: ClaudeStreamMessage): string => {
-  if (!message.message?.content) return '';
-
-  const content = message.message.content;
-  let text = '';
-
-  if (typeof content === 'string') {
-    text = content;
-  } else if (Array.isArray(content)) {
-    text = content
-      .filter((item: any) => item.type === 'text')
-      .map((item: any) => item.text || '')
-      .join('\n');
-  }
-
-  // 处理转义字符
-  if (text.includes('\\')) {
-    text = text
-      .replace(/\\\\n/g, '\n')
-      .replace(/\\\\r/g, '\r')
-      .replace(/\\\\t/g, '\t')
-      .replace(/\\\\"/g, '"')
-      .replace(/\\\\'/g, "'")
-      .replace(/\\\\\\\\/g, '\\');
-  }
-
-  return text;
-};
 
 /**
  * 截断文本为摘要
@@ -180,9 +99,12 @@ const formatTokens = (tokens: number): string => {
  */
 export const PromptNavigator: React.FC<PromptNavigatorProps> = ({
   messages,
+  promptItems,
+  promptsTotalCost: promptsTotalCostProp,
+  sessionTotalCost: sessionTotalCostProp,
   isOpen,
   onClose,
-  onPromptClick
+  onPromptClick,
 }) => {
   // 搜索关键词
   const [searchQuery, setSearchQuery] = useState('');
@@ -197,279 +119,34 @@ export const PromptNavigator: React.FC<PromptNavigatorProps> = ({
   const jumpInputRef = useRef<HTMLInputElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
-  // 🔧 FIX: 强制追踪最新消息的费用变化
-  // 问题：messages 数组引用不变时，useMemo 不会重新执行
-  // 解决：提取最后几条消息的 costUSD 作为独立依赖
-  const lastMessagesCostSignal = useMemo(() => {
-    // 追踪最后 5 条消息的费用（足以覆盖最新指令的所有响应）
-    const lastMessages = messages.slice(-5);
-    return lastMessages.map(msg => {
-      const cost = (msg as any).costUSD ?? (msg as any).totalCostUSD ?? (msg as any).cost_usd ?? (msg as any).total_cost_usd ?? 0;
-      const id = (msg as any)?.message?.id || (msg as any).id || (msg as any).uuid;
-      return `${id}:${cost}`;
-    }).join('|');
-  }, [messages]);
+  const hasExternalSummary =
+    promptItems !== undefined ||
+    promptsTotalCostProp !== undefined ||
+    sessionTotalCostProp !== undefined;
 
-  // 提取所有用户提示词（按时间倒序，最新在最上方）
-  const prompts = useMemo<PromptItem[]>(() => {
-    let promptIndex = 0;
-    const items: PromptItem[] = [];
+  const fallbackSummary = useMemo(() => {
+    if (hasExternalSummary) return null;
+    if (messages.length === 0) return null;
+    return calculatePromptCostSummary(messages);
+  }, [hasExternalSummary, messages]);
 
-    // 🔧 FIX: 从 system:init 消息中提取会话级别的默认模型
-    // 这样即使单条消息没有模型信息，也能使用正确的定价
-    let sessionDefaultModel: string | undefined;
-    for (const msg of messages) {
-      if ((msg as any).type === 'system' && (msg as any).subtype === 'init') {
-        sessionDefaultModel = (msg as any).model;
-        if (sessionDefaultModel) {
-          break;
-        }
-      }
-    }
+  const prompts = useMemo<PromptCostItem[]>(() => {
+    if (promptItems) return promptItems;
+    return fallbackSummary?.items ?? [];
+  }, [promptItems, fallbackSummary]);
 
-    for (let i = 0; i < messages.length; i++) {
-      const message = messages[i];
-      const messageType = (message as any).type || (message.message as any)?.role;
-
-      if (messageType === 'user') {
-        const text = extractUserText(message);
-        if (text) {
-          // 计算该指令的 token 消耗和费用（使用与会话统计相同的逻辑）
-          let tokens: PromptItem['tokens'] = undefined;
-          let cost: number = 0;
-          let totalInput = 0;
-          let totalOutput = 0;
-          let totalCacheRead = 0;
-          let totalCacheWrite = 0;
-
-          // 新增：工具调用统计
-          const toolCallsMap: Record<string, number> = {};
-          let totalToolCalls = 0;
-
-          // 新增：思考统计
-          let thinkingCount = 0;
-          let thinkingTokens = 0;
-
-          // 新增：引擎和模型（用于显示，取第一个消息的值）
-          let displayEngine: string | undefined;
-          let displayModel: string | undefined;
-          // 🔧 FIX: 记录所有使用的模型（用于诊断多模型场景）
-          const modelsUsed = new Set<string>();
-
-          // 🔧 FIX: 使用 Map 去重，避免流式传输过程中重复计费
-          // 注意：每条消息使用自己的模型计费，而不是统一模型！
-          // 🔧 FIX: 添加 actualCost 字段以存储 Claude CLI 返回的准确费用
-          const messageMap = new Map<string, { tokens: any; engine: string; model: string | undefined; actualCost: number | undefined }>();
-          // 🆕 费用明细记录
-          const costDetails: CostDetailItem[] = [];
-
-          // 向后查找该指令对应的所有 assistant/system 消息，直到遇到下一个 user 消息
-          let messagesProcessedForThisPrompt = 0;
-          for (let j = i + 1; j < messages.length; j++) {
-            const nextMessage = messages[j];
-            const nextType = (nextMessage as any).type || (nextMessage.message as any)?.role;
-
-            // 遇到下一个用户消息，停止统计
-            if (nextType === 'user') {
-              break;
-            }
-
-            // 只处理 assistant 和 system 消息（与 aggregateSessionCost 逻辑一致）
-            if (nextType === 'assistant' || nextType === 'system') {
-              messagesProcessedForThisPrompt++;
-
-              // 🔧 FIX: 生成去重 key（与 sessionCost.ts 逻辑一致）
-              const messageId = (nextMessage as any)?.message?.id || (nextMessage as any).id || (nextMessage as any).uuid;
-              const key = messageId || `index:${j}`;
-
-              // 使用 tokenExtractor 提取完整的 token 信息（包括缓存 token）
-              const extractedTokens = tokenExtractor.extract(nextMessage);
-              const msgEngine = (nextMessage as any).engine || 'claude';
-              // 🔧 FIX: 使用会话默认模型作为回退（优先级：消息模型 > 会话模型 > undefined）
-              const msgModel = (nextMessage as any).model || (nextMessage as any)?.message?.model || sessionDefaultModel;
-              // 🔧 FIX: 提取 Claude CLI 返回的准确费用（包含完整 Extended Thinking tokens 计费）
-              // 注意：Claude CLI 使用驼峰命名 costUSD/totalCostUSD
-              const msgCostUsd = (nextMessage as any).costUSD ?? (nextMessage as any).totalCostUSD ?? (nextMessage as any).cost_usd ?? (nextMessage as any).total_cost_usd;
-
-              // 🔧 FIX: 只保留最新版本（相同 key 的消息，保留 token 更多的版本）
-              const existing = messageMap.get(key);
-              const totalTokenCount = extractedTokens.input_tokens + extractedTokens.output_tokens + extractedTokens.cache_read_tokens + extractedTokens.cache_creation_tokens;
-              const existingTokenCount = existing ? (existing.tokens.input_tokens + existing.tokens.output_tokens + existing.tokens.cache_read_tokens + existing.tokens.cache_creation_tokens) : 0;
-
-              if (!existing || totalTokenCount > existingTokenCount) {
-                messageMap.set(key, { tokens: extractedTokens, engine: msgEngine, model: msgModel, actualCost: msgCostUsd });
-
-                // 🆕 记录费用明细（只要有 token 消耗就记录）
-                if (totalTokenCount > 0) {
-                  let detailType: CostDetailItem['type'] = 'other';
-                  let description = '';
-
-                  if (nextType === 'system') {
-                    detailType = 'system';
-                    const subtype = (nextMessage as any).subtype;
-                    description = subtype ? `系统消息 (${subtype})` : '系统消息';
-                  } else if (nextMessage.message?.content) {
-                    const content = Array.isArray(nextMessage.message.content)
-                      ? nextMessage.message.content
-                      : [nextMessage.message.content];
-
-                    const hasThinking = content.some((block: any) => block.type === 'thinking');
-                    const hasToolUse = content.some((block: any) => block.type === 'tool_use');
-
-                    if (hasThinking) {
-                      detailType = 'thinking';
-                      description = 'Claude Code 思考';
-                    } else if (hasToolUse) {
-                      detailType = 'tool_call';
-                      const toolNames = content
-                        .filter((block: any) => block.type === 'tool_use')
-                        .map((block: any) => block.name)
-                        .join(', ');
-                      description = `工具调用: ${toolNames}`;
-                    } else {
-                      detailType = 'assistant';
-                      description = 'AI 回复';
-                    }
-                  }
-
-                  // 计算费用：优先使用 actualCost，否则计算
-                  const messageCost = msgCostUsd || calculateMessageCost(extractedTokens, msgModel, msgEngine);
-
-                  costDetails.push({
-                    type: detailType,
-                    description,
-                    cost: messageCost,
-                    tokens: {
-                      input: extractedTokens.input_tokens,
-                      output: extractedTokens.output_tokens,
-                      cacheRead: extractedTokens.cache_read_tokens,
-                      cacheWrite: extractedTokens.cache_creation_tokens,
-                    },
-                    model: msgModel,
-                    engine: msgEngine,
-                    messageIndex: j,
-                  });
-                }
-              }
-
-              // 记录引擎和模型（使用第一个消息的信息，用于 UI 显示）
-              if (!displayEngine) displayEngine = msgEngine;
-              if (!displayModel) displayModel = msgModel;
-              // 🔧 FIX: 记录所有使用的模型（用于诊断）
-              if (msgModel) modelsUsed.add(msgModel);
-
-              // 提取工具调用信息
-              if (nextMessage.message?.content) {
-                const content = Array.isArray(nextMessage.message.content)
-                  ? nextMessage.message.content
-                  : [nextMessage.message.content];
-
-                content.forEach((block: any) => {
-                  // 统计工具调用
-                  if (block.type === 'tool_use') {
-                    totalToolCalls++;
-                    const toolName = block.name || 'unknown';
-                    toolCallsMap[toolName] = (toolCallsMap[toolName] || 0) + 1;
-                  }
-
-                  // 统计思考
-                  if (block.type === 'thinking') {
-                    thinkingCount++;
-                    thinkingTokens += block.thinking_tokens || 0;
-                  }
-                });
-              }
-            }
-          }
-
-          // 🔧 FIX: 从去重后的 messageMap 计算总费用和 token
-          // 优先使用 Claude CLI 返回的 cost_usd（包含完整 Extended Thinking tokens 计费）
-          for (const entry of messageMap.values()) {
-            totalInput += entry.tokens.input_tokens;
-            totalOutput += entry.tokens.output_tokens;
-            totalCacheRead += entry.tokens.cache_read_tokens;
-            totalCacheWrite += entry.tokens.cache_creation_tokens;
-            // 优先使用 cost_usd，回退到自行计算
-            const actualCostUsd = entry.actualCost;
-            if (typeof actualCostUsd === 'number' && actualCostUsd > 0) {
-              cost += actualCostUsd;
-            } else {
-              cost += calculateMessageCost(entry.tokens, entry.model, entry.engine);
-            }
-          }
-
-          const totalTokens = totalInput + totalOutput + totalCacheRead + totalCacheWrite;
-          if (totalTokens > 0) {
-            tokens = {
-              input: totalInput,
-              output: totalOutput,
-              cacheRead: totalCacheRead,
-              cacheWrite: totalCacheWrite,
-              total: totalTokens
-            };
-          }
-
-          // 计算缓存命中率
-          const cacheHitRate = totalInput > 0
-            ? Math.round((totalCacheRead / totalInput) * 100)
-            : undefined;
-
-          // 🔧 DEBUG: 记录每个 prompt 的详细信息（包括多模型诊断）
-          // const modelsInfo = modelsUsed.size > 0 ? Array.from(modelsUsed).join(', ') : 'unknown (default pricing used!)';
-          // logger.debug('PromptNavigator', `[PromptNavigator] Prompt #${promptIndex + 1}: 💰 $${cost.toFixed(4);}, 🎯 models=[${modelsInfo}], 📊 消息数=${messagesProcessedForThisPrompt}, tokens=${totalTokens}`);
-          // if (modelsUsed.size === 0) {
-          //   logger.warn('PromptNavigator', `[PromptNavigator] ⚠️ Prompt #${promptIndex + 1}: 所有消息都没有模型信息，使用了默认 Sonnet 定价！`);
-          // } else if (modelsUsed.size > 1) {
-          //   logger.debug('PromptNavigator', `[PromptNavigator] 📊 Prompt #${promptIndex + 1}: 检测到多模型场景 (${modelsUsed.size} 个不同模型);`);
-          // }
-
-          items.push({
-            promptIndex,
-            content: text,
-            timestamp: (message as any).sentAt || (message as any).timestamp,
-            tokens,
-            cost: totalTokens > 0 ? cost : undefined,
-            toolCalls: totalToolCalls > 0 ? { total: totalToolCalls, byType: toolCallsMap } : undefined,
-            thinking: thinkingCount > 0 ? { count: thinkingCount, tokens: thinkingTokens } : undefined,
-            cacheHitRate,
-            engine: displayEngine,
-            model: displayModel,
-            costDetails: costDetails.length > 0 ? costDetails : undefined
-          });
-
-          // 🔧 DEBUG: 打印费用明细
-          // console.log(`[PromptNavigator] Prompt #${promptIndex + 1} 费用明细:`, {
-          //   totalCost: cost,
-          //   detailsCount: costDetails.length,
-          //   details: costDetails
-          // });
-
-          promptIndex++;
-        }
-      }
-    }
-
-    // 🔧 DEBUG: 打印总费用统计
-    // const navigatorTotalCost = items.reduce((sum, item) => sum + (item.cost || 0), 0);
-    // logger.debug('PromptNavigator', `[PromptNavigator] 📊 统计汇总:`);
-    // logger.debug('PromptNavigator', `  - 总 prompt 数: ${items.length}`);
-    // logger.debug('PromptNavigator', `  - PromptNavigator 计算总费用: $${navigatorTotalCost.toFixed(4);}`);
-    // logger.debug('PromptNavigator', `  - 提示：如果与 SessionCost 差异大，可能是模型识别错误或遗漏消息`);
-
-    // 倒序排列：最新的指令排在最上方
-    return items.reverse();
-  }, [messages, lastMessagesCostSignal]);  // 🔧 FIX: 使用 lastMessagesCostSignal 追踪最新消息费用变化
-
-  // 计算提示词总费用和会话总费用
   const promptsTotalCost = useMemo(() => {
-    return prompts.reduce((sum, item) => sum + (item.cost || 0), 0);
-  }, [prompts]);
+    if (typeof promptsTotalCostProp === 'number') return promptsTotalCostProp;
+    if (promptItems) {
+      return promptItems.reduce((sum, item) => sum + (item.cost || 0), 0);
+    }
+    return fallbackSummary?.promptsTotalCost ?? 0;
+  }, [promptsTotalCostProp, promptItems, fallbackSummary]);
 
   const sessionTotalCost = useMemo(() => {
-    if (messages.length === 0) return 0;
-    const aggregation = aggregateSessionCost(messages);
-    return aggregation.totals.totalCost;
-  }, [messages]);
+    if (typeof sessionTotalCostProp === 'number') return sessionTotalCostProp;
+    return fallbackSummary?.sessionTotalCost ?? 0;
+  }, [sessionTotalCostProp, fallbackSummary]);
 
   // 过滤后的提示词
   const filteredPrompts = useMemo(() => {

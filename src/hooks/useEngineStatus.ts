@@ -120,7 +120,6 @@ export const generateEngineErrorMessage = (
     claude: errorStr || 'Claude Code CLI 未安装或不可用。请运行 npm install -g @anthropic-ai/claude-code 安装。',
     codex: errorStr || 'OpenAI Codex CLI 未安装或不可用。请确保已正确配置 OpenAI API。',
     gemini: errorStr || 'Google Gemini CLI 未安装或不可用。请运行 npm install -g @anthropic-ai/gemini-cli 安装。',
-    siliconflow: errorStr || 'SiliconFlow API 配置错误。请检查 API Key 是否正确。',
   };
 
   return messages[engine];
@@ -303,13 +302,6 @@ export const useEngineStatus = () => {
           version: status.gemini.version,
           status: status.gemini.status || (status.gemini.installed ? 'ready' : 'not_installed'),
           errorMessage: status.gemini.errorMessage,
-        };
-      case 'siliconflow':
-        // SiliconFlow 是 API 服务，始终可用
-        return {
-          installed: true,
-          version: 'API',
-          status: 'ready',
         };
       default:
         return { installed: false, status: 'not_installed' };

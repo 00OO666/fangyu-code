@@ -66,7 +66,7 @@ export interface UsageStats {
 /**
  * 引擎类型
  */
-export type EngineType = "claude" | "codex" | "gemini" | "siliconflow" | "kiro";
+export type EngineType = "claude" | "codex" | "gemini";
 
 /**
  * 单引擎统计摘要
@@ -208,7 +208,6 @@ export const ENGINE_COLORS: Record<EngineType, string> = {
   claude: "#D97706", // orange-500
   codex: "#3B82F6", // blue-500
   gemini: "#8B5CF6", // purple-500
-  siliconflow: "#10B981", // green-500
 };
 
 /**
@@ -218,5 +217,4 @@ export const ENGINE_LABELS: Record<EngineType, string> = {
   claude: "Claude",
   codex: "OpenAI Codex",
   gemini: "Google Gemini",
-  siliconflow: "SiliconFlow",
 };

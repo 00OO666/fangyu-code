@@ -226,52 +226,6 @@ async function testGeminiConnection(config: TestConfig): Promise<ConnectionTestR
 }
 
 
-/**
- * 测试 SiliconFlow API 连接
- */
-async function testSiliconFlowConnection(config: TestConfig): Promise<ConnectionTestResult> {
-    const startTime = Date.now();
-    const url = `${config.baseUrl.replace(/\/$/, '')}/models`;
-
-    try {
-        const response = await tauriFetch(url, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${config.apiKey}`,
-            },
-            signal: AbortSignal.timeout(config.timeout || DEFAULT_TIMEOUT),
-        });
-
-        const latencyMs = Date.now() - startTime;
-
-        if (response.ok) {
-            const data = await response.json();
-            const models = data.data || [];
-
-            return {
-                success: true,
-                timestamp: Date.now(),
-                latencyMs,
-                modelInfo: models.length > 0 ? {
-                    name: config.model || models[0]?.id || 'unknown',
-                } : undefined,
-            };
-        }
-
-        const errorBody = await response.json().catch(() => ({}));
-        const { code, message } = parseErrorResponse(response.status, errorBody);
-
-        return {
-            success: false,
-            timestamp: Date.now(),
-            latencyMs,
-            errorCode: code,
-            errorMessage: message,
-        };
-    } catch (error) {
-        return handleFetchError(error, startTime);
-    }
-}
 
 /**
  * 处理 fetch 错误
@@ -317,7 +271,6 @@ const ENGINE_TESTERS: Record<EngineType, (config: TestConfig) => Promise<Connect
     claude: testClaudeConnection,
     codex: testCodexConnection,
     gemini: testGeminiConnection,
-    siliconflow: testSiliconFlowConnection,
 };
 
 /**

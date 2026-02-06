@@ -9,6 +9,15 @@ import { NavigationProvider } from "./contexts/NavigationContext";
 import "./assets/shimmer.css";
 import "./styles.css";
 import "./i18n"; // ✅ i18n 必须同步加载（App 立即需要使用）
+
+// 导入本地字体包
+import "@fontsource/geist-sans/400.css";
+import "@fontsource/geist-sans/700.css";
+import "@fontsource/lxgw-wenkai-tc/400.css";
+import "@fontsource/lxgw-wenkai-tc/700.css";
+import "@tslsmart/font-puhuiti/index.css";
+import "@fontsource/cascadia-code/400.css";
+import "@fontsource/cascadia-code/700.css";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { isSessionWindow } from "./lib/windowManager";
 import { Agentation } from "agentation";

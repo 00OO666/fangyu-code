@@ -10,7 +10,7 @@
 
 import { logger } from '@/lib/logger';
 import { useCallback, useEffect, useRef } from 'react';
-import type { Tab, TabSession } from './types';
+import type { Tab } from './types';
 import type { Session } from '@/lib/api';
 import {
     createSessionWindow,
@@ -18,6 +18,7 @@ import {
     isSessionWindow,
     onWindowSyncEvent,
 } from '@/lib/windowManager';
+import { getDefaultTheme, getSessionThemePreference } from '@/lib/themePreferences';
 
 interface UseMultiWindowOptions {
     tabs: Tab[];
@@ -54,6 +55,13 @@ export function useMultiWindow({
 
                     const session = event.data?.session as Session | undefined;
                     const projectPath = event.projectPath;
+                    const themeName =
+                        event.themeName ||
+                        getSessionThemePreference({
+                            sessionId: session?.id,
+                            projectPath: projectPath,
+                        }) ||
+                        getDefaultTheme();
 
                     if (session) {
                         setTabs((prev) => {
@@ -67,6 +75,7 @@ export function useMultiWindow({
                                 type: 'session',
                                 projectPath: projectPath || session.project_path,
                                 session,
+                                themeName,
                                 state: 'idle',
                                 hasUnsavedChanges: false,
                                 createdAt: Date.now(),
@@ -84,6 +93,7 @@ export function useMultiWindow({
                                 title: projectPath.split(/[/\\]/).pop() || '新会话',
                                 type: 'new',
                                 projectPath,
+                                themeName,
                                 state: 'idle',
                                 hasUnsavedChanges: false,
                                 createdAt: Date.now(),
@@ -129,6 +139,7 @@ export function useMultiWindow({
                     projectPath: tab.projectPath,
                     title: `${tab.title} - Fangyu Code`,
                     engine: tab.session?.engine,
+                    themeName: tab.themeName,
                 });
 
                 detachedTabsRef.current.add(tabId);
@@ -171,6 +182,12 @@ export function useMultiWindow({
         async (session?: Session, projectPath?: string): Promise<string | null> => {
             try {
                 const newTabId = generateTabId();
+                const themeName =
+                    getSessionThemePreference({
+                        sessionId: session?.id,
+                        projectPath: projectPath || session?.project_path,
+                    }) ||
+                    getDefaultTheme();
                 const title = session
                     ? projectPath?.split(/[/\\]/).pop() ||
                     session.project_path?.split(/[/\\]/).pop() ||
@@ -183,6 +200,7 @@ export function useMultiWindow({
                     projectPath: projectPath || session?.project_path,
                     title: `${title} - Fangyu Code`,
                     engine: session?.engine,
+                    themeName,
                 });
 
                 detachedTabsRef.current.add(newTabId);

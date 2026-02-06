@@ -32,7 +32,6 @@ const validProvider = fc.constantFrom<APIKeyProvider>(
   'claude',
   'openai',
   'gemini',
-  'siliconflow',
   'hiapi',
   'other'
 );
@@ -129,7 +128,7 @@ describe('SecureStorage Property Tests', () => {
       });
 
       it('提供商列表应包含所有主要提供商', () => {
-        const providers: APIKeyProvider[] = ['claude', 'openai', 'gemini', 'siliconflow', 'hiapi', 'other'];
+        const providers: APIKeyProvider[] = ['claude', 'openai', 'gemini', 'hiapi', 'other'];
 
         providers.forEach((provider) => {
           expect(typeof provider).toBe('string');

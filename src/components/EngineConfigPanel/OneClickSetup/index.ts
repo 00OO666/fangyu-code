@@ -8,4 +8,3 @@ export { DependencyChecker, type DependencyStatus } from './DependencyChecker';
 export { ClaudeSetup } from './ClaudeSetup';
 export { CodexSetup } from './CodexSetup';
 export { GeminiSetup } from './GeminiSetup';
-export { SiliconFlowSetup } from './SiliconFlowSetup';

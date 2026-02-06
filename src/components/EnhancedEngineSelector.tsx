@@ -5,7 +5,7 @@
  * @see src/components/UnifiedEngineSelector.tsx
  * 
  * 重构版引擎选择器，使用官方品牌图标
- * 支持 Claude Code、Codex、Gemini、SiliconFlow 四种执行引擎
+ * 支持 Claude Code、Codex、Gemini 三种执行引擎
  * 提供更美观的 UI 和更好的交互体验
  * 
  * 迁移指南：
@@ -22,9 +22,6 @@ import Settings from 'lucide-react/dist/esm/icons/settings'
 import Check from 'lucide-react/dist/esm/icons/check'
 import Monitor from 'lucide-react/dist/esm/icons/monitor'
 import Terminal from 'lucide-react/dist/esm/icons/terminal'
-import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
-import ExternalLink from 'lucide-react/dist/esm/icons/external-link'
-import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
 import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
 import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
 import { Button } from '@/components/ui/button';
@@ -48,13 +45,10 @@ import { api } from '@/lib/api';
 import { relaunchApp } from '@/lib/updater';
 import { ask, message } from '@tauri-apps/plugin-dialog';
 import { useEngineStatus } from '@/hooks/useEngineStatus';
-import { loadSiliconFlowConfig } from '@/config/siliconflowConfig';
-import { SiliconFlowModelSelector } from '@/components/FloatingPromptInput/SiliconFlowModelSelector';
 import {
     ClaudeEngineIcon,
     CodexEngineIcon,
     GeminiEngineIcon,
-    SiliconFlowEngineIcon,
 } from '@/components/icons/EngineIcons';
 import type { CodexExecutionMode } from '@/types/codex';
 
@@ -62,7 +56,7 @@ import type { CodexExecutionMode } from '@/types/codex';
 // Type Definitions
 // ====================================================================
 
-export type ExecutionEngine = 'claude' | 'codex' | 'gemini' | 'siliconflow';
+export type ExecutionEngine = 'claude' | 'codex' | 'gemini';
 export type RuntimeMode = 'auto' | 'native' | 'wsl';
 
 export interface ExecutionEngineConfig {
@@ -73,8 +67,6 @@ export interface ExecutionEngineConfig {
     codexReasoningLevel?: 'low' | 'medium' | 'high' | 'xhigh';
     geminiModel?: string;
     geminiApprovalMode?: 'auto_edit' | 'yolo' | 'default';
-    siliconflowModel?: string;
-    siliconflowApiKey?: string;
 }
 
 interface EnhancedEngineSelectorProps {
@@ -125,17 +117,6 @@ const ENGINE_CONFIG = {
         textClass: 'text-blue-500',
         description: 'Google Gemini - 多模态 AI 模型',
     },
-    siliconflow: {
-        id: 'siliconflow' as const,
-        name: 'SiliconFlow',
-        fullName: 'SiliconFlow',
-        Icon: SiliconFlowEngineIcon,
-        color: '#7C3AED',
-        bgClass: 'bg-purple-500/10 hover:bg-purple-500/20',
-        borderClass: 'border-purple-500/30',
-        textClass: 'text-purple-500',
-        description: 'SiliconFlow - 国产高性价比 AI 平台',
-    },
 };
 
 // ====================================================================
@@ -151,7 +132,6 @@ export const EnhancedEngineSelector: React.FC<EnhancedEngineSelectorProps> = ({
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [savingConfig, setSavingConfig] = useState(false);
-    const [showSiliconFlowSelector, setShowSiliconFlowSelector] = useState(false);
     const [switchingEngine, setSwitchingEngine] = useState<ExecutionEngine | null>(null);
 
     // 使用全局缓存的引擎状态
@@ -167,10 +147,6 @@ export const EnhancedEngineSelector: React.FC<EnhancedEngineSelectorProps> = ({
         claudeWslModeConfig,
     } = useEngineStatus();
 
-    // SiliconFlow 配置状态
-    const siliconflowConfig = loadSiliconFlowConfig();
-    const siliconflowConfigured = !!siliconflowConfig.apiKey && siliconflowConfig.apiKey.length > 10;
-
     // ====================================================================
     // Handlers
     // ====================================================================
@@ -183,8 +159,6 @@ export const EnhancedEngineSelector: React.FC<EnhancedEngineSelectorProps> = ({
                 return { available: codexAvailable, reason: codexAvailable ? undefined : 'Codex CLI 未安装' };
             case 'gemini':
                 return { available: geminiAvailable, reason: geminiAvailable ? undefined : 'Gemini CLI 未安装' };
-            case 'siliconflow':
-                return { available: true }; // API 引擎始终可用
             default:
                 return { available: false, reason: '未知引擎' };
         }
@@ -270,7 +244,6 @@ export const EnhancedEngineSelector: React.FC<EnhancedEngineSelectorProps> = ({
                 case 'claude': return claudeVersion;
                 case 'codex': return codexVersion;
                 case 'gemini': return geminiVersion;
-                case 'siliconflow': return siliconflowConfigured ? 'API 已配置' : undefined;
                 default: return undefined;
             }
         };
@@ -439,7 +412,7 @@ export const EnhancedEngineSelector: React.FC<EnhancedEngineSelectorProps> = ({
                     <Label className="text-sm font-medium">
                         {mode === 'summary' ? '摘要生成引擎' : '执行引擎'}
                     </Label>
-                    <div className="grid grid-cols-4 gap-2">
+                    <div className="grid grid-cols-3 gap-2">
                         {Object.keys(ENGINE_CONFIG).map((id) => renderEngineCard(id as ExecutionEngine))}
                     </div>
                 </div>
@@ -453,16 +426,6 @@ export const EnhancedEngineSelector: React.FC<EnhancedEngineSelectorProps> = ({
                             <CurrentIcon size={16} />
                             {currentEngine.fullName} 配置
                         </Label>
-                        {value.engine === 'siliconflow' && (
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-6 text-xs"
-                                onClick={() => setShowSiliconFlowSelector(true)}
-                            >
-                                配置 <ChevronRight className="h-3 w-3 ml-1" />
-                            </Button>
-                        )}
                     </div>
 
                     {/* Claude 配置 */}
@@ -519,62 +482,8 @@ export const EnhancedEngineSelector: React.FC<EnhancedEngineSelectorProps> = ({
                         </div>
                     )}
 
-                    {/* SiliconFlow 配置 */}
-                    {value.engine === 'siliconflow' && (
-                        <div className="space-y-3">
-                            {siliconflowConfigured ? (
-                                <>
-                                    <div className="space-y-1">
-                                        <Label className="text-xs text-muted-foreground">当前模型</Label>
-                                        <div className="text-sm font-medium">
-                                            {siliconflowConfig.selectedModel?.split('/').pop() || '未选择'}
-                                        </div>
-                                    </div>
-                                    <div className="space-y-1">
-                                        <Label className="text-xs text-muted-foreground">API Key</Label>
-                                        <div className="text-xs font-mono text-muted-foreground">
-                                            {siliconflowConfig.apiKey.slice(0, 8)}...{siliconflowConfig.apiKey.slice(-4)}
-                                        </div>
-                                    </div>
-                                </>
-                            ) : (
-                                <div className="flex items-center gap-2 text-xs text-amber-600">
-                                    <AlertCircle className="h-3 w-3" />
-                                    <span>请先配置 API Key</span>
-                                </div>
-                            )}
-
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                className="w-full h-8 text-xs"
-                                onClick={() => setShowSiliconFlowSelector(true)}
-                            >
-                                <Settings className="h-3 w-3 mr-2" />
-                                配置模型和 API Key
-                            </Button>
-
-                            <a
-                                href="https://siliconflow.cn/account/ak"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-1 text-xs text-primary hover:underline"
-                            >
-                                获取 API Key <ExternalLink className="h-3 w-3" />
-                            </a>
-                        </div>
-                    )}
                 </div>
             </div>
-
-            {/* SiliconFlow 模型选择器弹窗 */}
-            <SiliconFlowModelSelector
-                open={showSiliconFlowSelector}
-                onOpenChange={setShowSiliconFlowSelector}
-                onModelSelected={(modelId) => {
-                    onChange({ ...value, siliconflowModel: modelId });
-                }}
-            />
         </>
     );
 };

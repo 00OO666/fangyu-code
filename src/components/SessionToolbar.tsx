@@ -4,7 +4,7 @@
  */
 
 import { logger } from '@/lib/logger';
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback } from 'react';
 import FileDown from 'lucide-react/dist/esm/icons/file-down'
 import Check from 'lucide-react/dist/esm/icons/check'
 import FileText from 'lucide-react/dist/esm/icons/file-text'
@@ -14,6 +14,8 @@ import Copy from 'lucide-react/dist/esm/icons/copy'
 import History from 'lucide-react/dist/esm/icons/history'
 import Save from 'lucide-react/dist/esm/icons/save'
 import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
+import Sparkles from 'lucide-react/dist/esm/icons/sparkles'
+import Zap from 'lucide-react/dist/esm/icons/zap'
 import { SummaryButton } from '@/components/session/SummaryButton';
 import { SummaryModal } from '@/components/dialogs/SummaryModal';
 import { useSummaryGenerator } from '@/hooks/useSummaryGenerator';
@@ -37,6 +39,8 @@ import { toast } from 'sonner';
 import { useContext } from 'react';
 import type { ClaudeStreamMessage } from '@/types/claude';
 import type { Session } from '@/lib/api';
+import { useTheme } from '@/contexts/ThemeContext';
+import { setSessionThemePreference } from '@/lib/themePreferences';
 
 interface SessionToolbarProps {
   /** 当前会话的消息列表 */
@@ -79,6 +83,7 @@ export const SessionToolbar: React.FC<SessionToolbarProps> = ({
   // Tab 管理和预填充消息
   // 🔧 FIX: 使用可选的 Context 访问，避免在 TabProvider 外部使用时崩溃
   const tabContext = useContext(TabContext);
+  const { themeName, setTheme } = useTheme();
   const setPrefillMessage = useSetPrefillMessage();
 
   // 摘要生成 Hook
@@ -236,11 +241,46 @@ export const SessionToolbar: React.FC<SessionToolbarProps> = ({
     }
   }, [tabContext, setPrefillMessage]);
 
+  const handleToggleTheme = useCallback(() => {
+    const nextTheme = themeName === 'deep-glass-pro'
+      ? 'deep-glass-scifi'
+      : 'deep-glass-pro';
+
+    setTheme(nextTheme);
+
+    if (session?.id || projectPath) {
+      setSessionThemePreference(
+        { sessionId: session?.id, projectPath },
+        nextTheme
+      );
+    }
+
+    if (tabContext?.activeTabId) {
+      tabContext.updateTabTheme(tabContext.activeTabId, nextTheme);
+    }
+  }, [themeName, setTheme, session?.id, projectPath, tabContext]);
+
   // 检查点功能是否可用
   const checkpointEnabled = !!session?.id && !!projectPath;
 
   return (
-    <div className={cn('flex items-center gap-2', className)}>
+    <div className={cn('session-toolbar flex items-center gap-2', className)}>
+      {/* 主题切换（仅会话级） */}
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={handleToggleTheme}
+        className="h-8 px-2 gap-1.5"
+        title={themeName === 'deep-glass-scifi' ? '切换到 Pro 主题' : '切换到 Sci-Fi 主题'}
+      >
+        {themeName === 'deep-glass-scifi' ? (
+          <Sparkles className="h-4 w-4 text-amber-500" />
+        ) : (
+          <Zap className="h-4 w-4 text-blue-500" />
+        )}
+        <span className="text-xs">主题</span>
+      </Button>
+
       {/* 摘要生成按钮 */}
       <SummaryButton
         tokenPercentage={sessionStats.tokenPercentage}

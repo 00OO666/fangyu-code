@@ -180,10 +180,6 @@ export const PromptEnhancementSettings: React.FC<PromptEnhancementSettingsProps>
             <Sparkles className="h-3 w-3 mr-1" />
             Qwen
           </Button>
-          <Button variant="outline" size="sm" onClick={() => handleUsePreset('siliconflow')}>
-            <Sparkles className="h-3 w-3 mr-1" />
-            SiliconFlow
-          </Button>
           <Button variant="outline" size="sm" onClick={() => handleUsePreset('gemini')}>
             <Sparkles className="h-3 w-3 mr-1" />
             Google Gemini
@@ -453,4 +449,3 @@ export const PromptEnhancementSettings: React.FC<PromptEnhancementSettingsProps>
     </div>
   );
 };
-

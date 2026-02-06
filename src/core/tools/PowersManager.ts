@@ -1,5 +1,5 @@
 /**
- * PowersManager - Kiro Powers 管理器
+ * PowersManager - Powers 管理器
  * 
  * 实现 list、activate、use、readSteering、configure 方法
  * 

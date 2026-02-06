@@ -135,7 +135,7 @@ export async function deleteSessionsByPattern(
 export async function loadSessionHistory(
   sessionId: string,
   projectId: string,
-  engine?: "claude" | "codex" | "siliconflow",
+  engine?: "claude" | "codex",
 ): Promise<any[]> {
   // For Codex sessions, read directly from .codex/sessions
   if (engine === "codex") {

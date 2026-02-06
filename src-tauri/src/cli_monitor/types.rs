@@ -77,6 +77,12 @@ pub struct WindowInfo {
 
     /// 最后活动时间
     pub last_active: DateTime<Utc>,
+
+    /// 会话 ID（从进程命令行提取）
+    pub session_id: Option<String>,
+
+    /// 会话摘要（来自 sessions-index.json）
+    pub session_summary: Option<String>,
 }
 
 /// 窗口扫描结果结构

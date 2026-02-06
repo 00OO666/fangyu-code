@@ -15,6 +15,10 @@ interface FontSettingsProps {
   className?: string;
 }
 
+/**
+ * 字体设置组件
+ * 提供字体选择和预览功能
+ */
 export const FontSettings: React.FC<FontSettingsProps> = ({ className }) => {
   const { currentFont, setFont, fontConfigs } = useFont();
 
@@ -52,6 +56,7 @@ export const FontSettings: React.FC<FontSettingsProps> = ({ className }) => {
                         : 'border-border hover:border-primary/50 hover:bg-accent/50'
                     }
                   `}
+                  data-font-id={fontConfig.id}
                 >
                   {/* 选中标记 */}
                   {isActive && (
@@ -73,9 +78,11 @@ export const FontSettings: React.FC<FontSettingsProps> = ({ className }) => {
                   </div>
 
                   {/* 预览文本 */}
+                  {/* 注意：这里使用内联样式是必要的，因为需要动态预览不同的字体 */}
+                  {/* 每个字体配置都有不同的字体名称，无法通过静态 CSS 类实现 */}
                   <div className="space-y-2 mt-4">
                     <div
-                      className="text-sm"
+                      className="text-sm font-preview-english"
                       style={{
                         fontFamily: `"${fontConfig.englishFont}", ${fontConfig.fallback}`,
                       }}
@@ -83,7 +90,7 @@ export const FontSettings: React.FC<FontSettingsProps> = ({ className }) => {
                       {fontConfig.preview.english}
                     </div>
                     <div
-                      className="text-sm"
+                      className="text-sm font-preview-chinese"
                       style={{
                         fontFamily: `"${fontConfig.chineseFont}", ${fontConfig.fallback}`,
                       }}

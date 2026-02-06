@@ -94,7 +94,7 @@ export function createMockSteeringRule(overrides: Partial<SteeringRule> = {}): S
     content: '# Test Rule\n\nThis is a test steering rule.',
     inclusion: 'always',
     priority: 50,
-    source: '.kiro/steering/test.md',
+    source: '.fangyu/steering/test.md',
     ...overrides,
   };
 }

@@ -2,7 +2,7 @@
  * Super AI Agent Desktop - Unified Agent Types
  * 
  * Core type definitions for the unified agent orchestration system,
- * combining features from Kiro, OpenCode, and Fangyu Code.
+ * combining features from multiple agent systems and Fangyu Code.
  */
 
 // ============================================================================
@@ -159,7 +159,7 @@ export interface BackgroundTaskStatus {
 // ============================================================================
 
 export type HookEventType =
-  // Kiro-style events
+  // Core lifecycle events
   | 'onMessage'
   | 'onComplete'
   | 'onSessionCreate'

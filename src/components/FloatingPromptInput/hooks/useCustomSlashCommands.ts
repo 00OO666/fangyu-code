@@ -14,7 +14,7 @@ import { invoke } from '@tauri-apps/api/core';
 import type { SlashCommand } from '../slashCommands';
 
 /** 执行引擎类型 */
-type ExecutionEngine = 'claude' | 'gemini' | 'codex' | 'siliconflow' | 'kiro';
+type ExecutionEngine = 'claude' | 'gemini' | 'codex';
 
 /** 后端返回的自定义命令类型 */
 interface CustomSlashCommandResponse {

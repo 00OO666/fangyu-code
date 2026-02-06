@@ -32,7 +32,6 @@ import { cn } from '../../../lib/utils';
 import { ClaudeSetup } from './ClaudeSetup';
 import { CodexSetup } from './CodexSetup';
 import { GeminiSetup } from './GeminiSetup';
-import { SiliconFlowSetup } from './SiliconFlowSetup';
 
 interface SetupWizardProps {
     engine: EngineType;
@@ -46,6 +45,15 @@ export function SetupWizard({ engine, onComplete, onCancel }: SetupWizardProps) 
     const [logs, setLogs] = useState<string[]>([]);
     const [showLogs, setShowLogs] = useState(false);
     const [dependencyStatus, setDependencyStatus] = useState<DependencyStatus | null>(null);
+
+    const isDependencyReady = useMemo(() => {
+        if (!dependencyStatus) return false;
+        return (
+            dependencyStatus.nodejs.installed &&
+            dependencyStatus.nodejs.meetsRequirement &&
+            dependencyStatus.npm.installed
+        );
+    }, [dependencyStatus]);
 
     // 获取当前引擎的步骤定义
     const stepDefinitions = useMemo(() => ENGINE_SETUP_STEPS[engine], [engine]);
@@ -191,11 +199,9 @@ export function SetupWizard({ engine, onComplete, onCancel }: SetupWizardProps) 
         setDependencyStatus(status);
         
         // 检查是否满足要求
-        const requiresCli = engine !== 'siliconflow';
         const depsOk = status.nodejs.installed && 
                        status.nodejs.meetsRequirement && 
-                       status.npm.installed &&
-                       (!requiresCli || status.cli.installed);
+                       status.npm.installed;
 
         if (depsOk) {
             addLog('✓ 环境检测通过');
@@ -233,8 +239,6 @@ export function SetupWizard({ engine, onComplete, onCancel }: SetupWizardProps) 
                 return <CodexSetup {...commonProps} />;
             case 'gemini':
                 return <GeminiSetup {...commonProps} />;
-            case 'siliconflow':
-                return <SiliconFlowSetup {...commonProps} progress={progress} />;
             default:
                 return null;
         }
@@ -360,10 +364,10 @@ export function SetupWizard({ engine, onComplete, onCancel }: SetupWizardProps) 
                     {/* 下一步/完成 */}
                     <button
                         onClick={() => completeCurrentStep()}
-                        disabled={currentStep?.id === 'check_deps' && (!dependencyStatus || !dependencyStatus.nodejs.meetsRequirement)}
+                        disabled={currentStep?.id === 'check_deps' && !isDependencyReady}
                         className={cn(
                             'flex items-center gap-1 px-4 py-2 text-sm font-medium rounded-lg transition-colors',
-                            currentStep?.id === 'check_deps' && (!dependencyStatus || !dependencyStatus.nodejs.meetsRequirement)
+                            currentStep?.id === 'check_deps' && !isDependencyReady
                                 ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 cursor-not-allowed'
                                 : 'bg-blue-500 text-white hover:bg-blue-600'
                         )}

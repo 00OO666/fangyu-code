@@ -146,11 +146,6 @@ export function AdvancedSettings({
         setIsTextMode(false);
     }, [textModeContent, textToEnvVars, onUpdateRuntimeConfig]);
 
-    // SiliconFlow 不需要高级设置
-    if (engine === 'siliconflow') {
-        return null;
-    }
-
     return (
         <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
             {/* 折叠头部 */}

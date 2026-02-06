@@ -201,7 +201,7 @@ export const TranslationSettings: React.FC<TranslationSettingsProps> = ({ onClos
                 id="api-base-url"
                 value={config.api_base_url}
                 onChange={(e) => handleConfigChange('api_base_url', e.target.value)}
-                placeholder="https://api.siliconflow.cn/v1"
+                placeholder="https://api.openai.com/v1"
               />
             </div>
 
@@ -211,7 +211,7 @@ export const TranslationSettings: React.FC<TranslationSettingsProps> = ({ onClos
                 id="model"
                 value={config.model}
                 onChange={(e) => handleConfigChange('model', e.target.value)}
-                placeholder="tencent/Hunyuan-MT-7B"
+                placeholder="gpt-4o-mini"
               />
             </div>
 
@@ -412,7 +412,7 @@ export const TranslationSettings: React.FC<TranslationSettingsProps> = ({ onClos
 
             <div className="flex items-center space-x-2 pt-2">
               <Badge variant="secondary">{t('translation.version')}: 1.0.0</Badge>
-              <Badge variant="outline">Hunyuan-MT-7B</Badge>
+              <Badge variant="outline">gpt-4o-mini</Badge>
               <Badge variant={config.enabled ? "default" : "secondary"}>
                 {t('translation.statusLabel')}: {config.enabled ? t('autoCompact.statusEnabled') : t('autoCompact.statusDisabled')}
               </Badge>

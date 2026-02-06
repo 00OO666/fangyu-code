@@ -56,10 +56,9 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       root.style.setProperty(cssVar, value);
     });
 
-    // 应用字体变量
+    // 应用字体变量（仅主题相关字体，正文由 FontContext 控制）
     root.style.setProperty('--font-display', theme.fonts.display);
     root.style.setProperty('--font-mono', theme.fonts.mono);
-    root.style.setProperty('--font-sans', theme.fonts.sans);
 
     // 应用模糊效果变量
     root.style.setProperty('--blur-glass', theme.effects.blurGlass);

@@ -18,6 +18,7 @@ import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
 import { Prism as SyntaxHighlighter } from "@/lib/lightSyntaxHighlighter";
 import { getClaudeSyntaxTheme } from "@/lib/claudeSyntaxTheme";
 import { useTheme } from "@/contexts/ThemeContext";
+import { isDarkTheme } from "@/lib/themeUtils";
 import { cn } from "@/lib/utils";
 
 /** 结果折叠高度阈值 */
@@ -190,7 +191,7 @@ export const MCPWidget: React.FC<MCPWidgetProps> = ({
               <div className="overflow-auto max-h-[300px]">
                 <SyntaxHighlighter
                   language="json"
-                  style={getClaudeSyntaxTheme(theme === 'dark')}
+                  style={getClaudeSyntaxTheme(isDarkTheme(theme))}
                   customStyle={{
                     margin: 0,
                     padding: '0.75rem',

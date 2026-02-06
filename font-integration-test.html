@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>字体集成测试 - Font Integration Test</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            padding: 40px;
+            background: #f5f5f5;
+        }
+        .font-test {
+            background: white;
+            padding: 30px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .font-test h2 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .english {
+            font-size: 18px;
+            margin: 15px 0;
+            line-height: 1.6;
+        }
+        .chinese {
+            font-size: 18px;
+            margin: 15px 0;
+            line-height: 1.8;
+        }
+        .font-inter { font-family: 'Inter', sans-serif; }
+        .font-geist { font-family: 'Geist Sans', sans-serif; }
+        .font-dmsans { font-family: 'DM Sans', sans-serif; }
+        .font-noto { font-family: 'Noto Sans SC', sans-serif; }
+        .font-alibaba { font-family: 'Alibaba PuHuiTi', sans-serif; }
+        .font-lxgw { font-family: 'LXGW WenKai TC', serif; }
+
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎨 Fangyu Code 字体集成测试</h1>
+    <p>测试所有6种字体配置是否正确加载</p>
+
+    <div class="font-test">
+        <h2>1. Inter <span class="status status-success" id="status-inter">✓ 已加载</span></h2>
+        <div class="english font-inter">
+            The quick brown fox jumps over the lazy dog. 0123456789<br>
+            ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz
+        </div>
+    </div>
+
+    <div class="font-test">
+        <h2>2. Geist Sans <span class="status status-success" id="status-geist">✓ 已加载</span></h2>
+        <div class="english font-geist">
+            The quick brown fox jumps over the lazy dog. 0123456789<br>
+            ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz
+        </div>
+    </div>
+
+    <div class="font-test">
+        <h2>3. DM Sans <span class="status status-success" id="status-dmsans">✓ 已加载</span></h2>
+        <div class="english font-dmsans">
+            The quick brown fox jumps over the lazy dog. 0123456789<br>
+            ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz
+        </div>
+    </div>
+
+    <div class="font-test">
+        <h2>4. 思源黑体 (Noto Sans SC) <span class="status status-success" id="status-noto">✓ 已加载</span></h2>
+        <div class="chinese font-noto">
+            快速的棕色狐狸跳过懒狗。中文字体预览测试。<br>
+            春眠不觉晓，处处闻啼鸟。夜来风雨声，花落知多少。
+        </div>
+    </div>
+
+    <div class="font-test">
+        <h2>5. 阿里巴巴普惠体 (Alibaba PuHuiTi) <span class="status status-success" id="status-alibaba">✓ 已加载</span></h2>
+        <div class="chinese font-alibaba">
+            快速的棕色狐狸跳过懒狗。中文字体预览测试。<br>
+            春眠不觉晓，处处闻啼鸟。夜来风雨声，花落知多少。
+        </div>
+    </div>
+
+    <div class="font-test">
+        <h2>6. 霞鹜文楷 (LXGW WenKai TC) <span class="status status-success" id="status-lxgw">✓ 已加载</span></h2>
+        <div class="chinese font-lxgw">
+            快速的棕色狐狸跳过懒狗。中文字体预览测试。<br>
+            春眠不觉晓，处处闻啼鸟。夜来风雨声，花落知多少。
+        </div>
+    </div>
+
+    <script>
+        // 检测字体是否加载成功
+        async function checkFonts() {
+            const fonts = [
+                { name: 'Inter', id: 'status-inter' },
+                { name: 'Geist Sans', id: 'status-geist' },
+                { name: 'DM Sans', id: 'status-dmsans' },
+                { name: 'Noto Sans SC', id: 'status-noto' },
+                { name: 'Alibaba PuHuiTi', id: 'status-alibaba' },
+                { name: 'LXGW WenKai TC', id: 'status-lxgw' }
+            ];
+
+            await document.fonts.ready;
+
+            fonts.forEach(font => {
+                const loaded = document.fonts.check(`16px "${font.name}"`);
+                const statusEl = document.getElementById(font.id);
+                if (loaded) {
+                    statusEl.textContent = '✓ 已加载';
+                    statusEl.className = 'status status-success';
+                } else {
+                    statusEl.textContent = '✗ 未加载';
+                    statusEl.className = 'status status-error';
+                }
+            });
+        }
+
+        // 页面加载完成后检测字体
+        window.addEventListener('load', () => {
+            setTimeout(checkFonts, 1000);
+        });
+    </script>
+</body>
+</html>

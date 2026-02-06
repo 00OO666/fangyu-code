@@ -78,8 +78,8 @@ export interface Session {
   last_message_timestamp?: string;
   /** The model used in this session (if available) */
   model?: string;
-  /** Execution engine: 'claude' | 'codex' | 'gemini' | 'siliconflow' | 'kiro' */
-  engine?: "claude" | "codex" | "gemini" | "siliconflow" | "kiro";
+  /** Execution engine: 'claude' | 'codex' | 'gemini' */
+  engine?: "claude" | "codex" | "gemini";
 }
 
 /**

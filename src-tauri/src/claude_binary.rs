@@ -365,10 +365,9 @@ fn get_shell_path() -> Option<String> {
     None
 }
 
-/// 从 ~/.npmrc 文件读取用户配置的 prefix 路径
-#[cfg(unix)]
+/// 从 ~/.npmrc 文件读取用户配置的 prefix 路径（跨平台）
 fn read_npmrc_prefix(home: &str) -> Option<String> {
-    let npmrc_path = format!("{}/.npmrc", home);
+    let npmrc_path = PathBuf::from(home).join(".npmrc");
 
     if let Ok(content) = std::fs::read_to_string(&npmrc_path) {
         for line in content.lines() {
@@ -637,6 +636,13 @@ fn collect_runtime_candidates(
             if let Ok(npm_prefix) = std::env::var("NPM_CONFIG_PREFIX") {
                 search_roots.push(format!(r"{}\bin", npm_prefix));
                 search_roots.push(npm_prefix);
+            }
+            if let Ok(home) = get_home_dir() {
+                if let Some(npm_prefix) = read_npmrc_prefix(&home) {
+                    // npm prefix on Windows is often a directory containing *.cmd/*.ps1 directly
+                    search_roots.push(npm_prefix.clone());
+                    search_roots.push(format!(r"{}\bin", npm_prefix));
+                }
             }
             if let Ok(volta_home) = std::env::var("VOLTA_HOME") {
                 search_roots.push(format!(r"{}\bin", volta_home));

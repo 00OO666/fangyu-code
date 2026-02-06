@@ -16,6 +16,7 @@ import * as Diff from 'diff';
 import { Prism as SyntaxHighlighter } from "@/lib/lightSyntaxHighlighter";
 import { getClaudeSyntaxTheme } from "@/lib/claudeSyntaxTheme";
 import { useTheme } from "@/contexts/ThemeContext";
+import { isDarkTheme } from "@/lib/themeUtils";
 import { getLanguage } from "../common/languageDetector";
 
 export interface EditWidgetProps {
@@ -35,10 +36,10 @@ export interface EditWidgetProps {
 interface DiffLineProps {
   part: Diff.Change;
   language: string;
-  theme: string; // 'dark' | 'light'
+  isDark: boolean;
 }
 
-const DiffLine = React.memo(({ part, language, theme }: DiffLineProps) => {
+const DiffLine = React.memo(({ part, language, isDark }: DiffLineProps) => {
   const partClass = part.added
     ? 'bg-green-500/15 dark:bg-green-500/20'
     : part.removed
@@ -59,7 +60,6 @@ const DiffLine = React.memo(({ part, language, theme }: DiffLineProps) => {
 
   // 移除末尾换行符，防止 SyntaxHighlighter 生成额外空行
   const value = part.value.endsWith('\n') ? part.value.slice(0, -1) : part.value;
-  const isDark = theme === 'dark';
   const syntaxStyle = getClaudeSyntaxTheme(isDark);
 
   return (
@@ -97,7 +97,7 @@ const DiffLine = React.memo(({ part, language, theme }: DiffLineProps) => {
   return prev.part.value === next.part.value && 
          prev.part.added === next.part.added && 
          prev.part.removed === next.part.removed &&
-         prev.theme === next.theme;
+         prev.isDark === next.isDark;
 });
 
 DiffLine.displayName = 'DiffLine';
@@ -112,6 +112,7 @@ export const EditWidget: React.FC<EditWidgetProps> = ({
   result,
 }) => {
   const { theme } = useTheme();
+  const isDark = isDarkTheme(theme);
   const [isExpanded, setIsExpanded] = useState(false);
 
   // 性能优化：使用 useMemo 缓存 Diff 计算结果
@@ -225,7 +226,7 @@ export const EditWidget: React.FC<EditWidgetProps> = ({
                     key={index} 
                     part={part} 
                     language={language} 
-                    theme={theme} 
+                    isDark={isDark} 
                   />
                 );
               })}

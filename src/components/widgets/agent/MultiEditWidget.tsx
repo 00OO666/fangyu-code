@@ -14,6 +14,7 @@ import * as Diff from 'diff';
 import { Prism as SyntaxHighlighter } from "@/lib/lightSyntaxHighlighter";
 import { getClaudeSyntaxTheme } from "@/lib/claudeSyntaxTheme";
 import { useTheme } from "@/contexts/ThemeContext";
+import { isDarkTheme } from "@/lib/themeUtils";
 import { getLanguage } from "../common/languageDetector";
 
 export interface MultiEditWidgetProps {
@@ -104,7 +105,7 @@ export const MultiEditWidget: React.FC<MultiEditWidgetProps> = ({
                               <div className="flex-1">
                                 <SyntaxHighlighter
                                   language={language}
-                                  style={getClaudeSyntaxTheme(theme === 'dark')}
+                                  style={getClaudeSyntaxTheme(isDarkTheme(theme))}
                                   PreTag="div"
                                   wrapLongLines={false}
                                   customStyle={{

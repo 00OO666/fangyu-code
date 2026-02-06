@@ -6,6 +6,7 @@ import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/contexts/ThemeContext";
 import { getClaudeSyntaxTheme } from "@/lib/claudeSyntaxTheme";
+import { isDarkTheme } from "@/lib/themeUtils";
 import { tokenExtractor } from "@/lib/tokenExtractor";
 import { checkSyntaxHighlightSupport } from "@/lib/syntaxHighlightCompat";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -58,21 +59,20 @@ const COLLAPSE_HEIGHT = 300; // px
 
 export const ResultMessage: React.FC<ResultMessageProps> = ({ message, className }) => {
   const isError = Boolean((message as any).is_error) || Boolean(message.subtype?.toLowerCase().includes("error"));
-  if (!isError) {
-    return null;
-  }
-
   const { theme } = useTheme();
-  const syntaxTheme = useMemo(() => getClaudeSyntaxTheme(theme === "dark"), [theme]);
+  const syntaxTheme = useMemo(() => getClaudeSyntaxTheme(isDarkTheme(theme)), [theme]);
 
-  const timestamp = formatTimestamp((message as any).receivedAt ?? (message as any).timestamp);
-  const resultContent = getResultContent((message as any).result);
-  const errorMessage = getResultContent((message as any).error);
+  const timestamp = isError
+    ? formatTimestamp((message as any).receivedAt ?? (message as any).timestamp)
+    : "";
+  const resultContent = isError ? getResultContent((message as any).result) : "";
+  const errorMessage = isError ? getResultContent((message as any).error) : "";
   const contentRef = useRef<HTMLDivElement>(null);
   const [shouldCollapse, setShouldCollapse] = useState(false);
   const [collapsed, setCollapsed] = useState(true);
 
   useEffect(() => {
+    if (!isError) return;
     const el = contentRef.current;
     if (!el) return;
     // 读取实际高度，决定是否需要折叠
@@ -80,7 +80,7 @@ export const ResultMessage: React.FC<ResultMessageProps> = ({ message, className
     const needCollapse = height > COLLAPSE_HEIGHT;
     setShouldCollapse(needCollapse);
     setCollapsed(needCollapse); // 初始时仅当超出阈值才折叠
-  }, [resultContent, errorMessage]);
+  }, [isError, resultContent, errorMessage]);
 
   const usageSummary = React.useMemo(() => {
     if (!message.usage) {
@@ -108,6 +108,10 @@ export const ResultMessage: React.FC<ResultMessageProps> = ({ message, className
   const cost = (message as any).costUSD ?? (message as any).totalCostUSD ?? (message as any).cost_usd ?? (message as any).total_cost_usd;
   const durationMs = (message as any).duration_ms;
   const numTurns = (message as any).num_turns;
+
+  if (!isError) {
+    return null;
+  }
 
   return (
     <div className={cn("my-4 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3", className)}>
@@ -231,4 +235,3 @@ export const ResultMessage: React.FC<ResultMessageProps> = ({ message, className
 };
 
 ResultMessage.displayName = "ResultMessage";
-

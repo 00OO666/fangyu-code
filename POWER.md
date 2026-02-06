@@ -14,7 +14,7 @@ keywords:
 
 # Fangyu Code Power
 
-> 下一代 AI 编程工具的 Kiro Power 集成
+> 下一代 AI 编程工具的 Powers 集成
 
 ## 概述
 

@@ -829,7 +829,7 @@ export class CodexEventConverter {
     // We use the summary instead
     return {
       type: "thinking",
-      content: summaryText || "(Extended thinking - encrypted content)",
+      content: summaryText || "thinking 不可用",
       timestamp: event.timestamp || new Date().toISOString(),
       receivedAt: event.timestamp || new Date().toISOString(),
       engine: "codex" as const,

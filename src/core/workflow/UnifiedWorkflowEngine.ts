@@ -2,7 +2,7 @@
  * UnifiedWorkflowEngine - 统一工作流引擎
  *
  * 合并了两套实现的优势：
- * - WorkflowManagerPanel (Kiro 风格) - SpecGenerationEngine 规范生成
+ * - WorkflowManagerPanel (Spec 驱动) - SpecGenerationEngine 规范生成
  * - useWorkflowOrchestrator (Devin 风格) - TaskPlanner DAG 分解、AgentSwarmManager 并行执行
  *
  * 核心功能：

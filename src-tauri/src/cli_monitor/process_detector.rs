@@ -1,5 +1,5 @@
 use super::types::ProcessInfo;
-use sysinfo::System;
+use sysinfo::{ProcessRefreshKind, ProcessesToUpdate, System, UpdateKind};
 use std::ffi::OsStr;
 
 /// 进程检测器
@@ -17,7 +17,9 @@ impl ProcessDetector {
 
     /// 获取所有运行中的进程
     pub fn get_running_processes(&mut self) -> Vec<ProcessInfo> {
-        self.system.refresh_all();
+        let refresh_kind = ProcessRefreshKind::new().with_cmd(UpdateKind::Always);
+        self.system
+            .refresh_processes_specifics(ProcessesToUpdate::All, true, refresh_kind);
 
         let claude_processes = self.find_claude_code_processes();
         claude_processes
@@ -69,14 +71,25 @@ impl ProcessDetector {
     /// 从命令行参数中提取会话 ID
     fn extract_session_id(cmd: &[std::ffi::OsString]) -> Option<String> {
         // 查找包含会话 ID 的参数
-        // 通常格式为: --session-id=xxx 或 --session xxx
+        // 常见格式：
+        // - --session-id=xxx / --session-id xxx
+        // - --session xxx
+        // - --resume xxx / --resume=xxx
         for (i, arg) in cmd.iter().enumerate() {
             let arg_str = arg.to_string_lossy();
             if arg_str.starts_with("--session-id=") {
                 if let Some(id) = arg_str.strip_prefix("--session-id=") {
                     return Some(id.to_string());
                 }
+            } else if arg_str.starts_with("--resume=") {
+                if let Some(id) = arg_str.strip_prefix("--resume=") {
+                    return Some(id.to_string());
+                }
             } else if arg_str == "--session" || arg_str == "--session-id" {
+                if let Some(next_arg) = cmd.get(i + 1) {
+                    return Some(next_arg.to_string_lossy().to_string());
+                }
+            } else if arg_str == "--resume" {
                 if let Some(next_arg) = cmd.get(i + 1) {
                     return Some(next_arg.to_string_lossy().to_string());
                 }
@@ -87,7 +100,9 @@ impl ProcessDetector {
 
     /// 获取指定进程的信息
     pub fn get_process_info(&mut self, pid: u32) -> Option<ProcessInfo> {
-        self.system.refresh_all();
+        let refresh_kind = ProcessRefreshKind::new().with_cmd(UpdateKind::Always);
+        self.system
+            .refresh_processes_specifics(ProcessesToUpdate::All, true, refresh_kind);
 
         if let Some(process) = self.system.process(sysinfo::Pid::from_u32(pid)) {
             let cmd = process.cmd();
@@ -102,5 +117,10 @@ impl ProcessDetector {
         }
 
         None
+    }
+
+    /// 从命令行参数中提取会话 ID（供其他模块复用）
+    pub fn extract_session_id_from_cmd(cmd: &[std::ffi::OsString]) -> Option<String> {
+        Self::extract_session_id(cmd)
     }
 }
