@@ -21,6 +21,10 @@ use tauri::AppHandle;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::process::Command;
 
+// 导入平台特定的环境设置函数
+#[cfg(target_os = "windows")]
+use crate::commands::claude::platform::windows::setup_command_environment_async;
+
 // Windows: 导入 CommandExt trait 以使用 creation_flags
 #[cfg(target_os = "windows")]
 #[allow(unused_imports)]
@@ -370,11 +374,13 @@ impl AcemcpClient {
         let mut node_check_cmd = Command::new("node");
         node_check_cmd.arg("--version");
 
-        // Windows: 隐藏检查命令的控制台窗口
+        // Windows: 设置环境变量（添加 NVM 和 npm 路径）
         #[cfg(target_os = "windows")]
         {
             const CREATE_NO_WINDOW: u32 = 0x08000000;
             node_check_cmd.creation_flags(CREATE_NO_WINDOW);
+            // 🔧 FIX: 添加 Node.js 路径到环境变量
+            setup_command_environment_async(&mut node_check_cmd, "node");
         }
 
         let node_check = node_check_cmd.output().await;
@@ -388,6 +394,13 @@ impl AcemcpClient {
 
         // 使用 tokio Command 启动 sidecar（保持 stdio 通信）
         let mut cmd = Command::new("node");
+
+        // Windows: 设置环境变量（添加 NVM 和 npm 路径）
+        #[cfg(target_os = "windows")]
+        {
+            setup_command_environment_async(&mut cmd, "node");
+        }
+
         cmd.arg(&sidecar_path)
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
