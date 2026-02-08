@@ -138,30 +138,60 @@ pub fn setup_command_environment(cmd: &mut Command, program_path: &str) {
 ///
 #[allow(dead_code)]
 /// Async version for use with tokio::process::Command
-pub fn setup_command_environment_async(cmd: &mut tokio::process::Command, program_path: &str) {
-    // Add NVM support if the program is in an NVM directory
-    if program_path.contains("\\.nvm\\versions\\node\\") {
-        if let Some(node_bin_dir) = Path::new(program_path).parent() {
-            let current_path = std::env::var("PATH").unwrap_or_default();
-            let node_bin_str = node_bin_dir.to_string_lossy();
-            if !current_path.contains(&node_bin_str.as_ref()) {
-                let new_path = format!("{};{}", node_bin_str, current_path);
-                cmd.env("PATH", new_path);
-            }
+pub fn setup_command_environment_async(cmd: &mut tokio::process::Command, _program_path: &str) {
+    let mut paths_to_add = Vec::new();
+    let current_path = std::env::var("PATH").unwrap_or_default();
+
+    // 1. Add NVM paths (check common NVM locations)
+    if let Ok(userprofile) = std::env::var("USERPROFILE") {
+        let nvm_current = PathBuf::from(&userprofile).join(".nvm").join("current");
+        if nvm_current.exists() {
+            paths_to_add.push(nvm_current.to_string_lossy().to_string());
         }
     }
 
-    // Add common npm paths to PATH
+    // 2. Add npm global paths
     if let Some(appdata) = std::env::var_os("APPDATA") {
         let npm_path = Path::new(&appdata).join("npm");
-        if let Some(npm_str) = npm_path.to_str() {
-            if let Ok(current_path) = std::env::var("PATH") {
-                if !current_path.contains(npm_str) {
-                    let new_path = format!("{};{}", current_path, npm_str);
-                    cmd.env("PATH", new_path);
-                }
+        if npm_path.exists() {
+            paths_to_add.push(npm_path.to_string_lossy().to_string());
+        }
+    }
+
+    // 3. Add common Node.js installation paths
+    if let Ok(programfiles) = std::env::var("ProgramFiles") {
+        let nodejs_path = PathBuf::from(&programfiles).join("nodejs");
+        if nodejs_path.exists() {
+            paths_to_add.push(nodejs_path.to_string_lossy().to_string());
+        }
+    }
+
+    // 4. Add user-local npm paths
+    if let Ok(userprofile) = std::env::var("USERPROFILE") {
+        let npm_global = PathBuf::from(&userprofile).join(".npm-global").join("bin");
+        if npm_global.exists() {
+            paths_to_add.push(npm_global.to_string_lossy().to_string());
+        }
+    }
+
+    // 5. Add Volta paths
+    if let Ok(userprofile) = std::env::var("USERPROFILE") {
+        let volta_bin = PathBuf::from(&userprofile).join(".volta").join("bin");
+        if volta_bin.exists() {
+            paths_to_add.push(volta_bin.to_string_lossy().to_string());
+        }
+    }
+
+    // Build new PATH with all discovered paths
+    if !paths_to_add.is_empty() {
+        let mut new_path = current_path.clone();
+        for path in paths_to_add {
+            if !current_path.contains(&path) {
+                new_path = format!("{};{}", path, new_path);
             }
         }
+        cmd.env("PATH", new_path);
+        log::debug!("Updated PATH for command execution");
     }
 }
 
