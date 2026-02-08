@@ -12,7 +12,7 @@
  * Extracted from ClaudeCodeSession component (296 lines)
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import { useCallback, useEffect, useRef } from "react";
 import type { ModelType } from "@/components/FloatingPromptInput/types";
@@ -113,7 +113,7 @@ interface UsePromptExecutionConfig {
   processMessageWithTranslation: (
     message: ClaudeStreamMessage,
     payload: string,
-    currentTranslationResult?: TranslationResult,
+    currentTranslationResult?: TranslationResult
   ) => Promise<void>;
 }
 
@@ -129,7 +129,7 @@ interface UsePromptExecutionReturn {
     prompt: string,
     model: ModelType,
     maxThinkingTokens?: number,
-    forceImmediate?: boolean,
+    forceImmediate?: boolean
   ) => Promise<void>;
 }
 
@@ -160,7 +160,7 @@ const normalizeClaudeGlobalPayload = <T>(payload: ClaudeGlobalEventPayload<T>) =
  * - message 包含 "thinking" 和 "blocks" 关键词
  * - message 包含 "cannot be modified" 或 "must remain"
  */
-const isThinkingBlocksError = (error: any): boolean => {
+const isThinkingBlocksError = (error: unknown): boolean => {
   if (!error) return false;
 
   const errorStr = typeof error === "string" ? error : JSON.stringify(error);
@@ -182,7 +182,7 @@ const isThinkingBlocksError = (error: any): boolean => {
  * 🔧 FIX: 检测会话文件不存在或无效的错误
  * 当会话 JSONL 文件被删除、损坏或不存在时，应该自动创建新会话
  */
-const isSessionNotFoundError = (error: any): boolean => {
+const isSessionNotFoundError = (error: unknown): boolean => {
   if (!error) return false;
 
   const errorStr = typeof error === "string" ? error : JSON.stringify(error);
@@ -194,7 +194,7 @@ const isSessionNotFoundError = (error: any): boolean => {
     lowerError.includes("session not found") ||
     lowerError.includes("no such file") ||
     lowerError.includes("file not found") ||
-    lowerError.includes("jsonl") && lowerError.includes("not found") ||
+    (lowerError.includes("jsonl") && lowerError.includes("not found")) ||
     lowerError.includes("invalid session") ||
     lowerError.includes("session does not exist")
   );
@@ -294,7 +294,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
         return incoming;
       });
     },
-    [setCodexRateLimits],
+    [setCodexRateLimits]
   );
 
   const refreshCodexRateLimitsFromHistory = useCallback(async () => {
@@ -318,7 +318,11 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
         }
       }
     } catch (err) {
-      logger.warn('usePromptExecution', "[usePromptExecution] Failed to refresh Codex rate limits:", err);
+      logger.warn(
+        "usePromptExecution",
+        "[usePromptExecution] Failed to refresh Codex rate limits:",
+        err
+      );
     }
   }, [
     effectiveSession?.id,
@@ -336,7 +340,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
       prompt: string,
       model: ModelType,
       maxThinkingTokens?: number,
-      forceImmediate: boolean = false,
+      forceImmediate: boolean = false
     ) => {
       // ========================================================================
       // 1️⃣ Validation & Queueing
@@ -369,26 +373,38 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
 
         // 🚀 性能监控：记录消息发送开始时间
         const perfStart = performance.now();
-        logger.debug('usePromptExecution', "[usePromptExecution] ⏱️ Message send started");
+        logger.debug("usePromptExecution", "[usePromptExecution] ⏱️ Message send started");
 
         // 🔧 DIAGNOSTIC: 完整的会话状态日志，帮助诊断上下文断连问题
-        logger.info('usePromptExecution', `[usePromptExecution] 🔍 DIAGNOSTIC - Session State at prompt entry:`, {
-          isFirstPrompt,
-          hasEffectiveSession: !!effectiveSession,
-          effectiveSessionId: effectiveSession?.id || 'null',
-          claudeSessionId: claudeSessionId || 'null',
-          extractedSessionInfoId: extractedSessionInfo?.sessionId || 'null',
-          executionEngine,
-          projectPath,
-          promptPreview: prompt.substring(0, 50),
-        });
+        logger.info(
+          "usePromptExecution",
+          `[usePromptExecution] 🔍 DIAGNOSTIC - Session State at prompt entry:`,
+          {
+            isFirstPrompt,
+            hasEffectiveSession: !!effectiveSession,
+            effectiveSessionId: effectiveSession?.id || "null",
+            claudeSessionId: claudeSessionId || "null",
+            extractedSessionInfoId: extractedSessionInfo?.sessionId || "null",
+            executionEngine,
+            projectPath,
+            promptPreview: prompt.substring(0, 50),
+          }
+        );
 
-        // 🔧 DIAGNOSTIC: 警告可能导致新会话的情况
+        // 🔧 FIX: 自动修正不一致的会话状态
         if (isFirstPrompt && effectiveSession) {
-          logger.warn('usePromptExecution', `[usePromptExecution] ⚠️ POTENTIAL BUG: isFirstPrompt=true but effectiveSession exists! This will create a NEW session instead of continuing.`);
+          logger.warn(
+            "usePromptExecution",
+            `[usePromptExecution] ⚠️ State inconsistency detected: isFirstPrompt=true but effectiveSession exists. Auto-correcting to isFirstPrompt=false.`
+          );
+          setIsFirstPrompt(false);
         }
         if (!isFirstPrompt && !effectiveSession) {
-          logger.warn('usePromptExecution', `[usePromptExecution] ⚠️ POTENTIAL BUG: isFirstPrompt=false but effectiveSession is null! Resume will fail.`);
+          logger.warn(
+            "usePromptExecution",
+            `[usePromptExecution] ⚠️ State inconsistency detected: isFirstPrompt=false but effectiveSession is null. Auto-correcting to isFirstPrompt=true.`
+          );
+          setIsFirstPrompt(true);
         }
 
         setIsLoading(true);
@@ -415,20 +431,20 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
         const codexPendingInfo =
           executionEngine === "codex"
             ? {
-              sessionId: effectiveSession?.id || null,
-              projectPath,
-              promptText: prompt,
-              promptIndex: undefined as number | undefined,
-            }
+                sessionId: effectiveSession?.id || null,
+                projectPath,
+                promptText: prompt,
+                promptIndex: undefined as number | undefined,
+              }
             : undefined;
         const geminiPendingInfo =
           executionEngine === "gemini"
             ? {
-              sessionId: effectiveSession?.id || null,
-              projectPath,
-              promptText: prompt,
-              promptIndex: undefined as number | undefined,
-            }
+                sessionId: effectiveSession?.id || null,
+                projectPath,
+                promptText: prompt,
+                promptIndex: undefined as number | undefined,
+              }
             : undefined;
 
         let recordPromptPromise: Promise<number> | null = null;
@@ -442,21 +458,24 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
         if (effectiveSession && isUserInitiated) {
           if (executionEngine === "codex") {
             // ✅ Codex 使用专用的记录 API（写入 ~/.codex/git-records/）
-            recordPromptPromise = api.recordCodexPromptSent(
-              effectiveSession.id,
-              projectPath,
-              prompt,
-            ).then((index) => {
-              recordedPromptIndex = index;
-              if (codexPendingInfo) {
-                codexPendingInfo.promptIndex = index;
-                codexPendingInfo.sessionId = effectiveSession.id;
-              }
-              return index;
-            }).catch((err) => {
-              logger.error('usePromptExecution', "[Prompt Revert] [ERROR] Failed to record Codex prompt:", err);
-              return -1;
-            });
+            recordPromptPromise = api
+              .recordCodexPromptSent(effectiveSession.id, projectPath, prompt)
+              .then((index) => {
+                recordedPromptIndex = index;
+                if (codexPendingInfo) {
+                  codexPendingInfo.promptIndex = index;
+                  codexPendingInfo.sessionId = effectiveSession.id;
+                }
+                return index;
+              })
+              .catch((err) => {
+                logger.error(
+                  "usePromptExecution",
+                  "[Prompt Revert] [ERROR] Failed to record Codex prompt:",
+                  err
+                );
+                return -1;
+              });
           } else if (executionEngine === "gemini") {
             // 🔧 FIX: Gemini must wait for real CLI session ID from init event
             // Don't record here even for existing sessions - Gemini CLI may generate new session ID
@@ -464,19 +483,30 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
           } else {
             // Claude Code 使用原有的记录 API（写入 .claude-sessions/）
             // 🚀 非阻塞执行：不等待 Git 操作完成
-            recordPromptPromise = api.recordPromptSent(
-              effectiveSession.id,
-              effectiveSession.project_id,
-              projectPath,
-              prompt,
-            ).then((index) => {
-              recordedPromptIndex = index;
-              logger.debug('usePromptExecution', "[Prompt Revert] ✅ Background Git record completed, index:", index);
-              return index;
-            }).catch((err) => {
-              logger.error('usePromptExecution', "[Prompt Revert] [ERROR] Failed to record prompt:", err);
-              return -1;
-            });
+            recordPromptPromise = api
+              .recordPromptSent(
+                effectiveSession.id,
+                effectiveSession.project_id,
+                projectPath,
+                prompt
+              )
+              .then((index) => {
+                recordedPromptIndex = index;
+                logger.debug(
+                  "usePromptExecution",
+                  "[Prompt Revert] ✅ Background Git record completed, index:",
+                  index
+                );
+                return index;
+              })
+              .catch((err) => {
+                logger.error(
+                  "usePromptExecution",
+                  "[Prompt Revert] [ERROR] Failed to record prompt:",
+                  err
+                );
+                return -1;
+              });
           }
         }
 
@@ -488,7 +518,11 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
         const isAutoContinue = prompt.startsWith("__AUTO_CONTINUE__");
         if (isAutoContinue) {
           processedPrompt = prompt.replace("__AUTO_CONTINUE__", "");
-          logger.debug('usePromptExecution', "[usePromptExecution] 🔄 Auto-continue detected, sending:", processedPrompt);
+          logger.debug(
+            "usePromptExecution",
+            "[usePromptExecution] 🔄 Auto-continue detected, sending:",
+            processedPrompt
+          );
         }
 
         // For resuming sessions, ensure we have the session ID
@@ -503,7 +537,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
         if (!isListeningRef.current && isActive) {
           // Clean up previous listeners
           unlistenRefs.current.forEach(
-            (unlisten) => unlisten && typeof unlisten === "function" && unlisten(),
+            (unlisten) => unlisten && typeof unlisten === "function" && unlisten()
           );
           unlistenRefs.current = [];
 
@@ -549,7 +583,10 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
 
               // 🔧 CRITICAL FIX: 检查 tabId 是否变化（HMR 导致）
               if (tabIdRef.current !== codexRequestTabId) {
-                logger.debug('usePromptExecution', "[usePromptExecution/Codex] ⚠️ tabId 已变化，忽略旧请求的消息");
+                logger.debug(
+                  "usePromptExecution",
+                  "[usePromptExecution/Codex] ⚠️ tabId 已变化，忽略旧请求的消息"
+                );
                 return;
               }
 
@@ -608,7 +645,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                       .recordCodexPromptSent(
                         codexThreadId,
                         projectPath,
-                        codexPendingInfo.promptText,
+                        codexPendingInfo.promptText
                       )
                       .then((idx) => {
                         codexPendingInfo.promptIndex = idx;
@@ -621,9 +658,10 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                         };
                       })
                       .catch((err) => {
-                        console.warn(
+                        logger.warn(
+                          "usePromptExecution",
                           "[usePromptExecution] Failed to record Codex prompt after init:",
-                          err,
+                          err
                         );
                       });
                   } else if (codexPendingInfo && codexPendingInfo.promptIndex !== undefined) {
@@ -679,12 +717,13 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                     pendingPrompt.sessionId,
                     pendingPrompt.projectPath,
                     pendingPrompt.promptIndex,
-                    pendingPrompt.promptText,
+                    pendingPrompt.promptText
                   );
                 } catch (err) {
-                  console.warn(
+                  logger.warn(
+                    "usePromptExecution",
                     "[usePromptExecution] Failed to record Codex prompt completion:",
-                    err,
+                    err
                   );
                 }
                 // Clear the pending prompt
@@ -705,7 +744,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
             };
 
             const parseCodexErrorPayload = (
-              payload: string,
+              payload: string
             ): { sessionId?: string; message: string } => {
               try {
                 const data = JSON.parse(payload);
@@ -755,21 +794,21 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                 `codex-output:${sessionId}`,
                 (evt) => {
                   processCodexOutput(evt.payload);
-                },
+                }
               );
 
               const specificCompleteUnlisten = await listen<boolean>(
                 `codex-complete:${sessionId}`,
                 async () => {
                   await processCodexComplete();
-                },
+                }
               );
 
               const specificErrorUnlisten = await listen<string>(
                 `codex-error:${sessionId}`,
                 async (evt) => {
                   await processCodexError(evt.payload);
-                },
+                }
               );
 
               // Replace existing listeners with session-specific ones
@@ -821,7 +860,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
 
                 // 🔒 CRITICAL FIX: 使用 tab_id 过滤消息
                 const { tabId: eventTabId, payload: messagePayload } = normalizeClaudeGlobalPayload(
-                  evt.payload,
+                  evt.payload
                 );
                 if (eventTabId && eventTabId !== tabIdRef.current) {
                   // 消息来自不同标签页，忽略
@@ -835,7 +874,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                 }
                 // 只在会话ID未知的早期阶段处理
                 processCodexOutput(messagePayload);
-              },
+              }
             );
 
             // Listen for Codex errors
@@ -848,7 +887,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
 
                 // 🔒 CRITICAL FIX: 使用 tab_id 过滤消息
                 const { tabId: eventTabId, payload: errorPayload } = normalizeClaudeGlobalPayload(
-                  evt.payload,
+                  evt.payload
                 );
                 if (eventTabId && eventTabId !== tabIdRef.current) {
                   // 消息来自不同标签页，忽略
@@ -873,7 +912,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                 }
 
                 await processCodexError(errorPayload);
-              },
+              }
             );
 
             // 🔧 FIX: 移除全局完成事件监听器,避免跨会话串流
@@ -899,7 +938,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                 }
 
                 await processCodexComplete();
-              },
+              }
             );
 
             unlistenRefs.current = [
@@ -934,30 +973,35 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
             };
 
             // Helper function to convert Gemini unified message to ClaudeStreamMessage
-            const convertGeminiToClaudeMessage = (data: any): ClaudeStreamMessage | null => {
+            // Note: Using 'unknown' for data parameter as it comes from external source (backend)
+            const convertGeminiToClaudeMessage = (data: unknown): ClaudeStreamMessage | null => {
               try {
+                // Type assertion: we trust the backend to provide the correct format
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const msg = data as any;
                 // The backend already converts to unified format, we just need to ensure type compatibility
                 // Note: geminiMetadata is already included in data from backend conversion
 
-                if (data.type === "system" && data.subtype === "init") {
+                if (msg.type === "system" && msg.subtype === "init") {
                   return {
                     type: "system",
                     subtype: "init",
-                    session_id: data.session_id,
-                    model: data.model,
-                    timestamp: data.timestamp,
+                    session_id: msg.session_id,
+                    model: msg.model,
+                    timestamp: msg.timestamp,
                     engine: "gemini" as const,
                   };
                 }
 
-                if (data.type === "assistant" || data.type === "user") {
+                if (msg.type === "assistant" || msg.type === "user") {
                   // 🔧 FIX: 对于 user 类型的 tool_result 消息，提取 Gemini functionResponse 格式的实际输出
-                  let message = data.message;
+                  let message = msg.message;
 
-                  if (data.type === "user" && message?.content) {
+                  if (msg.type === "user" && message?.content) {
                     const content = Array.isArray(message.content)
                       ? message.content
                       : [message.content];
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const processedContent = content.map((item: any) => {
                       // 检查是否是 tool_result
                       if (item.type === "tool_result") {
@@ -986,31 +1030,31 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                   }
 
                   return {
-                    type: data.type,
+                    type: msg.type,
                     message,
-                    timestamp: data.timestamp,
+                    timestamp: msg.timestamp,
                     engine: "gemini" as const,
                   };
                 }
 
-                if (data.type === "result") {
+                if (msg.type === "result") {
                   return {
                     type: "result",
-                    subtype: data.subtype || "success",
-                    usage: data.usage,
-                    timestamp: data.timestamp,
+                    subtype: msg.subtype || "success",
+                    usage: msg.usage,
+                    timestamp: msg.timestamp,
                     engine: "gemini" as const,
-                    model: data.model,
-                    geminiMetadata: data.geminiMetadata,
+                    model: msg.model,
+                    geminiMetadata: msg.geminiMetadata,
                   };
                 }
 
-                if (data.type === "system" && data.subtype === "error") {
+                if (msg.type === "system" && msg.subtype === "error") {
                   return {
                     type: "system",
                     subtype: "error",
-                    error: data.error,
-                    timestamp: data.timestamp,
+                    error: msg.error,
+                    timestamp: msg.timestamp,
                     engine: "gemini" as const,
                   };
                 }
@@ -1019,11 +1063,15 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                 return {
                   type: "system",
                   subtype: "raw",
-                  message: { content: [{ type: "text", text: JSON.stringify(data) }] },
+                  message: { content: [{ type: "text", text: JSON.stringify(msg) }] },
                   engine: "gemini" as const,
                 };
               } catch (err) {
-                logger.error('usePromptExecution', "[usePromptExecution] Failed to convert Gemini message:", err);
+                logger.error(
+                  "usePromptExecution",
+                  "[usePromptExecution] Failed to convert Gemini message:",
+                  err
+                );
                 return null;
               }
             };
@@ -1034,7 +1082,10 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
 
               // 🔧 CRITICAL FIX: 检查 tabId 是否变化（HMR 导致）
               if (tabIdRef.current !== geminiRequestTabId) {
-                logger.debug('usePromptExecution', "[usePromptExecution/Gemini] ⚠️ tabId 已变化，忽略旧请求的消息");
+                logger.debug(
+                  "usePromptExecution",
+                  "[usePromptExecution/Gemini] ⚠️ tabId 已变化，忽略旧请求的消息"
+                );
                 return;
               }
 
@@ -1050,8 +1101,9 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
 
                 // 🔧 FIX: Skip user messages from Gemini - already added by frontend
                 // Gemini CLI echoes back user messages, but we already display them
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const hasToolResult = data.message?.content?.some(
-                  (c: any) => c.type === "tool_result",
+                  (c: any) => c.type === "tool_result"
                 );
                 if (data.type === "user" && !hasToolResult) {
                   return;
@@ -1086,8 +1138,9 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                         for (const newItem of newContent) {
                           if (newItem.type === "text") {
                             // Merge text with existing text block
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             const lastTextIdx = updatedContent.findIndex(
-                              (c: any) => c.type === "text",
+                              (c: any) => c.type === "text"
                             );
                             if (lastTextIdx >= 0 && newItem.text) {
                               updatedContent[lastTextIdx] = {
@@ -1137,8 +1190,9 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
 
                         if (merged) {
                           // 🐛 DEBUG: Log final merged content structure
+                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
                           const toolUseCount = updatedContent.filter(
-                            (c: any) => c.type === "tool_use",
+                            (c: any) => c.type === "tool_use"
                           ).length;
                           void toolUseCount;
 
@@ -1175,10 +1229,11 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                   // We now use the dedicated gemini-cli-session-id event which provides the REAL CLI session ID
                 }
               } catch (err) {
-                console.error(
+                logger.error(
+                  "usePromptExecution",
                   "[usePromptExecution] Failed to process Gemini output:",
                   err,
-                  payload,
+                  payload
                 );
               }
             };
@@ -1210,12 +1265,13 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                     pendingPrompt.sessionId,
                     pendingPrompt.projectPath,
                     pendingPrompt.promptIndex,
-                    pendingPrompt.promptText,
+                    pendingPrompt.promptText
                   );
                 } catch (err) {
-                  console.warn(
+                  logger.warn(
+                    "usePromptExecution",
                     "[usePromptExecution] Failed to record Gemini prompt completion:",
-                    err,
+                    err
                   );
                 }
                 // Clear the pending prompt
@@ -1242,14 +1298,14 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                 `gemini-output:${sessionId}`,
                 (evt) => {
                   processGeminiOutput(evt.payload);
-                },
+                }
               );
 
               const specificCompleteUnlisten = await listen<boolean>(
                 `gemini-complete:${sessionId}`,
                 async () => {
                   await processGeminiComplete();
-                },
+                }
               );
 
               // 🔧 FIX: Append session-specific listeners instead of replacing all
@@ -1272,7 +1328,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                   // Switch to session-specific listeners
                   await attachGeminiSessionListeners(backendSessionId);
                 }
-              },
+              }
             );
 
             // 🔧 FIX: Listen for real Gemini CLI session ID (emitted when CLI returns init event)
@@ -1301,7 +1357,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                   .recordGeminiPromptSent(
                     realCliSessionId,
                     projectPath,
-                    geminiPendingInfo.promptText,
+                    geminiPendingInfo.promptText
                   )
                   .then((idx) => {
                     geminiPendingInfo.promptIndex = idx;
@@ -1314,9 +1370,10 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                     };
                   })
                   .catch((err) => {
-                    console.warn(
+                    logger.warn(
+                      "usePromptExecution",
                       "[Gemini Revert] Failed to record prompt with real CLI session ID:",
-                      err,
+                      err
                     );
                   });
               }
@@ -1345,7 +1402,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
             // Listen for Gemini errors
             const geminiErrorUnlisten = await listen<string>("gemini-error", (evt) => {
               if (!hasActiveSessionRef.current) return;
-              logger.error('usePromptExecution', "[usePromptExecution] Gemini error:", evt.payload);
+              logger.error("usePromptExecution", "[usePromptExecution] Gemini error:", evt.payload);
               try {
                 const data = JSON.parse(evt.payload);
                 setError(data.error?.message || evt.payload);
@@ -1403,7 +1460,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
 
             /**
              * 🔧 FIX v2.7.8: 改进消息 ID 生成，确保唯一性
-             * 
+             *
              * 使用更精确的组合 ID，包含：
              * - 消息自带的 ID（优先）
              * - uuid
@@ -1467,13 +1524,14 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                     if (msg.type === "user" && !hasRecordedPrompt && isUserInitiated) {
                       // 检查这是否是我们发送的那条消息（通过内容匹配）
                       let isOurMessage = false;
-                      const msgContent: any = msg.message?.content;
+                      const msgContent: unknown = msg.message?.content;
 
                       if (msgContent) {
                         if (typeof msgContent === "string") {
                           const contentStr = msgContent as string;
                           isOurMessage = contentStr.includes(prompt) || prompt.includes(contentStr);
                         } else if (Array.isArray(msgContent)) {
+                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
                           const textContent = msgContent
                             .filter((item: any) => item.type === "text")
                             .map((item: any) => item.text)
@@ -1497,11 +1555,15 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                               sid,
                               projectId,
                               projectPath,
-                              prompt,
+                              prompt
                             );
                             hasRecordedPrompt = true;
                           } catch (err) {
-                            logger.error('usePromptExecution', "[Prompt Revert] [ERROR] Failed to record prompt:", err);
+                            logger.error(
+                              "usePromptExecution",
+                              "[Prompt Revert] [ERROR] Failed to record prompt:",
+                              err
+                            );
                           }
                         })();
                       }
@@ -1509,11 +1571,11 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                   } catch {
                     /* ignore parse errors */
                   }
-                },
+                }
               );
 
               const specificErrorUnlisten = await listen<string>(`claude-error:${sid}`, (evt) => {
-                logger.error('usePromptExecution', "Claude error (scoped);:", evt.payload);
+                logger.error("usePromptExecution", "Claude error (scoped);:", evt.payload);
                 setError(evt.payload);
                 // 🔧 FIX: 收到错误后停止加载状态
                 setIsLoading(false);
@@ -1524,7 +1586,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                 `claude-complete:${sid}`,
                 () => {
                   processComplete();
-                },
+                }
               );
 
               // Replace existing unlisten refs with these new ones (after cleaning up)
@@ -1544,7 +1606,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
 
             async function handleStreamMessage(
               payload: string,
-              currentTranslationResult?: TranslationResult,
+              currentTranslationResult?: TranslationResult
             ) {
               try {
                 // Don't process if component unmounted
@@ -1553,7 +1615,10 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                 // 🔧 CRITICAL FIX: 检查 tabId 是否变化（HMR 导致）
                 // 如果 tabIdRef 已经变化，说明组件已被 HMR 重新加载，忽略旧消息
                 if (tabIdRef.current !== currentRequestTabId) {
-                  logger.debug('usePromptExecution', "[usePromptExecution] ⚠️ tabId 已变化，忽略旧请求的消息");
+                  logger.debug(
+                    "usePromptExecution",
+                    "[usePromptExecution] ⚠️ tabId 已变化，忽略旧请求的消息"
+                  );
                   return;
                 }
 
@@ -1573,7 +1638,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                 // Use the shared translation function for consistency
                 await processMessageWithTranslation(message, payload, currentTranslationResult);
               } catch (err) {
-                logger.error('usePromptExecution', "Failed to parse message:", err, payload);
+                logger.error("usePromptExecution", "Failed to parse message:", err, payload);
               }
             }
 
@@ -1603,14 +1668,21 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                       projectId,
                       projectPath,
                       recordedPromptIndex,
-                      prompt,
+                      prompt
                     )
-                    .then(() => { })
+                    .then(() => {})
                     .catch((err) => {
-                      logger.error('usePromptExecution', "[Prompt Revert] Failed to mark completed:", err);
+                      logger.error(
+                        "usePromptExecution",
+                        "[Prompt Revert] Failed to mark completed:",
+                        err
+                      );
                     });
                 } else {
-                  logger.warn('usePromptExecution', 'Cannot mark completed: missing sessionId or projectId');
+                  logger.warn(
+                    "usePromptExecution",
+                    "Cannot mark completed: missing sessionId or projectId"
+                  );
                 }
               }
 
@@ -1654,7 +1726,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
 
                 // 🔒 CRITICAL FIX: 使用 tab_id 过滤消息，这是最可靠的会话隔离方式
                 const { tabId: eventTabId, payload: messagePayload } = normalizeClaudeGlobalPayload(
-                  event.payload,
+                  event.payload
                 );
 
                 // 如果事件包含 tab_id，则只处理匹配当前标签页的消息
@@ -1726,7 +1798,10 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
 
                       // 🔧 FIX: 设置 isFirstPrompt 为 false，确保后续消息能正确继续会话
                       setIsFirstPrompt(false);
-                      logger.info('usePromptExecution', `[usePromptExecution] ✅ Session initialized: sessionId=${msg.session_id}, isFirstPrompt set to false`);
+                      logger.info(
+                        "usePromptExecution",
+                        `[usePromptExecution] ✅ Session initialized: sessionId=${msg.session_id}, isFirstPrompt set to false`
+                      );
 
                       // If we haven't extracted session info before, do it now
                       if (!extractedSessionInfo) {
@@ -1751,11 +1826,15 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                               msg.session_id,
                               projectId,
                               projectPath,
-                              prompt,
+                              prompt
                             );
                             hasRecordedPrompt = true;
                           } catch (err) {
-                            logger.error('usePromptExecution', "[Prompt Revert] [ERROR] Failed to record prompt:", err);
+                            logger.error(
+                              "usePromptExecution",
+                              "[Prompt Revert] [ERROR] Failed to record prompt:",
+                              err
+                            );
                           }
                         })();
                       }
@@ -1775,6 +1854,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                   ) {
                     // 检查这是否是我们发送的那条消息（通过内容匹配）
                     let isOurMessage = false;
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const msgContent: any = msg.message?.content;
 
                     if (msgContent) {
@@ -1804,11 +1884,15 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                             currentSessionId,
                             projectId,
                             projectPath,
-                            prompt,
+                            prompt
                           );
                           hasRecordedPrompt = true;
                         } catch (err) {
-                          logger.error('usePromptExecution', "[Prompt Revert] [ERROR] Failed to record prompt:", err);
+                          logger.error(
+                            "usePromptExecution",
+                            "[Prompt Revert] [ERROR] Failed to record prompt:",
+                            err
+                          );
                         }
                       })();
                     }
@@ -1816,7 +1900,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                 } catch {
                   /* ignore parse errors */
                 }
-              },
+              }
             );
 
             // 🔒 CRITICAL FIX: 全局事件现在格式为 { tab_id: string | null, payload: string }
@@ -1828,18 +1912,21 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
 
                 // 🔒 CRITICAL FIX: 使用 tab_id 过滤消息
                 const { tabId: eventTabId, payload: errorPayload } = normalizeClaudeGlobalPayload(
-                  evt.payload,
+                  evt.payload
                 );
                 if (eventTabId && eventTabId !== tabIdRef.current) {
                   return;
                 }
 
-                logger.error('usePromptExecution', "Claude error:", errorPayload);
+                logger.error("usePromptExecution", "Claude error:", errorPayload);
 
                 // 🔧 FIX: 检测 thinking blocks 错误并提供友好提示
                 // 这是 Claude Code CLI 2.0.76 的已知 bug
                 if (isThinkingBlocksError(errorPayload)) {
-                  logger.warn('usePromptExecution', 'Detected thinking blocks error (Claude Code CLI bug)');
+                  logger.warn(
+                    "usePromptExecution",
+                    "Detected thinking blocks error (Claude Code CLI bug)"
+                  );
                   const friendlyMessage =
                     "⚠️ 会话历史包含无法处理的 thinking 块（Claude Code CLI 已知问题）\n\n" +
                     "解决方案：\n" +
@@ -1855,7 +1942,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                 // 这修复了"发送提示失败"时界面仍显示加载的问题
                 setIsLoading(false);
                 hasActiveSessionRef.current = false;
-              },
+              }
             );
 
             // 🔒 CRITICAL FIX: 全局事件现在格式为 { tab_id: string | null, payload: boolean }
@@ -1872,7 +1959,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                 }
 
                 processComplete();
-              },
+              }
             );
 
             // Store the generic unlisteners for now; they may be replaced later.
@@ -1892,7 +1979,8 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
           if (!isSlashCommandInput) {
             try {
               // 优先使用同步检查（如果翻译中间件已初始化）
-              const isEnabled = translationMiddleware.isEnabledSync() || await translationMiddleware.isEnabled();
+              const isEnabled =
+                translationMiddleware.isEnabledSync() || (await translationMiddleware.isEnabled());
               if (isEnabled) {
                 userInputTranslation = await translationMiddleware.translateUserInput(prompt);
                 processedPrompt = userInputTranslation.translatedText;
@@ -1900,7 +1988,11 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                 void userInputTranslation.wasTranslated;
               }
             } catch (translationError) {
-              logger.error('usePromptExecution', 'Translation failed, using original prompt:', translationError);
+              logger.error(
+                "usePromptExecution",
+                "Translation failed, using original prompt:",
+                translationError
+              );
               // Continue with original prompt if translation fails
             }
           }
@@ -1960,23 +2052,27 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
               // Add translation metadata for debugging/info
               translationMeta: userInputTranslation
                 ? {
-                  wasTranslated: userInputTranslation.wasTranslated,
-                  detectedLanguage: userInputTranslation.detectedLanguage,
-                  translatedText: userInputTranslation.translatedText,
-                }
+                    wasTranslated: userInputTranslation.wasTranslated,
+                    detectedLanguage: userInputTranslation.detectedLanguage,
+                    translatedText: userInputTranslation.translatedText,
+                  }
                 : undefined,
             };
 
             // 🔧 DEBUG: 在添加消息前打印日志
-            logger.debug('usePromptExecution', 'Adding user message:', {
+            logger.debug("usePromptExecution", "Adding user message:", {
               type: userMessage.type,
               content: userMessage.message?.content,
               sentAt: userMessage.sentAt,
-              prompt: prompt.substring(0, 50) + (prompt.length > 50 ? '...' : ''),
+              prompt: prompt.substring(0, 50) + (prompt.length > 50 ? "..." : ""),
             });
 
             setMessages((prev) => {
-              logger.debug('usePromptExecution', 'setMessages called, current messages count:', prev.length);
+              logger.debug(
+                "usePromptExecution",
+                "setMessages called, current messages count:",
+                prev.length
+              );
               return [...prev, userMessage];
             });
           }
@@ -2094,14 +2190,23 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
           const tabId = tabIdRef.current;
 
           // 🚀 性能监控：记录 API 调用前的耗时
-          logger.debug('usePromptExecution', `[usePromptExecution] ⏱️ Pre-API processing took ${(performance.now() - perfStart).toFixed(0)}ms`);
+          logger.debug(
+            "usePromptExecution",
+            `[usePromptExecution] ⏱️ Pre-API processing took ${(performance.now() - perfStart).toFixed(0)}ms`
+          );
 
           // 🔧 DEBUG: 记录会话状态，帮助诊断上下文丢失问题
-          logger.info('usePromptExecution', `[usePromptExecution] 📊 Session State: isFirstPrompt=${isFirstPrompt}, hasEffectiveSession=${!!effectiveSession}, sessionId=${effectiveSession?.id || 'none'}`);
+          logger.info(
+            "usePromptExecution",
+            `[usePromptExecution] 📊 Session State: isFirstPrompt=${isFirstPrompt}, hasEffectiveSession=${!!effectiveSession}, sessionId=${effectiveSession?.id || "none"}`
+          );
 
           if (effectiveSession && !isFirstPrompt) {
             // Resume existing session
-            logger.info('usePromptExecution', `[usePromptExecution] ▶️ RESUMING session: ${effectiveSession.id}`);
+            logger.info(
+              "usePromptExecution",
+              `[usePromptExecution] ▶️ RESUMING session: ${effectiveSession.id}`
+            );
             try {
               await api.resumeClaudeCode(
                 projectPath,
@@ -2110,14 +2215,17 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                 model,
                 currentPlanMode,
                 maxThinkingTokens,
-                tabId,
+                tabId
               );
-            } catch (resumeError: any) {
-              logger.warn('usePromptExecution', "[usePromptExecution] Resume failed:", resumeError);
+            } catch (resumeError: unknown) {
+              logger.warn("usePromptExecution", "[usePromptExecution] Resume failed:", resumeError);
 
               // 🔧 FIX: 检测会话文件不存在错误，自动创建新会话
               if (isSessionNotFoundError(resumeError)) {
-                logger.warn('usePromptExecution', "Session file not found, falling back to NEW session");
+                logger.warn(
+                  "usePromptExecution",
+                  "Session file not found, falling back to NEW session"
+                );
 
                 // 重置会话状态，强制创建新会话
                 setClaudeSessionId(null);
@@ -2147,13 +2255,14 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                   model,
                   currentPlanMode,
                   maxThinkingTokens,
-                  tabId,
+                  tabId
                 );
               } else if (isThinkingBlocksError(resumeError)) {
                 // 🔧 FIX: 检测 thinking blocks 错误，自动 fallback 到新会话
                 // 这是 Claude Code CLI 2.0.76 的已知 bug
-                console.warn(
-                  "[usePromptExecution] Detected thinking blocks error, falling back to NEW session",
+                logger.warn(
+                  "usePromptExecution",
+                  "[usePromptExecution] Detected thinking blocks error, falling back to NEW session"
                 );
 
                 // 重置会话状态，强制创建新会话
@@ -2184,11 +2293,14 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                   model,
                   currentPlanMode,
                   maxThinkingTokens,
-                  tabId,
+                  tabId
                 );
               } else {
                 // 非 thinking blocks 错误，fallback 到 continue 模式
-                logger.warn('usePromptExecution', "[usePromptExecution] Falling back to continue mode");
+                logger.warn(
+                  "usePromptExecution",
+                  "[usePromptExecution] Falling back to continue mode"
+                );
                 try {
                   await api.continueClaudeCode(
                     projectPath,
@@ -2196,13 +2308,14 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                     model,
                     currentPlanMode,
                     maxThinkingTokens,
-                    tabId,
+                    tabId
                   );
-                } catch (continueError: any) {
+                } catch (continueError: unknown) {
                   // 🔧 FIX: continue 也可能遇到会话文件不存在或 thinking blocks 错误
                   if (isSessionNotFoundError(continueError)) {
-                    console.warn(
-                      "[usePromptExecution] Continue also failed with session not found, falling back to NEW session",
+                    logger.warn(
+                      "usePromptExecution",
+                      "[usePromptExecution] Continue also failed with session not found, falling back to NEW session"
                     );
 
                     setClaudeSessionId(null);
@@ -2230,11 +2343,12 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                       model,
                       currentPlanMode,
                       maxThinkingTokens,
-                      tabId,
+                      tabId
                     );
                   } else if (isThinkingBlocksError(continueError)) {
-                    console.warn(
-                      "[usePromptExecution] Continue also failed with thinking blocks error, falling back to NEW session",
+                    logger.warn(
+                      "usePromptExecution",
+                      "[usePromptExecution] Continue also failed with thinking blocks error, falling back to NEW session"
                     );
 
                     setClaudeSessionId(null);
@@ -2262,7 +2376,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                       model,
                       currentPlanMode,
                       maxThinkingTokens,
-                      tabId,
+                      tabId
                     );
                   } else {
                     throw continueError;
@@ -2272,7 +2386,10 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
             }
           } else {
             // Start new session
-            logger.info('usePromptExecution', `[usePromptExecution] 🆕 STARTING NEW session (isFirstPrompt=${isFirstPrompt}, effectiveSession=${!!effectiveSession})`);
+            logger.info(
+              "usePromptExecution",
+              `[usePromptExecution] 🆕 STARTING NEW session (isFirstPrompt=${isFirstPrompt}, effectiveSession=${!!effectiveSession})`
+            );
             setIsFirstPrompt(false);
             await api.executeClaudeCode(
               projectPath,
@@ -2280,7 +2397,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
               model,
               currentPlanMode,
               maxThinkingTokens,
-              tabId,
+              tabId
             );
           }
         }
@@ -2288,7 +2405,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
         // ========================================================================
         // 7️⃣ Error Handling - 🔧 FIX: 显示详细错误信息，帮助用户诊断问题
         // ========================================================================
-        logger.error('usePromptExecution', "Failed to send prompt:", err);
+        logger.error("usePromptExecution", "Failed to send prompt:", err);
 
         // 🔧 FIX: 提取并显示实际错误信息，而不是通用的"发送提示失败"
         const errorMessage = err instanceof Error ? err.message : String(err);
@@ -2297,7 +2414,11 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
         let userFriendlyError = "发送提示失败";
         if (errorMessage.includes("session") || errorMessage.includes("resume")) {
           userFriendlyError = `会话恢复失败: ${errorMessage}\n\n💡 建议: 尝试开启新会话`;
-        } else if (errorMessage.includes("network") || errorMessage.includes("connect") || errorMessage.includes("timeout")) {
+        } else if (
+          errorMessage.includes("network") ||
+          errorMessage.includes("connect") ||
+          errorMessage.includes("timeout")
+        ) {
           userFriendlyError = `网络连接失败: ${errorMessage}\n\n💡 建议: 检查网络连接和代理设置`;
         } else if (errorMessage.includes("spawn") || errorMessage.includes("process")) {
           userFriendlyError = `Claude CLI 启动失败: ${errorMessage}\n\n💡 建议: 确认 Claude Code CLI 已正确安装`;
@@ -2349,7 +2470,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
       processMessageWithTranslation,
       refreshCodexRateLimitsFromHistory,
       updateCodexRateLimits,
-    ],
+    ]
   );
 
   // ============================================================================
