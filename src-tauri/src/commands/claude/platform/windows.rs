@@ -139,13 +139,17 @@ pub fn setup_command_environment(cmd: &mut Command, program_path: &str) {
 #[allow(dead_code)]
 /// Async version for use with tokio::process::Command
 pub fn setup_command_environment_async(cmd: &mut tokio::process::Command, _program_path: &str) {
+    log::info!("[PATH Setup] Starting Windows PATH environment setup");
+
     let mut paths_to_add = Vec::new();
     let current_path = std::env::var("PATH").unwrap_or_default();
+    log::info!("[PATH Setup] Current PATH length: {} chars", current_path.len());
 
     // 1. Add NVM paths (check common NVM locations)
     if let Ok(userprofile) = std::env::var("USERPROFILE") {
         let nvm_current = PathBuf::from(&userprofile).join(".nvm").join("current");
         if nvm_current.exists() {
+            log::info!("[PATH Setup] Found NVM path: {:?}", nvm_current);
             paths_to_add.push(nvm_current.to_string_lossy().to_string());
         }
     }
@@ -154,6 +158,7 @@ pub fn setup_command_environment_async(cmd: &mut tokio::process::Command, _progr
     if let Some(appdata) = std::env::var_os("APPDATA") {
         let npm_path = Path::new(&appdata).join("npm");
         if npm_path.exists() {
+            log::info!("[PATH Setup] Found npm path: {:?}", npm_path);
             paths_to_add.push(npm_path.to_string_lossy().to_string());
         }
     }
@@ -161,7 +166,9 @@ pub fn setup_command_environment_async(cmd: &mut tokio::process::Command, _progr
     // 3. Add common Node.js installation paths
     if let Ok(programfiles) = std::env::var("ProgramFiles") {
         let nodejs_path = PathBuf::from(&programfiles).join("nodejs");
+        log::info!("[PATH Setup] Checking Node.js path: {:?}, exists: {}", nodejs_path, nodejs_path.exists());
         if nodejs_path.exists() {
+            log::info!("[PATH Setup] ✓ Found Node.js installation path: {:?}", nodejs_path);
             paths_to_add.push(nodejs_path.to_string_lossy().to_string());
         }
     }
@@ -170,6 +177,7 @@ pub fn setup_command_environment_async(cmd: &mut tokio::process::Command, _progr
     if let Ok(userprofile) = std::env::var("USERPROFILE") {
         let npm_global = PathBuf::from(&userprofile).join(".npm-global").join("bin");
         if npm_global.exists() {
+            log::info!("[PATH Setup] Found npm-global path: {:?}", npm_global);
             paths_to_add.push(npm_global.to_string_lossy().to_string());
         }
     }
@@ -178,20 +186,35 @@ pub fn setup_command_environment_async(cmd: &mut tokio::process::Command, _progr
     if let Ok(userprofile) = std::env::var("USERPROFILE") {
         let volta_bin = PathBuf::from(&userprofile).join(".volta").join("bin");
         if volta_bin.exists() {
+            log::info!("[PATH Setup] Found Volta path: {:?}", volta_bin);
             paths_to_add.push(volta_bin.to_string_lossy().to_string());
         }
     }
 
     // Build new PATH with all discovered paths
     if !paths_to_add.is_empty() {
-        let mut new_path = current_path.clone();
-        for path in paths_to_add {
-            if !current_path.contains(&path) {
-                new_path = format!("{};{}", path, new_path);
+        log::info!("[PATH Setup] Adding {} paths to PATH", paths_to_add.len());
+        let mut new_path = String::new();
+        for path in &paths_to_add {
+            if !current_path.contains(path) {
+                if !new_path.is_empty() {
+                    new_path.push(';');
+                }
+                new_path.push_str(path);
             }
         }
+        if !new_path.is_empty() {
+            new_path.push(';');
+            new_path.push_str(&current_path);
+        } else {
+            new_path = current_path;
+        }
+
+        log::info!("[PATH Setup] ✓ Updated PATH (new length: {} chars)", new_path.len());
+        log::info!("[PATH Setup] First 200 chars of new PATH: {}", &new_path.chars().take(200).collect::<String>());
         cmd.env("PATH", new_path);
-        log::debug!("Updated PATH for command execution");
+    } else {
+        log::warn!("[PATH Setup] ⚠️ No Node.js paths found to add!");
     }
 }
 
