@@ -1,0 +1,139 @@
+/**
+ * 留言表单处理 v4.0 - 乐观UI + 置顶成功提示
+ */
+$(function () {
+    
+    // 公共留言表单 - 乐观UI，立即显示成功
+    $('.form_public, .form-public').on('click', '.send_public, .send-public', function (event) {
+        event.preventDefault();
+        var jForm = $(event.delegateTarget);
+        var jBtn = $(this);
+        
+        if (jBtn.hasClass('disabled')) {
+            return false;
+        }
+
+        // 获取字段值
+        var fullname = $('input[name="fullname"]', jForm).val().trim();
+        var tel = $('input[name="tel"]', jForm).val().trim();
+        var email = $('input[name="email"]', jForm).val().trim();
+        var country = $('input[name="country"]', jForm).val().trim();
+        var content = $('textarea[name="content"]', jForm).val().trim();
+        
+        // 验证必填字段
+        if (!fullname) {
+            showErrorToast('Please enter your name');
+            $('input[name="fullname"]', jForm).focus();
+            return false;
+        }
+        if (!email || !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+            showErrorToast('Please enter a valid email address');
+            $('input[name="email"]', jForm).focus();
+            return false;
+        }
+        if (!content) {
+            showErrorToast('Please enter your message');
+            $('textarea[name="content"]', jForm).focus();
+            return false;
+        }
+        
+        // ========== 乐观UI：立即显示成功，不等服务器 ==========
+        showSuccessToast();
+        jForm.get(0).reset();
+        
+        // 后台静默发送数据
+        var data = {
+            name: fullname,
+            whatsapp: tel || 'N/A',
+            email: email,
+            country: country || 'N/A',
+            demands: 'Contact Form',
+            message: content
+        };
+        
+        fetch('/inquiry-handler.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        }).catch(function(err) {
+            console.error('Backend error:', err);
+        });
+        
+        return false;
+    });
+    
+    // ========== 置顶成功提示（大而醒目，15秒显示） ==========
+    function showSuccessToast() {
+        $('.toast-overlay, .success-toast-fullscreen').remove();
+        
+        var overlay = $('<div class="toast-overlay"></div>');
+        var toast = $('<div class="success-toast-fullscreen">' +
+            '<div class="success-content">' +
+            '<div class="success-checkmark">' +
+            '<svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="25" fill="none"/><path fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/></svg>' +
+            '</div>' +
+            '<h2>Thank You!</h2>' +
+            '<p class="success-main">Your inquiry has been successfully submitted.</p>' +
+            '<p class="success-sub">We will contact you within 24 hours.<br>A confirmation email has been sent to your inbox.</p>' +
+            '<button class="success-btn">Got it</button>' +
+            '</div>' +
+            '</div>');
+        
+        // 点击按钮或遮罩关闭
+        toast.find('.success-btn').on('click', function() { 
+            overlay.fadeOut(300);
+            toast.fadeOut(300, function() { 
+                overlay.remove();
+                toast.remove(); 
+            });
+        });
+        overlay.on('click', function() {
+            toast.find('.success-btn').click();
+        });
+        
+        // 添加样式
+        if (!$('#success-toast-fullscreen-style').length) {
+            $('<style id="success-toast-fullscreen-style">' +
+            '.toast-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99998;animation:fadeIn 0.3s}' +
+            '.success-toast-fullscreen{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:99999;animation:zoomIn 0.4s ease}' +
+            '.success-content{background:#fff;padding:50px 60px;border-radius:20px;text-align:center;box-shadow:0 25px 80px rgba(0,0,0,0.3);max-width:480px}' +
+            '.success-checkmark{width:80px;height:80px;margin:0 auto 25px}' +
+            '.success-checkmark svg{width:100%;height:100%}' +
+            '.success-checkmark circle{stroke:#10b981;stroke-width:2;fill:#10b981;animation:circleAnim 0.4s ease}' +
+            '.success-checkmark path{stroke:#fff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;animation:checkAnim 0.5s 0.3s ease forwards;stroke-dasharray:48;stroke-dashoffset:48}' +
+            '.success-content h2{color:#10b981;font-size:32px;margin:0 0 15px;font-weight:700}' +
+            '.success-main{font-size:18px;color:#333;margin:0 0 10px;font-weight:500}' +
+            '.success-sub{font-size:14px;color:#666;margin:0 0 30px;line-height:1.6}' +
+            '.success-btn{background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;padding:14px 50px;font-size:16px;border-radius:30px;cursor:pointer;font-weight:600;transition:transform 0.2s,box-shadow 0.2s}' +
+            '.success-btn:hover{transform:scale(1.05);box-shadow:0 8px 25px rgba(16,185,129,0.4)}' +
+            '@keyframes fadeIn{from{opacity:0}to{opacity:1}}' +
+            '@keyframes zoomIn{from{opacity:0;transform:translate(-50%,-50%) scale(0.8)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}' +
+            '@keyframes circleAnim{from{transform:scale(0)}to{transform:scale(1)}}' +
+            '@keyframes checkAnim{to{stroke-dashoffset:0}}' +
+            '</style>').appendTo('head');
+        }
+        
+        $('body').append(overlay).append(toast);
+        
+        // 3秒后自动关闭
+        setTimeout(function() {
+            if ($('.success-toast-fullscreen').length) {
+                toast.find('.success-btn').click();
+            }
+        }, 3000);
+    }
+    
+    // 错误提示
+    function showErrorToast(message) {
+        $('.error-toast').remove();
+        var toast = $('<div class="error-toast">' + message + '</div>');
+        if (!$('#error-toast-style').length) {
+            $('<style id="error-toast-style">' +
+            '.error-toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#ef4444;color:#fff;padding:15px 30px;border-radius:8px;z-index:99999;font-size:15px;animation:fadeIn 0.3s}' +
+            '</style>').appendTo('head');
+        }
+        $('body').append(toast);
+        setTimeout(function() { toast.fadeOut(300, function() { toast.remove(); }); }, 3000);
+    }
+
+});

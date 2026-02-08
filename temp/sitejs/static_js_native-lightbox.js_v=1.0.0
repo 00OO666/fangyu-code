@@ -1,0 +1,80 @@
+/**
+ * Native Lightbox - Simple image lightbox functionality
+ * Version: 1.0.0
+ */
+
+(function() {
+    'use strict';
+    
+    let currentImageIndex = 0;
+    let images = [];
+    
+    // Open lightbox
+    window.openLightbox = function(imageSrc) {
+        const lightbox = document.getElementById('productLightbox');
+        const lightboxImage = document.getElementById('lightboxImage');
+        
+        if (!lightbox || !lightboxImage) return;
+        
+        // Get all gallery images
+        const galleryItems = document.querySelectorAll('.gallery-item img');
+        images = Array.from(galleryItems).map(img => img.src);
+        currentImageIndex = images.indexOf(imageSrc);
+        
+        if (currentImageIndex === -1) {
+            currentImageIndex = 0;
+            images = [imageSrc];
+        }
+        
+        lightboxImage.src = imageSrc;
+        lightbox.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    };
+    
+    // Close lightbox
+    window.closeLightbox = function() {
+        const lightbox = document.getElementById('productLightbox');
+        if (!lightbox) return;
+        
+        lightbox.style.display = 'none';
+        document.body.style.overflow = '';
+    };
+    
+    // Previous image
+    window.prevLightboxImage = function() {
+        if (images.length === 0) return;
+        
+        currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+        const lightboxImage = document.getElementById('lightboxImage');
+        if (lightboxImage) {
+            lightboxImage.src = images[currentImageIndex];
+        }
+    };
+    
+    // Next image
+    window.nextLightboxImage = function() {
+        if (images.length === 0) return;
+        
+        currentImageIndex = (currentImageIndex + 1) % images.length;
+        const lightboxImage = document.getElementById('lightboxImage');
+        if (lightboxImage) {
+            lightboxImage.src = images[currentImageIndex];
+        }
+    };
+    
+    // Keyboard navigation
+    document.addEventListener('keydown', function(e) {
+        const lightbox = document.getElementById('productLightbox');
+        if (!lightbox || lightbox.style.display !== 'flex') return;
+        
+        if (e.key === 'Escape') {
+            closeLightbox();
+        } else if (e.key === 'ArrowLeft') {
+            prevLightboxImage();
+        } else if (e.key === 'ArrowRight') {
+            nextLightboxImage();
+        }
+    });
+    
+    console.log('Native Lightbox v1.0.0 loaded');
+})();

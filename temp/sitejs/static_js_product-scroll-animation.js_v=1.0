@@ -1,0 +1,396 @@
+/**
+ * ============================================
+ * 产品详情页滚动动画系统 v1.0
+ * ============================================
+ *
+ * 功能：
+ * 1. Intersection Observer 监听各区块滚动进入视口
+ * 2. 导航按钮点击平滑滚动到对应区块
+ * 3. Fade-slide-up + stagger 动画效果
+ * 4. 自动同步导航高亮状态
+ *
+ * 目标区块：
+ * - #tab-specifications
+ * - #tab-gallery
+ * - #tab-features
+ * - #tab-video
+ * - #tab-quote
+ */
+
+(function() {
+    'use strict';
+
+    // ========== 配置参数 ==========
+    const CONFIG = {
+        // Intersection Observer 配置
+        observerOptions: {
+            root: null, // 使用视口作为根
+            rootMargin: '-20% 0px -20% 0px', // 区块进入视口中间20%-80%区域时触发
+            threshold: [0, 0.1, 0.3, 0.5, 0.7, 0.9, 1] // 多个阈值，实现更精确的触发
+        },
+
+        // 动画配置
+        animation: {
+            duration: 800, // 动画持续时间（毫秒）
+            staggerDelay: 150, // stagger 延迟（毫秒）
+            easing: 'cubic-bezier(0.4, 0, 0.2, 1)' // 缓动函数
+        },
+
+        // 滚动配置
+        scroll: {
+            behavior: 'smooth', // 平滑滚动
+            block: 'center', // 滚动到区块中心
+            inline: 'nearest',
+            offset: 80 // 偏移量（px），避免被固定头部遮挡
+        }
+    };
+
+    // ========== DOM 元素 ==========
+    const ELEMENTS = {
+        // 所有内容区块
+        sections: [
+            { id: 'tab-specifications', dataTab: 'specifications' },
+            { id: 'tab-gallery', dataTab: 'gallery' },
+            { id: 'tab-features', dataTab: 'features' },
+            { id: 'tab-video', dataTab: 'video' },
+            { id: 'tab-quote', dataTab: 'quote' }
+        ],
+
+        // 导航按钮
+        navButtons: '.tab-item',
+        navContainer: '.product-tabs',
+        tabsUnderline: '.tabs-underline',
+
+        // 可动画子元素选择器
+        animatableChildren: [
+            '.section-title',
+            '.section-intro',
+            '.specs-table',
+            '.gallery-item',
+            '.feature-card',
+            '.features-tags .tag',
+            '.video-container',
+            '.form-group'
+        ]
+    };
+
+    // ========== 状态管理 ==========
+    let state = {
+        currentActiveSection: null,
+        isScrolling: false,
+        observers: [],
+        animatedSections: new Set() // 记录已经播放过动画的区块
+    };
+
+    // ========== 工具函数 ==========
+    /**
+     * 节流函数
+     */
+    function throttle(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    /**
+     * 添加 fade-slide-up 动画 CSS
+     */
+    function injectAnimationCSS() {
+        const styleId = 'product-scroll-animation-styles';
+
+        // 检查是否已存在
+        if (document.getElementById(styleId)) return;
+
+        const style = document.createElement('style');
+        style.id = styleId;
+        style.textContent = `
+            /* ========== 滚动动画样式 ========== */
+
+            /* 初始状态：隐藏 + 下移 */
+            .scroll-animate-section .scroll-fade-item {
+                opacity: 0;
+                transform: translateY(40px);
+                transition: opacity ${CONFIG.animation.duration}ms ${CONFIG.animation.easing},
+                            transform ${CONFIG.animation.duration}ms ${CONFIG.animation.easing};
+            }
+
+            /* 激活状态：显示 + 归位 */
+            .scroll-animate-section.is-visible .scroll-fade-item {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            /* Stagger 效果：为每个子元素设置不同的延迟 */
+            .scroll-animate-section.is-visible .scroll-fade-item:nth-child(1) { transition-delay: ${CONFIG.animation.staggerDelay * 0}ms; }
+            .scroll-animate-section.is-visible .scroll-fade-item:nth-child(2) { transition-delay: ${CONFIG.animation.staggerDelay * 1}ms; }
+            .scroll-animate-section.is-visible .scroll-fade-item:nth-child(3) { transition-delay: ${CONFIG.animation.staggerDelay * 2}ms; }
+            .scroll-animate-section.is-visible .scroll-fade-item:nth-child(4) { transition-delay: ${CONFIG.animation.staggerDelay * 3}ms; }
+            .scroll-animate-section.is-visible .scroll-fade-item:nth-child(5) { transition-delay: ${CONFIG.animation.staggerDelay * 4}ms; }
+            .scroll-animate-section.is-visible .scroll-fade-item:nth-child(6) { transition-delay: ${CONFIG.animation.staggerDelay * 5}ms; }
+            .scroll-animate-section.is-visible .scroll-fade-item:nth-child(7) { transition-delay: ${CONFIG.animation.staggerDelay * 6}ms; }
+            .scroll-animate-section.is-visible .scroll-fade-item:nth-child(8) { transition-delay: ${CONFIG.animation.staggerDelay * 7}ms; }
+            .scroll-animate-section.is-visible .scroll-fade-item:nth-child(9) { transition-delay: ${CONFIG.animation.staggerDelay * 8}ms; }
+            .scroll-animate-section.is-visible .scroll-fade-item:nth-child(10) { transition-delay: ${CONFIG.animation.staggerDelay * 9}ms; }
+
+            /* 导航高亮动画 */
+            .tab-item {
+                position: relative;
+                transition: color 0.3s ease;
+            }
+
+            .tab-item.active {
+                color: var(--primary-color, #3b82f6);
+                font-weight: 600;
+            }
+
+            .tabs-underline {
+                transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                            width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            /* 性能优化：使用 will-change */
+            .scroll-fade-item {
+                will-change: opacity, transform;
+            }
+
+            .is-visible .scroll-fade-item {
+                will-change: auto; /* 动画完成后移除 */
+            }
+
+            /* 防止内容抖动 */
+            .scroll-animate-section {
+                min-height: 100px;
+            }
+        `;
+
+        document.head.appendChild(style);
+    }
+
+    /**
+     * 为区块添加动画类
+     */
+    function prepareSection(sectionEl) {
+        if (!sectionEl) return;
+
+        // 添加父容器动画类
+        sectionEl.classList.add('scroll-animate-section');
+
+        // 为可动画子元素添加类
+        ELEMENTS.animatableChildren.forEach(selector => {
+            const children = sectionEl.querySelectorAll(selector);
+            children.forEach(child => {
+                child.classList.add('scroll-fade-item');
+            });
+        });
+    }
+
+    /**
+     * 触发区块动画
+     */
+    function animateSection(sectionEl) {
+        if (!sectionEl || state.animatedSections.has(sectionEl.id)) {
+            return; // 已经播放过动画，避免重复
+        }
+
+        // 标记为已动画
+        state.animatedSections.add(sectionEl.id);
+
+        // 添加可见类触发动画
+        sectionEl.classList.add('is-visible');
+
+        // 动画完成后移除 will-change 优化性能
+        setTimeout(() => {
+            const items = sectionEl.querySelectorAll('.scroll-fade-item');
+            items.forEach(item => {
+                item.style.willChange = 'auto';
+            });
+        }, CONFIG.animation.duration + (CONFIG.animation.staggerDelay * 10));
+    }
+
+    /**
+     * 更新导航高亮状态
+     */
+    function updateNavigation(activeDataTab) {
+        const navButtons = document.querySelectorAll(ELEMENTS.navButtons);
+        const underline = document.querySelector(ELEMENTS.tabsUnderline);
+
+        navButtons.forEach(btn => {
+            const btnDataTab = btn.getAttribute('data-tab');
+
+            if (btnDataTab === activeDataTab) {
+                btn.classList.add('active');
+
+                // 移动下划线到当前按钮
+                if (underline) {
+                    const btnRect = btn.getBoundingClientRect();
+                    const navRect = btn.parentElement.getBoundingClientRect();
+                    const leftOffset = btnRect.left - navRect.left;
+
+                    underline.style.transform = `translateX(${leftOffset}px)`;
+                    underline.style.width = `${btnRect.width}px`;
+                }
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+    }
+
+    /**
+     * 平滑滚动到目标区块
+     */
+    function scrollToSection(sectionId) {
+        const targetSection = document.getElementById(sectionId);
+        if (!targetSection) return;
+
+        state.isScrolling = true;
+
+        // 计算目标位置（考虑偏移量）
+        const targetPosition = targetSection.getBoundingClientRect().top +
+                               window.pageYOffset -
+                               CONFIG.scroll.offset;
+
+        // 平滑滚动
+        window.scrollTo({
+            top: targetPosition,
+            behavior: CONFIG.scroll.behavior
+        });
+
+        // 滚动结束后重置状态
+        setTimeout(() => {
+            state.isScrolling = false;
+        }, 1000);
+    }
+
+    // ========== Intersection Observer ==========
+    /**
+     * 创建并启动观察器
+     */
+    function initIntersectionObserver() {
+        const callback = (entries) => {
+            // 如果正在滚动（由导航点击触发），忽略观察器回调
+            if (state.isScrolling) return;
+
+            entries.forEach(entry => {
+                const section = entry.target;
+                const dataTab = section.dataset.scrollTab;
+
+                // 当区块进入视口
+                if (entry.isIntersecting && entry.intersectionRatio > 0.3) {
+                    // 播放动画
+                    animateSection(section);
+
+                    // 更新导航
+                    state.currentActiveSection = dataTab;
+                    updateNavigation(dataTab);
+                }
+            });
+        };
+
+        const observer = new IntersectionObserver(callback, CONFIG.observerOptions);
+
+        // 观察所有区块
+        ELEMENTS.sections.forEach(({ id, dataTab }) => {
+            const sectionEl = document.getElementById(id);
+            if (sectionEl) {
+                // 添加 data 属性便于识别
+                sectionEl.dataset.scrollTab = dataTab;
+
+                // 准备动画
+                prepareSection(sectionEl);
+
+                // 开始观察
+                observer.observe(sectionEl);
+            }
+        });
+
+        state.observers.push(observer);
+    }
+
+    /**
+     * 绑定导航点击事件
+     */
+    function initNavigationClick() {
+        const navButtons = document.querySelectorAll(ELEMENTS.navButtons);
+
+        navButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+
+                const dataTab = btn.getAttribute('data-tab');
+                const targetId = `tab-${dataTab}`;
+
+                // 滚动到目标
+                scrollToSection(targetId);
+
+                // 立即更新导航（不等待滚动完成）
+                updateNavigation(dataTab);
+            });
+        });
+    }
+
+    // ========== 初始化 ==========
+    function init() {
+        // 检查是否在产品页
+        if (!document.querySelector('.product-tabs')) {
+            console.log('[产品页滚动动画] 未检测到产品页导航，跳过初始化');
+            return;
+        }
+
+        console.log('[产品页滚动动画] 开始初始化...');
+
+        // 1. 注入 CSS
+        injectAnimationCSS();
+
+        // 2. 初始化 Intersection Observer
+        initIntersectionObserver();
+
+        // 3. 绑定导航点击
+        initNavigationClick();
+
+        // 4. 初始化导航状态（高亮第一个）
+        updateNavigation('specifications');
+
+        console.log('[产品页滚动动画] ✓ 初始化完成');
+    }
+
+    // ========== 清理函数 ==========
+    function destroy() {
+        // 断开所有观察器
+        state.observers.forEach(observer => observer.disconnect());
+        state.observers = [];
+
+        // 移除动画类
+        document.querySelectorAll('.scroll-animate-section').forEach(el => {
+            el.classList.remove('scroll-animate-section', 'is-visible');
+        });
+
+        document.querySelectorAll('.scroll-fade-item').forEach(el => {
+            el.classList.remove('scroll-fade-item');
+        });
+
+        console.log('[产品页滚动动画] 已清理');
+    }
+
+    // ========== 自动初始化 ==========
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        // DOM 已加载完成
+        init();
+    }
+
+    // 暴露到全局（便于调试和手动控制）
+    window.ProductScrollAnimation = {
+        init,
+        destroy,
+        scrollToSection,
+        state
+    };
+
+})();

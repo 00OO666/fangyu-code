@@ -1,0 +1,161 @@
+/**
+ * 产品详情页 v3 - 交互脚本
+ * 表单提交由 liuyan.js 处理
+ */
+
+(function() {
+    'use strict';
+
+    document.addEventListener('DOMContentLoaded', function() {
+        initTabs();
+        initInquiryModal();
+        initLightbox();
+    });
+
+    // 标签页切换
+    function initTabs() {
+        const tabItems = document.querySelectorAll('.tab-item');
+        const tabPanes = document.querySelectorAll('.tab-pane');
+
+        tabItems.forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabName = this.dataset.tab;
+                tabItems.forEach(t => t.classList.remove('active'));
+                tabPanes.forEach(p => p.classList.remove('active'));
+                this.classList.add('active');
+                const pane = document.getElementById('tab-' + tabName);
+                if (pane) pane.classList.add('active');
+                
+                const tabsContent = document.querySelector('.product-tabs-content');
+                if (tabsContent) {
+                    setTimeout(() => {
+                        tabsContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 100);
+                }
+            });
+        });
+    }
+
+    // 打开产品询价表单（滚动到询价标签页）
+    window.openProductQuote = function() {
+        const inquiryTab = document.querySelector('.tab-item[data-tab="inquiry"]');
+        if (inquiryTab) {
+            inquiryTab.click();
+            setTimeout(() => {
+                const formSection = document.getElementById('tab-inquiry');
+                if (formSection) {
+                    formSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 200);
+        }
+    };
+
+    // 询盘弹窗
+    function initInquiryModal() {
+        const modal = document.getElementById('inquiryModal');
+        
+        window.closeInquiryModal = function() {
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        };
+
+        window.openInquiryModal = function(productName) {
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                const productInput = document.getElementById('modal-product-name');
+                if (productInput) productInput.value = productName || '';
+                updateProductPreview(productName);
+            }
+        };
+
+        const overlay = modal?.querySelector('.modal-overlay');
+        if (overlay) overlay.addEventListener('click', window.closeInquiryModal);
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && modal?.classList.contains('active')) {
+                window.closeInquiryModal();
+            }
+        });
+    }
+
+    function updateProductPreview(productName) {
+        const preview = document.getElementById('modalProductPreview');
+        if (!preview) return;
+        
+        const mainImage = document.querySelector('.product-main-swiper .swiper-slide img');
+        const imageUrl = mainImage?.src || '';
+        
+        preview.innerHTML = '<div style="display: grid; grid-template-columns: 80px 1fr; gap: 12px; padding: 12px; background: #f9fafb; border-radius: 6px;">' +
+            (imageUrl ? '<img src="' + imageUrl + '" alt="Product" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px;">' : '') +
+            '<div>' +
+            '<p style="font-size: 13px; color: #6b7280; margin: 0;">Product</p>' +
+            '<p style="font-size: 15px; font-weight: 600; color: #1f2937; margin: 4px 0 0 0;">' + productName + '</p>' +
+            '</div></div>';
+    }
+
+    // 灯箱
+    function initLightbox() {
+        const lightbox = document.getElementById('productLightbox');
+
+        window.openLightbox = function(imageSrc) {
+            if (lightbox) {
+                lightbox.querySelector('#lightboxImage').src = imageSrc;
+                lightbox.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        };
+
+        window.closeLightbox = function() {
+            if (lightbox) {
+                lightbox.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        };
+
+        const overlay = lightbox?.querySelector('.lightbox-overlay');
+        if (overlay) overlay.addEventListener('click', window.closeLightbox);
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && lightbox?.classList.contains('active')) {
+                window.closeLightbox();
+            }
+        });
+
+        window.prevLightboxImage = function() {
+            document.querySelector('.product-main-swiper .swiper-button-prev')?.click();
+        };
+        window.nextLightboxImage = function() {
+            document.querySelector('.product-main-swiper .swiper-button-next')?.click();
+        };
+    }
+
+    // Swiper 初始化
+    setTimeout(function() {
+        if (typeof Swiper !== 'undefined') {
+            const mainSwiper = document.querySelector('.product-main-swiper');
+            if (mainSwiper && !mainSwiper.swiper) {
+                const thumbSwiper = new Swiper('.product-thumb-swiper', {
+                    loop: false,
+                    spaceBetween: 8,
+                    slidesPerView: 4,
+                    freeMode: true,
+                    watchSlidesProgress: true,
+                });
+
+                new Swiper('.product-main-swiper', {
+                    loop: false,
+                    spaceBetween: 10,
+                    navigation: {
+                        nextEl: '.swiper-button-next',
+                        prevEl: '.swiper-button-prev',
+                    },
+                    thumbs: { swiper: thumbSwiper },
+                });
+            }
+        }
+    }, 500);
+
+})();

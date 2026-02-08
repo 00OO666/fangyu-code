@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+Date: Sun, 08 Feb 2026 06:08:53 GMT
+Content-Type: text/html; charset=utf-8
+Transfer-Encoding: chunked
+Connection: keep-alive
+Server: cloudflare
+Nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+Vary: Accept-Encoding
+X-UA-Compatible: IE=edge,chrome=1
+X-Powered-By: PbootCMS
+Report-To: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=auTP0HN3XCOiGWo6Pc%2FXMIB1F5XpZT1WfJ6ZQ6NTZjU55C%2Bw%2BW0yLeRmlInERg5qXoloXzaVVizZ3J7hQzdBh4xSXKaPUKLe99ggqaA%3D"}]}
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+Cache-Control: max-age=31536000, must-revalidate
+Pragma: no-cache
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+cf-cache-status: MISS
+last-modified: Sun, 08 Feb 2026 06:08:53 GMT
+Speculation-Rules: "/cdn-cgi/speculation"
+CF-RAY: 9ca8f47efd812b29-SJC
+alt-svc: h3=":443"; ma=86400
+

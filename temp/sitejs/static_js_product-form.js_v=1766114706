@@ -1,0 +1,171 @@
+/**
+ * 产品询盘表单处理 v4.0 - 乐观UI + 大型成功提示
+ */
+
+// 监听页面上的产品表单
+document.addEventListener('DOMContentLoaded', function () {
+    var productForms = document.querySelectorAll('.form_public, .form-public, form[data-product-inquiry]');
+
+    productForms.forEach(function (form) {
+        var submitButton = form.querySelector('button[type="submit"], .send_public');
+
+        if (submitButton) {
+            submitButton.addEventListener('click', function (event) {
+                event.preventDefault();
+
+                var productNameElement = document.querySelector('.product-title, h1, [data-product-name]');
+                var productName = productNameElement ? productNameElement.textContent.trim() : 'Product';
+
+                submitProductForm(form, productName);
+            });
+        }
+    });
+});
+
+// 产品详情页表单提交（乐观UI - 立即显示成功）
+function submitProductForm(form, productName, callback) {
+    var fullname = form.querySelector('input[name="fullname"]');
+    var tel = form.querySelector('input[name="tel"]');
+    var email = form.querySelector('input[name="email"]');
+    var country = form.querySelector('input[name="country"]');
+    var content = form.querySelector('textarea[name="content"]');
+
+    // 验证必填字段
+    if (!fullname || !fullname.value.trim()) {
+        showErrorMessage('Please enter your name');
+        if (fullname) fullname.focus();
+        return;
+    }
+
+    if (!email || !email.value.trim()) {
+        showErrorMessage('Please enter your email');
+        if (email) email.focus();
+        return;
+    }
+
+    var emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailPattern.test(email.value.trim())) {
+        showErrorMessage('Please enter a valid email address');
+        email.focus();
+        return;
+    }
+
+    // 构建数据
+    var data = {
+        name: fullname ? fullname.value.trim() : '',
+        whatsapp: tel ? tel.value.trim() : 'N/A',
+        email: email ? email.value.trim() : '',
+        country: country ? country.value.trim() : 'N/A',
+        demands: 'Product Inquiry',
+        product_name: productName,
+        message: content ? content.value.trim() : ''
+    };
+
+    // ========== 乐观UI：立即显示成功，不等服务器响应 ==========
+    showSuccessMessage();
+    form.reset();
+    if (callback) callback();
+
+    // 后台静默发送数据
+    fetch('/inquiry-handler.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    }).catch(function(error) {
+        console.error('Backend error:', error);
+    });
+}
+
+// ========== 大型居中成功提示（15秒显示，醒目） ==========
+function showSuccessMessage() {
+    var existing = document.querySelectorAll('.toast-overlay, .success-toast-fullscreen');
+    existing.forEach(function(el) { el.remove(); });
+
+    var overlay = document.createElement('div');
+    overlay.className = 'toast-overlay';
+    overlay.onclick = function() { closeToast(); };
+
+    var toast = document.createElement('div');
+    toast.className = 'success-toast-fullscreen';
+    toast.innerHTML = '<div class="success-content">' +
+        '<div class="success-checkmark">' +
+        '<svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="25" fill="none"/><path fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/></svg>' +
+        '</div>' +
+        '<h2>Thank You!</h2>' +
+        '<p class="success-main">Your inquiry has been successfully submitted.</p>' +
+        '<p class="success-sub">We will contact you within 24 hours.<br>A confirmation email has been sent to your inbox.</p>' +
+        '<button class="success-btn" onclick="closeToast()">Got it</button>' +
+        '</div>';
+
+    if (!document.getElementById('success-toast-fullscreen-style')) {
+        var style = document.createElement('style');
+        style.id = 'success-toast-fullscreen-style';
+        style.textContent =
+            '.toast-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99998;animation:fadeIn 0.3s}' +
+            '.success-toast-fullscreen{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:99999;animation:zoomIn 0.4s ease}' +
+            '.success-content{background:#fff;padding:50px 60px;border-radius:20px;text-align:center;box-shadow:0 25px 80px rgba(0,0,0,0.3);max-width:480px}' +
+            '.success-checkmark{width:80px;height:80px;margin:0 auto 25px}' +
+            '.success-checkmark svg{width:100%;height:100%}' +
+            '.success-checkmark circle{stroke:#10b981;stroke-width:2;fill:#10b981;animation:circleAnim 0.4s ease}' +
+            '.success-checkmark path{stroke:#fff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;animation:checkAnim 0.5s 0.3s ease forwards;stroke-dasharray:48;stroke-dashoffset:48}' +
+            '.success-content h2{color:#10b981;font-size:32px;margin:0 0 15px;font-weight:700}' +
+            '.success-main{font-size:18px;color:#333;margin:0 0 10px;font-weight:500}' +
+            '.success-sub{font-size:14px;color:#666;margin:0 0 30px;line-height:1.6}' +
+            '.success-btn{background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;padding:14px 50px;font-size:16px;border-radius:30px;cursor:pointer;font-weight:600;transition:transform 0.2s,box-shadow 0.2s}' +
+            '.success-btn:hover{transform:scale(1.05);box-shadow:0 8px 25px rgba(16,185,129,0.4)}' +
+            '@keyframes fadeIn{from{opacity:0}to{opacity:1}}' +
+            '@keyframes zoomIn{from{opacity:0;transform:translate(-50%,-50%) scale(0.8)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}' +
+            '@keyframes circleAnim{from{transform:scale(0)}to{transform:scale(1)}}' +
+            '@keyframes checkAnim{to{stroke-dashoffset:0}}';
+        document.head.appendChild(style);
+    }
+
+    document.body.appendChild(overlay);
+    document.body.appendChild(toast);
+
+    setTimeout(function() {
+        if (document.querySelector('.success-toast-fullscreen')) {
+            closeToast();
+        }
+    }, 15000);
+}
+
+function closeToast() {
+    var overlay = document.querySelector('.toast-overlay');
+    var toast = document.querySelector('.success-toast-fullscreen');
+    if (overlay) {
+        overlay.style.animation = 'fadeIn 0.3s reverse';
+        setTimeout(function() { overlay.remove(); }, 300);
+    }
+    if (toast) {
+        toast.style.animation = 'zoomIn 0.3s reverse';
+        setTimeout(function() { toast.remove(); }, 300);
+    }
+}
+
+function showErrorMessage(message) {
+    var existing = document.querySelector('.error-toast');
+    if (existing) existing.remove();
+
+    var toast = document.createElement('div');
+    toast.className = 'error-toast';
+    toast.textContent = message;
+
+    if (!document.getElementById('error-toast-style')) {
+        var style = document.createElement('style');
+        style.id = 'error-toast-style';
+        style.textContent = '.error-toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#ef4444;color:#fff;padding:15px 30px;border-radius:8px;z-index:99999;font-size:15px;animation:fadeIn 0.3s}';
+        document.head.appendChild(style);
+    }
+
+    document.body.appendChild(toast);
+    setTimeout(function() {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s';
+        setTimeout(function() { toast.remove(); }, 300);
+    }, 3000);
+}
+
+window.submitProductForm = submitProductForm;
+window.showSuccessMessage = showSuccessMessage;
+window.showErrorMessage = showErrorMessage;

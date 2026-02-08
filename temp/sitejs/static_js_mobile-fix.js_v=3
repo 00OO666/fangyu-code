@@ -1,0 +1,13 @@
+// Mobile Fix v3 - Hero Title Fix
+(function(){
+  var s = document.createElement('style');
+  s.id = 'mfix-v3';
+  s.textContent = '@media(max-width:768px){.brand-name,.hero-title,.hero-title span,#hero-title{font-size:42px!important;white-space:nowrap!important;display:inline-block!important;word-break:keep-all!important}body{padding-bottom:65px!important}input,textarea,select{min-height:48px!important;font-size:16px!important}button,.btn{min-height:48px!important;min-width:48px!important}}';
+  document.head.appendChild(s);
+  // Also fix inline styles
+  var hero = document.querySelector('.hero-title, #hero-title');
+  if(hero && window.innerWidth <= 768) {
+    hero.style.fontSize = '42px';
+    hero.style.whiteSpace = 'nowrap';
+  }
+})();

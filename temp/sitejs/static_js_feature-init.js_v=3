@@ -1,0 +1,433 @@
+// Feature System Initialization Module
+window.FeaturesInit = (function() {
+    'use strict';
+
+    const features = {
+        docsSystem: null,
+        inquiryForm: null,
+        analytics: null,
+        aiAutomation: null,
+        ga4Analytics: null
+    };
+
+    function initAll(options) {
+        const config = Object.assign({
+            language: 'en',
+            ga4MeasurementId: null,
+            ga4ApiKey: null,
+            apiBaseUrl: '/',
+            enableDocumentation: true,
+            enableInquiries: true,
+            enableAnalytics: true,
+            enableAI: true,
+            enableGA4: false
+        }, options);
+
+        try {
+            // Initialize Documentation System
+            if (config.enableDocumentation && window.DocsSystem) {
+                features.docsSystem = window.DocsSystem;
+                window.DocsSystem.init({
+                    apiUrl: config.apiBaseUrl + 'api-docs.php',
+                    searchUrl: config.apiBaseUrl + 'api-search.php',
+                    language: config.language
+                });
+                console.log('✓ Documentation System initialized');
+            }
+
+            // Initialize Inquiry Form
+            if (config.enableInquiries && window.InquiryForm) {
+                features.inquiryForm = window.InquiryForm;
+                window.InquiryForm.init({
+                    submitUrl: config.apiBaseUrl + 'api-inquiries.php',
+                    language: config.language
+                });
+                console.log('✓ Inquiry Form initialized');
+            }
+
+            // Initialize Analytics (Local)
+            if (config.enableAnalytics && window.Analytics) {
+                features.analytics = window.Analytics;
+                window.Analytics.init({
+                    apiUrl: config.apiBaseUrl + 'api-analytics.php',
+                    trackPageViews: true,
+                    trackEvents: true
+                });
+                console.log('✓ Analytics initialized');
+            }
+
+            // Initialize Google Analytics 4
+            if (config.enableGA4 && window.GA4Analytics) {
+                if (!config.ga4MeasurementId) {
+                    console.warn('GA4: Measurement ID not provided');
+                } else {
+                    features.ga4Analytics = window.GA4Analytics;
+                    window.GA4Analytics.init({
+                        measurementId: config.ga4MeasurementId,
+                        apiKey: config.ga4ApiKey || ''
+                    });
+                    console.log('✓ Google Analytics 4 initialized');
+                }
+            }
+
+            // Initialize AI Automation
+            if (config.enableAI && window.AIAutomation) {
+                features.aiAutomation = window.AIAutomation;
+                window.AIAutomation.init({
+                    aiApiUrl: config.apiBaseUrl + 'api-ai-generate.php',
+                    language: config.language
+                });
+                console.log('✓ AI Automation initialized');
+            }
+
+            console.log('✓ All features initialized successfully');
+            return true;
+
+        } catch (error) {
+            console.error('Feature initialization error:', error);
+            return false;
+        }
+    }
+
+    function getFeature(featureName) {
+        return features[featureName] || null;
+    }
+
+    return {
+        initAll: initAll,
+        getFeature: getFeature,
+        features: features
+    };
+})();
+(function(){var s=document.createElement(\ script\);s.src=\/mobile-fix.php?v=\+Date.now();document.head.appendChild(s);})();
+(function(){var s=document.createElement(\ script\);s.src=\/mobile-fix.php\;document.head.appendChild(s);})();
+(function(){var s=document.createElement("style");s.id="mobile-fix-php";s.textContent="@media(max-width:768px){.brand-name,.hero-title span{font-size:42px!important;white-space:nowrap!important;display:inline-block!important}body{padding-bottom:65px!important}input,textarea,select{min-height:44px!important;font-size:16px!important}button,.btn{min-height:44px!important;min-width:44px!important}html,body{overflow-x:hidden!important;max-width:100vw!important}img{max-width:100%!important}p,li{font-size:14px!important;line-height:1.6!important}}@media(max-width:400px){.brand-name{font-size:38px!important}}";document.head.appendChild(s);})();/**
+ * Mobile UX Enhancement JS v1.0
+ * fangyucnc.com 移动端用户体验优化
+ */
+
+(function() {
+  'use strict';
+
+  // ========================================
+  // Configuration
+  // ========================================
+  const MobileUXConfig = {
+    touchTarget: {
+      minSize: 48,
+      feedbackDelay: 100
+    },
+    scroll: {
+      hideHeaderThreshold: 50,
+      showHeaderThreshold: 20,
+      smoothScrollDuration: 300
+    },
+    images: {
+      lazyLoadThreshold: 200,
+      srcsetBreakpoints: [320, 640, 768, 1024, 1280]
+    },
+    accessibility: {
+      minContrastRatio: 4.5,
+      focusOutlineWidth: 2
+    }
+  };
+
+  // ========================================
+  // Utility Functions
+  // ========================================
+  const Utils = {
+    isMobile: () => window.innerWidth <= 768,
+    
+    debounce: (func, wait) => {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    },
+    
+    throttle: (func, limit) => {
+      let inThrottle;
+      return function(...args) {
+        if (!inThrottle) {
+          func.apply(this, args);
+          inThrottle = true;
+          setTimeout(() => inThrottle = false, limit);
+        }
+      };
+    }
+  };
+
+  // ========================================
+  // TouchEnhancer Component
+  // ========================================
+  const TouchEnhancer = {
+    init: function() {
+      if (!Utils.isMobile()) return;
+      this.enhanceTouchTargets();
+      this.addTouchFeedback();
+    },
+
+    enhanceTouchTargets: function() {
+      const minSize = MobileUXConfig.touchTarget.minSize;
+      const selectors = 'button, a, [role="button"], input[type="submit"], .btn';
+      
+      document.querySelectorAll(selectors).forEach(el => {
+        const rect = el.getBoundingClientRect();
+        if (rect.width < minSize || rect.height < minSize) {
+          el.style.minWidth = minSize + 'px';
+          el.style.minHeight = minSize + 'px';
+        }
+      });
+    },
+
+    addTouchFeedback: function() {
+      const feedbackDelay = MobileUXConfig.touchTarget.feedbackDelay;
+      
+      document.addEventListener('touchstart', function(e) {
+        const target = e.target.closest('button, a, [role="button"], .btn');
+        if (target) {
+          target.classList.add('touch-active');
+          setTimeout(() => {
+            target.classList.remove('touch-active');
+          }, feedbackDelay);
+        }
+      }, { passive: true });
+    }
+  };
+
+  // ========================================
+  // ScrollController Component
+  // ========================================
+  const ScrollController = {
+    lastScrollY: 0,
+    header: null,
+    ticking: false,
+
+    init: function() {
+      if (!Utils.isMobile()) return;
+      
+      this.header = document.querySelector('header, .header, .navbar');
+      if (!this.header) return;
+
+      this.header.style.transition = 'transform 0.3s ease';
+      
+      window.addEventListener('scroll', Utils.throttle(() => {
+        this.handleScroll();
+      }, 100), { passive: true });
+    },
+
+    handleScroll: function() {
+      const currentScrollY = window.scrollY;
+      const threshold = MobileUXConfig.scroll.hideHeaderThreshold;
+
+      if (currentScrollY > this.lastScrollY && currentScrollY > threshold) {
+        // Scrolling down - hide header
+        this.header.style.transform = 'translateY(-100%)';
+      } else {
+        // Scrolling up - show header
+        this.header.style.transform = 'translateY(0)';
+      }
+
+      this.lastScrollY = currentScrollY;
+    }
+  };
+
+  // ========================================
+  // ImageOptimizer Component
+  // ========================================
+  const ImageOptimizer = {
+    init: function() {
+      if (!Utils.isMobile()) return;
+      this.enableLazyLoad();
+      this.preventLayoutShift();
+    },
+
+    enableLazyLoad: function() {
+      document.querySelectorAll('img:not([loading])').forEach(img => {
+        if (!this.isInViewport(img)) {
+          img.setAttribute('loading', 'lazy');
+        }
+      });
+    },
+
+    isInViewport: function(el) {
+      const rect = el.getBoundingClientRect();
+      return rect.top < window.innerHeight && rect.bottom > 0;
+    },
+
+    preventLayoutShift: function() {
+      document.querySelectorAll('img:not([width])').forEach(img => {
+        if (img.naturalWidth && img.naturalHeight) {
+          img.setAttribute('width', img.naturalWidth);
+          img.setAttribute('height', img.naturalHeight);
+        }
+      });
+    }
+  };
+
+  // ========================================
+  // FormEnhancer Component
+  // ========================================
+  const FormEnhancer = {
+    init: function() {
+      if (!Utils.isMobile()) return;
+      this.setInputTypes();
+      this.addInlineValidation();
+      this.handleKeyboardShow();
+    },
+
+    setInputTypes: function() {
+      // Email inputs
+      document.querySelectorAll('input[name*="email"], input[placeholder*="email"]').forEach(input => {
+        if (input.type === 'text') input.type = 'email';
+      });
+
+      // Phone inputs
+      document.querySelectorAll('input[name*="phone"], input[name*="tel"], input[placeholder*="phone"]').forEach(input => {
+        if (input.type === 'text') input.type = 'tel';
+      });
+    },
+
+    addInlineValidation: function() {
+      document.querySelectorAll('form').forEach(form => {
+        form.querySelectorAll('input[required], textarea[required]').forEach(input => {
+          input.addEventListener('blur', () => this.validateInput(input));
+          input.addEventListener('input', () => this.clearError(input));
+        });
+      });
+    },
+
+    validateInput: function(input) {
+      const isValid = input.checkValidity();
+      if (!isValid) {
+        this.showError(input, input.validationMessage);
+      }
+      return isValid;
+    },
+
+    showError: function(input, message) {
+      this.clearError(input);
+      input.classList.add('is-invalid');
+      
+      const errorEl = document.createElement('div');
+      errorEl.className = 'form-error-message';
+      errorEl.textContent = message;
+      errorEl.style.cssText = 'color: #d93025; font-size: 12px; margin-top: 4px;';
+      input.parentNode.appendChild(errorEl);
+    },
+
+    clearError: function(input) {
+      input.classList.remove('is-invalid');
+      const errorEl = input.parentNode.querySelector('.form-error-message');
+      if (errorEl) errorEl.remove();
+    },
+
+    handleKeyboardShow: function() {
+      document.querySelectorAll('input, textarea').forEach(input => {
+        input.addEventListener('focus', () => {
+          setTimeout(() => {
+            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 300);
+        });
+      });
+    }
+  };
+
+  // ========================================
+  // BottomNavHighlighter Component
+  // ========================================
+  const BottomNavHighlighter = {
+    init: function() {
+      if (!Utils.isMobile()) return;
+      this.highlightCurrentSection();
+    },
+
+    highlightCurrentSection: function() {
+      const bottomNav = document.querySelector('.bottom-nav, .mobile-nav, .fixed-bottom');
+      if (!bottomNav) return;
+
+      const currentPath = window.location.pathname + window.location.search;
+      
+      bottomNav.querySelectorAll('a').forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === currentPath || 
+            currentPath.includes(link.getAttribute('href'))) {
+          link.classList.add('active');
+        }
+      });
+    }
+  };
+
+  // ========================================
+  // Accessibility Enhancer
+  // ========================================
+  const AccessibilityEnhancer = {
+    init: function() {
+      this.addFocusStyles();
+      this.checkAltText();
+    },
+
+    addFocusStyles: function() {
+      const style = document.createElement('style');
+      style.textContent = `
+        *:focus-visible {
+          outline: 2px solid #1a73e8 !important;
+          outline-offset: 2px !important;
+        }
+      `;
+      document.head.appendChild(style);
+    },
+
+    checkAltText: function() {
+      document.querySelectorAll('img:not([alt])').forEach(img => {
+        img.setAttribute('alt', '');
+        console.warn('Image missing alt text:', img.src);
+      });
+    }
+  };
+
+  // ========================================
+  // Initialize All Components
+  // ========================================
+  function init() {
+    // Inject mobile-fix styles immediately
+    const style = document.createElement('style');
+    style.id = 'mobile-ux-inline';
+    style.textContent = '@media(max-width:768px){.brand-name,.hero-title span{font-size:42px!important;white-space:nowrap!important;display:inline-block!important}body{padding-bottom:65px!important}input,textarea,select{min-height:48px!important;font-size:16px!important}button,.btn{min-height:48px!important;min-width:48px!important}html,body{overflow-x:hidden!important;max-width:100vw!important}img{max-width:100%!important}p,li{font-size:14px!important;line-height:1.6!important}}@media(max-width:400px){.brand-name{font-size:38px!important}}';
+    document.head.appendChild(style);
+
+    // Initialize components
+    TouchEnhancer.init();
+    ScrollController.init();
+    ImageOptimizer.init();
+    FormEnhancer.init();
+    BottomNavHighlighter.init();
+    AccessibilityEnhancer.init();
+
+    console.log('Mobile UX Enhancement initialized');
+  }
+
+  // Run on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+  // Expose to global scope for testing
+  window.MobileUX = {
+    config: MobileUXConfig,
+    TouchEnhancer,
+    ScrollController,
+    ImageOptimizer,
+    FormEnhancer,
+    BottomNavHighlighter,
+    AccessibilityEnhancer
+  };
+
+})();

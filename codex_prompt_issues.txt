@@ -1,0 +1,54 @@
+分析并修复 Fangyu Code 项目中的三个问题
+
+项目路径：F:\Fangyu-Code-Dev
+技术栈：Tauri + React + TypeScript
+
+## 问题 1：模型选择缺少最新的 Claude Opus 4.6 模型
+
+**问题描述**：
+模型选择器中没有最新的 claude opus 4.6 和 claude opus 4.6 [1M] 模型。
+
+**需要分析的文件**：
+- src/lib/constants.ts（可能包含模型列表）
+- src/types/multiEngineSettings.ts（模型类型定义）
+- src/components/FloatingPromptInput/ModelSelector.tsx（模型选择器组件）
+- src/hooks/useMultiEngineSettings.ts（引擎设置）
+
+**任务**：
+1. 找到模型列表的定义位置
+2. 添加 claude-opus-4-6 和 claude-opus-4-6[1m] 模型
+3. 确保模型显示名称正确（Claude Opus 4.6 和 Claude Opus 4.6 [1M]）
+4. 验证模型选择器能正确显示新模型
+
+## 问题 2：Node.js 命令未识别错误
+
+**问题描述**：
+发送信息时提示：'"node"' is not recognized as an internal or external command
+
+**可能原因**：
+- Node.js 未安装或未添加到 PATH
+- 某个功能尝试调用 node 命令但环境变量未配置
+- 可能是某个脚本或工具的依赖问题
+
+**需要分析**：
+1. 搜索代码中调用 node 命令的位置
+2. 检查是否有脚本或工具依赖 node 命令
+3. 提供修复方案（环境检查、错误处理、替代方案）
+
+## 问题 3：查找并分析错误日志
+
+**任务**：
+1. 在项目目录中查找最近的错误日志文件
+2. 查找包含错误堆栈的文件（可能在 temp/ 或 logs/ 目录）
+3. 分析错误日志中的问题
+4. 提供修复方案
+
+## 输出要求
+
+对于每个问题，提供：
+1. 根本原因分析
+2. 具体的修复代码
+3. 修改的文件列表
+4. 验证步骤
+
+请按顺序解决这三个问题，并应用所有修复。

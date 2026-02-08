@@ -1,0 +1,30 @@
+分析并修复 Fangyu Code 项目中的 React 无限循环错误。
+
+项目路径：F:\Fangyu-Code-Dev
+技术栈：Tauri + React + TypeScript + Zustand
+
+错误信息：
+Maximum update depth exceeded. This can happen when a component repeatedly calls setState inside componentWillUpdate or componentDidUpdate. React limits the number of nested updates to prevent infinite loops.
+
+错误堆栈显示问题出在 Zustand store 的 forceStoreRerender 和 updateStoreInstance。
+
+需要分析的文件：
+1. src/stores/useRecentSessionsStore.ts - Zustand store（已移除 persist 中间件）
+2. src/components/RecentSessionsList.tsx - React 组件
+3. src/components/layout/ViewRouter.tsx - 查看 recent-sessions case
+
+已尝试的修复（均失败）：
+- 移除 persist 中间件的复杂配置
+- 完全移除 persist 中间件
+- 使用最简单的 Zustand store
+
+请：
+1. 读取并分析这三个文件
+2. 找出无限循环的根本原因（可能是组件使用方式的问题，而不仅仅是 store 配置）
+3. 提供具体的修复代码
+4. 应用修复并验证
+
+输出要求：
+- 根本原因分析
+- 修改的文件和具体改动
+- 验证结果

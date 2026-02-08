@@ -135,7 +135,15 @@ export const SessionFooter: React.FC<SessionFooterProps> = React.memo(({
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-xs font-medium text-muted-foreground">#{index + 1}</span>
                       <span className="text-xs px-1.5 py-0.5 bg-primary/10 text-primary rounded">
-                        {queuedPrompt.model === "opus" ? "Opus" : queuedPrompt.model === "sonnet1m" ? "Sonnet 1M" : "Sonnet"}
+                        {queuedPrompt.model === "opus"
+                          ? "Opus"
+                          : queuedPrompt.model === "sonnet1m"
+                            ? "Sonnet 1M"
+                            : queuedPrompt.model === "claude-opus-4-6"
+                              ? "Claude Opus 4.6"
+                              : queuedPrompt.model === "claude-opus-4-6[1m]"
+                                ? "Claude Opus 4.6 [1M]"
+                                : "Sonnet"}
                       </span>
                     </div>
                     <p className="text-sm line-clamp-2 break-words">{queuedPrompt.prompt}</p>

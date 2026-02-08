@@ -1,0 +1,51 @@
+// Brand Name Translator - Clean Version
+// 产品卡片样式修复 - 图片透明背景，层级置顶
+
+(function(){
+  // CSS注入 - 强制透明背景
+  var style = document.createElement('style');
+  style.id = 'product-cards-transparent-style';
+  style.textContent = `
+    .cat-img-box,
+    .cat-img-box[style] {
+      background: none !important;
+      background-color: transparent !important;
+      background-image: none !important;
+      height: auto !important;
+      min-height: 0 !important;
+      max-height: none !important;
+      overflow: visible !important;
+      padding: 20px !important;
+      position: relative !important;
+      z-index: 10 !important;
+    }
+    .cat-img-box img,
+    .cat-img-box[style] img {
+      width: 100% !important;
+      height: auto !important;
+      max-height: none !important;
+      max-width: 100% !important;
+      object-fit: contain !important;
+      background: transparent !important;
+      position: relative !important;
+      z-index: 100 !important;
+    }
+    .cat-card,
+    .cat-card[style] {
+      height: auto !important;
+      min-height: 0 !important;
+      overflow: visible !important;
+      position: relative !important;
+    }
+    .category-grid {
+      overflow: visible !important;
+    }
+  `;
+  
+  // 确保样式只添加一次
+  if(!document.getElementById('product-cards-transparent-style')) {
+    document.head.appendChild(style);
+  }
+  
+  console.log('[BrandNameTranslator] Clean version loaded');
+})();

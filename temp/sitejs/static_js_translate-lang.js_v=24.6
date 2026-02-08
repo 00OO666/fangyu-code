@@ -1,0 +1,2128 @@
+/**
+ * 语言切换工具 - 完整多语言版
+ * v24.6 - 2025-12-20 * v24.0 - 2025-12-20: 修复页码翻译、FANGYU消失问题
+ * 包含导航翻译 + 产品分类翻译 + 专业术语纠正 + 页面元素翻译
+ * v23.0: 修复开槽机、卷板机等子分类重复/错误翻译问题
+ * v23.1: 新增 95 条翻译纠正，覆盖所有产品分类错误翻译
+ * v23.2: 新增 232 条翻译纠正，覆盖表单、按钮、提示信息、分页等页面元素
+ * v23.3: 紧急修复导航栏错误翻译（Service→服役兵役），新增 38 条纠正
+ * v23.4: 修复重复翻译问题（关于我们我们我们），新增 21 条纠正
+ * v24.2: 新增英文翻译支持，页码组件（首页、上一页、下一页、尾页）现可正确显示英文
+ */
+(function() {
+    'use strict';
+
+    // ==================== 完整的翻译纠正表 ====================
+    var TRANSLATION_CORRECTIONS = {
+        // ==================== 英文（中文→英文）====================
+        'en': {
+            // === 页码/分页 ===
+            '首页': 'First',
+            '上一页': 'Previous',
+            '前一页': 'Previous',
+            '下一页': 'Next',
+            '后一页': 'Next',
+            '尾页': 'Last',
+            '末页': 'Last',
+            '未查询到任何数据！': 'No data found!',
+            '未查询到任何数据': 'No data found',
+            '暂无数据': 'No data available',
+            '暂无记录': 'No records',
+            '跳转到第': 'Go to page',
+            '每页显示': 'Items per page',
+            '显示': 'Showing',
+            '至': 'to',
+            '条记录': 'entries',
+            '共': 'Total',
+            '页': 'pages',
+            '条': 'items',
+
+            // === 导航项 ===
+            '产品': 'Products',
+            '关于我们': 'About Us',
+            '服务': 'Service',
+            '新闻': 'News',
+            '联系我们': 'Contact Us',
+            '视频': 'Video',
+
+            // === 产品分类 ===
+            '折弯机': 'Press Brake',
+            '剪板机': 'Shearing Machine',
+            '卷板机': 'Rolling Machine',
+            '开槽机': 'Grooving Machine',
+            '激光切割机': 'Laser Cutting Machine',
+            '定制自动化机器人': 'Custom Automation Robot',
+            '工具及配件': 'Tooling & Accessories',
+
+            // === 子分类 ===
+            '液压折弯机': 'Hydraulic Press Brake',
+            '数控折弯机': 'CNC Press Brake',
+            '电动折弯机': 'Electric Press Brake',
+            '伺服折弯机': 'Servo Press Brake',
+            '液压同步折弯机': 'Hydraulic Synchro Press Brake',
+            '油电混合折弯机': 'Hybrid Press Brake',
+            '液压剪板机': 'Hydraulic Shearing Machine',
+            '数控剪板机': 'CNC Shearing Machine',
+            '立式开槽机': 'Vertical Grooving Machine',
+            '卧式开槽机': 'Horizontal Grooving Machine',
+            '数控开槽机': 'CNC Grooving Machine',
+            '三辊卷板机': 'Three-Roller Plate Rolling Machine',
+            '四辊卷板机': 'Four-Roller Plate Rolling Machine',
+            '数控卷板机': 'CNC Plate Rolling Machine',
+            '液压卷板机': 'Hydraulic Plate Rolling Machine',
+            '光纤激光切割机': 'Fiber Laser Cutting Machine',
+
+            // === 服务相关 ===
+            '售后服务': 'After-Sales',
+            '售前服务': 'Pre-Order',
+            '生产服务': 'Production',
+
+            // === 关于我们部分 ===
+            '发展历程': 'Historical Evolution',
+            '团队介绍': 'Meet Our Team',
+            '核心加工设备': 'Core Processing Equipment',
+            '国际合作伙伴': 'Our International Partners',
+            '技术合作伙伴': 'Our Technology Partners',
+            '展会亮点': 'Exhibition Highlights',
+            '专利与认证': 'Patents & Certifications',
+
+            // === 按钮和表单 ===
+            '获取报价': 'Get A Quote',
+            '咨询专家': 'Talk To An Expert',
+            '免费打样': 'Free Sample Testing',
+            '发送询价': 'Send Inquiry',
+            '提交': 'Submit',
+            '重置': 'Reset',
+            '搜索': 'Search',
+            '搜索产品...': 'Search products...',
+            '加载中...': 'Loading...',
+            '请稍候...': 'Please wait...',
+            '发送中...': 'Sending...',
+
+            // === 表单字段 ===
+            '姓名': 'Name',
+            '您的姓名': 'Your Name',
+            '电子邮箱': 'Email',
+            '您的邮箱': 'Your Email',
+            '电话': 'Phone',
+            '您的电话': 'Your Phone',
+            '公司': 'Company',
+            '公司名称': 'Company Name',
+            '国家': 'Country',
+            '留言': 'Message',
+            '您的消息': 'Your Message',
+            '留言内容': 'Message Content',
+            '标题': 'Title',
+            '主题': 'Subject',
+
+            // === 表单验证 ===
+            '请输入您的姓名': 'Please enter your name',
+            '请输入有效的邮箱地址': 'Please enter a valid email address',
+            '请输入您的消息': 'Please enter your message',
+            '姓名不能为空': 'Name cannot be empty',
+            '标题不能为空': 'Title cannot be empty',
+            '留言内容不能为空': 'Message cannot be empty',
+
+            // === 成功/错误消息 ===
+            '询价提交成功': 'Inquiry submitted successfully',
+            '询价提交失败': 'Failed to submit inquiry',
+            '成功加入询价车': 'Added to inquiry cart',
+            '未知错误': 'Unknown error',
+            '发生错误': 'An error occurred',
+            '网络错误': 'Network error',
+            '请求失败': 'Request failed',
+
+            // === 页脚和其他 ===
+            '关注我们': 'Follow Us',
+            '订阅我们': 'Subscribe to Us',
+            '网站地图': 'Sitemap',
+            '隐私政策': 'Privacy Policy',
+            '返回顶部': 'Back to Top',
+            '查看更多': 'View More',
+            '了解更多': 'Learn More',
+            '更多详情': 'More Details',
+            '立即联系': 'Contact Now',
+            '发送邮件': 'Send Email',
+            '联系电话': 'Phone',
+            '在线咨询': 'Online Consultation'
+        },
+
+        // ==================== 中文（简体）====================
+        'zh': {
+            // === 导航项（核心）===
+            'Home': '首页',
+            'Products': '产品',
+            'About Us': '关于我们',
+            'Service': '服务',
+            'News': '新闻',
+            'Contact': '联系我们',
+            'Contact Us': '联系我们',
+            'Video': '视频',
+
+            // === 主要产品分类 ===
+            'Press Brake': '折弯机',
+            'Shearing Machine': '剪板机',
+            'Rolling Machine': '卷板机',
+            'Grooving Machine': '开槽机',
+            'Laser Cutting Machine': '激光切割机',
+            'Custom Automation Robot': '定制自动化机器人',
+            'Tooling & Accessories': '工具及配件',
+            'Tooling &amp; Accessories': '工具及配件',
+
+            // === Press Brake子分类 ===
+            'Hydraulic Press Brake': '液压折弯机',
+            'CNC Press Brake': '数控折弯机',
+            'Electric Press Brake': '电动折弯机',
+            'Servo Press Brake': '伺服折弯机',
+            'Hydraulic Synchro Press Brake': '液压同步折弯机',
+            'Hybrid Press Brake': '油电混合折弯机',
+
+            // === Shearing Machine子分类 ===
+            'Hydraulic Shearing Machine': '液压剪板机',
+            'CNC Shearing Machine': '数控剪板机',
+            'Guillotine Shear': '闸式剪板机',
+            'Swing Beam Shear': '摆式剪板机',
+            'Hydraulic Swing Beam Shear': '液压摆式剪板机',
+            'Hydraulic Guillotine Shear': '液压闸式剪板机',
+
+            // === Grooving Machine子分类 ===
+            'Vertical Grooving Machine': '立式开槽机',
+            'Horizontal Grooving Machine': '卧式开槽机',
+            'CNC Grooving Machine': '数控开槽机',
+
+            // === Rolling Machine子分类 ===
+            'Three-Roller Plate Rolling Machine': '三辊卷板机',
+            'Four-Roller Plate Rolling Machine': '四辊卷板机',
+            'CNC Plate Rolling Machine': '数控卷板机',
+            'Hydraulic Plate Rolling Machine': '液压卷板机',
+
+            // === Laser Cutting子分类 ===
+            'CO2 Laser Cutting Machine': 'CO2激光切割机',
+            'Fiber Laser Cutting Machine': '光纤激光切割机',
+            'YAG Laser Cutting Machine': 'YAG激光切割机',
+            'Laser Tube Cutting Machine': '激光管材切割机',
+            'Laser Plate Cutting Machine': '激光板材切割机',
+            'Fiber Laser Cutting': '光纤激光切割',
+            'CO2 Laser Cutting': 'CO2激光切割',
+
+            // === Robot子分类 ===
+            'Industrial Robotic Arm': '工业机械臂',
+            'CNC Robotic Arm': '数控机械臂',
+            'Collaborative Robot (Cobot)': '协作机器人',
+            'Automated Welding Robot': '自动焊接机器人',
+            'Material Handling Robot': '物料搬运机器人',
+            'Welding and Coating Robot': '焊接和涂装机器人',
+            'Palletizing Robot': '码垛机器人',
+
+            // === Tooling子分类 ===
+            'Press Brake Tooling': '折弯机模具',
+            'Shearing Machine Blades': '剪板机刀片',
+            'Back Gauge Systems': '后挡料系统',
+            'Safety Equipment': '安全设备',
+            'CNC Controllers': '数控系统',
+            'Spare Parts': '零配件',
+
+            // === 服务相关 ===
+            'After-Sales': '售后服务',
+            'Pre-Order': '售前服务',
+            'Production': '生产服务',
+
+            // === 关于我们部分 ===
+            'Historical Evolution': '发展历程',
+            'Meet Our Team': '团队介绍',
+            'Core Processing Equipment': '核心加工设备',
+            'Our International Partners': '国际合作伙伴',
+            'Our Technology Partners': '技术合作伙伴',
+            'Highlights From Our Exhibitions': '展会亮点',
+            'Patents And Certifications': '专利与认证',
+            'Industry Applieation Cases': '行业应用案例',
+            'Industry Application Cases': '行业应用案例',
+            'Case Show': '案例展示',
+
+// === UI表单元素 ===            'Cancel': '取消',            'Submit': '提交',            'SUBMIT': '提交',            'Send': '发送',            'SEND': '发送',            'Send Inquiry': '发送询价',            'Send an Enquiry': '发送询价',            'Company Name': '公司名称',            'Name': '姓名',            'Email': '邮箱',            'Address': '地址',            'Requirements': '需求',            'Quick Inquiry': '快速询价',            'Inquiry For Price': '价格询价',            'Inquiry': '询价',            'Submit Inquiry': '提交询价',            'Type': '类型',            'CATEGORY': '类别',
+            // === 行动号召 ===
+'View Products': '查看产品',            'View All Articles': '查看所有文章',            'View Larger': '查看大图',            'Get in Touch': '联系我们',            'Contact Us for Quote': '联系获取报价',            'Watch Video': '观看视频',            'Request Custom Demo': '申请定制演示',            'Discover how': '了解如何',            'Go to': '前往',            'See FANGYU': '了解方昱',            'See': '查看',
+            'Get A Quote': '获取报价',
+            'Talk To An Expert': '咨询专家',
+            'Free proofing': '免费打样',
+            'Free Sample Testing': '免费打样',
+
+            // === 服务详情 ===
+'Our Services': '我们的服务',            'Our Service': '我们的服务',            'Technical Consulting': '技术咨询',            'Rapid Response': '快速响应',            'RAPID RESPONSE': '快速响应',            'Rapid Agility': '快速响应',            'Emergency Response': '紧急响应',            'Response Time': '响应时间',            'Remote Diagnostics': '远程诊断',            'Remote diagnostics': '远程诊断',            'Remote': '远程',            'Video call assistance': '视频通话协助',            'Service Engineers': '服务工程师',            'Support': '支持',            'Always Online': '始终在线',            'Available for consultation': '可咨询',            'First Technical Support Center': '第一技术支持中心',            'Regional Centers': '区域中心',            'Dispatch': '派遣',            'Serving Manufacturers Worldwide': '服务全球制造商',            'Worldwide Service Coverage': '全球服务覆盖',            'Global Network': '全球网络',            'Global Reach': '全球覆盖',            'Global Logistics': '全球物流',            'Global Shipping': '全球运输',            'Global Parts Network': '全球零配件网络',            'Global Market Expansion': '全球市场拓展',            'Professional Training Programs': '专业培训计划',            'Training': '培训',            'We will respond as soon as possible': '我们将尽快回复',            'Quick answers to common service inquiries': '常见服务问题快速解答',
+            'Global Service Network': '全球服务网络',
+            'Operational Training & Optimization Advice': '操作培训与优化建议',
+            '24/7 Technical Support': '全天候技术支持',
+            'Customized Spare Parts & Maintenance Plans': '定制零配件与维护方案',
+            'Budgeting & Delivery Time Planning': '预算与交期规划',
+            'Technical Assessment & Solution Design': '技术评估与方案设计',
+            'Customized Consultation': '定制咨询',
+            'Communication & Feedback': '沟通与反馈',
+            'Strict Quality Control': '严格质量控制',
+            'Real-Time Production Updates': '实时生产进度',
+
+// === 页面元素 ===            'Follow Us': '关注我们',            'Scroll': '滚动',            'Top': '返回顶部',            'SUBSCRIBE TO US': '订阅我们',            'Subscribe on YouTube': '订阅YouTube',            'Stay Updated': '保持更新',            'Latest Highlight': '最新亮点',            'Sitemap': '网站地图',            'Privacy Policy': '隐私政策',            'Featured Video': '精选视频',            'Featured': '精选',            'Image': '图片',            'Gallery': '图库',            'Photo Gallery': '照片图库',            'Want to See More?': '想看更多？',            // === 公司品质相关 ===            'Certified Quality': '认证品质',            'Premium Quality': '优质品质',            'Quality First': '品质第一',            'Quality Assurance': '质量保证',            'Quality': '质量',            'Quality Management System Certified': '质量管理体系认证',            'CE Certification': 'CE认证',            'European Conformity Standards': '欧洲合格标准',            'Core Patents': '核心专利',            'Certificate': '证书',            'Certified': '已认证',            'Excellence': '卓越',            'COST SAVINGS': '成本节约',            'Cost Efficiency': '成本效益',            'Warranty Protection': '质保',            'Warranty on repairs': '维修保修',            'Expert Support Team': '专家支持团队',            'Company Milestones': '公司里程碑',            'Factory Verification': '工厂验证',            'Who We Are': '我们是谁',            'WHO WE ARE': '我们是谁',            'What Drives Us': '驱动我们的动力',            'How We Work': '我们如何工作',            'How It Works': '工作原理',            'About FANGYU': '关于方昱',            'About': '关于',            'Elite Network': '精英网络',            'Strategic Partners': '战略合作伙伴',            'Manufacturer Partners': '制造商合作伙伴',            'Risk Free': '无风险',
+            // === 其他页面元素 ===
+            'Other': '其他',
+            'View Details': '查看详情',
+            'Learn More': '了解更多',
+            'Read More': '阅读更多',
+            'View All': '查看全部',
+
+// === 产品相关 ===            'Product': '产品',            'Product Name': '产品名称',            'Product Demo Video': '产品演示视频',            'Product Gallery': '产品图库',            'Industrial Solutions': '工业解决方案',            'Industrial Machine Tools': '工业机床',            'Automation': '自动化',            'Automation integration': '自动化集成',            'Forming Equipment': '成型设备',            'Cutting Systems': '切割系统',            'Custom Solutions': '定制解决方案',            'Custom Equipment Housing': '定制设备外壳',            'Customize product requirements': '定制产品需求',            'Advanced': '先进',            'HD Quality': '高清质量',            'Feature': '特点',            'Features': '特点',            'Specifications': '规格',            'Technical Specifications': '技术规格',            'Related Products': '相关产品',            'Touch Screen Control System Features': '触摸屏控制系统功能',            'Panel Bender': '折弯中心',            'S630 System Press Brake Display Screen': 'S630系统折弯机显示屏',            // === 统计数据 ===            'Countries Served': '服务国家',            'COUNTRIES SERVED': '服务国家',            'Countries Covered': '覆盖国家',            'Countries': '国家',            'Country': '国家',            'Global Scale': '全球规模',            'Years Collaboration': '年合作',            'Years Experience': '年经验',            'Machines Delivered': '交付机器数',            'Satisfied Clients': '满意客户',            'Total': '总计',            'Total Views': '总浏览量',            'Views': '浏览量',            'Savings': '节省',            'ROI analysis': '投资回报分析',            'Value': '价值',            // === 维护和零配件 ===            'Purchase accessories': '购买配件',            'Genuine Spare Parts Supply': '正品零配件供应',            'Genuine replacement parts': '正品替换件',            'Tooling Parts': '工具零件',            'Wear part replacement': '易损件更换',            'Component overhaul': '部件检修',            'Maintenance guide': '维护指南',            'Regular inspection schedules': '定期检查计划',            'Repair Services': '维修服务',            'Equipment Upgrades': '设备升级',            'CNC system upgrades': '数控系统升级',            'Software updates': '软件更新',            'Retrofit solutions': '改造解决方案',
+            // === 产品型号翻译 ===
+            'Electro-Hydraulic Servo CNC Press Brake': '电液伺服数控折弯机',
+            'Electro-Hydraulic Synchronized CNC Press Brake': '电液同步数控折弯机',
+            'Oil-Electric Hybrid CNC Press Brake': '油电混合数控折弯机',
+            'Oil-Electric Hybrid Large CNC Press Brake': '油电混合大型数控折弯机',
+            'Upper Transmission Electro-Hydraulic Servo Press Brake': '上传动电液伺服折弯机',
+            'Lower Transmission Electro-Hydraulic CNC Press Brake': '下传动电液数控折弯机',
+            'Fully Electric Servo Bending Machine': '全电动伺服折弯机',
+            'Multilateral Bending Center': '多边折弯中心',
+            'Automatic CNC Panel Bender': '自动数控折弯中心',
+            'Dual-Machine Synchronization': '双机联动',
+            'CNC Vertical Slotting Machine': '数控立式开槽机',
+            'Fully CNC High-Speed Grooving Machine': '全数控高速开槽机',
+            'CNC Guillotine Shearing Machine': '数控闸式剪板机',
+            'Advanced CNC Shearing Line': '先进数控剪板线',
+            'All-in-One Plate and Pipe Laser Cutting System': '板管一体激光切割系统',
+            'CNC Swing Beam Shearing Machine': '数控摆式剪板机',
+            'Precision CNC Shearing Line': '精密数控剪板线',
+            'Front-and-Rear Pushing Specialized Press Brake': '前后推送专用折弯机',
+            'Servo-Following Front Sheet Support System': '伺服随动前托料系统',
+            'Advanced Heavy-Duty Laser Plate Cutter': '先进重型激光板材切割机',
+            'Precision CNC Laser Cutter': '精密数控激光切割机',
+
+// === 工作流程和评估 ===            'Assessment': '评估',            'Production line planning': '生产线规划',            'Equipment selection': '设备选型',            'Site preparation guidance': '现场准备指导',            'Complete workflow demonstration': '完整工作流程演示',            'Safety operation demonstration': '安全操作演示',            // === 新闻和媒体 ===            'Industry News': '行业新闻',            'Industry': '行业',            'Application Cases': '应用案例',            'Applications': '应用',            'Related Videos': '相关视频',            'Video Gallery': '视频库',            'Video Library': '视频库',            'Videos': '视频',            'In Action': '实际应用',            // === 其他常用 ===            'Company': '公司',            'Expertise': '专业知识',            'Channels': '渠道',            'Electrical Components': '电气元件',            'Aluminum Alloy Processing': '铝合金加工',            'Your Global Partner in': '您的全球合作伙伴',            'Your Manufacturing Success': '您的制造成功',            'Consult enterprise solutions': '咨询企业解决方案',            'Consult product pricing': '咨询产品价格',            'Get the latest quote for this product': '获取本产品最新报价',            'Frequently Asked Questions': '常见问题',            'Contact Information': '联系信息',            'Tell us about your needs': '告诉我们您的需求',            'Powered by HiCheng': '由宏诚技术支持',            'View More': '查看更多',            'Show More': '显示更多',            'Load More': '加载更多',            'Why': '为什么',            'Smart Manufacturing': '智能制造',            'NANTONG SERVICE INTERNATIONAL TRADE CO.,LTD.': '南通方昱国际贸易有限公司',            'Shanghai CIMC': '上海中集',            'Dalian CIMC': '大连中集',            'CNC Press Brake with Dual-Machine Synchronization': '双机联动数控折弯机',            'Masteel Servo-Following Front Sheet Support System': '马钢伺服随动前托料系统',
+            // === 已有的翻译纠正 ===
+            '压制器': '折弯机',
+            '按刹车': '折弯机',
+            '压闸': '折弯机',
+            '新闻刹车': '折弯机',
+            '压力机刹车': '折弯机',
+            '刹车机': '折弯机',
+            '滚筒机': '卷板机',
+            '滚动机': '卷板机',
+            '轧制机': '卷板机',
+            '滚压机': '卷板机',
+            '辊压机': '卷板机',
+            '剪切机': '剪板机',
+            '剪羊毛机': '剪板机',
+            '切割机器': '剪板机',
+            '开槽机器': '开槽机',
+            '沟槽机': '开槽机',
+            '槽机': '开槽机',
+            '习俗自动化机器人': '定制自动化机器人',
+            '自定义自动化机器人': '定制自动化机器人',
+            '工装和配件': '工具及配件',
+            '模具和配件': '工具及配件',
+            '工具零件': '工具及配件',
+            '电动液压': '电液',
+            '电液压': '电液',
+            '电气液压': '电液',
+            '伺服电机': '伺服',
+            '伺服系统': '伺服',
+            '伺服器': '伺服',
+            '数控系统': '数控',
+            '计算机数控': '数控',
+            'CNC系统': '数控',
+            '数字控制': '数控',
+            '同步的': '同步',
+            '同步化': '同步',
+            '已同步': '同步',
+            '油电混合动力': '油电混合',
+            '油电混合型': '油电混合',
+            '石油电气混合': '油电混合',
+            '油电混动': '油电混合',
+            '混合动力': '油电混合',
+            '低传输': '下传动',
+            '下部传动': '下传动',
+            '较低的传输': '下传动',
+            '底部传动': '下传动',
+            '金属板加工': '钣金加工',
+            '薄板金属': '钣金',
+            '金属板': '钣金',
+            '板材金属': '钣金',
+            '金属薄板': '钣金',
+            '弯曲加工': '折弯',
+            '弯曲': '折弯',
+            '弯折': '折弯',
+            '高精密': '高精度',
+            '高精确': '高精度',
+            '精密度': '精密',
+            '精确度': '精度',
+            '准确度': '精度',
+            '制造业': '制造',
+            '生产制造': '制造',
+            '智慧制造': '智能制造',
+            '聪明制造': '智能制造',
+            '优质质量': '优质品质',
+            '高级品质': '优质品质',
+            '优质的': '优质',
+            '一站式服务': '一站式',
+            '一站式解决方案': '一站式',
+            '现代产业': '现代工业',
+            '当代工业': '现代工业',
+            '全球伙伴': '全球合作伙伴',
+            '世界伙伴': '全球合作伙伴',
+            '战略伙伴': '战略合作伙伴',
+            '策略伙伴': '战略合作伙伴',
+            '技术伙伴': '技术合作伙伴',
+            '科技伙伴': '技术合作伙伴',
+            '主页': '首页',
+            '家': '首页',
+            '接触': '联系我们',
+            '查看细节': '查看详情',
+            '查看更多': '了解更多',
+            '阅读全文': '阅读更多',
+            '获得报价': '获取报价',
+            '得到报价': '获取报价',
+            '请求报价': '获取报价',
+            '询问专家': '咨询专家',
+            '与专家交谈': '咨询专家',
+            '问专家': '咨询专家',
+            '免费样品': '免费打样',
+            '免费校样': '免费打样',
+            '免费试样': '免费打样',
+
+            // === v23 新增：开槽机错误翻译修正 ===
+            '垂直开开槽机': '立式开槽机',
+            '水平开开槽机': '卧式开槽机',
+            '数控开开槽机': '数控开槽机',
+            '垂直开槽机': '立式开槽机',
+            '水平开槽机': '卧式开槽机',
+            '律动机': '开槽机',
+            '垂直律动机': '立式开槽机',
+            '水平律动机': '卧式开槽机',
+            '数控律动机': '数控开槽机',
+            '立式开开槽机': '立式开槽机',
+            '卧式开开槽机': '卧式开槽机',
+            '开开槽机': '开槽机',
+            '垂直沟槽机': '立式开槽机',
+            '水平沟槽机': '卧式开槽机',
+            '数控沟槽机': '数控开槽机',
+
+            // === v23 新增：卷板机错误翻译修正 ===
+            '三滚筒板卷板机': '三辊卷板机',
+            '四滚筒板卷板机': '四辊卷板机',
+            '三辊板材卷板机': '三辊卷板机',
+            '四辊板材卷板机': '四辊卷板机',
+            '三滚筒卷板机': '三辊卷板机',
+            '四滚筒卷板机': '四辊卷板机',
+            '三辊板卷板机': '三辊卷板机',
+            '四辊板卷板机': '四辊卷板机',
+            '三滚板滚动机': '三辊卷板机',
+            '四滚板滚动机': '四辊卷板机',
+            '液压板卷板机': '液压卷板机',
+            '液压板滚动机': '液压卷板机',
+            '数控板卷板机': '数控卷板机',
+            '数控板滚动机': '数控卷板机',
+            '三辊滚动机': '三辊卷板机',
+            '四辊滚动机': '四辊卷板机',
+            '三辊滚筒机': '三辊卷板机',
+            '四辊滚筒机': '四辊卷板机',
+            '三辊轧制机': '三辊卷板机',
+            '四辊轧制机': '四辊卷板机',
+            '液压滚动机': '液压卷板机',
+            '液压轧制机': '液压卷板机',
+            '数控滚动机': '数控卷板机',
+            '数控轧制机': '数控卷板机',
+            '三滚子板卷板机': '三辊卷板机',
+            '四滚子板卷板机': '四辊卷板机',
+            '三辊式板卷板机': '三辊卷板机',
+            '四辊式板卷板机': '四辊卷板机',
+
+            // === v23 新增：其他常见错误翻译修正 ===
+            '工业机器人臂': '工业机械臂',
+            '数控机器人臂': '数控机械臂',
+            '协作机器人（协作机器人）': '协作机器人',
+            '合作机器人': '协作机器人',
+            '自动化焊接机器人': '自动焊接机器人',
+            '物料处理机器人': '物料搬运机器人',
+            '材料搬运机器人': '物料搬运机器人',
+            '焊接和涂层机器人': '焊接和涂装机器人',
+            '码垛堆垛机器人': '码垛机器人',
+            '堆垛机器人': '码垛机器人',
+
+            // === v23.1 补充：剪板机错误翻译修正 ===
+            '断头台剪': '闸式剪板机',
+            '断头台剪板机': '闸式剪板机',
+            '铡刀剪': '闸式剪板机',
+            '铡刀剪板机': '闸式剪板机',
+            '铡刀式剪板机': '闸式剪板机',
+            '液压断头台剪': '液压闸式剪板机',
+            '液压断头台剪板机': '液压闸式剪板机',
+            '液压铡刀剪板机': '液压闸式剪板机',
+            '摇摆梁剪': '摆式剪板机',
+            '摇摆梁剪板机': '摆式剪板机',
+            '摆动梁剪板机': '摆式剪板机',
+            '摇摆式剪板机': '摆式剪板机',
+            '液压摇摆梁剪板机': '液压摆式剪板机',
+            '液压摆动梁剪板机': '液压摆式剪板机',
+            '液压摇摆剪板机': '液压摆式剪板机',
+            '数控断头台剪板机': '数控闸式剪板机',
+            '数控铡刀剪板机': '数控闸式剪板机',
+            '数控摇摆梁剪板机': '数控摆式剪板机',
+
+            // === v23.1 补充：折弯机错误翻译修正 ===
+            '混合折弯机': '油电混合折弯机',
+            '杂交折弯机': '油电混合折弯机',
+            '混合动力折弯机': '油电混合折弯机',
+            '同步折弯机': '液压同步折弯机',
+            '同步器折弯机': '液压同步折弯机',
+            '液压同步器折弯机': '液压同步折弯机',
+            '伺服器折弯机': '伺服折弯机',
+            '全电折弯机': '电动折弯机',
+            '全电动折弯机': '电动折弯机',
+
+            // === v23.1 补充：激光切割机错误翻译修正 ===
+            '纤维激光切割机': '光纤激光切割机',
+            '纤维激光切割': '光纤激光切割',
+            '光纤激光切削机': '光纤激光切割机',
+            '管激光切割机': '激光管材切割机',
+            '激光管切割机': '激光管材切割机',
+            '激光管道切割机': '激光管材切割机',
+            '板激光切割机': '激光板材切割机',
+            '激光板切割机': '激光板材切割机',
+            '激光钣金切割机': '激光板材切割机',
+            '二氧化碳激光切割机': 'CO2激光切割机',
+            '二氧化碳激光切割': 'CO2激光切割',
+
+            // === v23.1 补充：工具配件错误翻译修正 ===
+            '后规系统': '后挡料系统',
+            '背规系统': '后挡料系统',
+            '后量规系统': '后挡料系统',
+            '后挡规系统': '后挡料系统',
+            '折弯机工具': '折弯机模具',
+            '折弯工具': '折弯机模具',
+            '剪切机刀片': '剪板机刀片',
+            '剪切刀片': '剪板机刀片',
+            '备件': '零配件',
+            '备用零件': '零配件',
+            '备用部件': '零配件',
+
+            // === v23.1 补充：关于我们错误翻译修正 ===
+            '历史演变': '发展历程',
+            '历史进化': '发展历程',
+            '历史发展': '发展历程',
+            '历史沿革': '发展历程',
+            '认识我们的团队': '团队介绍',
+            '见见我们的团队': '团队介绍',
+            '我们的团队': '团队介绍',
+            '核心处理设备': '核心加工设备',
+            '核心加工装备': '核心加工设备',
+            '我们的国际合作伙伴': '国际合作伙伴',
+            '展览亮点': '展会亮点',
+            '我们展览的亮点': '展会亮点',
+            '专利和认证': '专利与认证',
+            '专利与证书': '专利与认证',
+
+            // === v23.1 补充：服务错误翻译修正 ===
+            '预购': '售前服务',
+            '预订': '售前服务',
+            '预定': '售前服务',
+            '售前': '售前服务',
+            '售后': '售后服务',
+            '生产': '生产服务',
+
+            // === v23.1 补充：通用错误翻译修正 ===
+            '行业应用案例': '行业应用案例',
+            '行业申请案例': '行业应用案例',
+            '产业应用案例': '行业应用案例',
+            '案件展示': '案例展示',
+            '案例显示': '案例展示',
+            '工业机器人': '工业机械臂',
+            '数控机器人': '数控机械臂',
+            '协作型机器人': '协作机器人',
+            '焊接机器人': '自动焊接机器人',
+            '搬运机器人': '物料搬运机器人',
+            '托盘机器人': '码垛机器人',
+            '托盘化机器人': '码垛机器人',
+
+            // === v23.2 新增：表单placeholder翻译 ===
+            'Search products...': '搜索产品...',
+            'Search...': '搜索...',
+            'Enter your full name': '请输入您的姓名',
+            'your@email.com': '您的邮箱',
+            '+1 234 567 8900': '您的电话号码',
+            'Your country': '您的国家/地区',
+            'Your company (optional)': '公司名称（选填）',
+            'Please tell us your specific requirements, product specifications, quantity, etc...': '请告诉我们您的具体需求、产品规格、数量等...',
+            'Type your message here...': '在此输入您的留言...',
+            'Enter your name': '请输入姓名',
+            'Enter your email': '请输入邮箱',
+            'Enter your phone': '请输入电话',
+            'Enter your company': '请输入公司名称',
+            'Enter your message': '请输入留言内容',
+            'Select an option': '请选择',
+            'Choose...': '请选择...',
+
+            // === v23.2 新增：提示信息翻译 ===
+            'Join the inquiry cart successfully.': '成功加入询价车。',
+            'Please wait...': '请稍候...',
+            'Please enter a valid email address.': '请输入有效的邮箱地址。',
+            'The title cannot be empty.': '标题不能为空。',
+            'The message cannot be empty.': '留言内容不能为空。',
+            'The name cannot be empty.': '姓名不能为空。',
+            'Your message has been posted, please wait patiently administrator audit, thank you for your submission.': '您的留言已提交，请耐心等待管理员审核，感谢您的提交。',
+            'Inquiry submitted successfully! We will contact you soon.': '询价提交成功！我们将尽快与您联系。',
+            'Failed to submit inquiry': '询价提交失败',
+            'Unknown error': '未知错误',
+            'Error occurred': '发生错误',
+            'Network error': '网络错误',
+            'Request failed': '请求失败',
+            'Loading...': '加载中...',
+            'Submitting...': '提交中...',
+            'Sending...': '发送中...',
+            'Processing...': '处理中...',
+            'Please select': '请选择',
+            'Required field': '必填项',
+            'Invalid input': '输入无效',
+            'File too large': '文件过大',
+            'Upload failed': '上传失败',
+            'Upload successful': '上传成功',
+
+            // === v23.2 新增：按钮和操作翻译 ===
+            'Close': '关闭',
+            'Open': '打开',
+            'Cancel': '取消',
+            'Confirm': '确认',
+            'OK': '确定',
+            'Yes': '是',
+            'No': '否',
+            'Back': '返回',
+            'Next': '下一步',
+            'Previous': '上一步',
+            'Finish': '完成',
+            'Save': '保存',
+            'Delete': '删除',
+            'Edit': '编辑',
+            'Update': '更新',
+            'Refresh': '刷新',
+            'Reset': '重置',
+            'Clear': '清除',
+            'Search': '搜索',
+            'Filter': '筛选',
+            'Sort': '排序',
+            'Apply': '应用',
+            'Download': '下载',
+            'Upload': '上传',
+            'Browse': '浏览',
+            'Select': '选择',
+            'Select All': '全选',
+            'Deselect All': '取消全选',
+            'Expand': '展开',
+            'Collapse': '收起',
+            'Show': '显示',
+            'Hide': '隐藏',
+            'Enable': '启用',
+            'Disable': '禁用',
+            'Add': '添加',
+            'Remove': '移除',
+            'Copy': '复制',
+            'Paste': '粘贴',
+            'Cut': '剪切',
+            'Undo': '撤销',
+            'Redo': '重做',
+
+            // === v23.2 新增：分页翻译 ===
+            'Page': '页',
+            'of': '共',
+            'First': '首页',
+            'Last': '末页',
+            'Prev': '上一页',
+            'Next Page': '下一页',
+            'Go to page': '跳转到第',
+            'Items per page': '每页显示',
+            'Showing': '显示',
+            'to': '至',
+            'entries': '条记录',
+            'No data available': '暂无数据',
+            'No results found': '未找到结果',
+            'No records': '暂无记录',
+
+            // === v23.2 新增：状态信息翻译 ===
+            'Success': '成功',
+            'Error': '错误',
+            'Warning': '警告',
+            'Info': '提示',
+            'Failed': '失败',
+            'Completed': '已完成',
+            'Pending': '待处理',
+            'In Progress': '进行中',
+            'Cancelled': '已取消',
+            'Approved': '已批准',
+            'Rejected': '已拒绝',
+            'Active': '活跃',
+            'Inactive': '未激活',
+            'Online': '在线',
+            'Offline': '离线',
+            'Available': '可用',
+            'Unavailable': '不可用',
+            'New': '新建',
+            'Draft': '草稿',
+            'Published': '已发布',
+            'Archived': '已归档',
+
+            // === v23.2 新增：时间相关翻译 ===
+            'Today': '今天',
+            'Yesterday': '昨天',
+            'Tomorrow': '明天',
+            'This week': '本周',
+            'Last week': '上周',
+            'This month': '本月',
+            'Last month': '上月',
+            'This year': '今年',
+            'Last year': '去年',
+            'Just now': '刚刚',
+            'ago': '前',
+            'later': '后',
+            'seconds': '秒',
+            'minutes': '分钟',
+            'hours': '小时',
+            'days': '天',
+            'weeks': '周',
+            'months': '月',
+            'years': '年',
+
+            // === v23.2 新增：常见UI文本翻译 ===
+            'Welcome': '欢迎',
+            'Hello': '您好',
+            'Thank you': '谢谢',
+            'Thanks': '感谢',
+            'Sorry': '抱歉',
+            'Please': '请',
+            'Note': '注意',
+            'Important': '重要',
+            'Required': '必填',
+            'Optional': '选填',
+            'More': '更多',
+            'Less': '收起',
+            'All': '全部',
+            'None': '无',
+            'Default': '默认',
+            'Custom': '自定义',
+            'Settings': '设置',
+            'Options': '选项',
+            'Preferences': '偏好设置',
+            'Profile': '个人资料',
+            'Account': '账户',
+            'Help': '帮助',
+            'FAQ': '常见问题',
+            'Support': '支持',
+            'Feedback': '反馈',
+            'Terms': '条款',
+            'Privacy': '隐私',
+            'Legal': '法律',
+            'Copyright': '版权',
+            'All rights reserved': '版权所有',
+
+            // === v23.2 新增：导航相关翻译 ===
+            'Menu': '菜单',
+            'Navigation': '导航',
+            'Breadcrumb': '面包屑',
+            'Sidebar': '侧边栏',
+            'Header': '页头',
+            'Footer': '页脚',
+            'Scroll to top': '返回顶部',
+            'Scroll to bottom': '滚动到底部',
+            'Go back': '返回',
+            'Go forward': '前进',
+            'Home page': '首页',
+            'Main page': '主页',
+            'Dashboard': '仪表板',
+            'Overview': '概览',
+
+            // === v23.2 新增：社交媒体翻译 ===
+            'Share': '分享',
+            'Share on': '分享到',
+            'Follow us': '关注我们',
+            'Like': '喜欢',
+            'Comment': '评论',
+            'Subscribe': '订阅',
+            'Unsubscribe': '取消订阅',
+            'Bookmark': '收藏',
+            'Print': '打印',
+            'Email us': '发送邮件',
+            'Call us': '联系电话',
+            'Chat with us': '在线咨询',
+            'WhatsApp': 'WhatsApp',
+            'WeChat': '微信',
+
+            // === v23.2 新增：询价表单错误翻译修正 ===
+            '搜索产品...': '搜索产品...',
+            '查询产品...': '搜索产品...',
+            '寻找产品...': '搜索产品...',
+            '加入调查车成功': '成功加入询价车',
+            '加入查询车成功': '成功加入询价车',
+            '请稍等...': '请稍候...',
+            '请稍等': '请稍候',
+            '请输入有效电子邮件地址': '请输入有效的邮箱地址',
+            '请输入有效邮件地址': '请输入有效的邮箱地址',
+            '标题不能空': '标题不能为空',
+            '留言不能空': '留言内容不能为空',
+            '姓名不能空': '姓名不能为空',
+            '名称不能空': '姓名不能为空',
+            '查询提交成功': '询价提交成功',
+            '调查提交成功': '询价提交成功',
+            '提交查询失败': '询价提交失败',
+            '提交调查失败': '询价提交失败',
+            '未知的错误': '未知错误',
+            '发生了错误': '发生错误',
+            '网络出错': '网络错误',
+            '请求出错': '请求失败',
+
+            // === v23.3 紧急修复：导航栏错误翻译 ===
+            '服役兵役': '服务',
+            '服役': '服务',
+            '兵役': '服务',
+            '服务经历': '服务',
+            '服务历史': '服务',
+            '产品展示': '产品',
+            '接触': '联系我们',
+            '接触我们': '联系我们',
+            '联系方式': '联系我们',
+            '影片': '视频',
+            '录影': '视频',
+            '新闻报道': '新闻',
+            '消息': '新闻',
+            '讯息': '新闻',
+
+            // === v23.4 紧急修复：重复翻译问题 ===
+            '关于我们我们我们我们': '关于我们',
+            '关于我们我们我们': '关于我们',
+            '关于我们我们': '关于我们',
+            '关于我们们': '关于我们',
+            '我们我们我们我们': '我们',
+            '我们我们我们': '我们',
+            '我们我们': '我们',
+            '产品产品产品': '产品',
+            '产品产品': '产品',
+            '服务服务服务': '服务',
+            '服务服务': '服务',
+            '新闻新闻新闻': '新闻',
+            '新闻新闻': '新闻',
+            '视频视频视频': '视频',
+            '视频视频': '视频',
+            '联系我们我们': '联系我们',
+            '联系联系': '联系我们',
+
+            // === v23.3 补充：About Us子菜单错误翻译 ===
+            '遇见我们的团队': '团队介绍',
+            '相遇我们的团队': '团队介绍',
+            '团队会议': '团队介绍',
+            '核心加工设备': '核心加工设备',
+            '芯加工设备': '核心加工设备',
+            '我们的国际伙伴': '国际合作伙伴',
+            '国际伙伴': '国际合作伙伴',
+            '我们的技术伙伴': '技术合作伙伴',
+            '技术伙伴': '技术合作伙伴',
+            '展会的亮点': '展会亮点',
+            '展览会亮点': '展会亮点',
+            '来自我们展览的亮点': '展会亮点',
+            '专利和证书': '专利与认证',
+            '专利认证': '专利与认证',
+
+            // === v23.3 补充：常见词汇错误翻译 ===
+            '产品': '产品',
+            '商品': '产品',
+            '制品': '产品',
+            '新闻': '新闻',
+            '资讯': '新闻',
+            '消息新闻': '新闻',
+            '联系人': '联系我们',
+            '联络': '联系我们',
+            '联络我们': '联系我们',
+            '视频影片': '视频',
+            '影片视频': '视频',
+            '录像': '视频',
+        },
+
+        // ==================== 繁体中文 ====================
+        'tw': {
+            // === 导航项 ===
+            'Home': '首頁',
+            'Products': '產品',
+            'About Us': '關於我們',
+            'Service': '服務',
+            'News': '新聞',
+            'Contact': '聯繫我們',
+            'Contact Us': '聯繫我們',
+            'Video': '視頻',
+
+            // === 产品分类 ===
+            'Press Brake': '折床',
+            'Shearing Machine': '剪床',
+            'Rolling Machine': '捲板機',
+            'Grooving Machine': '開槽機',
+            'Laser Cutting Machine': '激光切割機',
+            'Custom Automation Robot': '定制自動化機器人',
+            'Tooling & Accessories': '工具及配件',
+
+            // === 子分类 ===
+            'Hydraulic Press Brake': '液壓折床',
+            'CNC Press Brake': '數控折床',
+            'Electric Press Brake': '電動折床',
+            'Servo Press Brake': '伺服折床',
+            'Hydraulic Synchro Press Brake': '液壓同步折床',
+            'Hybrid Press Brake': '油電混合折床',
+            'Hydraulic Shearing Machine': '液壓剪床',
+            'CNC Shearing Machine': '數控剪床',
+
+            // === 服务 ===
+            'After-Sales': '售後服務',
+            'Pre-Order': '售前服務',
+            'Production': '生產服務',
+
+            // === 其他 ===
+            'Get A Quote': '獲取報價',
+            'Talk To An Expert': '諮詢專家',
+            'Free Sample Testing': '免費打樣',
+            'Other': '其他',
+
+            // === 纠正 ===
+            '壓制器': '折床',
+            '按剎車': '折床',
+            '滾筒機': '捲板機',
+            '滾動機': '捲板機',
+            '剪切機': '剪床',
+            '開槽機器': '開槽機',
+            '電動液壓': '電液',
+            '數控系統': '數控',
+            '油電混合動力': '油電混合',
+            '彎曲': '折彎',
+            '智慧製造': '智能製造',
+            '一站式服務': '一站式',
+            '現代產業': '現代工業',
+            '戰略夥伴': '戰略合作夥伴',
+            '工裝和配件': '工具及配件'
+        },
+
+        // ==================== 日语 ====================
+        'ja': {
+            // === 导航项 ===
+            'Home': 'ホーム',
+            'Products': '製品',
+            'About Us': '会社概要',
+            'Service': 'サービス',
+            'News': 'ニュース',
+            'Contact': 'お問い合わせ',
+            'Contact Us': 'お問い合わせ',
+            'Video': 'ビデオ',
+
+            // === 产品分类 ===
+            'Press Brake': 'プレスブレーキ',
+            'Shearing Machine': 'シャーリングマシン',
+            'Rolling Machine': 'ベンディングロール',
+            'Grooving Machine': '溝入れ機',
+            'Laser Cutting Machine': 'レーザー切断機',
+            'Custom Automation Robot': 'カスタム自動化ロボット',
+            'Tooling & Accessories': '工具と付属品',
+
+            // === 子分类 ===
+            'Hydraulic Press Brake': '油圧プレスブレーキ',
+            'CNC Press Brake': 'CNCプレスブレーキ',
+            'Electric Press Brake': '電動プレスブレーキ',
+            'Servo Press Brake': 'サーボプレスブレーキ',
+            'Hydraulic Synchro Press Brake': '油圧同期プレスブレーキ',
+            'Hybrid Press Brake': 'ハイブリッドプレスブレーキ',
+
+            // === 服务 ===
+            'After-Sales': 'アフターサービス',
+            'Pre-Order': '販売前サービス',
+            'Production': '生産サービス',
+
+            // === 其他 ===
+            'Get A Quote': '見積もりを取得',
+            'Talk To An Expert': '専門家に相談',
+            'Free Sample Testing': '無料サンプル',
+            'Other': 'その他',
+
+            // === 纠正 ===
+            '曲げ機': 'プレスブレーキ',
+            'プレス機ブレーキ': 'プレスブレーキ',
+            '切断機械': 'シャーリングマシン',
+            '溝加工機': 'Vグルービングマシン',
+            '油電気ハイブリッド': '油圧電気ハイブリッド'
+        },
+
+        // ==================== 西班牙语 ====================
+        'es': {
+            // === 导航项 ===
+            'Home': 'Inicio',
+            'Products': 'Productos',
+            'About Us': 'Sobre Nosotros',
+            'Service': 'Servicios',
+            'News': 'Noticias',
+            'Contact': 'Contacto',
+            'Contact Us': 'Contáctenos',
+            'Video': 'Videos',
+
+            // === 产品分类 ===
+            'Press Brake': 'Plegadora',
+            'Shearing Machine': 'Cizalla',
+            'Rolling Machine': 'Calandra',
+            'Grooving Machine': 'Ranurador',
+            'Laser Cutting Machine': 'Cortadora Láser',
+            'Custom Automation Robot': 'Robot de Automatización',
+            'Tooling & Accessories': 'Herramientas y Accesorios',
+
+            // === 子分类 ===
+            'Hydraulic Press Brake': 'Plegadora Hidráulica',
+            'CNC Press Brake': 'Plegadora CNC',
+            'Electric Press Brake': 'Plegadora Eléctrica',
+            'Servo Press Brake': 'Plegadora Servo',
+            'Hydraulic Synchro Press Brake': 'Plegadora Sincro Hidráulica',
+            'Hybrid Press Brake': 'Plegadora Híbrida',
+
+            // === 服务 ===
+            'After-Sales': 'Posventa',
+            'Pre-Order': 'Preventa',
+            'Production': 'Producción',
+
+            // === 其他 ===
+            'Get A Quote': 'Obtener Cotización',
+            'Talk To An Expert': 'Hablar con un Experto',
+            'Free Sample Testing': 'Muestra Gratis',
+            'Other': 'Otro',
+
+            // === 纠正 ===
+            'Freno de prensa': 'Plegadora',
+            'Prensa freno': 'Plegadora',
+            'Máquina de freno': 'Plegadora',
+            'Máquina de corte': 'Cizalla guillotina',
+            'Máquina cortadora': 'Cizalla guillotina',
+            'Máquina rodante': 'Calandra',
+            'Máquina de ranuras': 'Ranurador'
+        },
+
+        // ==================== 法语 ====================
+        'fr': {
+            // === 导航项 ===
+            'Home': 'Accueil',
+            'Products': 'Produits',
+            'About Us': 'À propos',
+            'Service': 'Services',
+            'News': 'Actualités',
+            'Contact': 'Contact',
+            'Contact Us': 'Contactez-nous',
+            'Video': 'Vidéos',
+
+            // === 产品分类 ===
+            'Press Brake': 'Presse plieuse',
+            'Shearing Machine': 'Cisaille',
+            'Rolling Machine': 'Rouleuse',
+            'Grooving Machine': 'Machine à rainurer',
+            'Laser Cutting Machine': 'Machine de découpe laser',
+            'Custom Automation Robot': 'Robot d\'automatisation',
+            'Tooling & Accessories': 'Outillage et accessoires',
+
+            // === 子分类 ===
+            'Hydraulic Press Brake': 'Presse plieuse hydraulique',
+            'CNC Press Brake': 'Presse plieuse CNC',
+            'Electric Press Brake': 'Presse plieuse électrique',
+            'Servo Press Brake': 'Presse plieuse servo',
+            'Hydraulic Synchro Press Brake': 'Presse plieuse synchro hydraulique',
+            'Hybrid Press Brake': 'Presse plieuse hybride',
+
+            // === 服务 ===
+            'After-Sales': 'Après-vente',
+            'Pre-Order': 'Pré-vente',
+            'Production': 'Production',
+
+            // === 其他 ===
+            'Get A Quote': 'Obtenir un devis',
+            'Talk To An Expert': 'Parler à un expert',
+            'Free Sample Testing': 'Échantillon gratuit',
+            'Other': 'Autre',
+
+            // === 纠正 ===
+            'Frein de presse': 'Presse plieuse',
+            'Presse frein': 'Presse plieuse',
+            'Machine de découpe': 'Cisaille guillotine',
+            'Machine de coupe': 'Cisaille guillotine',
+            'Machine à rouler': 'Rouleuse'
+        },
+
+        // ==================== 德语 ====================
+        'de': {
+            // === 导航项 ===
+            'Home': 'Startseite',
+            'Products': 'Produkte',
+            'About Us': 'Über uns',
+            'Service': 'Service',
+            'News': 'Neuigkeiten',
+            'Contact': 'Kontakt',
+            'Contact Us': 'Kontaktieren Sie uns',
+            'Video': 'Videos',
+
+            // === 产品分类 ===
+            'Press Brake': 'Abkantpresse',
+            'Shearing Machine': 'Tafelschere',
+            'Rolling Machine': 'Blechbiegemaschine',
+            'Grooving Machine': 'Nutmaschine',
+            'Laser Cutting Machine': 'Laserschneidmaschine',
+            'Custom Automation Robot': 'Automatisierungsroboter',
+            'Tooling & Accessories': 'Werkzeuge und Zubehör',
+
+            // === 子分类 ===
+            'Hydraulic Press Brake': 'Hydraulische Abkantpresse',
+            'CNC Press Brake': 'CNC-Abkantpresse',
+            'Electric Press Brake': 'Elektrische Abkantpresse',
+            'Servo Press Brake': 'Servo-Abkantpresse',
+            'Hydraulic Synchro Press Brake': 'Hydraulische Synchron-Abkantpresse',
+            'Hybrid Press Brake': 'Hybrid-Abkantpresse',
+
+            // === 服务 ===
+            'After-Sales': 'Kundendienst',
+            'Pre-Order': 'Vorverkauf',
+            'Production': 'Produktion',
+
+            // === 其他 ===
+            'Get A Quote': 'Angebot erhalten',
+            'Talk To An Expert': 'Mit Experten sprechen',
+            'Free Sample Testing': 'Kostenlose Probe',
+            'Other': 'Sonstige',
+
+            // === 纠正 ===
+            'Presse Bremse': 'Abkantpresse',
+            'Pressbremse': 'Abkantpresse',
+            'Biegemaschine': 'Abkantpresse',
+            'Druckbremse': 'Abkantpresse',
+            'Schermaschine': 'Tafelschere',
+            'Schneidemaschine': 'Tafelschere',
+            'Walzenmaschine': 'Blechbiegemaschine',
+            'Rollmaschine': 'Blechbiegemaschine',
+            'Nutungsmaschine': 'Nutmaschine',
+            'Rillenmaschine': 'Nutmaschine'
+        },
+
+        // ==================== 俄语 ====================
+        'ru': {
+            // === 导航项 ===
+            'Home': 'Главная',
+            'Products': 'Продукция',
+            'About Us': 'О нас',
+            'Service': 'Сервис',
+            'News': 'Новости',
+            'Contact': 'Контакты',
+            'Contact Us': 'Связаться с нами',
+            'Video': 'Видео',
+
+            // === 产品分类 ===
+            'Press Brake': 'Листогибочный пресс',
+            'Shearing Machine': 'Гильотинные ножницы',
+            'Rolling Machine': 'Листогибочный валковый станок',
+            'Grooving Machine': 'Фальцевальная машина',
+            'Laser Cutting Machine': 'Лазерный станок',
+            'Custom Automation Robot': 'Робот автоматизации',
+            'Tooling & Accessories': 'Инструменты и аксессуары',
+
+            // === 子分类 ===
+            'Hydraulic Press Brake': 'Гидравлический листогиб',
+            'CNC Press Brake': 'ЧПУ листогиб',
+            'Electric Press Brake': 'Электрический листогиб',
+            'Servo Press Brake': 'Сервопривод листогиб',
+            'Hydraulic Synchro Press Brake': 'Гидравлический синхронный листогиб',
+            'Hybrid Press Brake': 'Гибридный листогиб',
+
+            // === 服务 ===
+            'After-Sales': 'Послепродажное обслуживание',
+            'Pre-Order': 'Предпродажное обслуживание',
+            'Production': 'Производство',
+
+            // === 其他 ===
+            'Get A Quote': 'Получить предложение',
+            'Talk To An Expert': 'Связаться с экспертом',
+            'Free Sample Testing': 'Бесплатный образец',
+            'Other': 'Другое',
+
+            // === 纠正 ===
+            'Тормоз пресса': 'Листогибочный пресс',
+            'Пресс-тормоз': 'Листогибочный пресс',
+            'Гибочная машина': 'Листогибочный пресс',
+            'Ножницы': 'Гильотинные ножницы',
+            'Машина для резки': 'Гильотинные ножницы',
+            'Роликовая машина': 'Листогибочный валковый станок',
+            'Вальцовочная машина': 'Листогибочный валковый станок'
+        },
+
+        // ==================== 韩语 ====================
+        'ko': {
+            // === 导航项 ===
+            'Home': '홈',
+            'Products': '제품',
+            'About Us': '회사 소개',
+            'Service': '서비스',
+            'News': '뉴스',
+            'Contact': '연락처',
+            'Contact Us': '문의하기',
+            'Video': '비디오',
+
+            // === 产品分类 ===
+            'Press Brake': '프레스 브레이크',
+            'Shearing Machine': '전단기',
+            'Rolling Machine': '롤링 머신',
+            'Grooving Machine': '홈가공기',
+            'Laser Cutting Machine': '레이저 절단기',
+            'Custom Automation Robot': '맞춤형 자동화 로봇',
+            'Tooling & Accessories': '공구 및 액세서리',
+
+            // === 服务 ===
+            'After-Sales': '애프터 서비스',
+            'Pre-Order': '사전 판매',
+            'Production': '생산',
+
+            // === 其他 ===
+            'Get A Quote': '견적 받기',
+            'Talk To An Expert': '전문가와 상담',
+            'Free Sample Testing': '무료 샘플',
+            'Other': '기타',
+
+            // === 纠正 ===
+            '프레스 브레이크 기계': '프레스 브레이크',
+            '전단 기계': '전단기',
+            '롤링 기계': '롤 벤딩 머신',
+            '오일 전기 하이브리드': '유압-전기 하이브리드'
+        },
+
+        // ==================== 意大利语 ====================
+        'it': {
+            // === 导航项 ===
+            'Home': 'Home',
+            'Products': 'Prodotti',
+            'About Us': 'Chi Siamo',
+            'Service': 'Servizi',
+            'News': 'Notizie',
+            'Contact': 'Contatti',
+            'Contact Us': 'Contattaci',
+            'Video': 'Video',
+
+            // === 产品分类 ===
+            'Press Brake': 'Pressa piegatrice',
+            'Shearing Machine': 'Cesoia',
+            'Rolling Machine': 'Calandra',
+            'Grooving Machine': 'Máquina ranurada',
+            'Laser Cutting Machine': 'Macchina da taglio laser',
+            'Custom Automation Robot': 'Robot di automazione',
+            'Tooling & Accessories': 'Utensili e accessori',
+
+            // === 服务 ===
+            'After-Sales': 'Post-vendita',
+            'Pre-Order': 'Pre-vendita',
+            'Production': 'Produzione',
+
+            // === 其他 ===
+            'Get A Quote': 'Ottieni un preventivo',
+            'Talk To An Expert': 'Parla con un esperto',
+            'Free Sample Testing': 'Campione gratuito',
+            'Other': 'Altro',
+
+            // === 纠正 ===
+            'Freno stampa': 'Pressa piegatrice',
+            'Pressa freno': 'Pressa piegatrice',
+            'Macchina da taglio': 'Cesoia a ghigliottina',
+            'Macchina di laminazione': 'Calandra'
+        },
+
+        // ==================== 葡萄牙语 ====================
+        'pt': {
+            // === 导航项 ===
+            'Home': 'Início',
+            'Products': 'Produtos',
+            'About Us': 'Sobre Nós',
+            'Service': 'Serviços',
+            'News': 'Notícias',
+            'Contact': 'Contato',
+            'Contact Us': 'Fale Conosco',
+            'Video': 'Vídeos',
+
+            // === 产品分类 ===
+            'Press Brake': 'Prensa dobradeira',
+            'Shearing Machine': 'Guilhotina',
+            'Rolling Machine': 'Calandra',
+            'Grooving Machine': 'Máquina de Ranhura',
+            'Laser Cutting Machine': 'Máquina de corte a laser',
+            'Custom Automation Robot': 'Robô de Automação',
+            'Tooling & Accessories': 'Ferramentas e Acessórios',
+
+            // === 服务 ===
+            'After-Sales': 'Pós-venda',
+            'Pre-Order': 'Pré-venda',
+            'Production': 'Produção',
+
+            // === 其他 ===
+            'Get A Quote': 'Obter orçamento',
+            'Talk To An Expert': 'Falar com especialista',
+            'Free Sample Testing': 'Amostra grátis',
+            'Other': 'Outro',
+
+            // === 纠正 ===
+            'Freio de prensa': 'Prensa dobradeira',
+            'Prensa de freio': 'Prensa dobradeira',
+            'Máquina de corte': 'Guilhotina',
+            'Máquina de rolar': 'Calandra'
+        },
+
+        // ==================== 阿拉伯语 ====================
+        'ar': {
+            'Home': 'الصفحة الرئيسية',
+            'Products': 'منتجات',
+            'About Us': 'معلومات عنا',
+            'Service': 'خدمات',
+            'News': 'أخبار',
+            'Contact': 'اتصل بنا',
+            'Contact Us': 'اتصل بنا',
+            'Video': 'فيديو',
+            'Press Brake': 'مكبس الثني',
+            'Shearing Machine': 'مقص صفيحة',
+            'Rolling Machine': 'ماكينة لف الصاج',
+            'Grooving Machine': 'آلة التخدير',
+            'Laser Cutting Machine': 'آلة قطع الليزر',
+            'Other': 'آخر',
+            'Get A Quote': 'احصل على عرض أسعار',
+            'Talk To An Expert': 'تحدث إلى خبير',
+            'فرامل الصحافة': 'مكبس الثني',
+            'آلة القطع': 'مقص جيلوتين',
+            'آلة الدرفلة': 'ماكينة لف الصاج'
+        },
+
+        // ==================== 土耳其语 ====================
+        'tr': {
+            'Home': 'Ana Sayfa',
+            'Products': 'Ürünler',
+            'About Us': 'Hakkımızda',
+            'Service': 'Hizmetler',
+            'News': 'Haberler',
+            'Contact': 'İletişim',
+            'Contact Us': 'Bize Ulaşın',
+            'Video': 'Videolar',
+            'Press Brake': 'Abkant Presi',
+            'Shearing Machine': 'Giyotin Makas',
+            'Rolling Machine': 'Sac Büküm Makinesi',
+            'Grooving Machine': 'Oluk Açma Makinesi',
+            'Laser Cutting Machine': 'Lazer Kesim Makinesi',
+            'Other': 'Diğer',
+            'Get A Quote': 'Teklif Al',
+            'Talk To An Expert': 'Uzmanla Konuş',
+            'Pres freni': 'Abkant pres',
+            'Kesme makinesi': 'Giyotin makas',
+            'Haddeleme makinesi': 'Silindir büküm makinesi'
+        },
+
+        // ==================== 泰语 ====================
+        'th': {
+            'Home': 'หน้าแรก',
+            'Products': 'ผลิตภัณฑ์',
+            'About Us': 'เกี่ยวกับเรา',
+            'Service': 'บริการ',
+            'News': 'ข่าวสาร',
+            'Contact': 'ติดต่อเรา',
+            'Contact Us': 'ติดต่อเรา',
+            'Video': 'วิดีโอ',
+            'Press Brake': 'เครื่องพับโลหะ',
+            'Shearing Machine': 'เครื่องตัดโลหะ',
+            'Rolling Machine': 'เครื่องม้วนโลหะ',
+            'Grooving Machine': 'เครื่องเจาะร่อง',
+            'Laser Cutting Machine': 'เครื่องตัดเลเซอร์',
+            'Other': 'อื่นๆ',
+            'Get A Quote': 'รับใบเสนอราคา',
+            'Talk To An Expert': 'พูดคุยกับผู้เชี่ยวชาญ',
+            'เครื่องเบรกข่าว': 'เครื่องพับโลหะ',
+            'เครื่องตัด': 'เครื่องตัดโลหะ',
+            'เครื่องรีด': 'เครื่องม้วนโลหะ'
+        },
+
+        // ==================== 越南语 ====================
+        'vi': {
+            'Home': 'Trang chủ',
+            'Products': 'Sản phẩm',
+            'About Us': 'Về chúng tôi',
+            'Service': 'Dịch vụ',
+            'News': 'Tin tức',
+            'Contact': 'Liên hệ',
+            'Contact Us': 'Liên hệ với chúng tôi',
+            'Video': 'Video',
+            'Press Brake': 'Máy chấn gấp',
+            'Shearing Machine': 'Máy cắt tôn',
+            'Rolling Machine': 'Máy cuốn tôn',
+            'Grooving Machine': 'Máy tạo rãnh',
+            'Laser Cutting Machine': 'Máy cắt laser',
+            'Other': 'Khác',
+            'Get A Quote': 'Nhận báo giá',
+            'Talk To An Expert': 'Nói chuyện với chuyên gia',
+            'Máy ép phanh': 'Máy chấn gấp',
+            'Máy cắt': 'Máy cắt tôn',
+            'Máy cán': 'Máy cuốn tôn'
+        },
+
+        // ==================== 印尼语 ====================
+        'id': {
+            'Home': 'Beranda',
+            'Products': 'Produk',
+            'About Us': 'Tentang Kami',
+            'Service': 'Layanan',
+            'News': 'Berita',
+            'Contact': 'Kontak',
+            'Contact Us': 'Hubungi Kami',
+            'Video': 'Video',
+            'Press Brake': 'Press Brake',
+            'Shearing Machine': 'Mesin Potong Plat',
+            'Rolling Machine': 'Mesin Roll Plat',
+            'Grooving Machine': 'Mesin Grooving',
+            'Laser Cutting Machine': 'Mesin Pemotong Laser',
+            'Other': 'Lainnya',
+            'Get A Quote': 'Dapatkan Penawaran',
+            'Talk To An Expert': 'Bicara dengan Ahli',
+            'Rem pers': 'Press brake',
+            'Mesin pemotong': 'Mesin potong plat',
+            'Mesin rol': 'Mesin rol plat'
+        },
+
+        // ==================== 波兰语 ====================
+        'pl': {
+            'Home': 'Strona główna',
+            'Products': 'Produkty',
+            'About Us': 'O nas',
+            'Service': 'Usługi',
+            'News': 'Aktualności',
+            'Contact': 'Kontakt',
+            'Contact Us': 'Skontaktuj się z nami',
+            'Video': 'Wideo',
+            'Press Brake': 'Prasa krawędziowa',
+            'Shearing Machine': 'Gilotyna',
+            'Rolling Machine': 'Walcarka do blach',
+            'Grooving Machine': 'Maszyna rowkująca',
+            'Laser Cutting Machine': 'Wycianarka laserowa',
+            'Other': 'Inne',
+            'Get A Quote': 'Uzyskaj wycenę',
+            'Talk To An Expert': 'Porozmawiaj z ekspertem',
+            'Hamulec prasowy': 'Prasa krawędziowa',
+            'Maszyna do cięcia': 'Gilotyna',
+            'Maszyna walcująca': 'Walcarka do blach'
+        },
+
+        // ==================== 荷兰语 ====================
+        'nl': {
+            'Home': 'Startpagina',
+            'Products': 'Producten',
+            'About Us': 'Over ons',
+            'Service': 'Service',
+            'News': 'Nieuws',
+            'Contact': 'Contact',
+            'Contact Us': 'Neem contact op',
+            'Video': 'Video',
+            'Press Brake': 'Kantpers',
+            'Shearing Machine': 'Guillotineschaar',
+            'Rolling Machine': 'Plaatbuigmachine',
+            'Grooving Machine': 'Groefmachine',
+            'Laser Cutting Machine': 'Lasersnijmachine',
+            'Other': 'Overig',
+            'Get A Quote': 'Offerte aanvragen',
+            'Talk To An Expert': 'Praat met expert',
+            'Pers rem': 'Kantpers',
+            'Persmachine': 'Kantpers',
+            'Knipmaschine': 'Guillotineschaar',
+            'Walsmachine': 'Plaatbuigmachine'
+        },
+
+        // ==================== 印地语 ====================
+        'hi': {
+            'Home': 'मुख्य पृष्ठ',
+            'Products': 'उत्पाद',
+            'About Us': 'हमारे बारे में',
+            'Service': 'सेवाएं',
+            'News': 'समाचार',
+            'Contact': 'संपर्क करें',
+            'Contact Us': 'हमसे संपर्क करें',
+            'Video': 'वीडियो',
+            'Press Brake': 'प्रेस ब्रेक',
+            'Shearing Machine': 'शीयरिंग मशीन',
+            'Rolling Machine': 'रोलिंग मशीन',
+            'Grooving Machine': 'ग्रूविंग मशीन',
+            'Laser Cutting Machine': 'लेजर कटिंग मशीन',
+            'Other': 'अन्य',
+            'Get A Quote': 'उद्धरण प्राप्त करें',
+            'Talk To An Expert': 'विशेषज्ञ से बात करें',
+            'प्रेस ब्रेक मशीन': 'प्रेस ब्रेक',
+            'काटने की मशीन': 'शीयरिंग मशीन',
+            'रोलिंग मशीन': 'रोलिंग मशीन'
+        }
+    };
+
+    // ==================== 品牌名称管理 ====================
+    var BRAND_NAME = 'FANGYU';
+
+    function ensureBrandName() {
+        var isChinese = (currentLang.code === 'CN' || currentLang.code === 'TW');
+        var targetName = isChinese ? '方昱' : BRAND_NAME;
+        var allForms = ['FANGYU', '方玉', '方昱', 'ファンユー', 'فانغيو', '팡위', 'Фанъюй', 'ฟางหยู'];
+        var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+        var changedCount = 0;
+
+        while(walker.nextNode()) {
+            var node = walker.currentNode;
+            
+            // 跳过 notranslate 元素
+            var parent = node.parentElement;
+            if (parent && (parent.classList.contains('notranslate') || parent.classList.contains('brand-name'))) {
+                continue;
+            }
+            
+            var text = node.textContent;
+            var originalText = text;
+            allForms.forEach(function(form) {
+                if (form !== targetName && text.indexOf(form) !== -1) {
+                    text = text.split(form).join(targetName);
+                }
+            });
+            if (text !== originalText) {
+                node.textContent = text;
+                changedCount++;
+            }
+        }
+        console.log('[Lang v24] 品牌名处理完成，共替换', changedCount, '处');
+    }
+
+    // ==================== 页码翻译函数 ====================
+    // ==================== 导航栏翻译函数 ====================
+    function translateNavigation() {
+        var langCode = LANG_CODE_MAP[currentLang.code];
+        if (!langCode) return;
+
+        // 导航翻译映射
+        var navTexts = {
+            'en': {
+                'Home': 'Home',
+                '首页': 'Home',
+                'Products': 'Products',
+                '产品': 'Products',
+                'About Us': 'About Us',
+                '关于我们': 'About Us',
+                '关于我们我们': 'About Us',
+                'Service': 'Service',
+                '服务': 'Service',
+                'News': 'News',
+                '新闻': 'News',
+                'Contact Us': 'Contact Us',
+                '联系我们': 'Contact Us',
+                'Video': 'Video',
+                '视频': 'Video'
+            },
+            'zh': {
+                'Home': '首页',
+                'Products': '产品',
+                'About Us': '关于我们',
+                'Service': '服务',
+                'News': '新闻',
+                'Contact Us': '联系我们',
+                'Contact': '联系我们',
+                'Video': '视频'
+            },
+            'tw': {
+                'Home': '首頁',
+                'Products': '產品',
+                'About Us': '關於我們',
+                'Service': '服務',
+                'News': '新聞',
+                'Contact Us': '聯繫我們',
+                'Video': '視頻'
+            },
+            'ja': {
+                'Home': 'ホーム',
+                'Products': '製品',
+                'About Us': '私たちについて',
+                'Service': 'サービス',
+                'News': 'ニュース',
+                'Contact Us': 'お問い合わせ',
+                'Video': 'ビデオ'
+            }
+        };
+
+        var translations = navTexts[langCode];
+        if (!translations) return;
+
+        // 翻译所有导航文本
+        document.querySelectorAll('.nav-text, .navbar-nav a span, .header a span').forEach(function(el) {
+            var text = el.textContent.trim();
+            if (translations[text]) {
+                el.textContent = translations[text];
+            }
+        });
+
+        console.log('[Lang v24] 导航栏翻译完成');
+    }
+
+    function translatePagination() {
+        var langCode = LANG_CODE_MAP[currentLang.code];
+        if (!langCode) return;
+
+        // 页码翻译映射 (data-i18n 属性对应的值)
+        var paginationI18n = {
+            'en': {
+                'pagination-first': 'First',
+                'pagination-prev': 'Previous',
+                'pagination-next': 'Next',
+                'pagination-last': 'Last',
+                'pagination-no-data': 'No data found!',
+                'pagination-total': 'Total',
+                'pagination-items': 'items',
+                'pagination-current': 'Current'
+            },
+            'zh': {
+                'pagination-first': '首页',
+                'pagination-prev': '上一页',
+                'pagination-next': '下一页',
+                'pagination-last': '尾页',
+                'pagination-no-data': '未查询到任何数据！',
+                'pagination-total': '共',
+                'pagination-items': '条',
+                'pagination-current': '当前'
+            },
+            'tw': {
+                'pagination-first': '首頁',
+                'pagination-prev': '上一頁',
+                'pagination-next': '下一頁',
+                'pagination-last': '尾頁',
+                'pagination-no-data': '未查詢到任何資料！',
+                'pagination-total': '共',
+                'pagination-items': '條',
+                'pagination-current': '當前'
+            },
+            'ja': {
+                'pagination-first': '最初',
+                'pagination-prev': '前へ',
+                'pagination-next': '次へ',
+                'pagination-last': '最後',
+                'pagination-no-data': 'データがありません',
+                'pagination-total': '全',
+                'pagination-items': '件',
+                'pagination-current': '現在'
+            },
+            'ko': {
+                'pagination-first': '처음',
+                'pagination-prev': '이전',
+                'pagination-next': '다음',
+                'pagination-last': '마지막',
+                'pagination-no-data': '데이터 없음'
+            },
+            'ar': {
+                'pagination-first': 'الأول',
+                'pagination-prev': 'السابق',
+                'pagination-next': 'التالي',
+                'pagination-last': 'الأخير',
+                'pagination-no-data': 'لم يتم العثور على بيانات'
+            },
+            'ru': {
+                'pagination-first': 'Первая',
+                'pagination-prev': 'Назад',
+                'pagination-next': 'Вперёд',
+                'pagination-last': 'Последняя',
+                'pagination-no-data': 'Данные не найдены'
+            },
+            'th': {
+                'pagination-first': 'หน้าแรก',
+                'pagination-prev': 'ก่อนหน้า',
+                'pagination-next': 'ถัดไป',
+                'pagination-last': 'สุดท้าย',
+                'pagination-no-data': 'ไม่พบข้อมูล'
+            }
+        };
+
+        var translations = paginationI18n[langCode];
+        if (!translations) return;
+
+        // 翻译带有 data-i18n 的分页元素
+        document.querySelectorAll('[data-i18n^="pagination-"]').forEach(function(el) {
+            var key = el.getAttribute('data-i18n');
+            if (translations[key]) {
+                el.textContent = translations[key];
+            }
+        });
+
+        console.log('[Lang v24] 页码翻译完成');
+    }
+
+    // ==================== 新闻页面 Hero 翻译函数 ====================
+    function translateNewsHero() {
+        var langCode = LANG_CODE_MAP[currentLang.code];
+        if (!langCode) return;
+
+        // Hero 区域翻译映射
+        var heroTexts = {
+            'zh': {
+                'news-insights': '新闻与见解',
+                'industry-news': '工业 新闻',
+                'news-subtitle': '随时了解最新新闻、产品发布和行业洞察，从这里主'
+            },
+            'en': {
+                'news-insights': 'News & Insights',
+                'industry-news': 'Industry News',
+                'news-subtitle': 'Stay updated with the latest news, product releases, and industry insights from FANGYU'
+            },
+            'ja': {
+                'news-insights': 'ニュース & インサイト',
+                'industry-news': '業界 ニュース',
+                'news-subtitle': 'FANGYUからの最新ニュース、製品リリース、業界の洞察をお届けします'
+            }
+        };
+
+        var translations = heroTexts[langCode];
+        if (!translations) return;
+
+        // 翻译带有 data-i18n 的元素
+        document.querySelectorAll('[data-i18n]').forEach(function(el) {
+            var key = el.getAttribute('data-i18n');
+            if (translations[key]) {
+                el.textContent = translations[key];
+            }
+        });
+
+        // 翻译带有 data-i18n-key 的元素（innerHTML）
+        var h1 = document.querySelector('h1[data-i18n-key="industry-news"]');
+        if (h1 && translations['industry-news']) {
+            var text = translations['industry-news'];
+            // 分割成两部分以保持 span 结构
+            var parts = text.split(' ');
+            if (parts.length === 2) {
+                h1.innerHTML = parts[0] + ' <span>' + parts[1] + '</span>';
+            } else {
+                h1.textContent = text;
+            }
+        }
+
+        // 翻译副标题（保留 FANGYU brand-name）
+        var subtitle = document.querySelector('p[data-i18n="news-subtitle"]');
+        if (subtitle && translations['news-subtitle']) {
+            var text = translations['news-subtitle'];
+            if (langCode === 'zh') {
+                subtitle.innerHTML = text.replace('主', '') + '<span class="brand-name notranslate">方昱</span>';
+            } else {
+                subtitle.innerHTML = text.replace('FANGYU', '<span class="brand-name notranslate">FANGYU</span>');
+            }
+        }
+
+        console.log('[Lang v24] News Hero 翻译完成');
+    }
+
+    // ==================== 专业术语纠正机制（核心）====================
+    function correctWrongTranslations() {
+        var langCode = LANG_CODE_MAP[currentLang.code];
+        if (!langCode) {
+            console.warn('[Lang v24] 未知语言代码:', currentLang.code);
+            return;
+        }
+
+        var corrections = TRANSLATION_CORRECTIONS[langCode];
+        if (!corrections || Object.keys(corrections).length === 0) {
+            console.log('[Lang v24] 该语言无需纠正:', langCode);
+            return;
+        }
+
+        console.log('[Lang v24] 开始纠正翻译错误，目标语言:', langCode, '纠正条目:', Object.keys(corrections).length);
+
+        var replaceCount = 0;
+        var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+        var processedNodes = new Set();
+
+        while(walker.nextNode()) {
+            var node = walker.currentNode;
+            
+            // 跳过已处理的节点（避免重复处理）
+            if (processedNodes.has(node)) {
+                continue;
+            }
+            
+            // 跳过 ignore、notranslate、brand-name 类的元素
+            var parent = node.parentElement;
+            if (parent && (parent.classList.contains('ignore') || parent.classList.contains('notranslate') || parent.classList.contains('brand-name'))) {
+                continue;
+            }
+            
+            var text = node.textContent;
+            var originalText = text;
+            var changed = false;
+
+            Object.keys(corrections).forEach(function(wrongTerm) {
+                var correctTerm = corrections[wrongTerm];
+                if (text.indexOf(wrongTerm) !== -1) {
+                    text = text.split(wrongTerm).join(correctTerm);
+                    changed = true;
+                }
+            });
+
+            if (changed && text !== originalText) {
+                node.textContent = text;
+                processedNodes.add(node);
+                replaceCount++;
+            }
+        }
+
+        console.log('[Lang v24] 翻译纠正完成，共处理', replaceCount, '处文本节点');
+    }
+
+
+    // ==================== 页码专用翻译函数 ====================
+    // ==================== 导航栏翻译函数 ====================
+    function translateNavigation() {
+        var langCode = LANG_CODE_MAP[currentLang.code];
+        if (!langCode) return;
+
+        // 导航翻译映射
+        var navTexts = {
+            'en': {
+                'Home': 'Home',
+                '首页': 'Home',
+                'Products': 'Products',
+                '产品': 'Products',
+                'About Us': 'About Us',
+                '关于我们': 'About Us',
+                '关于我们我们': 'About Us',
+                'Service': 'Service',
+                '服务': 'Service',
+                'News': 'News',
+                '新闻': 'News',
+                'Contact Us': 'Contact Us',
+                '联系我们': 'Contact Us',
+                'Video': 'Video',
+                '视频': 'Video'
+            },
+            'zh': {
+                'Home': '首页',
+                'Products': '产品',
+                'About Us': '关于我们',
+                'Service': '服务',
+                'News': '新闻',
+                'Contact Us': '联系我们',
+                'Contact': '联系我们',
+                'Video': '视频'
+            },
+            'tw': {
+                'Home': '首頁',
+                'Products': '產品',
+                'About Us': '關於我們',
+                'Service': '服務',
+                'News': '新聞',
+                'Contact Us': '聯繫我們',
+                'Video': '視頻'
+            },
+            'ja': {
+                'Home': 'ホーム',
+                'Products': '製品',
+                'About Us': '私たちについて',
+                'Service': 'サービス',
+                'News': 'ニュース',
+                'Contact Us': 'お問い合わせ',
+                'Video': 'ビデオ'
+            }
+        };
+
+        var translations = navTexts[langCode];
+        if (!translations) return;
+
+        // 翻译所有导航文本
+        document.querySelectorAll('.nav-text, .navbar-nav a span, .header a span').forEach(function(el) {
+            var text = el.textContent.trim();
+            if (translations[text]) {
+                el.textContent = translations[text];
+            }
+        });
+
+        console.log('[Lang v24] 导航栏翻译完成');
+    }
+
+    function translatePagination() {
+        var langCode = LANG_CODE_MAP[currentLang.code];
+        if (!langCode || langCode === 'zh') return;  // 中文不需要翻译
+        
+        var paginationElements = document.querySelectorAll('.news-pagination, .pagination, [class*="page-"]');
+        if (paginationElements.length === 0) return;
+        
+        var translations = TRANSLATION_CORRECTIONS[langCode];
+        if (!translations) return;
+        
+        var paginationTranslations = {
+            '首页': translations['首页'] || 'First',
+            '前一页': translations['前一页'] || 'Previous',
+            '上一页': translations['上一页'] || 'Previous',
+            '下一页': translations['下一页'] || 'Next',
+            '后一页': translations['后一页'] || 'Next',
+            '尾页': translations['尾页'] || 'Last',
+            '末页': translations['末页'] || 'Last',
+            '共': translations['共'] || 'Total',
+            '条': translations['条'] || 'items',
+            '当前': translations['当前'] || 'Current',
+            '页': translations['页'] || 'page'
+        };
+        
+        console.log('[Lang v24] 开始翻译页码组件，目标语言:', langCode);
+        
+        paginationElements.forEach(function(container) {
+            var walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null, false);
+            while(walker.nextNode()) {
+                var node = walker.currentNode;
+                var text = node.textContent;
+                var originalText = text;
+                
+                Object.keys(paginationTranslations).forEach(function(cn) {
+                    var en = paginationTranslations[cn];
+                    if (text.indexOf(cn) !== -1) {
+                        text = text.split(cn).join(en);
+                    }
+                });
+                
+                if (text !== originalText) {
+                    node.textContent = text;
+                    console.log('[Lang v24] 页码翻译:', originalText, '->', text);
+                }
+            }
+        });
+    }
+
+    // ==================== 语言代码映射 ====================
+    var LANG_CODE_MAP = {
+        'EN': 'en', 'CN': 'zh', 'JP': 'ja', 'ES': 'es', 'FR': 'fr',
+        'DE': 'de', 'RU': 'ru', 'TW': 'tw', 'KR': 'ko', 'IT': 'it',
+        'PT': 'pt', 'AR': 'ar', 'TH': 'th', 'VN': 'vi', 'ID': 'id',
+        'TR': 'tr', 'PL': 'pl', 'NL': 'nl', 'HI': 'hi'
+    };
+
+    // ==================== 语言配置 ====================
+    var LANGUAGES = [
+        { code: 'EN', native: 'English', iso: 'english', htmlLang: 'en', flag: '🇺🇸' },
+        { code: 'CN', native: '中文', iso: 'chinese_simplified', htmlLang: 'zh-CN', flag: '🇨🇳' },
+        { code: 'JP', native: '日本語', iso: 'japanese', htmlLang: 'ja', flag: '🇯🇵' },
+        { code: 'ES', native: 'Español', iso: 'spanish', htmlLang: 'es', flag: '🇪🇸' },
+        { code: 'FR', native: 'Français', iso: 'french', htmlLang: 'fr', flag: '🇫🇷' },
+        { code: 'DE', native: 'Deutsch', iso: 'german', htmlLang: 'de', flag: '🇩🇪' },
+        { code: 'RU', native: 'Русский', iso: 'russian', htmlLang: 'ru', flag: '🇷🇺' },
+        { code: 'TW', native: '繁體中文', iso: 'chinese_traditional', htmlLang: 'zh-TW', flag: '🇹🇼' },
+        { code: 'KR', native: '한국어', iso: 'korean', htmlLang: 'ko', flag: '🇰🇷' },
+        { code: 'IT', native: 'Italiano', iso: 'italian', htmlLang: 'it', flag: '🇮🇹' },
+        { code: 'PT', native: 'Português', iso: 'portuguese', htmlLang: 'pt', flag: '🇵🇹' },
+        { code: 'AR', native: 'العربية', iso: 'arabic', htmlLang: 'ar', flag: '🇸🇦' },
+        { code: 'TH', native: 'ไทย', iso: 'thai', htmlLang: 'th', flag: '🇹🇭' },
+        { code: 'VN', native: 'Tiếng Việt', iso: 'vietnamese', htmlLang: 'vi', flag: '🇻🇳' },
+        { code: 'ID', native: 'Indonesia', iso: 'indonesian', htmlLang: 'id', flag: '🇮🇩' },
+        { code: 'TR', native: 'Türkçe', iso: 'turkish', htmlLang: 'tr', flag: '🇹🇷' },
+        { code: 'PL', native: 'Polski', iso: 'polish', htmlLang: 'pl', flag: '🇵🇱' },
+        { code: 'NL', native: 'Nederlands', iso: 'dutch', htmlLang: 'nl', flag: '🇳🇱' },
+        { code: 'HI', native: 'हिन्दी', iso: 'hindi', htmlLang: 'hi', flag: '🇮🇳' }
+    ];
+
+    var currentLang = LANGUAGES[0];
+    var translateReady = false;
+    var STORAGE_KEY = 'fangyu_preferred_language';
+    var menuElement = null;
+    var triggerElement = null;
+
+    // ==================== 工具函数 ====================
+    function saveLanguagePreference(langCode) {
+        try { localStorage.setItem(STORAGE_KEY, langCode); } catch (e) {}
+    }
+
+    function loadLanguagePreference() {
+        try {
+            var saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                var lang = LANGUAGES.find(function(l) { return l.code === saved; });
+                if (lang) return lang;
+            }
+        } catch (e) {}
+        return null;
+    }
+
+    function updateHtmlLang(lang) {
+        var html = document.documentElement;
+        if (html && lang.htmlLang) html.setAttribute('lang', lang.htmlLang);
+    }
+
+    // ==================== 语言切换 ====================
+    function selectLanguage(lang) {
+        if (!lang || currentLang.code === lang.code) {
+            closeMenu();
+            return;
+        }
+
+        console.log('[Lang v24] 切换语言:', lang.native, '(' + lang.code + ')');
+        currentLang = lang;
+        saveLanguagePreference(lang.code);
+        updateHtmlLang(lang);
+        updateUI();
+        closeMenu();
+
+        if (translateReady && typeof translate !== 'undefined' && typeof translate.changeLanguage === 'function') {
+            translate.changeLanguage(lang.iso);
+
+            // 多次执行纠正，确保所有内容都被修正
+            setTimeout(function() { translateNavigation(); translatePagination(); translateNewsHero(); correctWrongTranslations(); }, 1000);
+            setTimeout(function() { translateNavigation(); translatePagination(); translateNewsHero(); correctWrongTranslations(); ensureBrandName(); }, 2000);
+        }
+    }
+
+    function updateUI() {
+        var codeEl = document.getElementById('currentLangCode');
+        if (codeEl) codeEl.textContent = currentLang.code;
+
+        if (!menuElement) return;
+        var items = menuElement.querySelectorAll('.lang-option');
+        items.forEach(function(item) {
+            var itemCode = item.getAttribute('data-code');
+            item.classList.toggle('active', itemCode === currentLang.code);
+        });
+    }
+
+    function toggleMenu() {
+        if (!menuElement) return;
+        if (menuElement.classList.contains('show')) closeMenu();
+        else openMenu();
+    }
+
+    function openMenu() {
+        if (!menuElement || !triggerElement) return;
+        menuElement.classList.add('show');
+        positionMenu();
+        window.addEventListener('resize', positionMenu);
+    }
+
+    function closeMenu() {
+        if (!menuElement) return;
+        menuElement.classList.remove('show');
+        window.removeEventListener('resize', positionMenu);
+    }
+
+    function positionMenu() {
+        if (!menuElement || !triggerElement) return;
+        var rect = triggerElement.getBoundingClientRect();
+        var menuWidth = menuElement.offsetWidth;
+        var left = rect.left + (rect.width / 2) - (menuWidth / 2);
+        var top = rect.bottom + 8;
+        if (left + menuWidth > window.innerWidth) left = window.innerWidth - menuWidth - 10;
+        if (left < 10) left = 10;
+        menuElement.style.top = top + 'px';
+        menuElement.style.left = left + 'px';
+    }
+
+    function createMenu() {
+        var menu = document.createElement('div');
+        menu.className = 'lang-menu';
+        menu.id = 'langMenu';
+
+        var html = '';
+        LANGUAGES.forEach(function(lang) {
+            var isActive = lang.code === currentLang.code;
+            html += '<div class="lang-option' + (isActive ? ' active' : '') + '" data-code="' + lang.code + '">';
+            html += '<span class="lang-option-flag">' + lang.flag + '</span>';
+            html += '<span class="lang-option-name">' + lang.native + '</span>';
+            html += '</div>';
+        });
+
+        menu.innerHTML = html;
+        document.body.appendChild(menu);
+
+        var items = menu.querySelectorAll('.lang-option');
+        items.forEach(function(item, index) {
+            item.addEventListener('click', function(e) {
+                e.stopPropagation();
+                selectLanguage(LANGUAGES[index]);
+            });
+        });
+
+        return menu;
+    }
+
+    function initTranslateJS() {
+        if (typeof translate === 'undefined') return false;
+        try {
+            translate.service.use('client.edge');
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    function checkTranslateJS() {
+        var checkCount = 0;
+        var maxChecks = 20;
+
+        var interval = setInterval(function() {
+            checkCount++;
+
+            if (typeof translate !== 'undefined' && translate.changeLanguage) {
+                translateReady = true;
+                clearInterval(interval);
+                initTranslateJS();
+
+                var savedLang = loadLanguagePreference();
+                if (savedLang) {
+                    if (savedLang.code !== 'EN') {
+                        setTimeout(function() { selectLanguage(savedLang); }, 1000);
+                    } else {
+                        // 英文也需要执行翻译纠正
+                        currentLang = savedLang;
+                        setTimeout(function() { translateNavigation(); translatePagination(); translateNewsHero(); correctWrongTranslations(); }, 1500);
+                        setTimeout(function() { translateNavigation(); translatePagination(); translateNewsHero(); correctWrongTranslations(); ensureBrandName(); }, 2500);
+                    }
+                } else {
+                    setTimeout(function() { ensureBrandName(); }, 1200);
+                }
+            } else if (checkCount >= maxChecks) {
+                clearInterval(interval);
+            }
+        }, 500);
+    }
+
+    function init() {
+        console.log('[Lang v23.0] 初始化（完整多语言版）');
+
+        triggerElement = document.getElementById('langTrigger');
+        if (!triggerElement) return;
+
+        menuElement = createMenu();
+
+        triggerElement.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleMenu();
+        });
+
+        document.addEventListener('click', function(e) {
+            if (menuElement && !menuElement.contains(e.target) && e.target !== triggerElement) {
+                closeMenu();
+            }
+        });
+
+        var oldList = document.getElementById('langList');
+        if (oldList) oldList.style.display = 'none';
+
+        checkTranslateJS();
+
+        // 统计纠正条目
+        var totalCorrections = 0;
+        Object.keys(TRANSLATION_CORRECTIONS).forEach(function(lang) {
+            totalCorrections += Object.keys(TRANSLATION_CORRECTIONS[lang]).length;
+        });
+        console.log('[Lang v23.0] 初始化完成 - 总计', totalCorrections, '条翻译纠正');
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+
+    window.langSwitcher = {
+        version: '23.4',
+        currentLang: function() { return currentLang; },
+        selectLanguage: selectLanguage,
+        correctWrongTranslations: correctWrongTranslations,
+        getCorrectionCount: function() {
+            var total = 0;
+            Object.keys(TRANSLATION_CORRECTIONS).forEach(function(lang) {
+                total += Object.keys(TRANSLATION_CORRECTIONS[lang]).length;
+            });
+            return total;
+        }
+    };
+
+    console.log('[Lang v23.0] 完整多语言翻译系统已加载');
+
+})();

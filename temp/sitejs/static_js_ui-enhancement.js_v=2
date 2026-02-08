@@ -1,0 +1,627 @@
+/* Mobile Fix Injection */
+(function(){if(window.innerWidth<=768){var s=document.createElement('style');s.id='mobile-fix-injected';s.textContent='@media(max-width:768px){.brand-name,.hero-title span{font-size:42px!important;white-space:nowrap!important;display:inline-block!important}body{padding-bottom:65px!important}input,textarea,select{min-height:44px!important;font-size:16px!important}button,.btn{min-height:44px!important;min-width:44px!important}html,body{overflow-x:hidden!important;max-width:100vw!important}img{max-width:100%!important}p,li{font-size:14px!important;line-height:1.6!important}}@media(max-width:400px){.brand-name{font-size:38px!important}}';document.head.appendChild(s);}})();/**
+ * ========================================
+ * UI Enhancement JavaScript - 现代化前端交互
+ * ========================================
+ * 版本: 1.0
+ * 创建日期: 2025-11-30
+ *
+ * 本文件包含:
+ * 1. Toast 通知系统
+ * 2. 表单实时验证
+ * 3. 加载动画控制
+ * 4. 图片懒加载增强
+ * 5. 平滑滚动
+ * 6. 工具函数
+ */
+
+(function() {
+    'use strict';
+
+    /* ========================================
+       1. Toast 通知系统
+       ======================================== */
+
+    const Toast = {
+        container: null,
+
+        // 初始化容器
+        init: function() {
+            if (!this.container) {
+                this.container = document.createElement('div');
+                this.container.className = 'toast-container';
+                document.body.appendChild(this.container);
+            }
+        },
+
+        // 显示 Toast
+        show: function(options) {
+            this.init();
+
+            const defaults = {
+                type: 'info', // success, error, warning, info
+                title: '',
+                message: '',
+                duration: 3000,
+                closeable: true
+            };
+
+            const settings = Object.assign({}, defaults, options);
+
+            // 创建 Toast 元素
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${settings.type}`;
+
+            // Toast 图标
+            const iconMap = {
+                success: '✓',
+                error: '✕',
+                warning: '!',
+                info: 'i'
+            };
+
+            // Toast HTML
+            toast.innerHTML = `
+                <div class="toast-icon">${iconMap[settings.type]}</div>
+                <div class="toast-content">
+                    ${settings.title ? `<div class="toast-title">${settings.title}</div>` : ''}
+                    <div class="toast-message">${settings.message}</div>
+                </div>
+                ${settings.closeable ? '<button class="toast-close" aria-label="关闭">×</button>' : ''}
+            `;
+
+            // 添加到容器
+            this.container.appendChild(toast);
+
+            // 关闭按钮事件
+            if (settings.closeable) {
+                const closeBtn = toast.querySelector('.toast-close');
+                closeBtn.addEventListener('click', () => this.hide(toast));
+            }
+
+            // 自动关闭
+            if (settings.duration > 0) {
+                setTimeout(() => this.hide(toast), settings.duration);
+            }
+
+            return toast;
+        },
+
+        // 隐藏 Toast
+        hide: function(toast) {
+            toast.classList.add('hiding');
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 300);
+        },
+
+        // 快捷方法
+        success: function(message, title) {
+            return this.show({ type: 'success', message, title });
+        },
+
+        error: function(message, title) {
+            return this.show({ type: 'error', message, title });
+        },
+
+        warning: function(message, title) {
+            return this.show({ type: 'warning', message, title });
+        },
+
+        info: function(message, title) {
+            return this.show({ type: 'info', message, title });
+        }
+    };
+
+    // 暴露到全局
+    window.Toast = Toast;
+
+    /* ========================================
+       2. 表单实时验证
+       ======================================== */
+
+    const FormValidator = {
+        // 验证规则
+        rules: {
+            required: function(value) {
+                return value.trim() !== '';
+            },
+
+            email: function(value) {
+                const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return regex.test(value);
+            },
+
+            phone: function(value) {
+                const regex = /^1[3-9]\d{9}$/;
+                return regex.test(value);
+            },
+
+            url: function(value) {
+                try {
+                    new URL(value);
+                    return true;
+                } catch {
+                    return false;
+                }
+            },
+
+            minLength: function(value, min) {
+                return value.length >= min;
+            },
+
+            maxLength: function(value, max) {
+                return value.length <= max;
+            },
+
+            pattern: function(value, pattern) {
+                return new RegExp(pattern).test(value);
+            }
+        },
+
+        // 验证单个字段
+        validateField: function(input, rules) {
+            const value = input.value;
+            let isValid = true;
+            let message = '';
+
+            for (let rule in rules) {
+                if (rules.hasOwnProperty(rule)) {
+                    const ruleValue = rules[rule];
+
+                    if (rule === 'required' && ruleValue) {
+                        isValid = this.rules.required(value);
+                        message = '此字段为必填项';
+                    } else if (rule === 'email' && ruleValue && value) {
+                        isValid = this.rules.email(value);
+                        message = '请输入有效的邮箱地址';
+                    } else if (rule === 'phone' && ruleValue && value) {
+                        isValid = this.rules.phone(value);
+                        message = '请输入有效的手机号码';
+                    } else if (rule === 'url' && ruleValue && value) {
+                        isValid = this.rules.url(value);
+                        message = '请输入有效的网址';
+                    } else if (rule === 'minLength' && value) {
+                        isValid = this.rules.minLength(value, ruleValue);
+                        message = `最少需要 ${ruleValue} 个字符`;
+                    } else if (rule === 'maxLength' && value) {
+                        isValid = this.rules.maxLength(value, ruleValue);
+                        message = `最多只能 ${ruleValue} 个字符`;
+                    } else if (rule === 'pattern' && ruleValue && value) {
+                        isValid = this.rules.pattern(value, ruleValue);
+                        message = '格式不正确';
+                    }
+
+                    if (!isValid) break;
+                }
+            }
+
+            return { isValid, message };
+        },
+
+        // 显示验证结果
+        showValidation: function(input, isValid, message) {
+            // 移除之前的状态
+            input.classList.remove('is-valid', 'is-invalid');
+
+            // 查找或创建反馈元素
+            let feedback = input.parentNode.querySelector('.form-feedback');
+            if (!feedback) {
+                feedback = document.createElement('div');
+                feedback.className = 'form-feedback';
+                input.parentNode.appendChild(feedback);
+            }
+
+            // 设置新状态
+            if (isValid) {
+                input.classList.add('is-valid');
+                feedback.className = 'form-feedback valid-feedback';
+                feedback.textContent = '✓ 格式正确';
+            } else {
+                input.classList.add('is-invalid');
+                feedback.className = 'form-feedback invalid-feedback';
+                feedback.textContent = message;
+            }
+        },
+
+        // 初始化表单验证
+        init: function(formSelector) {
+            const forms = document.querySelectorAll(formSelector);
+
+            forms.forEach(form => {
+                const inputs = form.querySelectorAll('input[data-validate], textarea[data-validate]');
+
+                inputs.forEach(input => {
+                    // 获取验证规则
+                    const validateRules = input.dataset.validate;
+                    if (!validateRules) return;
+
+                    let rules = {};
+                    try {
+                        rules = JSON.parse(validateRules);
+                    } catch(e) {
+                        console.error('验证规则格式错误:', validateRules);
+                        return;
+                    }
+
+                    // 实时验证
+                    input.addEventListener('blur', () => {
+                        const result = this.validateField(input, rules);
+                        this.showValidation(input, result.isValid, result.message);
+                    });
+
+                    // 输入时清除错误
+                    input.addEventListener('input', () => {
+                        if (input.classList.contains('is-invalid')) {
+                            input.classList.remove('is-invalid');
+                            const feedback = input.parentNode.querySelector('.invalid-feedback');
+                            if (feedback) feedback.style.display = 'none';
+                        }
+                    });
+                });
+
+                // 表单提交验证
+                form.addEventListener('submit', (e) => {
+                    let isFormValid = true;
+
+                    inputs.forEach(input => {
+                        const validateRules = input.dataset.validate;
+                        if (!validateRules) return;
+
+                        let rules = {};
+                        try {
+                            rules = JSON.parse(validateRules);
+                        } catch(e) {
+                            return;
+                        }
+
+                        const result = this.validateField(input, rules);
+                        this.showValidation(input, result.isValid, result.message);
+
+                        if (!result.isValid) {
+                            isFormValid = false;
+                        }
+                    });
+
+                    if (!isFormValid) {
+                        e.preventDefault();
+                        Toast.error('请检查表单中的错误项', '表单验证失败');
+                    }
+                });
+            });
+        }
+    };
+
+    // 暴露到全局
+    window.FormValidator = FormValidator;
+
+    /* ========================================
+       3. 加载动画控制
+       ======================================== */
+
+    const LoadingManager = {
+        // 显示页面加载器
+        showPageLoader: function() {
+            let loader = document.querySelector('.page-loader');
+            if (!loader) {
+                loader = document.createElement('div');
+                loader.className = 'page-loader';
+                loader.innerHTML = '<div class="loader-spinner"></div>';
+                document.body.appendChild(loader);
+            }
+            loader.classList.remove('hidden');
+        },
+
+        // 隐藏页面加载器
+        hidePageLoader: function() {
+            const loader = document.querySelector('.page-loader');
+            if (loader) {
+                loader.classList.add('hidden');
+                setTimeout(() => {
+                    if (loader.parentNode) {
+                        loader.parentNode.removeChild(loader);
+                    }
+                }, 500);
+            }
+        },
+
+        // 按钮加载状态
+        setButtonLoading: function(button, loading) {
+            if (loading) {
+                button.classList.add('btn-loading');
+                button.disabled = true;
+            } else {
+                button.classList.remove('btn-loading');
+                button.disabled = false;
+            }
+        }
+    };
+
+    // 暴露到全局
+    window.LoadingManager = LoadingManager;
+
+    /* ========================================
+       4. AJAX 表单提交增强
+       ======================================== */
+
+    const AjaxForm = {
+        submit: function(form, options) {
+            const defaults = {
+                onSubmit: null,
+                onSuccess: null,
+                onError: null,
+                showLoading: true
+            };
+
+            const settings = Object.assign({}, defaults, options);
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // 回调
+                if (settings.onSubmit) {
+                    settings.onSubmit(form);
+                }
+
+                // 获取提交按钮
+                const submitBtn = form.querySelector('[type="submit"]');
+
+                // 显示加载状态
+                if (settings.showLoading && submitBtn) {
+                    LoadingManager.setButtonLoading(submitBtn, true);
+                }
+
+                // 收集表单数据
+                const formData = new FormData(form);
+
+                // 发送请求
+                fetch(form.action, {
+                    method: form.method || 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // 隐藏加载状态
+                    if (settings.showLoading && submitBtn) {
+                        LoadingManager.setButtonLoading(submitBtn, false);
+                    }
+
+                    // 成功回调
+                    if (data.code === 1 || data.success) {
+                        Toast.success(data.message || '操作成功');
+                        if (settings.onSuccess) {
+                            settings.onSuccess(data, form);
+                        }
+                    } else {
+                        Toast.error(data.message || '操作失败');
+                        if (settings.onError) {
+                            settings.onError(data, form);
+                        }
+                    }
+                })
+                .catch(error => {
+                    // 隐藏加载状态
+                    if (settings.showLoading && submitBtn) {
+                        LoadingManager.setButtonLoading(submitBtn, false);
+                    }
+
+                    Toast.error('网络错误,请稍后重试');
+                    if (settings.onError) {
+                        settings.onError(error, form);
+                    }
+                });
+            });
+        }
+    };
+
+    // 暴露到全局
+    window.AjaxForm = AjaxForm;
+
+    /* ========================================
+       5. 平滑滚动到元素
+       ======================================== */
+
+    function smoothScrollTo(target, duration = 600) {
+        const targetElement = typeof target === 'string'
+            ? document.querySelector(target)
+            : target;
+
+        if (!targetElement) return;
+
+        const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
+        const startPosition = window.pageYOffset;
+        const distance = targetPosition - startPosition;
+        let startTime = null;
+
+        function animation(currentTime) {
+            if (startTime === null) startTime = currentTime;
+            const timeElapsed = currentTime - startTime;
+            const run = ease(timeElapsed, startPosition, distance, duration);
+            window.scrollTo(0, run);
+            if (timeElapsed < duration) requestAnimationFrame(animation);
+        }
+
+        function ease(t, b, c, d) {
+            t /= d / 2;
+            if (t < 1) return c / 2 * t * t + b;
+            t--;
+            return -c / 2 * (t * (t - 2) - 1) + b;
+        }
+
+        requestAnimationFrame(animation);
+    }
+
+    // 暴露到全局
+    window.smoothScrollTo = smoothScrollTo;
+
+    /* ========================================
+       6. 返回顶部按钮增强
+       ======================================== */
+
+    function initBackToTop() {
+        const backToTopBtn = document.querySelector('.gotop, .back-to-top');
+        if (!backToTopBtn) return;
+
+        // 滚动时显示/隐藏按钮
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                backToTopBtn.style.opacity = '1';
+                backToTopBtn.style.visibility = 'visible';
+            } else {
+                backToTopBtn.style.opacity = '0';
+                backToTopBtn.style.visibility = 'hidden';
+            }
+        });
+
+        // 点击平滑滚动到顶部
+        backToTopBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            smoothScrollTo(document.body, 600);
+        });
+    }
+
+    /* ========================================
+       7. 图片加载失败处理
+       ======================================== */
+
+    function handleImageError() {
+        document.querySelectorAll('img').forEach(img => {
+            img.addEventListener('error', function() {
+                // 设置默认占位图
+                this.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect width="400" height="300" fill="%23f0f0f0"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="18" fill="%23999"%3E图片加载失败%3C/text%3E%3C/svg%3E';
+                this.classList.add('image-error');
+            });
+        });
+    }
+
+    /* ========================================
+       8. 复制到剪贴板
+       ======================================== */
+
+    function copyToClipboard(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            return navigator.clipboard.writeText(text).then(() => {
+                Toast.success('已复制到剪贴板');
+                return true;
+            }).catch(() => {
+                Toast.error('复制失败,请手动复制');
+                return false;
+            });
+        } else {
+            // 降级方案
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+
+            try {
+                document.execCommand('copy');
+                Toast.success('已复制到剪贴板');
+                return true;
+            } catch (err) {
+                Toast.error('复制失败,请手动复制');
+                return false;
+            } finally {
+                document.body.removeChild(textarea);
+            }
+        }
+    }
+
+    // 暴露到全局
+    window.copyToClipboard = copyToClipboard;
+
+    /* ========================================
+       9. 防抖和节流函数
+       ======================================== */
+
+    // 防抖
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    // 节流
+    function throttle(func, limit) {
+        let inThrottle;
+        return function(...args) {
+            if (!inThrottle) {
+                func.apply(this, args);
+                inThrottle = true;
+                setTimeout(() => inThrottle = false, limit);
+            }
+        };
+    }
+
+    // 暴露到全局
+    window.debounce = debounce;
+    window.throttle = throttle;
+
+    /* ========================================
+       10. 初始化所有功能
+       ======================================== */
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // 初始化表单验证
+        FormValidator.init('form[data-validate-form]');
+
+        // 初始化返回顶部
+        initBackToTop();
+
+        // 处理图片加载错误
+        handleImageError();
+
+        // 隐藏页面加载器
+        setTimeout(() => {
+            LoadingManager.hidePageLoader();
+        }, 500);
+
+        // 为所有锚点链接添加平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                if (href && href !== '#' && href !== '#!') {
+                    e.preventDefault();
+                    const target = document.querySelector(href);
+                    if (target) {
+                        smoothScrollTo(target);
+                    }
+                }
+            });
+        });
+
+        // 为所有带 data-copy 属性的元素添加复制功能
+        document.querySelectorAll('[data-copy]').forEach(element => {
+            element.addEventListener('click', function() {
+                const textToCopy = this.dataset.copy || this.textContent;
+                copyToClipboard(textToCopy);
+            });
+        });
+    });
+
+    /* ========================================
+       11. 导出所有工具到 window.UIEnhancement
+       ======================================== */
+
+    window.UIEnhancement = {
+        Toast,
+        FormValidator,
+        LoadingManager,
+        AjaxForm,
+        smoothScrollTo,
+        copyToClipboard,
+        debounce,
+        throttle
+    };
+
+})();

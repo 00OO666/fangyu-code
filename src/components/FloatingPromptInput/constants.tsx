@@ -22,6 +22,18 @@ export const MODELS: ModelConfig[] = [
     name: "Claude 4.5 Opus",
     description: "Latest model with enhanced coding & reasoning capabilities",
     icon: <Sparkles className="h-4 w-4" />
+  },
+  {
+    id: "claude-opus-4-6",
+    name: "Claude Opus 4.6",
+    description: "Claude Opus 4.6 model",
+    icon: <Sparkles className="h-4 w-4" />
+  },
+  {
+    id: "claude-opus-4-6[1m]",
+    name: "Claude Opus 4.6 [1M]",
+    description: "Claude Opus 4.6 with 1 million token context",
+    icon: <Brain className="h-4 w-4" />
   }
 ];
 

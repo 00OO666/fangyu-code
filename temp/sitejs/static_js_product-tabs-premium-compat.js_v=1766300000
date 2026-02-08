@@ -1,0 +1,261 @@
+/**
+ * Product Tabs Premium - Interactive JavaScript
+ * 兼容版本 - 使用原有类名
+ * Version: 2.1.0
+ */
+
+(function() {
+    'use strict';
+
+    // ===== Tab Navigation with Spotlight Effect =====
+    class PremiumTabs {
+        constructor(container) {
+            this.container = container;
+            this.tabs = container.querySelectorAll('.tab-item');
+            this.panes = document.querySelectorAll('.tab-pane');
+            this.init();
+        }
+
+        init() {
+            this.tabs.forEach(tab => {
+                // Spotlight effect
+                tab.addEventListener('mousemove', (e) => {
+                    const rect = tab.getBoundingClientRect();
+                    const x = ((e.clientX - rect.left) / rect.width) * 100;
+                    const y = ((e.clientY - rect.top) / rect.height) * 100;
+                    tab.style.setProperty('--mouse-x', `${x}%`);
+                    tab.style.setProperty('--mouse-y', `${y}%`);
+                });
+
+                // Click handler
+                tab.addEventListener('click', () => this.switchTab(tab));
+            });
+        }
+
+        switchTab(activeTab) {
+            const targetId = activeTab.dataset.tab;
+
+            // Update tabs
+            this.tabs.forEach(tab => tab.classList.remove('active'));
+            activeTab.classList.add('active');
+
+            // Update panes with animation
+            this.panes.forEach(pane => {
+                pane.classList.remove('active');
+                if (pane.id === `tab-${targetId}`) {
+                    pane.classList.add('active');
+                }
+            });
+        }
+    }
+
+    // ===== Spotlight Cards =====
+    class SpotlightCard {
+        constructor(card) {
+            this.card = card;
+            this.init();
+        }
+
+        init() {
+            this.card.addEventListener('mousemove', (e) => {
+                const rect = this.card.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                this.card.style.setProperty('--mouse-x', `${x}%`);
+                this.card.style.setProperty('--mouse-y', `${y}%`);
+            });
+        }
+    }
+
+    // ===== Premium Lightbox =====
+    class PremiumLightbox {
+        constructor() {
+            this.images = [];
+            this.currentIndex = 0;
+            this.lightbox = null;
+            this.init();
+        }
+
+        init() {
+            this.createLightbox();
+            this.bindEvents();
+        }
+
+        createLightbox() {
+            // Check if lightbox already exists
+            if (document.querySelector('.lightbox-premium-overlay')) return;
+
+            const lightbox = document.createElement('div');
+            lightbox.className = 'lightbox-premium-overlay';
+            lightbox.innerHTML = `
+                <div class="lightbox-content">
+                    <button class="lightbox-close" aria-label="Close">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                    <button class="lightbox-nav lightbox-prev" aria-label="Previous">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                    </button>
+                    <img src="" alt="Gallery image">
+                    <button class="lightbox-nav lightbox-next" aria-label="Next">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </button>
+                </div>
+                <div class="lightbox-thumbs"></div>
+            `;
+
+            // Add styles for the overlay
+            lightbox.style.cssText = `
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.95);
+                z-index: 9999;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                flex-direction: column;
+                padding: 40px;
+                backdrop-filter: blur(10px);
+            `;
+
+            document.body.appendChild(lightbox);
+            this.lightbox = lightbox;
+        }
+
+        bindEvents() {
+            // Gallery items - support both onclick and click event
+            document.querySelectorAll('.gallery-item').forEach((item, index) => {
+                const img = item.querySelector('img');
+                if (img) {
+                    this.images.push(img.src);
+                    // Override onclick if exists
+                    item.onclick = (e) => {
+                        e.preventDefault();
+                        this.open(index);
+                    };
+                }
+            });
+
+            if (this.images.length === 0) return;
+
+            // Close button
+            this.lightbox.querySelector('.lightbox-close').addEventListener('click', () => this.close());
+
+            // Navigation
+            this.lightbox.querySelector('.lightbox-prev').addEventListener('click', () => this.prev());
+            this.lightbox.querySelector('.lightbox-next').addEventListener('click', () => this.next());
+
+            // Keyboard navigation
+            document.addEventListener('keydown', (e) => {
+                if (this.lightbox.style.display !== 'flex') return;
+                if (e.key === 'Escape') this.close();
+                if (e.key === 'ArrowLeft') this.prev();
+                if (e.key === 'ArrowRight') this.next();
+            });
+
+            // Click outside to close
+            this.lightbox.addEventListener('click', (e) => {
+                if (e.target === this.lightbox) this.close();
+            });
+        }
+
+        open(index) {
+            this.currentIndex = index;
+            this.updateImage();
+            this.updateThumbnails();
+            this.lightbox.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        close() {
+            this.lightbox.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        prev() {
+            this.currentIndex = (this.currentIndex - 1 + this.images.length) % this.images.length;
+            this.updateImage();
+            this.updateThumbnails();
+        }
+
+        next() {
+            this.currentIndex = (this.currentIndex + 1) % this.images.length;
+            this.updateImage();
+            this.updateThumbnails();
+        }
+
+        updateImage() {
+            const img = this.lightbox.querySelector('.lightbox-content img');
+            img.src = this.images[this.currentIndex];
+        }
+
+        updateThumbnails() {
+            const container = this.lightbox.querySelector('.lightbox-thumbs');
+            container.innerHTML = this.images.map((src, i) => `
+                <div class="lightbox-thumb ${i === this.currentIndex ? 'active' : ''}" data-index="${i}" style="
+                    width: 80px;
+                    height: 60px;
+                    border-radius: 8px;
+                    overflow: hidden;
+                    cursor: pointer;
+                    opacity: ${i === this.currentIndex ? '1' : '0.5'};
+                    border: 2px solid ${i === this.currentIndex ? '#3b82f6' : 'transparent'};
+                    transition: all 0.3s;
+                ">
+                    <img src="${src}" alt="Thumbnail ${i + 1}" style="width:100%;height:100%;object-fit:cover;">
+                </div>
+            `).join('');
+
+            container.style.cssText = 'display:flex;gap:12px;justify-content:center;margin-top:24px;';
+
+            container.querySelectorAll('.lightbox-thumb').forEach(thumb => {
+                thumb.addEventListener('click', () => {
+                    this.currentIndex = parseInt(thumb.dataset.index);
+                    this.updateImage();
+                    this.updateThumbnails();
+                });
+            });
+        }
+    }
+
+    // ===== Initialize =====
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize tabs
+        const tabsContainer = document.querySelector('.product-tabs');
+        if (tabsContainer) {
+            new PremiumTabs(tabsContainer);
+        }
+
+        // Initialize spotlight cards
+        document.querySelectorAll('.feature-card').forEach(card => {
+            new SpotlightCard(card);
+        });
+
+        // Initialize lightbox
+        if (document.querySelector('.gallery-item')) {
+            new PremiumLightbox();
+        }
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    });
+
+    // Export for global access
+    window.PremiumTabs = PremiumTabs;
+    window.PremiumLightbox = PremiumLightbox;
+    window.SpotlightCard = SpotlightCard;
+})();

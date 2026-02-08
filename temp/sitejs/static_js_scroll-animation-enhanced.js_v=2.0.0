@@ -1,0 +1,676 @@
+/**
+ * ============================================
+ * 增强型滚动动画系统 v2.0
+ * ============================================
+ *
+ * 基于 ReactBits FadeContent & AnimatedContent 组件
+ * 转换为原生 JavaScript 实现
+ *
+ * 功能：
+ * 1. FadeContent - 淡入 + 模糊效果
+ * 2. AnimatedContent - 滑动 + 缩放 + stagger
+ * 3. 自动初始化 data-* 属性
+ * 4. 高性能 Intersection Observer
+ *
+ * 使用方式：
+ * - 自动: <div data-scroll-fade data-blur="true">
+ * - 手动: ScrollAnimation.fade('.element', { blur: true })
+ *
+ * @author Claude Code
+ * @version 2.0.0
+ * @license MIT
+ */
+
+(function() {
+    'use strict';
+
+    // ========== 配置常量 ==========
+    const DEFAULTS = {
+        fade: {
+            blur: false,
+            blurAmount: 10,
+            duration: 800,
+            ease: 'cubic-bezier(0.4, 0, 0.2, 1)',
+            delay: 0,
+            threshold: 0.1,
+            initialOpacity: 0,
+            once: true
+        },
+        slide: {
+            distance: 50,
+            direction: 'up', // up, down, left, right
+            scale: 1,
+            duration: 600,
+            ease: 'cubic-bezier(0.4, 0, 0.2, 1)',
+            delay: 0,
+            threshold: 0.15,
+            once: true
+        },
+        stagger: {
+            delay: 100,
+            duration: 500,
+            ease: 'cubic-bezier(0.4, 0, 0.2, 1)',
+            direction: 'up',
+            distance: 30
+        }
+    };
+
+    // ========== 工具函数 ==========
+
+    /**
+     * 合并配置对象
+     */
+    function mergeOptions(defaults, options) {
+        const result = { ...defaults };
+        for (const key in options) {
+            if (options[key] !== undefined && options[key] !== null) {
+                result[key] = options[key];
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 解析 data 属性为配置对象
+     */
+    function parseDataAttributes(element, type) {
+        const data = element.dataset;
+        const options = {};
+
+        if (type === 'fade') {
+            if (data.blur !== undefined) options.blur = data.blur === 'true' || data.blur === '';
+            if (data.blurAmount) options.blurAmount = parseInt(data.blurAmount, 10);
+            if (data.duration) options.duration = parseInt(data.duration, 10);
+            if (data.delay) options.delay = parseInt(data.delay, 10);
+            if (data.threshold) options.threshold = parseFloat(data.threshold);
+            if (data.ease) options.ease = data.ease;
+            if (data.once !== undefined) options.once = data.once !== 'false';
+        } else if (type === 'slide') {
+            if (data.direction) options.direction = data.direction;
+            if (data.distance) options.distance = parseInt(data.distance, 10);
+            if (data.scale) options.scale = parseFloat(data.scale);
+            if (data.duration) options.duration = parseInt(data.duration, 10);
+            if (data.delay) options.delay = parseInt(data.delay, 10);
+            if (data.threshold) options.threshold = parseFloat(data.threshold);
+            if (data.ease) options.ease = data.ease;
+            if (data.once !== undefined) options.once = data.once !== 'false';
+        } else if (type === 'stagger') {
+            if (data.staggerDelay) options.delay = parseInt(data.staggerDelay, 10);
+            if (data.direction) options.direction = data.direction;
+            if (data.distance) options.distance = parseInt(data.distance, 10);
+            if (data.duration) options.duration = parseInt(data.duration, 10);
+        }
+
+        return options;
+    }
+
+    /**
+     * 获取方向对应的 transform 值
+     */
+    function getTransformByDirection(direction, distance) {
+        switch (direction) {
+            case 'up': return `translateY(${distance}px)`;
+            case 'down': return `translateY(-${distance}px)`;
+            case 'left': return `translateX(${distance}px)`;
+            case 'right': return `translateX(-${distance}px)`;
+            default: return `translateY(${distance}px)`;
+        }
+    }
+
+    // ========== FadeContent 类 ==========
+
+    class FadeContent {
+        constructor(element, options = {}) {
+            this.element = typeof element === 'string'
+                ? document.querySelector(element)
+                : element;
+
+            if (!this.element) {
+                console.warn('[ScrollAnimation] FadeContent: Element not found');
+                return;
+            }
+
+            // 合并配置
+            const dataOptions = parseDataAttributes(this.element, 'fade');
+            this.options = mergeOptions(DEFAULTS.fade, { ...options, ...dataOptions });
+
+            this.observer = null;
+            this.hasAnimated = false;
+
+            this.init();
+        }
+
+        init() {
+            // 设置初始状态
+            this.setInitialState();
+
+            // 创建 Intersection Observer
+            this.createObserver();
+        }
+
+        setInitialState() {
+            const { initialOpacity, blur, blurAmount, duration, ease } = this.options;
+
+            // 使用 CSS custom properties 便于调试
+            this.element.style.setProperty('--scroll-fade-duration', `${duration}ms`);
+            this.element.style.setProperty('--scroll-fade-ease', ease);
+
+            // 设置初始样式
+            Object.assign(this.element.style, {
+                opacity: initialOpacity,
+                filter: blur ? `blur(${blurAmount}px)` : 'blur(0px)',
+                willChange: 'opacity, filter',
+                transition: 'none' // 初始无过渡
+            });
+        }
+
+        createObserver() {
+            const { threshold, once } = this.options;
+
+            this.observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        if (!this.hasAnimated || !once) {
+                            this.animate();
+                            this.hasAnimated = true;
+
+                            if (once) {
+                                this.observer.unobserve(this.element);
+                            }
+                        }
+                    } else if (!once && this.hasAnimated) {
+                        // 如果不是只执行一次，离开视口时重置
+                        this.reset();
+                    }
+                });
+            }, {
+                threshold: threshold,
+                rootMargin: '0px 0px -10% 0px'
+            });
+
+            this.observer.observe(this.element);
+        }
+
+        animate() {
+            const { duration, ease, delay, blur } = this.options;
+
+            // 延迟后执行动画
+            setTimeout(() => {
+                // 添加过渡
+                this.element.style.transition = `opacity ${duration}ms ${ease}, filter ${duration}ms ${ease}`;
+
+                // 触发动画
+                requestAnimationFrame(() => {
+                    this.element.style.opacity = '1';
+                    this.element.style.filter = 'blur(0px)';
+                });
+
+                // 动画完成后清理
+                setTimeout(() => {
+                    this.element.style.willChange = 'auto';
+                }, duration);
+            }, delay);
+        }
+
+        reset() {
+            const { initialOpacity, blur, blurAmount } = this.options;
+            this.element.style.opacity = initialOpacity;
+            this.element.style.filter = blur ? `blur(${blurAmount}px)` : 'blur(0px)';
+            this.hasAnimated = false;
+        }
+
+        destroy() {
+            if (this.observer) {
+                this.observer.disconnect();
+                this.observer = null;
+            }
+            // 重置样式
+            this.element.style.removeProperty('opacity');
+            this.element.style.removeProperty('filter');
+            this.element.style.removeProperty('transition');
+            this.element.style.removeProperty('will-change');
+            this.element.style.removeProperty('--scroll-fade-duration');
+            this.element.style.removeProperty('--scroll-fade-ease');
+        }
+    }
+
+    // ========== AnimatedContent (Slide) 类 ==========
+
+    class AnimatedContent {
+        constructor(element, options = {}) {
+            this.element = typeof element === 'string'
+                ? document.querySelector(element)
+                : element;
+
+            if (!this.element) {
+                console.warn('[ScrollAnimation] AnimatedContent: Element not found');
+                return;
+            }
+
+            // 合并配置
+            const dataOptions = parseDataAttributes(this.element, 'slide');
+            this.options = mergeOptions(DEFAULTS.slide, { ...options, ...dataOptions });
+
+            this.observer = null;
+            this.hasAnimated = false;
+
+            this.init();
+        }
+
+        init() {
+            this.setInitialState();
+            this.createObserver();
+        }
+
+        setInitialState() {
+            const { distance, direction, scale, duration, ease } = this.options;
+
+            const transform = getTransformByDirection(direction, distance);
+            const scaleTransform = scale !== 1 ? ` scale(${scale})` : '';
+
+            Object.assign(this.element.style, {
+                opacity: '0',
+                transform: transform + scaleTransform,
+                willChange: 'opacity, transform',
+                transition: 'none'
+            });
+        }
+
+        createObserver() {
+            const { threshold, once } = this.options;
+
+            this.observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        if (!this.hasAnimated || !once) {
+                            this.animate();
+                            this.hasAnimated = true;
+
+                            if (once) {
+                                this.observer.unobserve(this.element);
+                            }
+                        }
+                    } else if (!once && this.hasAnimated) {
+                        this.reset();
+                    }
+                });
+            }, {
+                threshold: threshold,
+                rootMargin: '0px 0px -5% 0px'
+            });
+
+            this.observer.observe(this.element);
+        }
+
+        animate() {
+            const { duration, ease, delay } = this.options;
+
+            setTimeout(() => {
+                this.element.style.transition = `opacity ${duration}ms ${ease}, transform ${duration}ms ${ease}`;
+
+                requestAnimationFrame(() => {
+                    this.element.style.opacity = '1';
+                    this.element.style.transform = 'translateX(0) translateY(0) scale(1)';
+                });
+
+                setTimeout(() => {
+                    this.element.style.willChange = 'auto';
+                }, duration);
+            }, delay);
+        }
+
+        reset() {
+            const { distance, direction, scale } = this.options;
+            const transform = getTransformByDirection(direction, distance);
+            const scaleTransform = scale !== 1 ? ` scale(${scale})` : '';
+
+            this.element.style.opacity = '0';
+            this.element.style.transform = transform + scaleTransform;
+            this.hasAnimated = false;
+        }
+
+        destroy() {
+            if (this.observer) {
+                this.observer.disconnect();
+                this.observer = null;
+            }
+            this.element.style.removeProperty('opacity');
+            this.element.style.removeProperty('transform');
+            this.element.style.removeProperty('transition');
+            this.element.style.removeProperty('will-change');
+        }
+    }
+
+    // ========== StaggerContent 类 ==========
+
+    class StaggerContent {
+        constructor(container, options = {}) {
+            this.container = typeof container === 'string'
+                ? document.querySelector(container)
+                : container;
+
+            if (!this.container) {
+                console.warn('[ScrollAnimation] StaggerContent: Container not found');
+                return;
+            }
+
+            // 合并配置
+            const dataOptions = parseDataAttributes(this.container, 'stagger');
+            this.options = mergeOptions(DEFAULTS.stagger, { ...options, ...dataOptions });
+
+            // 获取子元素
+            this.children = Array.from(this.container.children);
+            this.observer = null;
+            this.hasAnimated = false;
+
+            this.init();
+        }
+
+        init() {
+            this.setInitialState();
+            this.createObserver();
+        }
+
+        setInitialState() {
+            const { distance, direction } = this.options;
+            const transform = getTransformByDirection(direction, distance);
+
+            this.children.forEach(child => {
+                Object.assign(child.style, {
+                    opacity: '0',
+                    transform: transform,
+                    willChange: 'opacity, transform',
+                    transition: 'none'
+                });
+            });
+        }
+
+        createObserver() {
+            this.observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && !this.hasAnimated) {
+                        this.animateStagger();
+                        this.hasAnimated = true;
+                        this.observer.unobserve(this.container);
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: '0px 0px -5% 0px'
+            });
+
+            this.observer.observe(this.container);
+        }
+
+        animateStagger() {
+            const { delay, duration, ease } = this.options;
+
+            this.children.forEach((child, index) => {
+                const itemDelay = index * delay;
+
+                setTimeout(() => {
+                    child.style.transition = `opacity ${duration}ms ${ease}, transform ${duration}ms ${ease}`;
+
+                    requestAnimationFrame(() => {
+                        child.style.opacity = '1';
+                        child.style.transform = 'translateX(0) translateY(0)';
+                    });
+
+                    setTimeout(() => {
+                        child.style.willChange = 'auto';
+                    }, duration);
+                }, itemDelay);
+            });
+        }
+
+        destroy() {
+            if (this.observer) {
+                this.observer.disconnect();
+                this.observer = null;
+            }
+            this.children.forEach(child => {
+                child.style.removeProperty('opacity');
+                child.style.removeProperty('transform');
+                child.style.removeProperty('transition');
+                child.style.removeProperty('will-change');
+            });
+        }
+    }
+
+    // ========== 全局 API ==========
+
+    const ScrollAnimation = {
+        // 存储所有实例
+        instances: [],
+
+        /**
+         * 创建淡入动画
+         * @param {string|Element} selector
+         * @param {Object} options
+         * @returns {FadeContent}
+         */
+        fade(selector, options = {}) {
+            const elements = typeof selector === 'string'
+                ? document.querySelectorAll(selector)
+                : [selector];
+
+            const instances = [];
+            elements.forEach(el => {
+                const instance = new FadeContent(el, options);
+                instances.push(instance);
+                this.instances.push(instance);
+            });
+
+            return instances.length === 1 ? instances[0] : instances;
+        },
+
+        /**
+         * 创建滑动动画
+         * @param {string|Element} selector
+         * @param {Object} options
+         * @returns {AnimatedContent}
+         */
+        slide(selector, options = {}) {
+            const elements = typeof selector === 'string'
+                ? document.querySelectorAll(selector)
+                : [selector];
+
+            const instances = [];
+            elements.forEach(el => {
+                const instance = new AnimatedContent(el, options);
+                instances.push(instance);
+                this.instances.push(instance);
+            });
+
+            return instances.length === 1 ? instances[0] : instances;
+        },
+
+        /**
+         * 创建 stagger 动画
+         * @param {string|Element} selector
+         * @param {Object} options
+         * @returns {StaggerContent}
+         */
+        stagger(selector, options = {}) {
+            const containers = typeof selector === 'string'
+                ? document.querySelectorAll(selector)
+                : [selector];
+
+            const instances = [];
+            containers.forEach(container => {
+                const instance = new StaggerContent(container, options);
+                instances.push(instance);
+                this.instances.push(instance);
+            });
+
+            return instances.length === 1 ? instances[0] : instances;
+        },
+
+        /**
+         * 自动初始化所有 data-scroll-* 元素
+         */
+        autoInit() {
+            // 淡入动画
+            document.querySelectorAll('[data-scroll-fade]').forEach(el => {
+                if (!el._scrollAnimationInstance) {
+                    el._scrollAnimationInstance = new FadeContent(el);
+                    this.instances.push(el._scrollAnimationInstance);
+                }
+            });
+
+            // 滑动动画
+            document.querySelectorAll('[data-scroll-slide]').forEach(el => {
+                if (!el._scrollAnimationInstance) {
+                    el._scrollAnimationInstance = new AnimatedContent(el);
+                    this.instances.push(el._scrollAnimationInstance);
+                }
+            });
+
+            // Stagger 动画
+            document.querySelectorAll('[data-scroll-stagger]').forEach(el => {
+                if (!el._scrollAnimationInstance) {
+                    el._scrollAnimationInstance = new StaggerContent(el);
+                    this.instances.push(el._scrollAnimationInstance);
+                }
+            });
+
+            console.log(`[ScrollAnimation] 自动初始化完成: ${this.instances.length} 个元素`);
+        },
+
+        /**
+         * 销毁所有实例
+         */
+        destroyAll() {
+            this.instances.forEach(instance => {
+                if (instance && typeof instance.destroy === 'function') {
+                    instance.destroy();
+                }
+            });
+            this.instances = [];
+            console.log('[ScrollAnimation] 已销毁所有实例');
+        },
+
+        /**
+         * 刷新（重新初始化）
+         */
+        refresh() {
+            this.destroyAll();
+            this.autoInit();
+        }
+    };
+
+    // ========== 产品页面专用初始化 ==========
+
+    function initProductPageAnimations() {
+        // 检查是否在产品页
+        const productTabs = document.querySelector('.product-tabs');
+        if (!productTabs) {
+            console.log('[ScrollAnimation] 非产品页面，跳过专用初始化');
+            return;
+        }
+
+        console.log('[ScrollAnimation] 检测到产品页面，初始化增强动画...');
+
+        // 1. Gallery 区块 - 图片网格 stagger 效果
+        const galleryGrid = document.querySelector('.gallery-grid');
+        if (galleryGrid) {
+            ScrollAnimation.stagger(galleryGrid, {
+                delay: 80,
+                duration: 500,
+                direction: 'up',
+                distance: 30
+            });
+        }
+
+        // 2. Features 区块 - 功能卡片 stagger 效果
+        const featuresGrid = document.querySelector('.features-grid');
+        if (featuresGrid) {
+            ScrollAnimation.stagger(featuresGrid, {
+                delay: 100,
+                duration: 600,
+                direction: 'up',
+                distance: 40
+            });
+        }
+
+        // 3. 规格表格 - 淡入效果
+        const specTables = document.querySelectorAll('.spec-table, .specifications-table');
+        specTables.forEach(table => {
+            ScrollAnimation.fade(table, {
+                blur: true,
+                blurAmount: 5,
+                duration: 700
+            });
+        });
+
+        // 4. Video 区块 - 滑动效果
+        const videoSection = document.querySelector('#tab-video .video-container, #tab-video .video-wrapper');
+        if (videoSection) {
+            ScrollAnimation.slide(videoSection, {
+                direction: 'up',
+                distance: 40,
+                duration: 600
+            });
+        }
+
+        // 5. 报价表单 - 淡入效果
+        const quoteForm = document.querySelector('#tab-quote .quote-form, #tab-quote .inquiry-form');
+        if (quoteForm) {
+            ScrollAnimation.fade(quoteForm, {
+                blur: true,
+                blurAmount: 8,
+                duration: 800,
+                delay: 100
+            });
+        }
+
+        // 6. Section 标题 - 滑动效果
+        const sectionTitles = document.querySelectorAll('.section-title, .tab-pane h2');
+        sectionTitles.forEach(title => {
+            ScrollAnimation.slide(title, {
+                direction: 'left',
+                distance: 30,
+                duration: 500
+            });
+        });
+
+        // 7. 应用场景卡片
+        const applicationItems = document.querySelector('.applications-gallery');
+        if (applicationItems) {
+            ScrollAnimation.stagger(applicationItems, {
+                delay: 120,
+                duration: 550,
+                direction: 'up',
+                distance: 35
+            });
+        }
+
+        console.log('[ScrollAnimation] ✓ 产品页面动画初始化完成');
+    }
+
+    // ========== 自动启动 ==========
+
+    function init() {
+        // 自动初始化 data-* 属性元素
+        ScrollAnimation.autoInit();
+
+        // 产品页面专用初始化
+        initProductPageAnimations();
+    }
+
+    // DOM 加载完成后初始化
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+
+    // 暴露到全局
+    window.ScrollAnimation = ScrollAnimation;
+    window.FadeContent = FadeContent;
+    window.AnimatedContent = AnimatedContent;
+    window.StaggerContent = StaggerContent;
+
+    console.log('[ScrollAnimation] v2.0 增强版已加载 (基于 ReactBits 转换)');
+
+})();
