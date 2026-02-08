@@ -7,6 +7,7 @@ mod models;
 mod paths;
 mod platform;
 mod project_store;
+mod search;
 mod session_history;
 
 pub use models::*;
@@ -38,6 +39,7 @@ pub use self::config_sync::{
 use self::project_store::ProjectStore;
 pub use file_ops::{list_directory_contents, search_files};
 pub use platform::{apply_no_window_async, kill_process_tree};
+pub use search::{search_content, SearchOptions, SearchResult};
 // Agent functionality removed
 
 #[tauri::command]

@@ -35,7 +35,7 @@ use commands::claude::{
     get_system_prompt, list_directory_contents, list_hidden_projects, list_projects,
     list_hook_files, list_running_claude_sessions, load_session_history, open_new_session, read_claude_md_file,
     reset_claude_execution_config, restore_project, resume_claude_code, save_claude_md_file,
-    save_claude_settings, save_codex_system_prompt, save_system_prompt, search_files,
+    save_claude_settings, save_codex_system_prompt, save_system_prompt, search_content, search_files,
     set_custom_claude_path, toggle_hook_file, update_claude_execution_config, update_claude_permission_config,
     update_hooks_config, update_thinking_mode, validate_hook_command, validate_permission_config,
     // Claude WSL mode configuration
@@ -453,6 +453,7 @@ fn main() {
             get_claude_session_output,
             list_directory_contents,
             search_files,
+            search_content,
             get_hooks_config,
             update_hooks_config,
             validate_hook_command,
