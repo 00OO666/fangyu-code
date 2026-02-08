@@ -5,7 +5,7 @@
  */
 
 import React from "react";
-import { Globe2, ChevronRight, ChevronDown } from 'lucide-react';
+import { Globe2, ChevronRight, ChevronDown } from "lucide-react";
 
 export interface SearchLink {
   title: string;
@@ -43,11 +43,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
         onClick={onToggle}
         className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
       >
-        {isExpanded ? (
-          <ChevronDown className="h-3 w-3" />
-        ) : (
-          <ChevronRight className="h-3 w-3" />
-        )}
+        {isExpanded ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
         <span>{links.length} 个结果</span>
       </button>
 
@@ -66,9 +62,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
                   <div className="text-sm font-medium group-hover:text-blue-500 transition-colors line-clamp-2">
                     {link.title}
                   </div>
-                  <div className="text-xs text-muted-foreground mt-0.5 truncate">
-                    {link.url}
-                  </div>
+                  <div className="text-xs text-muted-foreground mt-0.5 truncate">{link.url}</div>
                 </div>
               </div>
             </button>
