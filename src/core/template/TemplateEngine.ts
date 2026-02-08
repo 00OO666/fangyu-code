@@ -54,7 +54,6 @@ export class TemplateEngine {
   async generateProject(
     templateId: string,
     targetPath: string,
-    variables: Record<string, string>
   ): Promise<void> {
     const template = this.getTemplate(templateId);
     if (!template) {

@@ -28,7 +28,7 @@ interface EngineSelectorProps {
 
 /** 引擎图标映射 */
 const ENGINE_ICONS: Record<EngineType, React.FC<{ size?: number; className?: string }>> = {
-    'claude-code': ClaudeEngineIcon,
+    'claude': ClaudeEngineIcon,
     'codex': CodexEngineIcon,
     'gemini': GeminiEngineIcon,
 };
@@ -48,7 +48,7 @@ export const EngineSelector: React.FC<EngineSelectorProps> = ({
     size = 'md',
 }) => {
     const sizeConfig = SIZE_CONFIG[size];
-    const engines: EngineType[] = ['claude-code', 'codex', 'gemini'];
+    const engines: EngineType[] = ['claude', 'codex', 'gemini'];
 
     return (
         <div className={cn('flex items-center gap-1 p-1 bg-muted/50 rounded-lg', className)}>
@@ -102,7 +102,7 @@ export const EngineIconSelector: React.FC<Omit<EngineSelectorProps, 'showDescrip
     size = 'md',
 }) => {
     const sizeConfig = SIZE_CONFIG[size];
-    const engines: EngineType[] = ['claude-code', 'codex', 'gemini'];
+    const engines: EngineType[] = ['claude', 'codex', 'gemini'];
 
     return (
         <div className={cn('flex items-center gap-0.5 p-0.5 bg-muted/50 rounded-md', className)}>

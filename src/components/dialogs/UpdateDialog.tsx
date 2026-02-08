@@ -1,9 +1,6 @@
 import { logger } from '@/lib/logger';
 import { useState, useEffect } from "react";
-import Download from 'lucide-react/dist/esm/icons/download'
-import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
-import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
-import ExternalLink from 'lucide-react/dist/esm/icons/external-link';
+import { Download, RefreshCw, AlertCircle, ExternalLink } from 'lucide-react';
 import { useUpdate } from "@/contexts/UpdateContext";
 import { relaunchApp } from "@/lib/updater";
 import { open as openUrl } from "@tauri-apps/plugin-shell";

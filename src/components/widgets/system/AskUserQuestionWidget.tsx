@@ -12,12 +12,7 @@
 
 import React, { useState, useMemo, useEffect, useRef, useContext } from "react";
 import { useTranslation } from "react-i18next";
-import HelpCircle from 'lucide-react/dist/esm/icons/help-circle'
-import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
-import MessageCircle from 'lucide-react/dist/esm/icons/message-circle'
-import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
-import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up'
-import Check from 'lucide-react/dist/esm/icons/check';
+import { HelpCircle, CheckCircle, MessageCircle, ChevronDown, ChevronUp, Check } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { getQuestionId } from "@/contexts/UserQuestionContext";

@@ -6,14 +6,7 @@
  */
 
 import { motion } from "framer-motion";
-import Bug from 'lucide-react/dist/esm/icons/bug'
-import Calendar from 'lucide-react/dist/esm/icons/calendar'
-import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
-import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
-import History from 'lucide-react/dist/esm/icons/history'
-import Sparkles from 'lucide-react/dist/esm/icons/sparkles'
-import Star from 'lucide-react/dist/esm/icons/star'
-import Zap from 'lucide-react/dist/esm/icons/zap';
+import { Bug, Calendar, CheckCircle, ChevronRight, History, Sparkles, Star, Zap } from 'lucide-react';
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -128,17 +121,17 @@ function VersionCard({ version, isLatest }: { version: string; isLatest: boolean
           )}
 
           {/* Bug 修复 */}
-          {changelog.bugFixes && changelog.bugFixes.length > 0 && (
+          {changelog.bugfixes && changelog.bugfixes.length > 0 && (
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Bug className="h-4 w-4 text-orange-500" />
                 <h3 className="font-semibold text-sm">Bug 修复</h3>
                 <Badge variant="secondary" className="text-xs">
-                  {changelog.bugFixes.length} 项
+                  {changelog.bugfixes.length} 项
                 </Badge>
               </div>
               <ul className="space-y-1.5 ml-6">
-                {changelog.bugFixes.map((fix, index) => (
+                {changelog.bugfixes.map((fix, index) => (
                   <motion.li
                     key={index}
                     initial={{ opacity: 0, x: -10 }}

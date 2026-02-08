@@ -1,17 +1,6 @@
 import { logger } from '@/lib/logger';
 import React, { useState, useEffect } from "react";
-import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left'
-import Clock from 'lucide-react/dist/esm/icons/clock'
-import Plus from 'lucide-react/dist/esm/icons/plus'
-import Trash2 from 'lucide-react/dist/esm/icons/trash-2'
-import CheckSquare from 'lucide-react/dist/esm/icons/check-square'
-import Square from 'lucide-react/dist/esm/icons/square'
-import FilePenLine from 'lucide-react/dist/esm/icons/file-pen-line'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
-import Zap from 'lucide-react/dist/esm/icons/zap'
-import Bot from 'lucide-react/dist/esm/icons/bot'
-import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
-import Sparkles from 'lucide-react/dist/esm/icons/sparkles';
+import { ArrowLeft, Clock, Plus, Trash2, CheckSquare, Square, FilePenLine, Loader2, Zap, Bot, RefreshCw, Sparkles } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Pagination } from "@/components/ui/pagination";
 import { Checkbox } from "@/components/ui/checkbox";

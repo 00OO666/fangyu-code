@@ -1,20 +1,18 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up'
-import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
-import X from 'lucide-react/dist/esm/icons/x'
-import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
-import FileText from 'lucide-react/dist/esm/icons/file-text';
+import { ChevronUp, ChevronDown, X, AlertTriangle, Loader2, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { FloatingPromptInput, type FloatingPromptInputRef, type ModelType } from '../FloatingPromptInput';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { ChatNotification } from '../notifications/ChatNotification';
 import { CompactStatusIndicator } from '../CompactStatusIndicator';
-import type { Session, ClaudeStreamMessage } from '@/types';
+import type { Session } from '@/lib/api/types';
+import type { ClaudeStreamMessage } from '@/types/claude';
 import type { CodexRateLimits } from '@/types/codex';
 import type { ExecutionEngineConfig } from '../FloatingPromptInput/types';
+import type { CompactStatus } from '@/hooks/useBackgroundCompact';
+import type { SessionContinueStatus } from '@/types/session-continue';
 
 interface QueuedPrompt {
   id: string;
@@ -39,11 +37,11 @@ interface SessionFooterProps {
   codexRateLimits: CodexRateLimits | null;
   executionEngineConfig: ExecutionEngineConfig;
   showUsageDashboard: boolean;
-  compactStatus: string;
+  compactStatus: CompactStatus;
   isCompacting: boolean;
   compactProgress: number;
   deltaMessagesCount: number;
-  sessionContinueStatus: string;
+  sessionContinueStatus: SessionContinueStatus;
   isGeneratingSummary: boolean;
   extractedCode: { code: string; language: string; source?: string } | null;
   costStats: any;

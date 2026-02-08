@@ -1,10 +1,7 @@
 import { logger } from '@/lib/logger';
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
-import Edit2 from 'lucide-react/dist/esm/icons/edit-2'
-import FileText from 'lucide-react/dist/esm/icons/file-text'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
+import { ChevronDown, Edit2, FileText, Loader2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";

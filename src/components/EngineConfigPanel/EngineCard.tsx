@@ -3,13 +3,7 @@
  */
 
 import React from 'react';
-import Bot from 'lucide-react/dist/esm/icons/bot'
-import FileCode from 'lucide-react/dist/esm/icons/file-code'
-import Sparkles from 'lucide-react/dist/esm/icons/sparkles'
-import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
-import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
-import XCircle from 'lucide-react/dist/esm/icons/x-circle'
-import Download from 'lucide-react/dist/esm/icons/download';
+import { Bot, FileCode, Sparkles, CheckCircle, AlertCircle, XCircle, Download } from 'lucide-react';
 import type { EngineType, EngineStatusInfo } from '../../types/provider';
 import { ENGINE_DISPLAY_NAMES, ENGINE_COLORS } from '../../types/provider';
 import { cn } from '../../lib/utils';

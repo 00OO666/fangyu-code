@@ -25,7 +25,6 @@ Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 const engineTypeArb = fc.constantFrom<EngineType>('claude', 'codex', 'gemini');
 
 // 代理商配置生成器
-const providerConfigArb = (engine: EngineType): fc.Arbitrary<Omit<UnifiedProviderConfig, 'id' | 'createdAt' | 'updatedAt' | 'sortOrder'>> =>
     fc.record({
         name: fc.string({ minLength: 1, maxLength: 50 }),
         engine: fc.constant(engine),

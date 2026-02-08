@@ -1,23 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import FolderOpen from 'lucide-react/dist/esm/icons/folder-open'
-import Settings from 'lucide-react/dist/esm/icons/settings'
-import BarChart2 from 'lucide-react/dist/esm/icons/bar-chart-2'
-import Terminal from 'lucide-react/dist/esm/icons/terminal'
-import Layers from 'lucide-react/dist/esm/icons/layers'
-import FileText from 'lucide-react/dist/esm/icons/file-text'
-import Package from 'lucide-react/dist/esm/icons/package'
-import FileCode from 'lucide-react/dist/esm/icons/file-code'
-import Grid3x3 from 'lucide-react/dist/esm/icons/grid-3x3'
-import ChevronLeft from 'lucide-react/dist/esm/icons/chevron-left'
-import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
-import HelpCircle from 'lucide-react/dist/esm/icons/help-circle'
-import Sparkles from 'lucide-react/dist/esm/icons/sparkles'
-import Puzzle from 'lucide-react/dist/esm/icons/puzzle'
-import Zap from 'lucide-react/dist/esm/icons/zap'
-import Activity from 'lucide-react/dist/esm/icons/activity'
-import Search from 'lucide-react/dist/esm/icons/search'
-import Bot from 'lucide-react/dist/esm/icons/bot'
-import Code2 from 'lucide-react/dist/esm/icons/code-2';
+import { FolderOpen, Settings, BarChart2, Terminal, Layers, FileText, Package, FileCode, Grid3x3, ChevronLeft, ChevronRight, HelpCircle, Sparkles, Puzzle, Zap, Activity, Search, Bot, Code2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { View } from '@/types/navigation';
 import { useTranslation } from 'react-i18next';

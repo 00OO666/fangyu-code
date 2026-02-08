@@ -26,7 +26,7 @@ export const WindowDropdown: React.FC<WindowDropdownProps> = ({
     []
   );
   const [windows, setWindows] = useState<WindowInfo[]>([]);
-  const [selectedWindow, setSelectedWindow] = useState<WindowInfo | null>(null);
+  const [selectedWindow, setSelectedWindow] = useState<WindowInfo | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
   const [isFocusing, setIsFocusing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -46,13 +46,13 @@ export const WindowDropdown: React.FC<WindowDropdownProps> = ({
       if (isMountedRef.current) {
         setWindows(result.windows);
       }
-      logger.info(`[WindowDropdown] Loaded ${result.windows.length} windows`);
+      logger.info("WindowDropdown", `Loaded ${result.windows.length} windows`);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
       if (isMountedRef.current) {
         setError(errorMessage);
       }
-      logger.error("[WindowDropdown] Failed to load windows:", err);
+      logger.error("WindowDropdown", `Failed to load windows: ${err}`);
     } finally {
       if (isMountedRef.current) {
         setIsLoading(false);
@@ -93,7 +93,7 @@ export const WindowDropdown: React.FC<WindowDropdownProps> = ({
         if (isMountedRef.current) {
           setSuccessMessage(`已切换到窗口: ${windowLabel}`);
         }
-        logger.info(`[WindowDropdown] Successfully focused window: ${windowLabel}`);
+        logger.info("WindowDropdown", `Successfully focused window: ${windowLabel}`);
 
         // 3秒后清除成功消息
         if (successTimerRef.current) {
@@ -108,7 +108,7 @@ export const WindowDropdown: React.FC<WindowDropdownProps> = ({
         if (isMountedRef.current) {
           setError(`切换窗口失败: ${errorMessage}`);
         }
-        logger.error("[WindowDropdown] Failed to focus window:", err);
+        logger.error("WindowDropdown", `Failed to focus window: ${err}`);
 
         // 5秒后清除错误消息
         if (errorTimerRef.current) {

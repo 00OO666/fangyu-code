@@ -18,12 +18,7 @@
  */
 
 import React, { useState, useCallback } from 'react';
-import Settings from 'lucide-react/dist/esm/icons/settings'
-import Check from 'lucide-react/dist/esm/icons/check'
-import Monitor from 'lucide-react/dist/esm/icons/monitor'
-import Terminal from 'lucide-react/dist/esm/icons/terminal'
-import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
+import { Check, Monitor, Terminal, ChevronDown, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
     Select,

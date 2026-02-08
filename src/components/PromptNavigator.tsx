@@ -1,18 +1,6 @@
 import { logger } from '@/lib/logger';
 import React, { useMemo, useState, useCallback, useRef, useEffect } from "react";
-import List from 'lucide-react/dist/esm/icons/list'
-import X from 'lucide-react/dist/esm/icons/x'
-import Search from 'lucide-react/dist/esm/icons/search'
-import LayoutList from 'lucide-react/dist/esm/icons/layout-list'
-import LayoutGrid from 'lucide-react/dist/esm/icons/layout-grid'
-import Hash from 'lucide-react/dist/esm/icons/hash'
-import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up'
-import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
-import Zap from 'lucide-react/dist/esm/icons/zap'
-import Wrench from 'lucide-react/dist/esm/icons/wrench'
-import Brain from 'lucide-react/dist/esm/icons/brain'
-import Gauge from 'lucide-react/dist/esm/icons/gauge'
-import Cpu from 'lucide-react/dist/esm/icons/cpu';
+import { List, X, Search, LayoutList, LayoutGrid, Hash, ChevronUp, ChevronDown, Zap, Wrench, Brain, Gauge, Cpu } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";

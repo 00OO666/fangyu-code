@@ -3,15 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
-import X from 'lucide-react/dist/esm/icons/x'
-import Folder from 'lucide-react/dist/esm/icons/folder'
-import File from 'lucide-react/dist/esm/icons/file'
-import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left'
-import FileCode from 'lucide-react/dist/esm/icons/file-code'
-import FileText from 'lucide-react/dist/esm/icons/file-text'
-import FileImage from 'lucide-react/dist/esm/icons/file-image'
-import Search from 'lucide-react/dist/esm/icons/search'
-import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
+import { X, Folder, File, ArrowLeft, FileCode, FileText, FileImage, Search, ChevronRight } from 'lucide-react';
 import type { FileEntry } from "@/lib/api";
 import { cn } from "@/lib/utils";
 

@@ -6,9 +6,7 @@
  */
 
 import React, { useState } from "react";
-import FileText from 'lucide-react/dist/esm/icons/file-text'
-import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up'
-import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
+import { FileText, ChevronUp, ChevronDown } from 'lucide-react';
 import { Prism as SyntaxHighlighter } from "@/lib/lightSyntaxHighlighter";
 import { getClaudeSyntaxTheme } from "@/lib/claudeSyntaxTheme";
 import { useTheme } from "@/contexts/ThemeContext";

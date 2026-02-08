@@ -5,12 +5,7 @@
  */
 
 import React, { useEffect, useRef, useMemo, useCallback } from 'react';
-import Command from 'lucide-react/dist/esm/icons/command'
-import Terminal from 'lucide-react/dist/esm/icons/terminal'
-import Settings from 'lucide-react/dist/esm/icons/settings'
-import GitBranch from 'lucide-react/dist/esm/icons/git-branch'
-import Clock from 'lucide-react/dist/esm/icons/clock'
-import Sparkles from 'lucide-react/dist/esm/icons/sparkles';
+import { Command, Terminal, Settings, GitBranch, Clock, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   type SlashCommand,

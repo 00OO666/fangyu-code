@@ -5,9 +5,7 @@
  * 提供快捷键提示和工具限制说明
  */
 
-import Info from 'lucide-react/dist/esm/icons/info'
-import Lightbulb from 'lucide-react/dist/esm/icons/lightbulb'
-import Command from 'lucide-react/dist/esm/icons/command';
+import { Info, Lightbulb, Command } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import {
   Tooltip,

@@ -66,7 +66,6 @@ export async function setupCodexEventListeners(
   });
 
   // Track current Codex session ID for channel isolation
-  let currentCodexSessionId: string | null = null;
   // Track processed message IDs to prevent duplicates
   const processedCodexMessages = new Set<string>();
   // Track pending prompt recording Promise

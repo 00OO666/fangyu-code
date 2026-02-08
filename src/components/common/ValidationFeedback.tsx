@@ -10,11 +10,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
-import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
-import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle'
-import Info from 'lucide-react/dist/esm/icons/info'
-import X from 'lucide-react/dist/esm/icons/x';
+import { CheckCircle, AlertCircle, AlertTriangle, Info, X } from 'lucide-react';
 
 // =============================================================================
 // 类型定义

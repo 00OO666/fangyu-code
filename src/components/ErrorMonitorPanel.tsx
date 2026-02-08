@@ -12,20 +12,7 @@
 
 import { logger } from '@/lib/logger';
 import React, { useState, useCallback, useEffect } from "react";
-import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle'
-import X from 'lucide-react/dist/esm/icons/x'
-import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
-import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up'
-import Bug from 'lucide-react/dist/esm/icons/bug'
-import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
-import Info from 'lucide-react/dist/esm/icons/info'
-import Trash2 from 'lucide-react/dist/esm/icons/trash-2'
-import Copy from 'lucide-react/dist/esm/icons/copy'
-import Check from 'lucide-react/dist/esm/icons/check'
-import TrendingUp from 'lucide-react/dist/esm/icons/trending-up'
-import Minimize2 from 'lucide-react/dist/esm/icons/minimize-2'
-import Maximize2 from 'lucide-react/dist/esm/icons/maximize-2'
-import GripHorizontal from 'lucide-react/dist/esm/icons/grip-horizontal';
+import { AlertTriangle, X, ChevronDown, ChevronUp, Bug, AlertCircle, Info, Trash2, Copy, Check, TrendingUp, Minimize2, Maximize2, GripHorizontal } from 'lucide-react';
 import { useDraggable } from "@/hooks/useDraggable";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -410,11 +397,12 @@ export const ErrorMonitorPanel: React.FC<ErrorMonitorPanelProps> = ({
           "border border-white/10 rounded-xl shadow-2xl",
           "px-4 py-3 flex items-center gap-3 min-w-[180px]"
         )}
+        {...dragHandleProps}
         style={{
+          ...dragHandleProps.style,
           left: position.x,
           top: position.y,
         }}
-        {...dragHandleProps}
       >
         <GripHorizontal className="h-4 w-4 text-white/40" />
         <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />

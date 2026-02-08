@@ -5,7 +5,6 @@
  * 参考：https://docs.claude.com/en/docs/claude-code/costs
  */
 
-import { logger } from '@/lib/logger';
 import { useEffect, useMemo, useRef } from "react";
 import { formatCost as formatCostUtil, formatDuration, formatTokensK } from "@/lib/pricing";
 import { aggregateSessionCost } from "@/lib/sessionCost";

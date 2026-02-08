@@ -76,7 +76,6 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     editor.onDidChangeCursorPosition(async (e) => {
       if (!lspClientRef.current || !filePath) return;
 
-      const position = { line: e.position.lineNumber - 1, character: e.position.column - 1 };
       const diags = await lspClientRef.current.getDiagnostics(filePath);
       setDiagnostics(diags);
     });

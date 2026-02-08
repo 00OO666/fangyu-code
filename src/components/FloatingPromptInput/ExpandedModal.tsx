@@ -1,14 +1,7 @@
 import React, { forwardRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { createPortal } from "react-dom";
-import Minimize2 from 'lucide-react/dist/esm/icons/minimize-2'
-import X from 'lucide-react/dist/esm/icons/x'
-import Wand2 from 'lucide-react/dist/esm/icons/wand-2'
-import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
-import Code2 from 'lucide-react/dist/esm/icons/code-2'
-import Zap from 'lucide-react/dist/esm/icons/zap'
-import Settings from 'lucide-react/dist/esm/icons/settings'
-import ZoomIn from 'lucide-react/dist/esm/icons/zoom-in';
+import { Minimize2, X, Wand2, ChevronDown, Code2, Zap, Settings, ZoomIn } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";

@@ -6,12 +6,7 @@
  */
 
 import React, { useState } from "react";
-import FolderOpen from 'lucide-react/dist/esm/icons/folder-open'
-import Folder from 'lucide-react/dist/esm/icons/folder'
-import FileText from 'lucide-react/dist/esm/icons/file-text'
-import FileCode from 'lucide-react/dist/esm/icons/file-code'
-import Terminal from 'lucide-react/dist/esm/icons/terminal'
-import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
+import { FolderOpen, Folder, FileText, FileCode, Terminal, ChevronRight } from 'lucide-react';
 import { cn } from "@/lib/utils";
 
 export interface LSResultWidgetProps {

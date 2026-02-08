@@ -16,11 +16,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import Sparkles from 'lucide-react/dist/esm/icons/sparkles'
-import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
-import Zap from 'lucide-react/dist/esm/icons/zap'
-import Bug from 'lucide-react/dist/esm/icons/bug'
-import Calendar from 'lucide-react/dist/esm/icons/calendar';
+import { Sparkles, CheckCircle, Zap, Bug, Calendar } from 'lucide-react';
 import type { ChangelogData } from '@/hooks/useFirstLaunchChangelog';
 
 interface FirstLaunchChangelogDialogProps {

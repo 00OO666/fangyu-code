@@ -6,11 +6,7 @@
  */
 
 import React, { useState } from "react";
-import FolderOpen from 'lucide-react/dist/esm/icons/folder-open'
-import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
-import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
-import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
-import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';
+import { FolderOpen, AlertCircle, ChevronRight, ChevronDown, CheckCircle } from 'lucide-react';
 import { LSResultWidget } from './LSResultWidget';
 import { cn } from "@/lib/utils";
 

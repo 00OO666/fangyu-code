@@ -8,9 +8,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import Layers from 'lucide-react/dist/esm/icons/layers'
-import Info from 'lucide-react/dist/esm/icons/info'
-import Archive from 'lucide-react/dist/esm/icons/archive';
+import { Layers, Info, Archive } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Popover } from '@/components/ui/popover';
 import { useContextWindowUsage } from '@/hooks/useContextWindowUsage';

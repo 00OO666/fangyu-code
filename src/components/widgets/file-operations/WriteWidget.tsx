@@ -8,12 +8,7 @@
 import { logger } from '@/lib/logger';
 import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import FilePlus from 'lucide-react/dist/esm/icons/file-plus'
-import ExternalLink from 'lucide-react/dist/esm/icons/external-link'
-import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up'
-import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
-import CheckCircle2 from 'lucide-react/dist/esm/icons/check-circle-2'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
+import { FilePlus, ExternalLink, ChevronUp, ChevronDown, CheckCircle2, Loader2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";

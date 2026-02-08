@@ -1,7 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import Plus from 'lucide-react/dist/esm/icons/plus'
-import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
+import { Plus, Trash2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,7 +34,7 @@ export const PermissionsSettings: React.FC<PermissionsSettingsProps> = ({
   addPermissionRule,
   updatePermissionRule,
   removePermissionRule,
-  selectedEngine = 'claude-code',
+  selectedEngine = 'claude',
   onEngineChange,
   showEngineSelector = false,
 }) => {

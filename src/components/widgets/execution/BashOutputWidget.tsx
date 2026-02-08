@@ -7,9 +7,7 @@
 
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import Terminal from 'lucide-react/dist/esm/icons/terminal'
-import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
-import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up';
+import { Terminal, ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from "@/lib/utils";
 
 export interface BashOutputWidgetProps {

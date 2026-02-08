@@ -1,6 +1,5 @@
 import React, { useState, useCallback } from "react";
-import BrainCircuit from 'lucide-react/dist/esm/icons/brain-circuit'
-import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
+import { BrainCircuit, ChevronDown } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { useTypewriter } from "@/hooks/useTypewriter";
 import { useTranslation } from "@/hooks/useTranslation";

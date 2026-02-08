@@ -6,7 +6,7 @@
  */
 
 import React from "react";
-import GitBranch from 'lucide-react/dist/esm/icons/git-branch';
+import { GitBranch } from 'lucide-react';
 
 export interface MultiEditResultWidgetProps {
   /** 结果内容 */

@@ -12,23 +12,7 @@
  */
 
 import React, { useState, useCallback, useMemo } from 'react';
-import Play from 'lucide-react/dist/esm/icons/play'
-import Pause from 'lucide-react/dist/esm/icons/pause'
-import Square from 'lucide-react/dist/esm/icons/square'
-import Maximize2 from 'lucide-react/dist/esm/icons/maximize-2'
-import Minimize2 from 'lucide-react/dist/esm/icons/minimize-2'
-import Terminal from 'lucide-react/dist/esm/icons/terminal'
-import Users from 'lucide-react/dist/esm/icons/users'
-import Workflow from 'lucide-react/dist/esm/icons/workflow'
-import Zap from 'lucide-react/dist/esm/icons/zap'
-import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle'
-import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
-import XCircle from 'lucide-react/dist/esm/icons/x-circle'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
-import Sparkles from 'lucide-react/dist/esm/icons/sparkles'
-import Brain from 'lucide-react/dist/esm/icons/brain'
-import GitBranch from 'lucide-react/dist/esm/icons/git-branch'
-import BarChart3 from 'lucide-react/dist/esm/icons/bar-chart-3';
+import { Play, Pause, Square, Maximize2, Minimize2, Terminal, Users, Workflow, Zap, AlertTriangle, CheckCircle, XCircle, Loader2, Sparkles, Brain, GitBranch, BarChart3 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';

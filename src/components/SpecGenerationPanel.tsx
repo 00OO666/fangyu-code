@@ -9,10 +9,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import FileText from 'lucide-react/dist/esm/icons/file-text'
-import Download from 'lucide-react/dist/esm/icons/download'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
-import Sparkles from 'lucide-react/dist/esm/icons/sparkles';
+import { FileText, Download, Loader2, Sparkles } from 'lucide-react';
 import { SpecGenerationEngine, type SpecType, type TechnicalSpec } from '@/core/spec/SpecGenerationEngine';
 import { RealAPIClient } from '@/core/api/RealAPIClient';
 

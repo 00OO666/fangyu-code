@@ -5,13 +5,7 @@
 
 import { logger } from '@/lib/logger';
 import { useState, useCallback, useEffect, useMemo } from 'react';
-import X from 'lucide-react/dist/esm/icons/x'
-import ChevronLeft from 'lucide-react/dist/esm/icons/chevron-left'
-import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
-import RotateCcw from 'lucide-react/dist/esm/icons/rotate-ccw'
-import SkipForward from 'lucide-react/dist/esm/icons/skip-forward'
-import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
-import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up';
+import { X, ChevronLeft, ChevronRight, RotateCcw, SkipForward, ChevronDown, ChevronUp } from 'lucide-react';
 import type { EngineType } from '../../../types/provider';
 import { ENGINE_DISPLAY_NAMES } from '../../../types/provider';
 import {

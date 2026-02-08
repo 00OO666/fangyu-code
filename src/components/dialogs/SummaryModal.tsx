@@ -1,24 +1,15 @@
 /**
  * SummaryModal Component
- * 
+ *
  * 会话摘要生成对话框
  * 显示会话统计、引擎选择、摘要预览
- * 
+ *
  * Requirements: 5.3, 5.4, 5.5, 5.6
  */
 
 import { logger } from '@/lib/logger';
 import React, { useState, useCallback, useEffect } from 'react';
-import Copy from 'lucide-react/dist/esm/icons/copy'
-import Check from 'lucide-react/dist/esm/icons/check'
-import ExternalLink from 'lucide-react/dist/esm/icons/external-link'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
-import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
-import MessageSquare from 'lucide-react/dist/esm/icons/message-square'
-import Coins from 'lucide-react/dist/esm/icons/coins'
-import Clock from 'lucide-react/dist/esm/icons/clock'
-import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
-import Settings from 'lucide-react/dist/esm/icons/settings';
+import { Copy, Check, ExternalLink, Loader2, RefreshCw, MessageSquare, Coins, Clock, AlertCircle, Settings } from 'lucide-react';
 import {
     Dialog,
     DialogContent,
@@ -33,7 +24,7 @@ import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
-import { EnhancedEngineSelector, type ExecutionEngineConfig } from '@/components/EnhancedEngineSelector';
+import { type ExecutionEngineConfig } from '@/components/EnhancedEngineSelector';
 import { SummaryEngineConfig } from '@/components/dialogs/SummaryEngineConfig';
 import { getSummaryGeneratorService } from '@/services/summaryGeneratorService';
 import { getSummaryConfigStore } from '@/services/summaryConfigStore';

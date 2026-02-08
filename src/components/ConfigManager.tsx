@@ -42,20 +42,7 @@ import {
   TabsList,
   TabsTrigger,
 } from '@/components/ui/tabs';
-import Activity from 'lucide-react/dist/esm/icons/activity'
-import Trash2 from 'lucide-react/dist/esm/icons/trash-2'
-import HardDrive from 'lucide-react/dist/esm/icons/hard-drive'
-import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
-import Shield from 'lucide-react/dist/esm/icons/shield'
-import Zap from 'lucide-react/dist/esm/icons/zap'
-import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle'
-import CheckCircle2 from 'lucide-react/dist/esm/icons/check-circle-2'
-import XCircle from 'lucide-react/dist/esm/icons/x-circle'
-import Download from 'lucide-react/dist/esm/icons/download'
-import FolderOpen from 'lucide-react/dist/esm/icons/folder-open'
-import Settings from 'lucide-react/dist/esm/icons/settings'
-import Cpu from 'lucide-react/dist/esm/icons/cpu'
-import Database from 'lucide-react/dist/esm/icons/database';
+import { Activity, Trash2, HardDrive, RefreshCw, Shield, Zap, AlertTriangle, CheckCircle2, XCircle, Download, FolderOpen, Settings, Cpu, Database } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 

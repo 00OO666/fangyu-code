@@ -18,12 +18,12 @@ import { logger } from "@/lib/logger";
  */
 export async function scanCliSessions(): Promise<ScanResult> {
   try {
-    logger.info("[CLI Monitor] Scanning CLI sessions...");
+    logger.info("CLI Monitor", "Scanning CLI sessions...");
     const result = await invoke<ScanResult>("scan_cli_sessions");
-    logger.info(`[CLI Monitor] Found ${result.sessions.length} sessions`);
+    logger.info("CLI Monitor", `Found ${result.sessions.length} sessions`);
     return result;
   } catch (error) {
-    logger.error("[CLI Monitor] Failed to scan CLI sessions:", error);
+    logger.error("CLI Monitor", `Failed to scan CLI sessions: ${error}`);
     throw new Error(`Failed to scan CLI sessions: ${error}`);
   }
 }
@@ -34,12 +34,12 @@ export async function scanCliSessions(): Promise<ScanResult> {
  */
 export async function getRunningProcesses(): Promise<ProcessInfo[]> {
   try {
-    logger.info("[CLI Monitor] Getting running processes...");
+    logger.info("CLI Monitor", "Getting running processes...");
     const processes = await invoke<ProcessInfo[]>("get_running_processes");
-    logger.info(`[CLI Monitor] Found ${processes.length} Claude Code processes`);
+    logger.info("CLI Monitor", `Found ${processes.length} Claude Code processes`);
     return processes;
   } catch (error) {
-    logger.error("[CLI Monitor] Failed to get running processes:", error);
+    logger.error("CLI Monitor", `Failed to get running processes: ${error}`);
     throw new Error(`Failed to get running processes: ${error}`);
   }
 }
@@ -53,7 +53,7 @@ export async function watchSessions(
   callback: (sessions: CliSession[]) => void
 ): Promise<() => void> {
   try {
-    logger.info("[CLI Monitor] Starting session watch...");
+    logger.info("CLI Monitor", "Starting session watch...");
 
     // 初始扫描
     const initialResult = await scanCliSessions();
@@ -65,17 +65,17 @@ export async function watchSessions(
         const result = await scanCliSessions();
         callback(result.sessions);
       } catch (error) {
-        logger.error("[CLI Monitor] Error during session watch:", error);
+        logger.error("CLI Monitor", `Error during session watch: ${error}`);
       }
     }, 5000);
 
     // 返回取消监听的函数
     return () => {
-      logger.info("[CLI Monitor] Stopping session watch...");
+      logger.info("CLI Monitor", "Stopping session watch...");
       clearInterval(intervalId);
     };
   } catch (error) {
-    logger.error("[CLI Monitor] Failed to start session watch:", error);
+    logger.error("CLI Monitor", `Failed to start session watch: ${error}`);
     throw new Error(`Failed to start session watch: ${error}`);
   }
 }
@@ -169,12 +169,12 @@ export function sortSessions(
  */
 export async function scanWindows(): Promise<WindowScanResult> {
   try {
-    logger.info("[CLI Monitor] Scanning Claude CLI windows...");
+    logger.info("CLI Monitor", "Scanning Claude CLI windows...");
     const result = await invoke<WindowScanResult>("scan_windows");
-    logger.info(`[CLI Monitor] Found ${result.total_count} windows`);
+    logger.info("CLI Monitor", `Found ${result.total_count} windows`);
     return result;
   } catch (error) {
-    logger.error("[CLI Monitor] Failed to scan windows:", error);
+    logger.error("CLI Monitor", `Failed to scan windows: ${error}`);
     throw new Error(`Failed to scan windows: ${error}`);
   }
 }
@@ -185,12 +185,13 @@ export async function scanWindows(): Promise<WindowScanResult> {
  */
 export async function focusWindow(hwnd: number): Promise<void> {
   try {
-    logger.info(`[CLI Monitor] Focusing window: hwnd=${hwnd}`);
+    logger.info("CLI Monitor", `Focusing window: hwnd=${hwnd}`);
     await invoke<void>("focus_window", { hwnd });
-    logger.info(`[CLI Monitor] Successfully focused window: hwnd=${hwnd}`);
+    logger.info("CLI Monitor", `Successfully focused window: hwnd=${hwnd}`);
   } catch (error) {
-    logger.error(`[CLI Monitor] Failed to focus window (hwnd=${hwnd}):`, error);
-    throw new Error(`Failed to focus window: ${error}`);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    logger.error("CLI Monitor", `Failed to focus window (hwnd=${hwnd}):`, error);
+    throw new Error(`Failed to focus window: ${errorMsg}`);
   }
 }
 
@@ -199,12 +200,13 @@ export async function focusWindow(hwnd: number): Promise<void> {
  */
 export async function startFileWatching(): Promise<void> {
   try {
-    logger.info("[CLI Monitor] Starting file system watching...");
+    logger.info("CLI Monitor", "Starting file system watching...");
     await invoke<void>("start_file_watching");
-    logger.info("[CLI Monitor] File system watching started");
+    logger.info("CLI Monitor", "File system watching started");
   } catch (error) {
-    logger.error("[CLI Monitor] Failed to start file watching:", error);
-    throw new Error(`Failed to start file watching: ${error}`);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    logger.error("CLI Monitor", `Failed to start file watching: ${errorMsg}`);
+    throw new Error(`Failed to start file watching: ${errorMsg}`);
   }
 }
 
@@ -213,12 +215,13 @@ export async function startFileWatching(): Promise<void> {
  */
 export async function stopFileWatching(): Promise<void> {
   try {
-    logger.info("[CLI Monitor] Stopping file system watching...");
+    logger.info("CLI Monitor", "Stopping file system watching...");
     await invoke<void>("stop_file_watching");
-    logger.info("[CLI Monitor] File system watching stopped");
+    logger.info("CLI Monitor", "File system watching stopped");
   } catch (error) {
-    logger.error("[CLI Monitor] Failed to stop file watching:", error);
-    throw new Error(`Failed to stop file watching: ${error}`);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    logger.error("CLI Monitor", `Failed to stop file watching: ${errorMsg}`);
+    throw new Error(`Failed to stop file watching: ${errorMsg}`);
   }
 }
 
@@ -230,8 +233,9 @@ export async function getFileEvents(): Promise<FileChangeEvent[]> {
     const events = await invoke<FileChangeEvent[]>("get_file_events");
     return events;
   } catch (error) {
-    logger.error("[CLI Monitor] Failed to get file events:", error);
-    throw new Error(`Failed to get file events: ${error}`);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    logger.error("CLI Monitor", `Failed to get file events: ${errorMsg}`);
+    throw new Error(`Failed to get file events: ${errorMsg}`);
   }
 }
 
@@ -243,7 +247,7 @@ export async function isFileWatching(): Promise<boolean> {
     const watching = await invoke<boolean>("is_file_watching");
     return watching;
   } catch (error) {
-    logger.error("[CLI Monitor] Failed to check file watching status:", error);
+    logger.error("CLI Monitor", `Failed to check file watching status: ${error}`);
     throw new Error(`Failed to check file watching status: ${error}`);
   }
 }
@@ -281,9 +285,9 @@ export interface SessionContent {
  */
 export async function readSessionContent(sessionId: string): Promise<SessionContent> {
   try {
-    logger.info(`[CLI Monitor] Reading session content: ${sessionId}`);
+    logger.info("CLI Monitor", `Reading session content: ${sessionId}`);
     const content = await invoke<SessionContent>("read_session_content", { sessionId });
-    logger.info(`[CLI Monitor] Read ${content.total_messages} messages from session ${sessionId}`);
+    logger.info("CLI Monitor", `Read ${content.total_messages} messages from session ${sessionId}`);
     return content;
   } catch (error) {
     logger.error(`[CLI Monitor] Failed to read session content (${sessionId}):`, error);
@@ -298,9 +302,9 @@ export async function readSessionContent(sessionId: string): Promise<SessionCont
  */
 export async function readLastMessages(sessionId: string, count: number): Promise<SessionContent> {
   try {
-    logger.info(`[CLI Monitor] Reading last ${count} messages from session ${sessionId}`);
+    logger.info("CLI Monitor", `Reading last ${count} messages from session ${sessionId}`);
     const content = await invoke<SessionContent>("read_last_messages", { sessionId, count });
-    logger.info(`[CLI Monitor] Read ${content.messages.length} messages from session ${sessionId}`);
+    logger.info("CLI Monitor", `Read ${content.messages.length} messages from session ${sessionId}`);
     return content;
   } catch (error) {
     logger.error(`[CLI Monitor] Failed to read last messages (${sessionId}):`, error);

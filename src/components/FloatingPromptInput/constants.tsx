@@ -1,6 +1,4 @@
-import Zap from 'lucide-react/dist/esm/icons/zap'
-import Brain from 'lucide-react/dist/esm/icons/brain'
-import Sparkles from 'lucide-react/dist/esm/icons/sparkles';
+import { Zap, Brain, Sparkles } from 'lucide-react';
 import { ModelConfig, ThinkingModeConfig } from "./types";
 
 /**

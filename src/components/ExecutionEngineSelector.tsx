@@ -15,10 +15,7 @@
  */
 
 import React, { useState } from 'react';
-import Settings from 'lucide-react/dist/esm/icons/settings'
-import Check from 'lucide-react/dist/esm/icons/check'
-import Monitor from 'lucide-react/dist/esm/icons/monitor'
-import Terminal from 'lucide-react/dist/esm/icons/terminal'
+import { Settings, Check, Monitor, Terminal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Select,

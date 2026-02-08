@@ -6,7 +6,7 @@
  * Feature: unified-workflow-system
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it } from 'vitest';
 import fc from 'fast-check';
 import type { Task, WorkflowDAG, WorkflowMetadata, WorkflowEdge } from '../types/workflow';
 
@@ -119,7 +119,6 @@ function validExitPoints(dag: WorkflowDAG): boolean {
 /**
  * 生成有效的任务
  */
-const taskArbitrary = (id: string, deps: string[] = []): fc.Arbitrary<Task> =>
     fc.record({
         id: fc.constant(id),
         description: fc.string({ minLength: 1, maxLength: 100 }),

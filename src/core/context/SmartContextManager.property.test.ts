@@ -37,7 +37,6 @@ const contextItemInputArb = fc.record({
 });
 
 describe('SmartContextManager Property Tests', () => {
-  let manager: SmartContextManager;
   
   beforeEach(() => {
     manager = new SmartContextManager('claude-3-sonnet', {
@@ -299,8 +298,6 @@ describe('SmartContextManager Property Tests', () => {
             
             if (result.removed.length > 0 && result.retained.length > 0) {
               // 保留项的最高优先级应 <= 移除项的最低优先级
-              const retainedMinPriority = Math.min(...result.retained.map(i => i.priority));
-              const removedMaxPriority = Math.max(...result.removed.map(i => i.priority));
               
               // 由于 system 类型的特殊处理，这个断言可能不总是成立
               // 但对于纯 user 类型，应该成立

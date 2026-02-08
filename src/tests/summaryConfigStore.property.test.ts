@@ -89,7 +89,6 @@ const validConfigArb: fc.Arbitrary<SummaryAPIConfig> = engineArb.chain(engine =>
 
 describe('SummaryConfigStore Property Tests', () => {
     let store: SummaryConfigStore;
-    let originalLocalStorage: Storage;
 
     beforeEach(() => {
         // Mock localStorage

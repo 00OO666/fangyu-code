@@ -1,16 +1,6 @@
 import { logger } from '@/lib/logger';
 import React, { useState, useEffect } from "react";
-import Bot from 'lucide-react/dist/esm/icons/bot'
-import FolderOpen from 'lucide-react/dist/esm/icons/folder-open'
-import Plus from 'lucide-react/dist/esm/icons/plus'
-import Package from 'lucide-react/dist/esm/icons/package'
-import Sparkles from 'lucide-react/dist/esm/icons/sparkles'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
-import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left'
-import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
-import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
-import Terminal from 'lucide-react/dist/esm/icons/terminal'
-import Zap from 'lucide-react/dist/esm/icons/zap';
+import { Bot, FolderOpen, Plus, Package, Sparkles, Loader2, ArrowLeft, ChevronDown, ChevronRight, Terminal, Zap } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";

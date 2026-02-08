@@ -14,16 +14,7 @@ import { GeminiIcon } from "@/components/icons/GeminiIcon";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { getHourlyDataForDate } from "@/hooks/useHourlyUsageTracker";
-import Calendar from 'lucide-react/dist/esm/icons/calendar'
-import Filter from 'lucide-react/dist/esm/icons/filter'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
-import Briefcase from 'lucide-react/dist/esm/icons/briefcase'
-import ChevronLeft from 'lucide-react/dist/esm/icons/chevron-left'
-import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
-import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left'
-import Layers from 'lucide-react/dist/esm/icons/layers'
-import TrendingUp from 'lucide-react/dist/esm/icons/trending-up'
-import Zap from 'lucide-react/dist/esm/icons/zap';
+import { Calendar, Filter, Loader2, Briefcase, ChevronLeft, ChevronRight, ArrowLeft, Layers, TrendingUp, Zap } from 'lucide-react';
 
 interface UsageDashboardProps {
   /**

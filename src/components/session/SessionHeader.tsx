@@ -1,8 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
-import FolderOpen from 'lucide-react/dist/esm/icons/folder-open'
-import Clock from 'lucide-react/dist/esm/icons/clock';
+import { FolderOpen, Clock } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

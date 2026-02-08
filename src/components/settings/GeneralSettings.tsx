@@ -1,11 +1,7 @@
 import { logger } from '@/lib/logger';
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
-import RotateCcw from 'lucide-react/dist/esm/icons/rotate-ccw'
-import Download from 'lucide-react/dist/esm/icons/download';
-import Save from 'lucide-react/dist/esm/icons/save';
+import { AlertCircle, Loader2, RotateCcw, Download, Save } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

@@ -5,21 +5,7 @@
 
 import { logger } from '@/lib/logger';
 import React, { useState, useCallback } from 'react';
-import Zap from 'lucide-react/dist/esm/icons/zap'
-import Trash2 from 'lucide-react/dist/esm/icons/trash-2'
-import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
-import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
-import Clock from 'lucide-react/dist/esm/icons/clock'
-import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
-import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up'
-import Eye from 'lucide-react/dist/esm/icons/eye'
-import EyeOff from 'lucide-react/dist/esm/icons/eye-off'
-import Globe from 'lucide-react/dist/esm/icons/globe'
-import Key from 'lucide-react/dist/esm/icons/key'
-import Server from 'lucide-react/dist/esm/icons/server'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
-import Save from 'lucide-react/dist/esm/icons/save'
-import X from 'lucide-react/dist/esm/icons/x';
+import { Zap, Trash2, CheckCircle, AlertCircle, Clock, ChevronDown, ChevronUp, Eye, EyeOff, Globe, Key, Server, Loader2, Save, X } from 'lucide-react';
 import type { UnifiedProviderConfig } from '../../types/provider';
 import { cn } from '../../lib/utils';
 import { InlineModelTester, type APIProviderType } from './InlineModelTester';

@@ -11,18 +11,7 @@
 import { logger } from '@/lib/logger';
 import React, { useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import ImagePlus from 'lucide-react/dist/esm/icons/image-plus'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
-import Download from 'lucide-react/dist/esm/icons/download'
-import Copy from 'lucide-react/dist/esm/icons/copy'
-import Trash2 from 'lucide-react/dist/esm/icons/trash-2'
-import Upload from 'lucide-react/dist/esm/icons/upload'
-import Sparkles from 'lucide-react/dist/esm/icons/sparkles'
-import Zap from 'lucide-react/dist/esm/icons/zap'
-import X from 'lucide-react/dist/esm/icons/x'
-import Settings2 from 'lucide-react/dist/esm/icons/settings-2'
-import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
-import { cn } from '@/lib/utils';
+import { ImagePlus, Loader2, Download, Copy, Trash2, Upload, Sparkles, Zap, X, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';

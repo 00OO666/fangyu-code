@@ -1,7 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import Plus from 'lucide-react/dist/esm/icons/plus'
-import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
+import { Plus, Trash2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -32,7 +31,7 @@ interface EnvironmentSettingsProps {
 
 /** 引擎特定的常用环境变量提示 */
 const ENGINE_ENV_HINTS: Record<EngineType, { key: string; desc: string }[]> = {
-  'claude-code': [
+  'claude': [
     { key: 'ANTHROPIC_API_KEY', desc: 'Anthropic API 密钥' },
     { key: 'ANTHROPIC_BASE_URL', desc: 'API 代理地址' },
     { key: 'MAX_THINKING_TOKENS', desc: '最大思考 Token 数' },
@@ -55,7 +54,7 @@ export const EnvironmentSettings: React.FC<EnvironmentSettingsProps> = ({
   addEnvVar,
   updateEnvVar,
   removeEnvVar,
-  selectedEngine = 'claude-code',
+  selectedEngine = 'claude',
   onEngineChange,
   showEngineSelector = false,
 }) => {

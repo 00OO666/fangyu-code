@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-// import Plus from 'lucide-react/dist/esm/icons/plus'; // Unused in new GlobalSessionCenter
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
+import { Loader2 } from 'lucide-react';
 import { listen, type UnlistenFn } from '@tauri-apps/api/event';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence, Transition } from "framer-motion"; // ✨ Added for transitions

@@ -408,7 +408,6 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
 
         // Record prompt sent (save Git state before sending)
         // Only record real user input, exclude auto Warmup and Skills messages
-        let recordedPromptIndex = -1;
         const isUserInitiated =
           !prompt.includes("Warmup") &&
           !prompt.includes("<command-name>") &&
@@ -432,10 +431,12 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
             }
             : undefined;
 
+        let recordPromptPromise: Promise<number> | null = null;
+        let recordedPromptIndex: number | undefined;
+
         // 🚀 性能优化：Git 记录改为非阻塞后台执行
         // recordPromptSent 包含耗时的 Git 操作（git rev-parse, 文件读写等）
         // 将其改为后台执行，不阻塞消息发送流程
-        let recordPromptPromise: Promise<number> | null = null;
 
         // 对于已有会话，后台记录；对于新会话，在收到 session_id 后记录
         if (effectiveSession && isUserInitiated) {

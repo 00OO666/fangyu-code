@@ -21,7 +21,7 @@ export const HooksSettings: React.FC<HooksSettingsProps> = ({
   activeTab,
   setUserHooksChanged,
   getUserHooks,
-  selectedEngine = 'claude-code',
+  selectedEngine = 'claude',
   onEngineChange,
   showEngineSelector = false,
 }) => {

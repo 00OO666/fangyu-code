@@ -133,20 +133,20 @@ export const useCliMonitorStore = create<CliMonitorStore>()(
 
       // 视图模式
       setViewMode: (mode) => {
-        logger.info(`[CLI Monitor Store] Setting view mode to: ${mode}`);
+        logger.info("CLI Monitor Store", `Setting view mode to: ${mode}`);
         set({ viewMode: mode });
       },
 
       toggleViewMode: () => {
         const currentMode = get().viewMode;
         const newMode = currentMode === "normal" ? "cli-monitor" : "normal";
-        logger.info(`[CLI Monitor Store] Toggling view mode: ${currentMode} -> ${newMode}`);
+        logger.info("CLI Monitor Store", `Toggling view mode: ${currentMode} -> ${newMode}`);
         set({ viewMode: newMode });
       },
 
       // 网格配置
       setGridConfig: (config) => {
-        logger.info("[CLI Monitor Store] Updating grid config:", config);
+        logger.info("CLI Monitor Store", `Updating grid config: ${config}`);
         set((state) => ({
           gridConfig: { ...state.gridConfig, ...config },
         }));
@@ -154,14 +154,14 @@ export const useCliMonitorStore = create<CliMonitorStore>()(
 
       // 过滤和排序
       setFilter: (filter) => {
-        logger.info("[CLI Monitor Store] Updating filter:", filter);
+        logger.info("CLI Monitor Store", `Updating filter: ${filter}`);
         set((state) => ({
           filter: { ...state.filter, ...filter },
         }));
       },
 
       setSorting: (sortBy, direction) => {
-        logger.info(`[CLI Monitor Store] Setting sort: ${sortBy} ${direction || "desc"}`);
+        logger.info("CLI Monitor Store", `Setting sort: ${sortBy} ${direction || "desc"}`);
         set({
           sortBy,
           sortDirection: direction || get().sortDirection,
@@ -170,7 +170,7 @@ export const useCliMonitorStore = create<CliMonitorStore>()(
 
       // 选中会话
       setSelectedSession: (sessionId) => {
-        logger.info(`[CLI Monitor Store] Selected session: ${sessionId}`);
+        logger.info("CLI Monitor Store", `Selected session: ${sessionId}`);
         set({ selectedSessionId: sessionId });
       },
 
@@ -213,13 +213,13 @@ export const useCliMonitorStore = create<CliMonitorStore>()(
       // 扫描会话
       scan: async () => {
         if (get().isScanning) {
-          logger.warn("[CLI Monitor Store] Scan already in progress");
+          logger.warn("CLI Monitor Store", "Scan already in progress");
           return;
         }
 
         set({ isScanning: true });
         try {
-          logger.info("[CLI Monitor Store] Starting scan...");
+          logger.info("CLI Monitor Store", "Starting scan...");
           const result = await scanCliSessions();
           const processes = await getRunningProcesses();
 
@@ -230,9 +230,9 @@ export const useCliMonitorStore = create<CliMonitorStore>()(
             isScanning: false,
           });
 
-          logger.info(`[CLI Monitor Store] Scan complete: ${result.sessions.length} sessions found`);
+          logger.info("CLI Monitor Store", `Scan complete: ${result.sessions.length} sessions found`);
         } catch (error) {
-          logger.error("[CLI Monitor Store] Scan failed:", error);
+          logger.error("CLI Monitor Store", `Scan failed: ${error}`);
           set({ isScanning: false });
           throw error;
         }
@@ -241,19 +241,19 @@ export const useCliMonitorStore = create<CliMonitorStore>()(
       // 开始监听
       startWatch: async () => {
         if (get().isWatching) {
-          logger.warn("[CLI Monitor Store] Watch already started");
+          logger.warn("CLI Monitor Store", "Watch already started");
           return;
         }
 
         try {
-          logger.info("[CLI Monitor Store] Starting watch...");
+          logger.info("CLI Monitor Store", "Starting watch...");
           unwatchFn = await watchSessions((sessions) => {
             set({ sessions, lastScanned: Date.now() / 1000 });
           });
           set({ isWatching: true });
-          logger.info("[CLI Monitor Store] Watch started");
+          logger.info("CLI Monitor Store", "Watch started");
         } catch (error) {
-          logger.error("[CLI Monitor Store] Failed to start watch:", error);
+          logger.error("CLI Monitor Store", `Failed to start watch: ${error}`);
           throw error;
         }
       },
@@ -261,28 +261,28 @@ export const useCliMonitorStore = create<CliMonitorStore>()(
       // 停止监听
       stopWatch: () => {
         if (!get().isWatching) {
-          logger.warn("[CLI Monitor Store] Watch not started");
+          logger.warn("CLI Monitor Store", "Watch not started");
           return;
         }
 
-        logger.info("[CLI Monitor Store] Stopping watch...");
+        logger.info("CLI Monitor Store", "Stopping watch...");
         if (unwatchFn) {
           unwatchFn();
           unwatchFn = null;
         }
         set({ isWatching: false });
-        logger.info("[CLI Monitor Store] Watch stopped");
+        logger.info("CLI Monitor Store", "Watch stopped");
       },
 
       // 刷新进程列表
       refreshProcesses: async () => {
         try {
-          logger.info("[CLI Monitor Store] Refreshing processes...");
+          logger.info("CLI Monitor Store", "Refreshing processes...");
           const processes = await getRunningProcesses();
           set({ processes });
-          logger.info(`[CLI Monitor Store] Processes refreshed: ${processes.length} found`);
+          logger.info("CLI Monitor Store", `Processes refreshed: ${processes.length} found`);
         } catch (error) {
-          logger.error("[CLI Monitor Store] Failed to refresh processes:", error);
+          logger.error("CLI Monitor Store", `Failed to refresh processes: ${error}`);
           throw error;
         }
       },

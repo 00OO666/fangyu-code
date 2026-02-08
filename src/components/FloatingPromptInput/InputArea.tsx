@@ -2,7 +2,7 @@ import React, { forwardRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import Maximize2 from 'lucide-react/dist/esm/icons/maximize-2';
+import { Maximize2 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { AnimatePresence } from "framer-motion";
 import { FilePicker } from "../FilePicker";

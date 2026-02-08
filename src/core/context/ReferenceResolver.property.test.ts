@@ -17,7 +17,7 @@ import {
   GitProvider,
   CodebaseProvider
 } from './ReferenceResolver';
-import { Diagnostic, ReferenceType } from '../types/unified-agent';
+import { Diagnostic } from '../types/unified-agent';
 
 // Mock 文件系统
 class MockFileSystem implements FileSystem {
@@ -141,7 +141,6 @@ const filePathArb = fc.array(
 const fileContentArb = fc.string({ minLength: 10, maxLength: 500 });
 
 // 生成引用类型
-const refTypeArb = fc.constantFrom<ReferenceType>('file', 'folder', 'problems', 'terminal', 'gitDiff', 'codebase');
 
 describe('ReferenceResolver Property Tests', () => {
   let mockFs: MockFileSystem;

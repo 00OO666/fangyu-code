@@ -10,7 +10,7 @@
 // =============================================================================
 
 /** 支持的执行引擎类型 */
-export type EngineType = 'claude-code' | 'codex' | 'gemini';
+export type EngineType = 'claude' | 'codex' | 'gemini';
 
 /** 引擎信息 */
 export interface EngineInfo {
@@ -23,8 +23,8 @@ export interface EngineInfo {
 
 /** 所有引擎信息 */
 export const ENGINE_INFO: Record<EngineType, EngineInfo> = {
-    'claude-code': {
-        id: 'claude-code',
+    'claude': {
+        id: 'claude',
         name: 'Claude Code',
         shortName: 'Claude',
         description: 'Anthropic Claude AI 编程助手',
@@ -169,7 +169,7 @@ export const GEMINI_DEFAULT_PERMISSIONS: PermissionRules = {
 
 /** 默认引擎设置 */
 export const DEFAULT_ENGINE_SETTINGS: Record<EngineType, EngineSettings> = {
-    'claude-code': {
+    'claude': {
         permissions: CLAUDE_CODE_DEFAULT_PERMISSIONS,
         env: CLAUDE_CODE_DEFAULT_ENV,
         hooks: [],
@@ -213,9 +213,9 @@ function deepCopyEngineSettings(settings: EngineSettings): EngineSettings {
 export function createDefaultMultiEngineSettings(): MultiEngineSettingsStore {
     return {
         version: 2,
-        activeEngine: 'claude-code',
+        activeEngine: 'claude',
         engines: {
-            'claude-code': deepCopyEngineSettings(DEFAULT_ENGINE_SETTINGS['claude-code']),
+            'claude': deepCopyEngineSettings(DEFAULT_ENGINE_SETTINGS['claude']),
             'codex': deepCopyEngineSettings(DEFAULT_ENGINE_SETTINGS['codex']),
             'gemini': deepCopyEngineSettings(DEFAULT_ENGINE_SETTINGS['gemini']),
         },

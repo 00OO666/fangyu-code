@@ -2,13 +2,7 @@ import { logger } from '@/lib/logger';
 import React, { useState, useEffect, useRef, useMemo, useCallback, lazy, Suspense, useTransition } from "react";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
-import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
-import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up'
-import X from 'lucide-react/dist/esm/icons/x'
-import List from 'lucide-react/dist/esm/icons/list'
-import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle'
-import FileText from 'lucide-react/dist/esm/icons/file-text'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
+import { ChevronDown, ChevronUp, X, List, AlertTriangle, FileText, Loader2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { api, type Session, type Project } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -501,9 +495,6 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   // New state for preview feature
   const [showPreview, setShowPreview] = useState(false);
   const [previewUrl, setPreviewUrl] = useState("");
-
-  // 🚀 性能优化: 使用 useTransition 降低消息更新优先级
-  const [isPending, startTransition] = useTransition();
 
   // Translation state
   const [lastTranslationResult, setLastTranslationResult] = useState<TranslationResult | null>(null);

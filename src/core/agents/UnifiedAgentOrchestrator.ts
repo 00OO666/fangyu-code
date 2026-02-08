@@ -418,7 +418,6 @@ export class UnifiedAgentOrchestrator {
    */
   async spawnBackground(roleType: AgentRoleType, prompt: string): Promise<string> {
     const taskId = uuidv4();
-    const _agent = await this.createAgent(roleType);
 
     const task: Task = {
       id: taskId,

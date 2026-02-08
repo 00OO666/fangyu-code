@@ -14,24 +14,7 @@
 import { logger } from '@/lib/logger';
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Play from 'lucide-react/dist/esm/icons/play'
-import Pause from 'lucide-react/dist/esm/icons/pause'
-import X from 'lucide-react/dist/esm/icons/x'
-import Trash2 from 'lucide-react/dist/esm/icons/trash-2'
-import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
-import Clock from 'lucide-react/dist/esm/icons/clock'
-import CheckCircle2 from 'lucide-react/dist/esm/icons/check-circle-2'
-import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
-import XCircle from 'lucide-react/dist/esm/icons/x-circle'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
-import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
-import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
-import Terminal from 'lucide-react/dist/esm/icons/terminal'
-import Sparkles from 'lucide-react/dist/esm/icons/sparkles'
-import FileCode from 'lucide-react/dist/esm/icons/file-code'
-import Zap from 'lucide-react/dist/esm/icons/zap'
-import BarChart3 from 'lucide-react/dist/esm/icons/bar-chart-3'
-import Filter from 'lucide-react/dist/esm/icons/filter';
+import { Play, Pause, X, Trash2, RefreshCw, Clock, CheckCircle2, AlertCircle, XCircle, Loader2, ChevronDown, ChevronRight, Terminal, Sparkles, FileCode, Zap, BarChart3, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Collapsible,

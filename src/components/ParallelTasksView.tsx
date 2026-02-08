@@ -13,19 +13,7 @@
 import { logger } from '@/lib/logger';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Users from 'lucide-react/dist/esm/icons/users'
-import GitBranch from 'lucide-react/dist/esm/icons/git-branch'
-import Play from 'lucide-react/dist/esm/icons/play'
-import Pause from 'lucide-react/dist/esm/icons/pause'
-import CheckCircle2 from 'lucide-react/dist/esm/icons/check-circle-2'
-import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
-import Clock from 'lucide-react/dist/esm/icons/clock'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
-import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
-import Zap from 'lucide-react/dist/esm/icons/zap'
-import Lock from 'lucide-react/dist/esm/icons/lock'
-import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
-import X from 'lucide-react/dist/esm/icons/x';
+import { Users, GitBranch, Play, Pause, CheckCircle2, AlertCircle, Clock, Loader2, ChevronRight, Zap, Lock, RefreshCw, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';

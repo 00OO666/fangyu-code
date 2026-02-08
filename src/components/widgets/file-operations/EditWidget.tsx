@@ -5,12 +5,7 @@
  */
 
 import React, { useState, useMemo } from "react";
-import FileEdit from 'lucide-react/dist/esm/icons/file-edit'
-import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up'
-import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
-import CheckCircle2 from 'lucide-react/dist/esm/icons/check-circle-2'
-import XCircle from 'lucide-react/dist/esm/icons/x-circle';
+import { FileEdit, ChevronUp, ChevronDown, Loader2, CheckCircle2, XCircle } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import * as Diff from 'diff';
 import { Prism as SyntaxHighlighter } from "@/lib/lightSyntaxHighlighter";

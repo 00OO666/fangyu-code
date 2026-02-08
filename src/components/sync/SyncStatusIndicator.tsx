@@ -10,10 +10,7 @@
 
 import React, { forwardRef } from 'react';
 import { motion } from 'framer-motion';
-import Wifi from 'lucide-react/dist/esm/icons/wifi'
-import WifiOff from 'lucide-react/dist/esm/icons/wifi-off'
-import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
-import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
+import { Wifi, WifiOff, RefreshCw, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   Tooltip,

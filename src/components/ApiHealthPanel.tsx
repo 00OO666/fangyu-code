@@ -9,19 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
-import Activity from 'lucide-react/dist/esm/icons/activity'
-import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
-import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
-import XCircle from 'lucide-react/dist/esm/icons/x-circle'
-import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
-import Stethoscope from 'lucide-react/dist/esm/icons/stethoscope'
-import Trash2 from 'lucide-react/dist/esm/icons/trash-2'
-import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
-import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up'
-import Clock from 'lucide-react/dist/esm/icons/clock'
-import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle'
-import Wifi from 'lucide-react/dist/esm/icons/wifi'
-import WifiOff from 'lucide-react/dist/esm/icons/wifi-off';
+import { Activity, AlertCircle, CheckCircle, XCircle, RefreshCw, Stethoscope, Trash2, ChevronDown, ChevronUp, Clock, AlertTriangle, Wifi, WifiOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useApiHealthCheck, type ConnectionStatus } from '@/hooks/useApiHealthCheck';
 

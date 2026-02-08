@@ -175,7 +175,7 @@ function migrateFromLegacy(legacy: any): MultiEngineSettingsStore {
 
     // 迁移权限
     if (legacy.permissions) {
-        newSettings.engines['claude-code'].permissions = {
+        newSettings.engines['claude'].permissions = {
             allow: Array.isArray(legacy.permissions.allow) ? legacy.permissions.allow : [],
             deny: Array.isArray(legacy.permissions.deny) ? legacy.permissions.deny : [],
         };
@@ -183,8 +183,8 @@ function migrateFromLegacy(legacy: any): MultiEngineSettingsStore {
 
     // 迁移环境变量
     if (legacy.env && typeof legacy.env === 'object') {
-        newSettings.engines['claude-code'].env = {
-            ...DEFAULT_ENGINE_SETTINGS['claude-code'].env,
+        newSettings.engines['claude'].env = {
+            ...DEFAULT_ENGINE_SETTINGS['claude'].env,
             ...legacy.env,
         };
     }

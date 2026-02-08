@@ -6,10 +6,7 @@
  */
 
 import React, { useState } from "react";
-import Settings from 'lucide-react/dist/esm/icons/settings'
-import Fingerprint from 'lucide-react/dist/esm/icons/fingerprint'
-import Cpu from 'lucide-react/dist/esm/icons/cpu'
-import FolderOpen from 'lucide-react/dist/esm/icons/folder-open';
+import { Settings, Fingerprint, Cpu, FolderOpen } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { ToolsList } from "./components/ToolsList";
 

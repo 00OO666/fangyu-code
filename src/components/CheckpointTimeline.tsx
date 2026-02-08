@@ -11,18 +11,7 @@
 import { logger } from '@/lib/logger';
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import History from 'lucide-react/dist/esm/icons/history'
-import Undo2 from 'lucide-react/dist/esm/icons/undo-2'
-import Trash2 from 'lucide-react/dist/esm/icons/trash-2'
-import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
-import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up'
-import Clock from 'lucide-react/dist/esm/icons/clock'
-import FileCode from 'lucide-react/dist/esm/icons/file-code'
-import Wrench from 'lucide-react/dist/esm/icons/wrench'
-import Hand from 'lucide-react/dist/esm/icons/hand'
-import Zap from 'lucide-react/dist/esm/icons/zap'
-import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
+import { History, Undo2, Trash2, ChevronDown, ChevronUp, Clock, FileCode, Wrench, Hand, Zap, AlertCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Collapsible,

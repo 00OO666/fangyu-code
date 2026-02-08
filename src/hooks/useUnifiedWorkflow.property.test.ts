@@ -6,7 +6,7 @@
  */
 
 import fc from 'fast-check';
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import type { WorkflowProgress, Task, WorkflowDAG, WorkflowMetadata } from '../core/types/workflow';
 
 // ============================================

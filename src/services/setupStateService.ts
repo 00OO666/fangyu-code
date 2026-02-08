@@ -39,9 +39,8 @@ export interface ConfigStatus {
 export const ENGINE_SETUP_STEPS: Record<EngineType, Omit<SetupStep, 'status'>[]> = {
     claude: [
         { id: 'check_deps', title: '检查环境', description: '检测 Node.js 和 npm' },
-        { id: 'install_cli', title: '安装 CLI', description: '安装 Claude Code CLI' },
-        { id: 'config_api', title: '配置 API', description: '设置 API Key 或选择代理商' },
-        { id: 'verify', title: '验证安装', description: '验证 CLI 可用' },
+        { id: 'setup_sdk', title: 'SDK 配置', description: '配置 Claude API SDK' },
+        { id: 'config_api', title: '配置 API', description: '设置 API Key' },
         { id: 'select_model', title: '选择模型', description: '设置默认模型', optional: true },
     ],
     codex: [

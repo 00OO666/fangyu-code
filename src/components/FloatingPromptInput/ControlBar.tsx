@@ -7,20 +7,7 @@ import { Popover } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Switch } from "@/components/ui/switch";
-import Wand2 from 'lucide-react/dist/esm/icons/wand-2'
-import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
-import DollarSign from 'lucide-react/dist/esm/icons/dollar-sign'
-import Info from 'lucide-react/dist/esm/icons/info'
-import Settings from 'lucide-react/dist/esm/icons/settings'
-import Code2 from 'lucide-react/dist/esm/icons/code-2'
-import Sparkles from 'lucide-react/dist/esm/icons/sparkles'
-import Hash from 'lucide-react/dist/esm/icons/hash'
-import Webhook from 'lucide-react/dist/esm/icons/webhook'
-import BarChart3 from 'lucide-react/dist/esm/icons/bar-chart-3'
-import Network from 'lucide-react/dist/esm/icons/network'
-import ListOrdered from 'lucide-react/dist/esm/icons/list-ordered'
-import Zap from 'lucide-react/dist/esm/icons/zap'
-import ImagePlus from 'lucide-react/dist/esm/icons/image-plus';
+import { Wand2, ChevronDown, DollarSign, Info, Settings, Code2, Sparkles, Hash, Webhook, BarChart3, Network, ListOrdered, Zap } from 'lucide-react';
 import { ImageGenerateButton } from "@/components/ImageGeneration";
 import { useCostDelta } from "@/hooks/useCostDelta";
 import { cn } from "@/lib/utils";

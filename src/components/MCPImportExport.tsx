@@ -1,11 +1,6 @@
 import { logger } from '@/lib/logger';
 import React, { useState } from "react";
-import Download from 'lucide-react/dist/esm/icons/download'
-import Upload from 'lucide-react/dist/esm/icons/upload'
-import FileText from 'lucide-react/dist/esm/icons/file-text'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
-import Info from 'lucide-react/dist/esm/icons/info'
-import Settings2 from 'lucide-react/dist/esm/icons/settings-2';
+import { Download, Upload, FileText, Loader2, Info, Settings2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";

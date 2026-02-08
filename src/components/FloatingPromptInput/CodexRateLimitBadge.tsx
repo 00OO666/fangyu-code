@@ -1,8 +1,5 @@
 import React from "react";
-import Clock from 'lucide-react/dist/esm/icons/clock'
-import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle'
-import Calendar from 'lucide-react/dist/esm/icons/calendar'
-import Info from 'lucide-react/dist/esm/icons/info';
+import { Clock, AlertTriangle, Calendar, Info } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { Popover } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";

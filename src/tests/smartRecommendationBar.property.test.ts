@@ -6,7 +6,7 @@
  * Validates: Requirements 3.3, 3.4
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
 
 // 推荐类型
@@ -56,7 +56,6 @@ const recommendationArb = fc.record({
 });
 
 // 推荐列表生成器
-const recommendationsArb = fc.array(recommendationArb, { minLength: 0, maxLength: 20 });
 
 describe('SmartRecommendationBar Property Tests', () => {
     /**

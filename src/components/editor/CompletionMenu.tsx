@@ -7,16 +7,7 @@
 
 import React, { useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Code from 'lucide-react/dist/esm/icons/code'
-import Variable from 'lucide-react/dist/esm/icons/variable'
-import Braces from 'lucide-react/dist/esm/icons/braces'
-import Hash from 'lucide-react/dist/esm/icons/hash'
-import FileCode from 'lucide-react/dist/esm/icons/file-code'
-import Folder from 'lucide-react/dist/esm/icons/folder'
-import Package from 'lucide-react/dist/esm/icons/package'
-import Zap from 'lucide-react/dist/esm/icons/zap'
-import Type from 'lucide-react/dist/esm/icons/type'
-import Box from 'lucide-react/dist/esm/icons/box';
+import { Code, Variable, Braces, Hash, FileCode, Folder, Package, Zap, Type, Box } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { CompletionItem, CompletionItemKind } from '@/types/completion';
 

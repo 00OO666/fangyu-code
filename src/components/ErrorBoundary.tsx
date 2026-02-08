@@ -1,9 +1,6 @@
 import { logger } from '@/lib/logger';
 import React, { Component, ReactNode } from "react";
-import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
-import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
-import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
-import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up';
+import { AlertCircle, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {

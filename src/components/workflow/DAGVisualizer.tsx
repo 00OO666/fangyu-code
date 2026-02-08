@@ -34,20 +34,7 @@ import ReactFlow, {
 } from 'reactflow';
 import dagre from 'dagre';
 import { motion, AnimatePresence } from 'framer-motion';
-import Play from 'lucide-react/dist/esm/icons/play'
-import Pause from 'lucide-react/dist/esm/icons/pause'
-import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
-import XCircle from 'lucide-react/dist/esm/icons/x-circle'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
-import Clock from 'lucide-react/dist/esm/icons/clock'
-import Users from 'lucide-react/dist/esm/icons/users'
-import Zap from 'lucide-react/dist/esm/icons/zap'
-import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
-import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
-import MoreHorizontal from 'lucide-react/dist/esm/icons/more-horizontal'
-import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
-import Maximize2 from 'lucide-react/dist/esm/icons/maximize-2'
-import Target from 'lucide-react/dist/esm/icons/target';
+import { Play, Pause, CheckCircle, XCircle, Loader2, Clock, Users, Zap, ChevronDown, ChevronRight, MoreHorizontal, RefreshCw, Maximize2, Target } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';

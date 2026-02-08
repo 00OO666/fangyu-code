@@ -325,7 +325,6 @@ describe('TaskQueue Property Tests', () => {
       queue.updatePriority('test-task', 10);
       expect(events).toContain('priority_changed');
       
-      const dequeued = queue.dequeue();
       expect(events).toContain('dequeued');
       
       queue.enqueue(createTask({ id: 'task-2' }));

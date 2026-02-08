@@ -1,9 +1,6 @@
 import * as React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import X from 'lucide-react/dist/esm/icons/x'
-import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
-import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
-import Info from 'lucide-react/dist/esm/icons/info';
+import { X, CheckCircle, AlertCircle, Info } from 'lucide-react';
 import { cn } from "@/lib/utils";
 
 export type ToastType = "success" | "error" | "info";

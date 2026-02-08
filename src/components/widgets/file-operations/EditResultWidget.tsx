@@ -6,8 +6,7 @@
  */
 
 import React from "react";
-import GitBranch from 'lucide-react/dist/esm/icons/git-branch'
-import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
+import { GitBranch, ChevronRight } from 'lucide-react';
 import { Prism as SyntaxHighlighter } from "@/lib/lightSyntaxHighlighter";
 import { getClaudeSyntaxTheme } from "@/lib/claudeSyntaxTheme";
 import { useTheme } from "@/contexts/ThemeContext";

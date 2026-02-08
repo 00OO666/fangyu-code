@@ -6,12 +6,7 @@ import { logger } from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import { HooksEditor } from '@/components/HooksEditor';
 import { api } from '@/lib/api';
-import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle'
-import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left'
-import Settings from 'lucide-react/dist/esm/icons/settings'
-import FolderOpen from 'lucide-react/dist/esm/icons/folder-open'
-import GitBranch from 'lucide-react/dist/esm/icons/git-branch'
-import Shield from 'lucide-react/dist/esm/icons/shield';
+import { AlertTriangle, ArrowLeft, Settings, FolderOpen, GitBranch, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';

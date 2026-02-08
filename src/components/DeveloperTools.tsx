@@ -7,10 +7,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left'
-import FileText from 'lucide-react/dist/esm/icons/file-text'
-import Workflow from 'lucide-react/dist/esm/icons/workflow'
-import Sparkles from 'lucide-react/dist/esm/icons/sparkles';
+import { ArrowLeft, FileText, Workflow, Sparkles } from 'lucide-react';
 import { useNavigation } from '@/contexts/NavigationContext';
 
 interface DeveloperToolsProps {

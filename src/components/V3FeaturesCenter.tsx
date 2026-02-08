@@ -1,13 +1,5 @@
 import React, { useState } from 'react';
-import Code2 from 'lucide-react/dist/esm/icons/code-2'
-import GitBranch from 'lucide-react/dist/esm/icons/git-branch'
-import TerminalIcon from 'lucide-react/dist/esm/icons/terminal'
-import FileCode from 'lucide-react/dist/esm/icons/file-code'
-import TestTube from 'lucide-react/dist/esm/icons/test-tube'
-import Layout from 'lucide-react/dist/esm/icons/layout'
-import Gauge from 'lucide-react/dist/esm/icons/gauge'
-import Puzzle from 'lucide-react/dist/esm/icons/puzzle'
-import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left';
+import { Code2, GitBranch, TerminalIcon, FileCode, TestTube, Layout, Gauge, Puzzle, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CodeEditor } from '@/components/editor/CodeEditor';

@@ -49,10 +49,10 @@ function parseFrontMatter(content: string): { frontMatter: ParsedFrontMatter; bo
   // 简单的 YAML 解析（不依赖外部库）
   const frontMatter: ParsedFrontMatter = {};
   const lines = yamlContent.split('\n');
-  let currentKey = '';
   let inArray = false;
   let arrayKey = '';
   let arrayValues: string[] = [];
+  let currentKey = '';
 
   for (const line of lines) {
     const trimmed = line.trim();
@@ -293,7 +293,6 @@ function extractCodeBlocks(content: string): string[] {
 }
 
 function detectSkillMode(sections: ParsedSection[]): SkillMode {
-  const titles = sections.map(s => s.title.toLowerCase());
   const allTitles = getAllTitles(sections).map(t => t.toLowerCase());
 
   // 检查是否有工作流相关章节

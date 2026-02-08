@@ -7,9 +7,7 @@
 
 import { logger } from '@/lib/logger';
 import React, { useState } from "react";
-import Bot from 'lucide-react/dist/esm/icons/bot'
-import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
-import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up';
+import { Bot, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { AIMessage } from "./AIMessage";

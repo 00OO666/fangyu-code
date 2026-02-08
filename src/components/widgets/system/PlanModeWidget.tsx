@@ -14,15 +14,7 @@
 
 import { useEffect, useRef, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import Search from 'lucide-react/dist/esm/icons/search'
-import LogOut from 'lucide-react/dist/esm/icons/log-out'
-import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
-import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
-import Play from 'lucide-react/dist/esm/icons/play'
-import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
-import Info from 'lucide-react/dist/esm/icons/info'
-import Lightbulb from 'lucide-react/dist/esm/icons/lightbulb'
-import Shield from 'lucide-react/dist/esm/icons/shield';
+import { Search, LogOut, CheckCircle, AlertCircle, Play, RefreshCw, Info, Lightbulb, Shield } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { usePlanMode, getPlanId, type PlanStatus } from "@/contexts/PlanModeContext";
 import ReactMarkdown from 'react-markdown';

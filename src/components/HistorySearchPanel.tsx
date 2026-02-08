@@ -12,17 +12,7 @@ import { logger } from '@/lib/logger';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import Search from 'lucide-react/dist/esm/icons/search'
-import History from 'lucide-react/dist/esm/icons/history'
-import MessageSquare from 'lucide-react/dist/esm/icons/message-square'
-import Calendar from 'lucide-react/dist/esm/icons/calendar'
-import FolderOpen from 'lucide-react/dist/esm/icons/folder-open'
-import X from 'lucide-react/dist/esm/icons/x'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
-import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
-import ArrowUpRight from 'lucide-react/dist/esm/icons/arrow-up-right'
-import Database from 'lucide-react/dist/esm/icons/database'
-import Clock from 'lucide-react/dist/esm/icons/clock';
+import { Search, History, MessageSquare, Calendar, FolderOpen, X, Loader2, ChevronRight, ArrowUpRight, Database, Clock } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';

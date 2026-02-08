@@ -9,11 +9,7 @@
  */
 
 import { useState, useCallback, useEffect } from 'react';
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
-import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
-import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle'
-import XCircle from 'lucide-react/dist/esm/icons/x-circle'
-import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up';
+import { Loader2, CheckCircle, AlertTriangle, XCircle, ChevronUp } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 export type APIProviderType = 'claude' | 'openai' | 'gemini';

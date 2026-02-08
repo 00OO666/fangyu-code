@@ -13,21 +13,7 @@
 import { logger } from '@/lib/logger';
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Upload from 'lucide-react/dist/esm/icons/upload'
-import Image from 'lucide-react/dist/esm/icons/image'
-import FileText from 'lucide-react/dist/esm/icons/file-text'
-import X from 'lucide-react/dist/esm/icons/x'
-import Eye from 'lucide-react/dist/esm/icons/eye'
-import Download from 'lucide-react/dist/esm/icons/download'
-import Copy from 'lucide-react/dist/esm/icons/copy'
-import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
-import Camera from 'lucide-react/dist/esm/icons/camera'
-import ClipboardPaste from 'lucide-react/dist/esm/icons/clipboard-paste'
-import Trash2 from 'lucide-react/dist/esm/icons/trash-2'
-import ZoomIn from 'lucide-react/dist/esm/icons/zoom-in'
-import ZoomOut from 'lucide-react/dist/esm/icons/zoom-out'
-import RotateCw from 'lucide-react/dist/esm/icons/rotate-cw';
+import { Upload, Image, FileText, X, Eye, Download, Copy, AlertCircle, Loader2, Camera, ClipboardPaste, Trash2, ZoomIn, ZoomOut, RotateCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';

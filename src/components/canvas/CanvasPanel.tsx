@@ -10,15 +10,7 @@
 
 import { logger } from '@/lib/logger';
 import React, { useState, useEffect, useRef } from 'react';
-import X from 'lucide-react/dist/esm/icons/x'
-import Code from 'lucide-react/dist/esm/icons/code'
-import Eye from 'lucide-react/dist/esm/icons/eye'
-import Maximize2 from 'lucide-react/dist/esm/icons/maximize-2'
-import Minimize2 from 'lucide-react/dist/esm/icons/minimize-2'
-import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
-import Copy from 'lucide-react/dist/esm/icons/copy'
-import Check from 'lucide-react/dist/esm/icons/check'
-import ExternalLink from 'lucide-react/dist/esm/icons/external-link';
+import { X, Code, Eye, Maximize2, Minimize2, RefreshCw, Copy, Check, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import Editor from '@monaco-editor/react';

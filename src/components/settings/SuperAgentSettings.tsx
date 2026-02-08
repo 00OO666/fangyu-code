@@ -3,12 +3,7 @@
  * 配置 Agent 系统、自治模式、Powers 等
  */
 import React, { useState } from 'react';
-import Bot from 'lucide-react/dist/esm/icons/bot'
-import Shield from 'lucide-react/dist/esm/icons/shield'
-import Zap from 'lucide-react/dist/esm/icons/zap'
-import Settings2 from 'lucide-react/dist/esm/icons/settings-2'
-import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle'
-import Key from 'lucide-react/dist/esm/icons/key';
+import { Bot, Shield, Zap, Settings2, AlertTriangle, Key } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';

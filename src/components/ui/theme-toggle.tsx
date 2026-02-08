@@ -1,6 +1,5 @@
 import React from 'react';
-import Sparkles from 'lucide-react/dist/esm/icons/sparkles'
-import Zap from 'lucide-react/dist/esm/icons/zap';
+import { Sparkles, Zap } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { cn } from '@/lib/utils';
 import {

@@ -66,7 +66,7 @@ export const Terminal: React.FC<TerminalProps> = ({
         cwd: null,
       });
 
-      const outputLines = [];
+      const outputLines: string[] = [];
       if (output.stdout) {
         outputLines.push(output.stdout);
       }

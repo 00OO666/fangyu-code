@@ -14,22 +14,7 @@
 import { logger } from '@/lib/logger';
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Package from 'lucide-react/dist/esm/icons/package'
-import Search from 'lucide-react/dist/esm/icons/search'
-import Power from 'lucide-react/dist/esm/icons/power'
-import PowerOff from 'lucide-react/dist/esm/icons/power-off'
-import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
-import Trash2 from 'lucide-react/dist/esm/icons/trash-2'
-import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
-import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
-import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
-import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
-import Clock from 'lucide-react/dist/esm/icons/clock'
-import Download from 'lucide-react/dist/esm/icons/download'
-import ExternalLink from 'lucide-react/dist/esm/icons/external-link'
-import Settings from 'lucide-react/dist/esm/icons/settings'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
-import FolderOpen from 'lucide-react/dist/esm/icons/folder-open';
+import { Package, Search, Power, PowerOff, RefreshCw, Trash2, ChevronRight, ChevronDown, AlertCircle, CheckCircle, Clock, Download, ExternalLink, Settings, Loader2, FolderOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';

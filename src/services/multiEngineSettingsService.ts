@@ -237,21 +237,21 @@ class MultiEngineSettingsService {
         try {
             // 迁移 Claude Code 设置
             if (legacy.permissions) {
-                newSettings.engines['claude-code'].permissions = {
+                newSettings.engines['claude'].permissions = {
                     allow: Array.isArray(legacy.permissions.allow) ? legacy.permissions.allow : [],
                     deny: Array.isArray(legacy.permissions.deny) ? legacy.permissions.deny : [],
                 };
             }
 
             if (legacy.env && typeof legacy.env === 'object') {
-                newSettings.engines['claude-code'].env = {
-                    ...DEFAULT_ENGINE_SETTINGS['claude-code'].env,
+                newSettings.engines['claude'].env = {
+                    ...DEFAULT_ENGINE_SETTINGS['claude'].env,
                     ...legacy.env,
                 };
             }
 
             if (legacy.hooks) {
-                newSettings.engines['claude-code'].hooks = Array.isArray(legacy.hooks) ? legacy.hooks : [];
+                newSettings.engines['claude'].hooks = Array.isArray(legacy.hooks) ? legacy.hooks : [];
             }
 
             // 迁移通用设置

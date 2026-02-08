@@ -4,11 +4,7 @@
 
 import { logger } from '@/lib/logger';
 import React, { useState, useCallback } from 'react';
-import Eye from 'lucide-react/dist/esm/icons/eye'
-import EyeOff from 'lucide-react/dist/esm/icons/eye-off'
-import Clipboard from 'lucide-react/dist/esm/icons/clipboard'
-import Check from 'lucide-react/dist/esm/icons/check';
-import { maskApiKey } from '../../services/cryptoService';
+import { Eye, EyeOff, Clipboard, Check } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 interface ApiKeyInputProps {
@@ -29,7 +25,6 @@ export function ApiKeyInput({
     const [showKey, setShowKey] = useState(false);
     const [justPasted, setJustPasted] = useState(false);
 
-    const displayValue = showKey ? value : (value ? maskApiKey(value) : '');
 
     const handlePaste = useCallback(async () => {
         try {

@@ -6,12 +6,7 @@
  */
 
 import React, { useState, useMemo } from "react";
-import ClipboardList from 'lucide-react/dist/esm/icons/clipboard-list'
-import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
-import Clock from 'lucide-react/dist/esm/icons/clock'
-import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
-import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
-import Bot from 'lucide-react/dist/esm/icons/bot';
+import { ClipboardList, CheckCircle, Clock, AlertCircle, ChevronRight, Bot } from 'lucide-react';
 import { cn } from "@/lib/utils";
 
 export interface TaskOutputWidgetProps {

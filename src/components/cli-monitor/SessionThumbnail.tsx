@@ -42,7 +42,7 @@ export const SessionThumbnail: React.FC<SessionThumbnailProps> = ({
         setSummary(sessionSummary);
       }
     } catch (err) {
-      logger.error("[SessionThumbnail] Failed to load summary:", err);
+      logger.error("SessionThumbnail", `Failed to load summary: ${err}`);
       if (isMountedRef.current && requestIdRef.current === requestId) {
         setSummary(session.summary || "无摘要");
       }

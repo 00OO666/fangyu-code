@@ -14,18 +14,7 @@
 import { logger } from '@/lib/logger';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Bot from 'lucide-react/dist/esm/icons/bot'
-import Plus from 'lucide-react/dist/esm/icons/plus'
-import Search from 'lucide-react/dist/esm/icons/search'
-import Edit from 'lucide-react/dist/esm/icons/edit'
-import Trash2 from 'lucide-react/dist/esm/icons/trash-2'
-import Download from 'lucide-react/dist/esm/icons/download'
-import Play from 'lucide-react/dist/esm/icons/play'
-import CheckCircle2 from 'lucide-react/dist/esm/icons/check-circle-2'
-import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
-import Star from 'lucide-react/dist/esm/icons/star'
-import Globe from 'lucide-react/dist/esm/icons/globe';
+import { Bot, Plus, Search, Edit, Trash2, Download, Play, CheckCircle2, AlertCircle, Loader2, Star, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';

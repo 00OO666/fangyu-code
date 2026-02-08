@@ -13,11 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
-import Plus from 'lucide-react/dist/esm/icons/plus'
-import Trash2 from 'lucide-react/dist/esm/icons/trash-2'
-import Code from 'lucide-react/dist/esm/icons/code'
-import Settings from 'lucide-react/dist/esm/icons/settings';
+import { Loader2, Plus, Trash2, Code, Settings } from 'lucide-react';
 import { api, type MCPServerSpec } from "@/lib/api";
 
 interface MCPServerDialogProps {

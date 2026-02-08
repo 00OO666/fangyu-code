@@ -4,10 +4,7 @@
  */
 
 import { useState, useCallback } from 'react';
-import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
-import ExternalLink from 'lucide-react/dist/esm/icons/external-link'
-import LogIn from 'lucide-react/dist/esm/icons/log-in';
+import { CheckCircle, Loader2, ExternalLink, LogIn } from 'lucide-react';
 import { invoke } from '@tauri-apps/api/core';
 import { open } from '@tauri-apps/plugin-shell';
 import type { DependencyStatus } from './DependencyChecker';

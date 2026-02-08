@@ -16,10 +16,7 @@ import { cn } from "@/lib/utils";
 import { useTheme } from "@/contexts/ThemeContext";
 import { isDarkTheme } from "@/lib/themeUtils";
 import { copyTextToClipboard } from "@/lib/clipboard";
-import Check from 'lucide-react/dist/esm/icons/check'
-import Copy from 'lucide-react/dist/esm/icons/copy'
-import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
-import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up';
+import { Check, Copy, ChevronDown, ChevronUp } from 'lucide-react';
 
 // 🔧 FIX: 使用轻量级语法高亮（只包含常用语言，减少 ~1.4 MB）
 const SyntaxHighlighter = lazy(() =>

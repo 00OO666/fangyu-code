@@ -188,7 +188,6 @@ export class ReferenceResolver {
    * 解析 Reference 对象
    */
   async resolveReference(ref: Reference, options?: ResolveOptions): Promise<ResolvedReference | null> {
-    const _maxTokens = options?.maxTokens ?? 10000;
     
     switch (ref.type) {
       case 'file':

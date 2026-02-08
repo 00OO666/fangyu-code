@@ -27,22 +27,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
-import Search from 'lucide-react/dist/esm/icons/search'
-import Plus from 'lucide-react/dist/esm/icons/plus'
-import FolderOpen from 'lucide-react/dist/esm/icons/folder-open'
-import Zap from 'lucide-react/dist/esm/icons/zap'
-import Edit2 from 'lucide-react/dist/esm/icons/edit-2'
-import Trash2 from 'lucide-react/dist/esm/icons/trash-2'
-import Download from 'lucide-react/dist/esm/icons/download'
-import Tag from 'lucide-react/dist/esm/icons/tag'
-import Play from 'lucide-react/dist/esm/icons/play'
-import Copy from 'lucide-react/dist/esm/icons/copy'
-import Check from 'lucide-react/dist/esm/icons/check'
-import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
-import Globe from 'lucide-react/dist/esm/icons/globe'
-import User from 'lucide-react/dist/esm/icons/user'
-import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
-import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
+import { Search, Plus, FolderOpen, Zap, Edit2, Trash2, Download, Tag, Play, Copy, Check, RefreshCw, Globe, User, ChevronRight, ChevronDown } from 'lucide-react';
 
 // ============================================================
 // 类型定义

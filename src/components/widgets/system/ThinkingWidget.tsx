@@ -6,9 +6,7 @@
  */
 
 import React from "react";
-import Brain from 'lucide-react/dist/esm/icons/brain'
-import Bot from 'lucide-react/dist/esm/icons/bot'
-import Sparkles from 'lucide-react/dist/esm/icons/sparkles';
+import { Brain, Bot, Sparkles } from 'lucide-react';
 import { useToolTranslation } from "../common/useToolTranslation";
 
 export interface ThinkingWidgetProps {

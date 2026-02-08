@@ -8,11 +8,7 @@
 import { logger } from '@/lib/logger';
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { invoke } from "@tauri-apps/api/core";
-import Copy from 'lucide-react/dist/esm/icons/copy'
-import Minus from 'lucide-react/dist/esm/icons/minus'
-import PanelLeftClose from 'lucide-react/dist/esm/icons/panel-left-close'
-import Square from 'lucide-react/dist/esm/icons/square'
-import X from 'lucide-react/dist/esm/icons/x';
+import { Copy, Minus, PanelLeftClose, Square, X } from 'lucide-react';
 import type React from "react";
 import { useEffect, useMemo, useState } from "react";
 import { ClaudeCodeSession } from "@/components/ClaudeCodeSession";

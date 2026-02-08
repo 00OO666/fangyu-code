@@ -1,10 +1,6 @@
 import { logger } from '@/lib/logger';
 import React, { useState } from "react";
-import Copy from 'lucide-react/dist/esm/icons/copy'
-import Check from 'lucide-react/dist/esm/icons/check'
-import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle'
-import FileText from 'lucide-react/dist/esm/icons/file-text'
-import X from 'lucide-react/dist/esm/icons/x';
+import { Copy, Check, AlertTriangle, FileText, X } from 'lucide-react';
 
 interface SessionSummaryDialogProps {
   /** Whether the dialog is open */

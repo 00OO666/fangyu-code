@@ -9,13 +9,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw';
-import CheckCircle2 from 'lucide-react/dist/esm/icons/check-circle-2';
-import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle';
-import ArrowRightLeft from 'lucide-react/dist/esm/icons/arrow-right-left';
-import FileJson from 'lucide-react/dist/esm/icons/file-json';
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
-import Info from 'lucide-react/dist/esm/icons/info';
+import { RefreshCw, CheckCircle2, AlertTriangle, ArrowRightLeft, FileJson, Loader2, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { api } from '@/lib/api';
 import { notify } from '@/components/notifications';

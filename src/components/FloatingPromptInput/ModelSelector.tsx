@@ -1,8 +1,6 @@
 import { logger } from '@/lib/logger';
 import React from "react";
-import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up'
-import Check from 'lucide-react/dist/esm/icons/check'
-import Star from 'lucide-react/dist/esm/icons/star';
+import { ChevronUp, Check, Star } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Popover } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";

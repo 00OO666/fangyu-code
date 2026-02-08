@@ -27,7 +27,7 @@ import React, { useState } from 'react';
 import { GeminiSessionHistoryPanel } from './GeminiSessionHistoryPanel';
 import { GeminiSessionDetailViewer } from './GeminiSessionDetailViewer';
 import { Button } from '@/components/ui/button';
-import History from 'lucide-react/dist/esm/icons/history';
+import { History } from 'lucide-react';
 import {
   Dialog,
   DialogContent,

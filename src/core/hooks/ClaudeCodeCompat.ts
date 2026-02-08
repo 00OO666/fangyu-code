@@ -198,17 +198,17 @@ export function parseClaudeCodeConfig(content: string): ClaudeCodeConfig {
 export function parseClaudeCodeYaml(content: string): ClaudeCodeConfig {
   const config: ClaudeCodeConfig = { hooks: [] };
   const lines = content.split(/\r?\n/);
-  
+
   let currentHook: Partial<ClaudeCodeHook> | null = null;
   let currentSection: string | null = null;
   let indent = 0;
-  
+
   for (const line of lines) {
     const trimmed = line.trim();
     if (!trimmed || trimmed.startsWith('#')) continue;
-    
+
     const currentIndent = line.search(/\S/);
-    
+
     // 检测 hooks 数组项
     if (trimmed.startsWith('- name:')) {
       if (currentHook && currentHook.name) {

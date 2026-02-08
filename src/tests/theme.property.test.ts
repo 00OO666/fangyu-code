@@ -104,7 +104,6 @@ describe('Theme Property Tests', () => {
                 fc.property(
                     fc.boolean(),
                     (prefersDark) => {
-                        const systemTheme: Theme = 'system';
                         const resolvedTheme: 'light' | 'dark' = prefersDark ? 'dark' : 'light';
 
                         expect(['light', 'dark']).toContain(resolvedTheme);

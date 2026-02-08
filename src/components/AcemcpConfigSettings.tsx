@@ -1,14 +1,6 @@
 import { logger } from '@/lib/logger';
 import { useState, useEffect } from "react";
-import Database from 'lucide-react/dist/esm/icons/database'
-import Save from 'lucide-react/dist/esm/icons/save'
-import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
-import Eye from 'lucide-react/dist/esm/icons/eye'
-import EyeOff from 'lucide-react/dist/esm/icons/eye-off'
-import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
-import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
-import Download from 'lucide-react/dist/esm/icons/download'
-import Copy from 'lucide-react/dist/esm/icons/copy';
+import { Database, Save, RefreshCw, Eye, EyeOff, CheckCircle, AlertCircle, Download, Copy } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

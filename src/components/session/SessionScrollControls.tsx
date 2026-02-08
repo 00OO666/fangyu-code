@@ -1,9 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up'
-import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
-import List from 'lucide-react/dist/esm/icons/list';
+import { ChevronUp, ChevronDown, List } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface SessionScrollControlsProps {

@@ -10,17 +10,7 @@
  */
 
 import React, { useState, useCallback, useRef } from 'react';
-import Check from 'lucide-react/dist/esm/icons/check'
-import X from 'lucide-react/dist/esm/icons/x'
-import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
-import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
-import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
-import Download from 'lucide-react/dist/esm/icons/download'
-import Copy from 'lucide-react/dist/esm/icons/copy'
-import Maximize2 from 'lucide-react/dist/esm/icons/maximize-2'
-import Minimize2 from 'lucide-react/dist/esm/icons/minimize-2'
-import FileCode from 'lucide-react/dist/esm/icons/file-code'
-import GitCompare from 'lucide-react/dist/esm/icons/git-compare';
+import { Check, X, ChevronDown, ChevronRight, RefreshCw, Download, Copy, Maximize2, Minimize2, FileCode, GitCompare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';

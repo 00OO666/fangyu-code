@@ -1,4 +1,3 @@
-import { logger } from '@/lib/logger';
 
 /**
  * 代码补全类型定义

@@ -22,11 +22,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import Download from 'lucide-react/dist/esm/icons/download'
-import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
-import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
-import X from 'lucide-react/dist/esm/icons/x'
-import SkipForward from 'lucide-react/dist/esm/icons/skip-forward';
+import { Download, RefreshCw, AlertCircle, X, SkipForward } from 'lucide-react';
 
 export const TauriAutoUpdateDialog: React.FC = () => {
   const {

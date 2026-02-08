@@ -1,20 +1,7 @@
 import { logger } from '@/lib/logger';
 import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Network from 'lucide-react/dist/esm/icons/network'
-import Globe from 'lucide-react/dist/esm/icons/globe'
-import Terminal from 'lucide-react/dist/esm/icons/terminal'
-import Trash2 from 'lucide-react/dist/esm/icons/trash-2'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
-import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
-import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
-import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up'
-import Copy from 'lucide-react/dist/esm/icons/copy'
-import Plus from 'lucide-react/dist/esm/icons/plus'
-import Edit from 'lucide-react/dist/esm/icons/edit'
-import Power from 'lucide-react/dist/esm/icons/power'
-import Clock from 'lucide-react/dist/esm/icons/clock'
-import Search from 'lucide-react/dist/esm/icons/search';
+import { Network, Globe, Terminal, Trash2, Loader2, RefreshCw, ChevronDown, ChevronUp, Copy, Plus, Edit, Power, Clock, Search } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";

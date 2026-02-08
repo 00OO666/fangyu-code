@@ -14,7 +14,7 @@ import {
   SupportedLanguage,
   ReplaceResult
 } from './ASTGrepTools';
-import { ASTMatch, Range } from '../types/unified-agent';
+import { ASTMatch } from '../types/unified-agent';
 
 // 生成有效的语言
 const languageArb = fc.constantFrom(...SUPPORTED_LANGUAGES);

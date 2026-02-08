@@ -2,11 +2,7 @@
  * 空状态组件 - 快速开始引导和预设代理商
  */
 
-import React from 'react';
-import Plus from 'lucide-react/dist/esm/icons/plus'
-import Sparkles from 'lucide-react/dist/esm/icons/sparkles'
-import Building2 from 'lucide-react/dist/esm/icons/building-2'
-import Globe from 'lucide-react/dist/esm/icons/globe';
+import { Plus, Sparkles, Building2, Globe } from 'lucide-react';
 import type { EngineType, PresetProvider } from '../../types/provider';
 import { PRESET_PROVIDERS, ENGINE_DISPLAY_NAMES } from '../../types/provider';
 import { cn } from '../../lib/utils';

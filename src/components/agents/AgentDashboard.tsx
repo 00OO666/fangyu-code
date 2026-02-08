@@ -13,18 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import Bot from 'lucide-react/dist/esm/icons/bot'
-import Play from 'lucide-react/dist/esm/icons/play'
-import Pause from 'lucide-react/dist/esm/icons/pause'
-import Square from 'lucide-react/dist/esm/icons/square'
-import Clock from 'lucide-react/dist/esm/icons/clock'
-import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
-import XCircle from 'lucide-react/dist/esm/icons/x-circle'
-import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
-import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
-import Users from 'lucide-react/dist/esm/icons/users'
-import ListTodo from 'lucide-react/dist/esm/icons/list-todo'
-import Activity from 'lucide-react/dist/esm/icons/activity';
+import { Bot, Play, Pause, Square, Clock, CheckCircle, XCircle, AlertCircle, RefreshCw, Users, ListTodo, Activity } from 'lucide-react';
 
 // =============================================================================
 // 类型定义

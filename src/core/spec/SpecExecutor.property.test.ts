@@ -8,7 +8,7 @@
 import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
 import { SpecExecutor, EARSPattern, MockSpecFileSystem } from './SpecExecutor';
-import { TaskItem, TaskStatus, RequirementsDoc, DesignDoc } from '../types/unified-agent';
+import { TaskItem, TaskStatus, RequirementsDoc } from '../types/unified-agent';
 
 // ============================================================================
 // Test Generators

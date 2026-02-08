@@ -11,11 +11,7 @@ import { api } from '@/lib/api';
 import type { GeminiSessionInfo } from '@/types/gemini';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import Clock from 'lucide-react/dist/esm/icons/clock'
-import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
-import Trash2 from 'lucide-react/dist/esm/icons/trash-2'
-import Play from 'lucide-react/dist/esm/icons/play'
-import Eye from 'lucide-react/dist/esm/icons/eye';
+import { Clock, RefreshCw, Trash2, Play, Eye } from 'lucide-react';
 
 interface GeminiSessionHistoryPanelProps {
   projectPath: string;

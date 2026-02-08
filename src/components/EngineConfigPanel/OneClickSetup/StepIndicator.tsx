@@ -4,11 +4,7 @@
  */
 
 import React from 'react';
-import Check from 'lucide-react/dist/esm/icons/check'
-import Circle from 'lucide-react/dist/esm/icons/circle'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
-import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
-import SkipForward from 'lucide-react/dist/esm/icons/skip-forward';
+import { Check, Circle, Loader2, AlertCircle, SkipForward } from 'lucide-react';
 import type { SetupStep } from '../../../services/setupStateService';
 import { cn } from '../../../lib/utils';
 

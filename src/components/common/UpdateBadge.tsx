@@ -1,5 +1,4 @@
-import X from 'lucide-react/dist/esm/icons/x'
-import Download from 'lucide-react/dist/esm/icons/download';
+import { X, Download } from 'lucide-react';
 import { useUpdate } from "@/contexts/UpdateContext";
 
 interface UpdateBadgeProps {

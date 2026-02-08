@@ -17,7 +17,6 @@ interface EmbeddedTerminalProps {
 }
 
 export const EmbeddedTerminal: React.FC<EmbeddedTerminalProps> = ({
-  sessionId,
   workingDir,
   onClose,
   className = "",
@@ -54,7 +53,7 @@ export const EmbeddedTerminal: React.FC<EmbeddedTerminalProps> = ({
             setIsRunning(false);
           }
         } catch (error) {
-          logger.error("[EmbeddedTerminal] Failed to get output:", error);
+          logger.error("EmbeddedTerminal", `Failed to get output: ${error}`);
         } finally {
           isPollingRef.current = false;
         }
@@ -68,7 +67,7 @@ export const EmbeddedTerminal: React.FC<EmbeddedTerminalProps> = ({
     return () => {
       isMountedRef.current = false;
       invoke("stop_process_communication").catch((error) => {
-        logger.error("[EmbeddedTerminal] Failed to stop process on unmount:", error);
+        logger.error("EmbeddedTerminal", `Failed to stop process on unmount: ${error}`);
       });
     };
   }, []);
@@ -86,9 +85,9 @@ export const EmbeddedTerminal: React.FC<EmbeddedTerminalProps> = ({
       if (isMountedRef.current) {
         setIsRunning(true);
       }
-      logger.info("[EmbeddedTerminal] Started process");
+      logger.info("EmbeddedTerminal", "Started process");
     } catch (error) {
-      logger.error("[EmbeddedTerminal] Failed to start process:", error);
+      logger.error("EmbeddedTerminal", `Failed to start process: ${error}`);
     } finally {
       if (isMountedRef.current) {
         setLoading(false);
@@ -105,9 +104,9 @@ export const EmbeddedTerminal: React.FC<EmbeddedTerminalProps> = ({
       if (isMountedRef.current) {
         setIsRunning(false);
       }
-      logger.info("[EmbeddedTerminal] Stopped process");
+      logger.info("EmbeddedTerminal", "Stopped process");
     } catch (error) {
-      logger.error("[EmbeddedTerminal] Failed to stop process:", error);
+      logger.error("EmbeddedTerminal", `Failed to stop process: ${error}`);
     } finally {
       if (isMountedRef.current) {
         setLoading(false);
@@ -123,9 +122,9 @@ export const EmbeddedTerminal: React.FC<EmbeddedTerminalProps> = ({
       if (isMountedRef.current) {
         setInput("");
       }
-      logger.info("[EmbeddedTerminal] Sent input:", input);
+      logger.info("EmbeddedTerminal", `Sent input: ${input}`);
     } catch (error) {
-      logger.error("[EmbeddedTerminal] Failed to send input:", error);
+      logger.error("EmbeddedTerminal", `Failed to send input: ${error}`);
     }
   };
 
@@ -135,9 +134,9 @@ export const EmbeddedTerminal: React.FC<EmbeddedTerminalProps> = ({
       if (isMountedRef.current) {
         setOutput([]);
       }
-      logger.info("[EmbeddedTerminal] Cleared output");
+      logger.info("EmbeddedTerminal", "Cleared output");
     } catch (error) {
-      logger.error("[EmbeddedTerminal] Failed to clear output:", error);
+      logger.error("EmbeddedTerminal", `Failed to clear output: ${error}`);
     }
   };
 

@@ -8,19 +8,7 @@
 import { logger } from '@/lib/logger';
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Clock from 'lucide-react/dist/esm/icons/clock'
-import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left'
-import MessageSquare from 'lucide-react/dist/esm/icons/message-square'
-import X from 'lucide-react/dist/esm/icons/x'
-import Terminal from 'lucide-react/dist/esm/icons/terminal'
-import FolderGit2 from 'lucide-react/dist/esm/icons/folder-git-2'
-import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
-import FileCode from 'lucide-react/dist/esm/icons/file-code'
-import FilePlus from 'lucide-react/dist/esm/icons/file-plus'
-import FileX from 'lucide-react/dist/esm/icons/file-x'
-import FileEdit from 'lucide-react/dist/esm/icons/file-edit'
-import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
+import { Clock, ArrowLeft, MessageSquare, X, Terminal, FolderGit2, AlertCircle, FileCode, FilePlus, FileX, FileEdit, ChevronRight, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { api } from '@/lib/api';
 import type { RewindMode, RewindCapabilities, GitFileChange } from '@/lib/api';

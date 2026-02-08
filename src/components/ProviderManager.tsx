@@ -5,22 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { Badge } from "@/components/ui/badge";
-import Settings2 from 'lucide-react/dist/esm/icons/settings-2'
-import Globe from 'lucide-react/dist/esm/icons/globe'
-import Check from 'lucide-react/dist/esm/icons/check'
-import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
-import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
-import Trash2 from 'lucide-react/dist/esm/icons/trash-2'
-import TestTube from 'lucide-react/dist/esm/icons/test-tube'
-import Eye from 'lucide-react/dist/esm/icons/eye'
-import EyeOff from 'lucide-react/dist/esm/icons/eye-off'
-import Plus from 'lucide-react/dist/esm/icons/plus'
-import Edit from 'lucide-react/dist/esm/icons/edit'
-import Trash from 'lucide-react/dist/esm/icons/trash'
-import DollarSign from 'lucide-react/dist/esm/icons/dollar-sign'
-import InfinityIcon from 'lucide-react/dist/esm/icons/infinity'
-import Calendar from 'lucide-react/dist/esm/icons/calendar'
-import Search from 'lucide-react/dist/esm/icons/search';
+import { Settings2, Globe, Check, AlertCircle, RefreshCw, Trash2, TestTube, Eye, EyeOff, Plus, Edit, Trash, DollarSign, InfinityIcon, Calendar, Search } from 'lucide-react';
 import { api, type ProviderConfig, type CurrentProviderConfig, type ApiKeyUsage } from '@/lib/api';
 import { Toast } from '@/components/ui/toast';
 import ProviderForm from './ProviderForm';

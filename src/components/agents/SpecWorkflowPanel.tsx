@@ -13,15 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Checkbox } from '@/components/ui/checkbox';
-import FileText from 'lucide-react/dist/esm/icons/file-text'
-import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
-import Circle from 'lucide-react/dist/esm/icons/circle'
-import PlayCircle from 'lucide-react/dist/esm/icons/play-circle'
-import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
-import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
-import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
-import Clock from 'lucide-react/dist/esm/icons/clock'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
+import { FileText, CheckCircle, Circle, PlayCircle, ChevronRight, ChevronDown, AlertCircle, Clock, Loader2 } from 'lucide-react';
 
 // =============================================================================
 // 类型定义

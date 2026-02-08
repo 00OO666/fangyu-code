@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Settings from 'lucide-react/dist/esm/icons/settings'
-import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
-import Info from 'lucide-react/dist/esm/icons/info';
+import { Settings, RefreshCw, Info } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";

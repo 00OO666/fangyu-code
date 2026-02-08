@@ -6,11 +6,7 @@
  */
 
 import { AnimatePresence, motion } from "framer-motion";
-import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle'
-import CheckCircle2 from 'lucide-react/dist/esm/icons/check-circle-2'
-import Info from 'lucide-react/dist/esm/icons/info'
-import X from 'lucide-react/dist/esm/icons/x'
-import XCircle from 'lucide-react/dist/esm/icons/x-circle';
+import { AlertTriangle, CheckCircle2, Info, X, XCircle } from 'lucide-react';
 import type React from "react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";

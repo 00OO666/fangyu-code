@@ -5,7 +5,6 @@
  * 统一处理 Claude API 返回的多种消息格式
  */
 
-import { logger } from '@/lib/logger';
 import type { ClaudeStreamMessage } from "@/types/claude";
 
 /**

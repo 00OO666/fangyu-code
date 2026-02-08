@@ -1,20 +1,7 @@
 import { logger } from '@/lib/logger';
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left'
-import Save from 'lucide-react/dist/esm/icons/save'
-import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
-import Settings2 from 'lucide-react/dist/esm/icons/settings-2'
-import Cpu from 'lucide-react/dist/esm/icons/cpu'
-import Languages from 'lucide-react/dist/esm/icons/languages'
-import Sparkles from 'lucide-react/dist/esm/icons/sparkles'
-import Database from 'lucide-react/dist/esm/icons/database'
-import Bot from 'lucide-react/dist/esm/icons/bot'
-import Wrench from 'lucide-react/dist/esm/icons/wrench'
-import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw';
-import Image from 'lucide-react/dist/esm/icons/image';
-import Type from 'lucide-react/dist/esm/icons/type';
+import { ArrowLeft, Save, AlertCircle, Loader2, Settings2, Cpu, Languages, Sparkles, Database, Bot, Wrench, RefreshCw, Image, Type } from 'lucide-react';
 import { notify } from "@/components/notifications";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";

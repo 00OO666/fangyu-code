@@ -7,14 +7,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import Package2 from 'lucide-react/dist/esm/icons/package-2'
-import Sparkles from 'lucide-react/dist/esm/icons/sparkles'
-import Code from 'lucide-react/dist/esm/icons/code'
-import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up'
-import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
-import CheckCircle2 from 'lucide-react/dist/esm/icons/check-circle-2'
-import XCircle from 'lucide-react/dist/esm/icons/x-circle'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
+import { Package2, Sparkles, Code, ChevronUp, ChevronDown, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
 import { Prism as SyntaxHighlighter } from "@/lib/lightSyntaxHighlighter";
 import { getClaudeSyntaxTheme } from "@/lib/claudeSyntaxTheme";
 import { useTheme } from "@/contexts/ThemeContext";

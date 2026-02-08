@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useTransition } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 /**
  * 流式内容缓冲 Hook
@@ -29,7 +29,6 @@ export function useStreamingBuffer(
   } = options;
 
   const [bufferedContent, setBufferedContent] = useState(content);
-  const [isPending, startTransition] = useTransition();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastUpdateRef = useRef<number>(Date.now());
 

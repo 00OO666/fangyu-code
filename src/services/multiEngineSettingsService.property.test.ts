@@ -18,14 +18,13 @@ import {
     DEFAULT_ENGINE_SETTINGS,
     createDefaultMultiEngineSettings,
 } from '../types/multiEngineSettings';
-import { MultiEngineSettingsService } from './multiEngineSettingsService';
 
 // =============================================================================
 // Arbitraries
 // =============================================================================
 
 /** 生成引擎类型 */
-const engineTypeArb = fc.constantFrom<EngineType>('claude-code', 'codex', 'gemini');
+const engineTypeArb = fc.constantFrom<EngineType>('claude', 'codex', 'gemini');
 
 /** 生成两个不同的引擎类型 */
 const twoDistinctEnginesArb = fc.tuple(engineTypeArb, engineTypeArb).filter(
@@ -153,15 +152,15 @@ class TestableMultiEngineSettingsService {
         const newSettings = createDefaultMultiEngineSettings();
 
         if (legacy.permissions) {
-            newSettings.engines['claude-code'].permissions = {
+            newSettings.engines['claude'].permissions = {
                 allow: Array.isArray(legacy.permissions.allow) ? legacy.permissions.allow : [],
                 deny: Array.isArray(legacy.permissions.deny) ? legacy.permissions.deny : [],
             };
         }
 
         if (legacy.env && typeof legacy.env === 'object') {
-            newSettings.engines['claude-code'].env = {
-                ...DEFAULT_ENGINE_SETTINGS['claude-code'].env,
+            newSettings.engines['claude'].env = {
+                ...DEFAULT_ENGINE_SETTINGS['claude'].env,
                 ...legacy.env,
             };
         }
@@ -252,7 +251,7 @@ describe('Multi-Engine Settings Service Property Tests', () => {
                     engineSettingsArb,
                     (claudeSettings, codexSettings, geminiSettings) => {
                         // Set different settings for each engine
-                        service.updateEngineSettings('claude-code', claudeSettings);
+                        service.updateEngineSettings('claude', claudeSettings);
                         service.updateEngineSettings('codex', codexSettings);
                         service.updateEngineSettings('gemini', geminiSettings);
 
@@ -262,7 +261,7 @@ describe('Multi-Engine Settings Service Property Tests', () => {
                         newService.load();
 
                         // Verify each engine's settings are preserved
-                        expect(newService.getEngineSettings('claude-code').permissions).toEqual(claudeSettings.permissions);
+                        expect(newService.getEngineSettings('claude').permissions).toEqual(claudeSettings.permissions);
                         expect(newService.getEngineSettings('codex').permissions).toEqual(codexSettings.permissions);
                         expect(newService.getEngineSettings('gemini').permissions).toEqual(geminiSettings.permissions);
                     }
@@ -288,8 +287,8 @@ describe('Multi-Engine Settings Service Property Tests', () => {
                         const legacy: LegacyClaudeSettings = { permissions };
                         const migrated = service.migrateFromLegacy(legacy);
 
-                        expect(migrated.engines['claude-code'].permissions.allow).toEqual(permissions.allow);
-                        expect(migrated.engines['claude-code'].permissions.deny).toEqual(permissions.deny);
+                        expect(migrated.engines['claude'].permissions.allow).toEqual(permissions.allow);
+                        expect(migrated.engines['claude'].permissions.deny).toEqual(permissions.deny);
                     }
                 ),
                 { numRuns: 100 }
@@ -306,7 +305,7 @@ describe('Multi-Engine Settings Service Property Tests', () => {
 
                         // All legacy env vars should be present
                         for (const [key, value] of Object.entries(env)) {
-                            expect(migrated.engines['claude-code'].env[key]).toBe(value);
+                            expect(migrated.engines['claude'].env[key]).toBe(value);
                         }
                     }
                 ),
@@ -320,7 +319,7 @@ describe('Multi-Engine Settings Service Property Tests', () => {
                     legacySettingsArb,
                     (legacy) => {
                         const migrated = service.migrateFromLegacy(legacy);
-                        expect(migrated.activeEngine).toBe('claude-code');
+                        expect(migrated.activeEngine).toBe('claude');
                     }
                 ),
                 { numRuns: 100 }
@@ -380,7 +379,7 @@ describe('Multi-Engine Settings Service Property Tests', () => {
 
         it('claude-code has anthropic-specific default env vars', () => {
             const newService = new TestableMultiEngineSettingsService(new MockLocalStorage());
-            const settings = newService.getEngineSettings('claude-code');
+            const settings = newService.getEngineSettings('claude');
 
             expect('ANTHROPIC_API_KEY' in settings.env || 'ANTHROPIC_BASE_URL' in settings.env).toBe(true);
         });

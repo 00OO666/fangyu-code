@@ -1,11 +1,6 @@
 import { logger } from '@/lib/logger';
 import React from "react";
-import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up'
-import Check from 'lucide-react/dist/esm/icons/check'
-import Brain from 'lucide-react/dist/esm/icons/brain'
-import Zap from 'lucide-react/dist/esm/icons/zap'
-import Sparkles from 'lucide-react/dist/esm/icons/sparkles'
-import Rocket from 'lucide-react/dist/esm/icons/rocket';
+import { ChevronUp, Check, Brain, Zap, Sparkles, Rocket } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Popover } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";

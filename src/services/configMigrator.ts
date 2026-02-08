@@ -5,7 +5,7 @@
 import { logger } from '@/lib/logger';
 import { invoke } from '@tauri-apps/api/core';
 import type { EngineType, UnifiedProviderConfig, ProviderStorage, RuntimeConfig } from '../types/provider';
-import { PROVIDER_STORAGE_KEY, DEFAULT_PROVIDER_STORAGE, DEFAULT_RUNTIME_CONFIG, RUNTIME_CONFIG_KEY } from '../types/provider';
+import { PROVIDER_STORAGE_KEY, DEFAULT_PROVIDER_STORAGE } from '../types/provider';
 import { encrypt } from './cryptoService';
 
 // 存储版本常量

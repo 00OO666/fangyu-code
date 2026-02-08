@@ -5,9 +5,7 @@
  */
 
 import React from "react";
-import FileText from 'lucide-react/dist/esm/icons/file-text'
-import ExternalLink from 'lucide-react/dist/esm/icons/external-link'
-import X from 'lucide-react/dist/esm/icons/x';
+import { FileText, ExternalLink, X } from 'lucide-react';
 import { createPortal } from "react-dom";
 import { Prism as SyntaxHighlighter } from "@/lib/lightSyntaxHighlighter";
 import { getClaudeSyntaxTheme } from "@/lib/claudeSyntaxTheme";

@@ -11,15 +11,7 @@
 
 import { logger } from '@/lib/logger';
 import { AnimatePresence, motion } from "framer-motion";
-import FileCode from 'lucide-react/dist/esm/icons/file-code'
-import Filter from 'lucide-react/dist/esm/icons/filter'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
-import Network from 'lucide-react/dist/esm/icons/network'
-import Puzzle from 'lucide-react/dist/esm/icons/puzzle'
-import Search from 'lucide-react/dist/esm/icons/search'
-import Webhook from 'lucide-react/dist/esm/icons/webhook'
-import X from 'lucide-react/dist/esm/icons/x'
-import Zap from 'lucide-react/dist/esm/icons/zap';
+import { FileCode, Filter, Loader2, Network, Puzzle, Search, Webhook, X, Zap } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { notify } from "@/components/notifications";

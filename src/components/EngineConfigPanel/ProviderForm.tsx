@@ -3,10 +3,7 @@
  */
 
 import React, { useState, useCallback, useEffect } from 'react';
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
-import Zap from 'lucide-react/dist/esm/icons/zap'
-import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
-import XCircle from 'lucide-react/dist/esm/icons/x-circle';
+import { Loader2, Zap, CheckCircle, XCircle } from 'lucide-react';
 import type { EngineType, UnifiedProviderConfig } from '../../types/provider';
 import { FORM_FIELDS } from '../../types/provider';
 import { ApiKeyInput } from './ApiKeyInput';

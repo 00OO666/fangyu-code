@@ -1,10 +1,7 @@
 import { logger } from '@/lib/logger';
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Sparkles from 'lucide-react/dist/esm/icons/sparkles'
-import X from 'lucide-react/dist/esm/icons/x'
-import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
-import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up';
+import { Sparkles, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { MemoryMatch } from '@/hooks/useMemoryDetection';
 

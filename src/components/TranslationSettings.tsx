@@ -9,12 +9,7 @@ import { Badge } from './ui/badge';
 import { Alert, AlertDescription } from './ui/alert';
 import { api, type TranslationConfig, type TranslationCacheStats } from '@/lib/api';
 import { translationMiddleware } from '@/lib/translationMiddleware';
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
-import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
-import Settings from 'lucide-react/dist/esm/icons/settings'
-import Languages from 'lucide-react/dist/esm/icons/languages'
-import Database from 'lucide-react/dist/esm/icons/database'
-import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle';
+import { Loader2, RefreshCw, Settings, Languages, Database, AlertTriangle } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 
 interface TranslationSettingsProps {

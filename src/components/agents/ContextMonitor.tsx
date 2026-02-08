@@ -12,14 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle'
-import CheckCircle from 'lucide-react/dist/esm/icons/check-circle'
-import Database from 'lucide-react/dist/esm/icons/database'
-import FileText from 'lucide-react/dist/esm/icons/file-text'
-import Trash2 from 'lucide-react/dist/esm/icons/trash-2'
-import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
-import Info from 'lucide-react/dist/esm/icons/info'
-import Zap from 'lucide-react/dist/esm/icons/zap';
+import { AlertTriangle, CheckCircle, Database, FileText, Trash2, RefreshCw, Info, Zap } from 'lucide-react';
 
 // =============================================================================
 // 类型定义

@@ -4,7 +4,7 @@
  */
 
 import { useCallback, useEffect, useMemo } from 'react';
-import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw';
+import { RefreshCw } from 'lucide-react';
 import { open } from '@tauri-apps/plugin-shell';
 import type { EngineType } from '../../../types/provider';
 import { cn } from '../../../lib/utils';

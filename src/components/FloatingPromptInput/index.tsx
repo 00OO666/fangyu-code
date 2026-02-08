@@ -1,7 +1,7 @@
 import { logger } from '@/lib/logger';
 import React, { useState, useRef, forwardRef, useImperativeHandle, useEffect, useReducer, useCallback, useContext, useMemo } from "react";
 import { AnimatePresence } from "framer-motion";
-import Sparkles from 'lucide-react/dist/esm/icons/sparkles';
+import { Sparkles } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { FloatingPromptInputProps, FloatingPromptInputRef, ThinkingMode, ModelType, ModelConfig } from "./types";
 import { THINKING_MODES, MODELS } from "./constants";

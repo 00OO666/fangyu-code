@@ -3,13 +3,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import X from 'lucide-react/dist/esm/icons/x'
-import Check from 'lucide-react/dist/esm/icons/check'
-import Zap from 'lucide-react/dist/esm/icons/zap'
-import Globe from 'lucide-react/dist/esm/icons/globe'
-import Clock from 'lucide-react/dist/esm/icons/clock'
-import Search from 'lucide-react/dist/esm/icons/search'
-import Plus from 'lucide-react/dist/esm/icons/plus';
+import { X, Check, Zap, Globe, Clock, Search, Plus } from 'lucide-react';
 import { cn } from '../lib/utils';
 import type { UnifiedProviderConfig } from '../types/provider';
 import { useEngineConfig } from '../hooks/useEngineConfig';

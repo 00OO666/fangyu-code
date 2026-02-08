@@ -260,7 +260,6 @@ describe('Summary Generator Property Tests', () => {
                         await summaryStore.saveConfig(storedConfig);
 
                         // Create service and check it would use provided config
-                        const service = createSummaryGeneratorService();
 
                         // The service's getEffectiveConfig should prefer provided config
                         // We can't directly test private method, but we can verify the behavior

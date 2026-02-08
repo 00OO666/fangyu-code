@@ -39,10 +39,11 @@ export const CliMonitorPanel: React.FC<CliMonitorPanelProps> = ({
       setLastRefresh(new Date());
 
       logger.info(
-        `[CliMonitorPanel] Refreshed: ${windowResult.windows.length} windows, ${sessionResult.sessions.length} sessions`
+        "CliMonitorPanel",
+        `Refreshed: ${windowResult.windows.length} windows, ${sessionResult.sessions.length} sessions`
       );
     } catch (error) {
-      logger.error("[CliMonitorPanel] Failed to refresh:", error);
+      logger.error("CliMonitorPanel", `Failed to refresh: ${error}`);
     } finally {
       setIsRefreshing(false);
     }
@@ -148,7 +149,8 @@ export const CliMonitorPanel: React.FC<CliMonitorPanelProps> = ({
         <WindowDropdown
           onSelect={(window) => {
             logger.info(
-              `[CliMonitorPanel] Window selected: ${getWindowLabel(window)}`
+              "CliMonitorPanel",
+              `Window selected: ${getWindowLabel(window)}`
             );
           }}
         />

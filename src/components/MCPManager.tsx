@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left'
-import Network from 'lucide-react/dist/esm/icons/network';
+import { ArrowLeft, Network } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useTranslation } from "@/hooks/useTranslation";

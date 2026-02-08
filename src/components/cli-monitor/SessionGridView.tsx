@@ -30,18 +30,18 @@ export const SessionGridView: React.FC<SessionGridViewProps> = ({ className }) =
 
   // 组件挂载时开始扫描和监听
   useEffect(() => {
-    logger.info("[SessionGridView] Component mounted, starting scan and watch");
+    logger.info("SessionGridView", "Component mounted, starting scan and watch");
     scan().catch((error) => {
-      logger.error("[SessionGridView] Failed to scan:", error);
+      logger.error("SessionGridView", "Failed to scan", error);
     });
 
     startWatch().catch((error) => {
-      logger.error("[SessionGridView] Failed to start watch:", error);
+      logger.error("SessionGridView", "Failed to start watch", error);
     });
 
     // 组件卸载时停止监听
     return () => {
-      logger.info("[SessionGridView] Component unmounting, stopping watch");
+      logger.info("SessionGridView", "Component unmounting, stopping watch");
       stopWatch();
     };
   }, []);
@@ -61,7 +61,7 @@ export const SessionGridView: React.FC<SessionGridViewProps> = ({ className }) =
 
   // 处理会话点击
   const handleSessionClick = (sessionId: string) => {
-    logger.info(`[SessionGridView] Session clicked: ${sessionId}`);
+    logger.info("SessionGridView", `Session clicked: ${sessionId}`);
     setSelectedSession(sessionId === selectedSessionId ? null : sessionId);
   };
 

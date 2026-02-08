@@ -268,7 +268,7 @@ async function deactivateClaudeProvider(): Promise<void> {
  * 创建代理商
  */
 export async function createProvider(
-    config: Omit<UnifiedProviderConfig, 'id' | 'createdAt' | 'updatedAt'>
+    config: Omit<UnifiedProviderConfig, 'id' | 'createdAt' | 'updatedAt' | 'sortOrder'>
 ): Promise<UnifiedProviderConfig> {
     const storage = readStorage();
 
@@ -342,8 +342,6 @@ export async function updateProvider(
     let updatedProvider = { ...existing, ...updates, updatedAt: Date.now() };
 
     // 记录原始未加密的值（用于同步到后端）
-    let plainApiKey = updates.apiKey;
-    let plainAuthToken = updates.authToken;
 
     // 如果更新了 API Key，需要重新加密
     if (updates.apiKey && updates.apiKey !== existing.apiKey) {

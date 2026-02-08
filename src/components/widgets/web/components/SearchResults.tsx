@@ -5,9 +5,7 @@
  */
 
 import React from "react";
-import Globe2 from 'lucide-react/dist/esm/icons/globe-2'
-import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
-import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
+import { Globe2, ChevronRight, ChevronDown } from 'lucide-react';
 
 export interface SearchLink {
   title: string;

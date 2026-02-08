@@ -49,7 +49,7 @@ export const SessionDetailPanel: React.FC<SessionDetailPanelProps> = ({
         setShowFullContent(false);
       }
     } catch (err) {
-      logger.error("[SessionDetailPanel] Failed to load session content:", err);
+      logger.error("SessionDetailPanel", `Failed to load session content: ${err}`);
       if (isMountedRef.current && requestIdRef.current === requestId) {
         setError(err instanceof Error ? err.message : String(err));
       }
@@ -75,7 +75,7 @@ export const SessionDetailPanel: React.FC<SessionDetailPanelProps> = ({
         setShowFullContent(true);
       }
     } catch (err) {
-      logger.error("[SessionDetailPanel] Failed to load full content:", err);
+      logger.error("SessionDetailPanel", `Failed to load full content: ${err}`);
       if (isMountedRef.current && requestIdRef.current === requestId) {
         setError(err instanceof Error ? err.message : String(err));
       }

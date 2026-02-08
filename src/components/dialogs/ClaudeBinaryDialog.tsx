@@ -1,10 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import ExternalLink from 'lucide-react/dist/esm/icons/external-link'
-import FileQuestion from 'lucide-react/dist/esm/icons/file-question'
-import Terminal from 'lucide-react/dist/esm/icons/terminal'
-import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
+import { ExternalLink, FileQuestion, Terminal, AlertCircle } from 'lucide-react';
 
 interface ClaudeBinaryDialogProps {
   open: boolean;

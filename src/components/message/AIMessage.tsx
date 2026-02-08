@@ -1,4 +1,3 @@
-import { logger } from '@/lib/logger';
 import React from "react";
 import { ClaudeIcon } from "@/components/icons/ClaudeIcon";
 import { CodexIcon } from "@/components/icons/CodexIcon";

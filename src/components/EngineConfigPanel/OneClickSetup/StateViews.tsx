@@ -2,12 +2,7 @@
  * 依赖检测状态视图组件
  */
 
-import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';
-import XCircle from 'lucide-react/dist/esm/icons/x-circle';
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
-import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle';
-import ExternalLink from 'lucide-react/dist/esm/icons/external-link';
-import Sparkles from 'lucide-react/dist/esm/icons/sparkles';
+import { CheckCircle, XCircle, Loader2, AlertTriangle, ExternalLink, Sparkles } from 'lucide-react';
 import { cn } from '../../../lib/utils';
 import type { DependencyStatus } from '../../../hooks/useDependencyStateMachine';
 

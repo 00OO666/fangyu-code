@@ -9,16 +9,7 @@ import { logger } from '@/lib/logger';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import Network from 'lucide-react/dist/esm/icons/network'
-import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw'
-import Globe from 'lucide-react/dist/esm/icons/globe'
-import Folder from 'lucide-react/dist/esm/icons/folder'
-import Copy from 'lucide-react/dist/esm/icons/copy'
-import Power from 'lucide-react/dist/esm/icons/power'
-import Terminal from 'lucide-react/dist/esm/icons/terminal'
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
-import Check from 'lucide-react/dist/esm/icons/check'
-import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
+import { Network, RefreshCw, Globe, Folder, Copy, Power, Terminal, Loader2, Check, AlertCircle } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -35,8 +26,7 @@ import { getMCPDescription, getCategoryLabel, getCategoryColor } from '@/lib/mcp
 import { useProjectMCPConfig } from '@/hooks/useProjectMCPConfig';
 import { getMCPRecommendations, type ProjectType, type MCPRecommendation, getOfficialMCPDefault } from '@/config/mcpRecommendations';
 import { ClaudeIcon } from './icons/ClaudeIcon';
-import Sparkles from 'lucide-react/dist/esm/icons/sparkles'
-import Wand2 from 'lucide-react/dist/esm/icons/wand-2';
+import { Sparkles, Wand2 } from 'lucide-react';
 import { useNavigation } from '@/contexts/NavigationContext';
 
 interface ProjectMCPQuickConfigProps {
