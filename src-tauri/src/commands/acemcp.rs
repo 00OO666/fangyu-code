@@ -23,7 +23,7 @@ use tokio::process::Command;
 
 // 导入平台特定的环境设置函数
 #[cfg(target_os = "windows")]
-use crate::commands::claude::platform::windows::setup_command_environment_async;
+use crate::commands::claude::setup_command_environment_async;
 
 // Windows: 导入 CommandExt trait 以使用 creation_flags
 #[cfg(target_os = "windows")]
