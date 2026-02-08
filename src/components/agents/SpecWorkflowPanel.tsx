@@ -1,26 +1,36 @@
 /**
  * SpecWorkflowPanel - Spec 工作流面板组件
- * 
+ *
  * 显示 Spec 工作流状态、任务进度
- * 
+ *
  * Requirements: 5.5
  */
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Checkbox } from '@/components/ui/checkbox';
-import { FileText, CheckCircle, Circle, PlayCircle, ChevronRight, ChevronDown, AlertCircle, Clock, Loader2 } from 'lucide-react';
+import React, { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  FileText,
+  CheckCircle,
+  Circle,
+  PlayCircle,
+  ChevronRight,
+  ChevronDown,
+  AlertCircle,
+  Clock,
+  Loader2,
+} from "lucide-react";
 
 // =============================================================================
 // 类型定义
 // =============================================================================
 
-type TaskStatus = 'not_started' | 'in_progress' | 'completed' | 'failed';
-type SpecPhase = 'requirements' | 'design' | 'tasks' | 'implementation';
+type TaskStatus = "not_started" | "in_progress" | "completed" | "failed";
+type SpecPhase = "requirements" | "design" | "tasks" | "implementation";
 
 interface SpecTask {
   id: string;
@@ -54,7 +64,7 @@ const PhaseIndicator: React.FC<{ phase: SpecPhase; currentPhase: SpecPhase }> = 
   phase,
   currentPhase,
 }) => {
-  const phases: SpecPhase[] = ['requirements', 'design', 'tasks', 'implementation'];
+  const phases: SpecPhase[] = ["requirements", "design", "tasks", "implementation"];
   const currentIndex = phases.indexOf(currentPhase);
   const phaseIndex = phases.indexOf(phase);
 
@@ -66,10 +76,10 @@ const PhaseIndicator: React.FC<{ phase: SpecPhase; currentPhase: SpecPhase }> = 
       <div
         className={`w-8 h-8 rounded-full flex items-center justify-center ${
           isCompleted
-            ? 'bg-green-500 text-white'
+            ? "bg-green-500 text-white"
             : isCurrent
-            ? 'bg-blue-500 text-white'
-            : 'bg-muted text-muted-foreground'
+              ? "bg-blue-500 text-white"
+              : "bg-muted text-muted-foreground"
         }`}
       >
         {isCompleted ? (
@@ -82,7 +92,7 @@ const PhaseIndicator: React.FC<{ phase: SpecPhase; currentPhase: SpecPhase }> = 
       </div>
       <span
         className={`text-sm font-medium capitalize ${
-          isCurrent ? 'text-foreground' : 'text-muted-foreground'
+          isCurrent ? "text-foreground" : "text-muted-foreground"
         }`}
       >
         {phase}
@@ -93,17 +103,16 @@ const PhaseIndicator: React.FC<{ phase: SpecPhase; currentPhase: SpecPhase }> = 
 
 const TaskStatusIcon: React.FC<{ status: TaskStatus }> = ({ status }) => {
   switch (status) {
-    case 'completed':
+    case "completed":
       return <CheckCircle className="w-4 h-4 text-green-500" />;
-    case 'in_progress':
+    case "in_progress":
       return <Loader2 className="w-4 h-4 text-blue-500 animate-spin" />;
-    case 'failed':
+    case "failed":
       return <AlertCircle className="w-4 h-4 text-red-500" />;
     default:
       return <Circle className="w-4 h-4 text-muted-foreground" />;
   }
 };
-
 
 // =============================================================================
 // 任务项组件
@@ -119,14 +128,14 @@ const TaskItem: React.FC<{
   const [expanded, setExpanded] = useState(true);
   const hasSubtasks = task.subtasks && task.subtasks.length > 0;
 
-  const completedSubtasks = task.subtasks?.filter(t => t.status === 'completed').length ?? 0;
+  const completedSubtasks = task.subtasks?.filter((t) => t.status === "completed").length ?? 0;
   const totalSubtasks = task.subtasks?.length ?? 0;
 
   return (
     <div className="space-y-1">
       <div
         className={`flex items-center gap-2 p-2 rounded-lg hover:bg-muted/50 cursor-pointer ${
-          depth > 0 ? 'ml-6' : ''
+          depth > 0 ? "ml-6" : ""
         }`}
         onClick={() => onTaskClick?.(task.id)}
       >
@@ -140,11 +149,7 @@ const TaskItem: React.FC<{
               setExpanded(!expanded);
             }}
           >
-            {expanded ? (
-              <ChevronDown className="w-4 h-4" />
-            ) : (
-              <ChevronRight className="w-4 h-4" />
-            )}
+            {expanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
           </Button>
         )}
 
@@ -154,7 +159,7 @@ const TaskItem: React.FC<{
 
         <span
           className={`flex-1 text-sm ${
-            task.status === 'completed' ? 'line-through text-muted-foreground' : ''
+            task.status === "completed" ? "line-through text-muted-foreground" : ""
           }`}
         >
           {task.title}
@@ -172,7 +177,7 @@ const TaskItem: React.FC<{
           </span>
         )}
 
-        {task.status === 'not_started' && onStartTask && (
+        {task.status === "not_started" && onStartTask && (
           <Button
             variant="ghost"
             size="sm"
@@ -186,7 +191,7 @@ const TaskItem: React.FC<{
           </Button>
         )}
 
-        {task.status === 'in_progress' && onCompleteTask && (
+        {task.status === "in_progress" && onCompleteTask && (
           <Checkbox
             checked={false}
             onCheckedChange={() => onCompleteTask(task.id)}
@@ -197,7 +202,7 @@ const TaskItem: React.FC<{
 
       {hasSubtasks && expanded && (
         <div className="space-y-1">
-          {task.subtasks!.map(subtask => (
+          {task.subtasks!.map((subtask) => (
             <TaskItem
               key={subtask.id}
               task={subtask}
@@ -249,7 +254,7 @@ export const SpecWorkflowPanel: React.FC<SpecWorkflowPanelProps> = ({
         completed += sub.completed;
       } else {
         total++;
-        if (task.status === 'completed') completed++;
+        if (task.status === "completed") completed++;
       }
     }
 
@@ -274,13 +279,11 @@ export const SpecWorkflowPanel: React.FC<SpecWorkflowPanelProps> = ({
         <CardContent>
           {/* 阶段指示器 */}
           <div className="flex items-center justify-between mb-4">
-            {(['requirements', 'design', 'tasks', 'implementation'] as SpecPhase[]).map(
+            {(["requirements", "design", "tasks", "implementation"] as SpecPhase[]).map(
               (phase, index, arr) => (
                 <React.Fragment key={phase}>
                   <PhaseIndicator phase={phase} currentPhase={spec.phase} />
-                  {index < arr.length - 1 && (
-                    <div className="flex-1 h-0.5 bg-muted mx-2" />
-                  )}
+                  {index < arr.length - 1 && <div className="flex-1 h-0.5 bg-muted mx-2" />}
                 </React.Fragment>
               )
             )}
@@ -309,7 +312,7 @@ export const SpecWorkflowPanel: React.FC<SpecWorkflowPanelProps> = ({
         <CardContent className="p-0">
           <ScrollArea className="h-[400px] px-4 pb-4">
             <div className="space-y-1">
-              {spec.tasks.map(task => (
+              {spec.tasks.map((task) => (
                 <TaskItem
                   key={task.id}
                   task={task}

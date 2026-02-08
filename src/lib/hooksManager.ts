@@ -18,7 +18,7 @@ export class HooksManager {
   static mergeConfigs(
     user: HooksConfiguration,
     project: HooksConfiguration,
-    local: HooksConfiguration,
+    local: HooksConfiguration
   ): HooksConfiguration {
     const merged: HooksConfiguration = {};
 
@@ -145,7 +145,7 @@ export class HooksManager {
                 matcher: matcher.matcher,
                 command: hook.command || "",
                 message: d,
-              })),
+              }))
             );
           }
         }

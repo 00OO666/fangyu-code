@@ -1,5 +1,5 @@
 import React from "react";
-import { ChevronUp, Check, Star, Brain, Cpu, Rocket } from 'lucide-react';
+import { ChevronUp, Check, Star, Brain, Cpu, Rocket } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
@@ -21,37 +21,37 @@ export interface CodexModelConfig {
  */
 export const CODEX_MODELS: CodexModelConfig[] = [
   {
-    id: 'gpt-5.2-codex',
-    name: 'GPT-5.2 Codex',
-    description: '最新代码模型（2025年12月18日发布）',
+    id: "gpt-5.2-codex",
+    name: "GPT-5.2 Codex",
+    description: "最新代码模型（2025年12月18日发布）",
     icon: <Rocket className="h-4 w-4 text-emerald-500" />,
     isDefault: true,
   },
   {
-    id: 'gpt-5.2',
-    name: 'GPT-5.2',
-    description: '最新旗舰模型（2025年12月）',
+    id: "gpt-5.2",
+    name: "GPT-5.2",
+    description: "最新旗舰模型（2025年12月）",
     icon: <Star className="h-4 w-4 text-yellow-500" />,
     isDefault: false,
   },
   {
-    id: 'gpt-5.1-codex-max',
-    name: 'GPT-5.1 Codex Max',
-    description: '代码编写优化，速度与质量平衡',
+    id: "gpt-5.1-codex-max",
+    name: "GPT-5.1 Codex Max",
+    description: "代码编写优化，速度与质量平衡",
     icon: <Rocket className="h-4 w-4 text-green-500" />,
     isDefault: false,
   },
   {
-    id: 'gpt-5.1-codex',
-    name: 'GPT-5.1 Codex',
-    description: '专注代码生成的基础版本',
+    id: "gpt-5.1-codex",
+    name: "GPT-5.1 Codex",
+    description: "专注代码生成的基础版本",
     icon: <Cpu className="h-4 w-4 text-blue-500" />,
     isDefault: false,
   },
   {
-    id: 'gpt-5.1',
-    name: 'GPT-5.1',
-    description: '通用大语言模型',
+    id: "gpt-5.1",
+    name: "GPT-5.1",
+    description: "通用大语言模型",
     icon: <Brain className="h-4 w-4 text-orange-500" />,
     isDefault: false,
   },
@@ -75,9 +75,10 @@ export const CodexModelSelector: React.FC<CodexModelSelectorProps> = ({
   const [open, setOpen] = React.useState(false);
 
   // Find selected model or default
-  const selectedModelData = CODEX_MODELS.find(m => m.id === selectedModel)
-    || CODEX_MODELS.find(m => m.isDefault)
-    || CODEX_MODELS[0];
+  const selectedModelData =
+    CODEX_MODELS.find((m) => m.id === selectedModel) ||
+    CODEX_MODELS.find((m) => m.isDefault) ||
+    CODEX_MODELS[0];
 
   return (
     <Popover
@@ -102,8 +103,7 @@ export const CodexModelSelector: React.FC<CodexModelSelectorProps> = ({
             选择 Codex 模型
           </div>
           {CODEX_MODELS.map((model) => {
-            const isSelected = selectedModel === model.id ||
-              (!selectedModel && model.isDefault);
+            const isSelected = selectedModel === model.id || (!selectedModel && model.isDefault);
             return (
               <button
                 key={model.id}
@@ -121,18 +121,14 @@ export const CodexModelSelector: React.FC<CodexModelSelectorProps> = ({
                 <div className="flex-1 space-y-1">
                   <div className="font-medium text-sm flex items-center gap-2">
                     {model.name}
-                    {isSelected && (
-                      <Check className="h-3.5 w-3.5 text-primary" />
-                    )}
+                    {isSelected && <Check className="h-3.5 w-3.5 text-primary" />}
                     {model.isDefault && (
                       <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary">
                         推荐
                       </span>
                     )}
                   </div>
-                  <div className="text-xs text-muted-foreground">
-                    {model.description}
-                  </div>
+                  <div className="text-xs text-muted-foreground">{model.description}</div>
                 </div>
               </button>
             );

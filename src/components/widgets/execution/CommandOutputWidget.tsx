@@ -6,7 +6,7 @@
  */
 
 import React from "react";
-import { ChevronRight, CheckCircle2 } from 'lucide-react';
+import { ChevronRight, CheckCircle2 } from "lucide-react";
 import { detectLinks, makeLinksClickable } from "@/lib/linkDetector";
 
 export interface CommandOutputWidgetProps {
@@ -29,7 +29,8 @@ export const CommandOutputWidget: React.FC<CommandOutputWidgetProps> = ({
   onLinkDetected,
 }) => {
   // 检查是否是 /compact 命令成功消息
-  const isCompactSuccess = output.includes("Compacted.") && output.includes("ctrl+r to see full summary");
+  const isCompactSuccess =
+    output.includes("Compacted.") && output.includes("ctrl+r to see full summary");
 
   // 链接检测
   React.useEffect(() => {
@@ -51,13 +52,13 @@ export const CommandOutputWidget: React.FC<CommandOutputWidgetProps> = ({
     const elements: React.ReactNode[] = [];
 
     parts.forEach((part, idx) => {
-      if (part === '\u001b[1m') {
+      if (part === "\u001b[1m") {
         isBold = true;
         return;
-      } else if (part === '\u001b[22m') {
+      } else if (part === "\u001b[22m") {
         isBold = false;
         return;
-      // eslint-disable-next-line no-control-regex
+        // eslint-disable-next-line no-control-regex
       } else if (part.match(/\u001b\[\d+m/)) {
         // 忽略其他 ANSI 代码
         return;
@@ -95,9 +96,7 @@ export const CommandOutputWidget: React.FC<CommandOutputWidgetProps> = ({
         <div className="p-3 space-y-2">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-4 w-4 text-success" />
-            <span className="text-sm font-medium text-success">
-              对话历史已压缩
-            </span>
+            <span className="text-sm font-medium text-success">对话历史已压缩</span>
           </div>
           <p className="text-xs text-muted-foreground">
             Claude 已将之前的对话内容压缩为更紧凑的格式，释放了上下文空间。
@@ -120,7 +119,11 @@ export const CommandOutputWidget: React.FC<CommandOutputWidgetProps> = ({
       </div>
       <div className="p-3">
         <pre className="text-sm font-mono whitespace-pre-wrap text-zinc-700 dark:text-zinc-300">
-          {output ? parseAnsiToReact(output) : <span className="italic text-zinc-400 dark:text-zinc-500">无输出</span>}
+          {output ? (
+            parseAnsiToReact(output)
+          ) : (
+            <span className="italic text-zinc-400 dark:text-zinc-500">无输出</span>
+          )}
         </pre>
       </div>
     </div>

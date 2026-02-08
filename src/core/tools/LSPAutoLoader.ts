@@ -10,16 +10,16 @@
  * 灵感来源：OpenCode 的 LSP 自动加载机制
  */
 
-import { logger } from '@/lib/logger';
-import { invoke } from '@tauri-apps/api/core';
-import { LSPClient, LSPTools, CompletionItem, WorkspaceEdit } from './LSPTools';
+import { logger } from "@/lib/logger";
+import { invoke } from "@tauri-apps/api/core";
+import { LSPClient, LSPTools, CompletionItem, WorkspaceEdit } from "./LSPTools";
 import {
   Position,
   Location,
   HoverInfo,
   Diagnostic,
   DiagnosticSeverity,
-} from '../types/unified-agent';
+} from "../types/unified-agent";
 
 // Language Server 配置
 export interface LanguageServerConfig {
@@ -33,64 +33,64 @@ export interface LanguageServerConfig {
 // 预定义的 Language Server 配置
 export const LANGUAGE_SERVER_CONFIGS: LanguageServerConfig[] = [
   {
-    language: 'typescript',
-    command: 'typescript-language-server',
-    args: ['--stdio'],
-    fileExtensions: ['.ts', '.tsx', '.js', '.jsx'],
+    language: "typescript",
+    command: "typescript-language-server",
+    args: ["--stdio"],
+    fileExtensions: [".ts", ".tsx", ".js", ".jsx"],
   },
   {
-    language: 'rust',
-    command: 'rust-analyzer',
+    language: "rust",
+    command: "rust-analyzer",
     args: [],
-    fileExtensions: ['.rs'],
+    fileExtensions: [".rs"],
   },
   {
-    language: 'python',
-    command: 'pylsp',
+    language: "python",
+    command: "pylsp",
     args: [],
-    fileExtensions: ['.py'],
+    fileExtensions: [".py"],
   },
   {
-    language: 'go',
-    command: 'gopls',
+    language: "go",
+    command: "gopls",
     args: [],
-    fileExtensions: ['.go'],
+    fileExtensions: [".go"],
   },
   {
-    language: 'java',
-    command: 'jdtls',
+    language: "java",
+    command: "jdtls",
     args: [],
-    fileExtensions: ['.java'],
+    fileExtensions: [".java"],
   },
   {
-    language: 'cpp',
-    command: 'clangd',
+    language: "cpp",
+    command: "clangd",
     args: [],
-    fileExtensions: ['.cpp', '.cc', '.cxx', '.c', '.h', '.hpp'],
+    fileExtensions: [".cpp", ".cc", ".cxx", ".c", ".h", ".hpp"],
   },
   {
-    language: 'csharp',
-    command: 'omnisharp',
-    args: ['--languageserver'],
-    fileExtensions: ['.cs'],
+    language: "csharp",
+    command: "omnisharp",
+    args: ["--languageserver"],
+    fileExtensions: [".cs"],
   },
   {
-    language: 'php',
-    command: 'intelephense',
-    args: ['--stdio'],
-    fileExtensions: ['.php'],
+    language: "php",
+    command: "intelephense",
+    args: ["--stdio"],
+    fileExtensions: [".php"],
   },
   {
-    language: 'ruby',
-    command: 'solargraph',
-    args: ['stdio'],
-    fileExtensions: ['.rb'],
+    language: "ruby",
+    command: "solargraph",
+    args: ["stdio"],
+    fileExtensions: [".rb"],
   },
   {
-    language: 'vue',
-    command: 'vls',
+    language: "vue",
+    command: "vls",
     args: [],
-    fileExtensions: ['.vue'],
+    fileExtensions: [".vue"],
   },
 ];
 
@@ -108,7 +108,7 @@ interface LanguageServerInstance {
  * 通过 Tauri 后端与 Language Server 通信
  */
 export class RealLSPClient implements LSPClient {
-  private workspaceRoot: string = '';
+  private workspaceRoot: string = "";
   private servers: Map<string, LanguageServerInstance> = new Map();
   private fileLanguageMap: Map<string, string> = new Map();
 
@@ -128,7 +128,7 @@ export class RealLSPClient implements LSPClient {
     // 关闭所有 Language Server
     for (const [language, server] of this.servers) {
       if (server.processId) {
-        await invoke('lsp_shutdown', { language });
+        await invoke("lsp_shutdown", { language });
       }
     }
     this.servers.clear();
@@ -140,7 +140,7 @@ export class RealLSPClient implements LSPClient {
    */
   private async detectProjectLanguages(workspaceRoot: string): Promise<string[]> {
     try {
-      const files = await invoke<string[]>('scan_project_files', { path: workspaceRoot });
+      const files = await invoke<string[]>("scan_project_files", { path: workspaceRoot });
       const languages = new Set<string>();
 
       for (const file of files) {
@@ -153,7 +153,7 @@ export class RealLSPClient implements LSPClient {
 
       return Array.from(languages);
     } catch (error) {
-      logger.error('LSPAutoLoader', 'Failed to detect project languages:', error);
+      logger.error("LSPAutoLoader", "Failed to detect project languages:", error);
       return [];
     }
   }
@@ -163,7 +163,7 @@ export class RealLSPClient implements LSPClient {
    */
   private detectLanguageFromFile(file: string): string | null {
     for (const config of LANGUAGE_SERVER_CONFIGS) {
-      if (config.fileExtensions.some(ext => file.endsWith(ext))) {
+      if (config.fileExtensions.some((ext) => file.endsWith(ext))) {
         return config.language;
       }
     }
@@ -174,15 +174,15 @@ export class RealLSPClient implements LSPClient {
    * 启动 Language Server
    */
   private async startLanguageServer(language: string): Promise<void> {
-    const config = LANGUAGE_SERVER_CONFIGS.find(c => c.language === language);
+    const config = LANGUAGE_SERVER_CONFIGS.find((c) => c.language === language);
     if (!config) {
-      logger.warn('LSPAutoLoader', `No Language Server config found for ${language}`);
+      logger.warn("LSPAutoLoader", `No Language Server config found for ${language}`);
       return;
     }
 
     try {
       const result = await invoke<{ processId: number; capabilities: Record<string, unknown> }>(
-        'lsp_start',
+        "lsp_start",
         {
           language,
           command: config.command,
@@ -200,9 +200,12 @@ export class RealLSPClient implements LSPClient {
         capabilities: result.capabilities,
       });
 
-      logger.debug('LSPAutoLoader', `Language Server started for ${language} (PID: ${result.processId});`);
+      logger.debug(
+        "LSPAutoLoader",
+        `Language Server started for ${language} (PID: ${result.processId});`
+      );
     } catch (error) {
-      logger.error('LSPAutoLoader', `Failed to start Language Server for ${language}:`, error);
+      logger.error("LSPAutoLoader", `Failed to start Language Server for ${language}:`, error);
 
       // 标记为未初始化，但保留配置
       this.servers.set(language, {
@@ -231,14 +234,14 @@ export class RealLSPClient implements LSPClient {
     if (!server) return null;
 
     try {
-      const result = await invoke<HoverInfo | null>('lsp_hover', {
+      const result = await invoke<HoverInfo | null>("lsp_hover", {
         language: server.language,
         file,
         position,
       });
       return result;
     } catch (error) {
-      logger.error('LSPAutoLoader', 'LSP hover failed:', error);
+      logger.error("LSPAutoLoader", "LSP hover failed:", error);
       return null;
     }
   }
@@ -248,14 +251,14 @@ export class RealLSPClient implements LSPClient {
     if (!server) return null;
 
     try {
-      const result = await invoke<Location | null>('lsp_definition', {
+      const result = await invoke<Location | null>("lsp_definition", {
         language: server.language,
         file,
         position,
       });
       return result;
     } catch (error) {
-      logger.error('LSPAutoLoader', 'LSP definition failed:', error);
+      logger.error("LSPAutoLoader", "LSP definition failed:", error);
       return null;
     }
   }
@@ -265,14 +268,14 @@ export class RealLSPClient implements LSPClient {
     if (!server) return [];
 
     try {
-      const result = await invoke<Location[]>('lsp_references', {
+      const result = await invoke<Location[]>("lsp_references", {
         language: server.language,
         file,
         position,
       });
       return result;
     } catch (error) {
-      logger.error('LSPAutoLoader', 'LSP references failed:', error);
+      logger.error("LSPAutoLoader", "LSP references failed:", error);
       return [];
     }
   }
@@ -286,7 +289,7 @@ export class RealLSPClient implements LSPClient {
     if (!server) return null;
 
     try {
-      const result = await invoke<WorkspaceEdit | null>('lsp_rename', {
+      const result = await invoke<WorkspaceEdit | null>("lsp_rename", {
         language: server.language,
         file,
         position,
@@ -294,7 +297,7 @@ export class RealLSPClient implements LSPClient {
       });
       return result;
     } catch (error) {
-      logger.error('LSPAutoLoader', 'LSP rename failed:', error);
+      logger.error("LSPAutoLoader", "LSP rename failed:", error);
       return null;
     }
   }
@@ -304,14 +307,14 @@ export class RealLSPClient implements LSPClient {
     if (!server) return [];
 
     try {
-      const result = await invoke<CompletionItem[]>('lsp_completion', {
+      const result = await invoke<CompletionItem[]>("lsp_completion", {
         language: server.language,
         file,
         position,
       });
       return result;
     } catch (error) {
-      logger.error('LSPAutoLoader', 'LSP completion failed:', error);
+      logger.error("LSPAutoLoader", "LSP completion failed:", error);
       return [];
     }
   }
@@ -321,13 +324,13 @@ export class RealLSPClient implements LSPClient {
     if (!server) return [];
 
     try {
-      const result = await invoke<Diagnostic[]>('lsp_diagnostics', {
+      const result = await invoke<Diagnostic[]>("lsp_diagnostics", {
         language: server.language,
         file,
       });
       return result;
     } catch (error) {
-      logger.error('LSPAutoLoader', 'LSP diagnostics failed:', error);
+      logger.error("LSPAutoLoader", "LSP diagnostics failed:", error);
       return [];
     }
   }
@@ -336,7 +339,7 @@ export class RealLSPClient implements LSPClient {
    * 获取所有活动的 Language Server
    */
   getActiveServers(): LanguageServerInstance[] {
-    return Array.from(this.servers.values()).filter(s => s.initialized);
+    return Array.from(this.servers.values()).filter((s) => s.initialized);
   }
 
   /**
@@ -344,7 +347,7 @@ export class RealLSPClient implements LSPClient {
    */
   async addLanguageSupport(language: string): Promise<void> {
     if (this.servers.has(language)) {
-      logger.warn('LSPAutoLoader', `Language Server for ${language} already exists`);
+      logger.warn("LSPAutoLoader", `Language Server for ${language} already exists`);
       return;
     }
 
@@ -356,9 +359,9 @@ export class RealLSPClient implements LSPClient {
    */
   async getServerStatus(language: string): Promise<string | null> {
     try {
-      return await invoke<string | null>('lsp_get_status', { language });
+      return await invoke<string | null>("lsp_get_status", { language });
     } catch (error) {
-      logger.error('LSPAutoLoader', `Failed to get status for ${language}:`, error);
+      logger.error("LSPAutoLoader", `Failed to get status for ${language}:`, error);
       return null;
     }
   }
@@ -368,9 +371,9 @@ export class RealLSPClient implements LSPClient {
    */
   async getAllServerStatus(): Promise<Record<string, string>> {
     try {
-      return await invoke<Record<string, string>>('lsp_get_all_status', {});
+      return await invoke<Record<string, string>>("lsp_get_all_status", {});
     } catch (error) {
-      logger.error('LSPAutoLoader', 'Failed to get all server status:', error);
+      logger.error("LSPAutoLoader", "Failed to get all server status:", error);
       return {};
     }
   }
@@ -380,7 +383,7 @@ export class RealLSPClient implements LSPClient {
    */
   async restartServer(language: string): Promise<boolean> {
     try {
-      const processId = await invoke<number>('lsp_restart', { language });
+      const processId = await invoke<number>("lsp_restart", { language });
 
       // 更新本地状态
       const server = this.servers.get(language);
@@ -389,10 +392,13 @@ export class RealLSPClient implements LSPClient {
         server.initialized = true;
       }
 
-      logger.debug('LSPAutoLoader', `Language Server restarted for ${language} (PID: ${processId});`);
+      logger.debug(
+        "LSPAutoLoader",
+        `Language Server restarted for ${language} (PID: ${processId});`
+      );
       return true;
     } catch (error) {
-      logger.error('LSPAutoLoader', `Failed to restart Language Server for ${language}:`, error);
+      logger.error("LSPAutoLoader", `Failed to restart Language Server for ${language}:`, error);
       return false;
     }
   }
@@ -402,9 +408,9 @@ export class RealLSPClient implements LSPClient {
    */
   async getServerInfo(language: string): Promise<Record<string, unknown> | null> {
     try {
-      return await invoke<Record<string, unknown> | null>('lsp_get_server_info', { language });
+      return await invoke<Record<string, unknown> | null>("lsp_get_server_info", { language });
     } catch (error) {
-      logger.error('LSPAutoLoader', `Failed to get server info for ${language}:`, error);
+      logger.error("LSPAutoLoader", `Failed to get server info for ${language}:`, error);
       return null;
     }
   }
@@ -496,13 +502,15 @@ export class LSPAutoLoader {
     const servers = this.getActiveServers();
 
     if (servers.length === 0) {
-      return 'No Language Servers are currently active.';
+      return "No Language Servers are currently active.";
     }
 
-    const serverInfo = servers.map(s => {
-      const capabilities = Object.keys(s.capabilities || {}).join(', ');
-      return `- ${s.language}: ${s.config.command} (capabilities: ${capabilities})`;
-    }).join('\n');
+    const serverInfo = servers
+      .map((s) => {
+        const capabilities = Object.keys(s.capabilities || {}).join(", ");
+        return `- ${s.language}: ${s.config.command} (capabilities: ${capabilities})`;
+      })
+      .join("\n");
 
     return `Active Language Servers:\n${serverInfo}\n\nYou can use LSP features like hover, definition, references, completion, and diagnostics for these languages.`;
   }

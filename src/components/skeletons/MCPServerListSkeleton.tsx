@@ -13,10 +13,7 @@ export const MCPServerListSkeleton: React.FC = () => {
           </div>
           <div className="space-y-2">
             {Array.from({ length: 2 }).map((_, j) => (
-              <div
-                key={j}
-                className="p-4 rounded-lg border border-border bg-card"
-              >
+              <div key={j} className="p-4 rounded-lg border border-border bg-card">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center gap-2">

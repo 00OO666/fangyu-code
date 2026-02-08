@@ -1,8 +1,8 @@
 /**
  * SecurityGuard - 安全防护层
- * 
+ *
  * 实现路径验证、命令安全检查、敏感信息脱敏、审计日志
- * 
+ *
  * Requirements: 12.1-12.7
  */
 
@@ -12,33 +12,33 @@ import {
   SensitiveMatch,
   Operation,
   OperationType,
-  AuditEntry
-} from '../types/unified-agent';
+  AuditEntry,
+} from "../types/unified-agent";
 
 // 默认危险命令列表
 export const DEFAULT_DANGEROUS_COMMANDS = [
-  'rm -rf /',
-  'rm -rf /*',
-  'rm -rf ~',
-  'rm -rf ~/*',
-  'dd if=/dev/zero',
-  'mkfs',
-  ':(){:|:&};:',
-  'chmod -R 777 /',
-  'chown -R',
-  '> /dev/sda',
-  'mv /* /dev/null',
-  'wget http',
-  'curl http',
-  'shutdown',
-  'reboot',
-  'halt',
-  'poweroff',
-  'init 0',
-  'init 6',
-  'format c:',
-  'del /f /s /q c:\\*',
-  'rd /s /q c:\\'
+  "rm -rf /",
+  "rm -rf /*",
+  "rm -rf ~",
+  "rm -rf ~/*",
+  "dd if=/dev/zero",
+  "mkfs",
+  ":(){:|:&};:",
+  "chmod -R 777 /",
+  "chown -R",
+  "> /dev/sda",
+  "mv /* /dev/null",
+  "wget http",
+  "curl http",
+  "shutdown",
+  "reboot",
+  "halt",
+  "poweroff",
+  "init 0",
+  "init 6",
+  "format c:",
+  "del /f /s /q c:\\*",
+  "rd /s /q c:\\",
 ];
 
 // 默认敏感信息模式
@@ -66,22 +66,22 @@ export const DEFAULT_SENSITIVE_PATTERNS: RegExp[] = [
   // SSN
   /\b[0-9]{3}-[0-9]{2}-[0-9]{4}\b/g,
   // IP addresses (private)
-  /\b(?:10\.|172\.(?:1[6-9]|2[0-9]|3[01])\.|192\.168\.)[0-9]{1,3}\.[0-9]{1,3}\b/g
+  /\b(?:10\.|172\.(?:1[6-9]|2[0-9]|3[01])\.|192\.168\.)[0-9]{1,3}\.[0-9]{1,3}\b/g,
 ];
 
 // 脱敏类型映射
 const REDACTION_LABELS: Record<string, string> = {
-  'api_key': '[REDACTED_API_KEY]',
-  'aws_key': '[REDACTED_AWS_KEY]',
-  'private_key': '[REDACTED_PRIVATE_KEY]',
-  'password': '[REDACTED_PASSWORD]',
-  'token': '[REDACTED_TOKEN]',
-  'database_url': '[REDACTED_DB_URL]',
-  'email': '[REDACTED_EMAIL]',
-  'phone': '[REDACTED_PHONE]',
-  'credit_card': '[REDACTED_CC]',
-  'ssn': '[REDACTED_SSN]',
-  'ip_address': '[REDACTED_IP]'
+  api_key: "[REDACTED_API_KEY]",
+  aws_key: "[REDACTED_AWS_KEY]",
+  private_key: "[REDACTED_PRIVATE_KEY]",
+  password: "[REDACTED_PASSWORD]",
+  token: "[REDACTED_TOKEN]",
+  database_url: "[REDACTED_DB_URL]",
+  email: "[REDACTED_EMAIL]",
+  phone: "[REDACTED_PHONE]",
+  credit_card: "[REDACTED_CC]",
+  ssn: "[REDACTED_SSN]",
+  ip_address: "[REDACTED_IP]",
 };
 
 /**
@@ -97,7 +97,7 @@ export class SecurityGuard {
       workspaceBoundary: config.workspaceBoundary ?? process.cwd(),
       dangerousCommands: config.dangerousCommands ?? DEFAULT_DANGEROUS_COMMANDS,
       sensitivePatterns: config.sensitivePatterns ?? DEFAULT_SENSITIVE_PATTERNS,
-      commandWhitelist: config.commandWhitelist
+      commandWhitelist: config.commandWhitelist,
     };
   }
 
@@ -114,8 +114,8 @@ export class SecurityGuard {
     if (this.hasPathTraversal(path)) {
       return {
         valid: false,
-        reason: 'Path contains traversal sequences (..)',
-        severity: 'error'
+        reason: "Path contains traversal sequences (..)",
+        severity: "error",
       };
     }
 
@@ -124,7 +124,7 @@ export class SecurityGuard {
       return {
         valid: false,
         reason: `Path is outside workspace boundary: ${this.config.workspaceBoundary}`,
-        severity: 'error'
+        severity: "error",
       };
     }
 
@@ -132,8 +132,8 @@ export class SecurityGuard {
     if (this.isSensitiveSystemPath(normalizedPath)) {
       return {
         valid: false,
-        reason: 'Access to sensitive system path is not allowed',
-        severity: 'error'
+        reason: "Access to sensitive system path is not allowed",
+        severity: "error",
       };
     }
 
@@ -148,13 +148,12 @@ export class SecurityGuard {
     const normalizedBoundary = this.normalizePath(boundary ?? this.config.workspaceBoundary);
 
     // 确保边界以 / 结尾进行比较，避免 /workspaceother 被误判为在 /workspace 内
-    const boundaryWithSlash = normalizedBoundary.endsWith('/')
+    const boundaryWithSlash = normalizedBoundary.endsWith("/")
       ? normalizedBoundary
-      : normalizedBoundary + '/';
+      : normalizedBoundary + "/";
 
     // 路径完全等于边界，或者路径以边界+/开头
-    return normalizedPath === normalizedBoundary ||
-      normalizedPath.startsWith(boundaryWithSlash);
+    return normalizedPath === normalizedBoundary || normalizedPath.startsWith(boundaryWithSlash);
   }
 
   /**
@@ -164,8 +163,8 @@ export class SecurityGuard {
   validateCommand(command: string): ValidationResult {
     // 检查是否在白名单中
     if (this.config.commandWhitelist) {
-      const isWhitelisted = this.config.commandWhitelist.some(pattern =>
-        command.startsWith(pattern) || new RegExp(pattern).test(command)
+      const isWhitelisted = this.config.commandWhitelist.some(
+        (pattern) => command.startsWith(pattern) || new RegExp(pattern).test(command)
       );
       if (isWhitelisted) {
         return { valid: true };
@@ -176,8 +175,8 @@ export class SecurityGuard {
     if (this.isDangerousCommand(command)) {
       return {
         valid: false,
-        reason: 'Command is potentially dangerous',
-        severity: 'error'
+        reason: "Command is potentially dangerous",
+        severity: "error",
       };
     }
 
@@ -185,8 +184,8 @@ export class SecurityGuard {
     if (this.hasCommandInjection(command)) {
       return {
         valid: false,
-        reason: 'Command contains potential injection patterns',
-        severity: 'error'
+        reason: "Command contains potential injection patterns",
+        severity: "error",
       };
     }
 
@@ -200,10 +199,12 @@ export class SecurityGuard {
   isDangerousCommand(command: string): boolean {
     const lowerCommand = command.toLowerCase();
 
-    return this.config.dangerousCommands.some(dangerous => {
+    return this.config.dangerousCommands.some((dangerous) => {
       const lowerDangerous = dangerous.toLowerCase();
-      return lowerCommand.includes(lowerDangerous) ||
-        lowerCommand.startsWith(lowerDangerous.split(' ')[0]);
+      return (
+        lowerCommand.includes(lowerDangerous) ||
+        lowerCommand.startsWith(lowerDangerous.split(" ")[0])
+      );
     });
   }
 
@@ -227,7 +228,7 @@ export class SecurityGuard {
           type,
           start: match.index,
           end: match.index + match[0].length,
-          redacted: REDACTION_LABELS[type] ?? '[REDACTED]'
+          redacted: REDACTION_LABELS[type] ?? "[REDACTED]",
         });
       }
     }
@@ -264,7 +265,7 @@ export class SecurityGuard {
    */
   logOperation(
     operation: Operation,
-    result: 'success' | 'failure' | 'blocked',
+    result: "success" | "failure" | "blocked",
     duration: number,
     error?: string
   ): AuditEntry {
@@ -273,7 +274,7 @@ export class SecurityGuard {
       operation,
       result,
       duration,
-      error
+      error,
     };
 
     this.auditLog.push(entry);
@@ -293,25 +294,25 @@ export class SecurityGuard {
     limit?: number;
     offset?: number;
     type?: OperationType;
-    result?: 'success' | 'failure' | 'blocked';
+    result?: "success" | "failure" | "blocked";
     since?: number;
   }): AuditEntry[] {
     let entries = [...this.auditLog];
 
     // 按类型过滤
     if (options?.type) {
-      entries = entries.filter(e => e.operation.type === options.type);
+      entries = entries.filter((e) => e.operation.type === options.type);
     }
 
     // 按结果过滤
     if (options?.result) {
-      entries = entries.filter(e => e.result === options.result);
+      entries = entries.filter((e) => e.result === options.result);
     }
 
     // 按时间过滤
     if (options?.since) {
       const sinceTime = options.since;
-      entries = entries.filter(e => e.operation.timestamp >= sinceTime);
+      entries = entries.filter((e) => e.operation.timestamp >= sinceTime);
     }
 
     // 分页
@@ -343,13 +344,13 @@ export class SecurityGuard {
       success: 0,
       failure: 0,
       blocked: 0,
-      byType: {} as Record<OperationType, number>
+      byType: {} as Record<OperationType, number>,
     };
 
     for (const entry of this.auditLog) {
-      if (entry.result === 'success') stats.success++;
-      else if (entry.result === 'failure') stats.failure++;
-      else if (entry.result === 'blocked') stats.blocked++;
+      if (entry.result === "success") stats.success++;
+      else if (entry.result === "failure") stats.failure++;
+      else if (entry.result === "blocked") stats.blocked++;
 
       const type = entry.operation.type;
       stats.byType[type] = (stats.byType[type] ?? 0) + 1;
@@ -389,15 +390,15 @@ export class SecurityGuard {
 
   private normalizePath(path: string): string {
     // 统一路径分隔符
-    let normalized = path.replace(/\\/g, '/');
+    let normalized = path.replace(/\\/g, "/");
 
     // 移除末尾斜杠
-    while (normalized.endsWith('/') && normalized.length > 1) {
+    while (normalized.endsWith("/") && normalized.length > 1) {
       normalized = normalized.slice(0, -1);
     }
 
     // 转换为小写（Windows 不区分大小写）
-    if (process.platform === 'win32') {
+    if (process.platform === "win32") {
       normalized = normalized.toLowerCase();
     }
 
@@ -411,19 +412,19 @@ export class SecurityGuard {
 
   private isSensitiveSystemPath(path: string): boolean {
     const sensitivePaths = [
-      '/etc/passwd',
-      '/etc/shadow',
-      '/etc/sudoers',
-      '/root',
-      '/var/log',
-      'c:/windows/system32',
-      'c:/windows/syswow64',
-      'c:/program files',
-      'c:/programdata'
+      "/etc/passwd",
+      "/etc/shadow",
+      "/etc/sudoers",
+      "/root",
+      "/var/log",
+      "c:/windows/system32",
+      "c:/windows/syswow64",
+      "c:/program files",
+      "c:/programdata",
     ];
 
     const lowerPath = path.toLowerCase();
-    return sensitivePaths.some(sensitive => lowerPath.startsWith(sensitive));
+    return sensitivePaths.some((sensitive) => lowerPath.startsWith(sensitive));
   }
 
   private hasCommandInjection(command: string): boolean {
@@ -435,28 +436,28 @@ export class SecurityGuard {
       />\s*\/dev\//, // 重定向到设备
       /\|\s*(?:sh|bash|zsh|cmd|powershell)/, // 管道到 shell
       /eval\s+/, // eval 命令
-      /exec\s+/ // exec 命令
+      /exec\s+/, // exec 命令
     ];
 
-    return injectionPatterns.some(pattern => pattern.test(command));
+    return injectionPatterns.some((pattern) => pattern.test(command));
   }
 
   private getPatternType(index: number): string {
     const types = [
-      'api_key',
-      'aws_key',
-      'aws_secret',
-      'private_key',
-      'password',
-      'token',
-      'database_url',
-      'email',
-      'phone',
-      'credit_card',
-      'ssn',
-      'ip_address'
+      "api_key",
+      "aws_key",
+      "aws_secret",
+      "private_key",
+      "password",
+      "token",
+      "database_url",
+      "email",
+      "phone",
+      "credit_card",
+      "ssn",
+      "ip_address",
     ];
-    return types[index] ?? 'unknown';
+    return types[index] ?? "unknown";
   }
 
   private deduplicateMatches(matches: SensitiveMatch[]): SensitiveMatch[] {

@@ -1,8 +1,8 @@
 /**
  * SpecExecutor - Spec 驱动执行器
- * 
+ *
  * 实现需求→设计→任务的自动化流程
- * 
+ *
  * Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6
  */
 
@@ -17,22 +17,22 @@ import {
   SpecProgress,
   Requirement,
   CorrectnessProperty,
-} from '../types/unified-agent';
+} from "../types/unified-agent";
 
 // EARS 模式类型
-export type EARSPattern = 
-  | 'ubiquitous'    // THE <system> SHALL <response>
-  | 'event-driven'  // WHEN <trigger>, THE <system> SHALL <response>
-  | 'state-driven'  // WHILE <condition>, THE <system> SHALL <response>
-  | 'unwanted'      // IF <condition>, THEN THE <system> SHALL <response>
-  | 'optional'      // WHERE <option>, THE <system> SHALL <response>
-  | 'complex';      // Combination of patterns
+export type EARSPattern =
+  | "ubiquitous" // THE <system> SHALL <response>
+  | "event-driven" // WHEN <trigger>, THE <system> SHALL <response>
+  | "state-driven" // WHILE <condition>, THE <system> SHALL <response>
+  | "unwanted" // IF <condition>, THEN THE <system> SHALL <response>
+  | "optional" // WHERE <option>, THE <system> SHALL <response>
+  | "complex"; // Combination of patterns
 
 // EARS 模式正则表达式
 const EARS_PATTERNS: Record<EARSPattern, RegExp> = {
   ubiquitous: /^THE\s+\w+\s+SHALL\s+/i,
-  'event-driven': /^WHEN\s+.+,?\s+THE\s+\w+\s+SHALL\s+/i,
-  'state-driven': /^WHILE\s+.+,?\s+THE\s+\w+\s+SHALL\s+/i,
+  "event-driven": /^WHEN\s+.+,?\s+THE\s+\w+\s+SHALL\s+/i,
+  "state-driven": /^WHILE\s+.+,?\s+THE\s+\w+\s+SHALL\s+/i,
   unwanted: /^IF\s+.+,?\s+THEN\s+THE\s+\w+\s+SHALL\s+/i,
   optional: /^WHERE\s+.+,?\s+THE\s+\w+\s+SHALL\s+/i,
   complex: /^(WHERE\s+.+\s+)?(WHILE\s+.+\s+)?(WHEN|IF)\s+.+\s+THE\s+\w+\s+SHALL\s+/i,
@@ -92,7 +92,7 @@ export class SpecExecutor {
   private progressListeners: ProgressListener[] = [];
   private specBasePath: string;
 
-  constructor(fs?: SpecFileSystem, basePath: string = '.fangyu/specs') {
+  constructor(fs?: SpecFileSystem, basePath: string = ".fangyu/specs") {
     this.fs = fs ?? new MockSpecFileSystem();
     this.specBasePath = basePath;
   }
@@ -114,14 +114,14 @@ export class SpecExecutor {
 
     const workflow: SpecWorkflow = {
       featureName: normalizedName,
-      status: 'requirements',
+      status: "requirements",
       createdAt: Date.now(),
       updatedAt: Date.now(),
     };
 
     // 生成初始需求
     workflow.requirements = await this.generateRequirements(idea);
-    
+
     // 保存需求文档
     await this.saveRequirements(normalizedName, workflow.requirements);
 
@@ -135,14 +135,14 @@ export class SpecExecutor {
    */
   async loadSpec(featureName: string): Promise<SpecWorkflow> {
     const normalizedName = this.normalizeFeatureName(featureName);
-    
+
     // 检查缓存
     if (this.workflows.has(normalizedName)) {
       return this.workflows.get(normalizedName)!;
     }
 
     const specPath = `${this.specBasePath}/${normalizedName}`;
-    
+
     // 检查目录是否存在
     const requirementsPath = `${specPath}/requirements.md`;
     const designPath = `${specPath}/design.md`;
@@ -150,7 +150,7 @@ export class SpecExecutor {
 
     const workflow: SpecWorkflow = {
       featureName: normalizedName,
-      status: 'requirements',
+      status: "requirements",
       createdAt: Date.now(),
       updatedAt: Date.now(),
     };
@@ -159,14 +159,14 @@ export class SpecExecutor {
     if (await this.fs.exists(requirementsPath)) {
       const content = await this.fs.readFile(requirementsPath);
       workflow.requirements = this.parseRequirementsDoc(content);
-      workflow.status = 'requirements';
+      workflow.status = "requirements";
     }
 
     // 加载设计文档
     if (await this.fs.exists(designPath)) {
       const content = await this.fs.readFile(designPath);
       workflow.design = this.parseDesignDoc(content);
-      workflow.status = 'design';
+      workflow.status = "design";
     }
 
     // 加载任务列表
@@ -191,7 +191,7 @@ export class SpecExecutor {
   async generateRequirements(idea: string): Promise<RequirementsDoc> {
     // 从 idea 中提取关键概念
     const concepts = this.extractConcepts(idea);
-    
+
     // 生成术语表
     const glossary: Record<string, string> = {};
     for (const concept of concepts) {
@@ -212,15 +212,19 @@ export class SpecExecutor {
    * 验证需求是否符合 EARS 模式
    * Requirements: 5.2
    */
-  validateEARSCompliance(criterion: string): { valid: boolean; pattern?: EARSPattern; error?: string } {
+  validateEARSCompliance(criterion: string): {
+    valid: boolean;
+    pattern?: EARSPattern;
+    error?: string;
+  } {
     for (const [pattern, regex] of Object.entries(EARS_PATTERNS)) {
       if (regex.test(criterion)) {
         return { valid: true, pattern: pattern as EARSPattern };
       }
     }
-    return { 
-      valid: false, 
-      error: 'Criterion does not match any EARS pattern' 
+    return {
+      valid: false,
+      error: "Criterion does not match any EARS pattern",
     };
   }
 
@@ -247,10 +251,10 @@ export class SpecExecutor {
   async generateDesign(requirements: RequirementsDoc): Promise<DesignDoc> {
     // 从需求中提取组件
     const components = this.extractComponents(requirements);
-    
+
     // 从需求中提取数据模型
     const dataModels = this.extractDataModels(requirements);
-    
+
     // 生成正确性属性
     const correctnessProperties = this.generateCorrectnessProperties(requirements);
 
@@ -282,7 +286,7 @@ export class SpecExecutor {
       const componentTask: TaskItem = {
         id: `${taskId}`,
         description: `Implement ${component.name}`,
-        status: 'pending',
+        status: "pending",
         dependencies: [],
         progress: 0,
         isOptional: false,
@@ -294,7 +298,7 @@ export class SpecExecutor {
       componentTask.subtasks!.push({
         id: `${taskId}.1`,
         description: `Create ${component.name} core implementation`,
-        status: 'pending',
+        status: "pending",
         dependencies: [],
         progress: 0,
         isOptional: false,
@@ -305,7 +309,7 @@ export class SpecExecutor {
       componentTask.subtasks!.push({
         id: `${taskId}.2`,
         description: `Write tests for ${component.name}`,
-        status: 'pending',
+        status: "pending",
         dependencies: [`${taskId}.1`],
         progress: 0,
         isOptional: true,
@@ -321,7 +325,7 @@ export class SpecExecutor {
       tasks.push({
         id: `${taskId}`,
         description: `Property test: ${property.title}`,
-        status: 'pending',
+        status: "pending",
         dependencies: [],
         progress: 0,
         isOptional: true,
@@ -334,9 +338,9 @@ export class SpecExecutor {
     // 添加集成任务
     tasks.push({
       id: `${taskId}`,
-      description: 'Integration and final testing',
-      status: 'pending',
-      dependencies: tasks.slice(0, -1).map(t => t.id),
+      description: "Integration and final testing",
+      status: "pending",
+      dependencies: tasks.slice(0, -1).map((t) => t.id),
       progress: 0,
       isOptional: false,
       requirements: [],
@@ -354,12 +358,12 @@ export class SpecExecutor {
    */
   validateTaskDependencies(tasks: TaskItem[]): { valid: boolean; errors: string[] } {
     const errors: string[] = [];
-    const taskIds = new Set(tasks.map(t => t.id));
+    const taskIds = new Set(tasks.map((t) => t.id));
     const flatTasks = this.flattenTasks(tasks);
 
     for (const task of flatTasks) {
       for (const dep of task.dependencies) {
-        if (!taskIds.has(dep) && !flatTasks.some(t => t.id === dep)) {
+        if (!taskIds.has(dep) && !flatTasks.some((t) => t.id === dep)) {
           errors.push(`Task ${task.id} depends on non-existent task ${dep}`);
         }
       }
@@ -379,12 +383,12 @@ export class SpecExecutor {
   getNextExecutableTask(tasks: TaskItem[]): TaskItem | null {
     const flatTasks = this.flattenTasks(tasks);
     const completedIds = new Set(
-      flatTasks.filter(t => t.status === 'completed').map(t => t.id)
+      flatTasks.filter((t) => t.status === "completed").map((t) => t.id)
     );
 
     for (const task of flatTasks) {
-      if (task.status === 'pending') {
-        const depsCompleted = task.dependencies.every(dep => completedIds.has(dep));
+      if (task.status === "pending") {
+        const depsCompleted = task.dependencies.every((dep) => completedIds.has(dep));
         if (depsCompleted) {
           return task;
         }
@@ -409,9 +413,9 @@ export class SpecExecutor {
     const task = this.findTask(workflow.tasks.tasks, taskId);
     if (task) {
       task.status = status;
-      if (status === 'completed') {
+      if (status === "completed") {
         task.progress = 100;
-      } else if (status === 'in_progress') {
+      } else if (status === "in_progress") {
         task.progress = Math.max(task.progress, 10);
       }
       workflow.updatedAt = Date.now();
@@ -431,8 +435,8 @@ export class SpecExecutor {
 
     const flatTasks = this.flattenTasks(workflow.tasks.tasks);
     const totalTasks = flatTasks.length;
-    const completedTasks = flatTasks.filter(t => t.status === 'completed').length;
-    const inProgressTasks = flatTasks.filter(t => t.status === 'in_progress').length;
+    const completedTasks = flatTasks.filter((t) => t.status === "completed").length;
+    const inProgressTasks = flatTasks.filter((t) => t.status === "in_progress").length;
 
     return {
       totalTasks,
@@ -468,10 +472,8 @@ export class SpecExecutor {
     if (!workflow?.tasks) return [];
 
     const flatTasks = this.flattenTasks(workflow.tasks.tasks);
-    return flatTasks.filter(t => 
-      t.status !== 'completed' && 
-      t.status !== 'cancelled' &&
-      !t.isOptional
+    return flatTasks.filter(
+      (t) => t.status !== "completed" && t.status !== "cancelled" && !t.isOptional
     );
   }
 
@@ -493,17 +495,17 @@ export class SpecExecutor {
   private normalizeFeatureName(name: string): string {
     return name
       .toLowerCase()
-      .replace(/\s+/g, '-')
-      .replace(/[^a-z0-9-]/g, '');
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, "");
   }
 
   private extractConcepts(idea: string): string[] {
     // 简单的概念提取：提取大写开头的词和技术术语
     const words = idea.split(/\s+/);
     const concepts: string[] = [];
-    
+
     for (const word of words) {
-      const cleaned = word.replace(/[^a-zA-Z]/g, '');
+      const cleaned = word.replace(/[^a-zA-Z]/g, "");
       if (cleaned.length > 3 && /^[A-Z]/.test(cleaned)) {
         concepts.push(cleaned);
       }
@@ -541,9 +543,11 @@ export class SpecExecutor {
     return requirements;
   }
 
-  private extractComponents(requirements: RequirementsDoc): Array<{ name: string; description: string; interfaces: string }> {
+  private extractComponents(
+    requirements: RequirementsDoc
+  ): Array<{ name: string; description: string; interfaces: string }> {
     const components: Array<{ name: string; description: string; interfaces: string }> = [];
-    
+
     // 从术语表中提取组件
     for (const [name, description] of Object.entries(requirements.glossary)) {
       components.push({
@@ -556,9 +560,11 @@ export class SpecExecutor {
     return components;
   }
 
-  private extractDataModels(requirements: RequirementsDoc): Array<{ name: string; definition: string }> {
+  private extractDataModels(
+    requirements: RequirementsDoc
+  ): Array<{ name: string; definition: string }> {
     const models: Array<{ name: string; definition: string }> = [];
-    
+
     // 从术语表中提取数据模型
     for (const name of Object.keys(requirements.glossary)) {
       models.push({
@@ -592,51 +598,54 @@ export class SpecExecutor {
   }
 
   private generateArchitecture(components: Array<{ name: string }>): string {
-    const componentList = components.map(c => c.name).join(', ');
+    const componentList = components.map((c) => c.name).join(", ");
     return `Architecture with components: ${componentList}`;
   }
 
   private generateErrorHandling(_requirements: RequirementsDoc): string {
-    return 'Standard error handling with retry and fallback mechanisms';
+    return "Standard error handling with retry and fallback mechanisms";
   }
 
   private generateTestingStrategy(properties: CorrectnessProperty[]): string {
     return `Property-based testing with ${properties.length} properties using fast-check`;
   }
 
-  private async saveRequirements(featureName: string, requirements: RequirementsDoc): Promise<void> {
+  private async saveRequirements(
+    featureName: string,
+    requirements: RequirementsDoc
+  ): Promise<void> {
     const content = this.serializeRequirements(requirements);
     await this.fs.writeFile(`${this.specBasePath}/${featureName}/requirements.md`, content);
   }
 
   private serializeRequirements(requirements: RequirementsDoc): string {
-    let content = '# Requirements Document\n\n';
+    let content = "# Requirements Document\n\n";
     content += `## Introduction\n\n${requirements.introduction}\n\n`;
-    content += '## Glossary\n\n';
+    content += "## Glossary\n\n";
     for (const [term, def] of Object.entries(requirements.glossary)) {
       content += `- **${term}**: ${def}\n`;
     }
-    content += '\n## Requirements\n\n';
+    content += "\n## Requirements\n\n";
     for (const req of requirements.requirements) {
       content += `### Requirement ${req.id}\n\n`;
       content += `**User Story:** ${req.userStory}\n\n`;
-      content += '#### Acceptance Criteria\n\n';
+      content += "#### Acceptance Criteria\n\n";
       for (let i = 0; i < req.acceptanceCriteria.length; i++) {
         content += `${i + 1}. ${req.acceptanceCriteria[i]}\n`;
       }
-      content += '\n';
+      content += "\n";
     }
     return content;
   }
 
   private parseRequirementsDoc(content: string): RequirementsDoc {
     // 简化的解析实现
-    const introduction = content.match(/## Introduction\n\n([\s\S]*?)(?=\n## )/)?.[1]?.trim() || '';
-    
+    const introduction = content.match(/## Introduction\n\n([\s\S]*?)(?=\n## )/)?.[1]?.trim() || "";
+
     const glossary: Record<string, string> = {};
     const glossaryMatch = content.match(/## Glossary\n\n([\s\S]*?)(?=\n## )/);
     if (glossaryMatch) {
-      const lines = glossaryMatch[1].split('\n');
+      const lines = glossaryMatch[1].split("\n");
       for (const line of lines) {
         const match = line.match(/- \*\*(.+?)\*\*: (.+)/);
         if (match) {
@@ -646,14 +655,16 @@ export class SpecExecutor {
     }
 
     const requirements: Requirement[] = [];
-    const reqMatches = content.matchAll(/### Requirement (\d+)\n\n\*\*User Story:\*\* ([\s\S]*?)(?=\n### |$)/g);
+    const reqMatches = content.matchAll(
+      /### Requirement (\d+)\n\n\*\*User Story:\*\* ([\s\S]*?)(?=\n### |$)/g
+    );
     for (const match of reqMatches) {
       const id = match[1];
-      const userStory = match[2].split('\n')[0];
+      const userStory = match[2].split("\n")[0];
       const criteriaMatch = match[2].match(/#### Acceptance Criteria\n\n([\s\S]*?)(?=\n### |$)/);
       const acceptanceCriteria: string[] = [];
       if (criteriaMatch) {
-        const lines = criteriaMatch[1].split('\n');
+        const lines = criteriaMatch[1].split("\n");
         for (const line of lines) {
           const critMatch = line.match(/^\d+\. (.+)/);
           if (critMatch) {
@@ -670,49 +681,49 @@ export class SpecExecutor {
   private parseDesignDoc(content: string): DesignDoc {
     // 简化的解析实现
     return {
-      overview: content.match(/## Overview\n\n([\s\S]*?)(?=\n## )/)?.[1]?.trim() || '',
-      architecture: content.match(/## Architecture\n\n([\s\S]*?)(?=\n## )/)?.[1]?.trim() || '',
+      overview: content.match(/## Overview\n\n([\s\S]*?)(?=\n## )/)?.[1]?.trim() || "",
+      architecture: content.match(/## Architecture\n\n([\s\S]*?)(?=\n## )/)?.[1]?.trim() || "",
       components: [],
       dataModels: [],
       correctnessProperties: [],
-      errorHandling: '',
-      testingStrategy: '',
+      errorHandling: "",
+      testingStrategy: "",
     };
   }
 
   private parseTaskList(content: string): TaskList {
     const tasks: TaskItem[] = [];
     const taskMatches = content.matchAll(/- \[([ x])\] (\d+(?:\.\d+)?)\. (.+)/g);
-    
+
     for (const match of taskMatches) {
-      const status: TaskStatus = match[1] === 'x' ? 'completed' : 'pending';
+      const status: TaskStatus = match[1] === "x" ? "completed" : "pending";
       const id = match[2];
       const description = match[3];
-      
+
       tasks.push({
         id,
         description,
         status,
         dependencies: [],
-        progress: status === 'completed' ? 100 : 0,
-        isOptional: description.includes('*'),
+        progress: status === "completed" ? 100 : 0,
+        isOptional: description.includes("*"),
       });
     }
 
     return {
-      overview: content.match(/## Overview\n\n([\s\S]*?)(?=\n## )/)?.[1]?.trim() || '',
+      overview: content.match(/## Overview\n\n([\s\S]*?)(?=\n## )/)?.[1]?.trim() || "",
       tasks,
     };
   }
 
   private determineStatus(tasks: TaskList): SpecStatus {
     const flatTasks = this.flattenTasks(tasks.tasks);
-    const allCompleted = flatTasks.every(t => t.status === 'completed' || t.isOptional);
-    const anyInProgress = flatTasks.some(t => t.status === 'in_progress');
+    const allCompleted = flatTasks.every((t) => t.status === "completed" || t.isOptional);
+    const anyInProgress = flatTasks.some((t) => t.status === "in_progress");
 
-    if (allCompleted) return 'completed';
-    if (anyInProgress) return 'executing';
-    return 'tasks';
+    if (allCompleted) return "completed";
+    if (anyInProgress) return "executing";
+    return "tasks";
   }
 
   private flattenTasks(tasks: TaskItem[]): TaskItem[] {
@@ -737,11 +748,15 @@ export class SpecExecutor {
     return null;
   }
 
-  private hasCircularDependency(taskId: string, tasks: TaskItem[], visited: Set<string> = new Set()): boolean {
+  private hasCircularDependency(
+    taskId: string,
+    tasks: TaskItem[],
+    visited: Set<string> = new Set()
+  ): boolean {
     if (visited.has(taskId)) return true;
     visited.add(taskId);
 
-    const task = tasks.find(t => t.id === taskId);
+    const task = tasks.find((t) => t.id === taskId);
     if (!task) return false;
 
     for (const dep of task.dependencies) {

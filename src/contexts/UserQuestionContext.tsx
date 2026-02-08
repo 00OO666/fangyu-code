@@ -13,15 +13,8 @@
  * 参考：PlanModeContext 的实现模式
  */
 
-import { logger } from '@/lib/logger';
-import {
-  createContext,
-  useContext,
-  useState,
-  useCallback,
-  useRef,
-  type ReactNode,
-} from "react";
+import { logger } from "@/lib/logger";
+import { createContext, useContext, useState, useCallback, useRef, type ReactNode } from "react";
 
 /**
  * 问题选项接口
@@ -81,9 +74,7 @@ interface UserQuestionContextValue {
 }
 
 // 🔧 FIX: 导出 Context 以便组件可以安全地使用 useContext
-export const UserQuestionContext = createContext<UserQuestionContextValue | undefined>(
-  undefined
-);
+export const UserQuestionContext = createContext<UserQuestionContextValue | undefined>(undefined);
 
 interface UserQuestionProviderProps {
   children: ReactNode;
@@ -93,11 +84,11 @@ interface UserQuestionProviderProps {
  * 生成问题的唯一 ID（基于问题内容的简单 hash）
  */
 function generateQuestionId(questions: Question[]): string {
-  const content = questions.map(q => q.question).join('|');
+  const content = questions.map((q) => q.question).join("|");
   let hash = 0;
   for (let i = 0; i < content.length; i++) {
     const char = content.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
+    hash = (hash << 5) - hash + char;
     hash = hash & hash; // Convert to 32bit integer
   }
   return `question_${Math.abs(hash)}_${questions.length}`;
@@ -113,7 +104,7 @@ function loadAnsweredQuestionIds(key: string): Set<string> {
       return new Set(JSON.parse(stored));
     }
   } catch (error) {
-    logger.warn('UserQuestionContext', `[UserQuestion] Failed to load ${key}:`, error);
+    logger.warn("UserQuestionContext", `[UserQuestion] Failed to load ${key}:`, error);
   }
   return new Set();
 }
@@ -125,7 +116,7 @@ function saveAnsweredQuestionIds(key: string, ids: Set<string>): void {
   try {
     sessionStorage.setItem(key, JSON.stringify(Array.from(ids)));
   } catch (error) {
-    logger.warn('UserQuestionContext', `[UserQuestion] Failed to save ${key}:`, error);
+    logger.warn("UserQuestionContext", `[UserQuestion] Failed to save ${key}:`, error);
   }
 }
 
@@ -136,32 +127,38 @@ export function UserQuestionProvider({ children }: UserQuestionProviderProps) {
   const [pendingQuestion, setPendingQuestion] = useState<PendingQuestion | null>(null);
   const [showQuestionDialog, setShowQuestionDialog] = useState(false);
   const [answeredQuestionIds, setAnsweredQuestionIds] = useState<Set<string>>(() =>
-    loadAnsweredQuestionIds('answered_question_ids')
+    loadAnsweredQuestionIds("answered_question_ids")
   );
 
   // 发送消息的回调引用
   const sendMessageCallbackRef = useRef<((message: string) => void) | null>(null);
 
   // 检查问题是否已回答
-  const isQuestionAnswered = useCallback((questionId: string): boolean => {
-    return answeredQuestionIds.has(questionId);
-  }, [answeredQuestionIds]);
+  const isQuestionAnswered = useCallback(
+    (questionId: string): boolean => {
+      return answeredQuestionIds.has(questionId);
+    },
+    [answeredQuestionIds]
+  );
 
   // 触发问答对话框
-  const triggerQuestionDialog = useCallback((questions: Question[]) => {
-    const questionId = generateQuestionId(questions);
+  const triggerQuestionDialog = useCallback(
+    (questions: Question[]) => {
+      const questionId = generateQuestionId(questions);
 
-    // 如果已回答，不再弹窗
-    if (answeredQuestionIds.has(questionId)) {
-      return;
-    }
-    setPendingQuestion({
-      questions,
-      questionId,
-      timestamp: Date.now(),
-    });
-    setShowQuestionDialog(true);
-  }, [answeredQuestionIds]);
+      // 如果已回答，不再弹窗
+      if (answeredQuestionIds.has(questionId)) {
+        return;
+      }
+      setPendingQuestion({
+        questions,
+        questionId,
+        timestamp: Date.now(),
+      });
+      setShowQuestionDialog(true);
+    },
+    [answeredQuestionIds]
+  );
 
   // 设置发送消息回调
   const setSendMessageCallback = useCallback((callback: ((message: string) => void) | null) => {
@@ -169,48 +166,54 @@ export function UserQuestionProvider({ children }: UserQuestionProviderProps) {
   }, []);
 
   // 格式化答案为自然语言
-  const formatAnswersAsMessage = useCallback((answers: UserAnswers, questions: Question[]): string => {
-    const lines: string[] = ["我的回答："];
+  const formatAnswersAsMessage = useCallback(
+    (answers: UserAnswers, questions: Question[]): string => {
+      const lines: string[] = ["我的回答："];
 
-    questions.forEach((q) => {
-      const key = q.header || q.question;
-      const answer = answers[key];
+      questions.forEach((q) => {
+        const key = q.header || q.question;
+        const answer = answers[key];
 
-      if (answer) {
-        const answerText = Array.isArray(answer) ? answer.join("、") : answer;
-        lines.push(`- ${q.header || "问题"}: ${answerText}`);
-      }
-    });
+        if (answer) {
+          const answerText = Array.isArray(answer) ? answer.join("、") : answer;
+          lines.push(`- ${q.header || "问题"}: ${answerText}`);
+        }
+      });
 
-    return lines.join("\n");
-  }, []);
+      return lines.join("\n");
+    },
+    []
+  );
 
   // 提交答案 - 格式化并发送给 Claude
-  const submitAnswers = useCallback((answers: UserAnswers) => {
-    if (!pendingQuestion) return;
+  const submitAnswers = useCallback(
+    (answers: UserAnswers) => {
+      if (!pendingQuestion) return;
 
-    const { questionId, questions } = pendingQuestion;
-    // 标记为已回答
-    setAnsweredQuestionIds(prev => {
-      const newSet = new Set(prev);
-      newSet.add(questionId);
-      saveAnsweredQuestionIds('answered_question_ids', newSet);
-      return newSet;
-    });
+      const { questionId, questions } = pendingQuestion;
+      // 标记为已回答
+      setAnsweredQuestionIds((prev) => {
+        const newSet = new Set(prev);
+        newSet.add(questionId);
+        saveAnsweredQuestionIds("answered_question_ids", newSet);
+        return newSet;
+      });
 
-    // 关闭对话框
-    setPendingQuestion(null);
-    setShowQuestionDialog(false);
+      // 关闭对话框
+      setPendingQuestion(null);
+      setShowQuestionDialog(false);
 
-    // 格式化答案并自动发送给 Claude
-    if (sendMessageCallbackRef.current) {
-      const message = formatAnswersAsMessage(answers, questions);
-      // 延迟发送，确保状态已更新
-      setTimeout(() => {
-        sendMessageCallbackRef.current?.(message);
-      }, 100);
-    }
-  }, [pendingQuestion, formatAnswersAsMessage]);
+      // 格式化答案并自动发送给 Claude
+      if (sendMessageCallbackRef.current) {
+        const message = formatAnswersAsMessage(answers, questions);
+        // 延迟发送，确保状态已更新
+        setTimeout(() => {
+          sendMessageCallbackRef.current?.(message);
+        }, 100);
+      }
+    },
+    [pendingQuestion, formatAnswersAsMessage]
+  );
 
   // 关闭问答对话框（不提交答案）
   const closeQuestionDialog = useCallback(() => {
@@ -229,11 +232,7 @@ export function UserQuestionProvider({ children }: UserQuestionProviderProps) {
     setSendMessageCallback,
   };
 
-  return (
-    <UserQuestionContext.Provider value={value}>
-      {children}
-    </UserQuestionContext.Provider>
-  );
+  return <UserQuestionContext.Provider value={value}>{children}</UserQuestionContext.Provider>;
 }
 
 /**

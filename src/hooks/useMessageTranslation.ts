@@ -1,4 +1,4 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { useCallback, useState, useRef } from "react";
 import { extractMessageContent as extractContentUtil } from "@/lib/contentExtraction";
 import {
@@ -12,35 +12,33 @@ import type { ClaudeStreamMessage } from "@/types/claude";
 
 /**
  * 🔧 FIX v2.7.8: 智能合并两条消息的内容
- * 
+ *
  * 合并策略：
  * - 保留两者的文本内容（如果新消息有文本，追加而非替换）
  * - 合并工具调用（去重）
  * - 保留 thinking 块
- * 
+ *
  * 这样可以防止 Claude 说的话被后续的工具调用消息覆盖
  */
 function mergeMessageContent(
   existing: ClaudeStreamMessage,
   incoming: ClaudeStreamMessage
 ): ClaudeStreamMessage {
-  const existingContent = Array.isArray(existing.message?.content)
-    ? existing.message.content
-    : [];
-  const incomingContent = Array.isArray(incoming.message?.content)
-    ? incoming.message.content
-    : [];
+  const existingContent = Array.isArray(existing.message?.content) ? existing.message.content : [];
+  const incomingContent = Array.isArray(incoming.message?.content) ? incoming.message.content : [];
 
   // 提取各类型内容
-  const existingText = existingContent.filter((item: any) => item.type === 'text');
-  const existingTools = existingContent.filter((item: any) =>
-    item.type === 'tool_use' || item.type === 'tool_result');
-  const existingThinking = existingContent.filter((item: any) => item.type === 'thinking');
+  const existingText = existingContent.filter((item: any) => item.type === "text");
+  const existingTools = existingContent.filter(
+    (item: any) => item.type === "tool_use" || item.type === "tool_result"
+  );
+  const existingThinking = existingContent.filter((item: any) => item.type === "thinking");
 
-  const incomingText = incomingContent.filter((item: any) => item.type === 'text');
-  const incomingTools = incomingContent.filter((item: any) =>
-    item.type === 'tool_use' || item.type === 'tool_result');
-  const incomingThinking = incomingContent.filter((item: any) => item.type === 'thinking');
+  const incomingText = incomingContent.filter((item: any) => item.type === "text");
+  const incomingTools = incomingContent.filter(
+    (item: any) => item.type === "tool_use" || item.type === "tool_result"
+  );
+  const incomingThinking = incomingContent.filter((item: any) => item.type === "thinking");
 
   // 🔧 FIX: 智能合并文本内容
   // 如果旧消息有文本，新消息也有文本，检查是否需要合并
@@ -48,21 +46,21 @@ function mergeMessageContent(
 
   // 检查旧文本是否有实际内容
   const existingHasRealText = existingText.some((item: any) => {
-    const text = item.text || '';
+    const text = item.text || "";
     return text.trim().length > 0 && !/^<\/?[a-z_]+>$/i.test(text.trim());
   });
 
   // 检查新文本是否有实际内容
   const incomingHasRealText = incomingText.some((item: any) => {
-    const text = item.text || '';
+    const text = item.text || "";
     return text.trim().length > 0 && !/^<\/?[a-z_]+>$/i.test(text.trim());
   });
 
   if (existingHasRealText && incomingHasRealText) {
     // 两者都有文本，保留两者（新文本可能是更新后的内容）
     // 但如果内容相同，只保留一个
-    const existingTextStr = existingText.map((t: any) => t.text || '').join('');
-    const incomingTextStr = incomingText.map((t: any) => t.text || '').join('');
+    const existingTextStr = existingText.map((t: any) => t.text || "").join("");
+    const incomingTextStr = incomingText.map((t: any) => t.text || "").join("");
 
     if (existingTextStr === incomingTextStr) {
       mergedText = incomingText; // 内容相同，使用新的
@@ -86,7 +84,7 @@ function mergeMessageContent(
   const toolIds = new Set(existingTools.map((t: any) => t.id).filter(Boolean));
   const mergedTools = [
     ...existingTools,
-    ...incomingTools.filter((t: any) => !t.id || !toolIds.has(t.id))
+    ...incomingTools.filter((t: any) => !t.id || !toolIds.has(t.id)),
   ];
 
   // 按顺序组合：thinking -> text -> tools
@@ -94,14 +92,14 @@ function mergeMessageContent(
 
   // 🔍 DEBUG: 记录合并过程
   if (import.meta.env.DEV) {
-    logger.debug('useMessageTranslation', '🔀 Merging messages:', {
+    logger.debug("useMessageTranslation", "🔀 Merging messages:", {
       existingId: (existing as any)?.message?.id || existing.uuid,
       existingHasText: existingHasRealText,
       incomingHasText: incomingHasRealText,
       existingToolCount: existingTools.length,
       incomingToolCount: incomingTools.length,
       mergedTextCount: mergedText.length,
-      mergedToolCount: mergedTools.length
+      mergedToolCount: mergedTools.length,
     });
   }
 
@@ -109,8 +107,8 @@ function mergeMessageContent(
     ...incoming,
     message: {
       ...incoming.message,
-      content: mergedContent
-    }
+      content: mergedContent,
+    },
   };
 }
 
@@ -138,19 +136,19 @@ interface UseMessageTranslationReturn {
   processMessageWithTranslation: (
     message: ClaudeStreamMessage,
     payload: string,
-    currentTranslationResult?: TranslationResult,
+    currentTranslationResult?: TranslationResult
   ) => Promise<void>;
   initializeProgressiveTranslation: (messages: ClaudeStreamMessage[]) => Promise<void>;
   applyTranslationToMessage: (
     message: ClaudeStreamMessage,
-    result: TranslationResult,
+    result: TranslationResult
   ) => ClaudeStreamMessage;
   /** 🔧 FIX: 初始化已处理的消息 ID（用于历史消息去重） */
   initializeProcessedIds: (messages: ClaudeStreamMessage[]) => void;
 }
 
 export function useMessageTranslation(
-  config: UseMessageTranslationConfig,
+  config: UseMessageTranslationConfig
 ): UseMessageTranslationReturn {
   const { isMountedRef, lastTranslationResult, onMessagesUpdate } = config;
 
@@ -165,14 +163,15 @@ export function useMessageTranslation(
   // 🔧 FIX: 提供方法让外部初始化已处理的消息 ID（用于历史消息）
   const initializeProcessedIds = useCallback((messages: ClaudeStreamMessage[]) => {
     for (const msg of messages) {
-      const id = (msg as any)?.message?.id ||
-        (msg as any).id ||
-        (msg as any).uuid;
+      const id = (msg as any)?.message?.id || (msg as any).id || (msg as any).uuid;
       if (id) {
         processedMessageIds.current.add(id);
       }
     }
-    logger.debug('useMessageTranslation', `[useMessageTranslation] Initialized ${processedMessageIds.current.size} processed message IDs`);
+    logger.debug(
+      "useMessageTranslation",
+      `[useMessageTranslation] Initialized ${processedMessageIds.current.size} processed message IDs`
+    );
   }, []);
 
   /**
@@ -183,7 +182,7 @@ export function useMessageTranslation(
       messageId: string,
       _originalMessage: ClaudeStreamMessage,
       result: TranslationResult,
-      messageIndex: number,
+      messageIndex: number
     ) => {
       // Update translation state
       setTranslationStates((prev) => ({
@@ -206,7 +205,7 @@ export function useMessageTranslation(
         });
       });
     },
-    [onMessagesUpdate],
+    [onMessagesUpdate]
   );
 
   /**
@@ -255,7 +254,7 @@ export function useMessageTranslation(
 
       return processedMessage;
     },
-    [],
+    []
   );
 
   /**
@@ -265,7 +264,7 @@ export function useMessageTranslation(
     async (
       message: ClaudeStreamMessage,
       payload: string,
-      _currentTranslationResult?: TranslationResult,
+      _currentTranslationResult?: TranslationResult
     ) => {
       try {
         // Don't process if component unmounted
@@ -496,7 +495,11 @@ export function useMessageTranslation(
             }
           }
         } catch (translationError) {
-          logger.error('useMessageTranslation', "[useMessageTranslation] Response translation failed:", translationError);
+          logger.error(
+            "useMessageTranslation",
+            "[useMessageTranslation] Response translation failed:",
+            translationError
+          );
           // Continue with original message if translation fails
         }
 
@@ -546,7 +549,8 @@ export function useMessageTranslation(
           }
 
           // 🔧 FIX: 获取消息 ID 用于去重
-          const messageId = (processedMessage as any)?.message?.id ||
+          const messageId =
+            (processedMessage as any)?.message?.id ||
             (processedMessage as any).id ||
             (processedMessage as any).uuid;
 
@@ -557,9 +561,8 @@ export function useMessageTranslation(
               // 这样可以保留 Claude 说的话，同时添加工具调用
               onMessagesUpdate((prev) => {
                 return prev.map((msg) => {
-                  const existingId = (msg as any)?.message?.id ||
-                    (msg as any).id ||
-                    (msg as any).uuid;
+                  const existingId =
+                    (msg as any)?.message?.id || (msg as any).id || (msg as any).uuid;
                   if (existingId === messageId) {
                     // 智能合并两条消息的内容
                     return mergeMessageContent(msg, processedMessage);
@@ -577,7 +580,11 @@ export function useMessageTranslation(
             onMessagesUpdate((prev) => [...prev, processedMessage]);
           }
         } catch (usageError) {
-          logger.warn('useMessageTranslation', 'Error normalizing usage data, adding message without usage:', usageError);
+          logger.warn(
+            "useMessageTranslation",
+            "Error normalizing usage data, adding message without usage:",
+            usageError
+          );
           // Remove problematic usage data and add message anyway
           const safeMessage = { ...processedMessage };
           delete safeMessage.usage;
@@ -586,7 +593,8 @@ export function useMessageTranslation(
           }
 
           // 🔧 FIX: 同样使用去重逻辑
-          const messageId = (safeMessage as any)?.message?.id ||
+          const messageId =
+            (safeMessage as any)?.message?.id ||
             (safeMessage as any).id ||
             (safeMessage as any).uuid;
 
@@ -598,10 +606,15 @@ export function useMessageTranslation(
           }
         }
       } catch (err) {
-        logger.error('useMessageTranslation', "[useMessageTranslation] Failed to parse message:", err, payload);
+        logger.error(
+          "useMessageTranslation",
+          "[useMessageTranslation] Failed to parse message:",
+          err,
+          payload
+        );
       }
     },
-    [isMountedRef, lastTranslationResult, onMessagesUpdate],
+    [isMountedRef, lastTranslationResult, onMessagesUpdate]
   );
 
   /**
@@ -651,10 +664,14 @@ export function useMessageTranslation(
 
         setTranslationStates(initialStates);
       } catch (error) {
-        logger.error('useMessageTranslation', 'Failed to initialize progressive translation:', error);
+        logger.error(
+          "useMessageTranslation",
+          "Failed to initialize progressive translation:",
+          error
+        );
       }
     },
-    [handleTranslationComplete],
+    [handleTranslationComplete]
   );
 
   return {

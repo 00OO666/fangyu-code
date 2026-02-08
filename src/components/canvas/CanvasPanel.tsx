@@ -8,12 +8,22 @@
  * 4. 支持从聊天消息中提取代码
  */
 
-import { logger } from '@/lib/logger';
-import React, { useState, useEffect, useRef } from 'react';
-import { X, Code, Eye, Maximize2, Minimize2, RefreshCw, Copy, Check, ExternalLink } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import Editor from '@monaco-editor/react';
+import { logger } from "@/lib/logger";
+import React, { useState, useEffect, useRef } from "react";
+import {
+  X,
+  Code,
+  Eye,
+  Maximize2,
+  Minimize2,
+  RefreshCw,
+  Copy,
+  Check,
+  ExternalLink,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import Editor from "@monaco-editor/react";
 
 export interface CanvasPanelProps {
   isOpen: boolean;
@@ -24,18 +34,18 @@ export interface CanvasPanelProps {
   onCodeChange?: (code: string) => void;
 }
 
-type ViewMode = 'code' | 'preview' | 'split';
+type ViewMode = "code" | "preview" | "split";
 
 export const CanvasPanel: React.FC<CanvasPanelProps> = ({
   isOpen,
   onClose,
-  code: initialCode = '',
-  language = 'html',
-  title = 'Canvas',
+  code: initialCode = "",
+  language = "html",
+  title = "Canvas",
   onCodeChange,
 }) => {
   const [code, setCode] = useState(initialCode);
-  const [viewMode, setViewMode] = useState<ViewMode>('preview');
+  const [viewMode, setViewMode] = useState<ViewMode>("preview");
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -50,7 +60,7 @@ export const CanvasPanel: React.FC<CanvasPanelProps> = ({
   }, [initialCode]);
 
   // 预览 HTML 内容（使用 srcdoc 而不是 Blob URL，避免 Tauri 安全限制）
-  const [previewHtml, setPreviewHtml] = useState('');
+  const [previewHtml, setPreviewHtml] = useState("");
 
   // 更新预览
   useEffect(() => {
@@ -61,7 +71,7 @@ export const CanvasPanel: React.FC<CanvasPanelProps> = ({
       const html = generatePreviewHtml(code, language);
       setPreviewHtml(html);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '预览生成失败');
+      setError(err instanceof Error ? err.message : "预览生成失败");
     }
   }, [code, language]);
 
@@ -113,8 +123,10 @@ export const CanvasPanel: React.FC<CanvasPanelProps> = ({
       </style>
     `;
 
-    if (lang === 'html' || lang === 'htm') {
-      return sourceCode.includes('<html') ? sourceCode : `
+    if (lang === "html" || lang === "htm") {
+      return sourceCode.includes("<html")
+        ? sourceCode
+        : `
         <!DOCTYPE html>
         <html>
         <head>
@@ -127,7 +139,7 @@ export const CanvasPanel: React.FC<CanvasPanelProps> = ({
       `;
     }
 
-    if (lang === 'jsx' || lang === 'tsx' || lang === 'javascript' || lang === 'typescript') {
+    if (lang === "jsx" || lang === "tsx" || lang === "javascript" || lang === "typescript") {
       return `
         <!DOCTYPE html>
         <html>
@@ -156,7 +168,7 @@ export const CanvasPanel: React.FC<CanvasPanelProps> = ({
       `;
     }
 
-    if (lang === 'markdown' || lang === 'md') {
+    if (lang === "markdown" || lang === "md") {
       return `
         <!DOCTYPE html>
         <html>
@@ -176,14 +188,14 @@ export const CanvasPanel: React.FC<CanvasPanelProps> = ({
         <body>
           <div id="content"></div>
           <script>
-            document.getElementById('content').innerHTML = marked.parse(\`${sourceCode.replace(/`/g, '\\`')}\`);
+            document.getElementById('content').innerHTML = marked.parse(\`${sourceCode.replace(/`/g, "\\`")}\`);
           </script>
         </body>
         </html>
       `;
     }
 
-    if (lang === 'svg') {
+    if (lang === "svg") {
       return `
         <!DOCTYPE html>
         <html>
@@ -209,7 +221,7 @@ export const CanvasPanel: React.FC<CanvasPanelProps> = ({
         ${baseStyles}
       </head>
       <body>
-        <pre><code>${sourceCode.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>
+        <pre><code>${sourceCode.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</code></pre>
       </body>
       </html>
     `;
@@ -222,7 +234,7 @@ export const CanvasPanel: React.FC<CanvasPanelProps> = ({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      logger.error('CanvasPanel', '复制失败:', err);
+      logger.error("CanvasPanel", "复制失败:", err);
     }
   };
 
@@ -230,7 +242,7 @@ export const CanvasPanel: React.FC<CanvasPanelProps> = ({
   const handleRefresh = () => {
     if (iframeRef.current) {
       const currentSrc = iframeRef.current.src;
-      iframeRef.current.src = '';
+      iframeRef.current.src = "";
       setTimeout(() => {
         if (iframeRef.current) iframeRef.current.src = currentSrc;
       }, 50);
@@ -240,9 +252,9 @@ export const CanvasPanel: React.FC<CanvasPanelProps> = ({
   // 在新窗口打开
   const handleOpenExternal = () => {
     const html = generatePreviewHtml(code, language);
-    const blob = new Blob([html], { type: 'text/html' });
+    const blob = new Blob([html], { type: "text/html" });
     const url = URL.createObjectURL(blob);
-    window.open(url, '_blank');
+    window.open(url, "_blank");
   };
 
   if (!isOpen) return null;
@@ -252,11 +264,9 @@ export const CanvasPanel: React.FC<CanvasPanelProps> = ({
       ref={panelRef}
       className={cn(
         "flex flex-col bg-[#0f0f0f] border-l border-[#2a2a2a]",
-        isFullscreen
-          ? "fixed inset-0 z-50"
-          : "h-full"
+        isFullscreen ? "fixed inset-0 z-50" : "h-full"
       )}
-      style={{ width: isFullscreen ? '100%' : '50%', minWidth: '400px' }}
+      style={{ width: isFullscreen ? "100%" : "50%", minWidth: "400px" }}
     >
       {/* 头部工具栏 */}
       <div className="flex items-center justify-between px-4 py-2 bg-[#1a1a1a] border-b border-[#2a2a2a]">
@@ -272,12 +282,10 @@ export const CanvasPanel: React.FC<CanvasPanelProps> = ({
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setViewMode('code')}
+            onClick={() => setViewMode("code")}
             className={cn(
               "h-7 px-3 text-xs rounded-md",
-              viewMode === 'code'
-                ? "bg-[#3a3a3a] text-white"
-                : "text-gray-400 hover:text-white"
+              viewMode === "code" ? "bg-[#3a3a3a] text-white" : "text-gray-400 hover:text-white"
             )}
           >
             <Code size={14} className="mr-1" />
@@ -286,12 +294,10 @@ export const CanvasPanel: React.FC<CanvasPanelProps> = ({
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setViewMode('preview')}
+            onClick={() => setViewMode("preview")}
             className={cn(
               "h-7 px-3 text-xs rounded-md",
-              viewMode === 'preview'
-                ? "bg-[#3a3a3a] text-white"
-                : "text-gray-400 hover:text-white"
+              viewMode === "preview" ? "bg-[#3a3a3a] text-white" : "text-gray-400 hover:text-white"
             )}
           >
             <Eye size={14} className="mr-1" />
@@ -352,22 +358,27 @@ export const CanvasPanel: React.FC<CanvasPanelProps> = ({
       {/* 内容区域 */}
       <div className="flex-1 flex overflow-hidden">
         {/* 代码编辑器 */}
-        {(viewMode === 'code' || viewMode === 'split') && (
-          <div className={cn("flex-1 overflow-hidden", viewMode === 'split' && "border-r border-[#2a2a2a]")}>
+        {(viewMode === "code" || viewMode === "split") && (
+          <div
+            className={cn(
+              "flex-1 overflow-hidden",
+              viewMode === "split" && "border-r border-[#2a2a2a]"
+            )}
+          >
             <Editor
               height="100%"
-              language={language === 'tsx' ? 'typescript' : language}
+              language={language === "tsx" ? "typescript" : language}
               value={code}
               onChange={(value) => {
-                setCode(value || '');
-                onCodeChange?.(value || '');
+                setCode(value || "");
+                onCodeChange?.(value || "");
               }}
               theme="vs-dark"
               options={{
                 minimap: { enabled: false },
                 fontSize: 13,
-                lineNumbers: 'on',
-                wordWrap: 'on',
+                lineNumbers: "on",
+                wordWrap: "on",
                 padding: { top: 12 },
                 scrollBeyondLastLine: false,
               }}
@@ -376,7 +387,7 @@ export const CanvasPanel: React.FC<CanvasPanelProps> = ({
         )}
 
         {/* 预览区域 */}
-        {(viewMode === 'preview' || viewMode === 'split') && (
+        {(viewMode === "preview" || viewMode === "split") && (
           <div className="flex-1 bg-[#0a0a0a] overflow-hidden">
             {error ? (
               <div className="flex items-center justify-center h-full p-4">

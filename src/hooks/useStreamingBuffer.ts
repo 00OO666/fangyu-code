@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from "react";
 
 /**
  * 流式内容缓冲 Hook
- * 
+ *
  * 功能：
  * - 累积 token 到一定数量再触发渲染
  * - 使用 requestIdleCallback 进行非阻塞更新
@@ -21,12 +21,7 @@ export function useStreamingBuffer(
     isStreaming?: boolean;
   } = {}
 ) {
-  const {
-    bufferSize = 10,
-    maxDelay = 50,
-    enabled = true,
-    isStreaming = false
-  } = options;
+  const { bufferSize = 10, maxDelay = 50, enabled = true, isStreaming = false } = options;
 
   const [bufferedContent, setBufferedContent] = useState(content);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);

@@ -1,21 +1,21 @@
 /**
  * SkillManager - Skills 管理器
- * 
+ *
  * 功能：
  * 1. 加载和管理 Skills（全局 + 项目级）
  * 2. 关键词匹配和自动触发
  * 3. 与 Spec 模式集成
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import type {
   Skill,
   SkillMatch,
   SkillSearchOptions,
   SkillLocation,
   SkillExecutionContext,
-} from './types';
-import { parseSkillFile } from './SkillParser';
+} from "./types";
+import { parseSkillFile } from "./SkillParser";
 
 // ============================================
 // SkillManager 配置
@@ -23,15 +23,15 @@ import { parseSkillFile } from './SkillParser';
 
 export interface SkillManagerConfig {
   locations: SkillLocation[];
-  autoTrigger: boolean;  // 是否自动触发
+  autoTrigger: boolean; // 是否自动触发
   cacheEnabled: boolean;
-  maxCacheAge: number;   // 缓存过期时间（毫秒）
+  maxCacheAge: number; // 缓存过期时间（毫秒）
 }
 
 export const DEFAULT_SKILL_MANAGER_CONFIG: SkillManagerConfig = {
   locations: [
-    { type: 'global', path: '~/.fangyu-code/skills' },
-    { type: 'project', path: '.fangyu/skills' },
+    { type: "global", path: "~/.fangyu-code/skills" },
+    { type: "project", path: ".fangyu/skills" },
   ],
   autoTrigger: true,
   cacheEnabled: true,
@@ -85,7 +85,7 @@ export class SkillManager {
    */
   async loadSkills(): Promise<Skill[]> {
     if (!this.fsReadFile || !this.fsReadDir || !this.fsExists) {
-      logger.warn('SkillManager', '[SkillManager] File system not initialized');
+      logger.warn("SkillManager", "[SkillManager] File system not initialized");
       return [];
     }
 
@@ -124,18 +124,29 @@ export class SkillManager {
             this.skills.set(skill.metadata.name, skill);
             loadedSkills.push(skill);
 
-            logger.debug('SkillManager', `[SkillManager] Loaded skill: ${skill.metadata.name} from ${location.type}`);
+            logger.debug(
+              "SkillManager",
+              `[SkillManager] Loaded skill: ${skill.metadata.name} from ${location.type}`
+            );
           } catch (err) {
-            logger.warn('SkillManager', `[SkillManager] Failed to load skill from ${skillPath}:`, err);
+            logger.warn(
+              "SkillManager",
+              `[SkillManager] Failed to load skill from ${skillPath}:`,
+              err
+            );
           }
         }
       } catch (err) {
-        logger.warn('SkillManager', `[SkillManager] Failed to read directory ${resolvedPath}:`, err);
+        logger.warn(
+          "SkillManager",
+          `[SkillManager] Failed to read directory ${resolvedPath}:`,
+          err
+        );
       }
     }
 
     this.lastLoadTime = Date.now();
-    logger.debug('SkillManager', `[SkillManager] Loaded ${loadedSkills.length} skills`);
+    logger.debug("SkillManager", `[SkillManager] Loaded ${loadedSkills.length} skills`);
 
     return loadedSkills;
   }
@@ -179,7 +190,7 @@ export class SkillManager {
       }
 
       // 检查描述中的词
-      const descWords = (skill.metadata.description || '').toLowerCase().split(/\s+/);
+      const descWords = (skill.metadata.description || "").toLowerCase().split(/\s+/);
       for (const word of inputWords) {
         if (word.length > 2 && descWords.includes(word)) {
           score += 2;
@@ -191,7 +202,7 @@ export class SkillManager {
           skill,
           score,
           matchedKeywords,
-          matchedTriggers
+          matchedTriggers,
         });
       }
     }
@@ -226,30 +237,31 @@ export class SkillManager {
     // 按查询过滤
     if (options.query) {
       const queryLower = options.query.toLowerCase();
-      results = results.filter(skill =>
-        skill.metadata.name.toLowerCase().includes(queryLower) ||
-        skill.metadata.description.toLowerCase().includes(queryLower) ||
-        skill.overview.toLowerCase().includes(queryLower)
+      results = results.filter(
+        (skill) =>
+          skill.metadata.name.toLowerCase().includes(queryLower) ||
+          skill.metadata.description.toLowerCase().includes(queryLower) ||
+          skill.overview.toLowerCase().includes(queryLower)
       );
     }
 
     // 按分类过滤
     if (options.categories?.length) {
-      results = results.filter(skill =>
-        skill.metadata.categories?.some(c => options.categories!.includes(c))
+      results = results.filter((skill) =>
+        skill.metadata.categories?.some((c) => options.categories!.includes(c))
       );
     }
 
     // 按关键词过滤
     if (options.keywords?.length) {
-      results = results.filter(skill =>
-        skill.metadata.keywords?.some(k => options.keywords!.includes(k))
+      results = results.filter((skill) =>
+        skill.metadata.keywords?.some((k) => options.keywords!.includes(k))
       );
     }
 
     // 按模式过滤
     if (options.mode) {
-      results = results.filter(skill => skill.mode === options.mode);
+      results = results.filter((skill) => skill.mode === options.mode);
     }
 
     // 限制数量
@@ -286,7 +298,7 @@ export class SkillManager {
       outputs: {},
       history: [],
       startedAt: Date.now(),
-      projectPath: this.projectPath
+      projectPath: this.projectPath,
     };
   }
 
@@ -297,56 +309,56 @@ export class SkillManager {
     const parts: string[] = [];
 
     parts.push(`## 当前激活的 Skill: ${skill.metadata.name}`);
-    parts.push('');
+    parts.push("");
     parts.push(`**描述**: ${skill.metadata.description}`);
-    parts.push('');
-    parts.push('### 概述');
+    parts.push("");
+    parts.push("### 概述");
     parts.push(skill.overview);
 
     if (skill.quickStart) {
-      parts.push('');
-      parts.push('### 快速开始');
+      parts.push("");
+      parts.push("### 快速开始");
       parts.push(skill.quickStart);
     }
 
     if (skill.workflow?.length) {
-      parts.push('');
-      parts.push('### 工作流程');
+      parts.push("");
+      parts.push("### 工作流程");
       for (const step of skill.workflow) {
         parts.push(`**${step.name}**: ${step.description}`);
       }
     }
 
     if (skill.tasks?.length) {
-      parts.push('');
-      parts.push('### 可用任务');
+      parts.push("");
+      parts.push("### 可用任务");
       for (const task of skill.tasks) {
         parts.push(`- **${task.name}**: ${task.description}`);
       }
     }
 
     if (skill.notes?.length) {
-      parts.push('');
-      parts.push('### 注意事项');
+      parts.push("");
+      parts.push("### 注意事项");
       for (const note of skill.notes) {
         parts.push(`- ${note}`);
       }
     }
 
-    return parts.join('\n');
+    return parts.join("\n");
   }
 
   /**
    * 🔧 解析路径（处理 ~ 和相对路径）
    */
   private resolvePath(path: string): string {
-    if (path.startsWith('~')) {
+    if (path.startsWith("~")) {
       // 在 Tauri 中，这需要通过 Rust 获取 home 目录
       // 这里先返回原始路径，实际使用时由 Tauri 处理
       return path;
     }
 
-    if (path.startsWith('.') && this.projectPath) {
+    if (path.startsWith(".") && this.projectPath) {
       return `${this.projectPath}/${path}`;
     }
 
@@ -386,7 +398,7 @@ export class SkillManager {
       totalSkills: this.skills.size,
       byMode,
       byCategory,
-      lastLoadTime: this.lastLoadTime
+      lastLoadTime: this.lastLoadTime,
     };
   }
 }

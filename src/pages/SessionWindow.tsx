@@ -5,10 +5,10 @@
  * It initializes based on URL parameters passed when the window was created.
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { invoke } from "@tauri-apps/api/core";
-import { Copy, Minus, PanelLeftClose, Square, X } from 'lucide-react';
+import { Copy, Minus, PanelLeftClose, Square, X } from "lucide-react";
 import type React from "react";
 import { useEffect, useMemo, useState } from "react";
 import { ClaudeCodeSession } from "@/components/ClaudeCodeSession";
@@ -114,7 +114,7 @@ export const SessionWindow: React.FC = () => {
           }));
         }
       } catch (error) {
-        logger.error('SessionWindow', "[SessionWindow] Initialization error:", error);
+        logger.error("SessionWindow", "[SessionWindow] Initialization error:", error);
         setState((prev) => ({
           ...prev,
           isLoading: false,
@@ -189,7 +189,7 @@ export const SessionWindow: React.FC = () => {
     };
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
-    
+
     // Setup Tauri window listeners using centralized cleanup hook
     registerWindowListener("focus", handleFocus);
     registerWindowListener("blur", handleBlur);
@@ -197,7 +197,7 @@ export const SessionWindow: React.FC = () => {
     // Listen for delegated tasks
     const setupTaskListener = async () => {
       await taskDelegationService.listenForDelegatedTasks((task) => {
-        logger.debug('SessionWindow', "[SessionWindow] Received delegated task:", task);
+        logger.debug("SessionWindow", "[SessionWindow] Received delegated task:", task);
         // Handle task execution here if needed
       });
     };
@@ -226,7 +226,7 @@ export const SessionWindow: React.FC = () => {
       const window = getCurrentWindow();
       await window.close();
     } catch (error) {
-      logger.error('SessionWindow', "[SessionWindow] Failed to close window:", error);
+      logger.error("SessionWindow", "[SessionWindow] Failed to close window:", error);
     }
   };
 
@@ -235,7 +235,7 @@ export const SessionWindow: React.FC = () => {
       const window = getCurrentWindow();
       await window.minimize();
     } catch (error) {
-      logger.error('SessionWindow', "[SessionWindow] Failed to minimize window:", error);
+      logger.error("SessionWindow", "[SessionWindow] Failed to minimize window:", error);
     }
   };
 
@@ -249,7 +249,7 @@ export const SessionWindow: React.FC = () => {
         await window.maximize();
       }
     } catch (error) {
-      logger.error('SessionWindow', "[SessionWindow] Failed to toggle maximize:", error);
+      logger.error("SessionWindow", "[SessionWindow] Failed to toggle maximize:", error);
     }
   };
 
@@ -284,7 +284,7 @@ export const SessionWindow: React.FC = () => {
         }, 100);
       }
     } catch (error) {
-      logger.error('SessionWindow', "[SessionWindow] Failed to merge to main window:", error);
+      logger.error("SessionWindow", "[SessionWindow] Failed to merge to main window:", error);
     }
   };
 
@@ -311,7 +311,7 @@ export const SessionWindow: React.FC = () => {
       await window.startDragging();
     } catch (error) {
       // Ignore errors - fallback to CSS-based dragging
-      logger.debug('SessionWindow', "[SessionWindow] startDragging fallback:", error);
+      logger.debug("SessionWindow", "[SessionWindow] startDragging fallback:", error);
     }
   };
 

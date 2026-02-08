@@ -7,7 +7,7 @@
  * Merged from errorHandler.ts and errorHandling.ts for unified error management.
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { APIError } from "@anthropic-ai/sdk/error";
 
 // ============================================================================
@@ -133,7 +133,7 @@ export class ClaudeError extends Error {
       retryable?: boolean;
       actions?: ErrorAction[];
       originalError?: Error;
-    },
+    }
   );
   constructor(
     detailsOrCode: ErrorDetails | ErrorCode,
@@ -144,7 +144,7 @@ export class ClaudeError extends Error {
       retryable?: boolean;
       actions?: ErrorAction[];
       originalError?: Error;
-    },
+    }
   ) {
     // Handle both constructor signatures for backward compatibility
     if (typeof detailsOrCode === "object") {
@@ -472,7 +472,7 @@ export class ErrorHandler {
           {
             label: "Run as Administrator",
             action: () => {
-              logger.debug('errorHandling', "Please try running the application as Administrator");
+              logger.debug("errorHandling", "Please try running the application as Administrator");
             },
           },
         ],
@@ -612,7 +612,7 @@ export class ErrorHandler {
             action: () => {
               window.open(
                 "https://docs.anthropic.com/claude/docs/claude-cli#installation",
-                "_blank",
+                "_blank"
               );
             },
           },
@@ -696,14 +696,14 @@ export class ErrorHandler {
         acc[error.type] = (acc[error.type] || 0) + 1;
         return acc;
       },
-      {} as Record<ErrorType, number>,
+      {} as Record<ErrorType, number>
     );
 
     const entries = Object.entries(errorsByType);
     const mostCommonError =
       entries.length > 0
         ? (entries.reduce((a, b) =>
-            errorsByType[a[0] as ErrorType] > errorsByType[b[0] as ErrorType] ? a : b,
+            errorsByType[a[0] as ErrorType] > errorsByType[b[0] as ErrorType] ? a : b
           )[0] as ErrorType)
         : null;
 
@@ -728,7 +728,7 @@ export class ErrorHandler {
   async retryWithBackoff<T>(
     operation: () => Promise<T>,
     maxRetries: number = 3,
-    baseDelay: number = 1000,
+    baseDelay: number = 1000
   ): Promise<T> {
     let lastError: ClaudeError;
 
@@ -749,7 +749,7 @@ export class ErrorHandler {
         const delay = Math.min(baseDelay * 2 ** attempt + Math.random() * 1000, baseDelay * 32);
         console.warn(
           `Operation failed (attempt ${attempt + 1}/${maxRetries + 1}), retrying in ${delay}ms:`,
-          error,
+          error
         );
         await new Promise((resolve) => setTimeout(resolve, delay));
       }
@@ -826,7 +826,7 @@ export function getErrorActions(error: unknown): RecoveryAction[] {
  */
 export async function handleAsync<T>(
   promise: Promise<T>,
-  context?: Partial<ErrorContext>,
+  context?: Partial<ErrorContext>
 ): Promise<[T | null, ClaudeError | null]> {
   try {
     const result = await promise;
@@ -847,7 +847,7 @@ export function withErrorHandling<T extends (...args: any[]) => Promise<any>>(
     retryable?: boolean;
     retryHandler?: RetryHandler;
     fallback?: T;
-  },
+  }
 ): T {
   const wrappedFn = async (...args: Parameters<T>) => {
     try {
@@ -857,7 +857,7 @@ export function withErrorHandling<T extends (...args: any[]) => Promise<any>>(
           (error) => {
             const claudeError = parseClaudeError(error);
             return claudeError.retryable;
-          },
+          }
         );
       } else if (options?.retryable) {
         return await errorHandler.retryWithBackoff(() => fn(...args));
@@ -873,10 +873,14 @@ export function withErrorHandling<T extends (...args: any[]) => Promise<any>>(
       // Try fallback if available
       if (options?.fallback && claudeError.recoverable) {
         try {
-          logger.warn('errorHandling', "Primary operation failed, trying fallback:", claudeError.message);
+          logger.warn(
+            "errorHandling",
+            "Primary operation failed, trying fallback:",
+            claudeError.message
+          );
           return await options.fallback(...args);
         } catch (fallbackError) {
-          logger.error('errorHandling', "Fallback also failed:", fallbackError);
+          logger.error("errorHandling", "Fallback also failed:", fallbackError);
         }
       }
 
@@ -903,7 +907,7 @@ export class RetryHandler {
 
   async execute<T>(
     operation: () => Promise<T>,
-    shouldRetry: (error: unknown) => boolean = () => true,
+    shouldRetry: (error: unknown) => boolean = () => true
   ): Promise<T> {
     let lastError: unknown;
 
@@ -923,7 +927,7 @@ export class RetryHandler {
 
         console.warn(
           `Operation failed (attempt ${attempt + 1}/${this.maxRetries + 1}), retrying in ${delay}ms:`,
-          error,
+          error
         );
         await new Promise((resolve) => setTimeout(resolve, delay));
       }

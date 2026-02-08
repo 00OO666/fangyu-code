@@ -11,7 +11,7 @@
  * - 支持多引擎（Claude、Codex、Gemini）
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import { useCallback, useEffect, useRef } from "react";
 import { api, type Session } from "@/lib/api";
@@ -38,18 +38,20 @@ function deduplicateMessages(messages: ClaudeStreamMessage[]): ClaudeStreamMessa
 
       if (existingMsg && existingMsg.message?.content && msg.message?.content) {
         // 合并 content 数组，保留 thinking 块
-        const existingContent = Array.isArray(existingMsg.message.content) ? existingMsg.message.content : [];
+        const existingContent = Array.isArray(existingMsg.message.content)
+          ? existingMsg.message.content
+          : [];
         const newContent = Array.isArray(msg.message.content) ? msg.message.content : [];
-        const existingThinking = existingContent.filter((item: any) => item.type === 'thinking');
-        const newThinking = newContent.filter((item: any) => item.type === 'thinking');
+        const existingThinking = existingContent.filter((item: any) => item.type === "thinking");
+        const newThinking = newContent.filter((item: any) => item.type === "thinking");
 
         if (existingThinking.length > 0 && newThinking.length === 0) {
           messageMap.set(id, {
             ...msg,
             message: {
               ...msg.message,
-              content: [...existingThinking, ...newContent]
-            }
+              content: [...existingThinking, ...newContent],
+            },
           });
         } else {
           messageMap.set(id, msg);
@@ -192,7 +194,7 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
   // 🆕 条件化调试日志（仅在开发环境启用）
   const debugLog = useCallback((...args: any[]) => {
     if (import.meta.env.DEV) {
-      logger.debug('useSessionStream', ...args);
+      logger.debug("useSessionStream", ...args);
     }
   }, []);
 
@@ -223,7 +225,7 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
       // 通过翻译中间件处理
       await processMessageWithTranslation(message, rawPayload);
     },
-    [isMountedRef, setRawJsonlOutput, processMessageWithTranslation],
+    [isMountedRef, setRawJsonlOutput, processMessageWithTranslation]
   );
 
   /**
@@ -248,7 +250,11 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
           const geminiDetail = await api.getGeminiSessionDetail(session.project_path, session.id);
           history = convertGeminiSessionDetailToClaudeMessages(geminiDetail);
         } catch (err) {
-          logger.error('useSessionStream', "[useSessionStream] Failed to load Gemini session:", err);
+          logger.error(
+            "useSessionStream",
+            "[useSessionStream] Failed to load Gemini session:",
+            err
+          );
           throw err;
         }
       } else {
@@ -289,7 +295,11 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
           if (type && !validTypes.includes(type)) {
             if (!warnedTypes.has(type)) {
               warnedTypes.add(type);
-              logger.debug('useSessionStream', "[useSessionStream] Filtering out message type:", type);
+              logger.debug(
+                "useSessionStream",
+                "[useSessionStream] Filtering out message type:",
+                type
+              );
             }
             return false;
           }
@@ -349,12 +359,15 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
 
       // 竞态条件检查
       if (loadingSessionIdRef.current !== currentSessionId) {
-        logger.debug('useSessionStream', "[useSessionStream] Session changed during loading, discarding results");
+        logger.debug(
+          "useSessionStream",
+          "[useSessionStream] Session changed during loading, discarding results"
+        );
         return;
       }
 
       if (!isMountedRef.current) {
-        logger.debug('useSessionStream', "[useSessionStream] Component unmounted during loading");
+        logger.debug("useSessionStream", "[useSessionStream] Component unmounted during loading");
         return;
       }
 
@@ -365,31 +378,42 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
       if (deduplicatedMessages.length < processedMessages.length) {
         const removed = processedMessages.length - deduplicatedMessages.length;
         const rate = ((removed / processedMessages.length) * 100).toFixed(1);
-        logger.debug('useSessionStream', `[useSessionStream] 🧹 历史消息去重: 移除 ${removed} 条重复 (${rate}%)`);
+        logger.debug(
+          "useSessionStream",
+          `[useSessionStream] 🧹 历史消息去重: 移除 ${removed} 条重复 (${rate}%)`
+        );
       }
 
       // 🔧 DIAGNOSTIC: 记录历史加载详情，帮助调试消息不显示问题
-      logger.info('useSessionStream', `[useSessionStream] 📊 DIAGNOSTIC - History loaded:`, {
+      logger.info("useSessionStream", `[useSessionStream] 📊 DIAGNOSTIC - History loaded:`, {
         sessionId: currentSessionId,
         engine,
         rawHistoryCount: history.length,
         processedCount: processedMessages.length,
         deduplicatedCount: deduplicatedMessages.length,
-        messageTypes: deduplicatedMessages.reduce((acc, msg) => {
-          acc[msg.type || 'unknown'] = (acc[msg.type || 'unknown'] || 0) + 1;
-          return acc;
-        }, {} as Record<string, number>),
-        firstMessagePreview: deduplicatedMessages[0] ? {
-          type: deduplicatedMessages[0].type,
-          hasContent: !!deduplicatedMessages[0].message?.content,
-          contentLength: Array.isArray(deduplicatedMessages[0].message?.content)
-            ? deduplicatedMessages[0].message?.content.length
-            : 'n/a'
-        } : 'no messages',
+        messageTypes: deduplicatedMessages.reduce(
+          (acc, msg) => {
+            acc[msg.type || "unknown"] = (acc[msg.type || "unknown"] || 0) + 1;
+            return acc;
+          },
+          {} as Record<string, number>
+        ),
+        firstMessagePreview: deduplicatedMessages[0]
+          ? {
+              type: deduplicatedMessages[0].type,
+              hasContent: !!deduplicatedMessages[0].message?.content,
+              contentLength: Array.isArray(deduplicatedMessages[0].message?.content)
+                ? deduplicatedMessages[0].message?.content.length
+                : "n/a",
+            }
+          : "no messages",
       });
 
       // 更新状态
-      logger.info('useSessionStream', `[useSessionStream] 📤 Calling setMessages with ${deduplicatedMessages.length} messages`);
+      logger.info(
+        "useSessionStream",
+        `[useSessionStream] 📤 Calling setMessages with ${deduplicatedMessages.length} messages`
+      );
       setMessages(deduplicatedMessages);
       setRawJsonlOutput(history.map((h) => JSON.stringify(h)));
 
@@ -399,9 +423,9 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
       }
 
       setIsLoading(false);
-      logger.info('useSessionStream', `[useSessionStream] ✅ History load complete`);
+      logger.info("useSessionStream", `[useSessionStream] ✅ History load complete`);
     } catch (err) {
-      logger.error('useSessionStream', "[useSessionStream] Failed to load session history:", err);
+      logger.error("useSessionStream", "[useSessionStream] Failed to load session history:", err);
 
       if (loadingSessionIdRef.current !== currentSessionId) return;
       if (!isMountedRef.current) return;
@@ -413,7 +437,10 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
         errorMessage.includes("Session ID not found");
 
       if (isSessionNotFound) {
-        logger.debug('useSessionStream', "[useSessionStream] Session not found (new session);, continuing");
+        logger.debug(
+          "useSessionStream",
+          "[useSessionStream] Session not found (new session);, continuing"
+        );
         onSessionNotFound?.();
         setIsLoading(false);
         return;
@@ -432,7 +459,7 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
     setRawJsonlOutput,
     setCodexRateLimits,
     onSessionNotFound,
-    initializeProcessedIds,  // 🔧 FIX: 添加缺失的依赖项
+    initializeProcessedIds, // 🔧 FIX: 添加缺失的依赖项
   ]);
 
   /**
@@ -470,34 +497,35 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
             if (import.meta.env.DEV) {
               try {
                 const parsed = JSON.parse(event.payload);
-                if (parsed.type === 'assistant' && parsed.message?.content) {
+                if (parsed.type === "assistant" && parsed.message?.content) {
                   const contentItems = parsed.message.content;
                   const hasText = contentItems.some((item: any) => {
-                    if (item.type !== 'text') return false;
-                    const text = item.text || '';
+                    if (item.type !== "text") return false;
+                    const text = item.text || "";
                     const trimmed = text.trim();
                     // 检查是否有真实文本（非空、非标签）
                     return trimmed.length > 0 && !/^<\/?[a-z_]+>$/i.test(trimmed);
                   });
-                  const hasTools = contentItems.some((item: any) =>
-                    item.type === 'tool_use' || item.type === 'tool_result');
-                  const hasThinking = contentItems.some((item: any) => item.type === 'thinking');
+                  const hasTools = contentItems.some(
+                    (item: any) => item.type === "tool_use" || item.type === "tool_result"
+                  );
+                  const hasThinking = contentItems.some((item: any) => item.type === "thinking");
 
                   // 提取文本预览
                   const textPreview = contentItems
-                    .filter((item: any) => item.type === 'text')
-                    .map((item: any) => (item.text || '').trim().substring(0, 50))
+                    .filter((item: any) => item.type === "text")
+                    .map((item: any) => (item.text || "").trim().substring(0, 50))
                     .filter((t: string) => t.length > 0)
-                    .join(' | ');
+                    .join(" | ");
 
-                  logger.debug('useSessionStream', '📨 Received assistant message:', {
+                  logger.debug("useSessionStream", "📨 Received assistant message:", {
                     uuid: parsed.uuid,
                     messageId: parsed.message?.id,
                     hasText,
                     hasTools,
                     hasThinking,
-                    textPreview: textPreview || '(no text)',
-                    contentTypes: contentItems.map((item: any) => item.type)
+                    textPreview: textPreview || "(no text)",
+                    contentTypes: contentItems.map((item: any) => item.type),
                   });
                 }
               } catch (e) {
@@ -514,15 +542,15 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
               await processMessage(result.message, event.payload);
             }
           } catch (err) {
-            logger.error('useSessionStream', "[useSessionStream] Failed to parse message:", err);
+            logger.error("useSessionStream", "[useSessionStream] Failed to parse message:", err);
           }
-        },
+        }
       );
       unlistenRefs.current.push(outputUnlisten);
 
       // 监听错误
       const errorUnlisten = await listen<string>(`${eventPrefix}-error:${sessionId}`, (event) => {
-        logger.error('useSessionStream', "[useSessionStream] Error:", event.payload);
+        logger.error("useSessionStream", "[useSessionStream] Error:", event.payload);
         if (isMountedRef.current) {
           setError(event.payload);
         }
@@ -544,7 +572,7 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
             unlistenRefs.current.forEach((u) => u && typeof u === "function" && u());
             unlistenRefs.current = [];
           }
-        },
+        }
       );
       unlistenRefs.current.push(completeUnlisten);
 
@@ -562,7 +590,7 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
       setError,
       setIsLoading,
       processMessage,
-    ],
+    ]
   );
 
   /**
@@ -612,7 +640,11 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
         debugLog("[useSessionStream] ℹ️ No active session found for", session.id);
       }
     } catch (err) {
-      logger.error('useSessionStream', "[useSessionStream] ❌ Failed to check active sessions:", err);
+      logger.error(
+        "useSessionStream",
+        "[useSessionStream] ❌ Failed to check active sessions:",
+        err
+      );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session, getEngine, setClaudeSessionId, debugLog]);

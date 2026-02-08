@@ -28,7 +28,7 @@ export interface GroupedMessagesOptions {
  */
 export function useGroupedMessages(
   messages: ClaudeStreamMessage[],
-  options: GroupedMessagesOptions = {},
+  options: GroupedMessagesOptions = {}
 ): MessageGroup[] {
   const { enableSubagentGrouping = true } = options;
 

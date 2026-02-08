@@ -5,14 +5,9 @@
  * 提供快捷键提示和工具限制说明
  */
 
-import { Info, Lightbulb, Command } from 'lucide-react';
+import { Info, Lightbulb, Command } from "lucide-react";
 import { cn } from "@/lib/utils";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export interface PlanModeStatusBarProps {
   /** 是否处于 Plan 模式 */
@@ -30,10 +25,7 @@ export interface PlanModeStatusBarProps {
  * - 通过 Shift+Tab 快捷键切换
  * - 最佳实践：保持计划范围小（30分钟内完成）
  */
-export const PlanModeStatusBar: React.FC<PlanModeStatusBarProps> = ({
-  isPlanMode,
-  className,
-}) => {
+export const PlanModeStatusBar: React.FC<PlanModeStatusBarProps> = ({ isPlanMode, className }) => {
   if (!isPlanMode) return null;
 
   return (
@@ -59,9 +51,7 @@ export const PlanModeStatusBar: React.FC<PlanModeStatusBarProps> = ({
               <TooltipTrigger asChild>
                 <button className="flex items-center gap-1 px-2 py-1 rounded-md bg-blue-500/20 hover:bg-blue-500/30 transition-colors">
                   <Info className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
-                  <span className="text-xs text-blue-700 dark:text-blue-300">
-                    只读模式
-                  </span>
+                  <span className="text-xs text-blue-700 dark:text-blue-300">只读模式</span>
                 </button>
               </TooltipTrigger>
               <TooltipContent side="bottom" className="max-w-xs">
@@ -89,9 +79,7 @@ export const PlanModeStatusBar: React.FC<PlanModeStatusBarProps> = ({
               <TooltipTrigger asChild>
                 <button className="flex items-center gap-1 px-2 py-1 rounded-md bg-amber-500/20 hover:bg-amber-500/30 transition-colors">
                   <Lightbulb className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
-                  <span className="text-xs text-amber-700 dark:text-amber-300">
-                    最佳实践
-                  </span>
+                  <span className="text-xs text-amber-700 dark:text-amber-300">最佳实践</span>
                 </button>
               </TooltipTrigger>
               <TooltipContent side="bottom" className="max-w-xs">

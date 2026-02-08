@@ -8,18 +8,30 @@
  * - 支持加载历史记录到当前会话
  */
 
-import { logger } from '@/lib/logger';
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { createPortal } from 'react-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Search, History, MessageSquare, Calendar, FolderOpen, X, Loader2, ChevronRight, ArrowUpRight, Database, Clock } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { cn } from '@/lib/utils';
-import { invoke } from '@tauri-apps/api/core';
+import { logger } from "@/lib/logger";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Search,
+  History,
+  MessageSquare,
+  Calendar,
+  FolderOpen,
+  X,
+  Loader2,
+  ChevronRight,
+  ArrowUpRight,
+  Database,
+  Clock,
+} from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
+import { invoke } from "@tauri-apps/api/core";
 
 // ============================================================================
 // 类型定义
@@ -37,7 +49,7 @@ interface ChatSession {
 interface ChatMessage {
   id: number;
   session_id: string;
-  role: 'user' | 'assistant' | 'system';
+  role: "user" | "assistant" | "system";
   content: string;
   timestamp: string;
   tokens_input: number;
@@ -83,11 +95,11 @@ function formatRelativeTime(timestamp: string): string {
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-  if (diffMins < 1) return '刚刚';
+  if (diffMins < 1) return "刚刚";
   if (diffMins < 60) return `${diffMins} 分钟前`;
   if (diffHours < 24) return `${diffHours} 小时前`;
   if (diffDays < 7) return `${diffDays} 天前`;
-  return date.toLocaleDateString('zh-CN');
+  return date.toLocaleDateString("zh-CN");
 }
 
 /**
@@ -95,7 +107,7 @@ function formatRelativeTime(timestamp: string): string {
  */
 function truncateText(text: string, maxLength: number = 150): string {
   if (text.length <= maxLength) return text;
-  return text.slice(0, maxLength) + '...';
+  return text.slice(0, maxLength) + "...";
 }
 
 /**
@@ -104,7 +116,7 @@ function truncateText(text: string, maxLength: number = 150): string {
 function highlightMatch(text: string, query: string): React.ReactNode {
   if (!query.trim()) return text;
 
-  const parts = text.split(new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'));
+  const parts = text.split(new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "gi"));
 
   return (
     <>
@@ -131,7 +143,7 @@ export function HistorySearchPanel({
   onLoadContext,
   triggerRef,
 }: HistorySearchPanelProps) {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [recentSessions, setRecentSessions] = useState<ChatSession[]>([]);
   const [stats, setStats] = useState<ChatHistoryStats | null>(null);
@@ -195,53 +207,53 @@ export function HistorySearchPanel({
     };
 
     if (open) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
     }
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [open, onOpenChange]);
 
   // ESC 关闭
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         onOpenChange(false);
       }
     };
 
     if (open) {
-      document.addEventListener('keydown', handleKeyDown);
+      document.addEventListener("keydown", handleKeyDown);
     }
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [open, onOpenChange]);
 
   const loadStats = async () => {
     try {
-      const data = await invoke<ChatHistoryStats>('get_chat_history_stats');
+      const data = await invoke<ChatHistoryStats>("get_chat_history_stats");
       setStats(data);
     } catch (error) {
-      logger.error('HistorySearchPanel', 'Failed to load stats:', error);
+      logger.error("HistorySearchPanel", "Failed to load stats:", error);
     }
   };
 
   const loadRecentSessions = async () => {
     try {
-      const sessions = await invoke<ChatSession[]>('get_recent_sessions', { limit: 10 });
+      const sessions = await invoke<ChatSession[]>("get_recent_sessions", { limit: 10 });
       setRecentSessions(sessions);
     } catch (error) {
-      logger.error('HistorySearchPanel', 'Failed to load recent sessions:', error);
+      logger.error("HistorySearchPanel", "Failed to load recent sessions:", error);
     }
   };
 
   const performSearch = async (searchQuery: string) => {
     setIsLoading(true);
     try {
-      const searchResults = await invoke<SearchResult[]>('search_chat_history', {
+      const searchResults = await invoke<SearchResult[]>("search_chat_history", {
         query: searchQuery,
         limit: 20,
       });
       setResults(searchResults);
     } catch (error) {
-      logger.error('HistorySearchPanel', 'Search failed:', error);
+      logger.error("HistorySearchPanel", "Search failed:", error);
       setResults([]);
     } finally {
       setIsLoading(false);
@@ -251,13 +263,13 @@ export function HistorySearchPanel({
   const loadSessionMessages = async (sessionId: string) => {
     setIsLoadingMessages(true);
     try {
-      const messages = await invoke<ChatMessage[]>('get_session_messages', {
+      const messages = await invoke<ChatMessage[]>("get_session_messages", {
         sessionId,
         limit: 50,
       });
       setSessionMessages(messages);
     } catch (error) {
-      logger.error('HistorySearchPanel', 'Failed to load messages:', error);
+      logger.error("HistorySearchPanel", "Failed to load messages:", error);
       setSessionMessages([]);
     } finally {
       setIsLoadingMessages(false);
@@ -290,9 +302,9 @@ export function HistorySearchPanel({
         style={{
           top: position.top,
           left: position.left,
-          width: '600px',
-          maxHeight: '70vh',
-          zIndex: 'var(--z-dropdown)',
+          width: "600px",
+          maxHeight: "70vh",
+          zIndex: "var(--z-dropdown)",
         }}
       >
         {/* 头部 */}
@@ -354,19 +366,21 @@ export function HistorySearchPanel({
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }}
                     className={cn(
-                      'p-3 rounded-lg border cursor-pointer transition-all hover:bg-accent/50',
-                      selectedResult?.message.id === result.message.id && 'bg-accent border-primary'
+                      "p-3 rounded-lg border cursor-pointer transition-all hover:bg-accent/50",
+                      selectedResult?.message.id === result.message.id && "bg-accent border-primary"
                     )}
                     onClick={() => handleResultClick(result)}
                   >
                     <div className="flex items-start gap-3">
-                      <div className={cn(
-                        'w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium',
-                        result.message.role === 'user'
-                          ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
-                          : 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300'
-                      )}>
-                        {result.message.role === 'user' ? '你' : 'AI'}
+                      <div
+                        className={cn(
+                          "w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium",
+                          result.message.role === "user"
+                            ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300"
+                            : "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300"
+                        )}
+                      >
+                        {result.message.role === "user" ? "你" : "AI"}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
@@ -409,9 +423,7 @@ export function HistorySearchPanel({
             {/* 默认：最近会话 */}
             {!query.trim() && recentSessions.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-sm font-medium text-muted-foreground mb-2">
-                  最近会话
-                </h3>
+                <h3 className="text-sm font-medium text-muted-foreground mb-2">最近会话</h3>
                 {recentSessions.map((session, index) => (
                   <motion.div
                     key={session.session_id}
@@ -421,7 +433,15 @@ export function HistorySearchPanel({
                     className="p-3 rounded-lg border cursor-pointer transition-all hover:bg-accent/50"
                     onClick={() => {
                       setSelectedResult({
-                        message: { id: 0, session_id: session.session_id, role: 'user', content: '', timestamp: session.updated_at, tokens_input: 0, tokens_output: 0 },
+                        message: {
+                          id: 0,
+                          session_id: session.session_id,
+                          role: "user",
+                          content: "",
+                          timestamp: session.updated_at,
+                          tokens_input: 0,
+                          tokens_output: 0,
+                        },
                         session,
                         relevance_score: 0,
                       });
@@ -467,7 +487,7 @@ export function HistorySearchPanel({
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-muted-foreground" />
                 <span className="text-sm">
-                  {new Date(selectedResult.session.created_at).toLocaleDateString('zh-CN')}
+                  {new Date(selectedResult.session.created_at).toLocaleDateString("zh-CN")}
                 </span>
                 {isLoadingMessages && (
                   <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
@@ -486,9 +506,7 @@ export function HistorySearchPanel({
                       加载到当前会话
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>
-                    将历史对话上下文加载到当前会话
-                  </TooltipContent>
+                  <TooltipContent>将历史对话上下文加载到当前会话</TooltipContent>
                 </Tooltip>
               )}
             </div>

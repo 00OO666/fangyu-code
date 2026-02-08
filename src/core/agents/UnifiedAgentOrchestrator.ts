@@ -1,12 +1,12 @@
 /**
  * Unified Agent Orchestrator
- * 
+ *
  * Core orchestration system that manages agent lifecycle, task assignment,
  * and coordination across multiple AI models.
  */
 
-import { logger } from '@/lib/logger';
-import { v4 as uuidv4 } from 'uuid';
+import { logger } from "@/lib/logger";
+import { v4 as uuidv4 } from "uuid";
 import type {
   Agent,
   AgentRole,
@@ -19,8 +19,8 @@ import type {
   ConcurrencyConfig,
   PoolStatus,
   BackgroundTaskStatus,
-} from '@/core/types/unified-agent';
-import { getAgentRole, getBestAgentForTaskType } from './AgentRoles';
+} from "@/core/types/unified-agent";
+import { getAgentRole, getBestAgentForTaskType } from "./AgentRoles";
 
 // ============================================================================
 // Default Configuration
@@ -35,9 +35,9 @@ const DEFAULT_CONCURRENCY_CONFIG: ConcurrencyConfig = {
     xai: 5,
   },
   modelConcurrency: {
-    'claude-opus-4-5-20250514': 2,
-    'o3': 2,
-    'gemini-2.5-pro': 3,
+    "claude-opus-4-5-20250514": 2,
+    o3: 2,
+    "gemini-2.5-pro": 3,
   },
 };
 
@@ -79,10 +79,7 @@ export class UnifiedAgentOrchestrator {
   /**
    * Create a new agent with the specified role
    */
-  async createAgent(
-    roleType: AgentRoleType,
-    config?: Partial<AgentRole>
-  ): Promise<Agent> {
+  async createAgent(roleType: AgentRoleType, config?: Partial<AgentRole>): Promise<Agent> {
     const baseRole = getAgentRole(roleType);
     const role: AgentRole = {
       ...baseRole,
@@ -93,7 +90,7 @@ export class UnifiedAgentOrchestrator {
     const agent: Agent = {
       id: uuidv4(),
       role,
-      status: 'idle',
+      status: "idle",
       createdAt: Date.now(),
       lastActiveAt: Date.now(),
       metrics: {
@@ -121,7 +118,7 @@ export class UnifiedAgentOrchestrator {
     const cloned: Agent = {
       ...original,
       id: uuidv4(),
-      status: 'idle',
+      status: "idle",
       createdAt: Date.now(),
       lastActiveAt: Date.now(),
       metrics: {
@@ -134,7 +131,10 @@ export class UnifiedAgentOrchestrator {
     };
 
     this.agents.set(cloned.id, cloned);
-    logger.debug('UnifiedAgentOrchestrator', `Cloned agent ${agentId} -> ${cloned.id}, reason: ${reason}`);
+    logger.debug(
+      "UnifiedAgentOrchestrator",
+      `Cloned agent ${agentId} -> ${cloned.id}, reason: ${reason}`
+    );
     return cloned;
   }
 
@@ -147,7 +147,7 @@ export class UnifiedAgentOrchestrator {
       throw new Error(`Agent not found: ${agentId}`);
     }
 
-    if (agent.status === 'busy') {
+    if (agent.status === "busy") {
       throw new Error(`Cannot destroy busy agent: ${agentId}`);
     }
 
@@ -194,11 +194,11 @@ export class UnifiedAgentOrchestrator {
 
     // Assign the task
     task.assignedAgent = agent.id;
-    task.status = 'in_progress';
+    task.status = "in_progress";
     task.startedAt = Date.now();
 
     // Update agent status
-    agent.status = 'busy';
+    agent.status = "busy";
     agent.lastActiveAt = Date.now();
     this.agents.set(agent.id, agent);
 
@@ -218,7 +218,7 @@ export class UnifiedAgentOrchestrator {
     const bestRole = getBestAgentForTaskType(task.type);
     if (role.type === bestRole) {
       score += 40;
-    } else if (role.type === 'orchestrator') {
+    } else if (role.type === "orchestrator") {
       score += 20; // Orchestrator can handle anything
     }
 
@@ -226,12 +226,12 @@ export class UnifiedAgentOrchestrator {
     const caps = role.capabilities;
     if (caps.specializations?.some((s) => task.description.toLowerCase().includes(s))) {
       score += 30;
-    } else if (caps.languages?.includes('*') || caps.frameworks?.includes('*')) {
+    } else if (caps.languages?.includes("*") || caps.frameworks?.includes("*")) {
       score += 15;
     }
 
     // Agent availability (20 points)
-    if (agent.status === 'idle') {
+    if (agent.status === "idle") {
       score += 20;
     }
 
@@ -257,7 +257,7 @@ export class UnifiedAgentOrchestrator {
    */
   private findAvailableAgent(roleType: AgentRoleType): Agent | undefined {
     const agents = this.getAgentsByRole(roleType);
-    return agents.find((agent) => agent.status === 'idle');
+    return agents.find((agent) => agent.status === "idle");
   }
 
   /**
@@ -270,7 +270,7 @@ export class UnifiedAgentOrchestrator {
 
     // Check provider concurrency
     const providerAgents = this.getAllAgents().filter(
-      (a) => a.role.model.provider === provider && a.status === 'busy'
+      (a) => a.role.model.provider === provider && a.status === "busy"
     );
     const providerLimit = this.concurrencyConfig.providerConcurrency[provider];
     if (providerAgents.length >= providerLimit) {
@@ -281,7 +281,7 @@ export class UnifiedAgentOrchestrator {
     const modelLimit = this.concurrencyConfig.modelConcurrency[model];
     if (modelLimit) {
       const modelAgents = this.getAllAgents().filter(
-        (a) => a.role.model.model === model && a.status === 'busy'
+        (a) => a.role.model.model === model && a.status === "busy"
       );
       if (modelAgents.length >= modelLimit) {
         return false;
@@ -312,16 +312,16 @@ export class UnifiedAgentOrchestrator {
     }
 
     if (!this.taskExecutor) {
-      throw new Error('No task executor configured');
+      throw new Error("No task executor configured");
     }
 
     const startTime = Date.now();
 
     try {
       const result = await this.taskExecutor(task, agent);
-      
+
       // Update task
-      task.status = result.success ? 'completed' : 'failed';
+      task.status = result.success ? "completed" : "failed";
       task.completedAt = Date.now();
       task.result = result;
 
@@ -329,7 +329,7 @@ export class UnifiedAgentOrchestrator {
       this.updateAgentMetrics(agent, result, Date.now() - startTime);
 
       // Release agent
-      agent.status = 'idle';
+      agent.status = "idle";
       this.agents.set(agent.id, agent);
       this.runningTasks.delete(task.id);
 
@@ -345,13 +345,13 @@ export class UnifiedAgentOrchestrator {
         duration: Date.now() - startTime,
       };
 
-      task.status = 'failed';
+      task.status = "failed";
       task.completedAt = Date.now();
       task.result = errorResult;
 
       this.updateAgentMetrics(agent, errorResult, Date.now() - startTime);
 
-      agent.status = 'idle';
+      agent.status = "idle";
       this.agents.set(agent.id, agent);
       this.runningTasks.delete(task.id);
 
@@ -366,7 +366,7 @@ export class UnifiedAgentOrchestrator {
    */
   private updateAgentMetrics(agent: Agent, result: TaskResult, duration: number): void {
     const metrics = agent.metrics;
-    
+
     if (result.success) {
       metrics.tasksCompleted++;
     } else {
@@ -374,9 +374,9 @@ export class UnifiedAgentOrchestrator {
     }
 
     metrics.totalTokensUsed += result.tokensUsed;
-    
+
     const totalTasks = metrics.tasksCompleted + metrics.tasksFailed;
-    metrics.averageCompletionTime = 
+    metrics.averageCompletionTime =
       (metrics.averageCompletionTime * (totalTasks - 1) + duration) / totalTasks;
     metrics.successRate = metrics.tasksCompleted / totalTasks;
   }
@@ -424,7 +424,7 @@ export class UnifiedAgentOrchestrator {
       description: prompt,
       type: roleType as TaskType,
       priority: 5,
-      status: 'pending',
+      status: "pending",
       dependencies: [],
       createdAt: Date.now(),
       isBackground: true,
@@ -432,7 +432,7 @@ export class UnifiedAgentOrchestrator {
 
     const status: BackgroundTaskStatus = {
       taskId,
-      status: 'in_progress',
+      status: "in_progress",
       progress: 0,
       startedAt: Date.now(),
     };
@@ -445,7 +445,7 @@ export class UnifiedAgentOrchestrator {
       .then((result) => {
         const bgStatus = this.backgroundTasks.get(taskId);
         if (bgStatus) {
-          bgStatus.status = result.success ? 'completed' : 'failed';
+          bgStatus.status = result.success ? "completed" : "failed";
           bgStatus.progress = 100;
           bgStatus.output = result.output ? [result.output] : undefined;
         }
@@ -453,7 +453,7 @@ export class UnifiedAgentOrchestrator {
       .catch((error) => {
         const bgStatus = this.backgroundTasks.get(taskId);
         if (bgStatus) {
-          bgStatus.status = 'failed';
+          bgStatus.status = "failed";
           bgStatus.output = [error.message];
         }
       });
@@ -477,18 +477,18 @@ export class UnifiedAgentOrchestrator {
       throw new Error(`Background task not found: ${taskId}`);
     }
 
-    if (status.status === 'completed' || status.status === 'failed') {
+    if (status.status === "completed" || status.status === "failed") {
       throw new Error(`Cannot cancel completed task: ${taskId}`);
     }
 
-    status.status = 'cancelled';
-    
+    status.status = "cancelled";
+
     // Find and release the agent
     const task = this.runningTasks.get(taskId);
     if (task?.assignedAgent) {
       const agent = this.agents.get(task.assignedAgent);
       if (agent) {
-        agent.status = 'idle';
+        agent.status = "idle";
         this.agents.set(agent.id, agent);
       }
     }
@@ -542,8 +542,8 @@ export class UnifiedAgentOrchestrator {
     const agents = this.getAllAgents();
     return {
       totalAgents: agents.length,
-      activeAgents: agents.filter((a) => a.status === 'busy').length,
-      idleAgents: agents.filter((a) => a.status === 'idle').length,
+      activeAgents: agents.filter((a) => a.status === "busy").length,
+      idleAgents: agents.filter((a) => a.status === "idle").length,
       queuedTasks: this.taskQueue.length,
       runningTasks: this.runningTasks.size,
     };

@@ -1,6 +1,7 @@
 # ClaudeCodeSession 重构计划
 
 ## 📊 当前状态
+
 - **文件大小**: 2105 行
 - **主组件**: ClaudeCodeSessionInner (1970 行)
 - **问题**:
@@ -10,6 +11,7 @@
   - 职责过多
 
 ## 🎯 重构目标
+
 将 2105 行的单文件拆分为多个小组件，每个组件 < 300 行
 
 ## 📁 新架构
@@ -33,22 +35,26 @@ src/components/session/
 ## 🔄 拆分步骤
 
 ### 阶段 1：提取状态管理 ✅
+
 - [x] 创建 `useSessionState.ts`
 - [x] 使用 useReducer 替代 40+ useState
 - [x] 创建 SessionContext
 
 ### 阶段 2：提取副作用
+
 - [ ] 创建 `useSessionEffects.ts`
 - [ ] 合并相关的 useEffect
 - [ ] 提取到自定义 hooks
 
 ### 阶段 3：提取 UI 组件
+
 - [ ] 创建 `SessionFooter.tsx`
 - [ ] 创建 `SessionSidebar.tsx`
 - [ ] 创建 `SessionDialogs.tsx`
 - [ ] 创建 `SessionLayout.tsx`
 
 ### 阶段 4：重构主组件
+
 - [ ] 简化 `ClaudeCodeSession.tsx`
 - [ ] 使用新的子组件
 - [ ] 移除重复代码

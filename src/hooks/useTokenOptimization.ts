@@ -19,7 +19,7 @@
  * ```
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { useCallback, useMemo, useRef } from "react";
 import { isFeatureEnabled } from "@/config/featureFlags";
 import {
@@ -63,13 +63,16 @@ export function useTokenOptimization() {
 
       // Log optimization results
       if (result.excludedCount > 0) {
-        logger.debug('TokenOptimization', `Message optimization: ${result.totalMessages} → ${result.messages.length} messages`);
-        logger.debug('TokenOptimization', `Estimated tokens saved: ${result.estimatedTokensSaved}`);
+        logger.debug(
+          "TokenOptimization",
+          `Message optimization: ${result.totalMessages} → ${result.messages.length} messages`
+        );
+        logger.debug("TokenOptimization", `Estimated tokens saved: ${result.estimatedTokensSaved}`);
       }
 
       return result;
     },
-    [],
+    []
   );
 
   /**
@@ -80,7 +83,7 @@ export function useTokenOptimization() {
     (
       availableServers: string[],
       messages: Array<{ role: string; content: string }>,
-      currentMessage: string,
+      currentMessage: string
     ): string[] => {
       const recentMessages = getRecentMessagesForContext(messages, 3);
       const filtered = filterMCPServers(availableServers, recentMessages, currentMessage);
@@ -92,13 +95,19 @@ export function useTokenOptimization() {
 
       // Log optimization results
       if (savings.savedServers > 0) {
-        logger.debug('TokenOptimization', `MCP optimization: ${availableServers.length} → ${filtered.length} servers`);
-        logger.debug('TokenOptimization', `Estimated tokens saved: ${savings.estimatedTokensSaved} (${savings.savingsPercent.toFixed(1)}%)`);
+        logger.debug(
+          "TokenOptimization",
+          `MCP optimization: ${availableServers.length} → ${filtered.length} servers`
+        );
+        logger.debug(
+          "TokenOptimization",
+          `Estimated tokens saved: ${savings.estimatedTokensSaved} (${savings.savingsPercent.toFixed(1)}%)`
+        );
       }
 
       return filtered;
     },
-    [],
+    []
   );
 
   /**
@@ -124,9 +133,7 @@ export function useTokenOptimization() {
    * Check if optimizations are enabled
    */
   const isOptimizationEnabled = useMemo(() => {
-    return (
-      isFeatureEnabled("LAZY_HISTORY_LOADING") || isFeatureEnabled("SELECTIVE_MCP_CONTEXT")
-    );
+    return isFeatureEnabled("LAZY_HISTORY_LOADING") || isFeatureEnabled("SELECTIVE_MCP_CONTEXT");
   }, []);
 
   return {

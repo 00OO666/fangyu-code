@@ -1,18 +1,29 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { Undo2, AlertTriangle, ChevronDown, ChevronUp, User } from 'lucide-react';
+import { Undo2, AlertTriangle, ChevronDown, ChevronUp, User } from "lucide-react";
 import { MessageBubble } from "./MessageBubble";
-import { MessageImagePreview, extractImagesFromContent, extractImagePathsFromText } from "./MessageImagePreview";
+import {
+  MessageImagePreview,
+  extractImagesFromContent,
+  extractImagePathsFromText,
+} from "./MessageImagePreview";
 import { MessageActions } from "./MessageActions";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
-import type { ClaudeStreamMessage } from '@/types/claude';
-import type { RewindCapabilities, RewindMode } from '@/lib/api';
+import type { ClaudeStreamMessage } from "@/types/claude";
+import type { RewindCapabilities, RewindMode } from "@/lib/api";
 import { formatTimestamp } from "@/lib/messageUtils";
-import { api } from '@/lib/api';
+import { api } from "@/lib/api";
 import { useTranslation } from "@/hooks/useTranslation";
 
 interface UserMessageProps {
@@ -36,9 +47,11 @@ interface UserMessageProps {
  * 检查是否是 Skills 消息
  */
 const isSkillsMessage = (text: string): boolean => {
-  return text.includes('<command-name>')
-    || text.includes('Launching skill:')
-    || text.includes('skill is running');
+  return (
+    text.includes("<command-name>") ||
+    text.includes("Launching skill:") ||
+    text.includes("skill is running")
+  );
 };
 
 /**
@@ -46,7 +59,7 @@ const isSkillsMessage = (text: string): boolean => {
  * Claude CLI 的斜杠命令（如 /cost, /context）输出会包含 <local-command-stdout> 标签
  */
 const isSlashCommandOutput = (text: string): boolean => {
-  return text.includes('<local-command-stdout>');
+  return text.includes("<local-command-stdout>");
 };
 
 /**
@@ -57,11 +70,13 @@ const isSlashCommandOutput = (text: string): boolean => {
 const isSlashCommandInput = (text: string): boolean => {
   const trimmed = text.trim();
   // 必须以 / 开头，不能包含换行，不能太长，不能是路径
-  return trimmed.startsWith('/')
-    && !trimmed.includes('\n')
-    && trimmed.length < 100
-    && !trimmed.includes('\\')  // 排除 Windows 路径
-    && (trimmed.match(/\//g) || []).length === 1;  // 只有一个 /，排除 URL 和路径
+  return (
+    trimmed.startsWith("/") &&
+    !trimmed.includes("\n") &&
+    trimmed.length < 100 &&
+    !trimmed.includes("\\") && // 排除 Windows 路径
+    (trimmed.match(/\//g) || []).length === 1
+  ); // 只有一个 /，排除 URL 和路径
 };
 
 /**
@@ -76,11 +91,11 @@ const formatSlashCommandOutput = (text: string): React.ReactNode => {
   const content = match[1].trim();
 
   // 检测是否是表格格式（包含 | 分隔符）
-  const isTable = content.includes('|') && content.includes('---');
+  const isTable = content.includes("|") && content.includes("---");
 
   if (isTable) {
     // 解析并渲染表格
-    const lines = content.split('\n').filter(line => line.trim());
+    const lines = content.split("\n").filter((line) => line.trim());
     const tableRows: string[][] = [];
 
     for (const line of lines) {
@@ -88,7 +103,10 @@ const formatSlashCommandOutput = (text: string): React.ReactNode => {
       if (line.match(/^\|[-\s|]+\|$/)) continue;
 
       // 解析表格行
-      const cells = line.split('|').filter(cell => cell.trim()).map(cell => cell.trim());
+      const cells = line
+        .split("|")
+        .filter((cell) => cell.trim())
+        .map((cell) => cell.trim());
       if (cells.length > 0) {
         tableRows.push(cells);
       }
@@ -99,13 +117,20 @@ const formatSlashCommandOutput = (text: string): React.ReactNode => {
       return (
         <div className="space-y-3">
           {/* 非表格内容（如标题） */}
-          {content.split('\n').filter(line => !line.includes('|')).map((line, i) => (
-            line.trim() && (
-              <div key={i} className={line.startsWith('#') ? 'font-semibold text-sm' : 'text-sm'}>
-                {line.replace(/^#+\s*/, '')}
-              </div>
-            )
-          ))}
+          {content
+            .split("\n")
+            .filter((line) => !line.includes("|"))
+            .map(
+              (line, i) =>
+                line.trim() && (
+                  <div
+                    key={i}
+                    className={line.startsWith("#") ? "font-semibold text-sm" : "text-sm"}
+                  >
+                    {line.replace(/^#+\s*/, "")}
+                  </div>
+                )
+            )}
 
           {/* 表格 */}
           <div className="overflow-x-auto">
@@ -140,15 +165,15 @@ const formatSlashCommandOutput = (text: string): React.ReactNode => {
   // 非表格内容 - 简单格式化显示
   return (
     <div className="space-y-1 text-sm">
-      {content.split('\n').map((line, i) => {
+      {content.split("\n").map((line, i) => {
         const trimmedLine = line.trim();
         if (!trimmedLine) return null;
 
         // 标题样式
-        if (trimmedLine.startsWith('#')) {
+        if (trimmedLine.startsWith("#")) {
           return (
             <div key={i} className="font-semibold mt-2 first:mt-0">
-              {trimmedLine.replace(/^#+\s*/, '')}
+              {trimmedLine.replace(/^#+\s*/, "")}
             </div>
           );
         }
@@ -178,7 +203,7 @@ const formatSkillsMessage = (text: string): React.ReactNode => {
   // 提取 command-name 和 command-message
   const commandNameMatch = text.match(/<command-name>(.+?)<\/command-name>/);
   const commandMessageMatch = text.match(/<command-message>(.+?)<\/command-message>/);
-  
+
   if (commandNameMatch || commandMessageMatch) {
     return (
       <div className="space-y-2">
@@ -196,9 +221,9 @@ const formatSkillsMessage = (text: string): React.ReactNode => {
       </div>
     );
   }
-  
+
   // 处理 "Launching skill:" 格式
-  if (text.includes('Launching skill:')) {
+  if (text.includes("Launching skill:")) {
     const skillNameMatch = text.match(/Launching skill: (.+)/);
     if (skillNameMatch) {
       return (
@@ -214,7 +239,7 @@ const formatSkillsMessage = (text: string): React.ReactNode => {
       );
     }
   }
-  
+
   return text;
 };
 
@@ -222,36 +247,36 @@ const formatSkillsMessage = (text: string): React.ReactNode => {
  * 提取用户消息的纯文本内容
  */
 const extractUserText = (message: ClaudeStreamMessage): string => {
-  if (!message.message?.content) return '';
-  
+  if (!message.message?.content) return "";
+
   const content = message.message.content;
-  
-  let text = '';
-  
+
+  let text = "";
+
   // 如果是字符串，直接使用
-  if (typeof content === 'string') {
+  if (typeof content === "string") {
     text = content;
-  } 
+  }
   // 如果是数组，提取所有text类型的内容
   else if (Array.isArray(content)) {
     text = content
-      .filter((item: any) => item.type === 'text')
-      .map((item: any) => item.text || '')
-      .join('\n');
+      .filter((item: any) => item.type === "text")
+      .map((item: any) => item.text || "")
+      .join("\n");
   }
-  
+
   // ⚡ 关键修复：JSONL 保存为 \\n（双反斜杠），需要替换为真正的换行
   // 正则 /\\\\n/ 匹配两个反斜杠+n
-  if (text.includes('\\')) {
+  if (text.includes("\\")) {
     text = text
-      .replace(/\\\\n/g, '\n')      // \\n（双反斜杠+n）→ 换行符
-      .replace(/\\\\r/g, '\r')      // \\r → 回车
-      .replace(/\\\\t/g, '\t')      // \\t → 制表符
-      .replace(/\\\\"/g, '"')       // \\" → 双引号
-      .replace(/\\\\'/g, "'")       // \\' → 单引号
-      .replace(/\\\\\\\\/g, '\\');  // \\\\ → 单个反斜杠（最后处理）
+      .replace(/\\\\n/g, "\n") // \\n（双反斜杠+n）→ 换行符
+      .replace(/\\\\r/g, "\r") // \\r → 回车
+      .replace(/\\\\t/g, "\t") // \\t → 制表符
+      .replace(/\\\\"/g, '"') // \\" → 双引号
+      .replace(/\\\\'/g, "'") // \\' → 单引号
+      .replace(/\\\\\\\\/g, "\\"); // \\\\ → 单个反斜杠（最后处理）
   }
-  
+
   return text;
 };
 
@@ -267,10 +292,10 @@ export const UserMessage: React.FC<UserMessageProps> = ({
   sessionId,
   projectId,
   projectPath,
-  onRevert
+  onRevert,
 }) => {
   const { t } = useTranslation();
-  const engine = (message as any).engine || 'claude';
+  const engine = (message as any).engine || "claude";
   const text = extractUserText(message);
 
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -311,8 +336,8 @@ export const UserMessage: React.FC<UserMessageProps> = ({
   const displayContent = isSkills
     ? formatSkillsMessage(text)
     : isCommandOutput
-    ? formatSlashCommandOutput(text)
-    : (cleanText || text);
+      ? formatSlashCommandOutput(text)
+      : cleanText || text;
 
   // 🆕 计算是否需要折叠（超过 5 行）
   useEffect(() => {
@@ -322,8 +347,8 @@ export const UserMessage: React.FC<UserMessageProps> = ({
     }
 
     // 计算行数：使用清理后的文本
-    const textToCheck = typeof displayContent === 'string' ? displayContent : text;
-    const lines = textToCheck.split('\n').length;
+    const textToCheck = typeof displayContent === "string" ? displayContent : text;
+    const lines = textToCheck.split("\n").length;
 
     // 如果超过 5 行，需要折叠
     if (lines > 5) {
@@ -337,19 +362,20 @@ export const UserMessage: React.FC<UserMessageProps> = ({
   useEffect(() => {
     const loadCapabilities = async () => {
       if (promptIndex === undefined || !sessionId) return;
-      if (engine === 'gemini' && !projectPath) return;
-      if (engine !== 'codex' && engine !== 'gemini' && !projectId) return;
+      if (engine === "gemini" && !projectPath) return;
+      if (engine !== "codex" && engine !== "gemini" && !projectId) return;
 
       setIsLoadingCapabilities(true);
       try {
-        const caps = engine === 'codex'
-          ? await api.checkCodexRewindCapabilities(sessionId, promptIndex)
-          : engine === 'gemini'
-          ? await api.checkGeminiRewindCapabilities(sessionId, projectPath!, promptIndex)
-          : await api.checkRewindCapabilities(sessionId, projectId!, promptIndex);
+        const caps =
+          engine === "codex"
+            ? await api.checkCodexRewindCapabilities(sessionId, promptIndex)
+            : engine === "gemini"
+              ? await api.checkGeminiRewindCapabilities(sessionId, projectPath!, promptIndex)
+              : await api.checkRewindCapabilities(sessionId, projectId!, promptIndex);
         setCapabilities(caps);
       } catch (error) {
-        logger.error('UserMessage', 'Failed to check rewind capabilities:', error);
+        logger.error("UserMessage", "Failed to check rewind capabilities:", error);
       } finally {
         setIsLoadingCapabilities(false);
       }
@@ -381,153 +407,153 @@ export const UserMessage: React.FC<UserMessageProps> = ({
 
   return (
     <>
-    <div
-      id={promptIndex !== undefined ? `prompt-${promptIndex}` : undefined}
-      data-prompt-index={promptIndex !== undefined ? promptIndex : undefined}
-      className={cn("group relative", className)}
-    >
-      <div className="flex justify-end gap-4">
-        <div className="relative flex-1 min-w-0 flex justify-end">
-          <div className="relative max-w-full">
-          <MessageBubble
-            variant="user"
-            sideContent={images.length > 0 && (
-              <MessageImagePreview
-                images={images}
-                compact
-              />
-            )}
-          >
-            <div className="relative">
-        {/* 消息头部 (Removed) */}
-        {/* MessageHeader removed to save space */}
+      <div
+        id={promptIndex !== undefined ? `prompt-${promptIndex}` : undefined}
+        data-prompt-index={promptIndex !== undefined ? promptIndex : undefined}
+        className={cn("group relative", className)}
+      >
+        <div className="flex justify-end gap-4">
+          <div className="relative flex-1 min-w-0 flex justify-end">
+            <div className="relative max-w-full">
+              <MessageBubble
+                variant="user"
+                sideContent={images.length > 0 && <MessageImagePreview images={images} compact />}
+              >
+                <div className="relative">
+                  {/* 消息头部 (Removed) */}
+                  {/* MessageHeader removed to save space */}
 
-        {/* 消息内容和撤回按钮 - 优化布局，按钮悬浮在右下角 */}
-        <div className="relative min-w-0">
-          {/* Actions Toolbar - Visible on Hover (Left side for User messages) */}
-          {!isSkills && !isCommandOutput && (
-            <div className="absolute -top-2 left-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-              <MessageActions content={text} />
-            </div>
-          )}
-
-          {/* 消息内容 */}
-          <div className="w-full min-w-0">
-            {/* 文本内容（只在有文本时显示） */}
-            {displayContent && (
-              <>
-                <div
-                  ref={contentRef}
-                  className={cn(
-                    "text-sm leading-relaxed",
-                    (isSkills || isCommandOutput) ? "" : "whitespace-pre-wrap break-words",
-                    // 折叠样式：未展开时限制为 5 行
-                    shouldCollapse && !isExpanded && "line-clamp-5 overflow-hidden"
-                  )}
-                  style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}
-                >
-                  {displayContent}
-                  {/* 占位符，确保文字不遮挡绝对定位的按钮 */}
-                  {showRevertButton && !isSkills && !isCommandOutput && !isSlashCommand && (
-                    <span className="inline-block w-8 h-4 align-middle select-none" aria-hidden="true" />
-                  )}
-                </div>
-
-                {/* 展开/收起按钮 */}
-                {shouldCollapse && (
-                  <button
-                    onClick={() => setIsExpanded(!isExpanded)}
-                    className="flex items-center gap-1 text-xs text-primary-foreground/70 hover:text-primary-foreground transition-colors mt-1"
-                  >
-                    {isExpanded ? (
-                      <>
-                        <ChevronUp className="h-3 w-3" />
-                        <span>{t('message.collapse')}</span>
-                      </>
-                    ) : (
-                      <>
-                        <ChevronDown className="h-3 w-3" />
-                        <span>{t('message.expand')}</span>
-                      </>
+                  {/* 消息内容和撤回按钮 - 优化布局，按钮悬浮在右下角 */}
+                  <div className="relative min-w-0">
+                    {/* Actions Toolbar - Visible on Hover (Left side for User messages) */}
+                    {!isSkills && !isCommandOutput && (
+                      <div className="absolute -top-2 left-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                        <MessageActions content={text} />
+                      </div>
                     )}
-                  </button>
-                )}
-              </>
-            )}
+
+                    {/* 消息内容 */}
+                    <div className="w-full min-w-0">
+                      {/* 文本内容（只在有文本时显示） */}
+                      {displayContent && (
+                        <>
+                          <div
+                            ref={contentRef}
+                            className={cn(
+                              "text-sm leading-relaxed",
+                              isSkills || isCommandOutput ? "" : "whitespace-pre-wrap break-words",
+                              // 折叠样式：未展开时限制为 5 行
+                              shouldCollapse && !isExpanded && "line-clamp-5 overflow-hidden"
+                            )}
+                            style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
+                          >
+                            {displayContent}
+                            {/* 占位符，确保文字不遮挡绝对定位的按钮 */}
+                            {showRevertButton &&
+                              !isSkills &&
+                              !isCommandOutput &&
+                              !isSlashCommand && (
+                                <span
+                                  className="inline-block w-8 h-4 align-middle select-none"
+                                  aria-hidden="true"
+                                />
+                              )}
+                          </div>
+
+                          {/* 展开/收起按钮 */}
+                          {shouldCollapse && (
+                            <button
+                              onClick={() => setIsExpanded(!isExpanded)}
+                              className="flex items-center gap-1 text-xs text-primary-foreground/70 hover:text-primary-foreground transition-colors mt-1"
+                            >
+                              {isExpanded ? (
+                                <>
+                                  <ChevronUp className="h-3 w-3" />
+                                  <span>{t("message.collapse")}</span>
+                                </>
+                              ) : (
+                                <>
+                                  <ChevronDown className="h-3 w-3" />
+                                  <span>{t("message.expand")}</span>
+                                </>
+                              )}
+                            </button>
+                          )}
+                        </>
+                      )}
+                    </div>
+
+                    {/* 撤回按钮和警告图标 - Skills/命令输出/斜杠命令消息不显示撤回按钮 */}
+                    {showRevertButton && !isSkills && !isCommandOutput && !isSlashCommand && (
+                      <div className="absolute bottom-0 right-0 flex items-center justify-end gap-1">
+                        {/* CLI 提示词警告图标 */}
+                        {hasWarning && (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="flex items-center justify-center h-6 w-6">
+                                  <AlertTriangle className="h-3.5 w-3.5 text-orange-500" />
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-xs">
+                                <p className="text-sm">
+                                  {capabilities?.warning || t("planMode.cannotRollbackCode")}
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
+
+                        {/* 撤回按钮 */}
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 w-6 p-0 rounded-md text-muted-foreground/40 hover:text-foreground hover:bg-black/5 dark:hover:bg-white/10 transition-all"
+                                onClick={handleRevertClick}
+                              >
+                                <Undo2 className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent side="top">
+                              {t("message.revertToMessage")}
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </MessageBubble>
+            </div>
           </div>
 
-          {/* 撤回按钮和警告图标 - Skills/命令输出/斜杠命令消息不显示撤回按钮 */}
-          {showRevertButton && !isSkills && !isCommandOutput && !isSlashCommand && (
-            <div className="absolute bottom-0 right-0 flex items-center justify-end gap-1">
-              {/* CLI 提示词警告图标 */}
-              {hasWarning && (
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div className="flex items-center justify-center h-6 w-6">
-                        <AlertTriangle className="h-3.5 w-3.5 text-orange-500" />
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent side="top" className="max-w-xs">
-                      <p className="text-sm">
-                        {capabilities?.warning || t('planMode.cannotRollbackCode')}
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+          {/* Right Column: User Avatar with Tooltip */}
+          <TooltipProvider delayDuration={300}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex-shrink-0 mt-0.5 select-none cursor-default">
+                  <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 dark:bg-indigo-500/20 hover:bg-indigo-500/20 dark:hover:bg-indigo-500/30 transition-colors">
+                    <User className="w-4 h-4" />
+                  </div>
+                </div>
+              </TooltipTrigger>
+              {((message as any).sentAt || (message as any).timestamp) && (
+                <TooltipContent side="left" className="text-[11px]">
+                  <div className="flex flex-col gap-0.5">
+                    <span className="font-medium">You</span>
+                    <span className="text-muted-foreground">
+                      {formatTimestamp((message as any).sentAt || (message as any).timestamp)}
+                    </span>
+                  </div>
+                </TooltipContent>
               )}
-
-              {/* 撤回按钮 */}
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 w-6 p-0 rounded-md text-muted-foreground/40 hover:text-foreground hover:bg-black/5 dark:hover:bg-white/10 transition-all"
-                      onClick={handleRevertClick}
-                    >
-                      <Undo2 className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top">
-                    {t('message.revertToMessage')}
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-          )}
+            </Tooltip>
+          </TooltipProvider>
         </div>
-        </div>
-      </MessageBubble>
-      
-        </div>
-        </div>
-
-        {/* Right Column: User Avatar with Tooltip */}
-        <TooltipProvider delayDuration={300}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="flex-shrink-0 mt-0.5 select-none cursor-default">
-                <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 dark:bg-indigo-500/20 hover:bg-indigo-500/20 dark:hover:bg-indigo-500/30 transition-colors">
-                  <User className="w-4 h-4" />
-                </div>
-              </div>
-            </TooltipTrigger>
-            {((message as any).sentAt || (message as any).timestamp) && (
-              <TooltipContent side="left" className="text-[11px]">
-                <div className="flex flex-col gap-0.5">
-                  <span className="font-medium">You</span>
-                  <span className="text-muted-foreground">
-                    {formatTimestamp((message as any).sentAt || (message as any).timestamp)}
-                  </span>
-                </div>
-              </TooltipContent>
-            )}
-          </Tooltip>
-        </TooltipProvider>
       </div>
-    </div>
 
       {/* 撤回确认对话框 - 三模式选择 */}
       {showConfirmDialog && (
@@ -536,10 +562,10 @@ export const UserMessage: React.FC<UserMessageProps> = ({
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <AlertTriangle className="h-5 w-5 text-orange-600" />
-                {t('planMode.selectRevertMode')}
+                {t("planMode.selectRevertMode")}
               </DialogTitle>
               <DialogDescription>
-                {t('planMode.revertToPrompt', { index: (promptIndex ?? 0) + 1 })}
+                {t("planMode.revertToPrompt", { index: (promptIndex ?? 0) + 1 })}
               </DialogDescription>
             </DialogHeader>
 
@@ -557,86 +583,95 @@ export const UserMessage: React.FC<UserMessageProps> = ({
               {/* 加载中状态 */}
               {isLoadingCapabilities && (
                 <div className="flex items-center justify-center py-4">
-                  <div className="text-sm text-muted-foreground">{t('planMode.checkingCapabilities')}</div>
+                  <div className="text-sm text-muted-foreground">
+                    {t("planMode.checkingCapabilities")}
+                  </div>
                 </div>
               )}
 
               {/* 三种模式选择 */}
               {!isLoadingCapabilities && capabilities && (
                 <div className="space-y-3">
-                  <div className="text-sm font-medium">{t('planMode.selectRevertContent')}</div>
+                  <div className="text-sm font-medium">{t("planMode.selectRevertContent")}</div>
 
                   {/* 模式1: 仅对话 */}
-                  <div className={cn(
-                    "p-4 rounded-lg border-2 cursor-pointer transition-all duration-200",
-                    "hover:border-primary hover:bg-accent/50 hover:shadow-md hover:scale-[1.02]",
-                    "active:scale-[0.98]"
-                  )}
+                  <div
+                    className={cn(
+                      "p-4 rounded-lg border-2 cursor-pointer transition-all duration-200",
+                      "hover:border-primary hover:bg-accent/50 hover:shadow-md hover:scale-[1.02]",
+                      "active:scale-[0.98]"
+                    )}
                     onClick={() => handleConfirmRevert("conversation_only")}
                   >
                     <div className="flex items-start justify-between">
                       <div className="space-y-1">
-                        <div className="font-medium">{t('planMode.conversationOnly')}</div>
+                        <div className="font-medium">{t("planMode.conversationOnly")}</div>
                         <div className="text-sm text-muted-foreground">
-                          {t('planMode.conversationOnlyDesc')}
+                          {t("planMode.conversationOnlyDesc")}
                         </div>
                       </div>
                       <div className="text-xs text-green-600 font-medium bg-green-50 dark:bg-green-950 px-2 py-1 rounded">
-                        {t('planMode.alwaysAvailable')}
+                        {t("planMode.alwaysAvailable")}
                       </div>
                     </div>
                   </div>
 
                   {/* 模式2: 仅代码 */}
-                  <div className={cn(
-                    "p-4 rounded-lg border-2 transition-all duration-200",
-                    capabilities.code
-                      ? "cursor-pointer hover:border-primary hover:bg-accent/50 hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
-                      : "opacity-50 cursor-not-allowed bg-muted"
-                  )}
+                  <div
+                    className={cn(
+                      "p-4 rounded-lg border-2 transition-all duration-200",
+                      capabilities.code
+                        ? "cursor-pointer hover:border-primary hover:bg-accent/50 hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
+                        : "opacity-50 cursor-not-allowed bg-muted"
+                    )}
                     onClick={() => capabilities.code && handleConfirmRevert("code_only")}
                   >
                     <div className="flex items-start justify-between">
                       <div className="space-y-1">
-                        <div className="font-medium">{t('planMode.codeOnly')}</div>
+                        <div className="font-medium">{t("planMode.codeOnly")}</div>
                         <div className="text-sm text-muted-foreground">
-                          {t('planMode.codeOnlyDesc')}
+                          {t("planMode.codeOnlyDesc")}
                         </div>
                       </div>
-                      <div className={cn(
-                        "text-xs font-medium px-2 py-1 rounded",
-                        capabilities.code
-                          ? "text-green-600 bg-green-50 dark:bg-green-950"
-                          : "text-muted-foreground bg-muted"
-                      )}>
-                        {capabilities.code ? t('planMode.available') : t('planMode.unavailable')}
+                      <div
+                        className={cn(
+                          "text-xs font-medium px-2 py-1 rounded",
+                          capabilities.code
+                            ? "text-green-600 bg-green-50 dark:bg-green-950"
+                            : "text-muted-foreground bg-muted"
+                        )}
+                      >
+                        {capabilities.code ? t("planMode.available") : t("planMode.unavailable")}
                       </div>
                     </div>
                   </div>
 
                   {/* 模式3: 两者都撤回 */}
-                  <div className={cn(
-                    "p-4 rounded-lg border-2 transition-all duration-200",
-                    capabilities.both
-                      ? "cursor-pointer hover:border-primary hover:bg-accent/50 hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
-                      : "opacity-50 cursor-not-allowed bg-muted"
-                  )}
+                  <div
+                    className={cn(
+                      "p-4 rounded-lg border-2 transition-all duration-200",
+                      capabilities.both
+                        ? "cursor-pointer hover:border-primary hover:bg-accent/50 hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
+                        : "opacity-50 cursor-not-allowed bg-muted"
+                    )}
                     onClick={() => capabilities.both && handleConfirmRevert("both")}
                   >
                     <div className="flex items-start justify-between">
                       <div className="space-y-1">
-                        <div className="font-medium">{t('planMode.fullRevert')}</div>
+                        <div className="font-medium">{t("planMode.fullRevert")}</div>
                         <div className="text-sm text-muted-foreground">
-                          {t('planMode.fullRevertDesc')}
+                          {t("planMode.fullRevertDesc")}
                         </div>
                       </div>
-                      <div className={cn(
-                        "text-xs font-medium px-2 py-1 rounded",
-                        capabilities.both
-                          ? "text-green-600 bg-green-50 dark:bg-green-950"
-                          : "text-muted-foreground bg-muted"
-                      )}>
-                        {capabilities.both ? t('planMode.available') : t('planMode.unavailable')}
+                      <div
+                        className={cn(
+                          "text-xs font-medium px-2 py-1 rounded",
+                          capabilities.both
+                            ? "text-green-600 bg-green-50 dark:bg-green-950"
+                            : "text-muted-foreground bg-muted"
+                        )}
+                      >
+                        {capabilities.both ? t("planMode.available") : t("planMode.unavailable")}
                       </div>
                     </div>
                   </div>
@@ -646,17 +681,15 @@ export const UserMessage: React.FC<UserMessageProps> = ({
               <Alert variant="destructive">
                 <AlertTriangle className="h-4 w-4" />
                 <AlertDescription>
-                  <strong>{t('planMode.revertWarning').split('：')[0]}：</strong>{t('planMode.revertWarning').split('：')[1]}
+                  <strong>{t("planMode.revertWarning").split("：")[0]}：</strong>
+                  {t("planMode.revertWarning").split("：")[1]}
                 </AlertDescription>
               </Alert>
             </div>
 
             <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setShowConfirmDialog(false)}
-              >
-                {t('buttons.cancel')}
+              <Button variant="outline" onClick={() => setShowConfirmDialog(false)}>
+                {t("buttons.cancel")}
               </Button>
             </DialogFooter>
           </DialogContent>

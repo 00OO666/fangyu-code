@@ -9,9 +9,9 @@
  * const translated = await translateContent('Hello world', 'greeting-key');
  */
 
-import { logger } from '@/lib/logger';
-import React from 'react';
-import { translationMiddleware } from '@/lib/translationMiddleware';
+import { logger } from "@/lib/logger";
+import React from "react";
+import { translationMiddleware } from "@/lib/translationMiddleware";
 
 /**
  * 工具内容翻译 Hook
@@ -30,36 +30,39 @@ export const useToolTranslation = () => {
    * @param cacheKey 缓存键（用于避免重复翻译）
    * @returns 翻译后的内容，如果翻译失败或未启用则返回原内容
    */
-  const translateContent = React.useCallback(async (content: string, cacheKey: string) => {
-    // 检查缓存
-    if (translatedContent.has(cacheKey)) {
-      return translatedContent.get(cacheKey)!;
-    }
+  const translateContent = React.useCallback(
+    async (content: string, cacheKey: string) => {
+      // 检查缓存
+      if (translatedContent.has(cacheKey)) {
+        return translatedContent.get(cacheKey)!;
+      }
 
-    try {
-      // 检查翻译是否启用
-      const isEnabled = await translationMiddleware.isEnabled();
-      if (!isEnabled) {
+      try {
+        // 检查翻译是否启用
+        const isEnabled = await translationMiddleware.isEnabled();
+        if (!isEnabled) {
+          return content;
+        }
+
+        // 检测语言，只翻译英文内容
+        const detectedLanguage = await translationMiddleware.detectLanguage(content);
+        if (detectedLanguage === "en") {
+          const result = await translationMiddleware.translateClaudeResponse(content, true);
+          if (result.wasTranslated) {
+            // 更新缓存
+            setTranslatedContent((prev) => new Map(prev).set(cacheKey, result.translatedText));
+            return result.translatedText;
+          }
+        }
+
+        return content;
+      } catch (error) {
+        logger.error("useToolTranslation", "[useToolTranslation] Translation failed:", error);
         return content;
       }
-
-      // 检测语言，只翻译英文内容
-      const detectedLanguage = await translationMiddleware.detectLanguage(content);
-      if (detectedLanguage === 'en') {
-        const result = await translationMiddleware.translateClaudeResponse(content, true);
-        if (result.wasTranslated) {
-          // 更新缓存
-          setTranslatedContent(prev => new Map(prev).set(cacheKey, result.translatedText));
-          return result.translatedText;
-        }
-      }
-
-      return content;
-    } catch (error) {
-      logger.error('useToolTranslation', '[useToolTranslation] Translation failed:', error);
-      return content;
-    }
-  }, [translatedContent]);
+    },
+    [translatedContent]
+  );
 
   /**
    * 清空翻译缓存

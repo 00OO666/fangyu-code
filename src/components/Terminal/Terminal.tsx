@@ -3,9 +3,9 @@
  * 内置终端 + AI 助手
  */
 
-import React, { useRef, useEffect, useState } from 'react';
-import { invoke } from '@tauri-apps/api/core';
-import { logger } from '@/lib/logger';
+import React, { useRef, useEffect, useState } from "react";
+import { invoke } from "@tauri-apps/api/core";
+import { logger } from "@/lib/logger";
 
 interface TerminalProps {
   onCommand?: (command: string) => void;
@@ -18,22 +18,19 @@ interface TerminalOutput {
   exit_code: number | null;
 }
 
-export const Terminal: React.FC<TerminalProps> = ({
-  onCommand,
-  aiEnabled = true,
-}) => {
+export const Terminal: React.FC<TerminalProps> = ({ onCommand, aiEnabled = true }) => {
   const terminalRef = useRef<HTMLDivElement>(null);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const [history, setHistory] = useState<string[]>([]);
   const [sessionId, setSessionId] = useState<number | null>(null);
 
   useEffect(() => {
     const createSession = async () => {
       try {
-        const id = await invoke<number>('terminal_create_session');
+        const id = await invoke<number>("terminal_create_session");
         setSessionId(id);
       } catch (error) {
-        logger.error('Terminal', 'Failed to create terminal session:', error);
+        logger.error("Terminal", "Failed to create terminal session:", error);
       }
     };
 
@@ -41,7 +38,9 @@ export const Terminal: React.FC<TerminalProps> = ({
 
     return () => {
       if (sessionId) {
-        invoke('terminal_close_session', { sessionId }).catch((err) => logger.error('Terminal', err));
+        invoke("terminal_close_session", { sessionId }).catch((err) =>
+          logger.error("Terminal", err)
+        );
       }
     };
   }, []);
@@ -52,15 +51,15 @@ export const Terminal: React.FC<TerminalProps> = ({
 
     const commandLine = `$ ${input}`;
     // 🔧 FIX: 使用函数式更新避免闭包问题
-    setHistory(prev => [...prev, commandLine]);
+    setHistory((prev) => [...prev, commandLine]);
     onCommand?.(input);
 
     try {
-      const parts = input.split(' ');
+      const parts = input.split(" ");
       const command = parts[0];
       const args = parts.slice(1);
 
-      const output = await invoke<TerminalOutput>('terminal_execute', {
+      const output = await invoke<TerminalOutput>("terminal_execute", {
         command,
         args,
         cwd: null,
@@ -78,27 +77,22 @@ export const Terminal: React.FC<TerminalProps> = ({
       }
 
       // 🔧 FIX: 使用函数式更新避免覆盖之前的命令行
-      setHistory(prev => [...prev, ...outputLines]);
+      setHistory((prev) => [...prev, ...outputLines]);
     } catch (error) {
       // 🔧 FIX: 使用函数式更新
-      setHistory(prev => [...prev, `Error: ${error}`]);
+      setHistory((prev) => [...prev, `Error: ${error}`]);
     }
 
-    setInput('');
+    setInput("");
   };
 
   return (
     <div className="flex flex-col h-full bg-black text-green-400 font-mono">
       <div className="flex items-center justify-between p-2 bg-gray-900 border-b border-gray-700">
         <span className="text-sm">Terminal</span>
-        {aiEnabled && (
-          <span className="text-xs bg-blue-600 px-2 py-1 rounded">AI Enabled</span>
-        )}
+        {aiEnabled && <span className="text-xs bg-blue-600 px-2 py-1 rounded">AI Enabled</span>}
       </div>
-      <div
-        ref={terminalRef}
-        className="flex-1 overflow-y-auto p-2 space-y-1"
-      >
+      <div ref={terminalRef} className="flex-1 overflow-y-auto p-2 space-y-1">
         {history.map((line, index) => (
           <div key={index}>{line}</div>
         ))}

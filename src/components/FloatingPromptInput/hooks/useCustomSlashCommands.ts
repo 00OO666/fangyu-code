@@ -8,13 +8,13 @@
  * Gemini: ~/.gemini/commands/*.toml
  */
 
-import { logger } from '@/lib/logger';
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { invoke } from '@tauri-apps/api/core';
-import type { SlashCommand } from '../slashCommands';
+import { logger } from "@/lib/logger";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { invoke } from "@tauri-apps/api/core";
+import type { SlashCommand } from "../slashCommands";
 
 /** 执行引擎类型 */
-type ExecutionEngine = 'claude' | 'gemini' | 'codex';
+type ExecutionEngine = "claude" | "gemini" | "codex";
 
 /** 后端返回的自定义命令类型 */
 interface CustomSlashCommandResponse {
@@ -61,7 +61,7 @@ interface UseCustomSlashCommandsReturn {
 export function useCustomSlashCommands({
   projectPath,
   enabled = true,
-  engine = 'claude',
+  engine = "claude",
 }: UseCustomSlashCommandsOptions): UseCustomSlashCommandsReturn {
   const [rawCommands, setRawCommands] = useState<CustomSlashCommandResponse[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -70,11 +70,11 @@ export function useCustomSlashCommands({
   // 根据引擎选择后端命令
   const getBackendCommand = useCallback((eng: ExecutionEngine): string => {
     switch (eng) {
-      case 'gemini':
-        return 'list_gemini_custom_slash_commands';
-      case 'claude':
+      case "gemini":
+        return "list_gemini_custom_slash_commands";
+      case "claude":
       default:
-        return 'list_custom_slash_commands';
+        return "list_custom_slash_commands";
     }
   }, []);
 
@@ -86,7 +86,7 @@ export function useCustomSlashCommands({
     }
 
     // Codex 暂不支持自定义斜杠命令
-    if (engine === 'codex') {
+    if (engine === "codex") {
       setRawCommands([]);
       return;
     }
@@ -96,19 +96,25 @@ export function useCustomSlashCommands({
 
     try {
       const backendCommand = getBackendCommand(engine);
-      const commands = await invoke<CustomSlashCommandResponse[]>(
-        backendCommand,
-        { projectPath: projectPath || null }
-      );
+      const commands = await invoke<CustomSlashCommandResponse[]>(backendCommand, {
+        projectPath: projectPath || null,
+      });
       setRawCommands(commands);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
       // 如果后端命令不存在（Gemini 还未实现），静默失败
-      if (errorMessage.includes('not found') || errorMessage.includes('Unknown command')) {
-        logger.debug('useCustomSlashCommands', `Custom slash commands not available for engine: ${engine}`);
+      if (errorMessage.includes("not found") || errorMessage.includes("Unknown command")) {
+        logger.debug(
+          "useCustomSlashCommands",
+          `Custom slash commands not available for engine: ${engine}`
+        );
         setRawCommands([]);
       } else {
-        logger.error('useCustomSlashCommands', 'Failed to load custom slash commands:', errorMessage);
+        logger.error(
+          "useCustomSlashCommands",
+          "Failed to load custom slash commands:",
+          errorMessage
+        );
         setError(errorMessage);
         setRawCommands([]);
       }
@@ -124,15 +130,17 @@ export function useCustomSlashCommands({
 
   // 转换为 SlashCommand 格式
   const customCommands = useMemo((): SlashCommand[] => {
-    return rawCommands.map((cmd): SlashCommand => ({
-      name: cmd.name,
-      description: cmd.description || `Custom command: ${cmd.name}`,
-      source: cmd.scope === 'project' ? 'project' : 'user',
-      category: 'custom',
-      // 自定义命令默认支持非交互式模式（它们只是模板）
-      supportsNonInteractive: true,
-      argHint: cmd.argHint || undefined,
-    }));
+    return rawCommands.map(
+      (cmd): SlashCommand => ({
+        name: cmd.name,
+        description: cmd.description || `Custom command: ${cmd.name}`,
+        source: cmd.scope === "project" ? "project" : "user",
+        category: "custom",
+        // 自定义命令默认支持非交互式模式（它们只是模板）
+        supportsNonInteractive: true,
+        argHint: cmd.argHint || undefined,
+      })
+    );
   }, [rawCommands]);
 
   return {

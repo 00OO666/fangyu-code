@@ -1,8 +1,8 @@
 /**
  * TokenTracker - Token 使用量追踪器
- * 
+ *
  * 追踪 API 调用的 Token 使用量和成本
- * 
+ *
  * Requirements: 1.7
  */
 
@@ -34,7 +34,7 @@ export interface TokenStats {
 
 /** 模型定价（每 1M tokens） */
 export interface ModelPricing {
-  inputPrice: number;  // 输入价格 ($/1M tokens)
+  inputPrice: number; // 输入价格 ($/1M tokens)
   outputPrice: number; // 输出价格 ($/1M tokens)
 }
 
@@ -51,21 +51,21 @@ export interface SessionStats extends TokenStats {
 /** 默认模型定价（美元/1M tokens） */
 export const MODEL_PRICING: Record<string, ModelPricing> = {
   // Claude 系列
-  'claude-3-5-sonnet-20241022': { inputPrice: 3, outputPrice: 15 },
-  'claude-3-opus-20240229': { inputPrice: 15, outputPrice: 75 },
-  'claude-3-haiku-20240307': { inputPrice: 0.25, outputPrice: 1.25 },
-  'claude-3-sonnet-20240229': { inputPrice: 3, outputPrice: 15 },
+  "claude-3-5-sonnet-20241022": { inputPrice: 3, outputPrice: 15 },
+  "claude-3-opus-20240229": { inputPrice: 15, outputPrice: 75 },
+  "claude-3-haiku-20240307": { inputPrice: 0.25, outputPrice: 1.25 },
+  "claude-3-sonnet-20240229": { inputPrice: 3, outputPrice: 15 },
   // GPT 系列
-  'gpt-4o': { inputPrice: 2.5, outputPrice: 10 },
-  'gpt-4-turbo': { inputPrice: 10, outputPrice: 30 },
-  'gpt-4o-mini': { inputPrice: 0.15, outputPrice: 0.6 },
-  'gpt-3.5-turbo': { inputPrice: 0.5, outputPrice: 1.5 },
+  "gpt-4o": { inputPrice: 2.5, outputPrice: 10 },
+  "gpt-4-turbo": { inputPrice: 10, outputPrice: 30 },
+  "gpt-4o-mini": { inputPrice: 0.15, outputPrice: 0.6 },
+  "gpt-3.5-turbo": { inputPrice: 0.5, outputPrice: 1.5 },
   // Gemini 系列
-  'gemini-2.5-pro-preview-05-06': { inputPrice: 1.25, outputPrice: 10 },
-  'gemini-1.5-pro': { inputPrice: 1.25, outputPrice: 5 },
-  'gemini-1.5-flash': { inputPrice: 0.075, outputPrice: 0.3 },
+  "gemini-2.5-pro-preview-05-06": { inputPrice: 1.25, outputPrice: 10 },
+  "gemini-1.5-pro": { inputPrice: 1.25, outputPrice: 5 },
+  "gemini-1.5-flash": { inputPrice: 0.075, outputPrice: 0.3 },
   // 默认
-  'default': { inputPrice: 2, outputPrice: 8 },
+  default: { inputPrice: 2, outputPrice: 8 },
 };
 
 // =============================================================================
@@ -96,7 +96,7 @@ export class TokenTracker {
    * 记录 Token 使用
    * Requirements: 1.7
    */
-  recordUsage(usage: Omit<TokenUsage, 'timestamp'>): void {
+  recordUsage(usage: Omit<TokenUsage, "timestamp">): void {
     const record: TokenUsage = {
       ...usage,
       timestamp: Date.now(),
@@ -219,7 +219,7 @@ export class TokenTracker {
    */
   getStatsInRange(startTime: number, endTime: number): TokenStats {
     const filtered = this.usageHistory.filter(
-      u => u.timestamp >= startTime && u.timestamp <= endTime
+      (u) => u.timestamp >= startTime && u.timestamp <= endTime
     );
 
     if (filtered.length === 0) {
@@ -261,9 +261,7 @@ export class TokenTracker {
    * 获取模型定价
    */
   getPricing(model: string): ModelPricing {
-    return this.customPricing[model] 
-      ?? MODEL_PRICING[model] 
-      ?? MODEL_PRICING['default'];
+    return this.customPricing[model] ?? MODEL_PRICING[model] ?? MODEL_PRICING["default"];
   }
 
   /**
@@ -299,10 +297,7 @@ export class TokenTracker {
   /**
    * 导入数据
    */
-  import(data: {
-    sessionId?: string;
-    history: TokenUsage[];
-  }): void {
+  import(data: { sessionId?: string; history: TokenUsage[] }): void {
     if (data.sessionId) {
       this.sessionId = data.sessionId;
     }

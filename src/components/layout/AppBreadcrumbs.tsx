@@ -1,9 +1,9 @@
-import React from 'react';
-import { useTranslation } from 'react-i18next';
-import { useNavigation } from '@/contexts/NavigationContext';
-import { Breadcrumbs, BreadcrumbItem } from '@/components/ui/breadcrumb';
+import React from "react";
+import { useTranslation } from "react-i18next";
+import { useNavigation } from "@/contexts/NavigationContext";
+import { Breadcrumbs, BreadcrumbItem } from "@/components/ui/breadcrumb";
 
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 
 export const AppBreadcrumbs: React.FC<{ className?: string }> = ({ className }) => {
   const { t } = useTranslation();
@@ -13,14 +13,14 @@ export const AppBreadcrumbs: React.FC<{ className?: string }> = ({ className }) 
 
   // 根据不同视图构建面包屑路径
   switch (currentView) {
-    case 'projects':
+    case "projects":
       // 进入项目后不显示面包屑（避免与下方的返回按钮+项目路径冗余）
       break;
 
-    case 'editor':
+    case "editor":
       breadcrumbs.push(
-        <BreadcrumbItem key="home" onClick={() => navigateTo('projects')}>
-          {t('common.ccProjectsTitle')}
+        <BreadcrumbItem key="home" onClick={() => navigateTo("projects")}>
+          {t("common.ccProjectsTitle")}
         </BreadcrumbItem>,
         <BreadcrumbItem key="editor" current>
           CLAUDE.md 编辑器
@@ -28,10 +28,10 @@ export const AppBreadcrumbs: React.FC<{ className?: string }> = ({ className }) 
       );
       break;
 
-    case 'codex-editor':
+    case "codex-editor":
       breadcrumbs.push(
-        <BreadcrumbItem key="home" onClick={() => navigateTo('projects')}>
-          {t('common.ccProjectsTitle')}
+        <BreadcrumbItem key="home" onClick={() => navigateTo("projects")}>
+          {t("common.ccProjectsTitle")}
         </BreadcrumbItem>,
         <BreadcrumbItem key="codex-editor" current>
           AGENTS.md 编辑器
@@ -39,10 +39,10 @@ export const AppBreadcrumbs: React.FC<{ className?: string }> = ({ className }) 
       );
       break;
 
-    case 'gemini-editor':
+    case "gemini-editor":
       breadcrumbs.push(
-        <BreadcrumbItem key="home" onClick={() => navigateTo('projects')}>
-          {t('common.ccProjectsTitle')}
+        <BreadcrumbItem key="home" onClick={() => navigateTo("projects")}>
+          {t("common.ccProjectsTitle")}
         </BreadcrumbItem>,
         <BreadcrumbItem key="gemini-editor" current>
           GEMINI.md 编辑器
@@ -50,32 +50,32 @@ export const AppBreadcrumbs: React.FC<{ className?: string }> = ({ className }) 
       );
       break;
 
-    case 'claude-file-editor':
+    case "claude-file-editor":
       breadcrumbs.push(
-        <BreadcrumbItem key="home" onClick={() => navigateTo('projects')}>
-          {t('common.ccProjectsTitle')}
+        <BreadcrumbItem key="home" onClick={() => navigateTo("projects")}>
+          {t("common.ccProjectsTitle")}
         </BreadcrumbItem>,
         <BreadcrumbItem key="file-editor" current>
-          {viewParams?.file?.relative_path || '编辑文件'}
+          {viewParams?.file?.relative_path || "编辑文件"}
         </BreadcrumbItem>
       );
       break;
 
-    case 'settings':
+    case "settings":
       breadcrumbs.push(
-        <BreadcrumbItem key="home" onClick={() => navigateTo('projects')}>
-          {t('common.ccProjectsTitle')}
+        <BreadcrumbItem key="home" onClick={() => navigateTo("projects")}>
+          {t("common.ccProjectsTitle")}
         </BreadcrumbItem>,
         <BreadcrumbItem key="settings" current>
-          {t('navigation.settings')}
+          {t("navigation.settings")}
         </BreadcrumbItem>
       );
       break;
 
-    case 'usage-dashboard':
+    case "usage-dashboard":
       breadcrumbs.push(
-        <BreadcrumbItem key="home" onClick={() => navigateTo('projects')}>
-          {t('common.ccProjectsTitle')}
+        <BreadcrumbItem key="home" onClick={() => navigateTo("projects")}>
+          {t("common.ccProjectsTitle")}
         </BreadcrumbItem>,
         <BreadcrumbItem key="usage" current>
           使用统计
@@ -83,10 +83,10 @@ export const AppBreadcrumbs: React.FC<{ className?: string }> = ({ className }) 
       );
       break;
 
-    case 'mcp':
+    case "mcp":
       breadcrumbs.push(
-        <BreadcrumbItem key="home" onClick={() => navigateTo('projects')}>
-          {t('common.ccProjectsTitle')}
+        <BreadcrumbItem key="home" onClick={() => navigateTo("projects")}>
+          {t("common.ccProjectsTitle")}
         </BreadcrumbItem>,
         <BreadcrumbItem key="mcp" current>
           MCP 管理器
@@ -94,10 +94,10 @@ export const AppBreadcrumbs: React.FC<{ className?: string }> = ({ className }) 
       );
       break;
 
-    case 'claude-extensions':
+    case "claude-extensions":
       breadcrumbs.push(
-        <BreadcrumbItem key="home" onClick={() => navigateTo('projects')}>
-          {t('common.ccProjectsTitle')}
+        <BreadcrumbItem key="home" onClick={() => navigateTo("projects")}>
+          {t("common.ccProjectsTitle")}
         </BreadcrumbItem>,
         <BreadcrumbItem key="extensions" current>
           扩展管理
@@ -105,10 +105,10 @@ export const AppBreadcrumbs: React.FC<{ className?: string }> = ({ className }) 
       );
       break;
 
-    case 'project-settings':
+    case "project-settings":
       breadcrumbs.push(
-        <BreadcrumbItem key="home" onClick={() => navigateTo('projects')}>
-          {t('common.ccProjectsTitle')}
+        <BreadcrumbItem key="home" onClick={() => navigateTo("projects")}>
+          {t("common.ccProjectsTitle")}
         </BreadcrumbItem>,
         <BreadcrumbItem key="project-settings" current>
           项目设置
@@ -116,10 +116,10 @@ export const AppBreadcrumbs: React.FC<{ className?: string }> = ({ className }) 
       );
       break;
 
-    case 'enhanced-hooks-manager':
+    case "enhanced-hooks-manager":
       breadcrumbs.push(
-        <BreadcrumbItem key="home" onClick={() => navigateTo('projects')}>
-          {t('common.ccProjectsTitle')}
+        <BreadcrumbItem key="home" onClick={() => navigateTo("projects")}>
+          {t("common.ccProjectsTitle")}
         </BreadcrumbItem>,
         <BreadcrumbItem key="hooks" current>
           Hooks 管理

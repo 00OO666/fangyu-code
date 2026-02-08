@@ -1,31 +1,31 @@
 /**
  * SuperAgentBridge - Tauri 前后端桥接层
- * 
+ *
  * 提供类型安全的 Tauri invoke 封装
- * 
+ *
  * Requirements: 8.4
  */
 
-import { invoke } from '@tauri-apps/api/core';
+import { invoke } from "@tauri-apps/api/core";
 
 // =============================================================================
 // 类型定义
 // =============================================================================
 
 /** 操作风险级别 */
-export type RiskLevel = 'low' | 'medium' | 'high' | 'critical';
+export type RiskLevel = "low" | "medium" | "high" | "critical";
 
 /** 操作类型 */
-export type OperationType = 
-  | 'file_create'
-  | 'file_modify'
-  | 'file_delete'
-  | 'command_execute'
-  | 'git_commit'
-  | 'git_push'
-  | 'install_package'
-  | 'config_change'
-  | 'network_request';
+export type OperationType =
+  | "file_create"
+  | "file_modify"
+  | "file_delete"
+  | "command_execute"
+  | "git_commit"
+  | "git_push"
+  | "install_package"
+  | "config_change"
+  | "network_request";
 
 /** 文件操作结果 */
 export interface FileOperationResult {
@@ -76,21 +76,21 @@ export interface SecurityValidation {
  * 读取文件内容
  */
 export async function readFile(path: string): Promise<FileOperationResult> {
-  return invoke<FileOperationResult>('super_agent_read_file', { path });
+  return invoke<FileOperationResult>("super_agent_read_file", { path });
 }
 
 /**
  * 写入文件内容
  */
 export async function writeFile(path: string, content: string): Promise<FileOperationResult> {
-  return invoke<FileOperationResult>('super_agent_write_file', { path, content });
+  return invoke<FileOperationResult>("super_agent_write_file", { path, content });
 }
 
 /**
  * 删除文件
  */
 export async function deleteFile(path: string): Promise<FileOperationResult> {
-  return invoke<FileOperationResult>('super_agent_delete_file', { path });
+  return invoke<FileOperationResult>("super_agent_delete_file", { path });
 }
 
 /**
@@ -101,13 +101,12 @@ export async function strReplace(
   oldStr: string,
   newStr: string
 ): Promise<FileOperationResult> {
-  return invoke<FileOperationResult>('super_agent_str_replace', {
+  return invoke<FileOperationResult>("super_agent_str_replace", {
     path,
     old_str: oldStr,
     new_str: newStr,
   });
 }
-
 
 // =============================================================================
 // Shell 执行
@@ -123,7 +122,7 @@ export async function executeCommand(
     timeoutMs?: number;
   }
 ): Promise<CommandResult> {
-  return invoke<CommandResult>('super_agent_execute_command', {
+  return invoke<CommandResult>("super_agent_execute_command", {
     command,
     cwd: options?.cwd,
     timeout_ms: options?.timeoutMs,
@@ -134,14 +133,14 @@ export async function executeCommand(
  * 检测二进制是否可用（用于 Node/npm 等）
  */
 export async function checkBinary(tool: string): Promise<BinaryCheckResult> {
-  return invoke<BinaryCheckResult>('super_agent_check_binary', { tool });
+  return invoke<BinaryCheckResult>("super_agent_check_binary", { tool });
 }
 
 /**
  * 检查命令是否为长时间运行命令
  */
 export async function isLongRunning(command: string): Promise<boolean> {
-  return invoke<boolean>('super_agent_is_long_running', { command });
+  return invoke<boolean>("super_agent_is_long_running", { command });
 }
 
 // =============================================================================
@@ -152,14 +151,14 @@ export async function isLongRunning(command: string): Promise<boolean> {
  * 验证命令安全性
  */
 export async function validateCommand(command: string): Promise<SecurityValidation> {
-  return invoke<SecurityValidation>('super_agent_validate_command', { command });
+  return invoke<SecurityValidation>("super_agent_validate_command", { command });
 }
 
 /**
  * 验证路径安全性
  */
 export async function validatePath(path: string): Promise<SecurityValidation> {
-  return invoke<SecurityValidation>('super_agent_validate_path', { path });
+  return invoke<SecurityValidation>("super_agent_validate_path", { path });
 }
 
 /**
@@ -169,7 +168,7 @@ export async function assessRisk(
   operationType: OperationType,
   details?: Record<string, string>
 ): Promise<RiskLevel> {
-  return invoke<RiskLevel>('super_agent_assess_risk', {
+  return invoke<RiskLevel>("super_agent_assess_risk", {
     operation_type: operationType,
     details,
   });
@@ -179,7 +178,7 @@ export async function assessRisk(
  * 脱敏敏感信息
  */
 export async function redactSensitive(text: string): Promise<string> {
-  return invoke<string>('super_agent_redact_sensitive', { text });
+  return invoke<string>("super_agent_redact_sensitive", { text });
 }
 
 // =============================================================================
@@ -198,30 +197,30 @@ export async function safeExecuteCommand(
   }
 ): Promise<CommandResult & { validation: SecurityValidation }> {
   const validation = await validateCommand(command);
-  
+
   if (!validation.valid) {
     return {
       success: false,
-      stdout: '',
-      stderr: validation.blocked_reason ?? 'Command blocked',
+      stdout: "",
+      stderr: validation.blocked_reason ?? "Command blocked",
       duration_ms: 0,
       validation,
     };
   }
-  
+
   if (
     !options?.allowHighRisk &&
-    (validation.risk_level === 'high' || validation.risk_level === 'critical')
+    (validation.risk_level === "high" || validation.risk_level === "critical")
   ) {
     return {
       success: false,
-      stdout: '',
+      stdout: "",
       stderr: `Command blocked due to ${validation.risk_level} risk level`,
       duration_ms: 0,
       validation,
     };
   }
-  
+
   const result = await executeCommand(command, options);
   return { ...result, validation };
 }
@@ -234,16 +233,16 @@ export async function safeWriteFile(
   content: string
 ): Promise<FileOperationResult & { validation: SecurityValidation }> {
   const validation = await validatePath(path);
-  
+
   if (!validation.valid) {
     return {
       success: false,
       path,
-      error: validation.blocked_reason ?? 'Path blocked',
+      error: validation.blocked_reason ?? "Path blocked",
       validation,
     };
   }
-  
+
   const result = await writeFile(path, content);
   return { ...result, validation };
 }
@@ -255,16 +254,16 @@ export async function safeDeleteFile(
   path: string
 ): Promise<FileOperationResult & { validation: SecurityValidation }> {
   const validation = await validatePath(path);
-  
+
   if (!validation.valid) {
     return {
       success: false,
       path,
-      error: validation.blocked_reason ?? 'Path blocked',
+      error: validation.blocked_reason ?? "Path blocked",
       validation,
     };
   }
-  
+
   const result = await deleteFile(path);
   return { ...result, validation };
 }
@@ -281,12 +280,12 @@ export const SuperAgentBridge = {
   strReplace,
   safeWriteFile,
   safeDeleteFile,
-  
+
   // Shell 执行
   executeCommand,
   isLongRunning,
   safeExecuteCommand,
-  
+
   // 安全验证
   validateCommand,
   validatePath,

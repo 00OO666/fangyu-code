@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,7 +34,7 @@ export const PermissionsSettings: React.FC<PermissionsSettingsProps> = ({
   addPermissionRule,
   updatePermissionRule,
   removePermissionRule,
-  selectedEngine = 'claude',
+  selectedEngine = "claude",
   onEngineChange,
   showEngineSelector = false,
 }) => {
@@ -59,16 +59,16 @@ export const PermissionsSettings: React.FC<PermissionsSettingsProps> = ({
         )}
 
         <div>
-          <h3 className="text-base font-semibold mb-2">{t('permissionsSettings.title')}</h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            {t('permissionsSettings.subtitle')}
-          </p>
+          <h3 className="text-base font-semibold mb-2">{t("permissionsSettings.title")}</h3>
+          <p className="text-sm text-muted-foreground mb-4">{t("permissionsSettings.subtitle")}</p>
         </div>
 
         {/* Allow Rules */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label className="text-sm font-medium text-green-500">{t('permissionsSettings.allowRules')}</Label>
+            <Label className="text-sm font-medium text-green-500">
+              {t("permissionsSettings.allowRules")}
+            </Label>
             <Button
               variant="outline"
               size="sm"
@@ -76,13 +76,13 @@ export const PermissionsSettings: React.FC<PermissionsSettingsProps> = ({
               className="gap-2 hover:border-green-500/50 hover:text-green-500"
             >
               <Plus className="h-3 w-3" aria-hidden="true" />
-              {t('permissionsSettings.addRule')}
+              {t("permissionsSettings.addRule")}
             </Button>
           </div>
           <div className="space-y-2">
             {allowRules.length === 0 ? (
               <p className="text-xs text-muted-foreground py-2">
-                {t('permissionsSettings.noAllowRules')}
+                {t("permissionsSettings.noAllowRules")}
               </p>
             ) : (
               allowRules.map((rule) => (
@@ -93,7 +93,7 @@ export const PermissionsSettings: React.FC<PermissionsSettingsProps> = ({
                   className="flex items-center gap-2"
                 >
                   <Input
-                    placeholder={t('common.bashExample')}
+                    placeholder={t("common.bashExample")}
                     value={rule.value}
                     onChange={(e) => updatePermissionRule("allow", rule.id, e.target.value)}
                     className="flex-1"
@@ -103,7 +103,7 @@ export const PermissionsSettings: React.FC<PermissionsSettingsProps> = ({
                     size="icon"
                     onClick={() => removePermissionRule("allow", rule.id)}
                     className="h-8 w-8"
-                    aria-label={t('permissionsSettings.deleteRule')}
+                    aria-label={t("permissionsSettings.deleteRule")}
                   >
                     <Trash2 className="h-4 w-4" aria-hidden="true" />
                   </Button>
@@ -116,7 +116,9 @@ export const PermissionsSettings: React.FC<PermissionsSettingsProps> = ({
         {/* Deny Rules */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label className="text-sm font-medium text-red-500">{t('permissionsSettings.denyRules')}</Label>
+            <Label className="text-sm font-medium text-red-500">
+              {t("permissionsSettings.denyRules")}
+            </Label>
             <Button
               variant="outline"
               size="sm"
@@ -124,13 +126,13 @@ export const PermissionsSettings: React.FC<PermissionsSettingsProps> = ({
               className="gap-2 hover:border-red-500/50 hover:text-red-500"
             >
               <Plus className="h-3 w-3" aria-hidden="true" />
-              {t('permissionsSettings.addRule')}
+              {t("permissionsSettings.addRule")}
             </Button>
           </div>
           <div className="space-y-2">
             {denyRules.length === 0 ? (
               <p className="text-xs text-muted-foreground py-2">
-                {t('permissionsSettings.noDenyRules')}
+                {t("permissionsSettings.noDenyRules")}
               </p>
             ) : (
               denyRules.map((rule) => (
@@ -151,7 +153,7 @@ export const PermissionsSettings: React.FC<PermissionsSettingsProps> = ({
                     size="icon"
                     onClick={() => removePermissionRule("deny", rule.id)}
                     className="h-8 w-8"
-                    aria-label={t('permissionsSettings.deleteRule')}
+                    aria-label={t("permissionsSettings.deleteRule")}
                   >
                     <Trash2 className="h-4 w-4" aria-hidden="true" />
                   </Button>
@@ -163,14 +165,44 @@ export const PermissionsSettings: React.FC<PermissionsSettingsProps> = ({
 
         <div className="pt-2 space-y-2">
           <p className="text-xs text-muted-foreground">
-            <strong>{t('permissionsSettings.examples')}</strong>
+            <strong>{t("permissionsSettings.examples")}</strong>
           </p>
           <ul className="text-xs text-muted-foreground space-y-1 ml-4">
-            <li>- <code className="px-1 py-0.5 rounded bg-green-500/10 text-green-600 dark:text-green-400">Bash</code> - {t('permissionsSettings.exampleBashAll')}</li>
-            <li>- <code className="px-1 py-0.5 rounded bg-green-500/10 text-green-600 dark:text-green-400">Bash(npm run build)</code> - {t('permissionsSettings.exampleBashExact')}</li>
-            <li>- <code className="px-1 py-0.5 rounded bg-green-500/10 text-green-600 dark:text-green-400">Bash(npm run test:*)</code> - {t('permissionsSettings.exampleBashPrefix')}</li>
-            <li>- <code className="px-1 py-0.5 rounded bg-green-500/10 text-green-600 dark:text-green-400">Read(~/.zshrc)</code> - {t('permissionsSettings.exampleReadFile')}</li>
-            <li>- <code className="px-1 py-0.5 rounded bg-green-500/10 text-green-600 dark:text-green-400">Edit(docs/**)</code> - {t('permissionsSettings.exampleEditDir')}</li>
+            <li>
+              -{" "}
+              <code className="px-1 py-0.5 rounded bg-green-500/10 text-green-600 dark:text-green-400">
+                Bash
+              </code>{" "}
+              - {t("permissionsSettings.exampleBashAll")}
+            </li>
+            <li>
+              -{" "}
+              <code className="px-1 py-0.5 rounded bg-green-500/10 text-green-600 dark:text-green-400">
+                Bash(npm run build)
+              </code>{" "}
+              - {t("permissionsSettings.exampleBashExact")}
+            </li>
+            <li>
+              -{" "}
+              <code className="px-1 py-0.5 rounded bg-green-500/10 text-green-600 dark:text-green-400">
+                Bash(npm run test:*)
+              </code>{" "}
+              - {t("permissionsSettings.exampleBashPrefix")}
+            </li>
+            <li>
+              -{" "}
+              <code className="px-1 py-0.5 rounded bg-green-500/10 text-green-600 dark:text-green-400">
+                Read(~/.zshrc)
+              </code>{" "}
+              - {t("permissionsSettings.exampleReadFile")}
+            </li>
+            <li>
+              -{" "}
+              <code className="px-1 py-0.5 rounded bg-green-500/10 text-green-600 dark:text-green-400">
+                Edit(docs/**)
+              </code>{" "}
+              - {t("permissionsSettings.exampleEditDir")}
+            </li>
           </ul>
         </div>
       </div>

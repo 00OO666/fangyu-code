@@ -1,5 +1,5 @@
-import React from 'react';
-import { GlassCard, GlassButton, GlassInput } from '@/components/ui/deep-glass';
+import React from "react";
+import { GlassCard, GlassButton, GlassInput } from "@/components/ui/deep-glass";
 
 /**
  * Deep Glass Components Demo
@@ -93,19 +93,9 @@ export const DeepGlassDemo: React.FC = () => {
       <div className="space-y-4">
         <h2 className="text-2xl font-semibold text-white">Input Fields</h2>
         <div className="space-y-4 max-w-md">
-          <GlassInput
-            placeholder="Small input..."
-            inputSize="sm"
-          />
-          <GlassInput
-            placeholder="Medium input with glow..."
-            inputSize="md"
-            glow
-          />
-          <GlassInput
-            placeholder="Large input..."
-            inputSize="lg"
-          />
+          <GlassInput placeholder="Small input..." inputSize="sm" />
+          <GlassInput placeholder="Medium input with glow..." inputSize="md" glow />
+          <GlassInput placeholder="Large input..." inputSize="lg" />
         </div>
       </div>
 
@@ -143,7 +133,7 @@ export const DeepGlassDemo: React.FC = () => {
                 <span className="text-white font-medium">128k/200k (64%)</span>
               </div>
               <div className="progress-glass">
-                <div className="progress-glass-fill" style={{ width: '64%' }} />
+                <div className="progress-glass-fill" style={{ width: "64%" }} />
               </div>
             </div>
 

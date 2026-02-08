@@ -1,4 +1,4 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 
 /**
  * 会话累计消耗计数器
@@ -32,7 +32,7 @@ export function getSessionAccumulation(sessionId: string): SessionAccumulation {
       }
     }
   } catch (error) {
-    logger.error('sessionAccumulator', "[SessionAccumulator] 读取累计数据失败:", error);
+    logger.error("sessionAccumulator", "[SessionAccumulator] 读取累计数据失败:", error);
   }
 
   // 新会话或读取失败，返回初始值
@@ -49,7 +49,7 @@ export function getSessionAccumulation(sessionId: string): SessionAccumulation {
 export function addToAccumulation(
   sessionId: string,
   deltaTokens: number,
-  deltaCost: number,
+  deltaCost: number
 ): SessionAccumulation {
   const current = getSessionAccumulation(sessionId);
 
@@ -62,7 +62,7 @@ export function addToAccumulation(
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
   } catch (error) {
-    logger.error('sessionAccumulator', "[SessionAccumulator] 保存累计数据失败:", error);
+    logger.error("sessionAccumulator", "[SessionAccumulator] 保存累计数据失败:", error);
   }
 
   return updated;
@@ -80,8 +80,8 @@ export function resetAccumulation(sessionId: string): void {
 
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(initial));
-    logger.debug('sessionAccumulator', "[SessionAccumulator] 已重置累计计数器:", sessionId);
+    logger.debug("sessionAccumulator", "[SessionAccumulator] 已重置累计计数器:", sessionId);
   } catch (error) {
-    logger.error('sessionAccumulator', "[SessionAccumulator] 重置累计数据失败:", error);
+    logger.error("sessionAccumulator", "[SessionAccumulator] 重置累计数据失败:", error);
   }
 }

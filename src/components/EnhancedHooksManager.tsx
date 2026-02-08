@@ -1,44 +1,61 @@
-import { logger } from '@/lib/logger';
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Play, Settings, Zap, Clock, CheckCircle, XCircle, Save, Info, Terminal, Layers } from 'lucide-react';
-import { api } from '@/lib/api';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { logger } from "@/lib/logger";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  ArrowLeft,
+  Play,
+  Settings,
+  Zap,
+  Clock,
+  CheckCircle,
+  XCircle,
+  Save,
+  Info,
+  Terminal,
+  Layers,
+} from "lucide-react";
+import { api } from "@/lib/api";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import type {
   EnhancedHookEvent,
   EnhancedHooksConfiguration,
   HookChainResult,
-  HookContext
-} from '@/types/enhanced-hooks';
-import { convertToEnhanced, convertFromEnhanced } from '@/lib/hooksConverter';
+  HookContext,
+} from "@/types/enhanced-hooks";
+import { convertToEnhanced, convertFromEnhanced } from "@/lib/hooksConverter";
 
 interface EnhancedHooksManagerProps {
   onBack: () => void;
   projectPath?: string;
 }
 
-
 export function EnhancedHooksManager({ onBack, projectPath }: EnhancedHooksManagerProps) {
   const [hooksConfig, setHooksConfig] = useState<EnhancedHooksConfiguration>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState("overview");
   const [saving, setSaving] = useState(false);
   const [modified, setModified] = useState(false);
 
   const [testEvent, setTestEvent] = useState<EnhancedHookEvent | null>(null);
   const [testContext, setTestContext] = useState<HookContext>({
-    event: '',
-    session_id: 'test-session',
-    project_path: projectPath || '/test/project',
-    data: {}
+    event: "",
+    session_id: "test-session",
+    project_path: projectPath || "/test/project",
+    data: {},
   });
   const [testResult, setTestResult] = useState<HookChainResult | null>(null);
   const [testing, setTesting] = useState(false);
@@ -54,14 +71,14 @@ export function EnhancedHooksManager({ onBack, projectPath }: EnhancedHooksManag
 
       const config = projectPath
         ? await api.getMergedHooksConfig(projectPath)
-        : await api.getHooksConfig('user');
+        : await api.getHooksConfig("user");
 
       // 转换为Enhanced格式
       const enhancedConfig = convertToEnhanced(config);
       setHooksConfig(enhancedConfig);
     } catch (err) {
-      logger.error('EnhancedHooksManager', 'Failed to load hooks config:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load hooks configuration');
+      logger.error("EnhancedHooksManager", "Failed to load hooks config:", err);
+      setError(err instanceof Error ? err.message : "Failed to load hooks configuration");
     } finally {
       setLoading(false);
     }
@@ -76,13 +93,13 @@ export function EnhancedHooksManager({ onBack, projectPath }: EnhancedHooksManag
 
       // 转换为原始格式进行保存
       const originalConfig = convertFromEnhanced(hooksConfig);
-      const scope = projectPath ? 'local' : 'user';
+      const scope = projectPath ? "local" : "user";
       await api.updateHooksConfig(scope, originalConfig, projectPath);
 
       setModified(false);
     } catch (err) {
-      logger.error('EnhancedHooksManager', 'Failed to save hooks config:', err);
-      setError(err instanceof Error ? err.message : 'Failed to save hooks configuration');
+      logger.error("EnhancedHooksManager", "Failed to save hooks config:", err);
+      setError(err instanceof Error ? err.message : "Failed to save hooks configuration");
     } finally {
       setSaving(false);
     }
@@ -103,8 +120,8 @@ export function EnhancedHooksManager({ onBack, projectPath }: EnhancedHooksManag
       const result = await api.triggerHookEvent(testEvent, context);
       setTestResult(result);
     } catch (err) {
-      logger.error('EnhancedHooksManager', 'Failed to test hook event:', err);
-      setError(err instanceof Error ? err.message : 'Failed to test hook event');
+      logger.error("EnhancedHooksManager", "Failed to test hook event:", err);
+      setError(err instanceof Error ? err.message : "Failed to test hook event");
     } finally {
       setTesting(false);
     }
@@ -148,7 +165,7 @@ export function EnhancedHooksManager({ onBack, projectPath }: EnhancedHooksManag
               <div className="flex items-center space-x-2">
                 <Settings className="h-5 w-5 text-muted-foreground" />
                 <div>
-                  <p className="text-2xl font-bold">{projectPath ? '项目' : '用户'}</p>
+                  <p className="text-2xl font-bold">{projectPath ? "项目" : "用户"}</p>
                   <p className="text-xs text-muted-foreground">配置作用域</p>
                 </div>
               </div>
@@ -159,15 +176,13 @@ export function EnhancedHooksManager({ onBack, projectPath }: EnhancedHooksManag
         <Card>
           <CardHeader>
             <CardTitle>快速操作</CardTitle>
-            <CardDescription>
-              常用的Hooks管理操作
-            </CardDescription>
+            <CardDescription>常用的Hooks管理操作</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Button
                 variant="outline"
-                onClick={() => setActiveTab('testing')}
+                onClick={() => setActiveTab("testing")}
                 className="h-auto p-4 justify-start"
               >
                 <Play className="h-4 w-4 mr-3" />
@@ -177,11 +192,7 @@ export function EnhancedHooksManager({ onBack, projectPath }: EnhancedHooksManag
                 </div>
               </Button>
 
-              <Button
-                variant="outline"
-                disabled
-                className="h-auto p-4 justify-start opacity-50"
-              >
+              <Button variant="outline" disabled className="h-auto p-4 justify-start opacity-50">
                 <Settings className="h-4 w-4 mr-3" />
                 <div className="text-left">
                   <div className="font-medium">编辑配置</div>
@@ -203,9 +214,7 @@ export function EnhancedHooksManager({ onBack, projectPath }: EnhancedHooksManag
             <Play className="h-5 w-5" />
             <span>Hook事件测试</span>
           </CardTitle>
-          <CardDescription>
-            测试Hook事件的执行效果和链式处理
-          </CardDescription>
+          <CardDescription>测试Hook事件的执行效果和链式处理</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -232,10 +241,12 @@ export function EnhancedHooksManager({ onBack, projectPath }: EnhancedHooksManag
               <Label>会话ID</Label>
               <Input
                 value={testContext.session_id}
-                onChange={(e) => setTestContext({
-                  ...testContext,
-                  session_id: e.target.value
-                })}
+                onChange={(e) =>
+                  setTestContext({
+                    ...testContext,
+                    session_id: e.target.value,
+                  })
+                }
                 placeholder="测试会话ID"
               />
             </div>
@@ -245,19 +256,17 @@ export function EnhancedHooksManager({ onBack, projectPath }: EnhancedHooksManag
             <Label>项目路径</Label>
             <Input
               value={testContext.project_path}
-              onChange={(e) => setTestContext({
-                ...testContext,
-                project_path: e.target.value
-              })}
+              onChange={(e) =>
+                setTestContext({
+                  ...testContext,
+                  project_path: e.target.value,
+                })
+              }
               placeholder="项目路径"
             />
           </div>
 
-          <Button
-            onClick={testHookEvent}
-            disabled={!testEvent || testing}
-            className="w-full"
-          >
+          <Button onClick={testHookEvent} disabled={!testEvent || testing} className="w-full">
             {testing ? (
               <Clock className="h-4 w-4 mr-2 animate-spin" />
             ) : (
@@ -282,7 +291,7 @@ export function EnhancedHooksManager({ onBack, projectPath }: EnhancedHooksManag
                       <Terminal className="h-5 w-5" />
                       <span>执行结果</span>
                       <Badge variant={testResult.should_continue ? "default" : "destructive"}>
-                        {testResult.should_continue ? '允许继续' : '阻止操作'}
+                        {testResult.should_continue ? "允许继续" : "阻止操作"}
                       </Badge>
                     </CardTitle>
                   </CardHeader>
@@ -311,8 +320,8 @@ export function EnhancedHooksManager({ onBack, projectPath }: EnhancedHooksManag
                               key={index}
                               className={`p-3 rounded border text-sm ${
                                 result.success
-                                  ? 'border-green-200 bg-green-50'
-                                  : 'border-red-200 bg-red-50'
+                                  ? "border-green-200 bg-green-50"
+                                  : "border-red-200 bg-red-50"
                               }`}
                             >
                               <div className="flex items-center justify-between mb-2">
@@ -371,11 +380,7 @@ export function EnhancedHooksManager({ onBack, projectPath }: EnhancedHooksManag
           className="mb-6"
         >
           <div className="flex items-center justify-between mb-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onBack}
-            >
+            <Button variant="ghost" size="sm" onClick={onBack}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               返回
             </Button>

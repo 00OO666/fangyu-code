@@ -6,19 +6,19 @@
  * 🔧 v2.2.6: 默认展开所有工具调用，让用户能看到完整执行过程
  */
 
-import React, { memo, useState, useMemo, useRef, useEffect } from 'react';
-import { ChevronDown, ChevronRight, Wrench, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { toolRegistry } from '@/lib/toolRegistry';
-import { useToolResults } from '@/hooks/useToolResults';
-import { useTranslation } from '@/hooks/useTranslation';
-import { getGlobalOutputDisplaySettings } from '@/hooks/useOutputDisplaySettings';
-import type { ClaudeStreamMessage } from '@/types/claude';
-import type { ToolResultEntry } from '@/contexts/MessagesContext';
+import React, { memo, useState, useMemo, useRef, useEffect } from "react";
+import { ChevronDown, ChevronRight, Wrench, AlertCircle, CheckCircle, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { toolRegistry } from "@/lib/toolRegistry";
+import { useToolResults } from "@/hooks/useToolResults";
+import { useTranslation } from "@/hooks/useTranslation";
+import { getGlobalOutputDisplaySettings } from "@/hooks/useOutputDisplaySettings";
+import type { ClaudeStreamMessage } from "@/types/claude";
+import type { ToolResultEntry } from "@/contexts/MessagesContext";
 
 interface ToolCall {
   id: string;
-  type: 'tool_use';
+  type: "tool_use";
   name: string;
   input?: Record<string, any>;
 }
@@ -57,7 +57,7 @@ export const ToolCallsGroup: React.FC<ToolCallsGroupProps> = ({
     if (!message.message?.content || !Array.isArray(message.message.content)) {
       return [];
     }
-    return message.message.content.filter((item: any) => item.type === 'tool_use') as ToolCall[];
+    return message.message.content.filter((item: any) => item.type === "tool_use") as ToolCall[];
   }, [message]);
 
   const { getResultById, getStatusById } = useToolResults();
@@ -66,7 +66,9 @@ export const ToolCallsGroup: React.FC<ToolCallsGroupProps> = ({
   const globalSettings = getGlobalOutputDisplaySettings();
 
   // 🔧 v2.2.6: 默认展开工具调用
-  const shouldCollapse = defaultCollapsed ?? (globalSettings.showToolResults ? false : toolCalls.length >= collapseThreshold);
+  const shouldCollapse =
+    defaultCollapsed ??
+    (globalSettings.showToolResults ? false : toolCalls.length >= collapseThreshold);
   const [isCollapsed, setIsCollapsed] = useState(shouldCollapse);
 
   // 计算工具执行统计
@@ -75,11 +77,11 @@ export const ToolCallsGroup: React.FC<ToolCallsGroupProps> = ({
     let errorCount = 0;
     let pendingCount = 0;
 
-    toolCalls.forEach(tool => {
+    toolCalls.forEach((tool) => {
       const status = getStatusById(tool.id);
-      if (status === 'pending') {
+      if (status === "pending") {
         pendingCount++;
-      } else if (status === 'error') {
+      } else if (status === "error") {
         errorCount++;
       } else {
         successCount++;
@@ -98,12 +100,12 @@ export const ToolCallsGroup: React.FC<ToolCallsGroupProps> = ({
 
   // 获取工具类型摘要
   const toolTypesSummary = useMemo(() => {
-    const types = new Set(toolCalls.map(t => t.name));
+    const types = new Set(toolCalls.map((t) => t.name));
     const typeArray = Array.from(types);
     if (typeArray.length <= 3) {
-      return typeArray.join(', ');
+      return typeArray.join(", ");
     }
-    return `${typeArray.slice(0, 3).join(', ')} +${typeArray.length - 3}`;
+    return `${typeArray.slice(0, 3).join(", ")} +${typeArray.length - 3}`;
   }, [toolCalls]);
 
   if (toolCalls.length === 0) return null;
@@ -112,7 +114,7 @@ export const ToolCallsGroup: React.FC<ToolCallsGroupProps> = ({
   if (toolCalls.length === 1) {
     const tool = toolCalls[0];
     return (
-      <div className={cn('tool-single-call my-0.5', className)}>
+      <div className={cn("tool-single-call my-0.5", className)}>
         <SingleToolCall
           tool={tool}
           result={getResultById(tool.id)}
@@ -124,15 +126,24 @@ export const ToolCallsGroup: React.FC<ToolCallsGroupProps> = ({
   }
 
   return (
-    <div className={cn('tool-calls-group my-0.5 border border-border rounded-lg overflow-hidden', className)}>
+    <div
+      className={cn(
+        "tool-calls-group my-0.5 border border-border rounded-lg overflow-hidden",
+        className
+      )}
+    >
       {/* 折叠/展开头部 */}
       <button
         onClick={toggleCollapse}
         className="flex items-center gap-2 w-full px-3 py-2 text-left bg-muted/30 hover:bg-muted/50 transition-colors"
       >
-        {isCollapsed ? <ChevronRight className="w-4 h-4 shrink-0" /> : <ChevronDown className="w-4 h-4 shrink-0" />}
+        {isCollapsed ? (
+          <ChevronRight className="w-4 h-4 shrink-0" />
+        ) : (
+          <ChevronDown className="w-4 h-4 shrink-0" />
+        )}
         <Wrench className="w-4 h-4 text-blue-500 shrink-0" />
-        <span className="font-medium text-sm">{t('tools.toolCalls', { count: stats.total })}</span>
+        <span className="font-medium text-sm">{t("tools.toolCalls", { count: stats.total })}</span>
 
         {/* 状态徽章 */}
         <div className="flex items-center gap-2 ml-auto">
@@ -156,15 +167,14 @@ export const ToolCallsGroup: React.FC<ToolCallsGroupProps> = ({
           )}
         </div>
 
-        <span className="text-xs text-muted-foreground ml-2 truncate max-w-[200px]">{toolTypesSummary}</span>
+        <span className="text-xs text-muted-foreground ml-2 truncate max-w-[200px]">
+          {toolTypesSummary}
+        </span>
       </button>
 
       {/* 折叠摘要或完整内容 */}
       {isCollapsed ? (
-        <CollapsedSummary
-          toolCalls={toolCalls}
-          getStatusById={getStatusById}
-        />
+        <CollapsedSummary toolCalls={toolCalls} getStatusById={getStatusById} />
       ) : (
         <div className="space-y-1 p-3 bg-background">
           {toolCalls.map((tool, index) => (
@@ -189,7 +199,7 @@ export const ToolCallsGroup: React.FC<ToolCallsGroupProps> = ({
  */
 interface CollapsedSummaryProps {
   toolCalls: ToolCall[];
-  getStatusById: (toolUseId?: string | null) => 'pending' | 'success' | 'error';
+  getStatusById: (toolUseId?: string | null) => "pending" | "success" | "error";
 }
 
 const CollapsedSummary: React.FC<CollapsedSummaryProps> = ({ toolCalls, getStatusById }) => {
@@ -199,36 +209,40 @@ const CollapsedSummary: React.FC<CollapsedSummaryProps> = ({ toolCalls, getStatu
       {/* 显示前3个工具 */}
       {toolCalls.slice(0, 3).map((tool, idx) => {
         const status = getStatusById(tool.id);
-        const hasResult = status !== 'pending';
-        const isError = status === 'error';
+        const hasResult = status !== "pending";
+        const isError = status === "error";
 
         let StatusIcon = Loader2;
-        let statusColor = 'text-blue-600';
+        let statusColor = "text-blue-600";
 
         if (hasResult) {
           if (isError) {
             StatusIcon = AlertCircle;
-            statusColor = 'text-red-600';
+            statusColor = "text-red-600";
           } else {
             StatusIcon = CheckCircle;
-            statusColor = 'text-green-600';
+            statusColor = "text-green-600";
           }
         }
 
         return (
           <div key={idx} className="flex items-center gap-2 text-xs">
-            <StatusIcon className={cn('w-3 h-3', statusColor, !hasResult && 'animate-spin')} />
+            <StatusIcon className={cn("w-3 h-3", statusColor, !hasResult && "animate-spin")} />
             <span className="font-mono font-medium">{tool.name}</span>
-            {tool.input?.path && <span className="text-muted-foreground truncate">: {tool.input.path}</span>}
+            {tool.input?.path && (
+              <span className="text-muted-foreground truncate">: {tool.input.path}</span>
+            )}
           </div>
         );
       })}
 
       {toolCalls.length > 3 && (
-        <div className="text-xs text-muted-foreground pl-5">{t('tools.moreTools', { count: toolCalls.length - 3 })}</div>
+        <div className="text-xs text-muted-foreground pl-5">
+          {t("tools.moreTools", { count: toolCalls.length - 3 })}
+        </div>
       )}
 
-      <div className="text-[10px] text-muted-foreground/70 pt-1">{t('tools.clickToExpand')}</div>
+      <div className="text-[10px] text-muted-foreground/70 pt-1">{t("tools.clickToExpand")}</div>
     </div>
   );
 };
@@ -239,13 +253,20 @@ const CollapsedSummary: React.FC<CollapsedSummaryProps> = ({ toolCalls, getStatu
 interface SingleToolCallProps {
   tool: ToolCall;
   result?: ToolResultEntry;
-  status: 'pending' | 'success' | 'error';
+  status: "pending" | "success" | "error";
   onLinkDetected?: (url: string) => void;
   index?: number;
   total?: number;
 }
 
-const SingleToolCallComponent: React.FC<SingleToolCallProps> = ({ tool, result, status, onLinkDetected, index, total }) => {
+const SingleToolCallComponent: React.FC<SingleToolCallProps> = ({
+  tool,
+  result,
+  status,
+  onLinkDetected,
+  index,
+  total,
+}) => {
   const { t } = useTranslation();
   const renderer = toolRegistry.getRenderer(tool.name);
 
@@ -257,7 +278,7 @@ const SingleToolCallComponent: React.FC<SingleToolCallProps> = ({ tool, result, 
     : undefined;
 
   // 判断是否正在流式输出（工具执行中）
-  const isStreaming = status === 'pending';
+  const isStreaming = status === "pending";
 
   // 构建渲染 props
   const renderProps = {
@@ -270,32 +291,37 @@ const SingleToolCallComponent: React.FC<SingleToolCallProps> = ({ tool, result, 
   };
 
   // 判断状态
-  const hasResult = status !== 'pending';
-  const isError = status === 'error';
+  const hasResult = status !== "pending";
+  const isError = status === "error";
 
   let StatusIcon = Loader2;
-  let statusColor = 'text-blue-600';
-  let statusBg = 'bg-blue-500/10';
+  let statusColor = "text-blue-600";
+  let statusBg = "bg-blue-500/10";
 
   if (hasResult) {
     if (isError) {
       StatusIcon = AlertCircle;
-      statusColor = 'text-red-600';
-      statusBg = 'bg-red-500/10';
+      statusColor = "text-red-600";
+      statusBg = "bg-red-500/10";
     } else {
       StatusIcon = CheckCircle;
-      statusColor = 'text-green-600';
-      statusBg = 'bg-green-500/10';
+      statusColor = "text-green-600";
+      statusBg = "bg-green-500/10";
     }
   }
 
   return (
-    <div className={cn('tool-call-item my-2', renderer ? '' : 'bg-card border rounded-lg p-3 border-border')}>
+    <div
+      className={cn(
+        "tool-call-item my-2",
+        renderer ? "" : "bg-card border rounded-lg p-3 border-border"
+      )}
+    >
       {/* 工具头部 - 仅在没有专用渲染器时显示 */}
       {!renderer && (
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <StatusIcon className={cn('w-4 h-4', statusColor, !hasResult && 'animate-spin')} />
+            <StatusIcon className={cn("w-4 h-4", statusColor, !hasResult && "animate-spin")} />
             <span className="font-mono text-sm font-medium">{tool.name}</span>
             {index && total && (
               <span className="text-xs text-muted-foreground">
@@ -303,8 +329,8 @@ const SingleToolCallComponent: React.FC<SingleToolCallProps> = ({ tool, result, 
               </span>
             )}
           </div>
-          <span className={cn('text-xs px-2 py-0.5 rounded', statusBg, statusColor)}>
-            {hasResult ? (isError ? t('tools.failed') : t('tools.success')) : t('tools.executing')}
+          <span className={cn("text-xs px-2 py-0.5 rounded", statusBg, statusColor)}>
+            {hasResult ? (isError ? t("tools.failed") : t("tools.success")) : t("tools.executing")}
           </span>
         </div>
       )}
@@ -356,32 +382,42 @@ const FallbackToolRender: React.FC<FallbackToolRenderProps> = ({ tool, result })
 
   return (
     <div className="fallback-tool-render space-y-2 text-xs">
-      <div className="text-muted-foreground">{t('tools.unregisteredTool')}</div>
+      <div className="text-muted-foreground">{t("tools.unregisteredTool")}</div>
 
       {tool.input && Object.keys(tool.input).length > 0 && (
         <details className="text-xs">
           <summary className="cursor-pointer text-muted-foreground hover:text-foreground select-none">
-            {t('tools.inputParams')}
+            {t("tools.inputParams")}
           </summary>
-          <pre className="mt-1 p-2 bg-muted rounded text-[10px] overflow-x-auto whitespace-pre-wrap break-words" style={{ overflowWrap: 'anywhere' }}>
+          <pre
+            className="mt-1 p-2 bg-muted rounded text-[10px] overflow-x-auto whitespace-pre-wrap break-words"
+            style={{ overflowWrap: "anywhere" }}
+          >
             {JSON.stringify(tool.input, null, 2)}
           </pre>
         </details>
       )}
 
       {result && (
-        <div className={cn('p-2 rounded relative', result.is_error ? 'bg-red-500/10' : 'bg-muted')}>
-          <div className="font-medium mb-1 text-xs">{result.is_error ? t('tools.executionFailed') : t('tools.executionResult')}:</div>
+        <div className={cn("p-2 rounded relative", result.is_error ? "bg-red-500/10" : "bg-muted")}>
+          <div className="font-medium mb-1 text-xs">
+            {result.is_error ? t("tools.executionFailed") : t("tools.executionResult")}:
+          </div>
           <div className="relative">
             <pre
               ref={resultRef}
               className={cn(
-                'text-[10px] overflow-x-auto whitespace-pre-wrap break-words transition-[max-height]',
-                shouldCollapse && collapsed && 'overflow-hidden'
+                "text-[10px] overflow-x-auto whitespace-pre-wrap break-words transition-[max-height]",
+                shouldCollapse && collapsed && "overflow-hidden"
               )}
-              style={{ overflowWrap: 'anywhere', ...(shouldCollapse && collapsed ? { maxHeight: `${COLLAPSE_HEIGHT}px` } : {}) }}
+              style={{
+                overflowWrap: "anywhere",
+                ...(shouldCollapse && collapsed ? { maxHeight: `${COLLAPSE_HEIGHT}px` } : {}),
+              }}
             >
-              {typeof result.content === 'string' ? result.content : JSON.stringify(result.content, null, 2)}
+              {typeof result.content === "string"
+                ? result.content
+                : JSON.stringify(result.content, null, 2)}
             </pre>
             {shouldCollapse && collapsed && (
               <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-background/80 via-background/50 to-transparent" />
@@ -392,7 +428,7 @@ const FallbackToolRender: React.FC<FallbackToolRenderProps> = ({ tool, result })
               onClick={toggle}
               className="mt-2 text-[11px] text-primary underline underline-offset-2"
             >
-              {collapsed ? t('tools.expandAll') : t('tools.collapseContent')}
+              {collapsed ? t("tools.expandAll") : t("tools.collapseContent")}
             </button>
           )}
         </div>

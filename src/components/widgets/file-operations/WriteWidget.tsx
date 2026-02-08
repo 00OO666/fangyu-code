@@ -5,10 +5,17 @@
  * 主组件 (~120行) + CodePreview (~90行) + FullScreenPreview (~140行)
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { FilePlus, ExternalLink, ChevronUp, ChevronDown, CheckCircle2, Loader2 } from 'lucide-react';
+import {
+  FilePlus,
+  ExternalLink,
+  ChevronUp,
+  ChevronDown,
+  CheckCircle2,
+  Loader2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -67,8 +74,8 @@ export const WriteWidget: React.FC<WriteWidgetProps> = ({
   const language = getLanguage(filePath);
 
   // Markdown 文件和小文件不截断，其他大文件截断到 5000 字符
-  const isMarkdown = filePath.toLowerCase().endsWith('.md');
-  const truncateLimit = isMarkdown ? 10000 : 5000;  // .md 文件限制更高
+  const isMarkdown = filePath.toLowerCase().endsWith(".md");
+  const truncateLimit = isMarkdown ? 10000 : 5000; // .md 文件限制更高
   const isLargeContent = content.length > truncateLimit;
   const displayContent = isLargeContent ? content.substring(0, truncateLimit) + "\n..." : content;
 
@@ -79,7 +86,7 @@ export const WriteWidget: React.FC<WriteWidgetProps> = ({
     try {
       await api.openFileWithDefaultApp(filePath);
     } catch (error) {
-      logger.error('WriteWidget', 'Failed to open file in system:', error);
+      logger.error("WriteWidget", "Failed to open file in system:", error);
     }
   };
 
@@ -101,7 +108,10 @@ export const WriteWidget: React.FC<WriteWidgetProps> = ({
                 <FilePlus className="h-4 w-4 text-emerald-500 flex-shrink-0" />
                 <span className="text-sm font-medium text-muted-foreground">Write</span>
                 <span className="text-muted-foreground/30">|</span>
-                <code className="text-sm font-mono text-foreground/90 truncate font-medium" title={filePath}>
+                <code
+                  className="text-sm font-mono text-foreground/90 truncate font-medium"
+                  title={filePath}
+                >
                   {filePath.split(/[/\\]/).pop()}
                 </code>
                 <span className="text-xs text-muted-foreground truncate hidden sm:inline-block max-w-[200px] opacity-70">
@@ -120,8 +130,13 @@ export const WriteWidget: React.FC<WriteWidgetProps> = ({
                   {hasResult ? (
                     <>
                       <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
-                      <span className={cn("font-medium hidden sm:inline", isSuccess ? "text-green-500" : "text-red-500")}>
-                        {isSuccess ? t('widget.success') : t('widget.failed')}
+                      <span
+                        className={cn(
+                          "font-medium hidden sm:inline",
+                          isSuccess ? "text-green-500" : "text-red-500"
+                        )}
+                      >
+                        {isSuccess ? t("widget.success") : t("widget.failed")}
                       </span>
                     </>
                   ) : (
@@ -141,10 +156,10 @@ export const WriteWidget: React.FC<WriteWidgetProps> = ({
                   e.stopPropagation();
                   handleOpenInSystem();
                 }}
-                title={t('widget.openWithDefault')}
+                title={t("widget.openWithDefault")}
               >
                 <ExternalLink className="h-3 w-3 mr-1" />
-                {t('widget.open')}
+                {t("widget.open")}
               </Button>
               <div className="h-6 px-2 text-muted-foreground group-hover/header:text-foreground flex items-center gap-1 transition-colors">
                 {isExpanded ? (

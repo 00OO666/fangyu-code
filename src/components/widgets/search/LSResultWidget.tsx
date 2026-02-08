@@ -6,7 +6,7 @@
  */
 
 import React, { useState } from "react";
-import { FolderOpen, Folder, FileText, FileCode, Terminal, ChevronRight } from 'lucide-react';
+import { FolderOpen, Folder, FileText, FileCode, Terminal, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface LSResultWidgetProps {
@@ -17,7 +17,7 @@ export interface LSResultWidgetProps {
 interface DirectoryEntry {
   path: string;
   name: string;
-  type: 'file' | 'directory';
+  type: "file" | "directory";
   level: number;
 }
 
@@ -45,20 +45,19 @@ export const LSResultWidget: React.FC<LSResultWidgetProps> = ({ content }) => {
     const entries: DirectoryEntry[] = [];
 
     // 尝试解析 JSON 格式
-    if (trimmedContent.startsWith('[') || trimmedContent.startsWith('{')) {
+    if (trimmedContent.startsWith("[") || trimmedContent.startsWith("{")) {
       try {
         const parsed = JSON.parse(trimmedContent);
-        const items = Array.isArray(parsed) ? parsed : (parsed.files || parsed.entries || []);
+        const items = Array.isArray(parsed) ? parsed : parsed.files || parsed.entries || [];
         if (Array.isArray(items)) {
           items.forEach((item: any) => {
-            const name = typeof item === 'string' ? item : (item.name || item.path || String(item));
-            const isDirectory = name.endsWith('/') ||
-              item.type === 'directory' ||
-              item.isDirectory === true;
+            const name = typeof item === "string" ? item : item.name || item.path || String(item);
+            const isDirectory =
+              name.endsWith("/") || item.type === "directory" || item.isDirectory === true;
             entries.push({
-              path: name.replace(/\/$/, ''),
-              name: name.replace(/\/$/, ''),
-              type: isDirectory ? 'directory' : 'file',
+              path: name.replace(/\/$/, ""),
+              name: name.replace(/\/$/, ""),
+              type: isDirectory ? "directory" : "file",
               level: 0,
             });
           });
@@ -69,7 +68,7 @@ export const LSResultWidget: React.FC<LSResultWidgetProps> = ({ content }) => {
       }
     }
 
-    const lines = rawContent.split('\n');
+    const lines = rawContent.split("\n");
     let currentPath: string[] = [];
     let isGeminiFormat = false;
     let isPlainList = false;
@@ -77,9 +76,9 @@ export const LSResultWidget: React.FC<LSResultWidgetProps> = ({ content }) => {
     // 检测格式类型
     if (lines.length > 0) {
       const firstLine = lines[0].trim();
-      if (firstLine.startsWith('Directory listing for')) {
+      if (firstLine.startsWith("Directory listing for")) {
         isGeminiFormat = true;
-      } else if (!firstLine.startsWith('-') && !firstLine.match(/^\s+-/)) {
+      } else if (!firstLine.startsWith("-") && !firstLine.match(/^\s+-/)) {
         // 第一行不是以 "- " 开头，可能是纯文件列表
         isPlainList = true;
       }
@@ -89,7 +88,7 @@ export const LSResultWidget: React.FC<LSResultWidgetProps> = ({ content }) => {
       const line = lines[i];
 
       // 跳过 NOTE 部分
-      if (line.startsWith('NOTE:')) {
+      if (line.startsWith("NOTE:")) {
         break;
       }
 
@@ -99,7 +98,7 @@ export const LSResultWidget: React.FC<LSResultWidgetProps> = ({ content }) => {
       // Gemini 格式: "Directory listing for...\nFile1\nFile2"
       if (isGeminiFormat) {
         // 跳过 "Directory listing for..." 行
-        if (line.trim().startsWith('Directory listing for')) {
+        if (line.trim().startsWith("Directory listing for")) {
           continue;
         }
 
@@ -109,13 +108,13 @@ export const LSResultWidget: React.FC<LSResultWidgetProps> = ({ content }) => {
 
         // 检测是否是目录 (Gemini 使用 [DIR] 前缀 或以 / 结尾)
         const isDirMatch = name.match(/^\[DIR\]\s*(.+)$/);
-        const isDirectory = !!isDirMatch || name.endsWith('/');
-        const cleanName = isDirMatch ? isDirMatch[1] : name.replace(/\/$/, '');
+        const isDirectory = !!isDirMatch || name.endsWith("/");
+        const cleanName = isDirMatch ? isDirMatch[1] : name.replace(/\/$/, "");
 
         entries.push({
           path: cleanName,
           name: cleanName,
-          type: isDirectory ? 'directory' : 'file',
+          type: isDirectory ? "directory" : "file",
           level: 0,
         });
         continue;
@@ -127,13 +126,13 @@ export const LSResultWidget: React.FC<LSResultWidgetProps> = ({ content }) => {
         if (!name) continue;
 
         // 检测是否是目录
-        const isDirectory = name.endsWith('/');
-        const cleanName = name.replace(/\/$/, '');
+        const isDirectory = name.endsWith("/");
+        const cleanName = name.replace(/\/$/, "");
 
         entries.push({
           path: cleanName,
           name: cleanName,
-          type: isDirectory ? 'directory' : 'file',
+          type: isDirectory ? "directory" : "file",
           level: 0,
         });
         continue;
@@ -141,7 +140,7 @@ export const LSResultWidget: React.FC<LSResultWidgetProps> = ({ content }) => {
 
       // Claude Code 树形格式
       // 计算缩进级别
-      const indent = line.match(/^(\s*)/)?.[1] || '';
+      const indent = line.match(/^(\s*)/)?.[1] || "";
       const level = Math.floor(indent.length / 2);
 
       // 提取条目名称
@@ -149,7 +148,7 @@ export const LSResultWidget: React.FC<LSResultWidgetProps> = ({ content }) => {
       if (!entryMatch) continue;
 
       const fullName = entryMatch[1];
-      const isDirectory = line.trim().endsWith('/');
+      const isDirectory = line.trim().endsWith("/");
       const name = fullName;
 
       // 根据级别更新当前路径
@@ -157,9 +156,9 @@ export const LSResultWidget: React.FC<LSResultWidgetProps> = ({ content }) => {
       currentPath.push(name);
 
       entries.push({
-        path: currentPath.join('/'),
+        path: currentPath.join("/"),
         name,
-        type: isDirectory ? 'directory' : 'file',
+        type: isDirectory ? "directory" : "file",
         level,
       });
     }
@@ -173,7 +172,7 @@ export const LSResultWidget: React.FC<LSResultWidgetProps> = ({ content }) => {
    * 切换文件夹展开/折叠状态
    */
   const toggleDirectory = (path: string) => {
-    setExpandedDirs(prev => {
+    setExpandedDirs((prev) => {
       const next = new Set(prev);
       if (next.has(path)) {
         next.delete(path);
@@ -188,10 +187,10 @@ export const LSResultWidget: React.FC<LSResultWidgetProps> = ({ content }) => {
    * 获取指定父路径的直接子项
    */
   const getChildren = (parentPath: string, parentLevel: number) => {
-    return entries.filter(e => {
+    return entries.filter((e) => {
       if (e.level !== parentLevel + 1) return false;
-      const parentParts = parentPath.split('/').filter(Boolean);
-      const entryParts = e.path.split('/').filter(Boolean);
+      const parentParts = parentPath.split("/").filter(Boolean);
+      const entryParts = e.path.split("/").filter(Boolean);
 
       // 检查是否是直接子项
       if (entryParts.length !== parentParts.length + 1) return false;
@@ -209,28 +208,28 @@ export const LSResultWidget: React.FC<LSResultWidgetProps> = ({ content }) => {
    * 根据文件类型获取图标
    */
   const getFileIcon = (name: string) => {
-    const ext = name.split('.').pop()?.toLowerCase();
+    const ext = name.split(".").pop()?.toLowerCase();
     switch (ext) {
-      case 'rs':
+      case "rs":
         return <FileCode className="h-3.5 w-3.5 text-orange-500" />;
-      case 'toml':
-      case 'yaml':
-      case 'yml':
-      case 'json':
+      case "toml":
+      case "yaml":
+      case "yml":
+      case "json":
         return <FileText className="h-3.5 w-3.5 text-yellow-500" />;
-      case 'md':
+      case "md":
         return <FileText className="h-3.5 w-3.5 text-blue-400" />;
-      case 'js':
-      case 'jsx':
-      case 'ts':
-      case 'tsx':
+      case "js":
+      case "jsx":
+      case "ts":
+      case "tsx":
         return <FileCode className="h-3.5 w-3.5 text-yellow-400" />;
-      case 'py':
+      case "py":
         return <FileCode className="h-3.5 w-3.5 text-blue-500" />;
-      case 'go':
+      case "go":
         return <FileCode className="h-3.5 w-3.5 text-cyan-500" />;
-      case 'sh':
-      case 'bash':
+      case "sh":
+      case "bash":
         return <Terminal className="h-3.5 w-3.5 text-green-500" />;
       default:
         return <FileText className="h-3.5 w-3.5 text-muted-foreground" />;
@@ -241,15 +240,21 @@ export const LSResultWidget: React.FC<LSResultWidgetProps> = ({ content }) => {
    * 渲染单个条目（递归）
    */
   const renderEntry = (entry: DirectoryEntry, isRoot = false): React.ReactNode => {
-    const hasChildren = entry.type === 'directory' &&
-      entries.some(e => e.path.startsWith(entry.path + '/') && e.level === entry.level + 1);
+    const hasChildren =
+      entry.type === "directory" &&
+      entries.some((e) => e.path.startsWith(entry.path + "/") && e.level === entry.level + 1);
     const isExpanded = expandedDirs.has(entry.path) || isRoot;
 
-    const icon = entry.type === 'directory'
-      ? isExpanded
-        ? <FolderOpen className="h-3.5 w-3.5 text-blue-500" />
-        : <Folder className="h-3.5 w-3.5 text-blue-500" />
-      : getFileIcon(entry.name);
+    const icon =
+      entry.type === "directory" ? (
+        isExpanded ? (
+          <FolderOpen className="h-3.5 w-3.5 text-blue-500" />
+        ) : (
+          <Folder className="h-3.5 w-3.5 text-blue-500" />
+        )
+      ) : (
+        getFileIcon(entry.name)
+      );
 
     return (
       <div key={entry.path}>
@@ -258,24 +263,24 @@ export const LSResultWidget: React.FC<LSResultWidgetProps> = ({ content }) => {
             "flex items-center gap-2 py-1 px-2 rounded hover:bg-muted/50 transition-colors cursor-pointer",
             !isRoot && "ml-4"
           )}
-          onClick={() => entry.type === 'directory' && hasChildren && toggleDirectory(entry.path)}
+          onClick={() => entry.type === "directory" && hasChildren && toggleDirectory(entry.path)}
         >
-          {entry.type === 'directory' && hasChildren && (
-            <ChevronRight className={cn(
-              "h-3 w-3 text-muted-foreground transition-transform",
-              isExpanded && "rotate-90"
-            )} />
+          {entry.type === "directory" && hasChildren && (
+            <ChevronRight
+              className={cn(
+                "h-3 w-3 text-muted-foreground transition-transform",
+                isExpanded && "rotate-90"
+              )}
+            />
           )}
-          {(!hasChildren || entry.type !== 'directory') && (
-            <div className="w-3" />
-          )}
+          {(!hasChildren || entry.type !== "directory") && <div className="w-3" />}
           {icon}
           <span className="text-sm font-mono">{entry.name}</span>
         </div>
 
-        {entry.type === 'directory' && hasChildren && isExpanded && (
+        {entry.type === "directory" && hasChildren && isExpanded && (
           <div className="ml-2">
-            {getChildren(entry.path, entry.level).map(child => renderEntry(child))}
+            {getChildren(entry.path, entry.level).map((child) => renderEntry(child))}
           </div>
         )}
       </div>
@@ -283,7 +288,7 @@ export const LSResultWidget: React.FC<LSResultWidgetProps> = ({ content }) => {
   };
 
   // 获取根条目
-  const rootEntries = entries.filter(e => e.level === 0);
+  const rootEntries = entries.filter((e) => e.level === 0);
 
   // 如果解析后没有条目，显示原始内容
   if (rootEntries.length === 0) {
@@ -311,9 +316,7 @@ export const LSResultWidget: React.FC<LSResultWidgetProps> = ({ content }) => {
 
   return (
     <div className="rounded-lg border bg-muted/20 p-3">
-      <div className="space-y-1">
-        {rootEntries.map(entry => renderEntry(entry, true))}
-      </div>
+      <div className="space-y-1">{rootEntries.map((entry) => renderEntry(entry, true))}</div>
     </div>
   );
 };

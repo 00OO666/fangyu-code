@@ -9,8 +9,8 @@
  * - 更好的用户体验
  */
 
-import React from 'react';
-import { useTauriAutoUpdate } from '@/hooks/useTauriAutoUpdate';
+import React from "react";
+import { useTauriAutoUpdate } from "@/hooks/useTauriAutoUpdate";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,10 +19,10 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { Download, RefreshCw, AlertCircle, X, SkipForward } from 'lucide-react';
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Download, RefreshCw, AlertCircle, X, SkipForward } from "lucide-react";
 
 export const TauriAutoUpdateDialog: React.FC = () => {
   const {
@@ -82,7 +82,9 @@ export const TauriAutoUpdateDialog: React.FC = () => {
               {updateInfo?.date && (
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">发布日期:</span>
-                  <span className="font-medium">{new Date(updateInfo.date).toLocaleDateString('zh-CN')}</span>
+                  <span className="font-medium">
+                    {new Date(updateInfo.date).toLocaleDateString("zh-CN")}
+                  </span>
                 </div>
               )}
 
@@ -115,21 +117,11 @@ export const TauriAutoUpdateDialog: React.FC = () => {
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-col sm:flex-row gap-2">
             <div className="flex gap-2 flex-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={skipVersion}
-                className="flex-1"
-              >
+              <Button variant="ghost" size="sm" onClick={skipVersion} className="flex-1">
                 <SkipForward className="h-4 w-4 mr-2" />
                 跳过此版本
               </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={dismissUpdate}
-                className="flex-1"
-              >
+              <Button variant="ghost" size="sm" onClick={dismissUpdate} className="flex-1">
                 <X className="h-4 w-4 mr-2" />
                 稍后提醒
               </Button>
@@ -167,7 +159,9 @@ export const TauriAutoUpdateDialog: React.FC = () => {
                   <Progress value={downloadProgress} className="h-3" />
                   <div className="flex justify-between text-sm text-muted-foreground mt-2">
                     <span>下载进度</span>
-                    <span className="font-mono font-medium text-blue-600">{downloadProgress || 0}%</span>
+                    <span className="font-mono font-medium text-blue-600">
+                      {downloadProgress || 0}%
+                    </span>
                   </div>
                 </>
               )}

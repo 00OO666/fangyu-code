@@ -6,7 +6,9 @@
 .dark {
   /*  Typography */
   --font-sans:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Microsoft YaHei", "SimSun", "Arial Unicode MS", sans-serif;
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell",
+    "Fira Sans", "Droid Sans", "Helvetica Neue", "Microsoft YaHei", "SimSun", "Arial Unicode MS",
+    sans-serif;
   --font-mono:
     ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo,
     "Microsoft YaHei Mono", monospace;

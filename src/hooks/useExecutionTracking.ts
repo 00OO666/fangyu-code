@@ -10,7 +10,7 @@
  * - 提供执行恢复接口
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { useEffect, useRef } from "react";
 
 // 🔧 FIX: 直接从 GlobalExecutionContext 模块导入 Context，避免重复创建 hooks
@@ -55,7 +55,7 @@ const globalExecutionStore = {
     sessionId: string | null,
     projectPath: string,
     engine: "claude" | "codex" | "gemini",
-    prompt?: string,
+    prompt?: string
   ) {
     const existing = this.states.get(tabId);
     const newState: TabExecutionState = {
@@ -70,7 +70,7 @@ const globalExecutionStore = {
       promptCount: (existing?.promptCount ?? 0) + 1,
     };
     this.states.set(tabId, newState);
-    logger.debug('useExecutionTracking', `[GlobalExecution] ▶️ Tab ${tabId} started execution`);
+    logger.debug("useExecutionTracking", `[GlobalExecution] ▶️ Tab ${tabId} started execution`);
   },
 
   endExecution(tabId: string) {
@@ -79,13 +79,13 @@ const globalExecutionStore = {
       existing.isStreaming = false;
       existing.lastUpdateAt = Date.now();
       existing.currentPrompt = undefined;
-      logger.debug('useExecutionTracking', `[GlobalExecution] ⏹️ Tab ${tabId} ended execution`);
+      logger.debug("useExecutionTracking", `[GlobalExecution] ⏹️ Tab ${tabId} ended execution`);
     }
   },
 
   clearTabState(tabId: string) {
     this.states.delete(tabId);
-    logger.debug('useExecutionTracking', `[GlobalExecution] 🗑️ Tab ${tabId} state cleared`);
+    logger.debug("useExecutionTracking", `[GlobalExecution] 🗑️ Tab ${tabId} state cleared`);
   },
 
   getTabState(tabId: string): TabExecutionState | undefined {
@@ -111,7 +111,7 @@ if (typeof window !== "undefined") {
  * 🔧 简化版：不使用 React Context，避免 hooks 规则问题
  */
 export function useExecutionTracking(
-  config: UseExecutionTrackingConfig,
+  config: UseExecutionTrackingConfig
 ): UseExecutionTrackingReturn {
   const { tabId, isLoading, sessionId, projectPath, engine, isActive, currentPrompt } = config;
 

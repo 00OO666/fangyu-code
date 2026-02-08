@@ -17,7 +17,7 @@
  * }
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { useEffect, useRef } from "react";
 import type { SessionCostStats } from "@/hooks/useSessionCostCalculation";
 
@@ -63,7 +63,7 @@ function loadHourlyData(): HourlyUsageStorage {
     const stored = localStorage.getItem(STORAGE_KEY);
     return stored ? JSON.parse(stored) : {};
   } catch (error) {
-    logger.error('useHourlyUsageTracker', "[useHourlyUsageTracker] Failed to load data:", error);
+    logger.error("useHourlyUsageTracker", "[useHourlyUsageTracker] Failed to load data:", error);
     return {};
   }
 }
@@ -75,7 +75,7 @@ function saveHourlyData(data: HourlyUsageStorage): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   } catch (error) {
-    logger.error('useHourlyUsageTracker', "[useHourlyUsageTracker] Failed to save data:", error);
+    logger.error("useHourlyUsageTracker", "[useHourlyUsageTracker] Failed to save data:", error);
   }
 }
 
@@ -181,7 +181,8 @@ export function useHourlyUsageTracker(sessionStats: SessionCostStats | null) {
 
     // 记录增量（只记录正增长，且增量合理）
     // 🔧 FIX: 添加合理性检查，避免异常大的增量
-    const isReasonableDelta = costDelta < MAX_REASONABLE_COST_DELTA && tokensDelta < MAX_REASONABLE_TOKENS_DELTA;
+    const isReasonableDelta =
+      costDelta < MAX_REASONABLE_COST_DELTA && tokensDelta < MAX_REASONABLE_TOKENS_DELTA;
 
     if ((costDelta > 0 || tokensDelta > 0) && isReasonableDelta) {
       recordUsageDelta(costDelta, tokensDelta);
@@ -195,7 +196,7 @@ export function useHourlyUsageTracker(sessionStats: SessionCostStats | null) {
           tokensDelta,
           maxCost: MAX_REASONABLE_COST_DELTA,
           maxTokens: MAX_REASONABLE_TOKENS_DELTA,
-          source: 'sessionStats change',
+          source: "sessionStats change",
         });
       }
     }
@@ -240,9 +241,9 @@ export function getHourlyDataForRange(startDate: string, endDate: string): Hourl
 export function clearAllHourlyData(): void {
   try {
     localStorage.removeItem(STORAGE_KEY);
-    logger.debug('useHourlyUsageTracker', "[useHourlyUsageTracker] ✅ 所有数据已清除");
+    logger.debug("useHourlyUsageTracker", "[useHourlyUsageTracker] ✅ 所有数据已清除");
   } catch (error) {
-    logger.error('useHourlyUsageTracker', "[useHourlyUsageTracker] Failed to clear data:", error);
+    logger.error("useHourlyUsageTracker", "[useHourlyUsageTracker] Failed to clear data:", error);
   }
 }
 

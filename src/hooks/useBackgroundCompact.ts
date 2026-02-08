@@ -23,7 +23,7 @@
  * └─────────────────────────────────────────────────────────────────┘
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { notify } from "@/services/notificationService";
@@ -96,7 +96,7 @@ interface UseBackgroundCompactReturn {
 }
 
 export function useBackgroundCompact(
-  config: UseBackgroundCompactConfig,
+  config: UseBackgroundCompactConfig
 ): UseBackgroundCompactReturn {
   const {
     sessionId,
@@ -147,9 +147,14 @@ export function useBackgroundCompact(
       };
 
       setDeltaMessages((prev) => [...prev, deltaMsg]);
-      logger.debug('useBackgroundCompact', '🔄 Captured delta message:', message.type, message.content.slice(0, 50));
+      logger.debug(
+        "useBackgroundCompact",
+        "🔄 Captured delta message:",
+        message.type,
+        message.content.slice(0, 50)
+      );
     },
-    [isCompacting],
+    [isCompacting]
   );
 
   // 获取增量消息
@@ -178,12 +183,22 @@ export function useBackgroundCompact(
     }
 
     if (retryCountRef.current >= MAX_RETRY_COUNT) {
-      logger.warn('useBackgroundCompact', `[BackgroundCompact] ⚠️ Max retry count (${MAX_RETRY_COUNT}) reached, skipping compact`);
-      logger.warn('useBackgroundCompact', '[BackgroundCompact] 💡 Tip: You can manually trigger compact or wait 5 minutes for retry count reset');
+      logger.warn(
+        "useBackgroundCompact",
+        `[BackgroundCompact] ⚠️ Max retry count (${MAX_RETRY_COUNT}) reached, skipping compact`
+      );
+      logger.warn(
+        "useBackgroundCompact",
+        "[BackgroundCompact] 💡 Tip: You can manually trigger compact or wait 5 minutes for retry count reset"
+      );
       return;
     }
 
-    logger.debug('useBackgroundCompact', "[BackgroundCompact] 🚀 Starting background compact for session:", sessionId);
+    logger.debug(
+      "useBackgroundCompact",
+      "[BackgroundCompact] 🚀 Starting background compact for session:",
+      sessionId
+    );
     compactStartTimeRef.current = Date.now();
     setStatus("preparing");
     setProgress(0);
@@ -240,7 +255,7 @@ export function useBackgroundCompact(
       ]);
 
       if (abortController.signal.aborted) {
-        logger.debug('useBackgroundCompact', "[BackgroundCompact] Aborted during compact");
+        logger.debug("useBackgroundCompact", "[BackgroundCompact] Aborted during compact");
         return;
       }
 
@@ -248,13 +263,26 @@ export function useBackgroundCompact(
         throw new Error(result.message || "Compact failed");
       }
 
-      logger.debug('useBackgroundCompact', "[BackgroundCompact] ✅ Compact complete:", result.message);
-      logger.debug('useBackgroundCompact', "[BackgroundCompact] 📝 Delta messages captured:", deltaMessages.length);
+      logger.debug(
+        "useBackgroundCompact",
+        "[BackgroundCompact] ✅ Compact complete:",
+        result.message
+      );
+      logger.debug(
+        "useBackgroundCompact",
+        "[BackgroundCompact] 📝 Delta messages captured:",
+        deltaMessages.length
+      );
 
       // 2. 合并阶段：将压缩期间的增量消息追加到新会话
       if (deltaMessages.length > 0) {
         setStatus("merging");
-        logger.debug('useBackgroundCompact', "[BackgroundCompact] 🔀 Merging", deltaMessages.length, "delta messages...");
+        logger.debug(
+          "useBackgroundCompact",
+          "[BackgroundCompact] 🔀 Merging",
+          deltaMessages.length,
+          "delta messages..."
+        );
         // Note: 增量消息合并逻辑可以在这里实现
       }
 
@@ -268,7 +296,7 @@ export function useBackgroundCompact(
       // 200ms 过渡动画时间
       await new Promise((r) => setTimeout(r, 200));
 
-      logger.debug('useBackgroundCompact', "[BackgroundCompact] 🎯 Compact completed successfully");
+      logger.debug("useBackgroundCompact", "[BackgroundCompact] 🎯 Compact completed successfully");
 
       // 🆕 关闭"后台压缩中"通知，显示"压缩完成"通知
       if (compactNotificationIdRef.current) {
@@ -292,8 +320,8 @@ export function useBackgroundCompact(
       // 🔧 改进错误处理：输出完整的错误信息
       const errorMessage = error?.message || String(err) || "Unknown error";
       const errorStack = error?.stack || "No stack trace available";
-      logger.error('useBackgroundCompact', "[BackgroundCompact] ❌ Compact failed:", error);
-      logger.debug('useBackgroundCompact', "[BackgroundCompact] Error details:", {
+      logger.error("useBackgroundCompact", "[BackgroundCompact] ❌ Compact failed:", error);
+      logger.debug("useBackgroundCompact", "[BackgroundCompact] Error details:", {
         message: errorMessage,
         stack: errorStack,
         type: typeof err,
@@ -308,9 +336,10 @@ export function useBackgroundCompact(
       }
 
       // 🔧 改进错误消息：确保显示有意义的错误信息
-      const displayMessage = errorMessage === "Compact timeout"
-        ? "压缩超时（60 秒）"
-        : errorMessage || "压缩失败（未知错误）";
+      const displayMessage =
+        errorMessage === "Compact timeout"
+          ? "压缩超时（60 秒）"
+          : errorMessage || "压缩失败（未知错误）";
 
       const errorTemplate = NotificationTemplates.compactError(displayMessage);
       notify.error(errorTemplate.message, errorTemplate);
@@ -320,7 +349,10 @@ export function useBackgroundCompact(
       lastErrorTimeRef.current = Date.now();
 
       if (retryCountRef.current >= MAX_RETRY_COUNT) {
-        logger.warn('useBackgroundCompact', `[BackgroundCompact] ⚠️ Reached max retry count (${MAX_RETRY_COUNT}), auto-compact will be disabled for 5 minutes`);
+        logger.warn(
+          "useBackgroundCompact",
+          `[BackgroundCompact] ⚠️ Reached max retry count (${MAX_RETRY_COUNT}), auto-compact will be disabled for 5 minutes`
+        );
         const warningTemplate = NotificationTemplates.compactError(
           `自动压缩已暂停（失败 ${MAX_RETRY_COUNT} 次），5 分钟后自动恢复`
         );
@@ -338,7 +370,7 @@ export function useBackgroundCompact(
   // 手动触发压缩
   const triggerCompact = useCallback(async () => {
     if (isCompacting) {
-      logger.warn('useBackgroundCompact', "[BackgroundCompact] Already compacting, skipping");
+      logger.warn("useBackgroundCompact", "[BackgroundCompact] Already compacting, skipping");
       return;
     }
     hasTriggeredCompactRef.current = true;
@@ -347,7 +379,7 @@ export function useBackgroundCompact(
 
   // 确认切换完成
   const confirmSwitch = useCallback(() => {
-    logger.debug('useBackgroundCompact', "[BackgroundCompact] ✨ Switch confirmed, cleaning up");
+    logger.debug("useBackgroundCompact", "[BackgroundCompact] ✨ Switch confirmed, cleaning up");
     setShouldSwitchSession(false);
     setStatus("idle");
     setProgress(0);
@@ -358,7 +390,7 @@ export function useBackgroundCompact(
 
   // 🆕 重置重试计数
   const resetRetryCount = useCallback(() => {
-    logger.debug('useBackgroundCompact', "[BackgroundCompact] 🔄 Retry count reset manually");
+    logger.debug("useBackgroundCompact", "[BackgroundCompact] 🔄 Retry count reset manually");
     retryCountRef.current = 0;
     lastErrorTimeRef.current = 0;
   }, []);
@@ -371,11 +403,11 @@ export function useBackgroundCompact(
 
     // 🔧 v2.8.1: 添加调试日志，帮助诊断压缩功能失效问题
     if (import.meta.env.DEV) {
-      logger.debug('useBackgroundCompact', '🔍 Auto-compact check:', {
+      logger.debug("useBackgroundCompact", "🔍 Auto-compact check:", {
         autoCompact,
         sessionId: sessionId?.slice(0, 8),
-        calculatedUsage: (calculatedUsage * 100).toFixed(1) + '%',
-        compactThreshold: (compactThreshold * 100).toFixed(1) + '%',
+        calculatedUsage: (calculatedUsage * 100).toFixed(1) + "%",
+        compactThreshold: (compactThreshold * 100).toFixed(1) + "%",
         shouldTrigger: calculatedUsage >= compactThreshold,
         isCompacting,
         status,
@@ -385,8 +417,14 @@ export function useBackgroundCompact(
 
     // 达到 75% 阈值时触发后台压缩
     if (calculatedUsage >= compactThreshold) {
-      logger.debug('useBackgroundCompact', `📊 Context usage ${(calculatedUsage * 100).toFixed(1)}% >= ${(compactThreshold * 100).toFixed(1)}% threshold`);
-      logger.debug('useBackgroundCompact', '🔄 Auto-triggering background compact (user can continue working)');
+      logger.debug(
+        "useBackgroundCompact",
+        `📊 Context usage ${(calculatedUsage * 100).toFixed(1)}% >= ${(compactThreshold * 100).toFixed(1)}% threshold`
+      );
+      logger.debug(
+        "useBackgroundCompact",
+        "🔄 Auto-triggering background compact (user can continue working)"
+      );
       hasTriggeredCompactRef.current = true;
       executeCompact();
     }

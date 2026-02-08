@@ -15,9 +15,7 @@ interface CliMonitorPanelProps {
   className?: string;
 }
 
-export const CliMonitorPanel: React.FC<CliMonitorPanelProps> = ({
-  className,
-}) => {
+export const CliMonitorPanel: React.FC<CliMonitorPanelProps> = ({ className }) => {
   const getWindowLabel = (window: WindowInfo) =>
     window.session_summary || window.project_path || window.title;
   const [windows, setWindows] = useState<WindowInfo[]>([]);
@@ -29,10 +27,7 @@ export const CliMonitorPanel: React.FC<CliMonitorPanelProps> = ({
   const refreshAll = async () => {
     setIsRefreshing(true);
     try {
-      const [windowResult, sessionResult] = await Promise.all([
-        scanWindows(),
-        scanCliSessions(),
-      ]);
+      const [windowResult, sessionResult] = await Promise.all([scanWindows(), scanCliSessions()]);
 
       setWindows(windowResult.windows);
       setSessions(sessionResult.sessions);
@@ -61,13 +56,7 @@ export const CliMonitorPanel: React.FC<CliMonitorPanelProps> = ({
   }, []);
 
   return (
-    <div
-      className={cn(
-        "flex flex-col gap-4 p-6",
-        "bg-[#0a0e1a] min-h-screen",
-        className
-      )}
-    >
+    <div className={cn("flex flex-col gap-4 p-6", "bg-[#0a0e1a] min-h-screen", className)}>
       {/* 标题栏 */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -76,9 +65,7 @@ export const CliMonitorPanel: React.FC<CliMonitorPanelProps> = ({
           </div>
           <div>
             <h1 className="text-xl font-semibold text-white">CLI 监控中心</h1>
-            <p className="text-sm text-gray-400">
-              管理和切换 Claude CLI 窗口
-            </p>
+            <p className="text-sm text-gray-400">管理和切换 Claude CLI 窗口</p>
           </div>
         </div>
 
@@ -94,9 +81,7 @@ export const CliMonitorPanel: React.FC<CliMonitorPanelProps> = ({
             "disabled:opacity-50 disabled:cursor-not-allowed"
           )}
         >
-          <RefreshCw
-            className={cn("w-4 h-4", isRefreshing && "animate-spin")}
-          />
+          <RefreshCw className={cn("w-4 h-4", isRefreshing && "animate-spin")} />
           <span>{isRefreshing ? "刷新中..." : "刷新"}</span>
         </button>
       </div>
@@ -148,10 +133,7 @@ export const CliMonitorPanel: React.FC<CliMonitorPanelProps> = ({
         <h2 className="text-lg font-semibold text-white mb-4">窗口切换</h2>
         <WindowDropdown
           onSelect={(window) => {
-            logger.info(
-              "CliMonitorPanel",
-              `Window selected: ${getWindowLabel(window)}`
-            );
+            logger.info("CliMonitorPanel", `Window selected: ${getWindowLabel(window)}`);
           }}
         />
       </div>
@@ -165,14 +147,10 @@ export const CliMonitorPanel: React.FC<CliMonitorPanelProps> = ({
           "shadow-lg shadow-black/20"
         )}
       >
-        <h2 className="text-lg font-semibold text-white mb-4">
-          窗口列表 ({windows.length})
-        </h2>
+        <h2 className="text-lg font-semibold text-white mb-4">窗口列表 ({windows.length})</h2>
 
         {windows.length === 0 ? (
-          <div className="text-center py-8 text-gray-400">
-            未找到 Claude CLI 窗口
-          </div>
+          <div className="text-center py-8 text-gray-400">未找到 Claude CLI 窗口</div>
         ) : (
           <div className="space-y-2">
             {windows.map((window) => (
@@ -196,9 +174,7 @@ export const CliMonitorPanel: React.FC<CliMonitorPanelProps> = ({
                       {window.session_id && (
                         <>
                           <span>•</span>
-                          <span className="truncate">
-                            Session: {window.session_id.slice(0, 8)}
-                          </span>
+                          <span className="truncate">Session: {window.session_id.slice(0, 8)}</span>
                         </>
                       )}
                       {window.project_path && (

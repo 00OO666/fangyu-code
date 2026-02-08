@@ -7,13 +7,13 @@
 ### 1. 安装和使用
 
 ```tsx
-import { PluginManager, usePluginLoader, usePluginMarketplace } from '@/plugins';
+import { PluginManager, usePluginLoader, usePluginMarketplace } from "@/plugins";
 
 function App() {
   return (
     <PluginManager
       workspacePath="/path/to/workspace"
-      onInstall={(id) => console.log('Installed:', id)}
+      onInstall={(id) => console.log("Installed:", id)}
     />
   );
 }
@@ -22,19 +22,13 @@ function App() {
 ### 2. 使用插件加载器
 
 ```tsx
-import { usePluginLoader } from '@/plugins';
+import { usePluginLoader } from "@/plugins";
 
 function MyComponent() {
-  const {
-    plugins,
-    loadPlugin,
-    activatePlugin,
-    deactivatePlugin,
-    getStats,
-  } = usePluginLoader({
-    workspacePath: '/path/to/workspace',
+  const { plugins, loadPlugin, activatePlugin, deactivatePlugin, getStats } = usePluginLoader({
+    workspacePath: "/path/to/workspace",
     onPluginActivated: (plugin) => {
-      console.log('Plugin activated:', plugin.id);
+      console.log("Plugin activated:", plugin.id);
     },
   });
 
@@ -43,9 +37,9 @@ function MyComponent() {
 
   return (
     <div>
-      {plugins.map(p => (
+      {plugins.map((p) => (
         <div key={p.id}>
-          {p.manifest.name} - {p.activated ? 'Active' : 'Inactive'}
+          {p.manifest.name} - {p.activated ? "Active" : "Inactive"}
         </div>
       ))}
     </div>
@@ -56,26 +50,22 @@ function MyComponent() {
 ### 3. 使用插件市场
 
 ```tsx
-import { usePluginMarketplace } from '@/plugins';
+import { usePluginMarketplace } from "@/plugins";
 
 function Marketplace() {
-  const {
-    searchPlugins,
-    installPlugin,
-    getFeaturedPlugins,
-    getInstallProgress,
-  } = usePluginMarketplace({
-    onInstallComplete: (id) => {
-      console.log('Installed:', id);
-    },
-  });
+  const { searchPlugins, installPlugin, getFeaturedPlugins, getInstallProgress } =
+    usePluginMarketplace({
+      onInstallComplete: (id) => {
+        console.log("Installed:", id);
+      },
+    });
 
   // 搜索插件
   const handleSearch = async () => {
     const result = await searchPlugins({
-      query: 'react',
-      category: 'snippet',
-      sortBy: 'downloads',
+      query: "react",
+      category: "snippet",
+      sortBy: "downloads",
     });
     console.log(result.plugins);
   };
@@ -84,7 +74,7 @@ function Marketplace() {
   const handleInstall = async (id: string) => {
     const success = await installPlugin(id);
     if (success) {
-      console.log('Installation successful');
+      console.log("Installation successful");
     }
   };
 
@@ -109,11 +99,7 @@ function Marketplace() {
   "publisher": "fangyu",
   "categories": ["ai", "productivity"],
   "tags": ["ai", "assistant", "code"],
-  "activationEvents": [
-    "*",
-    "onLanguage:javascript",
-    "onCommand:myPlugin.doSomething"
-  ],
+  "activationEvents": ["*", "onLanguage:javascript", "onCommand:myPlugin.doSomething"],
   "engines": {
     "fangyu": ">=1.0.0"
   },
@@ -136,44 +122,37 @@ function Marketplace() {
       }
     }
   },
-  "permissions": [
-    "filesystem.read",
-    "filesystem.write",
-    "ai.prompt"
-  ]
+  "permissions": ["filesystem.read", "filesystem.write", "ai.prompt"]
 }
 ```
 
 ### 插件主文件 (index.ts)
 
 ```typescript
-import { Plugin, PluginContext } from '@/plugins';
+import { Plugin, PluginContext } from "@/plugins";
 
 export default class MyPlugin implements Plugin {
   async activate(context: PluginContext): Promise<void> {
-    context.logger.info('Plugin activated!');
+    context.logger.info("Plugin activated!");
 
     // 注册命令
-    const disposable = context.api.commands.registerCommand(
-      'myPlugin.doSomething',
-      async () => {
-        const result = await context.api.ai.prompt('Hello AI!');
-        context.api.window.showInformationMessage(result.content);
-      }
-    );
+    const disposable = context.api.commands.registerCommand("myPlugin.doSomething", async () => {
+      const result = await context.api.ai.prompt("Hello AI!");
+      context.api.window.showInformationMessage(result.content);
+    });
 
     // 添加到订阅列表（自动清理）
     context.subscriptions.push(disposable);
 
     // 读取配置
-    const config = context.api.workspace.getConfiguration('myPlugin');
-    const enabled = config.get<boolean>('enabled', true);
+    const config = context.api.workspace.getConfiguration("myPlugin");
+    const enabled = config.get<boolean>("enabled", true);
 
     if (enabled) {
       // 监听编辑器变化
       const editorListener = context.api.editor.onDidChangeActiveEditor((editor) => {
         if (editor) {
-          context.logger.info('Active editor changed:', editor.document.fileName);
+          context.logger.info("Active editor changed:", editor.document.fileName);
         }
       });
 
@@ -181,11 +160,11 @@ export default class MyPlugin implements Plugin {
     }
 
     // 使用状态存储
-    await context.globalState.update('lastActivated', new Date().toISOString());
+    await context.globalState.update("lastActivated", new Date().toISOString());
   }
 
   async deactivate(): Promise<void> {
-    console.log('Plugin deactivated!');
+    console.log("Plugin deactivated!");
   }
 }
 ```
@@ -198,12 +177,12 @@ export default class MyPlugin implements Plugin {
 
 ```typescript
 interface PluginContext {
-  subscriptions: Disposable[];        // 订阅列表（自动清理）
-  globalState: StateStorage;          // 全局状态
-  workspaceState: StateStorage;       // 工作区状态
-  extensionPath: string;              // 插件路径
-  logger: Logger;                     // 日志器
-  api: PluginAPI;                     // API 访问器
+  subscriptions: Disposable[]; // 订阅列表（自动清理）
+  globalState: StateStorage; // 全局状态
+  workspaceState: StateStorage; // 工作区状态
+  extensionPath: string; // 插件路径
+  logger: Logger; // 日志器
+  api: PluginAPI; // API 访问器
 }
 ```
 
@@ -213,12 +192,12 @@ interface PluginContext {
 
 ```typescript
 // 注册命令
-context.api.commands.registerCommand('myPlugin.cmd', () => {
-  console.log('Command executed');
+context.api.commands.registerCommand("myPlugin.cmd", () => {
+  console.log("Command executed");
 });
 
 // 执行命令
-await context.api.commands.executeCommand('editor.action.formatDocument');
+await context.api.commands.executeCommand("editor.action.formatDocument");
 
 // 获取所有命令
 const commands = await context.api.commands.getCommands();
@@ -235,7 +214,7 @@ if (editor) {
 
   // 编辑文本
   await editor.edit((editBuilder) => {
-    editBuilder.insert({ line: 0, character: 0 }, 'Hello World\n');
+    editBuilder.insert({ line: 0, character: 0 }, "Hello World\n");
   });
 
   // 插入代码片段
@@ -244,7 +223,7 @@ if (editor) {
 
 // 监听编辑器变化
 context.api.editor.onDidChangeActiveEditor((editor) => {
-  console.log('Editor changed:', editor?.document.fileName);
+  console.log("Editor changed:", editor?.document.fileName);
 });
 ```
 
@@ -255,18 +234,18 @@ context.api.editor.onDidChangeActiveEditor((editor) => {
 const rootPath = context.api.workspace.getRootPath();
 
 // 查找文件
-const files = await context.api.workspace.findFiles('**/*.ts', '**/node_modules/**');
+const files = await context.api.workspace.findFiles("**/*.ts", "**/node_modules/**");
 
 // 读取配置
-const config = context.api.workspace.getConfiguration('myPlugin');
-const value = config.get<string>('setting', 'default');
+const config = context.api.workspace.getConfiguration("myPlugin");
+const value = config.get<string>("setting", "default");
 
 // 更新配置
-await config.update('setting', 'newValue', 'global');
+await config.update("setting", "newValue", "global");
 
 // 监听文件变化
 context.api.workspace.onDidChangeTextDocument((event) => {
-  console.log('Document changed:', event.document.fileName);
+  console.log("Document changed:", event.document.fileName);
 });
 ```
 
@@ -274,27 +253,23 @@ context.api.workspace.onDidChangeTextDocument((event) => {
 
 ```typescript
 // 发送提示
-const response = await context.api.ai.prompt('Explain this code', {
-  model: 'claude-3-opus',
+const response = await context.api.ai.prompt("Explain this code", {
+  model: "claude-3-opus",
   temperature: 0.7,
   maxTokens: 1000,
 });
 
 // 流式提示
-await context.api.ai.streamPrompt(
-  'Generate code',
-  {},
-  (chunk) => console.log('Chunk:', chunk)
-);
+await context.api.ai.streamPrompt("Generate code", {}, (chunk) => console.log("Chunk:", chunk));
 
 // 注册 AI 工具
 context.api.ai.registerTool({
-  id: 'myTool',
-  name: 'My Tool',
-  description: 'Does something useful',
-  inputSchema: { type: 'object', properties: { input: { type: 'string' } } },
+  id: "myTool",
+  name: "My Tool",
+  description: "Does something useful",
+  inputSchema: { type: "object", properties: { input: { type: "string" } } },
   execute: async (input) => {
-    return { result: 'Done' };
+    return { result: "Done" };
   },
 });
 ```
@@ -303,28 +278,28 @@ context.api.ai.registerTool({
 
 ```typescript
 // 显示消息
-await context.api.window.showInformationMessage('Hello!');
-await context.api.window.showWarningMessage('Warning!');
-await context.api.window.showErrorMessage('Error!', 'Retry', 'Cancel');
+await context.api.window.showInformationMessage("Hello!");
+await context.api.window.showWarningMessage("Warning!");
+await context.api.window.showErrorMessage("Error!", "Retry", "Cancel");
 
 // 显示输入框
 const input = await context.api.window.showInputBox({
-  prompt: 'Enter your name',
-  placeHolder: 'Name',
+  prompt: "Enter your name",
+  placeHolder: "Name",
 });
 
 // 显示快速选择
-const item = await context.api.window.showQuickPick(['Option 1', 'Option 2']);
+const item = await context.api.window.showQuickPick(["Option 1", "Option 2"]);
 
 // 创建输出通道
-const output = context.api.window.createOutputChannel('My Plugin');
-output.appendLine('Hello from plugin!');
+const output = context.api.window.createOutputChannel("My Plugin");
+output.appendLine("Hello from plugin!");
 output.show();
 
 // 创建状态栏项
-const statusBar = context.api.window.createStatusBarItem('left', 100);
-statusBar.text = '$(check) My Plugin';
-statusBar.tooltip = 'Plugin is active';
+const statusBar = context.api.window.createStatusBarItem("left", 100);
+statusBar.text = "$(check) My Plugin";
+statusBar.tooltip = "Plugin is active";
 statusBar.show();
 ```
 
@@ -332,73 +307,73 @@ statusBar.show();
 
 ```typescript
 // 读取文件
-const content = await context.api.fs.readFile('/path/to/file.txt');
+const content = await context.api.fs.readFile("/path/to/file.txt");
 
 // 写入文件
-await context.api.fs.writeFile('/path/to/file.txt', new TextEncoder().encode('content'));
+await context.api.fs.writeFile("/path/to/file.txt", new TextEncoder().encode("content"));
 
 // 读取目录
-const entries = await context.api.fs.readDirectory('/path/to/dir');
+const entries = await context.api.fs.readDirectory("/path/to/dir");
 
 // 创建目录
-await context.api.fs.createDirectory('/path/to/newdir');
+await context.api.fs.createDirectory("/path/to/newdir");
 
 // 删除
-await context.api.fs.delete('/path/to/file', { recursive: true });
+await context.api.fs.delete("/path/to/file", { recursive: true });
 
 // 重命名
-await context.api.fs.rename('/old/path', '/new/path');
+await context.api.fs.rename("/old/path", "/new/path");
 
 // 检查存在
-const exists = await context.api.fs.exists('/path/to/file');
+const exists = await context.api.fs.exists("/path/to/file");
 
 // 获取文件信息
-const stat = await context.api.fs.stat('/path/to/file');
+const stat = await context.api.fs.stat("/path/to/file");
 console.log(stat.type, stat.size, stat.mtime);
 ```
 
 ## 插件分类
 
-| 分类 | 说明 | 图标 |
-|------|------|------|
-| `ai` | AI 增强 | 🤖 |
-| `editor` | 编辑器功能 | ✏️ |
-| `language` | 语言支持 | 🌐 |
-| `theme` | 主题 | 🎨 |
-| `snippet` | 代码片段 | 📝 |
-| `debugger` | 调试器 | 🐛 |
-| `formatter` | 格式化 | 📐 |
-| `linter` | 代码检查 | 🔍 |
-| `testing` | 测试 | 🧪 |
-| `productivity` | 效率工具 | ⚡ |
-| `git` | Git 工具 | 📦 |
-| `other` | 其他 | 📁 |
+| 分类           | 说明       | 图标 |
+| -------------- | ---------- | ---- |
+| `ai`           | AI 增强    | 🤖   |
+| `editor`       | 编辑器功能 | ✏️   |
+| `language`     | 语言支持   | 🌐   |
+| `theme`        | 主题       | 🎨   |
+| `snippet`      | 代码片段   | 📝   |
+| `debugger`     | 调试器     | 🐛   |
+| `formatter`    | 格式化     | 📐   |
+| `linter`       | 代码检查   | 🔍   |
+| `testing`      | 测试       | 🧪   |
+| `productivity` | 效率工具   | ⚡   |
+| `git`          | Git 工具   | 📦   |
+| `other`        | 其他       | 📁   |
 
 ## 激活事件
 
-| 事件 | 说明 |
-|------|------|
-| `*` | 总是激活（启动时自动加载） |
-| `onStartupFinished` | 启动完成后激活 |
-| `onLanguage:javascript` | 打开 JavaScript 文件时激活 |
-| `onCommand:myPlugin.cmd` | 执行特定命令时激活 |
-| `onView:myView` | 打开特定视图时激活 |
-| `onFileSystem:git` | 访问 Git 文件系统时激活 |
+| 事件                     | 说明                       |
+| ------------------------ | -------------------------- |
+| `*`                      | 总是激活（启动时自动加载） |
+| `onStartupFinished`      | 启动完成后激活             |
+| `onLanguage:javascript`  | 打开 JavaScript 文件时激活 |
+| `onCommand:myPlugin.cmd` | 执行特定命令时激活         |
+| `onView:myView`          | 打开特定视图时激活         |
+| `onFileSystem:git`       | 访问 Git 文件系统时激活    |
 
 ## 权限说明
 
-| 权限 | 说明 |
-|------|------|
-| `filesystem.read` | 读取文件系统 |
-| `filesystem.write` | 写入文件系统 |
-| `network.fetch` | 发起网络请求 |
-| `shell.execute` | 执行 Shell 命令 |
-| `clipboard.read` | 读取剪贴板 |
-| `clipboard.write` | 写入剪贴板 |
-| `ai.prompt` | 使用 AI 提示 |
-| `ai.tools` | 使用 AI 工具 |
-| `config.read` | 读取配置 |
-| `config.write` | 写入配置 |
+| 权限               | 说明            |
+| ------------------ | --------------- |
+| `filesystem.read`  | 读取文件系统    |
+| `filesystem.write` | 写入文件系统    |
+| `network.fetch`    | 发起网络请求    |
+| `shell.execute`    | 执行 Shell 命令 |
+| `clipboard.read`   | 读取剪贴板      |
+| `clipboard.write`  | 写入剪贴板      |
+| `ai.prompt`        | 使用 AI 提示    |
+| `ai.tools`         | 使用 AI 工具    |
+| `config.read`      | 读取配置        |
+| `config.write`     | 写入配置        |
 
 ## 工具函数
 
@@ -410,20 +385,20 @@ import {
   needsUpdate,
   formatFileSize,
   formatDownloads,
-} from '@/plugins';
+} from "@/plugins";
 
 // 验证清单
 const { valid, errors } = validatePluginManifest(manifest);
 
 // 解析插件 ID
-const { publisher, name } = parsePluginId('fangyu.my-plugin');
+const { publisher, name } = parsePluginId("fangyu.my-plugin");
 
 // 比较版本
-const newer = compareVersions('2.0.0', '1.5.0'); // 1
+const newer = compareVersions("2.0.0", "1.5.0"); // 1
 
 // 检查更新
-if (needsUpdate('1.0.0', '1.5.0')) {
-  console.log('Update available');
+if (needsUpdate("1.0.0", "1.5.0")) {
+  console.log("Update available");
 }
 
 // 格式化文件大小

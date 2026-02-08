@@ -1,19 +1,19 @@
 /**
  * Background Agent Manager
- * 
+ *
  * Manages background agent execution with concurrency control,
  * task queuing, and status tracking.
  */
 
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 import type {
   AgentRoleType,
   BackgroundTaskStatus,
   TaskStatus,
   ConcurrencyConfig,
   ModelProvider,
-} from '../types/unified-agent';
-import { getAgentRole } from './AgentRoles';
+} from "../types/unified-agent";
+import { getAgentRole } from "./AgentRoles";
 
 // ============================================================================
 // Types
@@ -56,8 +56,8 @@ const DEFAULT_CONCURRENCY: ConcurrencyConfig = {
     xai: 5,
   },
   modelConcurrency: {
-    'claude-opus-4-5-20250514': 2,
-    'o3': 2,
+    "claude-opus-4-5-20250514": 2,
+    o3: 2,
   },
 };
 
@@ -81,7 +81,7 @@ export class BackgroundAgentManager {
     };
 
     // Initialize counters
-    for (const provider of ['anthropic', 'openai', 'google', 'xai'] as ModelProvider[]) {
+    for (const provider of ["anthropic", "openai", "google", "xai"] as ModelProvider[]) {
       this.runningByProvider.set(provider, 0);
     }
   }
@@ -130,7 +130,7 @@ export class BackgroundAgentManager {
       id: uuidv4(),
       roleType,
       prompt,
-      status: 'pending',
+      status: "pending",
       progress: 0,
       startedAt: Date.now(),
       output: [],
@@ -143,23 +143,17 @@ export class BackgroundAgentManager {
     // Check if we can run immediately
     if (this.canRunTask(provider, model)) {
       // Reserve capacity SYNCHRONOUSLY before starting async execution
-      this.runningByProvider.set(
-        provider,
-        (this.runningByProvider.get(provider) || 0) + 1
-      );
-      this.runningByModel.set(
-        model,
-        (this.runningByModel.get(model) || 0) + 1
-      );
-      
+      this.runningByProvider.set(provider, (this.runningByProvider.get(provider) || 0) + 1);
+      this.runningByModel.set(model, (this.runningByModel.get(model) || 0) + 1);
+
       // Start task asynchronously
       this.executeTask(task);
       return task.id;
     } else {
       // Queue the task - return a promise that resolves when task starts
-      task.status = 'queued';
+      task.status = "queued";
       this.notifyListeners(task.id);
-      
+
       return new Promise((resolve, reject) => {
         this.queue.push({ task, resolve, reject });
       });
@@ -200,25 +194,25 @@ export class BackgroundAgentManager {
    */
   private async executeTask(task: BackgroundTask): Promise<void> {
     // Update status
-    task.status = 'in_progress';
+    task.status = "in_progress";
     task.progress = 10;
     this.notifyListeners(task.id);
 
     try {
       if (!this.executor) {
-        throw new Error('No executor configured');
+        throw new Error("No executor configured");
       }
 
       // Execute the task
       const result = await this.executor(task.roleType, task.prompt);
 
       // Update task
-      task.status = 'completed';
+      task.status = "completed";
       task.progress = 100;
       task.completedAt = Date.now();
       task.output.push(result);
     } catch (error) {
-      task.status = 'failed';
+      task.status = "failed";
       task.progress = 100;
       task.completedAt = Date.now();
       task.error = error instanceof Error ? error.message : String(error);
@@ -245,14 +239,8 @@ export class BackgroundAgentManager {
    */
   private async startTask(task: BackgroundTask): Promise<void> {
     // Reserve capacity
-    this.runningByProvider.set(
-      task.provider,
-      (this.runningByProvider.get(task.provider) || 0) + 1
-    );
-    this.runningByModel.set(
-      task.model,
-      (this.runningByModel.get(task.model) || 0) + 1
-    );
+    this.runningByProvider.set(task.provider, (this.runningByProvider.get(task.provider) || 0) + 1);
+    this.runningByModel.set(task.model, (this.runningByModel.get(task.model) || 0) + 1);
 
     await this.executeTask(task);
   }
@@ -285,10 +273,7 @@ export class BackgroundAgentManager {
         item.task.provider,
         (this.runningByProvider.get(item.task.provider) || 0) + 1
       );
-      this.runningByModel.set(
-        item.task.model,
-        (this.runningByModel.get(item.task.model) || 0) + 1
-      );
+      this.runningByModel.set(item.task.model, (this.runningByModel.get(item.task.model) || 0) + 1);
 
       // Execute task asynchronously
       this.executeTask(item.task)
@@ -324,11 +309,11 @@ export class BackgroundAgentManager {
    * Estimate task completion time
    */
   private estimateCompletion(task: BackgroundTask): number | undefined {
-    if (task.status === 'completed' || task.status === 'failed') {
+    if (task.status === "completed" || task.status === "failed") {
       return task.completedAt;
     }
 
-    if (task.status === 'in_progress' && task.progress > 0) {
+    if (task.status === "in_progress" && task.progress > 0) {
       const elapsed = Date.now() - task.startedAt;
       const estimatedTotal = (elapsed / task.progress) * 100;
       return task.startedAt + estimatedTotal;
@@ -348,14 +333,14 @@ export class BackgroundAgentManager {
    * Get running tasks
    */
   getRunningTasks(): BackgroundTask[] {
-    return this.getAllTasks().filter((t) => t.status === 'in_progress');
+    return this.getAllTasks().filter((t) => t.status === "in_progress");
   }
 
   /**
    * Get queued tasks
    */
   getQueuedTasks(): BackgroundTask[] {
-    return this.getAllTasks().filter((t) => t.status === 'queued');
+    return this.getAllTasks().filter((t) => t.status === "queued");
   }
 
   // ==========================================================================
@@ -371,7 +356,7 @@ export class BackgroundAgentManager {
       throw new Error(`Task not found: ${taskId}`);
     }
 
-    if (task.status === 'completed' || task.status === 'failed') {
+    if (task.status === "completed" || task.status === "failed") {
       throw new Error(`Cannot cancel completed task: ${taskId}`);
     }
 
@@ -380,14 +365,14 @@ export class BackgroundAgentManager {
     if (queueIndex >= 0) {
       const item = this.queue[queueIndex];
       this.queue.splice(queueIndex, 1);
-      item.reject(new Error('Task cancelled'));
+      item.reject(new Error("Task cancelled"));
     }
 
     // Update counters if was running (check before changing status)
-    const wasInProgress = task.status === 'in_progress';
+    const wasInProgress = task.status === "in_progress";
 
     // Update status
-    task.status = 'cancelled';
+    task.status = "cancelled";
     task.completedAt = Date.now();
 
     // Update counters if was running
@@ -411,7 +396,7 @@ export class BackgroundAgentManager {
    */
   updateProgress(taskId: string, progress: number, output?: string): void {
     const task = this.tasks.get(taskId);
-    if (task && task.status === 'in_progress') {
+    if (task && task.status === "in_progress") {
       task.progress = Math.min(99, Math.max(0, progress));
       if (output) {
         task.output.push(output);
@@ -427,10 +412,7 @@ export class BackgroundAgentManager {
   /**
    * Subscribe to task status updates
    */
-  onStatusChange(
-    taskId: string,
-    callback: (status: BackgroundTaskStatus) => void
-  ): () => void {
+  onStatusChange(taskId: string, callback: (status: BackgroundTaskStatus) => void): () => void {
     if (!this.listeners.has(taskId)) {
       this.listeners.set(taskId, new Set());
     }
@@ -498,7 +480,7 @@ export class BackgroundAgentManager {
    */
   clearCompleted(): void {
     for (const [id, task] of this.tasks) {
-      if (task.status === 'completed' || task.status === 'failed' || task.status === 'cancelled') {
+      if (task.status === "completed" || task.status === "failed" || task.status === "cancelled") {
         this.tasks.delete(id);
         this.listeners.delete(id);
       }

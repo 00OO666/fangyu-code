@@ -7,7 +7,7 @@
  * - 清理损坏/过时的数据
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { useEffect } from "react";
 
 const MIGRATION_VERSION_KEY = "data_migration_version";
@@ -23,12 +23,15 @@ function migrateHourlyUsageData() {
   try {
     const hourlyData = localStorage.getItem("hourly_usage_tracking");
     if (hourlyData) {
-      logger.debug('useDataMigration', "[DataMigration] 🔧 检测到旧版本的小时统计数据，正在清理...");
+      logger.debug(
+        "useDataMigration",
+        "[DataMigration] 🔧 检测到旧版本的小时统计数据，正在清理..."
+      );
       localStorage.removeItem("hourly_usage_tracking");
-      logger.debug('useDataMigration', "[DataMigration] ✅ 小时统计数据已清理，将从头开始记录");
+      logger.debug("useDataMigration", "[DataMigration] ✅ 小时统计数据已清理，将从头开始记录");
     }
   } catch (error) {
-    logger.error('useDataMigration', "[DataMigration] ❌ 清理小时统计数据失败:", error);
+    logger.error("useDataMigration", "[DataMigration] ❌ 清理小时统计数据失败:", error);
   }
 }
 
@@ -56,10 +59,10 @@ function migrateCostSnapshotData() {
     });
 
     if (cleaned) {
-      logger.debug('useDataMigration', "[DataMigration] 🔧 清理了所有版本的费用快照数据");
+      logger.debug("useDataMigration", "[DataMigration] 🔧 清理了所有版本的费用快照数据");
     }
   } catch (error) {
-    logger.error('useDataMigration', "[DataMigration] ❌ 清理费用快照数据失败:", error);
+    logger.error("useDataMigration", "[DataMigration] ❌ 清理费用快照数据失败:", error);
   }
 }
 
@@ -67,7 +70,11 @@ function migrateCostSnapshotData() {
  * 执行所有迁移任务
  */
 function runMigrations() {
-  logger.debug('useDataMigration', "[DataMigration] 🚀 开始数据迁移到版本", CURRENT_MIGRATION_VERSION);
+  logger.debug(
+    "useDataMigration",
+    "[DataMigration] 🚀 开始数据迁移到版本",
+    CURRENT_MIGRATION_VERSION
+  );
 
   // 执行各个迁移任务
   migrateHourlyUsageData();
@@ -76,7 +83,7 @@ function runMigrations() {
   // 标记迁移完成
   localStorage.setItem(MIGRATION_VERSION_KEY, CURRENT_MIGRATION_VERSION);
 
-  logger.debug('useDataMigration', "[DataMigration] ✅ 数据迁移完成");
+  logger.debug("useDataMigration", "[DataMigration] ✅ 数据迁移完成");
 }
 
 /**
@@ -92,7 +99,7 @@ export function useDataMigration() {
     if (!lastMigrationVersion || lastMigrationVersion !== CURRENT_MIGRATION_VERSION) {
       runMigrations();
     } else {
-      logger.debug('useDataMigration', "[DataMigration] ✨ 数据已是最新版本，无需迁移");
+      logger.debug("useDataMigration", "[DataMigration] ✨ 数据已是最新版本，无需迁移");
     }
   }, []);
 }

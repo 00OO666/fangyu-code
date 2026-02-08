@@ -1,4 +1,4 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { getVersion } from "@tauri-apps/api/app";
 
 // 可选导入：在未注册插件或非 Tauri 环境下，调用时会抛错，外层需做兜底
@@ -69,13 +69,13 @@ function mapUpdateHandle(raw: Update): UpdateHandle {
     },
     download: (raw as any).download
       ? async () => {
-        await (raw as any).download();
-      }
+          await (raw as any).download();
+        }
       : undefined,
     install: (raw as any).install
       ? async () => {
-        await (raw as any).install();
-      }
+          await (raw as any).install();
+        }
       : undefined,
   };
 }
@@ -92,7 +92,7 @@ export async function getCurrentVersion(): Promise<string> {
  * 检查网络是否可用
  */
 function isNetworkAvailable(): boolean {
-  return typeof navigator !== 'undefined' ? navigator.onLine : true;
+  return typeof navigator !== "undefined" ? navigator.onLine : true;
 }
 
 /**
@@ -101,13 +101,13 @@ function isNetworkAvailable(): boolean {
 function isNetworkError(error: Error): boolean {
   const msg = error.message.toLowerCase();
   return (
-    msg.includes('timeout') ||
-    msg.includes('network') ||
-    msg.includes('fetch') ||
-    msg.includes('connection') ||
-    msg.includes('econnrefused') ||
-    msg.includes('enotfound') ||
-    msg.includes('dns')
+    msg.includes("timeout") ||
+    msg.includes("network") ||
+    msg.includes("fetch") ||
+    msg.includes("connection") ||
+    msg.includes("econnrefused") ||
+    msg.includes("enotfound") ||
+    msg.includes("dns")
   );
 }
 
@@ -115,7 +115,7 @@ function isNetworkError(error: Error): boolean {
  * 延迟函数
  */
 function delay(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export async function checkForUpdate(opts: CheckOptions = {}): Promise<CheckResult> {
@@ -124,7 +124,7 @@ export async function checkForUpdate(opts: CheckOptions = {}): Promise<CheckResu
   // 🔧 FIX: 网络不可用时静默跳过
   if (!isNetworkAvailable()) {
     if (silentOnNetworkError) {
-      logger.debug('updater', "[Updater] Network unavailable, skipping update check");
+      logger.debug("updater", "[Updater] Network unavailable, skipping update check");
       const currentVersion = await getCurrentVersion();
       return { status: "up-to-date", currentVersion, skipped: true };
     }
@@ -159,7 +159,10 @@ export async function checkForUpdate(opts: CheckOptions = {}): Promise<CheckResu
       // 如果是网络错误且还有重试次数，进行重试
       if (isNetworkError(lastError) && attempt < maxRetries) {
         const backoffMs = Math.min(1000 * Math.pow(2, attempt - 1), 10000); // 1s, 2s, 4s... 最大 10s
-        logger.debug('updater', `[Updater] Attempt ${attempt}/${maxRetries} failed, retrying in ${backoffMs}ms...`);
+        logger.debug(
+          "updater",
+          `[Updater] Attempt ${attempt}/${maxRetries} failed, retrying in ${backoffMs}ms...`
+        );
         await delay(backoffMs);
         continue;
       }
@@ -170,7 +173,7 @@ export async function checkForUpdate(opts: CheckOptions = {}): Promise<CheckResu
   }
 
   // 所有重试都失败了
-  logger.error('updater', "[Updater] Check failed after retries:", lastError);
+  logger.error("updater", "[Updater] Check failed after retries:", lastError);
 
   // 提供详细的错误信息
   let errorMessage = "检查更新失败";
@@ -180,7 +183,7 @@ export async function checkForUpdate(opts: CheckOptions = {}): Promise<CheckResu
 
     // 🔧 FIX: 网络错误时静默处理
     if (isNetworkError(lastError) && silentOnNetworkError) {
-      logger.debug('updater', "[Updater] Network error, silently skipping");
+      logger.debug("updater", "[Updater] Network error, silently skipping");
       const currentVersion = await getCurrentVersion();
       return { status: "up-to-date", currentVersion, skipped: true };
     }
@@ -201,8 +204,7 @@ export async function checkForUpdate(opts: CheckOptions = {}): Promise<CheckResu
       errorMessage.toLowerCase().includes("permission") ||
       errorMessage.toLowerCase().includes("not allowed")
     ) {
-      errorMessage =
-        "当前应用未授予更新权限，请确认 capabilities/default.json 启用了 updater 权限";
+      errorMessage = "当前应用未授予更新权限，请确认 capabilities/default.json 启用了 updater 权限";
     } else if (errorMessage.includes("Failed to check for update")) {
       errorMessage = "检查更新服务失败，请稍后重试";
     }

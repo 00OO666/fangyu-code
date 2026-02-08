@@ -1,8 +1,8 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import React, { useState, useEffect } from "react";
 import MDEditor from "@uiw/react-md-editor";
 import { motion } from "framer-motion";
-import { ArrowLeft, Save, Loader2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Toast, ToastContainer } from "@/components/ui/toast";
 import { api } from "@/lib/api";
@@ -25,10 +25,7 @@ interface CodexMarkdownEditorProps {
  * @example
  * <CodexMarkdownEditor onBack={() => setView('main')} />
  */
-export const CodexMarkdownEditor: React.FC<CodexMarkdownEditorProps> = ({
-  onBack,
-  className,
-}) => {
+export const CodexMarkdownEditor: React.FC<CodexMarkdownEditorProps> = ({ onBack, className }) => {
   const [content, setContent] = useState<string>("");
   const [originalContent, setOriginalContent] = useState<string>("");
   const [loading, setLoading] = useState(true);
@@ -53,7 +50,7 @@ export const CodexMarkdownEditor: React.FC<CodexMarkdownEditorProps> = ({
       setContent(prompt);
       setOriginalContent(prompt);
     } catch (err) {
-      logger.error('CodexMarkdownEditor', "Failed to load Codex system prompt:", err);
+      logger.error("CodexMarkdownEditor", "Failed to load Codex system prompt:", err);
       const errorMessage = err instanceof Error ? err.message : String(err);
 
       // Check if error is about Codex not being installed
@@ -77,7 +74,7 @@ export const CodexMarkdownEditor: React.FC<CodexMarkdownEditorProps> = ({
       setOriginalContent(content);
       setToast({ message: "AGENTS.md 保存成功", type: "success" });
     } catch (err) {
-      logger.error('CodexMarkdownEditor', "Failed to save Codex system prompt:", err);
+      logger.error("CodexMarkdownEditor", "Failed to save Codex system prompt:", err);
       const errorMessage = err instanceof Error ? err.message : String(err);
       setError(`保存失败: ${errorMessage}`);
       setToast({ message: "保存 AGENTS.md 失败", type: "error" });
@@ -88,9 +85,7 @@ export const CodexMarkdownEditor: React.FC<CodexMarkdownEditorProps> = ({
 
   const handleBack = () => {
     if (hasChanges) {
-      const confirmLeave = window.confirm(
-        "您有未保存的更改。确定要离开吗？"
-      );
+      const confirmLeave = window.confirm("您有未保存的更改。确定要离开吗？");
       if (!confirmLeave) return;
     }
     onBack();
@@ -118,9 +113,7 @@ export const CodexMarkdownEditor: React.FC<CodexMarkdownEditorProps> = ({
             </Button>
             <div>
               <h2 className="text-lg font-semibold">Codex AGENTS.md</h2>
-              <p className="text-xs text-muted-foreground">
-                编辑 Codex 系统提示词配置
-              </p>
+              <p className="text-xs text-muted-foreground">编辑 Codex 系统提示词配置</p>
             </div>
           </div>
 
@@ -128,10 +121,7 @@ export const CodexMarkdownEditor: React.FC<CodexMarkdownEditorProps> = ({
             onClick={handleSave}
             disabled={!hasChanges || saving || codexNotInstalled}
             size="sm"
-            className={cn(
-              "transition-all duration-200",
-              saving && "scale-95 opacity-80"
-            )}
+            className={cn("transition-all duration-200", saving && "scale-95 opacity-80")}
           >
             {saving ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
@@ -190,7 +180,10 @@ export const CodexMarkdownEditor: React.FC<CodexMarkdownEditorProps> = ({
               </div>
             </div>
           ) : (
-            <div className="h-full rounded-lg border border-border overflow-hidden shadow-sm" data-color-mode="dark">
+            <div
+              className="h-full rounded-lg border border-border overflow-hidden shadow-sm"
+              data-color-mode="dark"
+            >
               <MDEditor
                 value={content}
                 onChange={(val) => setContent(val || "")}
@@ -206,11 +199,7 @@ export const CodexMarkdownEditor: React.FC<CodexMarkdownEditorProps> = ({
       {/* Toast Notification */}
       <ToastContainer>
         {toast && (
-          <Toast
-            message={toast.message}
-            type={toast.type}
-            onDismiss={() => setToast(null)}
-          />
+          <Toast message={toast.message} type={toast.type} onDismiss={() => setToast(null)} />
         )}
       </ToastContainer>
     </div>

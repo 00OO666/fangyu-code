@@ -35,11 +35,7 @@ export const Skeleton = React.forwardRef<HTMLDivElement, SkeletonProps>(
         aria-busy="true"
         aria-live="polite"
         aria-label="加载中"
-        className={cn(
-          "bg-muted rounded-lg",
-          animate && "animate-pulse",
-          className
-        )}
+        className={cn("bg-muted rounded-lg", animate && "animate-pulse", className)}
         {...props}
       />
     );
@@ -109,16 +105,10 @@ export interface SkeletonListProps {
   className?: string;
 }
 
-export const SkeletonList: React.FC<SkeletonListProps> = ({
-  count = 3,
-  children,
-  className
-}) => {
+export const SkeletonList: React.FC<SkeletonListProps> = ({ count = 3, children, className }) => {
   return (
     <div className={className}>
-      {Array.from({ length: count }, (_, i) =>
-        React.cloneElement(children, { key: i })
-      )}
+      {Array.from({ length: count }, (_, i) => React.cloneElement(children, { key: i }))}
     </div>
   );
 };

@@ -6,7 +6,7 @@
  */
 
 import React, { useRef, useEffect, useState } from "react";
-import { Maximize2 } from 'lucide-react';
+import { Maximize2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Prism as SyntaxHighlighter } from "@/lib/lightSyntaxHighlighter";
@@ -57,11 +57,7 @@ export const CodePreview: React.FC<CodePreviewProps> = ({
   const [supportsSyntaxHighlight] = useState(() => checkSyntaxHighlightSupport());
 
   // 使用打字机效果
-  const {
-    displayedText,
-    isTyping,
-    skipToEnd
-  } = useTypewriter(codeContent, {
+  const { displayedText, isTyping, skipToEnd } = useTypewriter(codeContent, {
     enabled: isStreaming,
     speed: typewriterSpeed,
     isStreaming,
@@ -88,10 +84,10 @@ export const CodePreview: React.FC<CodePreviewProps> = ({
     <div
       className="rounded-lg border bg-zinc-100 dark:bg-zinc-950 border-zinc-300 dark:border-zinc-800 overflow-hidden w-full"
       style={{
-        height: truncated ? '440px' : 'auto',
-        maxHeight: truncated ? '440px' : undefined,
-        display: 'flex',
-        flexDirection: 'column'
+        height: truncated ? "440px" : "auto",
+        maxHeight: truncated ? "440px" : undefined,
+        display: "flex",
+        flexDirection: "column",
       }}
     >
       {/* 头部 */}
@@ -141,11 +137,11 @@ export const CodePreview: React.FC<CodePreviewProps> = ({
               style={getClaudeSyntaxTheme(isDarkTheme(theme))}
               customStyle={{
                 margin: 0,
-                padding: '1rem',
-                background: 'transparent',
-                fontSize: '0.75rem',
-                lineHeight: '1.5',
-                overflowX: 'auto'
+                padding: "1rem",
+                background: "transparent",
+                fontSize: "0.75rem",
+                lineHeight: "1.5",
+                overflowX: "auto",
               }}
               wrapLongLines={false}
             >

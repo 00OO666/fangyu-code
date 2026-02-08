@@ -7,7 +7,7 @@
  * @version 1.0.0
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { invoke } from "@tauri-apps/api/core";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { generateSessionSummary } from "@/lib/sessionSummarizer";
@@ -60,10 +60,18 @@ async function loadSessionHistory(sessionId: string, projectPath: string): Promi
     return messages;
   } catch (error) {
     if (isMissingSessionFile(error)) {
-      logger.info('useSmartSessionContinue', "[useSmartSessionContinue] Session history missing, treating as empty:", error);
+      logger.info(
+        "useSmartSessionContinue",
+        "[useSmartSessionContinue] Session history missing, treating as empty:",
+        error
+      );
       return [];
     }
-    logger.error('useSmartSessionContinue', "[useSmartSessionContinue] Failed to load session history:", error);
+    logger.error(
+      "useSmartSessionContinue",
+      "[useSmartSessionContinue] Failed to load session history:",
+      error
+    );
     return [];
   }
 }
@@ -74,7 +82,7 @@ async function loadSessionHistory(sessionId: string, projectPath: string): Promi
 async function createContinuedSession(
   projectPath: string,
   summary: SessionSummary,
-  parentSessionId: string,
+  parentSessionId: string
 ): Promise<string> {
   try {
     // 调用 Tauri 命令创建新会话
@@ -88,10 +96,18 @@ async function createContinuedSession(
       },
     });
 
-    logger.debug('useSmartSessionContinue', "[useSmartSessionContinue] New session created:", newSessionId);
+    logger.debug(
+      "useSmartSessionContinue",
+      "[useSmartSessionContinue] New session created:",
+      newSessionId
+    );
     return newSessionId;
   } catch (error) {
-    logger.error('useSmartSessionContinue', "[useSmartSessionContinue] Failed to create continued session:", error);
+    logger.error(
+      "useSmartSessionContinue",
+      "[useSmartSessionContinue] Failed to create continued session:",
+      error
+    );
     throw error;
   }
 }
@@ -100,7 +116,7 @@ async function createContinuedSession(
  * 智能会话续接 Hook
  */
 export function useSmartSessionContinue(
-  config: SessionContinueConfig,
+  config: SessionContinueConfig
 ): UseSmartSessionContinueReturn {
   const {
     sessionId,
@@ -134,16 +150,22 @@ export function useSmartSessionContinue(
    */
   const generateSummary = useCallback(async () => {
     if (!sessionId || !projectPath) {
-      logger.warn('useSmartSessionContinue', "[useSmartSessionContinue] Missing sessionId or projectPath");
+      logger.warn(
+        "useSmartSessionContinue",
+        "[useSmartSessionContinue] Missing sessionId or projectPath"
+      );
       return;
     }
 
     if (status === "generating" || status === "creating") {
-      logger.warn('useSmartSessionContinue', "[useSmartSessionContinue] Already processing");
+      logger.warn("useSmartSessionContinue", "[useSmartSessionContinue] Already processing");
       return;
     }
 
-    logger.debug('useSmartSessionContinue', "[useSmartSessionContinue] 🚀 Starting summary generation");
+    logger.debug(
+      "useSmartSessionContinue",
+      "[useSmartSessionContinue] 🚀 Starting summary generation"
+    );
     setStatus("generating");
     setError(null);
 
@@ -152,24 +174,38 @@ export function useSmartSessionContinue(
 
     try {
       // 1. 加载会话历史
-      logger.debug('useSmartSessionContinue', "[useSmartSessionContinue] 📚 Loading session history...");
+      logger.debug(
+        "useSmartSessionContinue",
+        "[useSmartSessionContinue] 📚 Loading session history..."
+      );
       const messages = await loadSessionHistory(sessionId, projectPath);
 
       if (abortController.signal.aborted) {
-        logger.debug('useSmartSessionContinue', "[useSmartSessionContinue] Aborted during history loading");
+        logger.debug(
+          "useSmartSessionContinue",
+          "[useSmartSessionContinue] Aborted during history loading"
+        );
         return;
       }
 
       if (messages.length === 0) {
-        logger.info('useSmartSessionContinue', "[useSmartSessionContinue] No messages found in session history, skipping summary generation");
+        logger.info(
+          "useSmartSessionContinue",
+          "[useSmartSessionContinue] No messages found in session history, skipping summary generation"
+        );
         setStatus("idle");
         return;
       }
 
-      logger.debug('useSmartSessionContinue', "[useSmartSessionContinue] Loaded", messages.length, "messages");
+      logger.debug(
+        "useSmartSessionContinue",
+        "[useSmartSessionContinue] Loaded",
+        messages.length,
+        "messages"
+      );
 
       // 2. 生成摘要
-      logger.debug('useSmartSessionContinue', "[useSmartSessionContinue] 🔍 Generating summary...");
+      logger.debug("useSmartSessionContinue", "[useSmartSessionContinue] 🔍 Generating summary...");
       const sessionSummary = await generateSessionSummary(messages, {
         sessionId,
         projectPath,
@@ -178,36 +214,55 @@ export function useSmartSessionContinue(
       });
 
       if (abortController.signal.aborted) {
-        logger.debug('useSmartSessionContinue', "[useSmartSessionContinue] Aborted during summary generation");
+        logger.debug(
+          "useSmartSessionContinue",
+          "[useSmartSessionContinue] Aborted during summary generation"
+        );
         return;
       }
 
-      logger.debug('useSmartSessionContinue', "[useSmartSessionContinue] ✅ Summary generated successfully");
+      logger.debug(
+        "useSmartSessionContinue",
+        "[useSmartSessionContinue] ✅ Summary generated successfully"
+      );
       setSummary(sessionSummary);
 
       // 3. 创建新会话
       if (autoSwitch) {
         setStatus("creating");
-        logger.debug('useSmartSessionContinue', "[useSmartSessionContinue] 🏗️ Creating new session...");
+        logger.debug(
+          "useSmartSessionContinue",
+          "[useSmartSessionContinue] 🏗️ Creating new session..."
+        );
 
         const newId = await createContinuedSession(projectPath, sessionSummary, sessionId);
 
         if (abortController.signal.aborted) {
-          logger.debug('useSmartSessionContinue', "[useSmartSessionContinue] Aborted during session creation");
+          logger.debug(
+            "useSmartSessionContinue",
+            "[useSmartSessionContinue] Aborted during session creation"
+          );
           return;
         }
 
         setNewSessionId(newId);
         setStatus("ready");
-        logger.debug('useSmartSessionContinue', "[useSmartSessionContinue] 🎉 Ready to switch to new session:", newId);
+        logger.debug(
+          "useSmartSessionContinue",
+          "[useSmartSessionContinue] 🎉 Ready to switch to new session:",
+          newId
+        );
       } else {
         setStatus("ready");
-        logger.debug('useSmartSessionContinue', "[useSmartSessionContinue] 📝 Summary ready, waiting for user confirmation");
+        logger.debug(
+          "useSmartSessionContinue",
+          "[useSmartSessionContinue] 📝 Summary ready, waiting for user confirmation"
+        );
       }
     } catch (err) {
       if (!abortController.signal.aborted) {
         const errorMsg = err instanceof Error ? err.message : String(err);
-        logger.error('useSmartSessionContinue', "[useSmartSessionContinue] ❌ Error:", errorMsg);
+        logger.error("useSmartSessionContinue", "[useSmartSessionContinue] ❌ Error:", errorMsg);
         setError(errorMsg);
         setStatus("error");
 
@@ -230,14 +285,21 @@ export function useSmartSessionContinue(
    */
   const continueTo = useCallback(async () => {
     if (!summary || !projectPath) {
-      logger.warn('useSmartSessionContinue', "[useSmartSessionContinue] Cannot continue: missing summary or projectPath");
+      logger.warn(
+        "useSmartSessionContinue",
+        "[useSmartSessionContinue] Cannot continue: missing summary or projectPath"
+      );
       return;
     }
 
     if (newSessionId) {
       // 已经创建了新会话，直接切换
       setStatus("switching");
-      logger.debug('useSmartSessionContinue', "[useSmartSessionContinue] 🔄 Switching to existing session:", newSessionId);
+      logger.debug(
+        "useSmartSessionContinue",
+        "[useSmartSessionContinue] 🔄 Switching to existing session:",
+        newSessionId
+      );
       setTimeout(() => {
         setStatus("completed");
       }, 200);
@@ -249,19 +311,30 @@ export function useSmartSessionContinue(
     setError(null);
 
     try {
-      logger.debug('useSmartSessionContinue', "[useSmartSessionContinue] 🏗️ Creating new session...");
+      logger.debug(
+        "useSmartSessionContinue",
+        "[useSmartSessionContinue] 🏗️ Creating new session..."
+      );
       const newId = await createContinuedSession(projectPath, summary, sessionId || "unknown");
       setNewSessionId(newId);
 
       setStatus("switching");
-      logger.debug('useSmartSessionContinue', "[useSmartSessionContinue] 🔄 Switching to new session:", newId);
+      logger.debug(
+        "useSmartSessionContinue",
+        "[useSmartSessionContinue] 🔄 Switching to new session:",
+        newId
+      );
 
       setTimeout(() => {
         setStatus("completed");
       }, 200);
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : String(err);
-      logger.error('useSmartSessionContinue', "[useSmartSessionContinue] ❌ Error creating session:", errorMsg);
+      logger.error(
+        "useSmartSessionContinue",
+        "[useSmartSessionContinue] ❌ Error creating session:",
+        errorMsg
+      );
       setError(errorMsg);
       setStatus("error");
     }
@@ -271,7 +344,10 @@ export function useSmartSessionContinue(
    * 取消续接
    */
   const cancel = useCallback(() => {
-    logger.debug('useSmartSessionContinue', "[useSmartSessionContinue] 🚫 Cancelling session continue");
+    logger.debug(
+      "useSmartSessionContinue",
+      "[useSmartSessionContinue] 🚫 Cancelling session continue"
+    );
 
     // 取消进行中的操作
     if (abortControllerRef.current) {
@@ -297,8 +373,11 @@ export function useSmartSessionContinue(
 
     // 达到阈值时触发
     if (contextUsage >= threshold) {
-      logger.debug('useSmartSessionContinue', `📊 Context usage ${(contextUsage * 100).toFixed(1)}% >= ${(threshold * 100).toFixed(1)}% threshold`);
-      logger.debug('useSmartSessionContinue', '🔄 Auto-triggering session continue');
+      logger.debug(
+        "useSmartSessionContinue",
+        `📊 Context usage ${(contextUsage * 100).toFixed(1)}% >= ${(threshold * 100).toFixed(1)}% threshold`
+      );
+      logger.debug("useSmartSessionContinue", "🔄 Auto-triggering session continue");
       hasTriggeredRef.current = true;
       generateSummary();
     }

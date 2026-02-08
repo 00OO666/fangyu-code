@@ -1,15 +1,15 @@
-import type { ThemeName } from '@/types/theme';
+import type { ThemeName } from "@/types/theme";
 
-export type ThemeDefaultMode = 'last' | 'fixed';
+export type ThemeDefaultMode = "last" | "fixed";
 
-const SESSION_THEME_PREFIX = 'fangyu-theme-session:';
-const PROJECT_THEME_PREFIX = 'fangyu-theme-project:';
-const DEFAULT_THEME_MODE_KEY = 'fangyu-theme-default-mode';
-const DEFAULT_THEME_KEY = 'fangyu-theme-default';
-const LAST_THEME_KEY = 'fangyu-theme-last';
-const LEGACY_THEME_KEY = 'fangyu-theme';
+const SESSION_THEME_PREFIX = "fangyu-theme-session:";
+const PROJECT_THEME_PREFIX = "fangyu-theme-project:";
+const DEFAULT_THEME_MODE_KEY = "fangyu-theme-default-mode";
+const DEFAULT_THEME_KEY = "fangyu-theme-default";
+const LAST_THEME_KEY = "fangyu-theme-last";
+const LEGACY_THEME_KEY = "fangyu-theme";
 
-const VALID_THEMES: ThemeName[] = ['deep-glass-pro', 'deep-glass-scifi'];
+const VALID_THEMES: ThemeName[] = ["deep-glass-pro", "deep-glass-scifi"];
 
 function isValidTheme(value: string | null | undefined): value is ThemeName {
   if (!value) return false;
@@ -18,7 +18,7 @@ function isValidTheme(value: string | null | undefined): value is ThemeName {
 
 export function normalizeProjectPath(path?: string | null): string | null {
   if (!path) return null;
-  const normalized = path.replace(/\\/g, '/').replace(/\/+$/, '').trim();
+  const normalized = path.replace(/\\/g, "/").replace(/\/+$/, "").trim();
   return normalized ? normalized.toLowerCase() : null;
 }
 
@@ -54,7 +54,7 @@ export function getSessionThemePreference(params: {
 
 export function setSessionThemePreference(
   params: { sessionId?: string | null; projectPath?: string | null },
-  themeName: ThemeName,
+  themeName: ThemeName
 ) {
   const sessionStorageKey = sessionKey(params.sessionId);
   if (sessionStorageKey) {
@@ -69,8 +69,8 @@ export function setSessionThemePreference(
 
 export function getDefaultThemeMode(): ThemeDefaultMode {
   const stored = localStorage.getItem(DEFAULT_THEME_MODE_KEY);
-  if (stored === 'fixed') return 'fixed';
-  return 'last';
+  if (stored === "fixed") return "fixed";
+  return "last";
 }
 
 export function setDefaultThemeMode(mode: ThemeDefaultMode) {
@@ -79,7 +79,7 @@ export function setDefaultThemeMode(mode: ThemeDefaultMode) {
 
 export function getDefaultTheme(): ThemeName {
   const mode = getDefaultThemeMode();
-  if (mode === 'fixed') {
+  if (mode === "fixed") {
     const stored = localStorage.getItem(DEFAULT_THEME_KEY);
     if (isValidTheme(stored)) {
       return stored;
@@ -88,7 +88,7 @@ export function getDefaultTheme(): ThemeName {
 
   const last = getLastTheme();
   if (last) return last;
-  return 'deep-glass-pro';
+  return "deep-glass-pro";
 }
 
 export function setDefaultTheme(themeName: ThemeName) {
@@ -108,4 +108,3 @@ export function setLastTheme(themeName: ThemeName) {
   localStorage.setItem(LAST_THEME_KEY, themeName);
   localStorage.setItem(LEGACY_THEME_KEY, themeName);
 }
-

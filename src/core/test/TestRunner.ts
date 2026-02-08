@@ -5,7 +5,7 @@
 
 export interface TestResult {
   name: string;
-  status: 'passed' | 'failed' | 'skipped';
+  status: "passed" | "failed" | "skipped";
   duration: number;
   error?: string;
 }
@@ -22,13 +22,13 @@ export interface TestSuite {
 export class TestRunner {
   private testFramework: string;
 
-  constructor(testFramework: string = 'vitest') {
+  constructor(testFramework: string = "vitest") {
     this.testFramework = testFramework;
   }
 
   async runTests(pattern?: string): Promise<TestSuite> {
     return {
-      name: 'Test Suite',
+      name: "Test Suite",
       tests: [],
       duration: 0,
       passed: 0,

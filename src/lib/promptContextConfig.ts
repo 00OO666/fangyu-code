@@ -1,4 +1,4 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 
 /**
 
@@ -129,7 +129,7 @@ export function loadContextConfig(): PromptContextConfig {
       ...config,
     };
   } catch (error) {
-    logger.error('promptContextConfig', "[PromptContextConfig] Failed to load config:", error);
+    logger.error("promptContextConfig", "[PromptContextConfig] Failed to load config:", error);
     return DEFAULT_CONTEXT_CONFIG;
   }
 }
@@ -145,7 +145,7 @@ function saveConfigWithVersion(config: PromptContextConfig): void {
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(configWithVersion));
   } catch (error) {
-    logger.error('promptContextConfig', "[PromptContextConfig] Failed to save config:", error);
+    logger.error("promptContextConfig", "[PromptContextConfig] Failed to save config:", error);
   }
 }
 

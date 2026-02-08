@@ -186,10 +186,7 @@ export const EmbeddedTerminal: React.FC<EmbeddedTerminalProps> = ({
             <Trash2 className="w-4 h-4 text-gray-400" />
           </button>
           {onClose && (
-            <button
-              onClick={onClose}
-              className="p-1.5 hover:bg-white/10 rounded transition-colors"
-            >
+            <button onClick={onClose} className="p-1.5 hover:bg-white/10 rounded transition-colors">
               <X className="w-4 h-4 text-gray-400" />
             </button>
           )}
@@ -215,13 +212,7 @@ export const EmbeddedTerminal: React.FC<EmbeddedTerminalProps> = ({
                 <span className="text-gray-600 text-xs flex-shrink-0">
                   {formatTimestamp(line.timestamp)}
                 </span>
-                <span
-                  className={
-                    line.output_type === "stderr"
-                      ? "text-red-400"
-                      : "text-green-400"
-                  }
-                >
+                <span className={line.output_type === "stderr" ? "text-red-400" : "text-green-400"}>
                   {line.content}
                 </span>
               </div>

@@ -55,17 +55,17 @@ export const DEFAULT_RETRY_CONFIG: RetryConfig = {
   backoffMultiplier: 2,
   jitter: true,
   retryableErrors: [
-    'ECONNRESET',
-    'ETIMEDOUT',
-    'ECONNREFUSED',
-    'NETWORK_ERROR',
-    'TIMEOUT',
-    'rate_limit',
-    '429',
-    '500',
-    '502',
-    '503',
-    '504',
+    "ECONNRESET",
+    "ETIMEDOUT",
+    "ECONNREFUSED",
+    "NETWORK_ERROR",
+    "TIMEOUT",
+    "rate_limit",
+    "429",
+    "500",
+    "502",
+    "503",
+    "504",
   ],
 };
 
@@ -176,7 +176,7 @@ export async function withRetry<T>(
   // 不应该到达这里，但为了类型安全
   return {
     success: false,
-    error: lastError || new Error('Unknown error'),
+    error: lastError || new Error("Unknown error"),
     attempts: mergedConfig.maxRetries + 1,
     totalTime: Date.now() - startTime,
     delays,
@@ -214,7 +214,7 @@ export const API_RETRY_CONFIG: Partial<RetryConfig> = {
   maxDelay: 30000,
   backoffMultiplier: 2,
   jitter: true,
-  retryableErrors: ['rate_limit', '429', '500', '502', '503', '504', 'TIMEOUT'],
+  retryableErrors: ["rate_limit", "429", "500", "502", "503", "504", "TIMEOUT"],
 };
 
 /**

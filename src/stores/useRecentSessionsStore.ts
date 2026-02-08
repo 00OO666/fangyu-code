@@ -8,9 +8,9 @@
  * - 最多保留 50 条会话记录
  */
 
-import { create } from 'zustand';
-import { createJSONStorage, persist } from 'zustand/middleware';
-import type { RecentSessionsState, SessionSnapshot } from '@/types/recentSessions';
+import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
+import type { RecentSessionsState, SessionSnapshot } from "@/types/recentSessions";
 
 /**
  * 最近会话最大保存数量。
@@ -20,7 +20,7 @@ const MAX_RECENT_SESSIONS = 50;
 /**
  * localStorage 持久化 key。
  */
-const RECENT_SESSIONS_STORAGE_KEY = 'recent-sessions-storage';
+const RECENT_SESSIONS_STORAGE_KEY = "recent-sessions-storage";
 
 /**
  * 最近会话 Store 类型定义。
@@ -75,7 +75,9 @@ export const useRecentSessionsStore = create<RecentSessionsStore>()(
         set((state) => {
           const nextSessions = state.sessions.filter((session) => session.id !== sessionId);
           const nextCurrentSessionId =
-            state.currentSessionId === sessionId ? nextSessions[0]?.id ?? null : state.currentSessionId;
+            state.currentSessionId === sessionId
+              ? (nextSessions[0]?.id ?? null)
+              : state.currentSessionId;
 
           return {
             sessions: nextSessions,

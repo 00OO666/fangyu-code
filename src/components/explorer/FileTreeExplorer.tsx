@@ -12,14 +12,41 @@
  * 8. 拖拽支持
  */
 
-import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Folder, FolderOpen, File, FileCode, FileText, FileJson, FileImage, FileCog, ChevronRight, ChevronDown, Search, RefreshCw, FolderPlus, FilePlus, Trash2, Copy, Scissors, ClipboardPaste, Edit2, ExternalLink, MoreVertical, X, FolderTree, Eye, EyeOff, Filter } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
+import React, { useState, useCallback, useEffect, useRef, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Folder,
+  FolderOpen,
+  File,
+  FileCode,
+  FileText,
+  FileJson,
+  FileImage,
+  FileCog,
+  ChevronRight,
+  ChevronDown,
+  Search,
+  RefreshCw,
+  FolderPlus,
+  FilePlus,
+  Trash2,
+  Copy,
+  Scissors,
+  ClipboardPaste,
+  Edit2,
+  ExternalLink,
+  MoreVertical,
+  X,
+  FolderTree,
+  Eye,
+  EyeOff,
+  Filter,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -27,20 +54,15 @@ import {
   ContextMenuSeparator,
   ContextMenuShortcut,
   ContextMenuTrigger,
-} from '@/components/ui/context-menu';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+} from "@/components/ui/context-menu";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from "@/components/ui/dropdown-menu";
 
 // ============================================
 // 类型定义
@@ -50,7 +72,7 @@ export interface FileNode {
   id: string;
   name: string;
   path: string;
-  type: 'file' | 'directory';
+  type: "file" | "directory";
   size?: number;
   modifiedAt?: Date;
   children?: FileNode[];
@@ -84,17 +106,17 @@ export interface FileTreeExplorerProps {
 }
 
 export type ContextAction =
-  | 'open'
-  | 'openInEditor'
-  | 'copy'
-  | 'cut'
-  | 'paste'
-  | 'rename'
-  | 'delete'
-  | 'newFile'
-  | 'newFolder'
-  | 'copyPath'
-  | 'revealInExplorer';
+  | "open"
+  | "openInEditor"
+  | "copy"
+  | "cut"
+  | "paste"
+  | "rename"
+  | "delete"
+  | "newFile"
+  | "newFolder"
+  | "copyPath"
+  | "revealInExplorer";
 
 // ============================================
 // 工具函数
@@ -104,7 +126,7 @@ export type ContextAction =
  * 获取文件图标
  */
 const getFileIcon = (node: FileNode): React.ReactNode => {
-  if (node.type === 'directory') {
+  if (node.type === "directory") {
     return node.isExpanded ? (
       <FolderOpen className="w-4 h-4 text-yellow-500" />
     ) : (
@@ -115,28 +137,42 @@ const getFileIcon = (node: FileNode): React.ReactNode => {
   const ext = node.extension?.toLowerCase();
 
   // 代码文件
-  const codeExtensions = ['ts', 'tsx', 'js', 'jsx', 'py', 'rs', 'go', 'java', 'cpp', 'c', 'h', 'vue', 'svelte'];
-  if (codeExtensions.includes(ext || '')) {
+  const codeExtensions = [
+    "ts",
+    "tsx",
+    "js",
+    "jsx",
+    "py",
+    "rs",
+    "go",
+    "java",
+    "cpp",
+    "c",
+    "h",
+    "vue",
+    "svelte",
+  ];
+  if (codeExtensions.includes(ext || "")) {
     return <FileCode className="w-4 h-4 text-blue-500" />;
   }
 
   // JSON/配置文件
-  if (['json', 'yaml', 'yml', 'toml', 'xml'].includes(ext || '')) {
+  if (["json", "yaml", "yml", "toml", "xml"].includes(ext || "")) {
     return <FileJson className="w-4 h-4 text-green-500" />;
   }
 
   // 图片文件
-  if (['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'ico'].includes(ext || '')) {
+  if (["png", "jpg", "jpeg", "gif", "svg", "webp", "ico"].includes(ext || "")) {
     return <FileImage className="w-4 h-4 text-purple-500" />;
   }
 
   // 配置文件
-  if (['config', 'conf', 'ini', 'env', 'lock'].includes(ext || '') || node.name.startsWith('.')) {
+  if (["config", "conf", "ini", "env", "lock"].includes(ext || "") || node.name.startsWith(".")) {
     return <FileCog className="w-4 h-4 text-gray-500" />;
   }
 
   // 文本/文档文件
-  if (['md', 'txt', 'doc', 'docx', 'pdf'].includes(ext || '')) {
+  if (["md", "txt", "doc", "docx", "pdf"].includes(ext || "")) {
     return <FileText className="w-4 h-4 text-orange-500" />;
   }
 
@@ -147,7 +183,7 @@ const getFileIcon = (node: FileNode): React.ReactNode => {
  * 格式化文件大小
  */
 const formatFileSize = (bytes?: number): string => {
-  if (bytes === undefined) return '';
+  if (bytes === undefined) return "";
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
@@ -160,8 +196,9 @@ const formatFileSize = (bytes?: number): string => {
 const matchesSearch = (node: FileNode, query: string): boolean => {
   if (!query) return true;
   const lowerQuery = query.toLowerCase();
-  return node.name.toLowerCase().includes(lowerQuery) ||
-    node.path.toLowerCase().includes(lowerQuery);
+  return (
+    node.name.toLowerCase().includes(lowerQuery) || node.path.toLowerCase().includes(lowerQuery)
+  );
 };
 
 // ============================================
@@ -187,7 +224,7 @@ const FileTreeNode: React.FC<FileTreeNodeProps> = ({
   onToggle,
   onSelect,
   onDoubleClick,
-  onContextAction
+  onContextAction,
 }) => {
   const [isRenaming, setIsRenaming] = useState(false);
   const [renameValue, setRenameValue] = useState(node.name);
@@ -213,7 +250,7 @@ const FileTreeNode: React.FC<FileTreeNodeProps> = ({
   // 处理重命名
   const handleRename = useCallback(() => {
     if (renameValue && renameValue !== node.name) {
-      onContextAction('rename', node);
+      onContextAction("rename", node);
     }
     setIsRenaming(false);
   }, [renameValue, node, onContextAction]);
@@ -234,19 +271,19 @@ const FileTreeNode: React.FC<FileTreeNodeProps> = ({
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.15 }}
           className={cn(
-            'flex items-center gap-1 px-2 py-1 cursor-pointer select-none',
-            'hover:bg-muted/50 rounded-sm transition-colors',
-            isSelected && 'bg-primary/10 hover:bg-primary/15',
-            isMultiSelected && 'bg-primary/20',
-            node.isHidden && 'opacity-50',
-            node.isGitIgnored && 'opacity-40 italic'
+            "flex items-center gap-1 px-2 py-1 cursor-pointer select-none",
+            "hover:bg-muted/50 rounded-sm transition-colors",
+            isSelected && "bg-primary/10 hover:bg-primary/15",
+            isMultiSelected && "bg-primary/20",
+            node.isHidden && "opacity-50",
+            node.isGitIgnored && "opacity-40 italic"
           )}
           style={{ paddingLeft: `${node.depth * 16 + 8}px` }}
           onClick={(e) => onSelect(node, e.ctrlKey || e.metaKey)}
           onDoubleClick={() => onDoubleClick(node)}
         >
           {/* 展开/折叠图标 */}
-          {node.type === 'directory' ? (
+          {node.type === "directory" ? (
             <button
               className="p-0.5 hover:bg-muted rounded"
               onClick={(e) => {
@@ -277,8 +314,8 @@ const FileTreeNode: React.FC<FileTreeNodeProps> = ({
               onChange={(e) => setRenameValue(e.target.value)}
               onBlur={handleRename}
               onKeyDown={(e) => {
-                if (e.key === 'Enter') handleRename();
-                if (e.key === 'Escape') setIsRenaming(false);
+                if (e.key === "Enter") handleRename();
+                if (e.key === "Escape") setIsRenaming(false);
               }}
               className="h-5 text-xs py-0 px-1"
               onClick={(e) => e.stopPropagation()}
@@ -290,7 +327,7 @@ const FileTreeNode: React.FC<FileTreeNodeProps> = ({
           )}
 
           {/* 文件大小 */}
-          {node.type === 'file' && node.size !== undefined && (
+          {node.type === "file" && node.size !== undefined && (
             <span className="text-xs text-muted-foreground ml-auto">
               {formatFileSize(node.size)}
             </span>
@@ -313,8 +350,8 @@ const FileTreeNode: React.FC<FileTreeNodeProps> = ({
           <ContextMenuShortcut>Enter</ContextMenuShortcut>
         </ContextMenuItem>
 
-        {node.type === 'file' && (
-          <ContextMenuItem onClick={() => onContextAction('openInEditor', node)}>
+        {node.type === "file" && (
+          <ContextMenuItem onClick={() => onContextAction("openInEditor", node)}>
             <FileCode className="w-4 h-4 mr-2" />
             在编辑器中打开
           </ContextMenuItem>
@@ -322,19 +359,19 @@ const FileTreeNode: React.FC<FileTreeNodeProps> = ({
 
         <ContextMenuSeparator />
 
-        <ContextMenuItem onClick={() => onContextAction('copy', node)}>
+        <ContextMenuItem onClick={() => onContextAction("copy", node)}>
           <Copy className="w-4 h-4 mr-2" />
           复制
           <ContextMenuShortcut>Ctrl+C</ContextMenuShortcut>
         </ContextMenuItem>
 
-        <ContextMenuItem onClick={() => onContextAction('cut', node)}>
+        <ContextMenuItem onClick={() => onContextAction("cut", node)}>
           <Scissors className="w-4 h-4 mr-2" />
           剪切
           <ContextMenuShortcut>Ctrl+X</ContextMenuShortcut>
         </ContextMenuItem>
 
-        <ContextMenuItem onClick={() => onContextAction('paste', node)}>
+        <ContextMenuItem onClick={() => onContextAction("paste", node)}>
           <ClipboardPaste className="w-4 h-4 mr-2" />
           粘贴
           <ContextMenuShortcut>Ctrl+V</ContextMenuShortcut>
@@ -349,7 +386,7 @@ const FileTreeNode: React.FC<FileTreeNodeProps> = ({
         </ContextMenuItem>
 
         <ContextMenuItem
-          onClick={() => onContextAction('delete', node)}
+          onClick={() => onContextAction("delete", node)}
           className="text-red-500 focus:text-red-500"
         >
           <Trash2 className="w-4 h-4 mr-2" />
@@ -359,13 +396,13 @@ const FileTreeNode: React.FC<FileTreeNodeProps> = ({
 
         <ContextMenuSeparator />
 
-        {node.type === 'directory' && (
+        {node.type === "directory" && (
           <>
-            <ContextMenuItem onClick={() => onContextAction('newFile', node)}>
+            <ContextMenuItem onClick={() => onContextAction("newFile", node)}>
               <FilePlus className="w-4 h-4 mr-2" />
               新建文件
             </ContextMenuItem>
-            <ContextMenuItem onClick={() => onContextAction('newFolder', node)}>
+            <ContextMenuItem onClick={() => onContextAction("newFolder", node)}>
               <FolderPlus className="w-4 h-4 mr-2" />
               新建文件夹
             </ContextMenuItem>
@@ -373,12 +410,12 @@ const FileTreeNode: React.FC<FileTreeNodeProps> = ({
           </>
         )}
 
-        <ContextMenuItem onClick={() => onContextAction('copyPath', node)}>
+        <ContextMenuItem onClick={() => onContextAction("copyPath", node)}>
           <Copy className="w-4 h-4 mr-2" />
           复制路径
         </ContextMenuItem>
 
-        <ContextMenuItem onClick={() => onContextAction('revealInExplorer', node)}>
+        <ContextMenuItem onClick={() => onContextAction("revealInExplorer", node)}>
           <FolderOpen className="w-4 h-4 mr-2" />
           在资源管理器中显示
         </ContextMenuItem>
@@ -400,13 +437,13 @@ export const FileTreeExplorer: React.FC<FileTreeExplorerProps> = ({
   onMultiSelect,
   onFileOpen,
   onContextAction,
-  className
+  className,
 }) => {
   const [tree, setTree] = useState<FileNode | null>(null);
   const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set(initialExpandedPaths));
   const [selectedPath, setSelectedPath] = useState<string | null>(null);
   const [multiSelectedPaths, setMultiSelectedPaths] = useState<Set<string>>(new Set());
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [showHiddenFiles, setShowHiddenFiles] = useState(propShowHidden);
   const [showGitIgnored, setShowGitIgnored] = useState(propShowGitIgnored);
   const [isLoading, setIsLoading] = useState(true);
@@ -416,45 +453,45 @@ export const FileTreeExplorer: React.FC<FileTreeExplorerProps> = ({
   const loadDirectory = useCallback(async (path: string): Promise<FileNode[]> => {
     // 这里应该调用 Tauri 的文件系统 API
     // 模拟数据
-    await new Promise(resolve => setTimeout(resolve, 200));
+    await new Promise((resolve) => setTimeout(resolve, 200));
 
     return [
       {
         id: `${path}/src`,
-        name: 'src',
+        name: "src",
         path: `${path}/src`,
-        type: 'directory',
+        type: "directory",
         depth: 1,
-        isExpanded: false
+        isExpanded: false,
       },
       {
         id: `${path}/package.json`,
-        name: 'package.json',
+        name: "package.json",
         path: `${path}/package.json`,
-        type: 'file',
+        type: "file",
         size: 1234,
         depth: 1,
-        extension: 'json'
+        extension: "json",
       },
       {
         id: `${path}/README.md`,
-        name: 'README.md',
+        name: "README.md",
         path: `${path}/README.md`,
-        type: 'file',
+        type: "file",
         size: 5678,
         depth: 1,
-        extension: 'md'
+        extension: "md",
       },
       {
         id: `${path}/.gitignore`,
-        name: '.gitignore',
+        name: ".gitignore",
         path: `${path}/.gitignore`,
-        type: 'file',
+        type: "file",
         size: 100,
         depth: 1,
-        extension: 'gitignore',
-        isHidden: true
-      }
+        extension: "gitignore",
+        isHidden: true,
+      },
     ] as FileNode[];
   }, []);
 
@@ -470,13 +507,13 @@ export const FileTreeExplorer: React.FC<FileTreeExplorerProps> = ({
           id: rootPath,
           name: rootPath.split(/[/\\]/).pop() || rootPath,
           path: rootPath,
-          type: 'directory',
+          type: "directory",
           depth: 0,
           isExpanded: true,
-          children
+          children,
         });
       } catch (err: any) {
-        setError(err.message || '加载失败');
+        setError(err.message || "加载失败");
       } finally {
         setIsLoading(false);
       }
@@ -486,37 +523,42 @@ export const FileTreeExplorer: React.FC<FileTreeExplorerProps> = ({
   }, [rootPath, loadDirectory]);
 
   // 切换目录展开状态
-  const toggleDirectory = useCallback(async (node: FileNode) => {
-    if (node.type !== 'directory') return;
+  const toggleDirectory = useCallback(
+    async (node: FileNode) => {
+      if (node.type !== "directory") return;
 
-    const newExpanded = new Set(expandedPaths);
+      const newExpanded = new Set(expandedPaths);
 
-    if (newExpanded.has(node.path)) {
-      newExpanded.delete(node.path);
-    } else {
-      newExpanded.add(node.path);
+      if (newExpanded.has(node.path)) {
+        newExpanded.delete(node.path);
+      } else {
+        newExpanded.add(node.path);
 
-      // 如果还没有加载子节点，则加载
-      if (!node.children) {
-        // 更新节点为加载中状态
-        setTree(prev => updateNode(prev, node.path, { isLoading: true }));
+        // 如果还没有加载子节点，则加载
+        if (!node.children) {
+          // 更新节点为加载中状态
+          setTree((prev) => updateNode(prev, node.path, { isLoading: true }));
 
-        try {
-          const children = await loadDirectory(node.path);
-          setTree(prev => updateNode(prev, node.path, {
-            children,
-            isLoading: false,
-            isExpanded: true
-          }));
-        } catch (err) {
-          setTree(prev => updateNode(prev, node.path, { isLoading: false }));
+          try {
+            const children = await loadDirectory(node.path);
+            setTree((prev) =>
+              updateNode(prev, node.path, {
+                children,
+                isLoading: false,
+                isExpanded: true,
+              })
+            );
+          } catch (err) {
+            setTree((prev) => updateNode(prev, node.path, { isLoading: false }));
+          }
         }
       }
-    }
 
-    setExpandedPaths(newExpanded);
-    setTree(prev => updateNode(prev, node.path, { isExpanded: !node.isExpanded }));
-  }, [expandedPaths, loadDirectory]);
+      setExpandedPaths(newExpanded);
+      setTree((prev) => updateNode(prev, node.path, { isExpanded: !node.isExpanded }));
+    },
+    [expandedPaths, loadDirectory]
+  );
 
   // 更新节点辅助函数
   const updateNode = (
@@ -533,10 +575,10 @@ export const FileTreeExplorer: React.FC<FileTreeExplorerProps> = ({
     if (root.children) {
       return {
         ...root,
-        children: root.children.map(child => {
+        children: root.children.map((child) => {
           const updated = updateNode(child, path, updates);
           return updated || child;
-        })
+        }),
       };
     }
 
@@ -544,50 +586,60 @@ export const FileTreeExplorer: React.FC<FileTreeExplorerProps> = ({
   };
 
   // 选择文件
-  const handleSelect = useCallback((node: FileNode, isMulti: boolean) => {
-    if (isMulti) {
-      const newSelected = new Set(multiSelectedPaths);
-      if (newSelected.has(node.path)) {
-        newSelected.delete(node.path);
-      } else {
-        newSelected.add(node.path);
-      }
-      setMultiSelectedPaths(newSelected);
+  const handleSelect = useCallback(
+    (node: FileNode, isMulti: boolean) => {
+      if (isMulti) {
+        const newSelected = new Set(multiSelectedPaths);
+        if (newSelected.has(node.path)) {
+          newSelected.delete(node.path);
+        } else {
+          newSelected.add(node.path);
+        }
+        setMultiSelectedPaths(newSelected);
 
-      // 获取所有选中的节点并回调
-      const selectedNodes = getAllNodes(tree).filter(n => newSelected.has(n.path));
-      onMultiSelect?.(selectedNodes);
-    } else {
-      setSelectedPath(node.path);
-      setMultiSelectedPaths(new Set());
-      onFileSelect?.(node);
-    }
-  }, [multiSelectedPaths, tree, onFileSelect, onMultiSelect]);
+        // 获取所有选中的节点并回调
+        const selectedNodes = getAllNodes(tree).filter((n) => newSelected.has(n.path));
+        onMultiSelect?.(selectedNodes);
+      } else {
+        setSelectedPath(node.path);
+        setMultiSelectedPaths(new Set());
+        onFileSelect?.(node);
+      }
+    },
+    [multiSelectedPaths, tree, onFileSelect, onMultiSelect]
+  );
 
   // 双击打开
-  const handleDoubleClick = useCallback((node: FileNode) => {
-    if (node.type === 'directory') {
-      toggleDirectory(node);
-    } else {
-      onFileOpen?.(node);
-    }
-  }, [toggleDirectory, onFileOpen]);
+  const handleDoubleClick = useCallback(
+    (node: FileNode) => {
+      if (node.type === "directory") {
+        toggleDirectory(node);
+      } else {
+        onFileOpen?.(node);
+      }
+    },
+    [toggleDirectory, onFileOpen]
+  );
 
   // 上下文菜单操作
-  const handleContextAction = useCallback((action: ContextAction, node: FileNode) => {
-    const selectedFiles = multiSelectedPaths.size > 0
-      ? getAllNodes(tree).filter(n => multiSelectedPaths.has(n.path))
-      : [node];
+  const handleContextAction = useCallback(
+    (action: ContextAction, node: FileNode) => {
+      const selectedFiles =
+        multiSelectedPaths.size > 0
+          ? getAllNodes(tree).filter((n) => multiSelectedPaths.has(n.path))
+          : [node];
 
-    onContextAction?.(action, selectedFiles);
-  }, [multiSelectedPaths, tree, onContextAction]);
+      onContextAction?.(action, selectedFiles);
+    },
+    [multiSelectedPaths, tree, onContextAction]
+  );
 
   // 获取所有节点（扁平化）
   const getAllNodes = (node: FileNode | null): FileNode[] => {
     if (!node) return [];
     const nodes = [node];
     if (node.children) {
-      node.children.forEach(child => {
+      node.children.forEach((child) => {
         nodes.push(...getAllNodes(child));
       });
     }
@@ -597,24 +649,26 @@ export const FileTreeExplorer: React.FC<FileTreeExplorerProps> = ({
   // 过滤可见节点
   const visibleNodes = useMemo(() => {
     const filterNodes = (nodes: FileNode[]): FileNode[] => {
-      return nodes.filter(node => {
-        // 隐藏文件过滤
-        if (!showHiddenFiles && node.isHidden) return false;
-        // gitignore 过滤
-        if (!showGitIgnored && node.isGitIgnored) return false;
-        // 搜索过滤
-        if (searchQuery && !matchesSearch(node, searchQuery)) {
-          // 如果是目录，检查子节点是否匹配
-          if (node.type === 'directory' && node.children) {
-            return filterNodes(node.children).length > 0;
+      return nodes
+        .filter((node) => {
+          // 隐藏文件过滤
+          if (!showHiddenFiles && node.isHidden) return false;
+          // gitignore 过滤
+          if (!showGitIgnored && node.isGitIgnored) return false;
+          // 搜索过滤
+          if (searchQuery && !matchesSearch(node, searchQuery)) {
+            // 如果是目录，检查子节点是否匹配
+            if (node.type === "directory" && node.children) {
+              return filterNodes(node.children).length > 0;
+            }
+            return false;
           }
-          return false;
-        }
-        return true;
-      }).map(node => ({
-        ...node,
-        children: node.children ? filterNodes(node.children) : undefined
-      }));
+          return true;
+        })
+        .map((node) => ({
+          ...node,
+          children: node.children ? filterNodes(node.children) : undefined,
+        }));
     };
 
     if (!tree?.children) return [];
@@ -626,7 +680,7 @@ export const FileTreeExplorer: React.FC<FileTreeExplorerProps> = ({
     setIsLoading(true);
     try {
       const children = await loadDirectory(rootPath);
-      setTree(prev => prev ? { ...prev, children } : null);
+      setTree((prev) => (prev ? { ...prev, children } : null));
     } finally {
       setIsLoading(false);
     }
@@ -634,7 +688,7 @@ export const FileTreeExplorer: React.FC<FileTreeExplorerProps> = ({
 
   // 渲染节点树
   const renderTree = (nodes: FileNode[]) => {
-    return nodes.map(node => (
+    return nodes.map((node) => (
       <React.Fragment key={node.id}>
         <FileTreeNode
           node={node}
@@ -646,24 +700,20 @@ export const FileTreeExplorer: React.FC<FileTreeExplorerProps> = ({
           onDoubleClick={handleDoubleClick}
           onContextAction={handleContextAction}
         />
-        {node.type === 'directory' && node.isExpanded && node.children && (
-          <AnimatePresence>
-            {renderTree(node.children)}
-          </AnimatePresence>
+        {node.type === "directory" && node.isExpanded && node.children && (
+          <AnimatePresence>{renderTree(node.children)}</AnimatePresence>
         )}
       </React.Fragment>
     ));
   };
 
   return (
-    <div className={cn('flex flex-col h-full bg-background border rounded-lg', className)}>
+    <div className={cn("flex flex-col h-full bg-background border rounded-lg", className)}>
       {/* 工具栏 */}
       <div className="flex items-center gap-2 px-3 py-2 border-b bg-muted/30">
         <div className="flex items-center gap-2 flex-1">
           <FolderTree className="w-4 h-4 text-muted-foreground" />
-          <span className="text-sm font-medium truncate">
-            {tree?.name || '文件浏览器'}
-          </span>
+          <span className="text-sm font-medium truncate">{tree?.name || "文件浏览器"}</span>
         </div>
 
         <div className="flex items-center gap-1">
@@ -683,9 +733,7 @@ export const FileTreeExplorer: React.FC<FileTreeExplorerProps> = ({
                   )}
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>
-                {showHiddenFiles ? '隐藏' : '显示'}隐藏文件
-              </TooltipContent>
+              <TooltipContent>{showHiddenFiles ? "隐藏" : "显示"}隐藏文件</TooltipContent>
             </Tooltip>
           </TooltipProvider>
 
@@ -699,7 +747,7 @@ export const FileTreeExplorer: React.FC<FileTreeExplorerProps> = ({
                   onClick={handleRefresh}
                   disabled={isLoading}
                 >
-                  <RefreshCw className={cn('w-3.5 h-3.5', isLoading && 'animate-spin')} />
+                  <RefreshCw className={cn("w-3.5 h-3.5", isLoading && "animate-spin")} />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>刷新</TooltipContent>
@@ -713,18 +761,18 @@ export const FileTreeExplorer: React.FC<FileTreeExplorerProps> = ({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => tree && onContextAction?.('newFile', [tree])}>
+              <DropdownMenuItem onClick={() => tree && onContextAction?.("newFile", [tree])}>
                 <FilePlus className="w-4 h-4 mr-2" />
                 新建文件
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => tree && onContextAction?.('newFolder', [tree])}>
+              <DropdownMenuItem onClick={() => tree && onContextAction?.("newFolder", [tree])}>
                 <FolderPlus className="w-4 h-4 mr-2" />
                 新建文件夹
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setShowGitIgnored(!showGitIgnored)}>
                 <Filter className="w-4 h-4 mr-2" />
-                {showGitIgnored ? '隐藏' : '显示'} .gitignore 文件
+                {showGitIgnored ? "隐藏" : "显示"} .gitignore 文件
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -744,7 +792,7 @@ export const FileTreeExplorer: React.FC<FileTreeExplorerProps> = ({
           {searchQuery && (
             <button
               className="absolute right-2 top-1/2 -translate-y-1/2"
-              onClick={() => setSearchQuery('')}
+              onClick={() => setSearchQuery("")}
             >
               <X className="w-4 h-4 text-muted-foreground hover:text-foreground" />
             </button>
@@ -771,9 +819,7 @@ export const FileTreeExplorer: React.FC<FileTreeExplorerProps> = ({
           ) : visibleNodes.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
               <Folder className="w-8 h-8 mb-2 opacity-20" />
-              <p className="text-sm">
-                {searchQuery ? '未找到匹配的文件' : '目录为空'}
-              </p>
+              <p className="text-sm">{searchQuery ? "未找到匹配的文件" : "目录为空"}</p>
             </div>
           ) : (
             renderTree(visibleNodes)
@@ -789,12 +835,9 @@ export const FileTreeExplorer: React.FC<FileTreeExplorerProps> = ({
               ? `已选择 ${multiSelectedPaths.size} 项`
               : selectedPath
                 ? `已选择: ${selectedPath.split(/[/\\]/).pop()}`
-                : '未选择'
-            }
+                : "未选择"}
           </span>
-          <span>
-            {visibleNodes.length} 项
-          </span>
+          <span>{visibleNodes.length} 项</span>
         </div>
       )}
     </div>

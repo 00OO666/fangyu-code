@@ -7,7 +7,7 @@
  * **Validates: Requirements 7.3**
  */
 
-import type { APIKeyProvider } from './secureStorage';
+import type { APIKeyProvider } from "./secureStorage";
 
 // =============================================================================
 // 类型定义
@@ -18,7 +18,7 @@ export interface APIKeyValidationResult {
   /** 是否有效 */
   isValid: boolean;
   /** 检测到的格式/提供商 */
-  detectedProvider: APIKeyProvider | 'unknown';
+  detectedProvider: APIKeyProvider | "unknown";
   /** 错误信息列表 */
   errors: string[];
   /** 警告信息列表 */
@@ -47,7 +47,7 @@ interface ValidationRule {
 
 const VALIDATION_RULES: ValidationRule[] = [
   {
-    provider: 'claude',
+    provider: "claude",
     prefixPattern: /^sk-ant-/,
     fullPattern: /^sk-ant-[a-zA-Z0-9_-]{90,}$/,
     minLength: 100,
@@ -55,7 +55,7 @@ const VALIDATION_RULES: ValidationRule[] = [
     description: 'Claude API 密钥应以 "sk-ant-" 开头',
   },
   {
-    provider: 'openai',
+    provider: "openai",
     prefixPattern: /^sk-(?!ant-)/,
     fullPattern: /^sk-[a-zA-Z0-9]{32,}$/,
     minLength: 40,
@@ -63,7 +63,7 @@ const VALIDATION_RULES: ValidationRule[] = [
     description: 'OpenAI API 密钥应以 "sk-" 开头（但不是 "sk-ant-"）',
   },
   {
-    provider: 'gemini',
+    provider: "gemini",
     prefixPattern: /^AI[a-zA-Z0-9_-]/,
     fullPattern: /^AI[a-zA-Z0-9_-]{30,}$/,
     minLength: 35,
@@ -71,7 +71,7 @@ const VALIDATION_RULES: ValidationRule[] = [
     description: 'Gemini API 密钥应以 "AI" 开头',
   },
   {
-    provider: 'hiapi',
+    provider: "hiapi",
     prefixPattern: /^hi-/,
     fullPattern: /^hi-[a-zA-Z0-9_-]{20,}$/,
     minLength: 25,
@@ -99,11 +99,11 @@ export function validateAPIKey(
   const warnings: string[] = [];
 
   // 基本检查
-  if (!key || typeof key !== 'string') {
+  if (!key || typeof key !== "string") {
     return {
       isValid: false,
-      detectedProvider: 'unknown',
-      errors: ['API 密钥不能为空'],
+      detectedProvider: "unknown",
+      errors: ["API 密钥不能为空"],
       warnings: [],
     };
   }
@@ -112,14 +112,14 @@ export function validateAPIKey(
   const trimmedKey = key.trim();
 
   if (trimmedKey !== key) {
-    warnings.push('API 密钥包含首尾空格，已自动去除');
+    warnings.push("API 密钥包含首尾空格，已自动去除");
   }
 
   if (trimmedKey.length === 0) {
     return {
       isValid: false,
-      detectedProvider: 'unknown',
-      errors: ['API 密钥不能为空'],
+      detectedProvider: "unknown",
+      errors: ["API 密钥不能为空"],
       warnings,
     };
   }
@@ -128,8 +128,8 @@ export function validateAPIKey(
   const detectedProvider = detectProvider(trimmedKey);
 
   // 如果指定了期望的提供商，检查是否匹配
-  if (expectedProvider && expectedProvider !== 'other') {
-    if (detectedProvider !== expectedProvider && detectedProvider !== 'unknown') {
+  if (expectedProvider && expectedProvider !== "other") {
+    if (detectedProvider !== expectedProvider && detectedProvider !== "unknown") {
       warnings.push(
         `密钥格式看起来像 ${getProviderDisplayName(detectedProvider)}，但您选择的是 ${getProviderDisplayName(expectedProvider)}`
       );
@@ -147,24 +147,28 @@ export function validateAPIKey(
 
     // 检查长度
     if (trimmedKey.length < rule.minLength) {
-      errors.push(`密钥长度过短，${getProviderDisplayName(rule.provider)} 密钥至少需要 ${rule.minLength} 个字符`);
+      errors.push(
+        `密钥长度过短，${getProviderDisplayName(rule.provider)} 密钥至少需要 ${rule.minLength} 个字符`
+      );
     } else if (trimmedKey.length > rule.maxLength) {
-      errors.push(`密钥长度过长，${getProviderDisplayName(rule.provider)} 密钥最多 ${rule.maxLength} 个字符`);
+      errors.push(
+        `密钥长度过长，${getProviderDisplayName(rule.provider)} 密钥最多 ${rule.maxLength} 个字符`
+      );
     }
 
     // 检查完整格式
     if (errors.length === 0 && !rule.fullPattern.test(trimmedKey)) {
-      warnings.push('密钥格式可能不正确，请确认是否完整复制');
+      warnings.push("密钥格式可能不正确，请确认是否完整复制");
     }
-  } else if (expectedProvider !== 'other') {
+  } else if (expectedProvider !== "other") {
     // 未知格式的基本检查
     if (trimmedKey.length < 20) {
-      errors.push('API 密钥长度过短');
+      errors.push("API 密钥长度过短");
     }
 
     // 检查是否包含非法字符
     if (!/^[a-zA-Z0-9_-]+$/.test(trimmedKey)) {
-      errors.push('API 密钥包含非法字符');
+      errors.push("API 密钥包含非法字符");
     }
   }
 
@@ -182,8 +186,8 @@ export function validateAPIKey(
  * @param key API 密钥
  * @returns 检测到的提供商
  */
-export function detectProvider(key: string): APIKeyProvider | 'unknown' {
-  if (!key) return 'unknown';
+export function detectProvider(key: string): APIKeyProvider | "unknown" {
+  if (!key) return "unknown";
 
   const trimmedKey = key.trim();
 
@@ -193,7 +197,7 @@ export function detectProvider(key: string): APIKeyProvider | 'unknown' {
     }
   }
 
-  return 'unknown';
+  return "unknown";
 }
 
 /**
@@ -202,14 +206,14 @@ export function detectProvider(key: string): APIKeyProvider | 'unknown' {
  * @param provider 提供商
  * @returns 显示名称
  */
-export function getProviderDisplayName(provider: APIKeyProvider | 'unknown'): string {
-  const names: Record<APIKeyProvider | 'unknown', string> = {
-    claude: 'Claude (Anthropic)',
-    openai: 'OpenAI',
-    gemini: 'Google Gemini',
-    hiapi: 'HiAPI',
-    other: '其他',
-    unknown: '未知',
+export function getProviderDisplayName(provider: APIKeyProvider | "unknown"): string {
+  const names: Record<APIKeyProvider | "unknown", string> = {
+    claude: "Claude (Anthropic)",
+    openai: "OpenAI",
+    gemini: "Google Gemini",
+    hiapi: "HiAPI",
+    other: "其他",
+    unknown: "未知",
   };
 
   return names[provider] || provider;
@@ -228,7 +232,7 @@ export function getProviderKeyFormat(provider: APIKeyProvider): string {
     return rule.description;
   }
 
-  return '请输入有效的 API 密钥';
+  return "请输入有效的 API 密钥";
 }
 
 /**
@@ -238,7 +242,7 @@ export function getProviderKeyFormat(provider: APIKeyProvider): string {
  * @returns 是否可能有效
  */
 export function quickValidateAPIKey(key: string): boolean {
-  if (!key || typeof key !== 'string') return false;
+  if (!key || typeof key !== "string") return false;
 
   const trimmedKey = key.trim();
 

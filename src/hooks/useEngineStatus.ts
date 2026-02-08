@@ -3,7 +3,7 @@
  *
  * 避免多个组件重复检测引擎安装状态，使用全局缓存确保只检测一次
  * 包含模式配置，避免进入历史会话页面时重复触发 WSL 检测
- * 
+ *
  * v2: 添加 30 秒缓存过期机制和错误消息生成
  */
 
@@ -51,7 +51,7 @@ export interface ClaudeWslModeConfig {
 }
 
 // 引擎状态类型
-export type EngineStatusType = 'ready' | 'not_installed' | 'error' | 'checking';
+export type EngineStatusType = "ready" | "not_installed" | "error" | "checking";
 
 // 单个引擎的状态信息
 export interface SingleEngineStatus {
@@ -110,16 +110,17 @@ const isCacheExpired = (): boolean => {
 /**
  * 生成引擎错误消息
  */
-export const generateEngineErrorMessage = (
-  engine: EngineType,
-  error?: Error | string
-): string => {
+export const generateEngineErrorMessage = (engine: EngineType, error?: Error | string): string => {
   const errorStr = error instanceof Error ? error.message : error;
 
   const messages: Record<EngineType, string> = {
-    claude: errorStr || 'Claude Code CLI 未安装或不可用。请运行 npm install -g @anthropic-ai/claude-code 安装。',
-    codex: errorStr || 'OpenAI Codex CLI 未安装或不可用。请确保已正确配置 OpenAI API。',
-    gemini: errorStr || 'Google Gemini CLI 未安装或不可用。请运行 npm install -g @anthropic-ai/gemini-cli 安装。',
+    claude:
+      errorStr ||
+      "Claude Code CLI 未安装或不可用。请运行 npm install -g @anthropic-ai/claude-code 安装。",
+    codex: errorStr || "OpenAI Codex CLI 未安装或不可用。请确保已正确配置 OpenAI API。",
+    gemini:
+      errorStr ||
+      "Google Gemini CLI 未安装或不可用。请运行 npm install -g @anthropic-ai/gemini-cli 安装。",
   };
 
   return messages[engine];
@@ -128,12 +129,9 @@ export const generateEngineErrorMessage = (
 /**
  * 获取引擎状态类型
  */
-export const getEngineStatusType = (
-  installed: boolean,
-  error?: string
-): EngineStatusType => {
-  if (error) return 'error';
-  return installed ? 'ready' : 'not_installed';
+export const getEngineStatusType = (installed: boolean, error?: string): EngineStatusType => {
+  if (error) return "error";
+  return installed ? "ready" : "not_installed";
 };
 
 // 加载引擎状态
@@ -167,13 +165,18 @@ const loadEngineStatus = async (forceRefresh = false): Promise<EngineStatusInfo>
         api.getClaudeWslModeConfig?.() ?? Promise.resolve(null),
       ]);
 
-      const claudeInstalled = claudeResult.status === "fulfilled" ? claudeResult.value.is_installed : false;
-      const codexAvailable = codexResult.status === "fulfilled" ? codexResult.value.available : false;
-      const geminiInstalled = geminiResult.status === "fulfilled" ? geminiResult.value.installed : false;
+      const claudeInstalled =
+        claudeResult.status === "fulfilled" ? claudeResult.value.is_installed : false;
+      const codexAvailable =
+        codexResult.status === "fulfilled" ? codexResult.value.available : false;
+      const geminiInstalled =
+        geminiResult.status === "fulfilled" ? geminiResult.value.installed : false;
 
-      const claudeError = claudeResult.status === "rejected" ? String(claudeResult.reason) : undefined;
+      const claudeError =
+        claudeResult.status === "rejected" ? String(claudeResult.reason) : undefined;
       const codexError = codexResult.status === "rejected" ? String(codexResult.reason) : undefined;
-      const geminiError = geminiResult.status === "rejected" ? String(geminiResult.reason) : undefined;
+      const geminiError =
+        geminiResult.status === "rejected" ? String(geminiResult.reason) : undefined;
 
       const now = Date.now();
       const status: EngineStatusInfo = {
@@ -183,14 +186,14 @@ const loadEngineStatus = async (forceRefresh = false): Promise<EngineStatusInfo>
           wslModeConfig:
             claudeWslModeResult.status === "fulfilled" ? claudeWslModeResult.value : undefined,
           status: getEngineStatusType(claudeInstalled, claudeError),
-          errorMessage: claudeError ? generateEngineErrorMessage('claude', claudeError) : undefined,
+          errorMessage: claudeError ? generateEngineErrorMessage("claude", claudeError) : undefined,
         },
         codex: {
           available: codexAvailable,
           version: codexResult.status === "fulfilled" ? codexResult.value.version : undefined,
           modeConfig: codexModeResult.status === "fulfilled" ? codexModeResult.value : undefined,
           status: getEngineStatusType(codexAvailable, codexError),
-          errorMessage: codexError ? generateEngineErrorMessage('codex', codexError) : undefined,
+          errorMessage: codexError ? generateEngineErrorMessage("codex", codexError) : undefined,
         },
         gemini: {
           installed: geminiInstalled,
@@ -198,7 +201,7 @@ const loadEngineStatus = async (forceRefresh = false): Promise<EngineStatusInfo>
           wslModeConfig:
             geminiWslModeResult.status === "fulfilled" ? geminiWslModeResult.value : undefined,
           status: getEngineStatusType(geminiInstalled, geminiError),
-          errorMessage: geminiError ? generateEngineErrorMessage('gemini', geminiError) : undefined,
+          errorMessage: geminiError ? generateEngineErrorMessage("gemini", geminiError) : undefined,
         },
         _meta: {
           cachedAt: now,
@@ -276,37 +279,40 @@ export const useEngineStatus = () => {
   }, []);
 
   // 获取指定引擎的状态
-  const getEngineStatus = useCallback((engine: EngineType): SingleEngineStatus => {
-    if (!status) {
-      return { installed: false, status: 'checking' };
-    }
+  const getEngineStatus = useCallback(
+    (engine: EngineType): SingleEngineStatus => {
+      if (!status) {
+        return { installed: false, status: "checking" };
+      }
 
-    switch (engine) {
-      case 'claude':
-        return {
-          installed: status.claude.installed,
-          version: status.claude.version,
-          status: status.claude.status || (status.claude.installed ? 'ready' : 'not_installed'),
-          errorMessage: status.claude.errorMessage,
-        };
-      case 'codex':
-        return {
-          installed: status.codex.available,
-          version: status.codex.version,
-          status: status.codex.status || (status.codex.available ? 'ready' : 'not_installed'),
-          errorMessage: status.codex.errorMessage,
-        };
-      case 'gemini':
-        return {
-          installed: status.gemini.installed,
-          version: status.gemini.version,
-          status: status.gemini.status || (status.gemini.installed ? 'ready' : 'not_installed'),
-          errorMessage: status.gemini.errorMessage,
-        };
-      default:
-        return { installed: false, status: 'not_installed' };
-    }
-  }, [status]);
+      switch (engine) {
+        case "claude":
+          return {
+            installed: status.claude.installed,
+            version: status.claude.version,
+            status: status.claude.status || (status.claude.installed ? "ready" : "not_installed"),
+            errorMessage: status.claude.errorMessage,
+          };
+        case "codex":
+          return {
+            installed: status.codex.available,
+            version: status.codex.version,
+            status: status.codex.status || (status.codex.available ? "ready" : "not_installed"),
+            errorMessage: status.codex.errorMessage,
+          };
+        case "gemini":
+          return {
+            installed: status.gemini.installed,
+            version: status.gemini.version,
+            status: status.gemini.status || (status.gemini.installed ? "ready" : "not_installed"),
+            errorMessage: status.gemini.errorMessage,
+          };
+        default:
+          return { installed: false, status: "not_installed" };
+      }
+    },
+    [status]
+  );
 
   return {
     status,

@@ -1,32 +1,28 @@
 /**
  * Agent Roles Configuration
- * 
+ *
  * Defines the 10 specialized agent roles for the Super AI Agent Desktop,
  * combining features from multiple agent systems and Fangyu Code.
  */
 
-import type {
-  AgentRole,
-  AgentRoleType,
-  ModelProvider,
-} from '@/core/types/unified-agent';
+import type { AgentRole, AgentRoleType, ModelProvider } from "@/core/types/unified-agent";
 
 // ============================================================================
 // Default Model Configurations
 // ============================================================================
 
 export const DEFAULT_MODELS: Record<ModelProvider, string> = {
-  anthropic: 'claude-sonnet-4-5-20250514',
-  openai: 'gpt-4o',
-  google: 'gemini-2.0-flash',
-  xai: 'grok-3',
+  anthropic: "claude-sonnet-4-5-20250514",
+  openai: "gpt-4o",
+  google: "gemini-2.0-flash",
+  xai: "grok-3",
 };
 
 export const PREMIUM_MODELS: Record<ModelProvider, string> = {
-  anthropic: 'claude-opus-4-5-20250514',
-  openai: 'o3',
-  google: 'gemini-2.5-pro',
-  xai: 'grok-3',
+  anthropic: "claude-opus-4-5-20250514",
+  openai: "o3",
+  google: "gemini-2.5-pro",
+  xai: "grok-3",
 };
 
 // ============================================================================
@@ -40,21 +36,21 @@ export const AGENT_ROLES: Record<AgentRoleType, AgentRole> = {
    * Uses the most capable model for complex decision making.
    */
   orchestrator: {
-    id: 'orchestrator',
-    name: 'Sisyphus',
-    type: 'orchestrator',
+    id: "orchestrator",
+    name: "Sisyphus",
+    type: "orchestrator",
     model: {
-      provider: 'anthropic',
+      provider: "anthropic",
       model: PREMIUM_MODELS.anthropic,
       temperature: 0.1,
       maxTokens: 8192,
       fallbackModel: DEFAULT_MODELS.anthropic,
     },
     capabilities: {
-      languages: ['*'],
-      frameworks: ['*'],
-      tools: ['*'],
-      specializations: ['task-planning', 'coordination', 'decision-making'],
+      languages: ["*"],
+      frameworks: ["*"],
+      tools: ["*"],
+      specializations: ["task-planning", "coordination", "decision-making"],
     },
     tools: {
       read: true,
@@ -81,20 +77,20 @@ Always prioritize code quality, security, and user experience.`,
    * Uses GPT for its strong reasoning capabilities.
    */
   oracle: {
-    id: 'oracle',
-    name: 'Oracle',
-    type: 'oracle',
+    id: "oracle",
+    name: "Oracle",
+    type: "oracle",
     model: {
-      provider: 'openai',
+      provider: "openai",
       model: PREMIUM_MODELS.openai,
       temperature: 0.1,
       maxTokens: 8192,
       fallbackModel: DEFAULT_MODELS.openai,
     },
     capabilities: {
-      languages: ['*'],
-      frameworks: ['*'],
-      specializations: ['architecture', 'code-review', 'strategy', 'design-patterns'],
+      languages: ["*"],
+      frameworks: ["*"],
+      specializations: ["architecture", "code-review", "strategy", "design-patterns"],
     },
     tools: {
       read: true,
@@ -121,18 +117,18 @@ Your recommendations should be actionable and well-reasoned.`,
    * Uses Claude Sonnet for its strong comprehension.
    */
   librarian: {
-    id: 'librarian',
-    name: 'Librarian',
-    type: 'librarian',
+    id: "librarian",
+    name: "Librarian",
+    type: "librarian",
     model: {
-      provider: 'anthropic',
+      provider: "anthropic",
       model: DEFAULT_MODELS.anthropic,
       temperature: 0.3,
       maxTokens: 4096,
     },
     capabilities: {
-      languages: ['*'],
-      specializations: ['documentation', 'research', 'knowledge-management', 'api-docs'],
+      languages: ["*"],
+      specializations: ["documentation", "research", "knowledge-management", "api-docs"],
     },
     tools: {
       read: true,
@@ -159,19 +155,19 @@ Always cite sources and provide accurate references.`,
    * Uses Grok for its fast exploration capabilities.
    */
   explorer: {
-    id: 'explorer',
-    name: 'Explorer',
-    type: 'explorer',
+    id: "explorer",
+    name: "Explorer",
+    type: "explorer",
     model: {
-      provider: 'xai',
+      provider: "xai",
       model: DEFAULT_MODELS.xai,
       temperature: 0.2,
       maxTokens: 4096,
       fallbackModel: DEFAULT_MODELS.anthropic,
     },
     capabilities: {
-      languages: ['*'],
-      specializations: ['code-navigation', 'search', 'analysis', 'dependency-tracking'],
+      languages: ["*"],
+      specializations: ["code-navigation", "search", "analysis", "dependency-tracking"],
     },
     tools: {
       read: true,
@@ -197,20 +193,20 @@ Provide clear paths and explanations for code locations.`,
    * Uses Gemini for its multimodal capabilities (UI understanding).
    */
   frontend: {
-    id: 'frontend',
-    name: 'Frontend',
-    type: 'frontend',
+    id: "frontend",
+    name: "Frontend",
+    type: "frontend",
     model: {
-      provider: 'google',
+      provider: "google",
       model: DEFAULT_MODELS.google,
       temperature: 0.3,
       maxTokens: 8192,
       fallbackModel: DEFAULT_MODELS.anthropic,
     },
     capabilities: {
-      languages: ['typescript', 'javascript', 'html', 'css', 'scss'],
-      frameworks: ['react', 'vue', 'svelte', 'tailwind', 'radix-ui'],
-      specializations: ['ui-development', 'accessibility', 'responsive-design', 'animations'],
+      languages: ["typescript", "javascript", "html", "css", "scss"],
+      frameworks: ["react", "vue", "svelte", "tailwind", "radix-ui"],
+      specializations: ["ui-development", "accessibility", "responsive-design", "animations"],
     },
     tools: {
       read: true,
@@ -236,19 +232,19 @@ Follow modern frontend best practices and patterns.`,
    * Uses Claude for its strong coding capabilities.
    */
   backend: {
-    id: 'backend',
-    name: 'Backend',
-    type: 'backend',
+    id: "backend",
+    name: "Backend",
+    type: "backend",
     model: {
-      provider: 'anthropic',
+      provider: "anthropic",
       model: DEFAULT_MODELS.anthropic,
       temperature: 0.2,
       maxTokens: 8192,
     },
     capabilities: {
-      languages: ['typescript', 'rust', 'python', 'go', 'sql'],
-      frameworks: ['tauri', 'node', 'express', 'fastapi'],
-      specializations: ['api-design', 'database', 'security', 'performance'],
+      languages: ["typescript", "rust", "python", "go", "sql"],
+      frameworks: ["tauri", "node", "express", "fastapi"],
+      specializations: ["api-design", "database", "security", "performance"],
     },
     tools: {
       read: true,
@@ -273,18 +269,18 @@ Follow backend best practices and design patterns.`,
    * Documentation writer and maintainer.
    */
   docs: {
-    id: 'docs',
-    name: 'Docs',
-    type: 'docs',
+    id: "docs",
+    name: "Docs",
+    type: "docs",
     model: {
-      provider: 'anthropic',
+      provider: "anthropic",
       model: DEFAULT_MODELS.anthropic,
       temperature: 0.4,
       maxTokens: 4096,
     },
     capabilities: {
-      languages: ['markdown', 'mdx'],
-      specializations: ['technical-writing', 'api-documentation', 'tutorials', 'readme'],
+      languages: ["markdown", "mdx"],
+      specializations: ["technical-writing", "api-documentation", "tutorials", "readme"],
     },
     tools: {
       read: true,
@@ -309,19 +305,19 @@ Documentation should be clear, accurate, and helpful.`,
    * Testing and quality assurance specialist.
    */
   testing: {
-    id: 'testing',
-    name: 'Testing',
-    type: 'testing',
+    id: "testing",
+    name: "Testing",
+    type: "testing",
     model: {
-      provider: 'anthropic',
+      provider: "anthropic",
       model: DEFAULT_MODELS.anthropic,
       temperature: 0.2,
       maxTokens: 8192,
     },
     capabilities: {
-      languages: ['typescript', 'javascript'],
-      frameworks: ['vitest', 'jest', 'playwright', 'fast-check'],
-      specializations: ['unit-testing', 'integration-testing', 'property-testing', 'e2e'],
+      languages: ["typescript", "javascript"],
+      frameworks: ["vitest", "jest", "playwright", "fast-check"],
+      specializations: ["unit-testing", "integration-testing", "property-testing", "e2e"],
     },
     tools: {
       read: true,
@@ -346,19 +342,19 @@ Tests should be thorough, maintainable, and fast.`,
    * Code review specialist.
    */
   review: {
-    id: 'review',
-    name: 'Review',
-    type: 'review',
+    id: "review",
+    name: "Review",
+    type: "review",
     model: {
-      provider: 'openai',
+      provider: "openai",
       model: DEFAULT_MODELS.openai,
       temperature: 0.1,
       maxTokens: 4096,
       fallbackModel: DEFAULT_MODELS.anthropic,
     },
     capabilities: {
-      languages: ['*'],
-      specializations: ['code-review', 'security-audit', 'performance-review', 'best-practices'],
+      languages: ["*"],
+      specializations: ["code-review", "security-audit", "performance-review", "best-practices"],
     },
     tools: {
       read: true,
@@ -383,19 +379,19 @@ Feedback should be actionable and educational.`,
    * DevOps and infrastructure specialist.
    */
   devops: {
-    id: 'devops',
-    name: 'DevOps',
-    type: 'devops',
+    id: "devops",
+    name: "DevOps",
+    type: "devops",
     model: {
-      provider: 'anthropic',
+      provider: "anthropic",
       model: DEFAULT_MODELS.anthropic,
       temperature: 0.2,
       maxTokens: 4096,
     },
     capabilities: {
-      languages: ['yaml', 'bash', 'powershell', 'dockerfile'],
-      frameworks: ['github-actions', 'docker', 'tauri'],
-      specializations: ['ci-cd', 'deployment', 'monitoring', 'infrastructure'],
+      languages: ["yaml", "bash", "powershell", "dockerfile"],
+      frameworks: ["github-actions", "docker", "tauri"],
+      specializations: ["ci-cd", "deployment", "monitoring", "infrastructure"],
     },
     tools: {
       read: true,
@@ -442,7 +438,7 @@ export function getAgentsByCapability(capability: string): AgentRole[] {
     const caps = role.capabilities;
     return (
       caps.languages?.includes(capability) ||
-      caps.languages?.includes('*') ||
+      caps.languages?.includes("*") ||
       caps.frameworks?.includes(capability) ||
       caps.specializations?.includes(capability)
     );
@@ -454,22 +450,22 @@ export function getAgentsByCapability(capability: string): AgentRole[] {
  */
 export function getBestAgentForTaskType(taskType: string): AgentRoleType {
   const mapping: Record<string, AgentRoleType> = {
-    frontend: 'frontend',
-    backend: 'backend',
-    docs: 'docs',
-    documentation: 'docs',
-    testing: 'testing',
-    test: 'testing',
-    review: 'review',
-    devops: 'devops',
-    infrastructure: 'devops',
-    research: 'librarian',
-    explore: 'explorer',
-    architecture: 'oracle',
-    design: 'oracle',
+    frontend: "frontend",
+    backend: "backend",
+    docs: "docs",
+    documentation: "docs",
+    testing: "testing",
+    test: "testing",
+    review: "review",
+    devops: "devops",
+    infrastructure: "devops",
+    research: "librarian",
+    explore: "explorer",
+    architecture: "oracle",
+    design: "oracle",
   };
 
-  return mapping[taskType.toLowerCase()] || 'orchestrator';
+  return mapping[taskType.toLowerCase()] || "orchestrator";
 }
 
 /**
@@ -477,7 +473,7 @@ export function getBestAgentForTaskType(taskType: string): AgentRoleType {
  */
 export function hasToolPermission(
   role: AgentRole,
-  permission: 'read' | 'write' | 'execute' | 'network'
+  permission: "read" | "write" | "execute" | "network"
 ): boolean {
   return role.tools[permission] === true;
 }

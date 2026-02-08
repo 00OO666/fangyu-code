@@ -88,7 +88,10 @@ const ERROR_PATTERNS: ErrorPattern[] = [
 /**
  * 分析错误并提供建议
  */
-function analyzeError(message: string, stack?: string): {
+function analyzeError(
+  message: string,
+  stack?: string
+): {
   category: ErrorCategory;
   suggestion?: string;
   file?: string;
@@ -129,14 +132,16 @@ function analyzeError(message: string, stack?: string): {
  * @example
  * const { errors, clearErrors, errorCount } = useConsoleMonitor({ enabled: true });
  */
-export function useConsoleMonitor(options: {
-  /** 是否启用监控 */
-  enabled?: boolean;
-  /** 最大错误数量（超过后自动清理旧错误） */
-  maxErrors?: number;
-  /** 是否在控制台显示原始错误 */
-  showOriginal?: boolean;
-} = {}) {
+export function useConsoleMonitor(
+  options: {
+    /** 是否启用监控 */
+    enabled?: boolean;
+    /** 最大错误数量（超过后自动清理旧错误） */
+    maxErrors?: number;
+    /** 是否在控制台显示原始错误 */
+    showOriginal?: boolean;
+  } = {}
+) {
   const { enabled = true, maxErrors = 100, showOriginal = true } = options;
 
   const [errors, setErrors] = useState<ConsoleError[]>([]);
@@ -298,13 +303,16 @@ export function useConsoleMonitor(options: {
   const totalCount = errors.reduce((sum, e) => sum + e.count, 0);
 
   // 按类别分组
-  const errorsByCategory = errors.reduce((acc, error) => {
-    if (!acc[error.category]) {
-      acc[error.category] = [];
-    }
-    acc[error.category].push(error);
-    return acc;
-  }, {} as Record<ErrorCategory, ConsoleError[]>);
+  const errorsByCategory = errors.reduce(
+    (acc, error) => {
+      if (!acc[error.category]) {
+        acc[error.category] = [];
+      }
+      acc[error.category].push(error);
+      return acc;
+    },
+    {} as Record<ErrorCategory, ConsoleError[]>
+  );
 
   return {
     errors,

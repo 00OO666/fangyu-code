@@ -1,18 +1,27 @@
 /**
  * ContextMonitor - 上下文监控组件
- * 
+ *
  * 显示上下文使用量、阈值状态
- * 
+ *
  * Requirements: 4.1, 4.2
  */
 
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { AlertTriangle, CheckCircle, Database, FileText, Trash2, RefreshCw, Info, Zap } from 'lucide-react';
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  AlertTriangle,
+  CheckCircle,
+  Database,
+  FileText,
+  Trash2,
+  RefreshCw,
+  Info,
+  Zap,
+} from "lucide-react";
 
 // =============================================================================
 // 类型定义
@@ -20,7 +29,7 @@ import { AlertTriangle, CheckCircle, Database, FileText, Trash2, RefreshCw, Info
 
 interface ContextItem {
   id: string;
-  type: 'file' | 'folder' | 'reference' | 'system' | 'user';
+  type: "file" | "folder" | "reference" | "system" | "user";
   name: string;
   tokens: number;
   priority: number;
@@ -54,26 +63,25 @@ const formatTokens = (tokens: number): string => {
 };
 
 const getStatusColor = (percent: number, warning: number, critical: number): string => {
-  if (percent >= critical) return 'text-red-500';
-  if (percent >= warning) return 'text-yellow-500';
-  return 'text-green-500';
+  if (percent >= critical) return "text-red-500";
+  if (percent >= warning) return "text-yellow-500";
+  return "text-green-500";
 };
 
-const getTypeIcon = (type: ContextItem['type']) => {
+const getTypeIcon = (type: ContextItem["type"]) => {
   switch (type) {
-    case 'file':
+    case "file":
       return <FileText className="w-4 h-4" />;
-    case 'folder':
+    case "folder":
       return <Database className="w-4 h-4" />;
-    case 'reference':
+    case "reference":
       return <Info className="w-4 h-4" />;
-    case 'system':
+    case "system":
       return <Zap className="w-4 h-4" />;
     default:
       return <FileText className="w-4 h-4" />;
   }
 };
-
 
 // =============================================================================
 // 主组件
@@ -96,7 +104,8 @@ export const ContextMonitor: React.FC<ContextMonitorProps> = ({
     );
   }
 
-  const { totalTokens, maxTokens, usagePercent, warningThreshold, criticalThreshold, items } = stats;
+  const { totalTokens, maxTokens, usagePercent, warningThreshold, criticalThreshold, items } =
+    stats;
   const statusColor = getStatusColor(usagePercent, warningThreshold, criticalThreshold);
 
   const isWarning = usagePercent >= warningThreshold;
@@ -128,13 +137,19 @@ export const ContextMonitor: React.FC<ContextMonitorProps> = ({
                 </Badge>
               )}
               {isWarning && !isCritical && (
-                <Badge variant="secondary" className="flex items-center gap-1 bg-yellow-100 text-yellow-800">
+                <Badge
+                  variant="secondary"
+                  className="flex items-center gap-1 bg-yellow-100 text-yellow-800"
+                >
                   <AlertTriangle className="w-3 h-3" />
                   Warning
                 </Badge>
               )}
               {!isWarning && (
-                <Badge variant="secondary" className="flex items-center gap-1 bg-green-100 text-green-800">
+                <Badge
+                  variant="secondary"
+                  className="flex items-center gap-1 bg-green-100 text-green-800"
+                >
                   <CheckCircle className="w-3 h-3" />
                   Healthy
                 </Badge>
@@ -153,7 +168,7 @@ export const ContextMonitor: React.FC<ContextMonitorProps> = ({
                 {formatTokens(totalTokens)} / {formatTokens(maxTokens)} tokens
               </span>
             </div>
-            
+
             <div className="relative">
               <Progress value={usagePercent} className="h-3" />
               {/* 阈值标记 */}
@@ -177,11 +192,7 @@ export const ContextMonitor: React.FC<ContextMonitorProps> = ({
 
           {/* 压缩按钮 */}
           {isWarning && onCompact && (
-            <Button
-              variant="outline"
-              className="w-full mt-4"
-              onClick={onCompact}
-            >
+            <Button variant="outline" className="w-full mt-4" onClick={onCompact}>
               <Zap className="w-4 h-4 mr-2" />
               Compact Context
             </Button>
@@ -194,20 +205,16 @@ export const ContextMonitor: React.FC<ContextMonitorProps> = ({
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="text-base">Context Items</CardTitle>
-            <span className="text-sm text-muted-foreground">
-              {items.length} items
-            </span>
+            <span className="text-sm text-muted-foreground">{items.length} items</span>
           </div>
         </CardHeader>
         <CardContent className="p-0">
           <ScrollArea className="h-[300px]">
             <div className="px-4 pb-4 space-y-2">
               {sortedItems.length === 0 ? (
-                <p className="text-muted-foreground text-center py-8">
-                  No context items
-                </p>
+                <p className="text-muted-foreground text-center py-8">No context items</p>
               ) : (
-                sortedItems.map(item => (
+                sortedItems.map((item) => (
                   <div
                     key={item.id}
                     className="flex items-center justify-between p-2 rounded-lg border hover:bg-muted/50"
@@ -221,19 +228,16 @@ export const ContextMonitor: React.FC<ContextMonitorProps> = ({
                         </p>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center gap-2">
                       {/* Token 占比 */}
                       <div className="w-16">
-                        <Progress
-                          value={(item.tokens / totalTokens) * 100}
-                          className="h-1"
-                        />
+                        <Progress value={(item.tokens / totalTokens) * 100} className="h-1" />
                       </div>
                       <span className="text-xs text-muted-foreground w-12 text-right">
                         {((item.tokens / totalTokens) * 100).toFixed(1)}%
                       </span>
-                      
+
                       {onClearItem && (
                         <Button
                           variant="ghost"
@@ -258,25 +262,21 @@ export const ContextMonitor: React.FC<ContextMonitorProps> = ({
         <Card>
           <CardContent className="p-3 text-center">
             <p className="text-xs text-muted-foreground">Files</p>
-            <p className="text-lg font-bold">
-              {items.filter(i => i.type === 'file').length}
-            </p>
+            <p className="text-lg font-bold">{items.filter((i) => i.type === "file").length}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-3 text-center">
             <p className="text-xs text-muted-foreground">References</p>
             <p className="text-lg font-bold">
-              {items.filter(i => i.type === 'reference').length}
+              {items.filter((i) => i.type === "reference").length}
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-3 text-center">
             <p className="text-xs text-muted-foreground">System</p>
-            <p className="text-lg font-bold">
-              {items.filter(i => i.type === 'system').length}
-            </p>
+            <p className="text-lg font-bold">{items.filter((i) => i.type === "system").length}</p>
           </CardContent>
         </Card>
       </div>

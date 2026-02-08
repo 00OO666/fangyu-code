@@ -73,17 +73,16 @@ class EventCleanupManager {
 
   hasListener(event: string): boolean {
     return (
-      this.unlistenFunctions.has(`window:${event}`) ||
-      this.unlistenFunctions.has(`global:${event}`)
+      this.unlistenFunctions.has(`window:${event}`) || this.unlistenFunctions.has(`global:${event}`)
     );
   }
 }
 
 // Event name generator
-const eventNameArb = fc.stringOf(
-  fc.constantFrom(...'abcdefghijklmnopqrstuvwxyz_-'.split('')),
-  { minLength: 1, maxLength: 20 }
-);
+const eventNameArb = fc.stringOf(fc.constantFrom(..."abcdefghijklmnopqrstuvwxyz_-".split("")), {
+  minLength: 1,
+  maxLength: 20,
+});
 
 // Generate array of unique event names
 const uniqueEventNamesArb = fc.uniqueArray(eventNameArb, { minLength: 1, maxLength: 10 });

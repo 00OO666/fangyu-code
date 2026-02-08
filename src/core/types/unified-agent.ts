@@ -1,6 +1,6 @@
 /**
  * Super AI Agent Desktop - Unified Agent Types
- * 
+ *
  * Core type definitions for the unified agent orchestration system,
  * combining features from multiple agent systems and Fangyu Code.
  */
@@ -10,18 +10,18 @@
 // ============================================================================
 
 export type AgentRoleType =
-  | 'orchestrator'   // Main orchestrator (Sisyphus)
-  | 'oracle'         // Architect (GPT)
-  | 'librarian'      // Documentation research (Claude Sonnet)
-  | 'explorer'       // Code exploration (Grok)
-  | 'frontend'       // Frontend development (Gemini)
-  | 'backend'        // Backend development
-  | 'docs'           // Documentation writing
-  | 'testing'        // Testing
-  | 'review'         // Code review
-  | 'devops';        // DevOps
+  | "orchestrator" // Main orchestrator (Sisyphus)
+  | "oracle" // Architect (GPT)
+  | "librarian" // Documentation research (Claude Sonnet)
+  | "explorer" // Code exploration (Grok)
+  | "frontend" // Frontend development (Gemini)
+  | "backend" // Backend development
+  | "docs" // Documentation writing
+  | "testing" // Testing
+  | "review" // Code review
+  | "devops"; // DevOps
 
-export type ModelProvider = 'anthropic' | 'openai' | 'google' | 'xai';
+export type ModelProvider = "anthropic" | "openai" | "google" | "xai";
 
 export interface ModelConfig {
   provider: ModelProvider;
@@ -65,7 +65,7 @@ export interface Agent {
   metrics: AgentMetrics;
 }
 
-export type AgentStatus = 'idle' | 'busy' | 'error' | 'terminated';
+export type AgentStatus = "idle" | "busy" | "error" | "terminated";
 
 export interface AgentMetrics {
   tasksCompleted: number;
@@ -96,23 +96,23 @@ export interface Task {
 }
 
 export type TaskType =
-  | 'frontend'
-  | 'backend'
-  | 'docs'
-  | 'testing'
-  | 'review'
-  | 'devops'
-  | 'research'
-  | 'general'
-  | 'batch'; // 批量任务
+  | "frontend"
+  | "backend"
+  | "docs"
+  | "testing"
+  | "review"
+  | "devops"
+  | "research"
+  | "general"
+  | "batch"; // 批量任务
 
 export type TaskStatus =
-  | 'pending'
-  | 'queued'
-  | 'in_progress'
-  | 'completed'
-  | 'failed'
-  | 'cancelled';
+  | "pending"
+  | "queued"
+  | "in_progress"
+  | "completed"
+  | "failed"
+  | "cancelled";
 
 export interface TaskResult {
   success: boolean;
@@ -160,25 +160,25 @@ export interface BackgroundTaskStatus {
 
 export type HookEventType =
   // Core lifecycle events
-  | 'onMessage'
-  | 'onComplete'
-  | 'onSessionCreate'
-  | 'onFileSave'
-  | 'manual'
+  | "onMessage"
+  | "onComplete"
+  | "onSessionCreate"
+  | "onFileSave"
+  | "manual"
   // OpenCode-style events
-  | 'tool.execute.before'
-  | 'tool.execute.after'
-  | 'chat.message'
-  | 'session.idle'
-  | 'session.error'
+  | "tool.execute.before"
+  | "tool.execute.after"
+  | "chat.message"
+  | "session.idle"
+  | "session.error"
   // Extended events
-  | 'agent.spawn'
-  | 'agent.complete'
-  | 'task.start'
-  | 'task.complete'
-  | 'context.threshold';
+  | "agent.spawn"
+  | "agent.complete"
+  | "task.start"
+  | "task.complete"
+  | "context.threshold";
 
-export type SteeringInclusion = 'always' | 'fileMatch' | 'manual';
+export type SteeringInclusion = "always" | "fileMatch" | "manual";
 
 export interface SteeringRule {
   id: string;
@@ -200,7 +200,7 @@ export interface HookDefinition {
   enabled: boolean;
 }
 
-export type HookActionType = 'message' | 'command' | 'function';
+export type HookActionType = "message" | "command" | "function";
 
 export interface HookAction {
   type: HookActionType;
@@ -253,17 +253,17 @@ export interface HookStats {
 export interface ModelContextConfig {
   modelId: string;
   maxTokens: number;
-  warningThreshold: number;  // 0.7
-  compactionThreshold: number;  // 0.85
+  warningThreshold: number; // 0.7
+  compactionThreshold: number; // 0.85
 }
 
 export type ContextSourceType =
-  | 'system'
-  | 'steering'
-  | 'environment'
-  | 'history'
-  | 'tools'
-  | 'reference';
+  | "system"
+  | "steering"
+  | "environment"
+  | "history"
+  | "tools"
+  | "reference";
 
 export interface ContextSource {
   id: string;
@@ -281,7 +281,7 @@ export interface ContextUsage {
   percentage: number;
 }
 
-export type ThresholdLevel = 'normal' | 'warning' | 'critical';
+export type ThresholdLevel = "normal" | "warning" | "critical";
 
 export interface ThresholdStatus {
   level: ThresholdLevel;
@@ -301,13 +301,7 @@ export interface CompactionResult {
 // Reference Types (#File, #Folder, etc.)
 // ============================================================================
 
-export type ReferenceType =
-  | 'file'
-  | 'folder'
-  | 'problems'
-  | 'terminal'
-  | 'gitDiff'
-  | 'codebase';
+export type ReferenceType = "file" | "folder" | "problems" | "terminal" | "gitDiff" | "codebase";
 
 export interface Reference {
   type: ReferenceType;
@@ -330,7 +324,7 @@ export interface SecurityConfig {
 export interface ValidationResult {
   valid: boolean;
   reason?: string;
-  severity?: 'info' | 'warning' | 'error';
+  severity?: "info" | "warning" | "error";
 }
 
 export interface SensitiveMatch {
@@ -349,16 +343,16 @@ export interface Operation {
 }
 
 export type OperationType =
-  | 'file.read'
-  | 'file.write'
-  | 'file.delete'
-  | 'command.execute'
-  | 'network.request';
+  | "file.read"
+  | "file.write"
+  | "file.delete"
+  | "command.execute"
+  | "network.request";
 
 export interface AuditEntry {
   id: string;
   operation: Operation;
-  result: 'success' | 'failure' | 'blocked';
+  result: "success" | "failure" | "blocked";
   error?: string;
   duration: number;
 }
@@ -377,7 +371,7 @@ export interface BackgroundProcess {
   pid?: number;
 }
 
-export type ProcessStatus = 'running' | 'stopped' | 'error';
+export type ProcessStatus = "running" | "stopped" | "error";
 
 export interface ExecuteOptions {
   cwd?: string;
@@ -398,12 +392,7 @@ export interface ExecuteResult {
 // Spec Execution Types
 // ============================================================================
 
-export type SpecStatus =
-  | 'requirements'
-  | 'design'
-  | 'tasks'
-  | 'executing'
-  | 'completed';
+export type SpecStatus = "requirements" | "design" | "tasks" | "executing" | "completed";
 
 export interface SpecWorkflow {
   featureName: string;
@@ -484,7 +473,7 @@ export interface SpecProgress {
 // Autonomy Mode Types
 // ============================================================================
 
-export type AutonomyMode = 'autopilot' | 'supervised';
+export type AutonomyMode = "autopilot" | "supervised";
 
 export interface AutonomyConfig {
   mode: AutonomyMode;
@@ -521,7 +510,7 @@ export interface StrReplaceResult {
 export interface FileEncoding {
   encoding: BufferEncoding;
   bom: boolean;
-  lineEnding: 'lf' | 'crlf';
+  lineEnding: "lf" | "crlf";
 }
 
 // ============================================================================
@@ -557,7 +546,7 @@ export interface Diagnostic {
   code?: string | number;
 }
 
-export type DiagnosticSeverity = 'error' | 'warning' | 'info' | 'hint';
+export type DiagnosticSeverity = "error" | "warning" | "info" | "hint";
 
 export interface ASTMatch {
   file: string;
@@ -618,13 +607,13 @@ export interface PowerTool {
 // ============================================================================
 
 export type ErrorType =
-  | 'network'
-  | 'model_api'
-  | 'file_operation'
-  | 'permission'
-  | 'context_overflow'
-  | 'timeout'
-  | 'security';
+  | "network"
+  | "model_api"
+  | "file_operation"
+  | "permission"
+  | "context_overflow"
+  | "timeout"
+  | "security";
 
 export interface ErrorLog {
   timestamp: number;

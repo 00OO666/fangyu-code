@@ -7,13 +7,21 @@
  * 3. 检测并提示配置冲突
  */
 
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { RefreshCw, CheckCircle2, AlertTriangle, ArrowRightLeft, FileJson, Loader2, Info } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { api } from '@/lib/api';
-import { notify } from '@/components/notifications';
-import { cn } from '@/lib/utils';
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  RefreshCw,
+  CheckCircle2,
+  AlertTriangle,
+  ArrowRightLeft,
+  FileJson,
+  Loader2,
+  Info,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { api } from "@/lib/api";
+import { notify } from "@/components/notifications";
+import { cn } from "@/lib/utils";
 
 interface SyncStatus {
   settingsPath: string;
@@ -37,8 +45,8 @@ export const ConfigSyncPanel: React.FC = () => {
       const status = await api.getMcpSyncStatus();
       setSyncStatus(status as SyncStatus);
     } catch (error) {
-      console.error('Failed to load sync status:', error);
-      notify.error('加载同步状态失败');
+      console.error("Failed to load sync status:", error);
+      notify.error("加载同步状态失败");
     } finally {
       setLoading(false);
     }
@@ -58,8 +66,8 @@ export const ConfigSyncPanel: React.FC = () => {
       setLastSyncTime(new Date());
       await loadSyncStatus();
     } catch (error) {
-      console.error('Full sync failed:', error);
-      notify.error('配置同步失败');
+      console.error("Full sync failed:", error);
+      notify.error("配置同步失败");
     } finally {
       setSyncing(false);
     }
@@ -74,8 +82,8 @@ export const ConfigSyncPanel: React.FC = () => {
       setLastSyncTime(new Date());
       await loadSyncStatus();
     } catch (error) {
-      console.error('Sync from CLI failed:', error);
-      notify.error('从 Claude Code CLI 同步失败');
+      console.error("Sync from CLI failed:", error);
+      notify.error("从 Claude Code CLI 同步失败");
     } finally {
       setSyncing(false);
     }
@@ -90,8 +98,8 @@ export const ConfigSyncPanel: React.FC = () => {
       setLastSyncTime(new Date());
       await loadSyncStatus();
     } catch (error) {
-      console.error('Sync to CLI failed:', error);
-      notify.error('同步到 Claude Code CLI 失败');
+      console.error("Sync to CLI failed:", error);
+      notify.error("同步到 Claude Code CLI 失败");
     } finally {
       setSyncing(false);
     }
@@ -131,9 +139,7 @@ export const ConfigSyncPanel: React.FC = () => {
                 </div>
                 <div>
                   <h4 className="font-medium text-foreground">配置已同步</h4>
-                  <p className="text-xs text-muted-foreground">
-                    两个配置文件内容一致
-                  </p>
+                  <p className="text-xs text-muted-foreground">两个配置文件内容一致</p>
                 </div>
               </>
             ) : (
@@ -143,9 +149,7 @@ export const ConfigSyncPanel: React.FC = () => {
                 </div>
                 <div>
                   <h4 className="font-medium text-foreground">配置不同步</h4>
-                  <p className="text-xs text-muted-foreground">
-                    {syncStatus?.recommendation}
-                  </p>
+                  <p className="text-xs text-muted-foreground">{syncStatus?.recommendation}</p>
                 </div>
               </>
             )}
@@ -176,7 +180,7 @@ export const ConfigSyncPanel: React.FC = () => {
               <div className="flex items-center justify-between">
                 <span>路径:</span>
                 <code className="text-[10px] bg-muted px-1.5 py-0.5 rounded">
-                  {syncStatus?.settingsPath.split('/').pop()}
+                  {syncStatus?.settingsPath.split("/").pop()}
                 </code>
               </div>
               <div className="flex items-center justify-between">
@@ -198,7 +202,7 @@ export const ConfigSyncPanel: React.FC = () => {
               <div className="flex items-center justify-between">
                 <span>路径:</span>
                 <code className="text-[10px] bg-muted px-1.5 py-0.5 rounded">
-                  {syncStatus?.claudeJsonPath.split('/').pop()}
+                  {syncStatus?.claudeJsonPath.split("/").pop()}
                 </code>
               </div>
               <div className="flex items-center justify-between">
@@ -215,7 +219,7 @@ export const ConfigSyncPanel: React.FC = () => {
         {lastSyncTime && (
           <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2 border-t border-border/50">
             <Info className="h-3.5 w-3.5" />
-            最后同步: {lastSyncTime.toLocaleString('zh-CN')}
+            最后同步: {lastSyncTime.toLocaleString("zh-CN")}
           </div>
         )}
       </motion.div>
@@ -225,11 +229,7 @@ export const ConfigSyncPanel: React.FC = () => {
         <h4 className="text-sm font-medium text-foreground">同步操作</h4>
 
         {/* 一键全局同步 */}
-        <Button
-          onClick={handleFullSync}
-          disabled={syncing}
-          className="w-full gap-2 btn-glass-blue"
-        >
+        <Button onClick={handleFullSync} disabled={syncing} className="w-full gap-2 btn-glass-blue">
           {syncing ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -251,15 +251,9 @@ export const ConfigSyncPanel: React.FC = () => {
             disabled={syncing}
             className="gap-2"
           >
-            <RefreshCw className="h-4 w-4" />
-            从 CLI 同步
+            <RefreshCw className="h-4 w-4" />从 CLI 同步
           </Button>
-          <Button
-            variant="outline"
-            onClick={handleSyncToCli}
-            disabled={syncing}
-            className="gap-2"
-          >
+          <Button variant="outline" onClick={handleSyncToCli} disabled={syncing} className="gap-2">
             <RefreshCw className="h-4 w-4" />
             同步到 CLI
           </Button>
@@ -288,13 +282,22 @@ export const ConfigSyncPanel: React.FC = () => {
                 <strong>同步到 CLI</strong>: 将 Fangyu Code 的 MCP 配置同步到 Claude Code CLI
               </li>
               <li>
-                <strong>配置隔离</strong>: Fangyu Code 运行时优先使用 settings.json，可与 Claude CLI 同时运行
+                <strong>配置隔离</strong>: Fangyu Code 运行时优先使用 settings.json，可与 Claude CLI
+                同时运行
               </li>
               <li>
                 配置文件位置:
                 <ul className="list-circle list-inside ml-4 mt-0.5">
-                  <li>Fangyu Code: <code className="text-[10px] bg-muted px-1 rounded">~/.claude/settings.json</code></li>
-                  <li>Claude Code CLI: <code className="text-[10px] bg-muted px-1 rounded">~/.claude.json</code></li>
+                  <li>
+                    Fangyu Code:{" "}
+                    <code className="text-[10px] bg-muted px-1 rounded">
+                      ~/.claude/settings.json
+                    </code>
+                  </li>
+                  <li>
+                    Claude Code CLI:{" "}
+                    <code className="text-[10px] bg-muted px-1 rounded">~/.claude.json</code>
+                  </li>
                 </ul>
               </li>
             </ul>
@@ -322,7 +325,10 @@ export const ConfigSyncPanel: React.FC = () => {
                 <div className="flex items-center gap-2 mt-2">
                   <span className="text-xs text-muted-foreground">差异:</span>
                   <span className="text-xs font-medium text-foreground">
-                    {Math.abs((syncStatus?.settingsMcpCount || 0) - (syncStatus?.claudeJsonMcpCount || 0))} 个服务器配置不同
+                    {Math.abs(
+                      (syncStatus?.settingsMcpCount || 0) - (syncStatus?.claudeJsonMcpCount || 0)
+                    )}{" "}
+                    个服务器配置不同
                   </span>
                 </div>
               </div>

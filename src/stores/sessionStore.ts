@@ -9,10 +9,10 @@
  * - 代码更简洁
  */
 
-import { logger } from '@/lib/logger';
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import type { ExecutionEngineConfig } from '@/components/ExecutionEngineSelector';
+import { logger } from "@/lib/logger";
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import type { ExecutionEngineConfig } from "@/components/ExecutionEngineSelector";
 
 // Store 接口
 interface SessionStore {
@@ -41,20 +41,20 @@ interface SessionStore {
 const getDefaultConfig = (): ExecutionEngineConfig => {
   // 尝试从 localStorage 读取
   try {
-    const stored = localStorage.getItem('execution_engine_config');
+    const stored = localStorage.getItem("execution_engine_config");
     if (stored) {
       return JSON.parse(stored);
     }
   } catch (error) {
-    logger.error('sessionStore', '[SessionStore] Failed to load config from localStorage:', error);
+    logger.error("sessionStore", "[SessionStore] Failed to load config from localStorage:", error);
   }
 
   // 默认配置
   return {
-    engine: 'claude',
-    codexMode: 'read-only',
-    codexModel: 'gpt-5.2-codex',
-    geminiModel: 'gemini-3-flash',
+    engine: "claude",
+    codexMode: "read-only",
+    codexModel: "gpt-5.2-codex",
+    geminiModel: "gemini-3-flash",
   };
 };
 
@@ -65,7 +65,7 @@ export const useSessionStore = create<SessionStore>()(
       // 引擎配置
       executionEngineConfig: getDefaultConfig(),
       setExecutionEngineConfig: (config) => {
-        logger.debug('sessionStore', '[SessionStore] Setting engine config:', config);
+        logger.debug("sessionStore", "[SessionStore] Setting engine config:", config);
         set({ executionEngineConfig: config });
       },
 
@@ -92,7 +92,7 @@ export const useSessionStore = create<SessionStore>()(
       },
     }),
     {
-      name: 'session-storage',
+      name: "session-storage",
       // 只持久化引擎配置（不持久化预填充消息）
       partialize: (state) => ({
         executionEngineConfig: state.executionEngineConfig,
@@ -125,11 +125,9 @@ export const usePreviewActions = () =>
   }));
 
 // 预填充消息 Hooks
-export const usePrefillMessage = () =>
-  useSessionStore((state) => state.prefillMessage);
+export const usePrefillMessage = () => useSessionStore((state) => state.prefillMessage);
 
-export const useSetPrefillMessage = () =>
-  useSessionStore((state) => state.setPrefillMessage);
+export const useSetPrefillMessage = () => useSessionStore((state) => state.setPrefillMessage);
 
 export const useConsumePrefillMessage = () =>
   useSessionStore((state) => state.consumePrefillMessage);

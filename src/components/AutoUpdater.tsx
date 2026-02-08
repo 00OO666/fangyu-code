@@ -7,10 +7,10 @@
  * 3. 一键重启到新版本
  */
 
-import { logger } from '@/lib/logger';
-import React, { useState, useEffect } from 'react';
-import { invoke } from '@tauri-apps/api/core';
-import { RefreshCw, Download, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { logger } from "@/lib/logger";
+import React, { useState, useEffect } from "react";
+import { invoke } from "@tauri-apps/api/core";
+import { RefreshCw, Download, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 
 interface VersionInfo {
   current_version: string;
@@ -26,10 +26,7 @@ interface AutoUpdaterProps {
   className?: string;
 }
 
-export const AutoUpdater: React.FC<AutoUpdaterProps> = ({
-  onUpdateComplete,
-  className = ''
-}) => {
+export const AutoUpdater: React.FC<AutoUpdaterProps> = ({ onUpdateComplete, className = "" }) => {
   const [versionInfo, setVersionInfo] = useState<VersionInfo | null>(null);
   const [isChecking, setIsChecking] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -42,13 +39,13 @@ export const AutoUpdater: React.FC<AutoUpdaterProps> = ({
     setError(null);
 
     try {
-      const info = await invoke<VersionInfo>('check_for_updates');
+      const info = await invoke<VersionInfo>("check_for_updates");
       setVersionInfo(info);
 
       if (info.update_available) {
-        setUpdateMessage('发现新版本！点击下方按钮更新。');
+        setUpdateMessage("发现新版本！点击下方按钮更新。");
       } else {
-        setUpdateMessage('当前已是最新版本');
+        setUpdateMessage("当前已是最新版本");
       }
     } catch (err) {
       setError(`检查更新失败: ${err}`);
@@ -63,10 +60,10 @@ export const AutoUpdater: React.FC<AutoUpdaterProps> = ({
 
     setIsUpdating(true);
     setError(null);
-    setUpdateMessage('正在重启到新版本...');
+    setUpdateMessage("正在重启到新版本...");
 
     try {
-      await invoke('restart_to_new_version');
+      await invoke("restart_to_new_version");
       // 如果成功，应用会自动退出
       onUpdateComplete?.();
     } catch (err) {
@@ -92,7 +89,7 @@ export const AutoUpdater: React.FC<AutoUpdaterProps> = ({
         <div className="current-version">
           <span className="label">当前版本:</span>
           <span className="value">
-            v{versionInfo?.current_version || '...'}
+            v{versionInfo?.current_version || "..."}
             {versionInfo?.current_build_time && (
               <span className="build-time">({versionInfo.current_build_time})</span>
             )}
@@ -114,41 +111,47 @@ export const AutoUpdater: React.FC<AutoUpdaterProps> = ({
 
       {/* 状态消息 */}
       {(updateMessage || error) && (
-        <div className={`status-message ${error ? 'error' : 'info'}`}>
+        <div className={`status-message ${error ? "error" : "info"}`}>
           {error ? (
-            <><AlertCircle size={16} /> {error}</>
+            <>
+              <AlertCircle size={16} /> {error}
+            </>
           ) : versionInfo?.update_available ? (
-            <><Download size={16} /> {updateMessage}</>
+            <>
+              <Download size={16} /> {updateMessage}
+            </>
           ) : (
-            <><CheckCircle size={16} /> {updateMessage}</>
+            <>
+              <CheckCircle size={16} /> {updateMessage}
+            </>
           )}
         </div>
       )}
 
       {/* 操作按钮 */}
       <div className="actions">
-        <button
-          onClick={checkForUpdates}
-          disabled={isChecking || isUpdating}
-          className="btn-check"
-        >
+        <button onClick={checkForUpdates} disabled={isChecking || isUpdating} className="btn-check">
           {isChecking ? (
-            <><Loader2 size={16} className="spin" /> 检查中...</>
+            <>
+              <Loader2 size={16} className="spin" /> 检查中...
+            </>
           ) : (
-            <><RefreshCw size={16} /> 检查更新</>
+            <>
+              <RefreshCw size={16} /> 检查更新
+            </>
           )}
         </button>
 
         {versionInfo?.update_available && (
-          <button
-            onClick={applyUpdate}
-            disabled={isUpdating}
-            className="btn-update"
-          >
+          <button onClick={applyUpdate} disabled={isUpdating} className="btn-update">
             {isUpdating ? (
-              <><Loader2 size={16} className="spin" /> 更新中...</>
+              <>
+                <Loader2 size={16} className="spin" /> 更新中...
+              </>
             ) : (
-              <><Download size={16} /> 立即更新</>
+              <>
+                <Download size={16} /> 立即更新
+              </>
             )}
           </button>
         )}
@@ -275,13 +278,13 @@ export const UpdateIndicator: React.FC<{ onClick?: () => void }> = ({ onClick })
   useEffect(() => {
     const checkUpdate = async () => {
       try {
-        const info = await invoke<VersionInfo>('check_for_updates');
+        const info = await invoke<VersionInfo>("check_for_updates");
         setHasUpdate(info.update_available);
         if (info.update_available) {
           setLatestVersion(info.latest_version);
         }
       } catch (err) {
-        logger.error('AutoUpdater', '检查更新失败:', err);
+        logger.error("AutoUpdater", "检查更新失败:", err);
       }
     };
 
@@ -293,11 +296,7 @@ export const UpdateIndicator: React.FC<{ onClick?: () => void }> = ({ onClick })
   if (!hasUpdate) return null;
 
   return (
-    <button
-      onClick={onClick}
-      className="update-indicator"
-      title={`新版本 v${latestVersion} 可用`}
-    >
+    <button onClick={onClick} className="update-indicator" title={`新版本 v${latestVersion} 可用`}>
       <Download size={14} />
       <span>更新</span>
 

@@ -1,5 +1,5 @@
-import React from 'react';
-import { cn } from '@/lib/utils';
+import React from "react";
+import { cn } from "@/lib/utils";
 
 export interface GlassCardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
@@ -7,7 +7,7 @@ export interface GlassCardProps extends React.HTMLAttributes<HTMLDivElement> {
    * Glass intensity: 'deep' | 'medium' | 'light'
    * @default 'deep'
    */
-  intensity?: 'deep' | 'medium' | 'light';
+  intensity?: "deep" | "medium" | "light";
   /**
    * Enable glow border effect
    * @default false
@@ -17,7 +17,7 @@ export interface GlassCardProps extends React.HTMLAttributes<HTMLDivElement> {
    * Glow color: 'orange' | 'white' | 'blue'
    * @default 'white'
    */
-  glowColor?: 'orange' | 'white' | 'blue';
+  glowColor?: "orange" | "white" | "blue";
   /**
    * Enable hover lift effect
    * @default false
@@ -44,27 +44,27 @@ export const GlassCard = React.forwardRef<HTMLDivElement, GlassCardProps>(
     {
       children,
       className,
-      intensity = 'deep',
+      intensity = "deep",
       glow = false,
-      glowColor = 'white',
+      glowColor = "white",
       hover = false,
       ...props
     },
     ref
   ) => {
     const glassClass = {
-      deep: 'deep-glass',
-      medium: 'medium-glass',
-      light: 'light-glass',
+      deep: "deep-glass",
+      medium: "medium-glass",
+      light: "light-glass",
     }[intensity];
 
     const glowClass = glow
       ? {
-          orange: 'glow-border-orange',
-          white: 'glow-border-white',
-          blue: 'glow-border-blue',
+          orange: "glow-border-orange",
+          white: "glow-border-white",
+          blue: "glow-border-blue",
         }[glowColor]
-      : '';
+      : "";
 
     return (
       <div
@@ -72,8 +72,8 @@ export const GlassCard = React.forwardRef<HTMLDivElement, GlassCardProps>(
         className={cn(
           glassClass,
           glowClass,
-          'rounded-xl',
-          hover && 'transition-transform duration-300 hover:-translate-y-1',
+          "rounded-xl",
+          hover && "transition-transform duration-300 hover:-translate-y-1",
           className
         )}
         {...props}
@@ -84,4 +84,4 @@ export const GlassCard = React.forwardRef<HTMLDivElement, GlassCardProps>(
   }
 );
 
-GlassCard.displayName = 'GlassCard';
+GlassCard.displayName = "GlassCard";

@@ -3,19 +3,19 @@
  * Monaco编辑器 + LSP功能集成
  */
 
-import React, { useRef, useEffect, useState } from 'react';
-import Editor, { OnMount } from '@monaco-editor/react';
-import type { editor } from 'monaco-editor';
-import { LSPClient } from '@/core/lsp/LSPClient';
-import { RealLSPClient } from '@/core/tools/LSPAutoLoader';
-import { HoverTooltip } from '../LSP/HoverTooltip';
-import { DefinitionPanel } from '../LSP/DefinitionPanel';
-import { ReferencesPanel } from '../LSP/ReferencesPanel';
-import { RenameDialog } from '../LSP/RenameDialog';
-import { DiagnosticsPanel } from '../LSP/DiagnosticsPanel';
-import { CompletionPanel } from '../LSP/CompletionPanel';
-import type { HoverInfo, Location, Diagnostic } from '@/core/types/unified-agent';
-import type { CompletionItem } from '@/core/tools/LSPTools';
+import React, { useRef, useEffect, useState } from "react";
+import Editor, { OnMount } from "@monaco-editor/react";
+import type { editor } from "monaco-editor";
+import { LSPClient } from "@/core/lsp/LSPClient";
+import { RealLSPClient } from "@/core/tools/LSPAutoLoader";
+import { HoverTooltip } from "../LSP/HoverTooltip";
+import { DefinitionPanel } from "../LSP/DefinitionPanel";
+import { ReferencesPanel } from "../LSP/ReferencesPanel";
+import { RenameDialog } from "../LSP/RenameDialog";
+import { DiagnosticsPanel } from "../LSP/DiagnosticsPanel";
+import { CompletionPanel } from "../LSP/CompletionPanel";
+import type { HoverInfo, Location, Diagnostic } from "@/core/types/unified-agent";
+import type { CompletionItem } from "@/core/tools/LSPTools";
 
 interface CodeEditorProps {
   value: string;
@@ -28,7 +28,7 @@ interface CodeEditorProps {
 export const CodeEditor: React.FC<CodeEditorProps> = ({
   value,
   onChange,
-  language = 'typescript',
+  language = "typescript",
   filePath,
   readOnly = false,
 }) => {
@@ -41,7 +41,10 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   const [references, setReferences] = useState<Location[]>([]);
   const [diagnostics, setDiagnostics] = useState<Diagnostic[]>([]);
   const [completions, setCompletions] = useState<CompletionItem[]>([]);
-  const [renameTarget, setRenameTarget] = useState<{ name: string; position: { line: number; character: number } } | null>(null);
+  const [renameTarget, setRenameTarget] = useState<{
+    name: string;
+    position: { line: number; character: number };
+  } | null>(null);
 
   useEffect(() => {
     const realClient = new RealLSPClient();
@@ -58,7 +61,10 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     editor.onMouseMove(async (e) => {
       if (!lspClientRef.current || !filePath || !e.target.position) return;
 
-      const position = { line: e.target.position.lineNumber - 1, character: e.target.position.column - 1 };
+      const position = {
+        line: e.target.position.lineNumber - 1,
+        character: e.target.position.column - 1,
+      };
       const hover = await lspClientRef.current.hover(filePath, position);
 
       if (hover) {
@@ -81,8 +87,8 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     });
 
     editor.addAction({
-      id: 'lsp-goto-definition',
-      label: 'Go to Definition',
+      id: "lsp-goto-definition",
+      label: "Go to Definition",
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.F12],
       run: async (ed) => {
         if (!lspClientRef.current || !filePath) return;
@@ -97,8 +103,8 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     });
 
     editor.addAction({
-      id: 'lsp-find-references',
-      label: 'Find All References',
+      id: "lsp-find-references",
+      label: "Find All References",
       keybindings: [monaco.KeyMod.Shift | monaco.KeyCode.F12],
       run: async (ed) => {
         if (!lspClientRef.current || !filePath) return;
@@ -113,8 +119,8 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     });
 
     editor.addAction({
-      id: 'lsp-rename',
-      label: 'Rename Symbol',
+      id: "lsp-rename",
+      label: "Rename Symbol",
       keybindings: [monaco.KeyCode.F2],
       run: async (ed) => {
         if (!lspClientRef.current || !filePath) return;
@@ -160,7 +166,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
           height="100%"
           language={language}
           value={value}
-          onChange={(val) => onChange?.(val || '')}
+          onChange={(val) => onChange?.(val || "")}
           onMount={handleEditorMount}
           theme="vs-dark"
           options={{

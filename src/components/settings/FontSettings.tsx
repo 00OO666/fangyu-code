@@ -3,13 +3,13 @@
  * 允许用户选择不同的字体组合
  */
 
-import React from 'react';
-import { Card } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { useFont } from '@/contexts/FontContext';
-import { FontConfig } from '@/types/fonts';
-import { Check } from 'lucide-react';
-import { motion } from 'framer-motion';
+import React from "react";
+import { Card } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { useFont } from "@/contexts/FontContext";
+import { FontConfig } from "@/types/fonts";
+import { Check } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface FontSettingsProps {
   className?: string;
@@ -27,12 +27,10 @@ export const FontSettings: React.FC<FontSettingsProps> = ({ className }) => {
   };
 
   return (
-    <Card className={`p-6 space-y-6 ${className || ''}`}>
+    <Card className={`p-6 space-y-6 ${className || ""}`}>
       <div>
         <h3 className="text-base font-semibold mb-2">字体设置</h3>
-        <p className="text-sm text-muted-foreground mb-6">
-          选择你喜欢的字体组合，立即生效无需保存
-        </p>
+        <p className="text-sm text-muted-foreground mb-6">选择你喜欢的字体组合，立即生效无需保存</p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {fontConfigs.map((fontConfig) => {
@@ -52,8 +50,8 @@ export const FontSettings: React.FC<FontSettingsProps> = ({ className }) => {
                     text-left relative overflow-hidden
                     ${
                       isActive
-                        ? 'border-primary bg-primary/10 shadow-lg'
-                        : 'border-border hover:border-primary/50 hover:bg-accent/50'
+                        ? "border-primary bg-primary/10 shadow-lg"
+                        : "border-border hover:border-primary/50 hover:bg-accent/50"
                     }
                   `}
                   data-font-id={fontConfig.id}
@@ -72,9 +70,7 @@ export const FontSettings: React.FC<FontSettingsProps> = ({ className }) => {
                     <Label className="text-base font-semibold cursor-pointer">
                       {fontConfig.name}
                     </Label>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {fontConfig.description}
-                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">{fontConfig.description}</p>
                   </div>
 
                   {/* 预览文本 */}

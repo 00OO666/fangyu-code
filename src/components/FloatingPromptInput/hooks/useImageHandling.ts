@@ -1,4 +1,4 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { useState, useEffect, useRef } from "react";
 import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { api } from "@/lib/api";
@@ -28,11 +28,11 @@ export function useImageHandling({
 
   // Helper function to check if a file is an image
   const isImageFile = (path: string): boolean => {
-    if (path.startsWith('data:image/')) {
+    if (path.startsWith("data:image/")) {
       return true;
     }
-    const ext = path.split('.').pop()?.toLowerCase();
-    return ['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'ico', 'bmp'].includes(ext || '');
+    const ext = path.split(".").pop()?.toLowerCase();
+    return ["png", "jpg", "jpeg", "gif", "svg", "webp", "ico", "bmp"].includes(ext || "");
   };
 
   // Extract image paths from prompt text
@@ -40,31 +40,35 @@ export function useImageHandling({
     const quotedRegex = /@"([^"]+)"/g;
     const unquotedRegex = /@([^@\n\s]+)/g;
     const pathsSet = new Set<string>();
-    
+
     // Extract quoted paths (including data URLs)
     let matches = Array.from(text.matchAll(quotedRegex));
     for (const match of matches) {
       const path = match[1];
-      const fullPath = path.startsWith('data:') 
-        ? path 
-        : (path.startsWith('/') ? path : (projectPath ? `${projectPath}/${path}` : path));
-      
+      const fullPath = path.startsWith("data:")
+        ? path
+        : path.startsWith("/")
+          ? path
+          : projectPath
+            ? `${projectPath}/${path}`
+            : path;
+
       if (isImageFile(fullPath)) {
         pathsSet.add(fullPath);
       }
     }
-    
+
     // Remove quoted mentions to avoid double-matching
-    let textWithoutQuoted = text.replace(quotedRegex, '');
-    
+    let textWithoutQuoted = text.replace(quotedRegex, "");
+
     // Extract unquoted paths
     matches = Array.from(textWithoutQuoted.matchAll(unquotedRegex));
     for (const match of matches) {
       const path = match[1].trim();
-      if (path.includes('data:')) continue;
-      
-      const fullPath = path.startsWith('/') ? path : (projectPath ? `${projectPath}/${path}` : path);
-      
+      if (path.includes("data:")) continue;
+
+      const fullPath = path.startsWith("/") ? path : projectPath ? `${projectPath}/${path}` : path;
+
       if (isImageFile(fullPath)) {
         pathsSet.add(fullPath);
       }
@@ -91,11 +95,11 @@ export function useImageHandling({
 
         const webview = getCurrentWebviewWindow();
         unlistenDragDropRef.current = await webview.onDragDropEvent((event) => {
-          if (event.payload.type === 'enter' || event.payload.type === 'over') {
+          if (event.payload.type === "enter" || event.payload.type === "over") {
             setDragActive(true);
-          } else if (event.payload.type === 'leave') {
+          } else if (event.payload.type === "leave") {
             setDragActive(false);
-          } else if (event.payload.type === 'drop' && event.payload.paths) {
+          } else if (event.payload.type === "drop" && event.payload.paths) {
             setDragActive(false);
 
             const currentTime = Date.now();
@@ -109,15 +113,18 @@ export function useImageHandling({
 
             if (imagePaths.length > 0) {
               const existingPaths = extractImagePaths(prompt);
-              const newPaths = imagePaths.filter(p => !existingPaths.includes(p));
+              const newPaths = imagePaths.filter((p) => !existingPaths.includes(p));
 
               if (newPaths.length === 0) return;
 
-              const mentionsToAdd = newPaths.map(p => {
-                return p.includes(' ') ? `@"${p}"` : `@${p}`;
-              }).join(' ');
-              
-              const newPrompt = prompt + (prompt.endsWith(' ') || prompt === '' ? '' : ' ') + mentionsToAdd + ' ';
+              const mentionsToAdd = newPaths
+                .map((p) => {
+                  return p.includes(" ") ? `@"${p}"` : `@${p}`;
+                })
+                .join(" ");
+
+              const newPrompt =
+                prompt + (prompt.endsWith(" ") || prompt === "" ? "" : " ") + mentionsToAdd + " ";
 
               onPromptChange(newPrompt);
 
@@ -130,7 +137,7 @@ export function useImageHandling({
           }
         });
       } catch (error) {
-        logger.error('useImageHandling', 'Failed to set up Tauri drag-drop listener:', error);
+        logger.error("useImageHandling", "Failed to set up Tauri drag-drop listener:", error);
       }
     };
 
@@ -150,9 +157,9 @@ export function useImageHandling({
     if (!items) return;
 
     for (const item of items) {
-      if (item.type.startsWith('image/')) {
+      if (item.type.startsWith("image/")) {
         e.preventDefault();
-        
+
         const blob = item.getAsFile();
         if (!blob) continue;
 
@@ -160,20 +167,20 @@ export function useImageHandling({
           const reader = new FileReader();
           reader.onload = async () => {
             const base64Data = reader.result as string;
-            
+
             try {
               const result = await api.saveClipboardImage(base64Data);
-              
+
               if (result.success && result.file_path) {
-                const base64Content = base64Data.split(',')[1];
+                const base64Content = base64Data.split(",")[1];
                 const binaryData = atob(base64Content);
                 const bytes = new Uint8Array(binaryData.length);
                 for (let i = 0; i < binaryData.length; i++) {
                   bytes[i] = binaryData.charCodeAt(i);
                 }
-                const imageBlob = new Blob([bytes], { type: 'image/png' });
+                const imageBlob = new Blob([bytes], { type: "image/png" });
                 const blobUrl = URL.createObjectURL(imageBlob);
-                
+
                 const newAttachment: ImageAttachment = {
                   id: Date.now().toString(),
                   filePath: result.file_path,
@@ -181,22 +188,22 @@ export function useImageHandling({
                   width: 0,
                   height: 0,
                 };
-                
-                setImageAttachments(prev => [...prev, newAttachment]);
+
+                setImageAttachments((prev) => [...prev, newAttachment]);
               } else {
-                logger.error('useImageHandling', 'Failed to save clipboard image:', result.error);
-                alert('保存剪贴板图片失败，请重试');
+                logger.error("useImageHandling", "Failed to save clipboard image:", result.error);
+                alert("保存剪贴板图片失败，请重试");
               }
             } catch (error) {
-              logger.error('useImageHandling', 'Failed to save clipboard image:', error);
-              alert('保存剪贴板图片失败，请重试');
+              logger.error("useImageHandling", "Failed to save clipboard image:", error);
+              alert("保存剪贴板图片失败，请重试");
             }
           };
-          
+
           reader.readAsDataURL(blob);
         } catch (error) {
-          logger.error('useImageHandling', 'Failed to paste image:', error);
-          alert('粘贴图片失败，请重试');
+          logger.error("useImageHandling", "Failed to paste image:", error);
+          alert("粘贴图片失败，请重试");
         }
       }
     }
@@ -204,44 +211,46 @@ export function useImageHandling({
 
   // Remove image attachment by ID
   const handleRemoveImageAttachment = (attachmentId: string) => {
-    setImageAttachments(prev => prev.filter(attachment => attachment.id !== attachmentId));
+    setImageAttachments((prev) => prev.filter((attachment) => attachment.id !== attachmentId));
   };
 
   // Remove embedded image from prompt
   const handleRemoveEmbeddedImage = (index: number) => {
     const imagePath = embeddedImages[index];
 
-    if (imagePath.startsWith('data:')) {
+    if (imagePath.startsWith("data:")) {
       const quotedPath = `@"${imagePath}"`;
-      const newPrompt = prompt.replace(quotedPath, '').trim();
+      const newPrompt = prompt.replace(quotedPath, "").trim();
       onPromptChange(newPrompt);
       return;
     }
 
     try {
-      const escapedPath = imagePath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const escapedRelativePath = imagePath.replace(projectPath + '/', '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const escapedPath = imagePath.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const escapedRelativePath = imagePath
+        .replace(projectPath + "/", "")
+        .replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
       const patterns = [
-        new RegExp(`@"${escapedPath}"\\s?`, 'g'),
-        new RegExp(`@${escapedPath}\\s?`, 'g'),
-        new RegExp(`@"${escapedRelativePath}"\\s?`, 'g'),
-        new RegExp(`@${escapedRelativePath}\\s?`, 'g')
+        new RegExp(`@"${escapedPath}"\\s?`, "g"),
+        new RegExp(`@${escapedPath}\\s?`, "g"),
+        new RegExp(`@"${escapedRelativePath}"\\s?`, "g"),
+        new RegExp(`@${escapedRelativePath}\\s?`, "g"),
       ];
 
       let newPrompt = prompt;
       for (const pattern of patterns) {
-        newPrompt = newPrompt.replace(pattern, '');
+        newPrompt = newPrompt.replace(pattern, "");
       }
 
       onPromptChange(newPrompt.trim());
     } catch (error) {
       // 如果正则表达式创建失败，使用简单的字符串替换
-      logger.error('useImageHandling', '[handleRemoveEmbeddedImage] Regex error:', error);
+      logger.error("useImageHandling", "[handleRemoveEmbeddedImage] Regex error:", error);
       const simplePatterns = [`@"${imagePath}"`, `@${imagePath}`];
       let newPrompt = prompt;
       for (const pattern of simplePatterns) {
-        newPrompt = newPrompt.split(pattern).join('');
+        newPrompt = newPrompt.split(pattern).join("");
       }
       onPromptChange(newPrompt.trim());
     }
@@ -265,9 +274,9 @@ export function useImageHandling({
     const existingPaths = extractImagePaths(prompt);
     if (existingPaths.includes(imagePath)) return;
 
-    const mention = imagePath.includes(' ') ? `@"${imagePath}"` : `@${imagePath}`;
-    const newPrompt = prompt + (prompt.endsWith(' ') || prompt === '' ? '' : ' ') + mention + ' ';
-    
+    const mention = imagePath.includes(" ") ? `@"${imagePath}"` : `@${imagePath}`;
+    const newPrompt = prompt + (prompt.endsWith(" ") || prompt === "" ? "" : " ") + mention + " ";
+
     onPromptChange(newPrompt);
 
     setTimeout(() => {

@@ -10,23 +10,34 @@
  * 参考: VSCode Command Palette
  */
 
-import { logger } from '@/lib/logger';
-import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Zap, Network, Puzzle, Webhook, ChevronRight, Settings, Play, X, Filter } from 'lucide-react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
-import { api } from '@/lib/api';
+import { logger } from "@/lib/logger";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Search,
+  Zap,
+  Network,
+  Puzzle,
+  Webhook,
+  ChevronRight,
+  Settings,
+  Play,
+  X,
+  Filter,
+} from "lucide-react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { api } from "@/lib/api";
 
 // ============================================================================
 // 类型定义
 // ============================================================================
 
-type SearchItemType = 'mcp' | 'skill' | 'plugin' | 'hook';
+type SearchItemType = "mcp" | "skill" | "plugin" | "hook";
 
 interface SearchItem {
   id: string;
@@ -37,15 +48,15 @@ interface SearchItem {
   path?: string;
   triggers?: string[];
   enabled?: boolean;
-  scope?: 'user' | 'project';
-  engine?: 'claude' | 'codex' | 'gemini';
+  scope?: "user" | "project";
+  engine?: "claude" | "codex" | "gemini";
 }
 
 interface UnifiedSearchModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   /** 执行操作回调（如启动 Skill、配置 MCP） */
-  onExecuteAction?: (item: SearchItem, action: 'run' | 'configure') => void;
+  onExecuteAction?: (item: SearchItem, action: "run" | "configure") => void;
   /** 项目路径 */
   projectPath?: string;
 }
@@ -62,17 +73,17 @@ const TYPE_ICONS: Record<SearchItemType, React.ElementType> = {
 };
 
 const TYPE_COLORS: Record<SearchItemType, string> = {
-  mcp: 'text-blue-500',
-  skill: 'text-yellow-500',
-  plugin: 'text-purple-500',
-  hook: 'text-green-500',
+  mcp: "text-blue-500",
+  skill: "text-yellow-500",
+  plugin: "text-purple-500",
+  hook: "text-green-500",
 };
 
 const TYPE_BG: Record<SearchItemType, string> = {
-  mcp: 'bg-blue-50 dark:bg-blue-950/30',
-  skill: 'bg-yellow-50 dark:bg-yellow-950/30',
-  plugin: 'bg-purple-50 dark:bg-purple-950/30',
-  hook: 'bg-green-50 dark:bg-green-950/30',
+  mcp: "bg-blue-50 dark:bg-blue-950/30",
+  skill: "bg-yellow-50 dark:bg-yellow-950/30",
+  plugin: "bg-purple-50 dark:bg-purple-950/30",
+  hook: "bg-green-50 dark:bg-green-950/30",
 };
 
 // ============================================================================
@@ -85,11 +96,11 @@ export function UnifiedSearchModal({
   onExecuteAction,
   projectPath,
 }: UnifiedSearchModalProps) {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [items, setItems] = useState<SearchItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [filterType, setFilterType] = useState<SearchItemType | 'all'>('all');
+  const [filterType, setFilterType] = useState<SearchItemType | "all">("all");
   const searchInputRef = useRef<HTMLInputElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
@@ -97,7 +108,7 @@ export function UnifiedSearchModal({
   useEffect(() => {
     if (open) {
       loadAllItems();
-      setSearchQuery('');
+      setSearchQuery("");
       setSelectedIndex(0);
       // 聚焦搜索框
       setTimeout(() => searchInputRef.current?.focus(), 100);
@@ -114,17 +125,17 @@ export function UnifiedSearchModal({
         const skills = await api.listAgentSkills(projectPath);
         const skillItems: SearchItem[] = skills.map((s: any) => ({
           id: `skill:${s.name}`,
-          type: 'skill' as const,
+          type: "skill" as const,
           name: s.name,
-          description: s.description || '无描述',
+          description: s.description || "无描述",
           path: s.path,
           triggers: s.triggers || [],
-          scope: s.scope || 'user',
+          scope: s.scope || "user",
           enabled: true,
         }));
         allItems.push(...skillItems);
       } catch (err) {
-        logger.warn('UnifiedSearchModal', '[UnifiedSearch] Failed to load skills:', err);
+        logger.warn("UnifiedSearchModal", "[UnifiedSearch] Failed to load skills:", err);
       }
 
       // 加载 MCP Servers (模拟数据，实际应从配置文件读取)
@@ -132,84 +143,84 @@ export function UnifiedSearchModal({
         // TODO: 从 ~/.claude/settings.json 读取 MCP 配置
         const mcpServers: SearchItem[] = [
           {
-            id: 'mcp:filesystem',
-            type: 'mcp',
-            name: 'filesystem',
-            description: '文件系统操作工具',
-            engine: 'claude',
+            id: "mcp:filesystem",
+            type: "mcp",
+            name: "filesystem",
+            description: "文件系统操作工具",
+            engine: "claude",
             enabled: true,
           },
           {
-            id: 'mcp:github',
-            type: 'mcp',
-            name: 'github',
-            description: 'GitHub 仓库操作',
-            engine: 'claude',
+            id: "mcp:github",
+            type: "mcp",
+            name: "github",
+            description: "GitHub 仓库操作",
+            engine: "claude",
             enabled: true,
           },
           {
-            id: 'mcp:puppeteer',
-            type: 'mcp',
-            name: 'puppeteer',
-            description: '浏览器自动化',
-            engine: 'claude',
+            id: "mcp:puppeteer",
+            type: "mcp",
+            name: "puppeteer",
+            description: "浏览器自动化",
+            engine: "claude",
             enabled: false,
           },
         ];
         allItems.push(...mcpServers);
       } catch (err) {
-        logger.warn('UnifiedSearchModal', '[UnifiedSearch] Failed to load MCP servers:', err);
+        logger.warn("UnifiedSearchModal", "[UnifiedSearch] Failed to load MCP servers:", err);
       }
 
       // 加载 Hooks (模拟数据)
       try {
         const hooks: SearchItem[] = [
           {
-            id: 'hook:pre-commit',
-            type: 'hook',
-            name: 'pre-commit',
-            description: 'Git pre-commit 钩子',
+            id: "hook:pre-commit",
+            type: "hook",
+            name: "pre-commit",
+            description: "Git pre-commit 钩子",
             enabled: true,
           },
           {
-            id: 'hook:user-prompt-submit',
-            type: 'hook',
-            name: 'user-prompt-submit',
-            description: '用户提交提示词时触发',
+            id: "hook:user-prompt-submit",
+            type: "hook",
+            name: "user-prompt-submit",
+            description: "用户提交提示词时触发",
             enabled: true,
           },
         ];
         allItems.push(...hooks);
       } catch (err) {
-        logger.warn('UnifiedSearchModal', '[UnifiedSearch] Failed to load hooks:', err);
+        logger.warn("UnifiedSearchModal", "[UnifiedSearch] Failed to load hooks:", err);
       }
 
       // 加载 Plugins (模拟数据)
       try {
         const plugins: SearchItem[] = [
           {
-            id: 'plugin:prettier',
-            type: 'plugin',
-            name: 'prettier',
-            description: '代码格式化插件',
+            id: "plugin:prettier",
+            type: "plugin",
+            name: "prettier",
+            description: "代码格式化插件",
             enabled: true,
           },
           {
-            id: 'plugin:eslint',
-            type: 'plugin',
-            name: 'eslint',
-            description: '代码检查插件',
+            id: "plugin:eslint",
+            type: "plugin",
+            name: "eslint",
+            description: "代码检查插件",
             enabled: true,
           },
         ];
         allItems.push(...plugins);
       } catch (err) {
-        logger.warn('UnifiedSearchModal', '[UnifiedSearch] Failed to load plugins:', err);
+        logger.warn("UnifiedSearchModal", "[UnifiedSearch] Failed to load plugins:", err);
       }
 
       setItems(allItems);
     } catch (error) {
-      logger.error('UnifiedSearchModal', '[UnifiedSearch] Failed to load items:', error);
+      logger.error("UnifiedSearchModal", "[UnifiedSearch] Failed to load items:", error);
     } finally {
       setLoading(false);
     }
@@ -220,17 +231,17 @@ export function UnifiedSearchModal({
     let result = items;
 
     // 类型过滤
-    if (filterType !== 'all') {
-      result = result.filter(item => item.type === filterType);
+    if (filterType !== "all") {
+      result = result.filter((item) => item.type === filterType);
     }
 
     // 搜索过滤
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      result = result.filter(item => {
+      result = result.filter((item) => {
         const nameMatch = item.name.toLowerCase().includes(query);
         const descMatch = item.description?.toLowerCase().includes(query);
-        const triggerMatch = item.triggers?.some(t => t.toLowerCase().includes(query));
+        const triggerMatch = item.triggers?.some((t) => t.toLowerCase().includes(query));
         return nameMatch || descMatch || triggerMatch;
       });
     }
@@ -245,29 +256,32 @@ export function UnifiedSearchModal({
     }
   }, [filteredItems.length, selectedIndex]);
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      setSelectedIndex(prev => Math.min(prev + 1, filteredItems.length - 1));
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      setSelectedIndex(prev => Math.max(prev - 1, 0));
-    } else if (e.key === 'Enter' && filteredItems[selectedIndex]) {
-      e.preventDefault();
-      handleItemClick(filteredItems[selectedIndex]);
-    } else if (e.key === 'Escape') {
-      onOpenChange(false);
-    }
-  }, [filteredItems, selectedIndex]);
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setSelectedIndex((prev) => Math.min(prev + 1, filteredItems.length - 1));
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setSelectedIndex((prev) => Math.max(prev - 1, 0));
+      } else if (e.key === "Enter" && filteredItems[selectedIndex]) {
+        e.preventDefault();
+        handleItemClick(filteredItems[selectedIndex]);
+      } else if (e.key === "Escape") {
+        onOpenChange(false);
+      }
+    },
+    [filteredItems, selectedIndex]
+  );
 
   const handleItemClick = (item: SearchItem) => {
-    onExecuteAction?.(item, 'configure');
+    onExecuteAction?.(item, "configure");
     onOpenChange(false);
   };
 
   const handleRunAction = (item: SearchItem, e: React.MouseEvent) => {
     e.stopPropagation();
-    onExecuteAction?.(item, 'run');
+    onExecuteAction?.(item, "run");
     onOpenChange(false);
   };
 
@@ -290,7 +304,7 @@ export function UnifiedSearchModal({
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setSearchQuery('')}
+              onClick={() => setSearchQuery("")}
               className="h-7 w-7 p-0"
             >
               <X className="h-4 w-4" />
@@ -302,15 +316,15 @@ export function UnifiedSearchModal({
         <div className="flex items-center gap-2 px-4 py-2 bg-muted/30">
           <Filter className="h-4 w-4 text-muted-foreground" />
           <div className="flex gap-1">
-            {(['all', 'mcp', 'skill', 'plugin', 'hook'] as const).map((type) => (
+            {(["all", "mcp", "skill", "plugin", "hook"] as const).map((type) => (
               <Button
                 key={type}
-                variant={filterType === type ? 'default' : 'ghost'}
+                variant={filterType === type ? "default" : "ghost"}
                 size="sm"
                 onClick={() => setFilterType(type)}
                 className="h-7 px-2 text-xs"
               >
-                {type === 'all' ? '全部' : type.toUpperCase()}
+                {type === "all" ? "全部" : type.toUpperCase()}
               </Button>
             ))}
           </div>
@@ -320,12 +334,10 @@ export function UnifiedSearchModal({
         <ScrollArea className="h-[400px]" ref={scrollAreaRef}>
           <div className="p-2">
             {loading ? (
-              <div className="text-center py-8 text-muted-foreground">
-                加载中...
-              </div>
+              <div className="text-center py-8 text-muted-foreground">加载中...</div>
             ) : filteredItems.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
-                {searchQuery ? '未找到匹配项' : '暂无数据'}
+                {searchQuery ? "未找到匹配项" : "暂无数据"}
               </div>
             ) : (
               <AnimatePresence>
@@ -348,10 +360,12 @@ export function UnifiedSearchModal({
                       )}
                     >
                       {/* 图标 */}
-                      <div className={cn(
-                        "flex items-center justify-center w-10 h-10 rounded-lg flex-shrink-0",
-                        TYPE_BG[item.type]
-                      )}>
+                      <div
+                        className={cn(
+                          "flex items-center justify-center w-10 h-10 rounded-lg flex-shrink-0",
+                          TYPE_BG[item.type]
+                        )}
+                      >
                         <Icon className={cn("h-5 w-5", TYPE_COLORS[item.type])} />
                       </div>
 
@@ -364,7 +378,7 @@ export function UnifiedSearchModal({
                           </Badge>
                           {item.scope && (
                             <Badge variant="secondary" className="text-xs">
-                              {item.scope === 'user' ? '全局' : '项目'}
+                              {item.scope === "user" ? "全局" : "项目"}
                             </Badge>
                           )}
                           {item.engine && (
@@ -374,7 +388,7 @@ export function UnifiedSearchModal({
                           )}
                         </div>
                         <p className="text-xs text-muted-foreground truncate mt-0.5">
-                          {item.description || '无描述'}
+                          {item.description || "无描述"}
                         </p>
                         {item.triggers && item.triggers.length > 0 && (
                           <div className="flex gap-1 mt-1">
@@ -394,7 +408,7 @@ export function UnifiedSearchModal({
 
                       {/* 操作按钮 */}
                       <div className="flex items-center gap-1 flex-shrink-0">
-                        {item.type === 'skill' && (
+                        {item.type === "skill" && (
                           <Button
                             variant="ghost"
                             size="sm"
@@ -428,9 +442,7 @@ export function UnifiedSearchModal({
             <span>Enter 选择</span>
             <span>Esc 关闭</span>
           </div>
-          <div>
-            共 {filteredItems.length} 项
-          </div>
+          <div>共 {filteredItems.length} 项</div>
         </div>
       </DialogContent>
     </Dialog>

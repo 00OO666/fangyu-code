@@ -10,7 +10,7 @@
  * 来源: Claude Code Slash Commands + Cursor Custom Commands
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "@/lib/api";
 
@@ -89,12 +89,12 @@ export function useSkillTrigger(options: UseSkillTriggerOptions = {}) {
             triggers,
             content,
           };
-        }),
+        })
       );
 
       setSkills(skillInfos);
     } catch (error) {
-      logger.error('useSkillTrigger', "加载技能失败:", error);
+      logger.error("useSkillTrigger", "加载技能失败:", error);
     } finally {
       setLoading(false);
     }
@@ -185,7 +185,7 @@ export function useSkillTrigger(options: UseSkillTriggerOptions = {}) {
 
       return null;
     },
-    [skills, enabled],
+    [skills, enabled]
   );
 
   /**
@@ -241,7 +241,7 @@ export function useSkillTrigger(options: UseSkillTriggerOptions = {}) {
 
       return uniqueMatches.slice(0, maxSuggestions);
     },
-    [skills, showSuggestions, maxSuggestions],
+    [skills, showSuggestions, maxSuggestions]
   );
 
   /**
@@ -256,7 +256,7 @@ export function useSkillTrigger(options: UseSkillTriggerOptions = {}) {
         setSuggestions(newSuggestions);
       }
     },
-    [getSuggestions, showSuggestions],
+    [getSuggestions, showSuggestions]
   );
 
   /**
@@ -265,7 +265,7 @@ export function useSkillTrigger(options: UseSkillTriggerOptions = {}) {
   const applySuggestion = useCallback(
     (
       suggestion: TriggerSuggestion,
-      currentInput: string,
+      currentInput: string
     ): { newInput: string; skill: SkillInfo } => {
       // 替换当前的 /xxx 为完整触发词
       const parts = currentInput.split(/\s+/);
@@ -276,7 +276,7 @@ export function useSkillTrigger(options: UseSkillTriggerOptions = {}) {
         skill: suggestion.skill,
       };
     },
-    [],
+    []
   );
 
   /**
@@ -294,14 +294,14 @@ export function useSkillTrigger(options: UseSkillTriggerOptions = {}) {
           content: args ? `${content}\n\n用户参数: ${args}` : content,
         };
       } catch (error) {
-        logger.error('useSkillTrigger', "执行技能失败:", error);
+        logger.error("useSkillTrigger", "执行技能失败:", error);
         return {
           success: false,
           content: `执行技能 ${skill.name} 失败: ${error}`,
         };
       }
     },
-    [],
+    []
   );
 
   /**
@@ -326,7 +326,7 @@ export function useSkillTrigger(options: UseSkillTriggerOptions = {}) {
         remainingInput: args,
       };
     },
-    [detectTrigger],
+    [detectTrigger]
   );
 
   /**
@@ -355,7 +355,7 @@ export function useSkillTrigger(options: UseSkillTriggerOptions = {}) {
 
       return null;
     },
-    [skills],
+    [skills]
   );
 
   return {

@@ -3,7 +3,7 @@
  * 重命名符号对话框
  */
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 interface RenameDialogProps {
   currentName: string;
@@ -11,11 +11,7 @@ interface RenameDialogProps {
   onCancel: () => void;
 }
 
-export const RenameDialog: React.FC<RenameDialogProps> = ({
-  currentName,
-  onRename,
-  onCancel,
-}) => {
+export const RenameDialog: React.FC<RenameDialogProps> = ({ currentName, onRename, onCancel }) => {
   const [newName, setNewName] = useState(currentName);
 
   return (
@@ -30,10 +26,7 @@ export const RenameDialog: React.FC<RenameDialogProps> = ({
           autoFocus
         />
         <div className="flex gap-2 justify-end">
-          <button
-            onClick={onCancel}
-            className="px-4 py-2 border rounded hover:bg-accent"
-          >
+          <button onClick={onCancel} className="px-4 py-2 border rounded hover:bg-accent">
             Cancel
           </button>
           <button

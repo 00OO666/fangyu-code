@@ -1,6 +1,6 @@
 /**
  * SkillParser - 解析 SKILL.md 文件
- * 
+ *
  * 支持 Claude Code 风格的 SKILL.md 格式：
  * - YAML Front Matter (name, description, etc.)
  * - Markdown 内容 (概述、工作流、任务等)
@@ -13,8 +13,8 @@ import type {
   SkillWorkflowStep,
   SkillTask,
   SkillReference,
-  SkillResource
-} from './types';
+  SkillResource,
+} from "./types";
 
 // ============================================
 // YAML Front Matter 解析
@@ -48,18 +48,18 @@ function parseFrontMatter(content: string): { frontMatter: ParsedFrontMatter; bo
 
   // 简单的 YAML 解析（不依赖外部库）
   const frontMatter: ParsedFrontMatter = {};
-  const lines = yamlContent.split('\n');
+  const lines = yamlContent.split("\n");
   let inArray = false;
-  let arrayKey = '';
+  let arrayKey = "";
   let arrayValues: string[] = [];
-  let currentKey = '';
+  let currentKey = "";
 
   for (const line of lines) {
     const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith('#')) continue;
+    if (!trimmed || trimmed.startsWith("#")) continue;
 
     // 数组项
-    if (trimmed.startsWith('- ')) {
+    if (trimmed.startsWith("- ")) {
       if (inArray) {
         arrayValues.push(trimmed.slice(2).trim());
       }
@@ -67,26 +67,26 @@ function parseFrontMatter(content: string): { frontMatter: ParsedFrontMatter; bo
     }
 
     // 结束数组
-    if (inArray && !trimmed.startsWith('- ')) {
+    if (inArray && !trimmed.startsWith("- ")) {
       (frontMatter as any)[arrayKey] = arrayValues;
       inArray = false;
       arrayValues = [];
     }
 
     // 键值对
-    const colonIndex = trimmed.indexOf(':');
+    const colonIndex = trimmed.indexOf(":");
     if (colonIndex > 0) {
       const key = trimmed.slice(0, colonIndex).trim();
       const value = trimmed.slice(colonIndex + 1).trim();
 
-      if (value === '' || value === '|') {
+      if (value === "" || value === "|") {
         // 可能是数组或多行字符串
         inArray = true;
         arrayKey = key;
         arrayValues = [];
       } else {
         // 移除引号
-        const cleanValue = value.replace(/^["']|["']$/g, '');
+        const cleanValue = value.replace(/^["']|["']$/g, "");
         (frontMatter as any)[key] = cleanValue;
       }
       currentKey = key;
@@ -113,7 +113,7 @@ interface ParsedSection {
 }
 
 function parseMarkdownSections(content: string): ParsedSection[] {
-  const lines = content.split('\n');
+  const lines = content.split("\n");
   const sections: ParsedSection[] = [];
   const stack: ParsedSection[] = [];
 
@@ -125,7 +125,7 @@ function parseMarkdownSections(content: string): ParsedSection[] {
     if (headerMatch) {
       // 保存之前的内容
       if (stack.length > 0) {
-        stack[stack.length - 1].content = currentContent.join('\n').trim();
+        stack[stack.length - 1].content = currentContent.join("\n").trim();
       }
       currentContent = [];
 
@@ -135,8 +135,8 @@ function parseMarkdownSections(content: string): ParsedSection[] {
       const newSection: ParsedSection = {
         title,
         level,
-        content: '',
-        subsections: []
+        content: "",
+        subsections: [],
       };
 
       // 找到正确的父级
@@ -158,7 +158,7 @@ function parseMarkdownSections(content: string): ParsedSection[] {
 
   // 保存最后的内容
   if (stack.length > 0) {
-    stack[stack.length - 1].content = currentContent.join('\n').trim();
+    stack[stack.length - 1].content = currentContent.join("\n").trim();
   }
 
   return sections;
@@ -181,19 +181,22 @@ function parseWorkflowSteps(sections: ParsedSection[]): SkillWorkflowStep[] {
         id: `step-${stepIndex}`,
         name: stepMatch[2] || section.title,
         description: section.content,
-        type: 'action',
-        nextSteps: stepIndex < sections.length ? [`step-${stepIndex + 1}`] : []
+        type: "action",
+        nextSteps: stepIndex < sections.length ? [`step-${stepIndex + 1}`] : [],
       };
 
       // 从内容中提取更多信息
-      if (section.content.includes('```')) {
-        step.type = 'generation';
+      if (section.content.includes("```")) {
+        step.type = "generation";
       }
-      if (section.title.toLowerCase().includes('验证') || section.title.toLowerCase().includes('valid')) {
-        step.type = 'validation';
+      if (
+        section.title.toLowerCase().includes("验证") ||
+        section.title.toLowerCase().includes("valid")
+      ) {
+        step.type = "validation";
       }
-      if (section.title.includes('?') || section.title.toLowerCase().includes('询问')) {
-        step.type = 'question';
+      if (section.title.includes("?") || section.title.toLowerCase().includes("询问")) {
+        step.type = "question";
       }
 
       steps.push(step);
@@ -224,9 +227,9 @@ function parseTasks(sections: ParsedSection[]): SkillTask[] {
       const task: SkillTask = {
         id: `task-${taskIndex}`,
         name: taskMatch[2] || section.title,
-        description: section.content.split('\n')[0] || '',
+        description: section.content.split("\n")[0] || "",
         instructions: section.content,
-        examples: extractCodeBlocks(section.content)
+        examples: extractCodeBlocks(section.content),
       };
       tasks.push(task);
     }
@@ -257,7 +260,7 @@ function parseReferences(sections: ParsedSection[]): SkillReference[] {
           id: `ref-${refIndex}`,
           title: sub.title,
           content: sub.content,
-          category: section.title
+          category: section.title,
         });
       }
 
@@ -267,7 +270,7 @@ function parseReferences(sections: ParsedSection[]): SkillReference[] {
         refs.push({
           id: `ref-${refIndex}`,
           title: section.title,
-          content: section.content
+          content: section.content,
         });
       }
     }
@@ -293,24 +296,26 @@ function extractCodeBlocks(content: string): string[] {
 }
 
 function detectSkillMode(sections: ParsedSection[]): SkillMode {
-  const allTitles = getAllTitles(sections).map(t => t.toLowerCase());
+  const allTitles = getAllTitles(sections).map((t) => t.toLowerCase());
 
   // 检查是否有工作流相关章节
-  if (allTitles.some(t => t.includes('工作流') || t.includes('workflow') || t.match(/步骤|step/))) {
-    return 'workflow';
+  if (
+    allTitles.some((t) => t.includes("工作流") || t.includes("workflow") || t.match(/步骤|step/))
+  ) {
+    return "workflow";
   }
 
   // 检查是否有任务相关章节
-  if (allTitles.some(t => t.includes('任务') || t.includes('task'))) {
-    return 'task';
+  if (allTitles.some((t) => t.includes("任务") || t.includes("task"))) {
+    return "task";
   }
 
   // 检查是否有参考/规范相关章节
-  if (allTitles.some(t => t.includes('参考') || t.includes('reference') || t.includes('规范'))) {
-    return 'reference';
+  if (allTitles.some((t) => t.includes("参考") || t.includes("reference") || t.includes("规范"))) {
+    return "reference";
   }
 
-  return 'task'; // 默认
+  return "task"; // 默认
 }
 
 function getAllTitles(sections: ParsedSection[]): string[] {
@@ -343,15 +348,15 @@ export function parseSkillFile(content: string, sourcePath?: string): Skill {
 
   // 构建元数据
   const metadata: SkillMetadata = {
-    name: frontMatter.name || 'unnamed-skill',
-    description: frontMatter.description || '',
-    version: frontMatter.metadata?.version || frontMatter.version || '1.0.0',
+    name: frontMatter.name || "unnamed-skill",
+    description: frontMatter.description || "",
+    version: frontMatter.metadata?.version || frontMatter.version || "1.0.0",
     author: frontMatter.metadata?.author || frontMatter.author,
     license: frontMatter.license,
     compatibility: frontMatter.compatibility,
     categories: frontMatter.metadata?.categories || [],
     keywords: frontMatter.metadata?.keywords || [],
-    triggers: extractTriggers(frontMatter.description || '', sections)
+    triggers: extractTriggers(frontMatter.description || "", sections),
   };
 
   // 检测模式
@@ -359,16 +364,19 @@ export function parseSkillFile(content: string, sourcePath?: string): Skill {
 
   // 提取概述
   const overviewSection = findSectionByTitle(sections, /概述|overview|简介|introduction/i);
-  const overview = overviewSection?.content || sections[0]?.content || '';
+  const overview = overviewSection?.content || sections[0]?.content || "";
 
   // 提取快速开始
-  const quickStartSection = findSectionByTitle(sections, /快速开始|quick\s*start|getting\s*started/i);
+  const quickStartSection = findSectionByTitle(
+    sections,
+    /快速开始|quick\s*start|getting\s*started/i
+  );
   const quickStart = quickStartSection?.content;
 
   // 根据模式解析内容
-  const workflow = mode === 'workflow' ? parseWorkflowSteps(sections) : undefined;
-  const tasks = mode === 'task' ? parseTasks(sections) : undefined;
-  const references = mode === 'reference' ? parseReferences(sections) : undefined;
+  const workflow = mode === "workflow" ? parseWorkflowSteps(sections) : undefined;
+  const tasks = mode === "task" ? parseTasks(sections) : undefined;
+  const references = mode === "reference" ? parseReferences(sections) : undefined;
 
   // 提取资源引用
   const resources = extractResources(body);
@@ -379,7 +387,9 @@ export function parseSkillFile(content: string, sourcePath?: string): Skill {
 
   // 提取最佳实践
   const bestPracticesSection = findSectionByTitle(sections, /最佳实践|best\s*practice/i);
-  const bestPractices = bestPracticesSection ? extractListItems(bestPracticesSection.content) : undefined;
+  const bestPractices = bestPracticesSection
+    ? extractListItems(bestPracticesSection.content)
+    : undefined;
 
   return {
     metadata,
@@ -394,7 +404,7 @@ export function parseSkillFile(content: string, sourcePath?: string): Skill {
     bestPractices,
     isLoaded: true,
     loadedAt: Date.now(),
-    sourcePath
+    sourcePath,
   };
 }
 
@@ -402,11 +412,7 @@ function extractTriggers(description: string, sections: ParsedSection[]): string
   const triggers: string[] = [];
 
   // 从描述中提取触发词
-  const triggerPatterns = [
-    /当用户说[""「](.+?)[""」]/g,
-    /当用户需要(.+?)时/g,
-    /触发[：:]\s*(.+)/g
-  ];
+  const triggerPatterns = [/当用户说[""「](.+?)[""」]/g, /当用户需要(.+?)时/g, /触发[：:]\s*(.+)/g];
 
   for (const pattern of triggerPatterns) {
     let match;
@@ -433,14 +439,14 @@ function extractResources(content: string): SkillResource[] {
     /`(scripts\/[^`]+)`/g,
     /`(references\/[^`]+)`/g,
     /`(assets\/[^`]+)`/g,
-    /`(templates\/[^`]+)`/g
+    /`(templates\/[^`]+)`/g,
   ];
 
   for (const pattern of patterns) {
     let match;
     while ((match = pattern.exec(content)) !== null) {
       const path = match[1];
-      const type = path.split('/')[0].replace(/s$/, '') as SkillResource['type'];
+      const type = path.split("/")[0].replace(/s$/, "") as SkillResource["type"];
       resources.push({ type, path });
     }
   }
@@ -450,7 +456,7 @@ function extractResources(content: string): SkillResource[] {
 
 function extractListItems(content: string): string[] {
   const items: string[] = [];
-  const lines = content.split('\n');
+  const lines = content.split("\n");
 
   for (const line of lines) {
     const match = line.match(/^[-*]\s+(.+)$/);

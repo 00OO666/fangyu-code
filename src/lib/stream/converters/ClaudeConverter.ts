@@ -4,7 +4,7 @@
  * 处理 Claude CLI 输出的 JSONL 消息
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import type { ClaudeStreamMessage } from "@/types/claude";
 import type { EngineType, MessageConverter } from "./types";
 
@@ -74,7 +74,7 @@ export class ClaudeConverter implements MessageConverter {
       const parsed = JSON.parse(line);
       return this.convert(parsed);
     } catch (error) {
-      logger.error('ClaudeConverter', "[ClaudeConverter] Failed to parse line:", line, error);
+      logger.error("ClaudeConverter", "[ClaudeConverter] Failed to parse line:", line, error);
       return null;
     }
   }

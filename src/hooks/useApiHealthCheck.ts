@@ -10,7 +10,7 @@
  * 4. 记录详细的错误日志
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { emit, listen, type UnlistenFn } from "@tauri-apps/api/event";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
@@ -126,14 +126,14 @@ export function useApiHealthCheck(config: UseApiHealthCheckConfig = {}): UseApiH
         try {
           localStorage.setItem(`${STORAGE_KEY}_log`, JSON.stringify(newLog));
         } catch (e) {
-          logger.warn('useApiHealthCheck', "[ApiHealthCheck] Failed to save error log:", e);
+          logger.warn("useApiHealthCheck", "[ApiHealthCheck] Failed to save error log:", e);
         }
         return newLog;
       });
 
-      logger.warn('useApiHealthCheck', "[ApiHealthCheck] Error logged:", fullEntry);
+      logger.warn("useApiHealthCheck", "[ApiHealthCheck] Error logged:", fullEntry);
     },
-    [sessionId],
+    [sessionId]
   );
 
   // 记录成功
@@ -151,7 +151,7 @@ export function useApiHealthCheck(config: UseApiHealthCheckConfig = {}): UseApiH
         JSON.stringify({
           lastSuccessTime: now,
           status: "connected",
-        }),
+        })
       );
     } catch (e) {
       // ignore
@@ -199,7 +199,7 @@ export function useApiHealthCheck(config: UseApiHealthCheckConfig = {}): UseApiH
         return newCount;
       });
     },
-    [addErrorLog, autoReconnect, maxRetries],
+    [addErrorLog, autoReconnect, maxRetries]
   );
 
   // 触发重连
@@ -211,7 +211,10 @@ export function useApiHealthCheck(config: UseApiHealthCheckConfig = {}): UseApiH
     retryCountRef.current += 1;
 
     const delay = retryBaseDelay * 2 ** (retryCountRef.current - 1);
-    logger.debug('useApiHealthCheck', `Attempting reconnect (${retryCountRef.current}/${maxRetries}) in ${delay}ms...`);
+    logger.debug(
+      "useApiHealthCheck",
+      `Attempting reconnect (${retryCountRef.current}/${maxRetries}) in ${delay}ms...`
+    );
 
     await new Promise((resolve) => setTimeout(resolve, delay));
 
@@ -220,7 +223,7 @@ export function useApiHealthCheck(config: UseApiHealthCheckConfig = {}): UseApiH
       const result = await runHealthCheck();
 
       if (result) {
-        logger.debug('useApiHealthCheck', "[ApiHealthCheck] Reconnect successful!");
+        logger.debug("useApiHealthCheck", "[ApiHealthCheck] Reconnect successful!");
         recordSuccess();
         setIsReconnecting(false);
 
@@ -231,7 +234,7 @@ export function useApiHealthCheck(config: UseApiHealthCheckConfig = {}): UseApiH
         throw new Error("Health check failed");
       }
     } catch (err) {
-      logger.error('useApiHealthCheck', "[ApiHealthCheck] Reconnect failed:", err);
+      logger.error("useApiHealthCheck", "[ApiHealthCheck] Reconnect failed:", err);
 
       if (retryCountRef.current < maxRetries) {
         // 继续重试
@@ -239,7 +242,7 @@ export function useApiHealthCheck(config: UseApiHealthCheckConfig = {}): UseApiH
         return triggerReconnect();
       } else {
         // 放弃重试
-        logger.error('useApiHealthCheck', "[ApiHealthCheck] Max retries reached, giving up");
+        logger.error("useApiHealthCheck", "[ApiHealthCheck] Max retries reached, giving up");
         setStatus("disconnected");
         setIsReconnecting(false);
 
@@ -261,7 +264,7 @@ export function useApiHealthCheck(config: UseApiHealthCheckConfig = {}): UseApiH
       await api.listProjects();
       return true;
     } catch (err) {
-      logger.warn('useApiHealthCheck', "[ApiHealthCheck] Health check failed:", err);
+      logger.warn("useApiHealthCheck", "[ApiHealthCheck] Health check failed:", err);
       return false;
     }
   }, []);
@@ -295,7 +298,7 @@ export function useApiHealthCheck(config: UseApiHealthCheckConfig = {}): UseApiH
 
     // 3. 检查 Provider 配置
     try {
-      const providerConfig = await api.getCurrentProviderConfig() as any;
+      const providerConfig = (await api.getCurrentProviderConfig()) as any;
       if (providerConfig?.apiKey) {
         checks.push({
           name: "Provider 配置",

@@ -1,12 +1,12 @@
 /**
  * APIErrorHandler - API 错误处理器
- * 
+ *
  * 实现结构化错误处理和智能重试策略
- * 
+ *
  * Requirements: 1.5, 1.6
  */
 
-import { APIError, APIErrorCode } from './RealAPIClient';
+import { APIError, APIErrorCode } from "./RealAPIClient";
 
 // =============================================================================
 // 类型定义
@@ -38,15 +38,15 @@ export interface RetryDecision {
 }
 
 /** 错误分类 */
-export type ErrorCategory = 
-  | 'authentication'
-  | 'authorization'
-  | 'validation'
-  | 'rate_limit'
-  | 'server'
-  | 'network'
-  | 'timeout'
-  | 'unknown';
+export type ErrorCategory =
+  | "authentication"
+  | "authorization"
+  | "validation"
+  | "rate_limit"
+  | "server"
+  | "network"
+  | "timeout"
+  | "unknown";
 
 /** 错误处理结果 */
 export interface ErrorHandlingResult {
@@ -72,91 +72,67 @@ export const DEFAULT_RETRY_CONFIG: RetryConfig = {
 
 /** 错误码到分类的映射 */
 const ERROR_CATEGORY_MAP: Record<APIErrorCode, ErrorCategory> = {
-  [APIErrorCode.INVALID_API_KEY]: 'authentication',
-  [APIErrorCode.EXPIRED_API_KEY]: 'authentication',
-  [APIErrorCode.INVALID_REQUEST]: 'validation',
-  [APIErrorCode.MODEL_NOT_FOUND]: 'validation',
-  [APIErrorCode.CONTEXT_TOO_LONG]: 'validation',
-  [APIErrorCode.RATE_LIMITED]: 'rate_limit',
-  [APIErrorCode.SERVER_ERROR]: 'server',
-  [APIErrorCode.SERVICE_UNAVAILABLE]: 'server',
-  [APIErrorCode.NETWORK_ERROR]: 'network',
-  [APIErrorCode.TIMEOUT]: 'timeout',
-  [APIErrorCode.UNKNOWN]: 'unknown',
+  [APIErrorCode.INVALID_API_KEY]: "authentication",
+  [APIErrorCode.EXPIRED_API_KEY]: "authentication",
+  [APIErrorCode.INVALID_REQUEST]: "validation",
+  [APIErrorCode.MODEL_NOT_FOUND]: "validation",
+  [APIErrorCode.CONTEXT_TOO_LONG]: "validation",
+  [APIErrorCode.RATE_LIMITED]: "rate_limit",
+  [APIErrorCode.SERVER_ERROR]: "server",
+  [APIErrorCode.SERVICE_UNAVAILABLE]: "server",
+  [APIErrorCode.NETWORK_ERROR]: "network",
+  [APIErrorCode.TIMEOUT]: "timeout",
+  [APIErrorCode.UNKNOWN]: "unknown",
 };
 
 /** 用户友好的错误消息 */
 const USER_MESSAGES: Record<APIErrorCode, string> = {
-  [APIErrorCode.INVALID_API_KEY]: 'API 密钥无效，请检查配置',
-  [APIErrorCode.EXPIRED_API_KEY]: 'API 密钥已过期，请更新密钥',
-  [APIErrorCode.INVALID_REQUEST]: '请求格式错误',
-  [APIErrorCode.MODEL_NOT_FOUND]: '指定的模型不存在或不可用',
-  [APIErrorCode.CONTEXT_TOO_LONG]: '输入内容过长，请减少消息长度',
-  [APIErrorCode.RATE_LIMITED]: '请求过于频繁，请稍后重试',
-  [APIErrorCode.SERVER_ERROR]: '服务器内部错误，请稍后重试',
-  [APIErrorCode.SERVICE_UNAVAILABLE]: '服务暂时不可用，请稍后重试',
-  [APIErrorCode.NETWORK_ERROR]: '网络连接失败，请检查网络',
-  [APIErrorCode.TIMEOUT]: '请求超时，请稍后重试',
-  [APIErrorCode.UNKNOWN]: '发生未知错误',
+  [APIErrorCode.INVALID_API_KEY]: "API 密钥无效，请检查配置",
+  [APIErrorCode.EXPIRED_API_KEY]: "API 密钥已过期，请更新密钥",
+  [APIErrorCode.INVALID_REQUEST]: "请求格式错误",
+  [APIErrorCode.MODEL_NOT_FOUND]: "指定的模型不存在或不可用",
+  [APIErrorCode.CONTEXT_TOO_LONG]: "输入内容过长，请减少消息长度",
+  [APIErrorCode.RATE_LIMITED]: "请求过于频繁，请稍后重试",
+  [APIErrorCode.SERVER_ERROR]: "服务器内部错误，请稍后重试",
+  [APIErrorCode.SERVICE_UNAVAILABLE]: "服务暂时不可用，请稍后重试",
+  [APIErrorCode.NETWORK_ERROR]: "网络连接失败，请检查网络",
+  [APIErrorCode.TIMEOUT]: "请求超时，请稍后重试",
+  [APIErrorCode.UNKNOWN]: "发生未知错误",
 };
 
 /** 错误建议 */
 const ERROR_SUGGESTIONS: Record<APIErrorCode, string[]> = {
   [APIErrorCode.INVALID_API_KEY]: [
-    '检查 API 密钥是否正确复制',
-    '确认密钥格式为 sk-xxx',
-    '尝试重新生成 API 密钥',
+    "检查 API 密钥是否正确复制",
+    "确认密钥格式为 sk-xxx",
+    "尝试重新生成 API 密钥",
   ],
-  [APIErrorCode.EXPIRED_API_KEY]: [
-    '登录 API 提供商控制台',
-    '生成新的 API 密钥',
-    '更新应用配置',
-  ],
+  [APIErrorCode.EXPIRED_API_KEY]: ["登录 API 提供商控制台", "生成新的 API 密钥", "更新应用配置"],
   [APIErrorCode.INVALID_REQUEST]: [
-    '检查请求参数格式',
-    '确认消息内容不为空',
-    '验证模型名称是否正确',
+    "检查请求参数格式",
+    "确认消息内容不为空",
+    "验证模型名称是否正确",
   ],
   [APIErrorCode.MODEL_NOT_FOUND]: [
-    '检查模型名称拼写',
-    '确认模型是否在当前提供商可用',
-    '尝试使用其他模型',
+    "检查模型名称拼写",
+    "确认模型是否在当前提供商可用",
+    "尝试使用其他模型",
   ],
   [APIErrorCode.CONTEXT_TOO_LONG]: [
-    '减少输入消息的长度',
-    '删除不必要的历史消息',
-    '使用支持更长上下文的模型',
+    "减少输入消息的长度",
+    "删除不必要的历史消息",
+    "使用支持更长上下文的模型",
   ],
-  [APIErrorCode.RATE_LIMITED]: [
-    '等待一段时间后重试',
-    '减少请求频率',
-    '考虑升级 API 套餐',
-  ],
+  [APIErrorCode.RATE_LIMITED]: ["等待一段时间后重试", "减少请求频率", "考虑升级 API 套餐"],
   [APIErrorCode.SERVER_ERROR]: [
-    '等待几分钟后重试',
-    '检查 API 提供商状态页面',
-    '尝试切换到备用提供商',
+    "等待几分钟后重试",
+    "检查 API 提供商状态页面",
+    "尝试切换到备用提供商",
   ],
-  [APIErrorCode.SERVICE_UNAVAILABLE]: [
-    '等待服务恢复',
-    '检查 API 提供商状态',
-    '使用备用 API 端点',
-  ],
-  [APIErrorCode.NETWORK_ERROR]: [
-    '检查网络连接',
-    '确认防火墙设置',
-    '尝试使用代理',
-  ],
-  [APIErrorCode.TIMEOUT]: [
-    '检查网络稳定性',
-    '增加超时时间设置',
-    '减少请求内容大小',
-  ],
-  [APIErrorCode.UNKNOWN]: [
-    '查看详细错误日志',
-    '联系技术支持',
-    '尝试重新操作',
-  ],
+  [APIErrorCode.SERVICE_UNAVAILABLE]: ["等待服务恢复", "检查 API 提供商状态", "使用备用 API 端点"],
+  [APIErrorCode.NETWORK_ERROR]: ["检查网络连接", "确认防火墙设置", "尝试使用代理"],
+  [APIErrorCode.TIMEOUT]: ["检查网络稳定性", "增加超时时间设置", "减少请求内容大小"],
+  [APIErrorCode.UNKNOWN]: ["查看详细错误日志", "联系技术支持", "尝试重新操作"],
 };
 
 // =============================================================================
@@ -182,7 +158,7 @@ export class APIErrorHandler {
    */
   handleError(error: APIError): ErrorHandlingResult {
     const category = this.categorizeError(error);
-    
+
     return {
       error,
       category,
@@ -290,7 +266,7 @@ export class APIErrorHandler {
    * 分类错误
    */
   categorizeError(error: APIError): ErrorCategory {
-    return ERROR_CATEGORY_MAP[error.code] ?? 'unknown';
+    return ERROR_CATEGORY_MAP[error.code] ?? "unknown";
   }
 
   /**
@@ -303,7 +279,7 @@ export class APIErrorHandler {
 
     if (error instanceof Error) {
       // 检查是否为网络错误
-      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+      if (error.name === "TypeError" && error.message.includes("fetch")) {
         return {
           code: APIErrorCode.NETWORK_ERROR,
           message: error.message,
@@ -312,7 +288,7 @@ export class APIErrorHandler {
       }
 
       // 检查是否为超时
-      if (error.name === 'AbortError' || error.message.includes('timeout')) {
+      if (error.name === "AbortError" || error.message.includes("timeout")) {
         return {
           code: APIErrorCode.TIMEOUT,
           message: error.message,
@@ -415,8 +391,8 @@ export class APIErrorHandler {
     }
 
     // 指数退避
-    const exponentialDelay = this.config.baseDelay * 
-      Math.pow(this.config.backoffMultiplier, this.context.attempt - 1);
+    const exponentialDelay =
+      this.config.baseDelay * Math.pow(this.config.backoffMultiplier, this.context.attempt - 1);
 
     // 添加抖动
     const jitter = exponentialDelay * this.config.jitterFactor * (Math.random() * 2 - 1);
@@ -431,11 +407,11 @@ export class APIErrorHandler {
    */
   private isAPIError(error: unknown): error is APIError {
     return (
-      typeof error === 'object' &&
+      typeof error === "object" &&
       error !== null &&
-      'code' in error &&
-      'message' in error &&
-      'retryable' in error
+      "code" in error &&
+      "message" in error &&
+      "retryable" in error
     );
   }
 
@@ -443,7 +419,7 @@ export class APIErrorHandler {
    * 延迟执行
    */
   private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }
 

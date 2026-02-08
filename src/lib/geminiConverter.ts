@@ -81,7 +81,7 @@ export function extractGeminiUsage(tokens: unknown): GeminiUsage | null {
  * - per-turn `result` messages carrying `usage` for cost + context window calculations
  */
 export function convertGeminiSessionDetailToClaudeMessages(
-  detail: GeminiSessionDetail,
+  detail: GeminiSessionDetail
 ): ClaudeStreamMessage[] {
   const converted: ClaudeStreamMessage[] = [];
 

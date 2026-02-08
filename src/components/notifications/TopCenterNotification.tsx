@@ -6,7 +6,7 @@
  */
 
 import { AnimatePresence, motion } from "framer-motion";
-import { AlertTriangle, CheckCircle2, Info, X, XCircle } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Info, X, XCircle } from "lucide-react";
 import type React from "react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -82,7 +82,10 @@ export const TopCenterNotification: React.FC<TopCenterNotificationProps> = ({ cl
   const Icon = config.icon;
 
   return (
-    <div className={cn("fixed top-4 left-1/2 -translate-x-1/2", className)} style={{ zIndex: 'var(--z-notification)' }}>
+    <div
+      className={cn("fixed top-4 left-1/2 -translate-x-1/2", className)}
+      style={{ zIndex: "var(--z-notification)" }}
+    >
       <AnimatePresence>
         {notification && (
           <motion.div
@@ -95,7 +98,7 @@ export const TopCenterNotification: React.FC<TopCenterNotificationProps> = ({ cl
               "flex items-center gap-3 px-4 py-3 rounded-xl border backdrop-blur-xl shadow-2xl",
               "bg-background/95",
               config.bgClassName,
-              config.borderClassName,
+              config.borderClassName
             )}
           >
             <Icon className={cn("h-5 w-5 flex-shrink-0", config.iconClassName)} />
@@ -115,7 +118,7 @@ export const TopCenterNotification: React.FC<TopCenterNotificationProps> = ({ cl
                 className={cn(
                   "text-xs font-medium px-3 py-1.5 rounded-lg",
                   config.bgClassName,
-                  "hover:brightness-110 transition-all",
+                  "hover:brightness-110 transition-all"
                 )}
               >
                 {notification.action.label}

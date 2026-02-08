@@ -4,20 +4,20 @@
  * 当用户在输入框中输入 / 时显示命令列表
  */
 
-import React, { useEffect, useRef, useMemo, useCallback } from 'react';
-import { Command, Terminal, Settings, GitBranch, Clock, Sparkles } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import React, { useEffect, useRef, useMemo, useCallback } from "react";
+import { Command, Terminal, Settings, GitBranch, Clock, Sparkles } from "lucide-react";
+import { cn } from "@/lib/utils";
 import {
   type SlashCommand,
   BUILT_IN_SLASH_COMMANDS,
   CATEGORY_LABELS,
   filterSlashCommands,
   groupCommandsByCategory,
-} from './slashCommands';
-import { GEMINI_BUILT_IN_SLASH_COMMANDS } from './geminiSlashCommands';
+} from "./slashCommands";
+import { GEMINI_BUILT_IN_SLASH_COMMANDS } from "./geminiSlashCommands";
 
 /** 执行引擎类型 */
-type ExecutionEngine = 'claude' | 'gemini' | 'codex';
+type ExecutionEngine = "claude" | "gemini" | "codex";
 
 interface SlashCommandMenuProps {
   /** 是否显示菜单 */
@@ -47,17 +47,17 @@ interface SlashCommandMenuProps {
  */
 const getCategoryIcon = (category: string) => {
   switch (category) {
-    case 'session':
+    case "session":
       return <Clock className="h-3.5 w-3.5" />;
-    case 'context':
+    case "context":
       return <Sparkles className="h-3.5 w-3.5" />;
-    case 'system':
+    case "system":
       return <Terminal className="h-3.5 w-3.5" />;
-    case 'git':
+    case "git":
       return <GitBranch className="h-3.5 w-3.5" />;
-    case 'config':
+    case "config":
       return <Settings className="h-3.5 w-3.5" />;
-    case 'custom':
+    case "custom":
       return <Command className="h-3.5 w-3.5" />;
     default:
       return <Command className="h-3.5 w-3.5" />;
@@ -74,7 +74,7 @@ export const SlashCommandMenu: React.FC<SlashCommandMenuProps> = ({
   nonInteractiveOnly = true,
   customCommands = [],
   position,
-  engine = 'claude',
+  engine = "claude",
 }) => {
   const menuRef = useRef<HTMLDivElement>(null);
   const selectedItemRef = useRef<HTMLDivElement>(null);
@@ -82,11 +82,11 @@ export const SlashCommandMenu: React.FC<SlashCommandMenuProps> = ({
   // 根据引擎选择内置命令列表
   const builtInCommands = useMemo(() => {
     switch (engine) {
-      case 'gemini':
+      case "gemini":
         return GEMINI_BUILT_IN_SLASH_COMMANDS;
-      case 'claude':
+      case "claude":
         return BUILT_IN_SLASH_COMMANDS;
-      case 'codex':
+      case "codex":
         // Codex 暂不支持非交互式斜杠命令
         return [];
       default:
@@ -112,7 +112,7 @@ export const SlashCommandMenu: React.FC<SlashCommandMenuProps> = ({
   // 扁平化命令列表用于键盘导航
   const flatCommands = useMemo(() => {
     const flat: SlashCommand[] = [];
-    groupedCommands.forEach(commands => {
+    groupedCommands.forEach((commands) => {
       flat.push(...commands);
     });
     return flat;
@@ -122,8 +122,8 @@ export const SlashCommandMenu: React.FC<SlashCommandMenuProps> = ({
   useEffect(() => {
     if (selectedItemRef.current && menuRef.current) {
       selectedItemRef.current.scrollIntoView({
-        block: 'nearest',
-        behavior: 'smooth',
+        block: "nearest",
+        behavior: "smooth",
       });
     }
   }, [selectedIndex]);
@@ -137,18 +137,21 @@ export const SlashCommandMenu: React.FC<SlashCommandMenuProps> = ({
     };
 
     if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isOpen, onClose]);
 
   // 处理命令点击
-  const handleCommandClick = useCallback((cmd: SlashCommand) => {
-    onSelect(cmd);
-  }, [onSelect]);
+  const handleCommandClick = useCallback(
+    (cmd: SlashCommand) => {
+      onSelect(cmd);
+    },
+    [onSelect]
+  );
 
   if (!isOpen || flatCommands.length === 0) {
     return null;
@@ -164,14 +167,18 @@ export const SlashCommandMenu: React.FC<SlashCommandMenuProps> = ({
         "medium-glass rounded-lg shadow-lg",
         "animate-in fade-in-0 zoom-in-95 duration-100"
       )}
-      style={position ? {
-        bottom: position.top,
-        left: position.left,
-      } : {
-        bottom: '100%',
-        left: 0,
-        marginBottom: '8px',
-      }}
+      style={
+        position
+          ? {
+              bottom: position.top,
+              left: position.left,
+            }
+          : {
+              bottom: "100%",
+              left: 0,
+              marginBottom: "8px",
+            }
+      }
     >
       {/* 标题 */}
       <div className="sticky top-0 light-glass border-b border-border/50 px-3 py-2">
@@ -220,27 +227,25 @@ export const SlashCommandMenu: React.FC<SlashCommandMenuProps> = ({
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <code className="text-sm font-mono text-foreground">
-                        /{cmd.name}
-                      </code>
+                      <code className="text-sm font-mono text-foreground">/{cmd.name}</code>
                       {cmd.argHint && (
-                        <span className="text-xs text-muted-foreground/60">
-                          {cmd.argHint}
-                        </span>
+                        <span className="text-xs text-muted-foreground/60">{cmd.argHint}</span>
                       )}
                     </div>
-                    {cmd.source !== 'built-in' && (
-                      <span className={cn(
-                        "text-[10px] px-1.5 py-0.5 rounded",
-                        cmd.source === 'project' ? "bg-green-500/10 text-green-500" : "bg-purple-500/10 text-purple-500"
-                      )}>
-                        {cmd.source === 'project' ? '项目' : '用户'}
+                    {cmd.source !== "built-in" && (
+                      <span
+                        className={cn(
+                          "text-[10px] px-1.5 py-0.5 rounded",
+                          cmd.source === "project"
+                            ? "bg-green-500/10 text-green-500"
+                            : "bg-purple-500/10 text-purple-500"
+                        )}
+                      >
+                        {cmd.source === "project" ? "项目" : "用户"}
                       </span>
                     )}
                   </div>
-                  <div className="text-xs text-muted-foreground mt-0.5">
-                    {cmd.description}
-                  </div>
+                  <div className="text-xs text-muted-foreground mt-0.5">{cmd.description}</div>
                 </div>
               );
             })}

@@ -6,8 +6,8 @@
  */
 
 import React, { useState } from "react";
-import { FolderOpen, AlertCircle, ChevronRight, ChevronDown, CheckCircle } from 'lucide-react';
-import { LSResultWidget } from './LSResultWidget';
+import { FolderOpen, AlertCircle, ChevronRight, ChevronDown, CheckCircle } from "lucide-react";
+import { LSResultWidget } from "./LSResultWidget";
 import { cn } from "@/lib/utils";
 
 export interface LSWidgetProps {
@@ -21,7 +21,7 @@ export interface LSWidgetProps {
  * 从多种可能的结果格式中提取内容
  */
 function extractResultContent(result: any): string {
-  if (!result) return '';
+  if (!result) return "";
 
   // Gemini 原始数组格式: [{functionResponse: {response: {output: "..."}}}]
   if (Array.isArray(result)) {
@@ -32,7 +32,7 @@ function extractResultContent(result: any): string {
   }
 
   // 直接字符串内容
-  if (typeof result.content === 'string') {
+  if (typeof result.content === "string") {
     return result.content;
   }
 
@@ -49,12 +49,12 @@ function extractResultContent(result: any): string {
       return firstContent.functionResponse.response.output;
     }
     return result.content
-      .map((c: any) => (typeof c === 'string' ? c : c.text || JSON.stringify(c)))
-      .join('\n');
+      .map((c: any) => (typeof c === "string" ? c : c.text || JSON.stringify(c)))
+      .join("\n");
   }
 
   // 对象格式 - 尝试提取常见字段
-  if (result.content && typeof result.content === 'object') {
+  if (result.content && typeof result.content === "object") {
     // Gemini 可能返回 { output: "..." } 格式
     if (result.content.output) {
       return result.content.output;
@@ -67,7 +67,7 @@ function extractResultContent(result: any): string {
   }
 
   // 直接检查 result 本身
-  if (typeof result === 'string') {
+  if (typeof result === "string") {
     return result;
   }
 
@@ -76,22 +76,22 @@ function extractResultContent(result: any): string {
     return result.output;
   }
 
-  return '';
+  return "";
 }
 
 /**
  * 统计目录内容中的文件/文件夹数量
  */
 function countItems(content: string): { files: number; dirs: number } {
-  const lines = content.split('\n').filter(line => line.trim());
+  const lines = content.split("\n").filter((line) => line.trim());
   let files = 0;
   let dirs = 0;
 
   for (const line of lines) {
     // 跳过标题行
-    if (line.includes('Directory listing') || line.startsWith('---')) continue;
+    if (line.includes("Directory listing") || line.startsWith("---")) continue;
     // 目录通常以 / 结尾或包含 [DIR] 标记
-    if (line.endsWith('/') || line.includes('[DIR]') || line.includes('(dir)')) {
+    if (line.endsWith("/") || line.includes("[DIR]") || line.includes("(dir)")) {
       dirs++;
     } else if (line.trim()) {
       files++;
@@ -113,7 +113,7 @@ export const LSWidget: React.FC<LSWidgetProps> = ({ path, result }) => {
   // 如果有结果，使用 LSResultWidget 显示
   if (result) {
     const resultContent = extractResultContent(result);
-    const { files, dirs } = countItems(resultContent || '');
+    const { files, dirs } = countItems(resultContent || "");
     const totalItems = files + dirs;
 
     return (
@@ -133,14 +133,12 @@ export const LSWidget: React.FC<LSWidgetProps> = ({ path, result }) => {
             <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
           )}
           <FolderOpen className="h-4 w-4 text-primary shrink-0" />
-          <code className="text-sm font-mono truncate flex-1">
-            {path}
-          </code>
+          <code className="text-sm font-mono truncate flex-1">{path}</code>
           <div className="flex items-center gap-2 ml-auto shrink-0">
             {resultContent ? (
               <>
                 <span className="text-xs text-muted-foreground">
-                  {totalItems > 0 ? `${totalItems} 项` : '空目录'}
+                  {totalItems > 0 ? `${totalItems} 项` : "空目录"}
                   {dirs > 0 && files > 0 && ` (${dirs} 目录, ${files} 文件)`}
                 </span>
                 <CheckCircle className="h-3.5 w-3.5 text-green-500" />
@@ -174,9 +172,7 @@ export const LSWidget: React.FC<LSWidgetProps> = ({ path, result }) => {
       <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin shrink-0" />
       <FolderOpen className="h-4 w-4 text-primary shrink-0" />
       <span className="text-sm">正在列示目录：</span>
-      <code className="text-sm font-mono truncate">
-        {path}
-      </code>
+      <code className="text-sm font-mono truncate">{path}</code>
     </div>
   );
 };

@@ -7,7 +7,7 @@
  * 3. 将 Task 调用和相关子代理消息打包成一个消息组
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import type { ClaudeStreamMessage } from "@/types/claude";
 
 /**
@@ -51,7 +51,7 @@ function getMessageId(message: ClaudeStreamMessage, index: number): string {
 function getAggregatedGroupId(messages: ClaudeStreamMessage[], startIndex: number): string {
   if (messages.length === 0) return `agg-${startIndex}`;
   const firstId = messages[0].uuid || startIndex;
-  const lastId = messages[messages.length - 1].uuid || (startIndex + messages.length - 1);
+  const lastId = messages[messages.length - 1].uuid || startIndex + messages.length - 1;
   return `agg-${firstId}-${lastId}`;
 }
 
@@ -65,7 +65,7 @@ export function hasTaskToolCall(message: ClaudeStreamMessage): boolean {
   if (!Array.isArray(content)) return false;
 
   return content.some(
-    (item: any) => item.type === "tool_use" && item.name?.toLowerCase() === "task",
+    (item: any) => item.type === "tool_use" && item.name?.toLowerCase() === "task"
   );
 }
 
@@ -86,7 +86,7 @@ export function extractTaskToolUseIds(message: ClaudeStreamMessage): string[] {
  * 从消息中提取 Task 工具的详细信息（包括 subagent_type）
  */
 export function extractTaskToolDetails(
-  message: ClaudeStreamMessage,
+  message: ClaudeStreamMessage
 ): Map<string, { subagentType?: string }> {
   const details = new Map<string, { subagentType?: string }>();
 
@@ -159,7 +159,7 @@ function getTechnicalMessageType(message: ClaudeStreamMessage): "tool" | "thinki
       hasTool = true;
     } else if (item.type === "text") {
       // 🔧 FIX v2.7.8: 更严格的文本检测，防止 Claude 说的话被错误聚合
-      const text = item.text || '';
+      const text = item.text || "";
       const trimmedText = text.trim();
 
       // 判断是否为"空"或"无意义"的文本：
@@ -178,10 +178,10 @@ function getTechnicalMessageType(message: ClaudeStreamMessage): "tool" | "thinki
         hasText = true;
         // 🔍 DEBUG: 记录包含文本的消息（开发环境）
         if (import.meta.env.DEV) {
-          logger.debug('subagentGrouping', '✅ Message has real text, NOT aggregating:', {
+          logger.debug("subagentGrouping", "✅ Message has real text, NOT aggregating:", {
             uuid: message.uuid,
             textPreview: trimmedText.substring(0, 100),
-            textLength: trimmedText.length
+            textLength: trimmedText.length,
           });
         }
       }
@@ -191,7 +191,11 @@ function getTechnicalMessageType(message: ClaudeStreamMessage): "tool" | "thinki
   // 🔧 FIX: 如果包含可见文本，绝对不可聚合（这是最重要的规则）
   if (hasText) {
     if (import.meta.env.DEV) {
-      logger.debug('subagentGrouping', '[subagentGrouping] ❌ NOT aggregating (has text);:', message.uuid);
+      logger.debug(
+        "subagentGrouping",
+        "[subagentGrouping] ❌ NOT aggregating (has text);:",
+        message.uuid
+      );
     }
     return null;
   }
@@ -246,7 +250,10 @@ export function groupMessages(messages: ClaudeStreamMessage[]): MessageGroup[] {
 
   // 🔧 优化：第一遍预处理，构建 parent_tool_use_id -> 消息索引列表 的映射
   // 这样后续查找子代理消息只需要 O(1) 而不是 O(n)
-  const parentIdToMessagesMap = new Map<string, { message: ClaudeStreamMessage; index: number }[]>();
+  const parentIdToMessagesMap = new Map<
+    string,
+    { message: ClaudeStreamMessage; index: number }[]
+  >();
 
   messages.forEach((message, index) => {
     const parentId = getParentToolUseId(message);
@@ -293,7 +300,7 @@ export function groupMessages(messages: ClaudeStreamMessage[]): MessageGroup[] {
       // 按索引排序，确保消息顺序正确
       childMessages.sort((a, b) => a.index - b.index);
 
-      const subagentMessages = childMessages.map(item => item.message);
+      const subagentMessages = childMessages.map((item) => item.message);
       const maxIndex = childMessages[childMessages.length - 1].index;
 
       subagentGroups.set(taskId, {
@@ -312,7 +319,7 @@ export function groupMessages(messages: ClaudeStreamMessage[]): MessageGroup[] {
   // 🔧 优化：直接使用预处理的 Map
   for (const [parentId, childMessages] of parentIdToMessagesMap) {
     if (subagentGroups.has(parentId)) {
-      childMessages.forEach(item => processedIndices.add(item.index));
+      childMessages.forEach((item) => processedIndices.add(item.index));
     }
   }
 
@@ -484,7 +491,7 @@ export function shouldHideMessage(message: ClaudeStreamMessage, groups: MessageG
  * 获取子代理消息的类型标识
  */
 export function getSubagentMessageRole(
-  message: ClaudeStreamMessage,
+  message: ClaudeStreamMessage
 ): "user" | "assistant" | "system" | "other" {
   // 子代理发送给主代理的提示词被标记为 user 类型，但应该显示为子代理的输出
   if (message.type === "user" && isSubagentMessage(message)) {

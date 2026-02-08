@@ -8,7 +8,7 @@
  * - 键盘导航
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type {
   CompletionConfig,
@@ -103,7 +103,7 @@ export function useCompletion(config: CompletionConfig = {}) {
           const result = await provider.provideCompletions(context);
           items.push(...result.items);
         } catch (error) {
-          logger.error('useCompletion', `[Completion] Provider ${provider.id} error:`, error);
+          logger.error("useCompletion", `[Completion] Provider ${provider.id} error:`, error);
         }
       }
 
@@ -135,7 +135,7 @@ export function useCompletion(config: CompletionConfig = {}) {
         isComplete: true,
       };
     },
-    [],
+    []
   );
 
   /**
@@ -158,7 +158,7 @@ export function useCompletion(config: CompletionConfig = {}) {
           result,
         }));
       } catch (error) {
-        logger.error('useCompletion', "[Completion] Error:", error);
+        logger.error("useCompletion", "[Completion] Error:", error);
         setState((prev) => ({
           ...prev,
           visible: false,
@@ -167,7 +167,7 @@ export function useCompletion(config: CompletionConfig = {}) {
         }));
       }
     },
-    [getCompletions],
+    [getCompletions]
   );
 
   /**
@@ -183,7 +183,7 @@ export function useCompletion(config: CompletionConfig = {}) {
         trigger(context);
       }, configRef.current.triggerDelay);
     },
-    [trigger],
+    [trigger]
   );
 
   /**
@@ -206,7 +206,7 @@ export function useCompletion(config: CompletionConfig = {}) {
         dismiss();
       }
     },
-    [triggerDelayed],
+    [triggerDelayed]
   );
 
   /**
@@ -274,7 +274,7 @@ export function useCompletion(config: CompletionConfig = {}) {
       dismiss();
       return targetItem.insertText || targetItem.label;
     },
-    [getSelectedItem, dismiss],
+    [getSelectedItem, dismiss]
   );
 
   // 清理

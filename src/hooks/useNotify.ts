@@ -69,35 +69,35 @@ export function useNotify(options: UseNotifyOptions = {}): NotifyAPI {
       ...(defaultDuration !== undefined && { duration: defaultDuration }),
       ...opts,
     }),
-    [defaultPosition, defaultDuration],
+    [defaultPosition, defaultDuration]
   );
 
   const success = useCallback(
     (message: string, opts?: Partial<NotificationOptions>) => {
       return notificationService.success(message, mergeOptions(opts));
     },
-    [mergeOptions],
+    [mergeOptions]
   );
 
   const error = useCallback(
     (message: string, opts?: Partial<NotificationOptions>) => {
       return notificationService.error(message, mergeOptions(opts));
     },
-    [mergeOptions],
+    [mergeOptions]
   );
 
   const info = useCallback(
     (message: string, opts?: Partial<NotificationOptions>) => {
       return notificationService.info(message, mergeOptions(opts));
     },
-    [mergeOptions],
+    [mergeOptions]
   );
 
   const warning = useCallback(
     (message: string, opts?: Partial<NotificationOptions>) => {
       return notificationService.warning(message, mergeOptions(opts));
     },
-    [mergeOptions],
+    [mergeOptions]
   );
 
   const close = useCallback((id: string) => {
@@ -120,7 +120,7 @@ export function useNotify(options: UseNotifyOptions = {}): NotifyAPI {
         position: defaultPosition,
       });
     },
-    [defaultPosition],
+    [defaultPosition]
   );
 
   return {
@@ -145,7 +145,7 @@ export function useNotify(options: UseNotifyOptions = {}): NotifyAPI {
  * ```
  */
 export function useGlobalNotify(
-  options: Omit<UseNotifyOptions, "defaultPosition"> = {},
+  options: Omit<UseNotifyOptions, "defaultPosition"> = {}
 ): NotifyAPI {
   return useNotify({ ...options, defaultPosition: "global" });
 }

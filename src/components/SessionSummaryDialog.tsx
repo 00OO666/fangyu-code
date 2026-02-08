@@ -1,6 +1,6 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import React, { useState } from "react";
-import { Copy, Check, AlertTriangle, FileText, X } from 'lucide-react';
+import { Copy, Check, AlertTriangle, FileText, X } from "lucide-react";
 
 interface SessionSummaryDialogProps {
   /** Whether the dialog is open */
@@ -35,7 +35,7 @@ export const SessionSummaryDialog: React.FC<SessionSummaryDialogProps> = ({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
-      logger.error('SessionSummaryDialog', "Failed to copy summary:", error);
+      logger.error("SessionSummaryDialog", "Failed to copy summary:", error);
     }
   };
 
@@ -45,9 +45,7 @@ export const SessionSummaryDialog: React.FC<SessionSummaryDialogProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-end p-4 pointer-events-none">
-      <div
-        className="relative w-full max-w-sm max-h-[60vh] bg-[#1e1e1e] border border-[#333] rounded-lg shadow-2xl flex flex-col pointer-events-auto"
-      >
+      <div className="relative w-full max-w-sm max-h-[60vh] bg-[#1e1e1e] border border-[#333] rounded-lg shadow-2xl flex flex-col pointer-events-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-[#333]">
           <div className="flex items-center gap-3">
@@ -61,10 +59,7 @@ export const SessionSummaryDialog: React.FC<SessionSummaryDialogProps> = ({
               </p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-[#2a2a2a] rounded-lg transition-colors"
-          >
+          <button onClick={onClose} className="p-2 hover:bg-[#2a2a2a] rounded-lg transition-colors">
             <X className="w-5 h-5 text-gray-400" />
           </button>
         </div>

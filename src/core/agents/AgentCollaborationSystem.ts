@@ -10,10 +10,10 @@
  * 灵感来源：多代理协作架构实践
  */
 
-import type { TechnicalSpec, ImplementationPhase, TaskSpec } from '../spec/SpecGenerationEngine';
+import type { TechnicalSpec, ImplementationPhase, TaskSpec } from "../spec/SpecGenerationEngine";
 
 // 任务状态
-export type TaskStatus = 'pending' | 'in_progress' | 'completed' | 'failed' | 'blocked';
+export type TaskStatus = "pending" | "in_progress" | "completed" | "failed" | "blocked";
 
 // 协作任务
 export interface CollaborationTask {
@@ -81,7 +81,7 @@ export class AgentCollaborationSystem {
         phase: implPhase.phase,
         name: implPhase.name,
         tasks,
-        status: 'pending' as TaskStatus,
+        status: "pending" as TaskStatus,
       };
     });
 
@@ -90,7 +90,7 @@ export class AgentCollaborationSystem {
       name: spec.metadata.title,
       spec,
       phases,
-      status: 'pending',
+      status: "pending",
       createdAt: new Date().toISOString(),
     };
 
@@ -115,7 +115,7 @@ export class AgentCollaborationSystem {
         title: taskSpec.title,
         description: taskSpec.description,
         assignedAgent: agentId,
-        status: 'pending',
+        status: "pending",
         dependencies: taskSpec.dependencies || [],
       };
     });
@@ -133,36 +133,64 @@ export class AgentCollaborationSystem {
     // 根据任务描述智能分配代理
     const description = task.description.toLowerCase();
 
-    if (description.includes('generate') || description.includes('implement') || description.includes('create code')) {
-      return 'code-generator';
+    if (
+      description.includes("generate") ||
+      description.includes("implement") ||
+      description.includes("create code")
+    ) {
+      return "code-generator";
     }
 
-    if (description.includes('test') || description.includes('unit test') || description.includes('integration test')) {
-      return 'test-writer';
+    if (
+      description.includes("test") ||
+      description.includes("unit test") ||
+      description.includes("integration test")
+    ) {
+      return "test-writer";
     }
 
-    if (description.includes('deploy') || description.includes('build') || description.includes('release')) {
-      return 'deployer';
+    if (
+      description.includes("deploy") ||
+      description.includes("build") ||
+      description.includes("release")
+    ) {
+      return "deployer";
     }
 
-    if (description.includes('monitor') || description.includes('observability') || description.includes('metrics')) {
-      return 'monitor';
+    if (
+      description.includes("monitor") ||
+      description.includes("observability") ||
+      description.includes("metrics")
+    ) {
+      return "monitor";
     }
 
-    if (description.includes('frontend') || description.includes('ui') || description.includes('component')) {
-      return 'frontend';
+    if (
+      description.includes("frontend") ||
+      description.includes("ui") ||
+      description.includes("component")
+    ) {
+      return "frontend";
     }
 
-    if (description.includes('backend') || description.includes('api') || description.includes('database')) {
-      return 'backend';
+    if (
+      description.includes("backend") ||
+      description.includes("api") ||
+      description.includes("database")
+    ) {
+      return "backend";
     }
 
-    if (description.includes('document') || description.includes('readme') || description.includes('guide')) {
-      return 'docs';
+    if (
+      description.includes("document") ||
+      description.includes("readme") ||
+      description.includes("guide")
+    ) {
+      return "docs";
     }
 
     // 默认分配给 orchestrator
-    return 'orchestrator';
+    return "orchestrator";
   }
 
   /**
@@ -177,7 +205,7 @@ export class AgentCollaborationSystem {
       throw new Error(`Workflow ${workflowId} not found`);
     }
 
-    workflow.status = 'in_progress';
+    workflow.status = "in_progress";
     workflow.startedAt = new Date().toISOString();
 
     try {
@@ -186,10 +214,10 @@ export class AgentCollaborationSystem {
         await this.executePhase(phase, agentExecutor);
       }
 
-      workflow.status = 'completed';
+      workflow.status = "completed";
       workflow.completedAt = new Date().toISOString();
     } catch (error) {
-      workflow.status = 'failed';
+      workflow.status = "failed";
       throw error;
     }
   }
@@ -201,7 +229,7 @@ export class AgentCollaborationSystem {
     phase: WorkflowPhase,
     agentExecutor: (agentId: string, task: CollaborationTask) => Promise<AgentExecutionResult>
   ): Promise<void> {
-    phase.status = 'in_progress';
+    phase.status = "in_progress";
 
     // 获取所有可以立即执行的任务（没有依赖或依赖已完成）
     const readyTasks = this.getReadyTasks(phase.tasks);
@@ -219,11 +247,11 @@ export class AgentCollaborationSystem {
         const task = phase.tasks.find((t) => t.id === result.taskId);
         if (task) {
           if (result.success) {
-            task.status = 'completed';
+            task.status = "completed";
             task.output = result.output;
             task.completedAt = new Date().toISOString();
           } else {
-            task.status = 'failed';
+            task.status = "failed";
             task.error = result.error;
           }
         }
@@ -232,7 +260,7 @@ export class AgentCollaborationSystem {
       // 检查是否有失败的任务
       const failedTasks = results.filter((r) => !r.success);
       if (failedTasks.length > 0) {
-        phase.status = 'failed';
+        phase.status = "failed";
         throw new Error(`Phase ${phase.name} failed: ${failedTasks.length} tasks failed`);
       }
 
@@ -242,11 +270,11 @@ export class AgentCollaborationSystem {
     }
 
     // 检查是否所有任务都完成
-    const allCompleted = phase.tasks.every((t) => t.status === 'completed');
+    const allCompleted = phase.tasks.every((t) => t.status === "completed");
     if (allCompleted) {
-      phase.status = 'completed';
+      phase.status = "completed";
     } else {
-      phase.status = 'blocked';
+      phase.status = "blocked";
       throw new Error(`Phase ${phase.name} is blocked: some tasks cannot be completed`);
     }
   }
@@ -256,14 +284,14 @@ export class AgentCollaborationSystem {
    */
   private getReadyTasks(tasks: CollaborationTask[]): CollaborationTask[] {
     return tasks.filter((task) => {
-      if (task.status !== 'pending') {
+      if (task.status !== "pending") {
         return false;
       }
 
       // 检查所有依赖是否已完成
       return task.dependencies.every((depId) => {
         const depTask = tasks.find((t) => t.id === depId);
-        return depTask && depTask.status === 'completed';
+        return depTask && depTask.status === "completed";
       });
     });
   }
@@ -275,7 +303,7 @@ export class AgentCollaborationSystem {
     task: CollaborationTask,
     agentExecutor: (agentId: string, task: CollaborationTask) => Promise<AgentExecutionResult>
   ): Promise<AgentExecutionResult> {
-    task.status = 'in_progress';
+    task.status = "in_progress";
     task.startedAt = new Date().toISOString();
 
     // 收集依赖任务的输出作为输入
@@ -338,8 +366,8 @@ export class AgentCollaborationSystem {
    */
   cancelWorkflow(workflowId: string): void {
     const workflow = this.workflows.get(workflowId);
-    if (workflow && workflow.status === 'in_progress') {
-      workflow.status = 'failed';
+    if (workflow && workflow.status === "in_progress") {
+      workflow.status = "failed";
       workflow.completedAt = new Date().toISOString();
     }
   }
@@ -368,12 +396,12 @@ export class AgentCollaborationSystem {
       throw new Error(`Task ${taskId} not found in workflow ${workflowId}`);
     }
 
-    if (task.status !== 'failed') {
+    if (task.status !== "failed") {
       throw new Error(`Task ${taskId} is not in failed state`);
     }
 
     // 重置任务状态
-    task.status = 'pending';
+    task.status = "pending";
     task.error = undefined;
 
     // 重新执行任务
@@ -409,7 +437,7 @@ export class AgentCollaborationSystem {
         report += `- **Agent**: ${task.assignedAgent}\n`;
         report += `- **Status**: ${task.status}\n`;
         if (task.dependencies.length > 0) {
-          report += `- **Dependencies**: ${task.dependencies.join(', ')}\n`;
+          report += `- **Dependencies**: ${task.dependencies.join(", ")}\n`;
         }
         if (task.error) {
           report += `- **Error**: ${task.error}\n`;

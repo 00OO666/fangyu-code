@@ -2,41 +2,44 @@
  * Super Agent 控制中心
  * 整合 Agent Dashboard、Spec Workflow、Context Monitor、Powers Panel
  */
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { ArrowLeft, Bot, FileText, Activity, Puzzle, Settings2, Play, Pause } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { ArrowLeft, Bot, FileText, Activity, Puzzle, Settings2, Play, Pause } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 // 导入 Super Agent 组件
-import { AgentDashboard } from '@/components/agents/AgentDashboard';
-import { SpecWorkflowPanel } from '@/components/agents/SpecWorkflowPanel';
-import { ContextMonitor } from '@/components/agents/ContextMonitor';
-import { PowersPanel } from '@/components/agents/PowersPanel';
+import { AgentDashboard } from "@/components/agents/AgentDashboard";
+import { SpecWorkflowPanel } from "@/components/agents/SpecWorkflowPanel";
+import { ContextMonitor } from "@/components/agents/ContextMonitor";
+import { PowersPanel } from "@/components/agents/PowersPanel";
 
 // 导入核心模块
-import { AutonomyController, AutonomyMode } from '@/core/autonomy/AutonomyController';
+import { AutonomyController, AutonomyMode } from "@/core/autonomy/AutonomyController";
 
 interface SuperAgentCenterProps {
   onBack: () => void;
 }
 
 export const SuperAgentCenter: React.FC<SuperAgentCenterProps> = ({ onBack }) => {
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [autonomyMode, setAutonomyMode] = useState<AutonomyMode>('supervised');
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const [autonomyMode, setAutonomyMode] = useState<AutonomyMode>("supervised");
   const [isAgentRunning, setIsAgentRunning] = useState(false);
 
   // 初始化 AutonomyController
-  const [autonomyController] = useState(() => new AutonomyController({
-    mode: 'supervised',
-    autoApproveRiskLevels: ['low'],
-  }));
+  const [autonomyController] = useState(
+    () =>
+      new AutonomyController({
+        mode: "supervised",
+        autoApproveRiskLevels: ["low"],
+      })
+  );
 
   const handleModeToggle = (checked: boolean) => {
-    const newMode: AutonomyMode = checked ? 'autopilot' : 'supervised';
+    const newMode: AutonomyMode = checked ? "autopilot" : "supervised";
     autonomyController.setMode(newMode);
     setAutonomyMode(newMode);
   };
@@ -60,12 +63,7 @@ export const SuperAgentCenter: React.FC<SuperAgentCenterProps> = ({ onBack }) =>
         className="flex items-center justify-between p-4 border-b border-border"
       >
         <div className="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onBack}
-            className="h-8 w-8"
-          >
+          <Button variant="ghost" size="icon" onClick={onBack} className="h-8 w-8">
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div className="flex items-center gap-2">
@@ -81,11 +79,11 @@ export const SuperAgentCenter: React.FC<SuperAgentCenterProps> = ({ onBack }) =>
           {/* 自治模式切换 */}
           <div className="flex items-center gap-2">
             <Label htmlFor="autonomy-mode" className="text-sm text-muted-foreground">
-              {autonomyMode === 'autopilot' ? '自动驾驶' : '监督模式'}
+              {autonomyMode === "autopilot" ? "自动驾驶" : "监督模式"}
             </Label>
             <Switch
               id="autonomy-mode"
-              checked={autonomyMode === 'autopilot'}
+              checked={autonomyMode === "autopilot"}
               onCheckedChange={handleModeToggle}
             />
           </div>
@@ -157,7 +155,7 @@ export const SuperAgentCenter: React.FC<SuperAgentCenterProps> = ({ onBack }) =>
       {/* Status Bar */}
       <div className="border-t border-border px-4 py-2 flex items-center justify-between text-xs text-muted-foreground">
         <div className="flex items-center gap-4">
-          <span>模式: {autonomyMode === 'autopilot' ? '🚀 自动驾驶' : '👁️ 监督模式'}</span>
+          <span>模式: {autonomyMode === "autopilot" ? "🚀 自动驾驶" : "👁️ 监督模式"}</span>
           <span>|</span>
           <span>Agent 池: 0/10</span>
           <span>|</span>

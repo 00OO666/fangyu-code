@@ -1,12 +1,12 @@
 /**
  * ReferenceResolver - #引用解析器
- * 
+ *
  * 实现 #File、#Folder、#Problems、#Terminal、#Git Diff、#Codebase 解析
- * 
+ *
  * Requirements: 10.1-10.7
  */
 
-import { ReferenceType, Reference, Diagnostic } from '../types/unified-agent';
+import { ReferenceType, Reference, Diagnostic } from "../types/unified-agent";
 
 // 引用解析结果
 export interface ResolvedReference {
@@ -58,19 +58,19 @@ export interface CodebaseProvider {
 export class DefaultFileSystem implements FileSystem {
   async readFile(_path: string): Promise<string> {
     // 在浏览器/Tauri 环境中，这需要通过 IPC 调用
-    throw new Error('FileSystem not implemented. Use Tauri IPC.');
+    throw new Error("FileSystem not implemented. Use Tauri IPC.");
   }
-  
+
   async readDir(_path: string): Promise<string[]> {
-    throw new Error('FileSystem not implemented. Use Tauri IPC.');
+    throw new Error("FileSystem not implemented. Use Tauri IPC.");
   }
-  
+
   async stat(_path: string): Promise<{ isDirectory: boolean; size: number }> {
-    throw new Error('FileSystem not implemented. Use Tauri IPC.');
+    throw new Error("FileSystem not implemented. Use Tauri IPC.");
   }
-  
+
   async exists(_path: string): Promise<boolean> {
-    throw new Error('FileSystem not implemented. Use Tauri IPC.');
+    throw new Error("FileSystem not implemented. Use Tauri IPC.");
   }
 }
 
@@ -88,58 +88,62 @@ function estimateTokens(text: string): number {
  */
 export function parseReference(ref: string): Reference | null {
   const trimmed = ref.trim();
-  
+
   // #File:path/to/file
-  if (trimmed.startsWith('#File:') || trimmed.startsWith('#file:')) {
+  if (trimmed.startsWith("#File:") || trimmed.startsWith("#file:")) {
     return {
-      type: 'file',
-      target: trimmed.slice(6).trim()
+      type: "file",
+      target: trimmed.slice(6).trim(),
     };
   }
-  
+
   // #Folder:path/to/folder
-  if (trimmed.startsWith('#Folder:') || trimmed.startsWith('#folder:')) {
+  if (trimmed.startsWith("#Folder:") || trimmed.startsWith("#folder:")) {
     return {
-      type: 'folder',
-      target: trimmed.slice(8).trim()
+      type: "folder",
+      target: trimmed.slice(8).trim(),
     };
   }
-  
+
   // #Problems 或 #Problems:path
-  if (trimmed.startsWith('#Problems') || trimmed.startsWith('#problems')) {
-    const colonIndex = trimmed.indexOf(':');
+  if (trimmed.startsWith("#Problems") || trimmed.startsWith("#problems")) {
+    const colonIndex = trimmed.indexOf(":");
     return {
-      type: 'problems',
-      target: colonIndex > 0 ? trimmed.slice(colonIndex + 1).trim() : ''
+      type: "problems",
+      target: colonIndex > 0 ? trimmed.slice(colonIndex + 1).trim() : "",
     };
   }
-  
+
   // #Terminal 或 #Terminal:lines
-  if (trimmed.startsWith('#Terminal') || trimmed.startsWith('#terminal')) {
-    const colonIndex = trimmed.indexOf(':');
+  if (trimmed.startsWith("#Terminal") || trimmed.startsWith("#terminal")) {
+    const colonIndex = trimmed.indexOf(":");
     return {
-      type: 'terminal',
-      target: colonIndex > 0 ? trimmed.slice(colonIndex + 1).trim() : '100'
+      type: "terminal",
+      target: colonIndex > 0 ? trimmed.slice(colonIndex + 1).trim() : "100",
     };
   }
-  
+
   // #Git Diff 或 #GitDiff
-  if (trimmed.startsWith('#Git Diff') || trimmed.startsWith('#GitDiff') || 
-      trimmed.startsWith('#git diff') || trimmed.startsWith('#gitdiff')) {
+  if (
+    trimmed.startsWith("#Git Diff") ||
+    trimmed.startsWith("#GitDiff") ||
+    trimmed.startsWith("#git diff") ||
+    trimmed.startsWith("#gitdiff")
+  ) {
     return {
-      type: 'gitDiff',
-      target: ''
+      type: "gitDiff",
+      target: "",
     };
   }
-  
+
   // #Codebase:query
-  if (trimmed.startsWith('#Codebase:') || trimmed.startsWith('#codebase:')) {
+  if (trimmed.startsWith("#Codebase:") || trimmed.startsWith("#codebase:")) {
     return {
-      type: 'codebase',
-      target: trimmed.slice(10).trim()
+      type: "codebase",
+      target: trimmed.slice(10).trim(),
     };
   }
-  
+
   return null;
 }
 
@@ -153,7 +157,7 @@ export class ReferenceResolver {
   private git?: GitProvider;
   private codebase?: CodebaseProvider;
   private workspaceRoot: string;
-  
+
   constructor(
     workspaceRoot: string,
     options?: {
@@ -171,7 +175,7 @@ export class ReferenceResolver {
     this.git = options?.git;
     this.codebase = options?.codebase;
   }
-  
+
   /**
    * 解析引用字符串
    */
@@ -180,73 +184,76 @@ export class ReferenceResolver {
     if (!parsed) {
       return null;
     }
-    
+
     return this.resolveReference(parsed, options);
   }
-  
+
   /**
    * 解析 Reference 对象
    */
-  async resolveReference(ref: Reference, options?: ResolveOptions): Promise<ResolvedReference | null> {
-    
+  async resolveReference(
+    ref: Reference,
+    options?: ResolveOptions
+  ): Promise<ResolvedReference | null> {
     switch (ref.type) {
-      case 'file':
+      case "file":
         return this.resolveFile(ref.target, options);
-      case 'folder':
+      case "folder":
         return this.resolveFolder(ref.target, options);
-      case 'problems':
+      case "problems":
         return this.resolveProblems(ref.target, options);
-      case 'terminal':
+      case "terminal":
         return this.resolveTerminal(ref.target, options);
-      case 'gitDiff':
+      case "gitDiff":
         return this.resolveGitDiff(options);
-      case 'codebase':
+      case "codebase":
         return this.resolveCodebase(ref.target, options);
       default:
         return null;
     }
   }
-  
+
   /**
    * 解析 #File 引用
    */
   private async resolveFile(path: string, options?: ResolveOptions): Promise<ResolvedReference> {
     const fullPath = this.resolvePath(path);
-    
+
     try {
       const content = await this.fs.readFile(fullPath);
       let result = content;
-      
+
       if (options?.includeLineNumbers) {
-        result = content.split('\n')
+        result = content
+          .split("\n")
           .map((line, i) => `${i + 1}: ${line}`)
-          .join('\n');
+          .join("\n");
       }
-      
+
       // 截断到最大 token
       const tokens = estimateTokens(result);
       if (options?.maxTokens && tokens > options.maxTokens) {
         result = this.truncateToTokens(result, options.maxTokens);
       }
-      
+
       return {
-        type: 'file',
+        type: "file",
         target: path,
         content: result,
         tokens: estimateTokens(result),
-        metadata: { fullPath }
+        metadata: { fullPath },
       };
     } catch (error) {
       return {
-        type: 'file',
+        type: "file",
         target: path,
-        content: `Error reading file: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        content: `Error reading file: ${error instanceof Error ? error.message : "Unknown error"}`,
         tokens: 10,
-        metadata: { error: true }
+        metadata: { error: true },
       };
     }
   }
-  
+
   /**
    * 解析 #Folder 引用
    */
@@ -254,142 +261,151 @@ export class ReferenceResolver {
     const fullPath = this.resolvePath(path);
     const maxDepth = options?.maxDepth ?? 3;
     const recursive = options?.recursive ?? true;
-    
+
     try {
       const tree = await this.buildDirectoryTree(fullPath, 0, maxDepth, recursive);
       const content = this.formatDirectoryTree(tree, path);
-      
+
       return {
-        type: 'folder',
+        type: "folder",
         target: path,
         content,
         tokens: estimateTokens(content),
-        metadata: { fullPath, depth: maxDepth }
+        metadata: { fullPath, depth: maxDepth },
       };
     } catch (error) {
       return {
-        type: 'folder',
+        type: "folder",
         target: path,
-        content: `Error reading folder: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        content: `Error reading folder: ${error instanceof Error ? error.message : "Unknown error"}`,
         tokens: 10,
-        metadata: { error: true }
+        metadata: { error: true },
       };
     }
   }
-  
+
   /**
    * 解析 #Problems 引用
    */
-  private async resolveProblems(target: string, _options?: ResolveOptions): Promise<ResolvedReference> {
+  private async resolveProblems(
+    target: string,
+    _options?: ResolveOptions
+  ): Promise<ResolvedReference> {
     if (!this.diagnostics) {
       return {
-        type: 'problems',
+        type: "problems",
         target,
-        content: 'Diagnostics provider not configured',
+        content: "Diagnostics provider not configured",
         tokens: 5,
-        metadata: { error: true }
+        metadata: { error: true },
       };
     }
-    
+
     try {
       const files = target ? [this.resolvePath(target)] : [];
       const diagnostics = await this.diagnostics.getDiagnostics(files);
-      
+
       if (diagnostics.length === 0) {
         return {
-          type: 'problems',
+          type: "problems",
           target,
-          content: 'No problems found',
+          content: "No problems found",
           tokens: 3,
-          metadata: { count: 0 }
+          metadata: { count: 0 },
         };
       }
-      
-      const content = diagnostics.map(d => 
-        `${d.file}:${d.range.start.line}:${d.range.start.character} - ${d.severity}: ${d.message}`
-      ).join('\n');
-      
+
+      const content = diagnostics
+        .map(
+          (d) =>
+            `${d.file}:${d.range.start.line}:${d.range.start.character} - ${d.severity}: ${d.message}`
+        )
+        .join("\n");
+
       return {
-        type: 'problems',
+        type: "problems",
         target,
         content,
         tokens: estimateTokens(content),
-        metadata: { count: diagnostics.length }
+        metadata: { count: diagnostics.length },
       };
     } catch (error) {
       return {
-        type: 'problems',
+        type: "problems",
         target,
-        content: `Error getting diagnostics: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        content: `Error getting diagnostics: ${error instanceof Error ? error.message : "Unknown error"}`,
         tokens: 10,
-        metadata: { error: true }
+        metadata: { error: true },
       };
     }
   }
-  
+
   /**
    * 解析 #Terminal 引用
    */
-  private async resolveTerminal(target: string, _options?: ResolveOptions): Promise<ResolvedReference> {
+  private async resolveTerminal(
+    target: string,
+    _options?: ResolveOptions
+  ): Promise<ResolvedReference> {
     if (!this.terminal) {
       return {
-        type: 'terminal',
+        type: "terminal",
         target,
-        content: 'Terminal provider not configured',
+        content: "Terminal provider not configured",
         tokens: 5,
-        metadata: { error: true }
+        metadata: { error: true },
       };
     }
-    
+
     try {
       const lines = parseInt(target) || 100;
       const content = await this.terminal.getOutput(lines);
-      
+
       return {
-        type: 'terminal',
+        type: "terminal",
         target,
         content,
         tokens: estimateTokens(content),
-        metadata: { lines }
+        metadata: { lines },
       };
     } catch (error) {
       return {
-        type: 'terminal',
+        type: "terminal",
         target,
-        content: `Error getting terminal output: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        content: `Error getting terminal output: ${error instanceof Error ? error.message : "Unknown error"}`,
         tokens: 10,
-        metadata: { error: true }
+        metadata: { error: true },
       };
     }
   }
-  
+
   /**
    * 解析 #Git Diff 引用
    */
   private async resolveGitDiff(options?: ResolveOptions): Promise<ResolvedReference> {
     if (!this.git) {
       return {
-        type: 'gitDiff',
-        target: '',
-        content: 'Git provider not configured',
+        type: "gitDiff",
+        target: "",
+        content: "Git provider not configured",
         tokens: 5,
-        metadata: { error: true }
+        metadata: { error: true },
       };
     }
-    
+
     try {
       const diff = await this.git.getDiff();
-      
-      if (!diff || diff.trim() === '') {
+
+      if (!diff || diff.trim() === "") {
         return {
-          type: 'gitDiff',
-          target: '',
-          content: 'No changes detected',
+          type: "gitDiff",
+          target: "",
+          content: "No changes detected",
           tokens: 3,
-          metadata: { hasChanges: false }
+          metadata: { hasChanges: false },
         };
       }
-      
+
       let content = diff;
       if (options?.maxTokens) {
         const tokens = estimateTokens(content);
@@ -397,66 +413,67 @@ export class ReferenceResolver {
           content = this.truncateToTokens(content, options.maxTokens);
         }
       }
-      
+
       return {
-        type: 'gitDiff',
-        target: '',
+        type: "gitDiff",
+        target: "",
         content,
         tokens: estimateTokens(content),
-        metadata: { hasChanges: true }
+        metadata: { hasChanges: true },
       };
     } catch (error) {
       return {
-        type: 'gitDiff',
-        target: '',
-        content: `Error getting git diff: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        type: "gitDiff",
+        target: "",
+        content: `Error getting git diff: ${error instanceof Error ? error.message : "Unknown error"}`,
         tokens: 10,
-        metadata: { error: true }
+        metadata: { error: true },
       };
     }
   }
-  
+
   /**
    * 解析 #Codebase 引用
    */
-  private async resolveCodebase(query: string, options?: ResolveOptions): Promise<ResolvedReference> {
+  private async resolveCodebase(
+    query: string,
+    options?: ResolveOptions
+  ): Promise<ResolvedReference> {
     if (!this.codebase) {
       return {
-        type: 'codebase',
+        type: "codebase",
         target: query,
-        content: 'Codebase provider not configured',
+        content: "Codebase provider not configured",
         tokens: 5,
-        metadata: { error: true }
+        metadata: { error: true },
       };
     }
-    
-    if (!query || query.trim() === '') {
+
+    if (!query || query.trim() === "") {
       return {
-        type: 'codebase',
+        type: "codebase",
         target: query,
-        content: 'Search query is required',
+        content: "Search query is required",
         tokens: 5,
-        metadata: { error: true }
+        metadata: { error: true },
       };
     }
-    
+
     try {
       const results = await this.codebase.search(query);
-      
+
       if (results.length === 0) {
         return {
-          type: 'codebase',
+          type: "codebase",
           target: query,
           content: `No results found for: ${query}`,
           tokens: 10,
-          metadata: { count: 0 }
+          metadata: { count: 0 },
         };
       }
-      
-      const content = results.map(r => 
-        `${r.file}:${r.line}: ${r.content}`
-      ).join('\n');
-      
+
+      const content = results.map((r) => `${r.file}:${r.line}: ${r.content}`).join("\n");
+
       let finalContent = content;
       if (options?.maxTokens) {
         const tokens = estimateTokens(content);
@@ -464,35 +481,35 @@ export class ReferenceResolver {
           finalContent = this.truncateToTokens(content, options.maxTokens);
         }
       }
-      
+
       return {
-        type: 'codebase',
+        type: "codebase",
         target: query,
         content: finalContent,
         tokens: estimateTokens(finalContent),
-        metadata: { count: results.length }
+        metadata: { count: results.length },
       };
     } catch (error) {
       return {
-        type: 'codebase',
+        type: "codebase",
         target: query,
-        content: `Error searching codebase: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        content: `Error searching codebase: ${error instanceof Error ? error.message : "Unknown error"}`,
         tokens: 10,
-        metadata: { error: true }
+        metadata: { error: true },
       };
     }
   }
-  
+
   /**
    * 解析相对路径
    */
   private resolvePath(path: string): string {
-    if (path.startsWith('/') || path.match(/^[A-Za-z]:/)) {
+    if (path.startsWith("/") || path.match(/^[A-Za-z]:/)) {
       return path;
     }
     return `${this.workspaceRoot}/${path}`;
   }
-  
+
   /**
    * 构建目录树
    */
@@ -504,11 +521,11 @@ export class ReferenceResolver {
   ): Promise<DirectoryNode> {
     const entries = await this.fs.readDir(path);
     const children: DirectoryNode[] = [];
-    
+
     for (const entry of entries) {
       const fullPath = `${path}/${entry}`;
       const stat = await this.fs.stat(fullPath);
-      
+
       if (stat.isDirectory) {
         if (recursive && depth < maxDepth) {
           const subtree = await this.buildDirectoryTree(fullPath, depth + 1, maxDepth, recursive);
@@ -520,41 +537,41 @@ export class ReferenceResolver {
         children.push({ name: entry, isDirectory: false, size: stat.size });
       }
     }
-    
+
     return {
-      name: path.split('/').pop() || path,
+      name: path.split("/").pop() || path,
       isDirectory: true,
-      children
+      children,
     };
   }
-  
+
   /**
    * 格式化目录树
    */
-  private formatDirectoryTree(node: DirectoryNode, prefix: string = ''): string {
+  private formatDirectoryTree(node: DirectoryNode, prefix: string = ""): string {
     const lines: string[] = [prefix || node.name];
-    
+
     const formatNode = (n: DirectoryNode, indent: string): void => {
-      const marker = n.isDirectory ? '📁' : '📄';
-      const size = n.size ? ` (${this.formatSize(n.size)})` : '';
+      const marker = n.isDirectory ? "📁" : "📄";
+      const size = n.size ? ` (${this.formatSize(n.size)})` : "";
       lines.push(`${indent}${marker} ${n.name}${size}`);
-      
+
       if (n.children) {
         for (const child of n.children) {
-          formatNode(child, indent + '  ');
+          formatNode(child, indent + "  ");
         }
       }
     };
-    
+
     if (node.children) {
       for (const child of node.children) {
-        formatNode(child, '  ');
+        formatNode(child, "  ");
       }
     }
-    
-    return lines.join('\n');
+
+    return lines.join("\n");
   }
-  
+
   /**
    * 格式化文件大小
    */
@@ -563,51 +580,51 @@ export class ReferenceResolver {
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)}KB`;
     return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
   }
-  
+
   /**
    * 截断到指定 token 数
    */
   private truncateToTokens(text: string, maxTokens: number): string {
-    const lines = text.split('\n');
-    let result = '';
+    const lines = text.split("\n");
+    let result = "";
     let tokens = 0;
-    
+
     for (const line of lines) {
       const lineTokens = estimateTokens(line);
       if (tokens + lineTokens > maxTokens) {
-        result += '\n... [truncated]';
+        result += "\n... [truncated]";
         break;
       }
-      result += (result ? '\n' : '') + line;
+      result += (result ? "\n" : "") + line;
       tokens += lineTokens;
     }
-    
+
     return result;
   }
-  
+
   /**
    * 批量解析引用
    */
   async resolveAll(refs: string[], options?: ResolveOptions): Promise<ResolvedReference[]> {
     const results: ResolvedReference[] = [];
-    
+
     for (const ref of refs) {
       const resolved = await this.resolve(ref, options);
       if (resolved) {
         results.push(resolved);
       }
     }
-    
+
     return results;
   }
-  
+
   /**
    * 从文本中提取并解析所有引用
    */
   async extractAndResolve(text: string, options?: ResolveOptions): Promise<ResolvedReference[]> {
     const refPattern = /#(File|Folder|Problems|Terminal|Git Diff|GitDiff|Codebase)(?::[^\s]+)?/gi;
     const matches = text.match(refPattern) || [];
-    
+
     return this.resolveAll(matches, options);
   }
 }

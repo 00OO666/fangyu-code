@@ -117,7 +117,7 @@ export function useExtendedThinking(options: UseExtendedThinkingOptions = {}) {
     (depth: ThinkingDepth) => {
       updateConfig({ depth });
     },
-    [updateConfig],
+    [updateConfig]
   );
 
   /**
@@ -133,7 +133,7 @@ export function useExtendedThinking(options: UseExtendedThinkingOptions = {}) {
 
       // 检查是否包含触发关键词
       const hasKeyword = config.triggerKeywords.some((keyword) =>
-        lowerInput.includes(keyword.toLowerCase()),
+        lowerInput.includes(keyword.toLowerCase())
       );
 
       if (!hasKeyword) {
@@ -156,7 +156,7 @@ export function useExtendedThinking(options: UseExtendedThinkingOptions = {}) {
 
       return { triggered: true, suggestedDepth };
     },
-    [config.autoDetect, config.triggerKeywords],
+    [config.autoDetect, config.triggerKeywords]
   );
 
   /**
@@ -177,7 +177,7 @@ export function useExtendedThinking(options: UseExtendedThinkingOptions = {}) {
 
       return session;
     },
-    [config.depth, onThinkingStart],
+    [config.depth, onThinkingStart]
   );
 
   /**
@@ -195,7 +195,7 @@ export function useExtendedThinking(options: UseExtendedThinkingOptions = {}) {
       setCurrentSession(updatedSession);
       onThinkingUpdate?.(updatedSession, content);
     },
-    [currentSession, onThinkingUpdate],
+    [currentSession, onThinkingUpdate]
   );
 
   /**
@@ -223,7 +223,7 @@ export function useExtendedThinking(options: UseExtendedThinkingOptions = {}) {
 
       return completedSession;
     },
-    [currentSession, onThinkingEnd],
+    [currentSession, onThinkingEnd]
   );
 
   /**
@@ -341,7 +341,7 @@ export function useExtendedThinking(options: UseExtendedThinkingOptions = {}) {
     // 标记推理链
     formatted = formatted.replace(
       /(因为|所以|因此|因而|由于|根据|基于|考虑到)/g,
-      "<reasoning>$1</reasoning>",
+      "<reasoning>$1</reasoning>"
     );
 
     // 标记关键结论

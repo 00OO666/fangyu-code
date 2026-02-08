@@ -4,8 +4,8 @@
  * 封装所有 Tauri Git 命令调用，提供类型安全的 API
  */
 
-import { logger } from '@/lib/logger';
-import { invoke } from '@tauri-apps/api/core';
+import { logger } from "@/lib/logger";
+import { invoke } from "@tauri-apps/api/core";
 
 // ============================================================
 // 类型定义
@@ -15,7 +15,7 @@ export interface GitFileStatus {
   /** 文件路径（相对于仓库根目录） */
   path: string;
   /** 状态码: M (modified), A (added), D (deleted), ? (untracked), R (renamed) */
-  status: 'M' | 'A' | 'D' | '?' | 'R' | string;
+  status: "M" | "A" | "D" | "?" | "R" | string;
   /** 是否已暂存 */
   staged: boolean;
 }
@@ -47,7 +47,7 @@ export interface GitCommandResult {
   error?: string;
 }
 
-export type ResetMode = 'soft' | 'mixed' | 'hard';
+export type ResetMode = "soft" | "mixed" | "hard";
 
 export interface GitResetOptions {
   commitHash: string;
@@ -65,7 +65,7 @@ export const gitService = {
    */
   async isGitRepo(projectPath: string): Promise<boolean> {
     try {
-      await invoke('git_status', { projectPath });
+      await invoke("git_status", { projectPath });
       return true;
     } catch {
       return false;
@@ -77,9 +77,9 @@ export const gitService = {
    */
   async getStatus(projectPath: string): Promise<GitFileStatus[]> {
     try {
-      return await invoke<GitFileStatus[]>('git_status', { projectPath });
+      return await invoke<GitFileStatus[]>("git_status", { projectPath });
     } catch (error) {
-      logger.error('gitService', '[GitService] getStatus failed:', error);
+      logger.error("gitService", "[GitService] getStatus failed:", error);
       return [];
     }
   },
@@ -89,9 +89,9 @@ export const gitService = {
    */
   async getLog(projectPath: string, count: number = 20): Promise<GitCommitInfo[]> {
     try {
-      return await invoke<GitCommitInfo[]>('git_log', { projectPath, count });
+      return await invoke<GitCommitInfo[]>("git_log", { projectPath, count });
     } catch (error) {
-      logger.error('gitService', '[GitService] getLog failed:', error);
+      logger.error("gitService", "[GitService] getLog failed:", error);
       return [];
     }
   },
@@ -99,16 +99,12 @@ export const gitService = {
   /**
    * 获取 diff 内容
    */
-  async getDiff(
-    projectPath: string,
-    filePath?: string,
-    staged: boolean = false
-  ): Promise<string> {
+  async getDiff(projectPath: string, filePath?: string, staged: boolean = false): Promise<string> {
     try {
-      return await invoke<string>('git_diff', { projectPath, filePath, staged });
+      return await invoke<string>("git_diff", { projectPath, filePath, staged });
     } catch (error) {
-      logger.error('gitService', '[GitService] getDiff failed:', error);
-      return '';
+      logger.error("gitService", "[GitService] getDiff failed:", error);
+      return "";
     }
   },
 
@@ -117,14 +113,14 @@ export const gitService = {
    */
   async reset(projectPath: string, options: GitResetOptions): Promise<GitCommandResult> {
     try {
-      return await invoke<GitCommandResult>('git_reset', {
+      return await invoke<GitCommandResult>("git_reset", {
         projectPath,
         commitHash: options.commitHash,
         mode: options.mode,
-        createBackup: options.createBackup ?? (options.mode === 'hard'),
+        createBackup: options.createBackup ?? options.mode === "hard",
       });
     } catch (error) {
-      logger.error('gitService', '[GitService] reset failed:', error);
+      logger.error("gitService", "[GitService] reset failed:", error);
       return {
         success: false,
         error: error instanceof Error ? error.message : String(error),
@@ -137,12 +133,12 @@ export const gitService = {
    */
   async revert(projectPath: string, commitHash: string): Promise<GitCommandResult> {
     try {
-      return await invoke<GitCommandResult>('git_revert_commit', {
+      return await invoke<GitCommandResult>("git_revert_commit", {
         projectPath,
         commitHash,
       });
     } catch (error) {
-      logger.error('gitService', '[GitService] revert failed:', error);
+      logger.error("gitService", "[GitService] revert failed:", error);
       return {
         success: false,
         error: error instanceof Error ? error.message : String(error),
@@ -160,14 +156,14 @@ export const gitService = {
     staged: boolean = false
   ): Promise<GitCommandResult> {
     try {
-      return await invoke<GitCommandResult>('git_restore', {
+      return await invoke<GitCommandResult>("git_restore", {
         projectPath,
         filePath,
         source,
         staged,
       });
     } catch (error) {
-      logger.error('gitService', '[GitService] restore failed:', error);
+      logger.error("gitService", "[GitService] restore failed:", error);
       return {
         success: false,
         error: error instanceof Error ? error.message : String(error),
@@ -180,9 +176,9 @@ export const gitService = {
    */
   async createBackupBranch(projectPath: string): Promise<string | null> {
     try {
-      return await invoke<string>('git_create_backup_branch', { projectPath });
+      return await invoke<string>("git_create_backup_branch", { projectPath });
     } catch (error) {
-      logger.error('gitService', '[GitService] createBackupBranch failed:', error);
+      logger.error("gitService", "[GitService] createBackupBranch failed:", error);
       return null;
     }
   },
@@ -192,9 +188,9 @@ export const gitService = {
    */
   async add(projectPath: string, files: string[]): Promise<GitCommandResult> {
     try {
-      return await invoke<GitCommandResult>('git_add', { projectPath, files });
+      return await invoke<GitCommandResult>("git_add", { projectPath, files });
     } catch (error) {
-      logger.error('gitService', '[GitService] add failed:', error);
+      logger.error("gitService", "[GitService] add failed:", error);
       return {
         success: false,
         error: error instanceof Error ? error.message : String(error),
@@ -207,9 +203,9 @@ export const gitService = {
    */
   async commit(projectPath: string, message: string): Promise<GitCommandResult> {
     try {
-      return await invoke<GitCommandResult>('git_commit', { projectPath, message });
+      return await invoke<GitCommandResult>("git_commit", { projectPath, message });
     } catch (error) {
-      logger.error('gitService', '[GitService] commit failed:', error);
+      logger.error("gitService", "[GitService] commit failed:", error);
       return {
         success: false,
         error: error instanceof Error ? error.message : String(error),

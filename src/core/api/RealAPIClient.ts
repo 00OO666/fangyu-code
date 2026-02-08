@@ -1,13 +1,13 @@
 /**
  * RealAPIClient - 真实 API 客户端
- * 
+ *
  * 实现 OpenAI 兼容的 chat completion 接口
  * 支持 HiAPI 中转服务和多个 AI 提供商
- * 
+ *
  * Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7
  */
 
-import { ModelAPIClient, ModelRequestOptions } from '../models/ModelRouter';
+import { ModelAPIClient, ModelRequestOptions } from "../models/ModelRouter";
 
 // =============================================================================
 // 类型定义
@@ -27,7 +27,7 @@ export interface APIClientConfig {
 export interface ChatCompletionRequest {
   model: string;
   messages: Array<{
-    role: 'system' | 'user' | 'assistant';
+    role: "system" | "user" | "assistant";
     content: string;
   }>;
   temperature?: number;
@@ -42,16 +42,16 @@ export interface ChatCompletionRequest {
 /** Chat Completion 响应 */
 export interface ChatCompletionResponse {
   id: string;
-  object: 'chat.completion';
+  object: "chat.completion";
   created: number;
   model: string;
   choices: Array<{
     index: number;
     message: {
-      role: 'assistant';
+      role: "assistant";
       content: string;
     };
-    finish_reason: 'stop' | 'length' | 'content_filter' | null;
+    finish_reason: "stop" | "length" | "content_filter" | null;
   }>;
   usage: {
     prompt_tokens: number;
@@ -63,7 +63,7 @@ export interface ChatCompletionResponse {
 /** 流式响应块 */
 export interface StreamChunk {
   id: string;
-  object: 'chat.completion.chunk';
+  object: "chat.completion.chunk";
   created: number;
   model: string;
   choices: Array<{
@@ -72,23 +72,23 @@ export interface StreamChunk {
       role?: string;
       content?: string;
     };
-    finish_reason: 'stop' | 'length' | 'content_filter' | null;
+    finish_reason: "stop" | "length" | "content_filter" | null;
   }>;
 }
 
 /** API 错误码 */
 export enum APIErrorCode {
-  NETWORK_ERROR = 'NETWORK_ERROR',
-  TIMEOUT = 'TIMEOUT',
-  INVALID_API_KEY = 'INVALID_API_KEY',
-  EXPIRED_API_KEY = 'EXPIRED_API_KEY',
-  INVALID_REQUEST = 'INVALID_REQUEST',
-  MODEL_NOT_FOUND = 'MODEL_NOT_FOUND',
-  CONTEXT_TOO_LONG = 'CONTEXT_TOO_LONG',
-  RATE_LIMITED = 'RATE_LIMITED',
-  SERVER_ERROR = 'SERVER_ERROR',
-  SERVICE_UNAVAILABLE = 'SERVICE_UNAVAILABLE',
-  UNKNOWN = 'UNKNOWN',
+  NETWORK_ERROR = "NETWORK_ERROR",
+  TIMEOUT = "TIMEOUT",
+  INVALID_API_KEY = "INVALID_API_KEY",
+  EXPIRED_API_KEY = "EXPIRED_API_KEY",
+  INVALID_REQUEST = "INVALID_REQUEST",
+  MODEL_NOT_FOUND = "MODEL_NOT_FOUND",
+  CONTEXT_TOO_LONG = "CONTEXT_TOO_LONG",
+  RATE_LIMITED = "RATE_LIMITED",
+  SERVER_ERROR = "SERVER_ERROR",
+  SERVICE_UNAVAILABLE = "SERVICE_UNAVAILABLE",
+  UNKNOWN = "UNKNOWN",
 }
 
 /** API 错误 */
@@ -104,19 +104,19 @@ export interface APIError {
 /** 模型映射 */
 export const MODEL_MAPPING: Record<string, string> = {
   // Claude 系列
-  'claude-3.5-sonnet': 'claude-3-5-sonnet-20241022',
-  'claude-3-opus': 'claude-3-opus-20240229',
-  'claude-3-haiku': 'claude-3-haiku-20240307',
-  'claude-3-sonnet': 'claude-3-sonnet-20240229',
+  "claude-3.5-sonnet": "claude-3-5-sonnet-20241022",
+  "claude-3-opus": "claude-3-opus-20240229",
+  "claude-3-haiku": "claude-3-haiku-20240307",
+  "claude-3-sonnet": "claude-3-sonnet-20240229",
   // GPT 系列
-  'gpt-4o': 'gpt-4o',
-  'gpt-4-turbo': 'gpt-4-turbo',
-  'gpt-4o-mini': 'gpt-4o-mini',
-  'gpt-3.5-turbo': 'gpt-3.5-turbo',
+  "gpt-4o": "gpt-4o",
+  "gpt-4-turbo": "gpt-4-turbo",
+  "gpt-4o-mini": "gpt-4o-mini",
+  "gpt-3.5-turbo": "gpt-3.5-turbo",
   // Gemini 系列
-  'gemini-2.5-pro': 'gemini-2.5-pro-preview-05-06',
-  'gemini-1.5-pro': 'gemini-1.5-pro',
-  'gemini-1.5-flash': 'gemini-1.5-flash',
+  "gemini-2.5-pro": "gemini-2.5-pro-preview-05-06",
+  "gemini-1.5-pro": "gemini-1.5-pro",
+  "gemini-1.5-flash": "gemini-1.5-flash",
 };
 
 /** 可重试的错误码 */
@@ -138,7 +138,7 @@ export class RealAPIClient implements ModelAPIClient {
 
   constructor(config: APIClientConfig) {
     this.config = {
-      baseUrl: config.baseUrl.replace(/\/$/, ''), // 移除尾部斜杠
+      baseUrl: config.baseUrl.replace(/\/$/, ""), // 移除尾部斜杠
       apiKey: config.apiKey,
       timeout: config.timeout ?? 30000,
       maxRetries: config.maxRetries ?? 3,
@@ -161,9 +161,9 @@ export class RealAPIClient implements ModelAPIClient {
   }> {
     const request = this.buildRequest(options);
     const response = await this.executeWithRetry(request);
-    
+
     return {
-      content: response.choices[0]?.message?.content ?? '',
+      content: response.choices[0]?.message?.content ?? "",
       usage: {
         inputTokens: response.usage.prompt_tokens,
         outputTokens: response.usage.completion_tokens,
@@ -177,7 +177,7 @@ export class RealAPIClient implements ModelAPIClient {
    */
   async *chatStream(options: ModelRequestOptions): AsyncGenerator<string, void, unknown> {
     const request = this.buildRequest(options, true);
-    
+
     this.abortController = new AbortController();
     const timeoutId = setTimeout(() => {
       this.abortController?.abort();
@@ -185,7 +185,7 @@ export class RealAPIClient implements ModelAPIClient {
 
     try {
       const response = await fetch(`${this.config.baseUrl}/chat/completions`, {
-        method: 'POST',
+        method: "POST",
         headers: this.getHeaders(),
         body: JSON.stringify(request),
         signal: this.abortController.signal,
@@ -199,24 +199,24 @@ export class RealAPIClient implements ModelAPIClient {
 
       const reader = response.body?.getReader();
       if (!reader) {
-        throw this.createError(APIErrorCode.NETWORK_ERROR, 'No response body');
+        throw this.createError(APIErrorCode.NETWORK_ERROR, "No response body");
       }
 
       const decoder = new TextDecoder();
-      let buffer = '';
+      let buffer = "";
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
         buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop() ?? '';
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
 
         for (const line of lines) {
-          if (line.startsWith('data: ')) {
+          if (line.startsWith("data: ")) {
             const data = line.slice(6).trim();
-            if (data === '[DONE]') return;
+            if (data === "[DONE]") return;
 
             try {
               const chunk: StreamChunk = JSON.parse(data);
@@ -243,7 +243,7 @@ export class RealAPIClient implements ModelAPIClient {
   async validateCredentials(): Promise<boolean> {
     try {
       const response = await fetch(`${this.config.baseUrl}/models`, {
-        method: 'GET',
+        method: "GET",
         headers: this.getHeaders(),
         signal: AbortSignal.timeout(10000),
       });
@@ -259,7 +259,7 @@ export class RealAPIClient implements ModelAPIClient {
   async listModels(): Promise<string[]> {
     try {
       const response = await fetch(`${this.config.baseUrl}/models`, {
-        method: 'GET',
+        method: "GET",
         headers: this.getHeaders(),
         signal: AbortSignal.timeout(10000),
       });
@@ -287,7 +287,7 @@ export class RealAPIClient implements ModelAPIClient {
    */
   updateConfig(config: Partial<APIClientConfig>): void {
     if (config.baseUrl) {
-      this.config.baseUrl = config.baseUrl.replace(/\/$/, '');
+      this.config.baseUrl = config.baseUrl.replace(/\/$/, "");
     }
     if (config.apiKey) {
       this.config.apiKey = config.apiKey;
@@ -315,14 +315,14 @@ export class RealAPIClient implements ModelAPIClient {
    */
   private buildRequest(options: ModelRequestOptions, stream = false): ChatCompletionRequest {
     // 获取模型名称，支持映射
-    const model = options.messages[0]?.content?.includes('model:')
+    const model = options.messages[0]?.content?.includes("model:")
       ? this.extractModel(options.messages[0].content)
-      : 'gpt-4o'; // 默认模型
+      : "gpt-4o"; // 默认模型
 
     return {
       model: MODEL_MAPPING[model] ?? model,
-      messages: options.messages.map(m => ({
-        role: m.role as 'system' | 'user' | 'assistant',
+      messages: options.messages.map((m) => ({
+        role: m.role as "system" | "user" | "assistant",
         content: m.content,
       })),
       temperature: options.temperature ?? 0.7,
@@ -336,7 +336,7 @@ export class RealAPIClient implements ModelAPIClient {
    */
   private extractModel(content: string): string {
     const match = content.match(/model:\s*([^\s,]+)/i);
-    return match?.[1] ?? 'gpt-4o';
+    return match?.[1] ?? "gpt-4o";
   }
 
   /**
@@ -344,8 +344,8 @@ export class RealAPIClient implements ModelAPIClient {
    */
   private getHeaders(): Record<string, string> {
     return {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${this.config.apiKey}`,
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${this.config.apiKey}`,
       ...this.config.headers,
     };
   }
@@ -365,7 +365,7 @@ export class RealAPIClient implements ModelAPIClient {
 
     try {
       const response = await fetch(`${this.config.baseUrl}/chat/completions`, {
-        method: 'POST',
+        method: "POST",
         headers: this.getHeaders(),
         body: JSON.stringify(request),
         signal: this.abortController.signal,
@@ -375,29 +375,29 @@ export class RealAPIClient implements ModelAPIClient {
 
       if (!response.ok) {
         const error = await this.parseErrorResponse(response);
-        
+
         // 检查是否可重试
         if (error.retryable && retries < this.config.maxRetries) {
           const delay = error.retryAfter ?? this.config.retryDelay * Math.pow(2, retries);
           await this.delay(delay);
           return this.executeWithRetry(request, retries + 1);
         }
-        
+
         throw error;
       }
 
       return await response.json();
     } catch (error) {
       clearTimeout(timeoutId);
-      
-      if (error instanceof Error && error.name === 'AbortError') {
-        const timeoutError = this.createError(APIErrorCode.TIMEOUT, 'Request timed out');
-        
+
+      if (error instanceof Error && error.name === "AbortError") {
+        const timeoutError = this.createError(APIErrorCode.TIMEOUT, "Request timed out");
+
         if (retries < this.config.maxRetries) {
           await this.delay(this.config.retryDelay * Math.pow(2, retries));
           return this.executeWithRetry(request, retries + 1);
         }
-        
+
         throw timeoutError;
       }
 
@@ -407,7 +407,7 @@ export class RealAPIClient implements ModelAPIClient {
 
       const networkError = this.createError(
         APIErrorCode.NETWORK_ERROR,
-        error instanceof Error ? error.message : 'Network error'
+        error instanceof Error ? error.message : "Network error"
       );
 
       if (retries < this.config.maxRetries) {
@@ -427,7 +427,7 @@ export class RealAPIClient implements ModelAPIClient {
    */
   private async parseErrorResponse(response: Response): Promise<APIError> {
     let errorData: Record<string, unknown> = {};
-    
+
     try {
       errorData = await response.json();
     } catch {
@@ -435,9 +435,8 @@ export class RealAPIClient implements ModelAPIClient {
     }
 
     const statusCode = response.status;
-    const message = (errorData.error as { message?: string })?.message 
-      ?? response.statusText 
-      ?? 'Unknown error';
+    const message =
+      (errorData.error as { message?: string })?.message ?? response.statusText ?? "Unknown error";
 
     let code: APIErrorCode;
     let retryAfter: number | undefined;
@@ -450,7 +449,7 @@ export class RealAPIClient implements ModelAPIClient {
         code = APIErrorCode.EXPIRED_API_KEY;
         break;
       case 400:
-        code = message.toLowerCase().includes('model')
+        code = message.toLowerCase().includes("model")
           ? APIErrorCode.MODEL_NOT_FOUND
           : APIErrorCode.INVALID_REQUEST;
         break;
@@ -459,7 +458,7 @@ export class RealAPIClient implements ModelAPIClient {
         break;
       case 429:
         code = APIErrorCode.RATE_LIMITED;
-        retryAfter = parseInt(response.headers.get('Retry-After') ?? '60', 10) * 1000;
+        retryAfter = parseInt(response.headers.get("Retry-After") ?? "60", 10) * 1000;
         break;
       case 500:
         code = APIErrorCode.SERVER_ERROR;
@@ -497,11 +496,11 @@ export class RealAPIClient implements ModelAPIClient {
    */
   private isAPIError(error: unknown): error is APIError {
     return (
-      typeof error === 'object' &&
+      typeof error === "object" &&
       error !== null &&
-      'code' in error &&
-      'message' in error &&
-      'retryable' in error
+      "code" in error &&
+      "message" in error &&
+      "retryable" in error
     );
   }
 
@@ -509,7 +508,7 @@ export class RealAPIClient implements ModelAPIClient {
    * 延迟
    */
   private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }
 
@@ -520,9 +519,12 @@ export class RealAPIClient implements ModelAPIClient {
 /**
  * 创建 HiAPI 客户端
  */
-export function createHiAPIClient(apiKey: string, options?: Partial<APIClientConfig>): RealAPIClient {
+export function createHiAPIClient(
+  apiKey: string,
+  options?: Partial<APIClientConfig>
+): RealAPIClient {
   return new RealAPIClient({
-    baseUrl: options?.baseUrl ?? 'https://hiapi.online/v1',
+    baseUrl: options?.baseUrl ?? "https://hiapi.online/v1",
     apiKey,
     ...options,
   });
@@ -531,9 +533,12 @@ export function createHiAPIClient(apiKey: string, options?: Partial<APIClientCon
 /**
  * 创建 OpenAI 客户端
  */
-export function createOpenAIClient(apiKey: string, options?: Partial<APIClientConfig>): RealAPIClient {
+export function createOpenAIClient(
+  apiKey: string,
+  options?: Partial<APIClientConfig>
+): RealAPIClient {
   return new RealAPIClient({
-    baseUrl: options?.baseUrl ?? 'https://api.openai.com/v1',
+    baseUrl: options?.baseUrl ?? "https://api.openai.com/v1",
     apiKey,
     ...options,
   });
@@ -542,13 +547,16 @@ export function createOpenAIClient(apiKey: string, options?: Partial<APIClientCo
 /**
  * 创建 Anthropic 客户端（通过 OpenAI 兼容层）
  */
-export function createAnthropicClient(apiKey: string, options?: Partial<APIClientConfig>): RealAPIClient {
+export function createAnthropicClient(
+  apiKey: string,
+  options?: Partial<APIClientConfig>
+): RealAPIClient {
   return new RealAPIClient({
-    baseUrl: options?.baseUrl ?? 'https://api.anthropic.com/v1',
+    baseUrl: options?.baseUrl ?? "https://api.anthropic.com/v1",
     apiKey,
     headers: {
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
     },
     ...options,
   });

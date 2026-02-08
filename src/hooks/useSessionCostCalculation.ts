@@ -74,7 +74,7 @@ const EMPTY_STATS: SessionCostStats = {
  */
 export function useSessionCostCalculation(
   messages: ClaudeStreamMessage[],
-  engine?: string,
+  engine?: string
 ): SessionCostResult {
   const codexCacheRef = useRef<{
     stats: SessionCostStats;
@@ -130,7 +130,7 @@ export function useSessionCostCalculation(
       const durationSeconds = calculateSessionDuration(
         messages,
         firstEventTimestampMs,
-        lastEventTimestampMs,
+        lastEventTimestampMs
       );
       const apiDurationSeconds = events.length * 5;
 
@@ -161,7 +161,7 @@ export function useSessionCostCalculation(
     const durationSeconds = calculateSessionDuration(
       messages,
       firstEventTimestampMs,
-      lastEventTimestampMs,
+      lastEventTimestampMs
     );
 
     // 计算 API 执行时长（TODO: 需要从消息中提取实际 API 响应时间）
@@ -203,19 +203,22 @@ export function useSessionCostCalculation(
   }, [stats]);
 
   // 🔧 FIX: 使用 useMemo 缓存返回对象，避免每次渲染都创建新对象导致子组件重复渲染
-  return useMemo(() => ({
-    stats,
-    delta,
-    formatCost: formatCostUtil,
-    formatDuration,
-    formatTokensK,
-  }), [stats, delta]);
+  return useMemo(
+    () => ({
+      stats,
+      delta,
+      formatCost: formatCostUtil,
+      formatDuration,
+      formatTokensK,
+    }),
+    [stats, delta]
+  );
 }
 
 function calculateSessionDuration(
   messages: ClaudeStreamMessage[],
   fallbackFirstEventMs?: number,
-  fallbackLastEventMs?: number,
+  fallbackLastEventMs?: number
 ): number {
   // 绝大多数情况下 messages 是按时间顺序追加的；优先从两端取时间戳，避免 O(n) 扫描。
   const first = findTimestampMsFromStart(messages);
@@ -237,7 +240,7 @@ function calculateSessionDuration(
 
 function findTimestampMsFromStart(
   messages: ClaudeStreamMessage[],
-  maxScan = 25,
+  maxScan = 25
 ): number | undefined {
   for (let i = 0; i < Math.min(messages.length, maxScan); i++) {
     const ts = extractTimestampMs(messages[i]);

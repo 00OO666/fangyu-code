@@ -2,7 +2,11 @@ import { calculateMessageCost } from "@/lib/pricing";
 import { aggregateSessionCost } from "@/lib/sessionCost";
 import { tokenExtractor } from "@/lib/tokenExtractor";
 import type { ClaudeStreamMessage } from "@/types/claude";
-import type { PromptCostDetailItem, PromptCostItem, PromptCostSummary } from "@/lib/promptCostTypes";
+import type {
+  PromptCostDetailItem,
+  PromptCostItem,
+  PromptCostSummary,
+} from "@/lib/promptCostTypes";
 
 function extractUserText(message: ClaudeStreamMessage): string {
   if (!message.message?.content) return "";
@@ -24,7 +28,7 @@ function extractUserText(message: ClaudeStreamMessage): string {
       .replace(/\\\\n/g, "\n")
       .replace(/\\\\r/g, "\r")
       .replace(/\\\\t/g, "\t")
-      .replace(/\\\\"/g, "\"")
+      .replace(/\\\\"/g, '"')
       .replace(/\\\\'/g, "'")
       .replace(/\\\\\\\\/g, "\\");
   }
@@ -223,7 +227,8 @@ export function calculatePromptCostSummary(messages: ClaudeStreamMessage[]): Pro
       };
     }
 
-    const cacheHitRate = totalInput > 0 ? Math.round((totalCacheRead / totalInput) * 100) : undefined;
+    const cacheHitRate =
+      totalInput > 0 ? Math.round((totalCacheRead / totalInput) * 100) : undefined;
 
     items.push({
       promptIndex,

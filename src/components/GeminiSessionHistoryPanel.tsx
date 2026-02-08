@@ -5,13 +5,13 @@
  * Allows users to view, resume, or delete previous sessions.
  */
 
-import { logger } from '@/lib/logger';
-import React, { useState, useEffect } from 'react';
-import { api } from '@/lib/api';
-import type { GeminiSessionInfo } from '@/types/gemini';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Clock, RefreshCw, Trash2, Play, Eye } from 'lucide-react';
+import { logger } from "@/lib/logger";
+import React, { useState, useEffect } from "react";
+import { api } from "@/lib/api";
+import type { GeminiSessionInfo } from "@/types/gemini";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Clock, RefreshCw, Trash2, Play, Eye } from "lucide-react";
 
 interface GeminiSessionHistoryPanelProps {
   projectPath: string;
@@ -24,7 +24,7 @@ export const GeminiSessionHistoryPanel: React.FC<GeminiSessionHistoryPanelProps>
   projectPath,
   onResumeSession,
   onViewSession,
-  className = '',
+  className = "",
 }) => {
   const [sessions, setSessions] = useState<GeminiSessionInfo[]>([]);
   const [loading, setLoading] = useState(false);
@@ -47,8 +47,8 @@ export const GeminiSessionHistoryPanel: React.FC<GeminiSessionHistoryPanelProps>
       const sessionList = await api.listGeminiSessions(projectPath);
       setSessions(sessionList);
     } catch (err) {
-      logger.error('GeminiSessionHistoryPanel', 'Failed to load Gemini sessions:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load sessions');
+      logger.error("GeminiSessionHistoryPanel", "Failed to load Gemini sessions:", err);
+      setError(err instanceof Error ? err.message : "Failed to load sessions");
     } finally {
       setLoading(false);
     }
@@ -67,7 +67,7 @@ export const GeminiSessionHistoryPanel: React.FC<GeminiSessionHistoryPanelProps>
   };
 
   const handleDelete = async (sessionId: string) => {
-    if (!window.confirm('确定要删除这个会话吗？此操作无法撤销。')) {
+    if (!window.confirm("确定要删除这个会话吗？此操作无法撤销。")) {
       return;
     }
 
@@ -76,8 +76,8 @@ export const GeminiSessionHistoryPanel: React.FC<GeminiSessionHistoryPanelProps>
       // Refresh list after deletion
       await loadSessions();
     } catch (err) {
-      logger.error('GeminiSessionHistoryPanel', 'Failed to delete session:', err);
-      setError(err instanceof Error ? err.message : 'Failed to delete session');
+      logger.error("GeminiSessionHistoryPanel", "Failed to delete session:", err);
+      setError(err instanceof Error ? err.message : "Failed to delete session");
     }
   };
 
@@ -90,17 +90,17 @@ export const GeminiSessionHistoryPanel: React.FC<GeminiSessionHistoryPanelProps>
       const diffHours = Math.floor(diffMs / 3600000);
       const diffDays = Math.floor(diffMs / 86400000);
 
-      if (diffMins < 1) return '刚刚';
+      if (diffMins < 1) return "刚刚";
       if (diffMins < 60) return `${diffMins} 分钟前`;
       if (diffHours < 24) return `${diffHours} 小时前`;
       if (diffDays < 7) return `${diffDays} 天前`;
 
-      return date.toLocaleDateString('zh-CN', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
+      return date.toLocaleDateString("zh-CN", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
       });
     } catch {
       return timestamp;
@@ -108,9 +108,9 @@ export const GeminiSessionHistoryPanel: React.FC<GeminiSessionHistoryPanelProps>
   };
 
   const truncateMessage = (message: string | undefined, maxLength: number = 60) => {
-    if (!message) return '(无消息)';
+    if (!message) return "(无消息)";
     if (message.length <= maxLength) return message;
-    return message.substring(0, maxLength) + '...';
+    return message.substring(0, maxLength) + "...";
   };
 
   if (loading && sessions.length === 0) {
@@ -129,12 +129,7 @@ export const GeminiSessionHistoryPanel: React.FC<GeminiSessionHistoryPanelProps>
       <div className={`p-4 ${className}`}>
         <div className="rounded-md border border-destructive/50 bg-destructive/10 p-4">
           <p className="text-sm text-destructive">{error}</p>
-          <Button
-            variant="outline"
-            size="sm"
-            className="mt-2"
-            onClick={loadSessions}
-          >
+          <Button variant="outline" size="sm" className="mt-2" onClick={loadSessions}>
             <RefreshCw className="mr-2 h-3 w-3" />
             重试
           </Button>
@@ -162,13 +157,8 @@ export const GeminiSessionHistoryPanel: React.FC<GeminiSessionHistoryPanelProps>
           <h3 className="text-sm font-medium">Gemini 会话历史</h3>
           <span className="text-xs text-muted-foreground">({sessions.length})</span>
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={loadSessions}
-          disabled={loading}
-        >
-          <RefreshCw className={`h-3 w-3 ${loading ? 'animate-spin' : ''}`} />
+        <Button variant="ghost" size="sm" onClick={loadSessions} disabled={loading}>
+          <RefreshCw className={`h-3 w-3 ${loading ? "animate-spin" : ""}`} />
         </Button>
       </div>
 

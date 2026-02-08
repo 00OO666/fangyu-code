@@ -1,21 +1,21 @@
 /**
  * APIConfigPanel - API 配置面板
- * 
+ *
  * 支持配置 HiAPI 和其他 AI 提供商
- * 
+ *
  * Requirements: 2.4, 2.5
  */
 
-import { logger } from '@/lib/logger';
-import React, { useState, useEffect, useCallback } from 'react';
+import { logger } from "@/lib/logger";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   APIConfigManager,
   APIProvider,
   ProviderConfig,
   ValidationResult,
   createAPIConfigManager,
-} from '../../core/api/APIConfigManager';
-import { ClaudeAPITester } from './ClaudeAPITester';
+} from "../../core/api/APIConfigManager";
+import { ClaudeAPITester } from "./ClaudeAPITester";
 
 // =============================================================================
 // 类型定义
@@ -72,8 +72,8 @@ const ProviderCard: React.FC<ProviderCardProps> = ({
     <div
       className={`
         border rounded-lg p-4 mb-4 transition-all
-        ${isActive ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-200 dark:border-gray-700'}
-        ${config.enabled ? 'opacity-100' : 'opacity-60'}
+        ${isActive ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" : "border-gray-200 dark:border-gray-700"}
+        ${config.enabled ? "opacity-100" : "opacity-60"}
       `}
     >
       {/* 头部 */}
@@ -86,12 +86,8 @@ const ProviderCard: React.FC<ProviderCardProps> = ({
             className="w-4 h-4 text-blue-600 rounded"
           />
           <div>
-            <h3 className="font-medium text-gray-900 dark:text-gray-100">
-              {config.name}
-            </h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              {config.baseUrl}
-            </p>
+            <h3 className="font-medium text-gray-900 dark:text-gray-100">{config.name}</h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{config.baseUrl}</p>
           </div>
         </div>
 
@@ -110,7 +106,7 @@ const ProviderCard: React.FC<ProviderCardProps> = ({
         <div className="flex gap-2">
           <div className="relative flex-1">
             <input
-              type={showApiKey ? 'text' : 'password'}
+              type={showApiKey ? "text" : "password"}
               value={apiKey}
               onChange={handleApiKeyChange}
               onBlur={handleApiKeyBlur}
@@ -126,7 +122,7 @@ const ProviderCard: React.FC<ProviderCardProps> = ({
               onClick={() => setShowApiKey(!showApiKey)}
               className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
             >
-              {showApiKey ? '🙈' : '👁️'}
+              {showApiKey ? "🙈" : "👁️"}
             </button>
           </div>
           <button
@@ -134,27 +130,29 @@ const ProviderCard: React.FC<ProviderCardProps> = ({
             disabled={!apiKey || isValidating}
             className={`
               px-3 py-2 text-sm font-medium rounded-md transition-colors
-              ${isValidating
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300'
+              ${
+                isValidating
+                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300"
               }
             `}
           >
-            {isValidating ? '验证中...' : '验证'}
+            {isValidating ? "验证中..." : "验证"}
           </button>
           {/* Claude API 测试按钮 - 支持 Anthropic 和使用 Claude 模型的代理 */}
-          {(config.provider === 'anthropic' ||
-            config.models?.some(m => m.toLowerCase().includes('claude'))) &&
+          {(config.provider === "anthropic" ||
+            config.models?.some((m) => m.toLowerCase().includes("claude"))) &&
             onTestAPI && (
               <button
                 onClick={onTestAPI}
                 disabled={!apiKey}
                 className={`
                 px-3 py-2 text-sm font-medium rounded-md transition-colors
-                ${!apiKey
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-purple-100 text-purple-700 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:hover:bg-purple-900/50'
-                  }
+                ${
+                  !apiKey
+                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                    : "bg-purple-100 text-purple-700 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:hover:bg-purple-900/50"
+                }
               `}
                 title="测试代理商支持的所有 Claude 模型"
               >
@@ -169,19 +167,18 @@ const ProviderCard: React.FC<ProviderCardProps> = ({
         <div
           className={`
             p-2 rounded text-sm mb-3
-            ${validationResult.valid
-              ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400'
-              : 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400'
+            ${
+              validationResult.valid
+                ? "bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400"
+                : "bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400"
             }
           `}
         >
           <div className="flex items-center gap-2">
-            <span>{validationResult.valid ? '✓' : '✗'}</span>
+            <span>{validationResult.valid ? "✓" : "✗"}</span>
             <span>{validationResult.message}</span>
             {validationResult.latency && (
-              <span className="text-xs opacity-70">
-                ({validationResult.latency}ms)
-              </span>
+              <span className="text-xs opacity-70">({validationResult.latency}ms)</span>
             )}
           </div>
         </div>
@@ -200,9 +197,7 @@ const ProviderCard: React.FC<ProviderCardProps> = ({
       {/* 支持的模型 */}
       {config.models && config.models.length > 0 && (
         <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-            支持的模型:
-          </p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">支持的模型:</p>
           <div className="flex flex-wrap gap-1">
             {config.models.slice(0, 5).map((model) => (
               <span
@@ -230,16 +225,20 @@ const ProviderCard: React.FC<ProviderCardProps> = ({
 
 export const APIConfigPanel: React.FC<APIConfigPanelProps> = ({
   onConfigChange,
-  className = '',
+  className = "",
 }) => {
   const [manager] = useState(() => createAPIConfigManager());
   const [configs, setConfigs] = useState<ProviderConfig[]>([]);
-  const [activeProvider, setActiveProvider] = useState<APIProvider>('hiapi');
-  const [validationResults, setValidationResults] = useState<Record<APIProvider, ValidationResult>>({} as Record<APIProvider, ValidationResult>);
+  const [activeProvider, setActiveProvider] = useState<APIProvider>("hiapi");
+  const [validationResults, setValidationResults] = useState<Record<APIProvider, ValidationResult>>(
+    {} as Record<APIProvider, ValidationResult>
+  );
   const [validatingProviders, setValidatingProviders] = useState<Set<APIProvider>>(new Set());
-  const [defaultModel, setDefaultModel] = useState('gpt-4o');
+  const [defaultModel, setDefaultModel] = useState("gpt-4o");
   const [showAPITester, setShowAPITester] = useState(false);
-  const [testerConfig, setTesterConfig] = useState<{ apiKey: string; baseUrl: string } | null>(null);
+  const [testerConfig, setTesterConfig] = useState<{ apiKey: string; baseUrl: string } | null>(
+    null
+  );
 
   // 加载配置
   useEffect(() => {
@@ -256,38 +255,47 @@ export const APIConfigPanel: React.FC<APIConfigPanelProps> = ({
     setDefaultModel(manager.getDefaultModel());
   }, [manager]);
 
-  const handleUpdateProvider = useCallback(async (provider: APIProvider, update: Partial<ProviderConfig>) => {
-    manager.configureProvider(provider, update);
-    await manager.saveToStorage();
-    refreshConfigs();
-    onConfigChange?.(manager);
-  }, [manager, refreshConfigs, onConfigChange]);
-
-  const handleValidate = useCallback(async (provider: APIProvider) => {
-    setValidatingProviders(prev => new Set(prev).add(provider));
-
-    try {
-      const result = await manager.validateCredentials(provider);
-      setValidationResults(prev => ({ ...prev, [provider]: result }));
-    } finally {
-      setValidatingProviders(prev => {
-        const next = new Set(prev);
-        next.delete(provider);
-        return next;
-      });
-    }
-  }, [manager]);
-
-  const handleSetActive = useCallback(async (provider: APIProvider) => {
-    try {
-      manager.setActiveProvider(provider);
+  const handleUpdateProvider = useCallback(
+    async (provider: APIProvider, update: Partial<ProviderConfig>) => {
+      manager.configureProvider(provider, update);
       await manager.saveToStorage();
       refreshConfigs();
       onConfigChange?.(manager);
-    } catch (error) {
-      logger.error('APIConfigPanel', 'Failed to set active provider:', error);
-    }
-  }, [manager, refreshConfigs, onConfigChange]);
+    },
+    [manager, refreshConfigs, onConfigChange]
+  );
+
+  const handleValidate = useCallback(
+    async (provider: APIProvider) => {
+      setValidatingProviders((prev) => new Set(prev).add(provider));
+
+      try {
+        const result = await manager.validateCredentials(provider);
+        setValidationResults((prev) => ({ ...prev, [provider]: result }));
+      } finally {
+        setValidatingProviders((prev) => {
+          const next = new Set(prev);
+          next.delete(provider);
+          return next;
+        });
+      }
+    },
+    [manager]
+  );
+
+  const handleSetActive = useCallback(
+    async (provider: APIProvider) => {
+      try {
+        manager.setActiveProvider(provider);
+        await manager.saveToStorage();
+        refreshConfigs();
+        onConfigChange?.(manager);
+      } catch (error) {
+        logger.error("APIConfigPanel", "Failed to set active provider:", error);
+      }
+    },
+    [manager, refreshConfigs, onConfigChange]
+  );
 
   const handleOpenAPITester = useCallback((config: ProviderConfig) => {
     setTesterConfig({
@@ -297,16 +305,19 @@ export const APIConfigPanel: React.FC<APIConfigPanelProps> = ({
     setShowAPITester(true);
   }, []);
 
-  const handleDefaultModelChange = useCallback(async (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const model = e.target.value;
-    manager.setDefaultModel(model);
-    await manager.saveToStorage();
-    setDefaultModel(model);
-    onConfigChange?.(manager);
-  }, [manager, onConfigChange]);
+  const handleDefaultModelChange = useCallback(
+    async (e: React.ChangeEvent<HTMLSelectElement>) => {
+      const model = e.target.value;
+      manager.setDefaultModel(model);
+      await manager.saveToStorage();
+      setDefaultModel(model);
+      onConfigChange?.(manager);
+    },
+    [manager, onConfigChange]
+  );
 
   const handleValidateAll = useCallback(async () => {
-    const providers = configs.filter(c => c.apiKey).map(c => c.provider);
+    const providers = configs.filter((c) => c.apiKey).map((c) => c.provider);
 
     for (const provider of providers) {
       await handleValidate(provider);
@@ -330,9 +341,7 @@ export const APIConfigPanel: React.FC<APIConfigPanelProps> = ({
     <div className={`api-config-panel ${className}`}>
       {/* 标题 */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-          API 配置
-        </h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">API 配置</h2>
         <button
           onClick={handleValidateAll}
           className="px-3 py-1.5 text-sm font-medium text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300"

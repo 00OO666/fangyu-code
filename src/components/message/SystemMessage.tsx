@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Info, Terminal, AlertCircle, Command, ChevronDown, ChevronUp } from 'lucide-react';
+import { Info, Terminal, AlertCircle, Command, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toolRegistry } from "@/lib/toolRegistry";
 import type { ClaudeStreamMessage } from "@/types/claude";
@@ -16,11 +16,11 @@ const formatCommandOutput = (text: string): React.ReactNode => {
   const content = match[1].trim();
 
   // 检测是否是表格格式（包含 | 分隔符）
-  const isTable = content.includes('|') && content.includes('---');
+  const isTable = content.includes("|") && content.includes("---");
 
   if (isTable) {
     // 解析并渲染表格
-    const lines = content.split('\n').filter(line => line.trim());
+    const lines = content.split("\n").filter((line) => line.trim());
     const tableRows: string[][] = [];
     const nonTableLines: string[] = [];
 
@@ -29,8 +29,11 @@ const formatCommandOutput = (text: string): React.ReactNode => {
       if (line.match(/^\|[-\s|]+\|$/)) continue;
 
       // 检查是否是表格行
-      if (line.includes('|') && !line.startsWith('#')) {
-        const cells = line.split('|').filter(cell => cell.trim()).map(cell => cell.trim());
+      if (line.includes("|") && !line.startsWith("#")) {
+        const cells = line
+          .split("|")
+          .filter((cell) => cell.trim())
+          .map((cell) => cell.trim());
         if (cells.length > 0) {
           tableRows.push(cells);
         }
@@ -44,13 +47,17 @@ const formatCommandOutput = (text: string): React.ReactNode => {
       return (
         <div className="space-y-3">
           {/* 非表格内容（如标题） */}
-          {nonTableLines.map((line, i) => (
-            line.trim() && (
-              <div key={i} className={line.startsWith('#') ? 'font-semibold text-foreground' : ''}>
-                {line.replace(/^#+\s*/, '')}
-              </div>
-            )
-          ))}
+          {nonTableLines.map(
+            (line, i) =>
+              line.trim() && (
+                <div
+                  key={i}
+                  className={line.startsWith("#") ? "font-semibold text-foreground" : ""}
+                >
+                  {line.replace(/^#+\s*/, "")}
+                </div>
+              )
+          )}
 
           {/* 表格 */}
           <div className="overflow-x-auto">
@@ -85,15 +92,15 @@ const formatCommandOutput = (text: string): React.ReactNode => {
   // 非表格内容 - 简单格式化显示
   return (
     <div className="space-y-1">
-      {content.split('\n').map((line, i) => {
+      {content.split("\n").map((line, i) => {
         const trimmedLine = line.trim();
         if (!trimmedLine) return null;
 
         // 标题样式
-        if (trimmedLine.startsWith('#')) {
+        if (trimmedLine.startsWith("#")) {
           return (
             <div key={i} className="font-semibold text-foreground mt-2 first:mt-0">
-              {trimmedLine.replace(/^#+\s*/, '')}
+              {trimmedLine.replace(/^#+\s*/, "")}
             </div>
           );
         }
@@ -259,7 +266,9 @@ export const SystemMessage: React.FC<SystemMessageProps> = ({
     const commandName = commandNameMatch ? commandNameMatch[1] : null;
     const commandMessage = commandMessageMatch ? commandMessageMatch[1] : null;
 
-    const formattedTime = formatTimestamp((message as any).receivedAt ?? (message as any).timestamp);
+    const formattedTime = formatTimestamp(
+      (message as any).receivedAt ?? (message as any).timestamp
+    );
 
     return (
       <div className={cn("my-2", className)}>
@@ -268,7 +277,10 @@ export const SystemMessage: React.FC<SystemMessageProps> = ({
             <Command className="h-3.5 w-3.5" />
             {commandName ? (
               <span>
-                执行命令 <code className="rounded bg-muted px-1 py-0.5 font-mono text-foreground/80">{commandName}</code>
+                执行命令{" "}
+                <code className="rounded bg-muted px-1 py-0.5 font-mono text-foreground/80">
+                  {commandName}
+                </code>
               </span>
             ) : commandMessage ? (
               <span>{commandMessage}</span>
@@ -303,7 +315,9 @@ export const SystemMessage: React.FC<SystemMessageProps> = ({
           {formattedTime && (
             <>
               <span className="text-muted-foreground/40">•</span>
-              <span className="font-mono normal-case text-muted-foreground/70">{formattedTime}</span>
+              <span className="font-mono normal-case text-muted-foreground/70">
+                {formattedTime}
+              </span>
             </>
           )}
         </div>
@@ -344,25 +358,21 @@ const CommandOutputMessage: React.FC<{ message: ClaudeStreamMessage; className?:
             {formattedTime && (
               <>
                 <span className="text-muted-foreground/40">•</span>
-                <span className="font-mono normal-case text-muted-foreground/70">{formattedTime}</span>
+                <span className="font-mono normal-case text-muted-foreground/70">
+                  {formattedTime}
+                </span>
               </>
             )}
           </div>
           <div className="text-muted-foreground/60 hover:text-muted-foreground transition-colors">
-            {isExpanded ? (
-              <ChevronUp className="h-4 w-4" />
-            ) : (
-              <ChevronDown className="h-4 w-4" />
-            )}
+            {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </div>
         </div>
 
         {/* 可折叠的内容 */}
         {isExpanded && (
           <div className="px-4 pb-3 text-sm leading-relaxed text-muted-foreground border-t border-border/30">
-            <div className="pt-3">
-              {formatCommandOutput(content)}
-            </div>
+            <div className="pt-3">{formatCommandOutput(content)}</div>
           </div>
         )}
       </div>
@@ -402,20 +412,14 @@ const CommandErrorMessage: React.FC<{ message: ClaudeStreamMessage; className?: 
             )}
           </div>
           <div className="text-destructive/60 hover:text-destructive transition-colors">
-            {isExpanded ? (
-              <ChevronUp className="h-4 w-4" />
-            ) : (
-              <ChevronDown className="h-4 w-4" />
-            )}
+            {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </div>
         </div>
 
         {/* 可折叠的内容 */}
         {isExpanded && (
           <div className="px-4 pb-3 text-sm leading-relaxed text-destructive/90 border-t border-destructive/20">
-            <div className="pt-3">
-              {content}
-            </div>
+            <div className="pt-3">{content}</div>
           </div>
         )}
       </div>

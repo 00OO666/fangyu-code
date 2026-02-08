@@ -6,7 +6,7 @@
  */
 
 import React, { useState } from "react";
-import { Bot, Sparkles, Zap, ChevronRight } from 'lucide-react';
+import { Bot, Sparkles, Zap, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface TaskWidgetProps {
@@ -29,20 +29,20 @@ export interface TaskWidgetProps {
  * 子代理类型显示名称映射
  */
 const SUBAGENT_TYPE_LABELS: Record<string, string> = {
-  'general-purpose': '通用代理',
-  'Explore': '探索代理',
-  'Plan': '规划代理',
-  'statusline-setup': '状态栏配置代理',
-  'code-reviewer': '代码审查代理',
-  'analyst': '分析代理',
-  'executor': '执行代理',
+  "general-purpose": "通用代理",
+  Explore: "探索代理",
+  Plan: "规划代理",
+  "statusline-setup": "状态栏配置代理",
+  "code-reviewer": "代码审查代理",
+  analyst: "分析代理",
+  executor: "执行代理",
 };
 
 /**
  * 获取子代理类型的显示名称
  */
 function getSubagentTypeLabel(type?: string): string {
-  if (!type) return '子代理';
+  if (!type) return "子代理";
   return SUBAGENT_TYPE_LABELS[type] || type;
 }
 
@@ -63,11 +63,13 @@ export const TaskWidget: React.FC<TaskWidgetProps> = ({
           <Sparkles className="h-2.5 w-2.5 text-blue-400 absolute -top-1 -right-1" />
         </div>
         <span className="text-sm font-medium">
-          激活{subagentType && (
+          激活
+          {subagentType && (
             <span className="text-blue-600 dark:text-blue-400 mx-1 font-semibold">
               [{getSubagentTypeLabel(subagentType)}]
             </span>
-          )}任务
+          )}
+          任务
         </span>
       </div>
 
@@ -90,7 +92,9 @@ export const TaskWidget: React.FC<TaskWidgetProps> = ({
               onClick={() => setIsExpanded(!isExpanded)}
               className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
-              <ChevronRight className={cn("h-3 w-3 transition-transform", isExpanded && "rotate-90")} />
+              <ChevronRight
+                className={cn("h-3 w-3 transition-transform", isExpanded && "rotate-90")}
+              />
               <span>任务指令</span>
             </button>
 

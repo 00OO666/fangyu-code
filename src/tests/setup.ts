@@ -1,17 +1,17 @@
 /**
  * Vitest Test Setup
- * 
+ *
  * Global test configuration and utilities.
  */
 
-import { expect, vi, beforeEach, afterEach } from 'vitest';
+import { expect, vi, beforeEach, afterEach } from "vitest";
 
 // Mock Tauri APIs for testing
-vi.mock('@tauri-apps/api/core', () => ({
+vi.mock("@tauri-apps/api/core", () => ({
   invoke: vi.fn(),
 }));
 
-vi.mock('@tauri-apps/plugin-fs', () => ({
+vi.mock("@tauri-apps/plugin-fs", () => ({
   readTextFile: vi.fn(),
   writeTextFile: vi.fn(),
   exists: vi.fn(),
@@ -19,7 +19,7 @@ vi.mock('@tauri-apps/plugin-fs', () => ({
   readDir: vi.fn(),
 }));
 
-vi.mock('@tauri-apps/plugin-shell', () => ({
+vi.mock("@tauri-apps/plugin-shell", () => ({
   Command: {
     create: vi.fn(),
   },
@@ -41,14 +41,12 @@ expect.extend({
     const pass = received >= min && received <= max;
     if (pass) {
       return {
-        message: () =>
-          `expected ${received} not to be within range ${min} - ${max}`,
+        message: () => `expected ${received} not to be within range ${min} - ${max}`,
         pass: true,
       };
     } else {
       return {
-        message: () =>
-          `expected ${received} to be within range ${min} - ${max}`,
+        message: () => `expected ${received} to be within range ${min} - ${max}`,
         pass: false,
       };
     }

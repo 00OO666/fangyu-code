@@ -1,22 +1,48 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Popover } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import { Switch } from "@/components/ui/switch";
-import { Wand2, ChevronDown, DollarSign, Info, Settings, Code2, Sparkles, Hash, Webhook, BarChart3, Network, ListOrdered, Zap } from 'lucide-react';
+import {
+  Wand2,
+  ChevronDown,
+  DollarSign,
+  Info,
+  Settings,
+  Code2,
+  Sparkles,
+  Hash,
+  Webhook,
+  BarChart3,
+  Network,
+  ListOrdered,
+  Zap,
+} from "lucide-react";
 import { ImageGenerateButton } from "@/components/ImageGeneration";
 import { useCostDelta } from "@/hooks/useCostDelta";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatDuration, formatTokensK } from "@/lib/pricing";
-import { ExecutionEngineSelector, type ExecutionEngineConfig } from "@/components/ExecutionEngineSelector";
+import {
+  ExecutionEngineSelector,
+  type ExecutionEngineConfig,
+} from "@/components/ExecutionEngineSelector";
 import { ModelSelector } from "./ModelSelector";
 import { CodexModelSelector } from "./CodexModelSelector";
-import { CodexReasoningLevelSelector, type CodexReasoningLevel } from "./CodexReasoningLevelSelector";
+import {
+  CodexReasoningLevelSelector,
+  type CodexReasoningLevel,
+} from "./CodexReasoningLevelSelector";
 import { CodexRateLimitBadge } from "./CodexRateLimitBadge";
 import { GeminiModelSelector } from "./GeminiModelSelector";
 import { ThinkingModeToggle } from "./ThinkingModeToggle";
@@ -63,14 +89,14 @@ interface ControlBarProps {
   onCancel: () => void;
   onSend: () => void;
   onOpenCanvas?: () => void;
-  hasPreviewableCode?: boolean;  // 是否检测到可预览代码
-  codeSource?: 'markdown' | 'tool_use';  // 代码来源
-  onToggleUsageDashboard?: () => void;  // 切换 Usage Dashboard
-  showUsageDashboard?: boolean;  // Usage Dashboard 显示状态
-  onToggleMCPConfig?: () => void;  // 切换项目级 MCP 配置对话框
+  hasPreviewableCode?: boolean; // 是否检测到可预览代码
+  codeSource?: "markdown" | "tool_use"; // 代码来源
+  onToggleUsageDashboard?: () => void; // 切换 Usage Dashboard
+  showUsageDashboard?: boolean; // Usage Dashboard 显示状态
+  onToggleMCPConfig?: () => void; // 切换项目级 MCP 配置对话框
   // 🆕 队列相关
   pendingQueueCount?: number;
-  queueItems?: any[];  // 队列项列表（用于悬停预览）
+  queueItems?: any[]; // 队列项列表（用于悬停预览）
   showQueuePanel?: boolean;
   onToggleQueuePanel?: () => void;
   // 🆕 图像生成回调
@@ -130,7 +156,7 @@ export const ControlBar: React.FC<ControlBarProps> = ({
   // 🆕 API 健康检查
   const { status: apiStatus, consecutiveFailures } = useApiHealthCheck({
     sessionId: session?.id,
-    engine: executionEngineConfig.engine as 'claude' | 'codex' | 'gemini',
+    engine: executionEngineConfig.engine as "claude" | "codex" | "gemini",
   });
 
   // 费用变动追踪
@@ -141,9 +167,9 @@ export const ControlBar: React.FC<ControlBarProps> = ({
     return match ? parseFloat(match[0]) : 0;
   }, [sessionCost]);
 
-  const sessionIdForCost = session?.id || session?.sessionId || '';
+  const sessionIdForCost = session?.id || session?.sessionId || "";
   const {
-    commandDelta,        // 🆕 当前指令增量（用于动画）
+    commandDelta, // 🆕 当前指令增量（用于动画）
   } = useCostDelta(sessionIdForCost, currentCostValue, messages);
 
   // 🆕 动画状态：控制是否显示变动额（橙色闪烁）
@@ -184,8 +210,8 @@ export const ControlBar: React.FC<ControlBarProps> = ({
 
   // 格式化费用变动显示
   const formatCostDelta = (delta: number): string => {
-    if (delta === 0) return '';
-    const sign = delta > 0 ? '+' : '';
+    if (delta === 0) return "";
+    const sign = delta > 0 ? "+" : "";
     if (delta < 0.01 && delta > -0.01 && delta !== 0) {
       return `${sign}${(delta * 100).toFixed(2)}¢`;
     }
@@ -193,15 +219,15 @@ export const ControlBar: React.FC<ControlBarProps> = ({
   };
 
   const contextWindowModel =
-    executionEngineConfig.engine === 'codex'
-      ? (session?.model || executionEngineConfig.codexModel)
-      : executionEngineConfig.engine === 'gemini'
-        ? (executionEngineConfig.geminiModel || session?.model)
+    executionEngineConfig.engine === "codex"
+      ? session?.model || executionEngineConfig.codexModel
+      : executionEngineConfig.engine === "gemini"
+        ? executionEngineConfig.geminiModel || session?.model
         : selectedModel;
 
   // Extract latest Codex rate limits from messages
   const codexRateLimits = useMemo<CodexRateLimits | null>(() => {
-    if (executionEngineConfig.engine !== 'codex') {
+    if (executionEngineConfig.engine !== "codex") {
       return null;
     }
 
@@ -228,13 +254,10 @@ export const ControlBar: React.FC<ControlBarProps> = ({
   return (
     <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap pb-1 min-h-[40px] flex-shrink-0">
       {/* Execution Engine Selector */}
-      <ExecutionEngineSelector
-        value={executionEngineConfig}
-        onChange={setExecutionEngineConfig}
-      />
+      <ExecutionEngineSelector value={executionEngineConfig} onChange={setExecutionEngineConfig} />
 
       {/* Claude-specific controls */}
-      {executionEngineConfig.engine === 'claude' && (
+      {executionEngineConfig.engine === "claude" && (
         <>
           <ModelSelector
             selectedModel={selectedModel}
@@ -260,39 +283,43 @@ export const ControlBar: React.FC<ControlBarProps> = ({
       )}
 
       {/* Codex-specific controls */}
-      {executionEngineConfig.engine === 'codex' && (
+      {executionEngineConfig.engine === "codex" && (
         <>
           <CodexModelSelector
             selectedModel={executionEngineConfig.codexModel}
-            onModelChange={(model) => setExecutionEngineConfig({
-              ...executionEngineConfig,
-              codexModel: model,
-            })}
+            onModelChange={(model) =>
+              setExecutionEngineConfig({
+                ...executionEngineConfig,
+                codexModel: model,
+              })
+            }
             disabled={disabled}
           />
           <CodexReasoningLevelSelector
             selectedLevel={executionEngineConfig.codexReasoningLevel}
-            onLevelChange={(level: CodexReasoningLevel) => setExecutionEngineConfig({
-              ...executionEngineConfig,
-              codexReasoningLevel: level,
-            })}
+            onLevelChange={(level: CodexReasoningLevel) =>
+              setExecutionEngineConfig({
+                ...executionEngineConfig,
+                codexReasoningLevel: level,
+              })
+            }
             disabled={disabled}
           />
           {/* Codex Rate Limit Badge */}
-          {codexRateLimits && (
-            <CodexRateLimitBadge rateLimits={codexRateLimits} />
-          )}
+          {codexRateLimits && <CodexRateLimitBadge rateLimits={codexRateLimits} />}
         </>
       )}
 
       {/* Gemini-specific controls */}
-      {executionEngineConfig.engine === 'gemini' && (
+      {executionEngineConfig.engine === "gemini" && (
         <GeminiModelSelector
           selectedModel={executionEngineConfig.geminiModel}
-          onModelChange={(model) => setExecutionEngineConfig({
-            ...executionEngineConfig,
-            geminiModel: model,
-          })}
+          onModelChange={(model) =>
+            setExecutionEngineConfig({
+              ...executionEngineConfig,
+              geminiModel: model,
+            })
+          }
           disabled={disabled}
         />
       )}
@@ -304,7 +331,10 @@ export const ControlBar: React.FC<ControlBarProps> = ({
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.2 }}
         >
-          <Badge variant="outline" className="flex items-center gap-1 px-2 py-1 h-8 cursor-default hover:bg-accent transition-colors border-border/50">
+          <Badge
+            variant="outline"
+            className="flex items-center gap-1 px-2 py-1 h-8 cursor-default hover:bg-accent transition-colors border-border/50"
+          >
             <Hash className="h-3 w-3 text-blue-600 dark:text-blue-400" />
             <span className="font-mono text-xs">{formatTokensK(sessionStats.totalTokens)}</span>
           </Badge>
@@ -334,18 +364,24 @@ export const ControlBar: React.FC<ControlBarProps> = ({
                       : "border-border/50 hover:bg-accent"
                   )}
                 >
-                  <DollarSign className={cn(
-                    "h-3 w-3 transition-colors duration-500",
-                    showDeltaAnimation && commandDelta > 0
-                      ? "text-orange-600 dark:text-orange-400"
-                      : "text-green-600 dark:text-green-400"
-                  )} />
+                  <DollarSign
+                    className={cn(
+                      "h-3 w-3 transition-colors duration-500",
+                      showDeltaAnimation && commandDelta > 0
+                        ? "text-orange-600 dark:text-orange-400"
+                        : "text-green-600 dark:text-green-400"
+                    )}
+                  />
 
                   {/* 滚轮数字动画 - 类似苹果闹钟滚动效果，始终向上滚动 */}
                   <div className="relative h-4 w-16 overflow-hidden">
                     <AnimatePresence initial={false} mode="popLayout">
                       <motion.span
-                        key={showDeltaAnimation && commandDelta > 0 ? `delta-${commandDelta.toFixed(4)}` : 'total'}
+                        key={
+                          showDeltaAnimation && commandDelta > 0
+                            ? `delta-${commandDelta.toFixed(4)}`
+                            : "total"
+                        }
                         initial={{ y: 16 }}
                         animate={{ y: 0 }}
                         exit={{ y: -16 }}
@@ -374,30 +410,43 @@ export const ControlBar: React.FC<ControlBarProps> = ({
               }
               content={
                 <div className="space-y-2">
-                  <div className="font-medium text-sm border-b pb-1">{t('promptInput.sessionStats')}</div>
+                  <div className="font-medium text-sm border-b pb-1">
+                    {t("promptInput.sessionStats")}
+                  </div>
                   <div className="space-y-1 text-xs">
                     <div className="flex justify-between gap-4">
-                      <span className="text-muted-foreground">{t('promptInput.totalCost')}:</span>
+                      <span className="text-muted-foreground">{t("promptInput.totalCost")}:</span>
                       <span className="font-mono font-medium">{sessionCost}</span>
                     </div>
                     <div className="flex justify-between gap-4">
-                      <span className="text-muted-foreground">{t('promptInput.totalTokens')}:</span>
-                      <span className="font-mono">{formatTokensK(sessionStats.totalTokens)} ({sessionStats.totalTokens.toLocaleString()})</span>
+                      <span className="text-muted-foreground">{t("promptInput.totalTokens")}:</span>
+                      <span className="font-mono">
+                        {formatTokensK(sessionStats.totalTokens)} (
+                        {sessionStats.totalTokens.toLocaleString()})
+                      </span>
                     </div>
                     <div className="flex justify-between gap-4">
-                      <span className="text-muted-foreground">{t('promptInput.inputTokens', '输入')}:</span>
+                      <span className="text-muted-foreground">
+                        {t("promptInput.inputTokens", "输入")}:
+                      </span>
                       <span className="font-mono">{formatTokensK(sessionStats.inputTokens)}</span>
                     </div>
                     <div className="flex justify-between gap-4">
-                      <span className="text-muted-foreground">{t('promptInput.outputTokens', '输出')}:</span>
+                      <span className="text-muted-foreground">
+                        {t("promptInput.outputTokens", "输出")}:
+                      </span>
                       <span className="font-mono">{formatTokensK(sessionStats.outputTokens)}</span>
                     </div>
                     {sessionStats.durationSeconds > 0 && (
                       <>
                         <div className="border-t pt-1 mt-1"></div>
                         <div className="flex justify-between gap-4">
-                          <span className="text-muted-foreground">{t('promptInput.sessionDuration')}:</span>
-                          <span className="font-mono">{formatDuration(sessionStats.durationSeconds)}</span>
+                          <span className="text-muted-foreground">
+                            {t("promptInput.sessionDuration")}:
+                          </span>
+                          <span className="font-mono">
+                            {formatDuration(sessionStats.durationSeconds)}
+                          </span>
                         </div>
                       </>
                     )}
@@ -409,7 +458,6 @@ export const ControlBar: React.FC<ControlBarProps> = ({
               className="w-80"
             />
           </motion.div>
-
         </>
       )}
 
@@ -420,7 +468,10 @@ export const ControlBar: React.FC<ControlBarProps> = ({
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.2 }}
         >
-          <Badge variant="outline" className="flex items-center gap-1 px-2 py-1 h-8 cursor-default hover:bg-accent transition-colors border-border/50">
+          <Badge
+            variant="outline"
+            className="flex items-center gap-1 px-2 py-1 h-8 cursor-default hover:bg-accent transition-colors border-border/50"
+          >
             <Webhook className="h-3 w-3 text-purple-600 dark:text-purple-400" />
             <span className="font-mono text-xs">Hooks: {hooksCount}</span>
           </Badge>
@@ -428,14 +479,17 @@ export const ControlBar: React.FC<ControlBarProps> = ({
       )}
 
       {/* Context Window Indicator - Claude / Codex / Gemini 引擎显示，始终显示 */}
-      {(executionEngineConfig.engine === 'claude' || executionEngineConfig.engine === 'codex' || executionEngineConfig.engine === 'gemini') && messages && (
-        <ContextWindowIndicator
-          messages={messages}
-          model={contextWindowModel}
-          engine={executionEngineConfig.engine}
-          show={true}
-        />
-      )}
+      {(executionEngineConfig.engine === "claude" ||
+        executionEngineConfig.engine === "codex" ||
+        executionEngineConfig.engine === "gemini") &&
+        messages && (
+          <ContextWindowIndicator
+            messages={messages}
+            model={contextWindowModel}
+            engine={executionEngineConfig.engine}
+            show={true}
+          />
+        )}
 
       {/* Loading Indicator - 移至 SessionMessages 中显示为 CLI 风格 */}
 
@@ -445,16 +499,18 @@ export const ControlBar: React.FC<ControlBarProps> = ({
       <TodayUsagePopover hasMessages={hasMessages} />
 
       {/* 🆕 API 健康状态指示器 - 仅在有问题时显示 */}
-      {(apiStatus === 'disconnected' || apiStatus === 'reconnecting' || consecutiveFailures > 0) && (
+      {(apiStatus === "disconnected" ||
+        apiStatus === "reconnecting" ||
+        consecutiveFailures > 0) && (
         <ApiHealthPanel
           sessionId={session?.id}
-          engine={executionEngineConfig.engine as 'claude' | 'codex' | 'gemini'}
+          engine={executionEngineConfig.engine as "claude" | "codex" | "gemini"}
           compact={true}
         />
       )}
 
       {/* 🆕 AI 图像生成按钮 (Nano Banana) */}
-      {executionEngineConfig.engine === 'gemini' && (
+      {executionEngineConfig.engine === "gemini" && (
         <ImageGenerateButton
           disabled={disabled}
           onImageGenerated={onImageGenerated}
@@ -476,10 +532,9 @@ export const ControlBar: React.FC<ControlBarProps> = ({
           )}
           title="Token 消耗图表 (Ctrl+Shift+T)"
         >
-          <BarChart3 className={cn(
-            "h-3.5 w-3.5",
-            showUsageDashboard ? "text-white" : "text-blue-500"
-          )} />
+          <BarChart3
+            className={cn("h-3.5 w-3.5", showUsageDashboard ? "text-white" : "text-blue-500")}
+          />
           <span className="text-xs hidden sm:inline">图表</span>
         </Button>
       )}
@@ -513,16 +568,15 @@ export const ControlBar: React.FC<ControlBarProps> = ({
             )}
             title={
               hasPreviewableCode
-                ? `检测到可预览代码 (${codeSource === 'tool_use' ? '工具调用' : 'Markdown'}) - 点击预览 (Ctrl+Shift+C)`
+                ? `检测到可预览代码 (${codeSource === "tool_use" ? "工具调用" : "Markdown"}) - 点击预览 (Ctrl+Shift+C)`
                 : "Canvas 实时预览 (Ctrl+Shift+C)"
             }
           >
-            <Sparkles className={cn(
-              "h-3.5 w-3.5",
-              hasPreviewableCode ? "text-white" : "text-purple-500"
-            )} />
+            <Sparkles
+              className={cn("h-3.5 w-3.5", hasPreviewableCode ? "text-white" : "text-purple-500")}
+            />
             <span className="text-xs hidden sm:inline">
-              {hasPreviewableCode ? '预览' : 'Canvas'}
+              {hasPreviewableCode ? "预览" : "Canvas"}
             </span>
           </Button>
           {hasPreviewableCode && (
@@ -544,24 +598,33 @@ export const ControlBar: React.FC<ControlBarProps> = ({
             className="gap-2 h-8 border-border/50 bg-background/50 hover:bg-accent/50"
           >
             <Wand2 className="h-3.5 w-3.5" />
-            <span className="text-xs">{isEnhancing ? t('promptInput.enhancing') : t('promptInput.enhance')}</span>
+            <span className="text-xs">
+              {isEnhancing ? t("promptInput.enhancing") : t("promptInput.enhance")}
+            </span>
             <ChevronDown className="h-3 w-3 opacity-50" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-64 bg-background/95 backdrop-blur-md border-border/50">
+        <DropdownMenuContent
+          align="end"
+          className="w-64 bg-background/95 backdrop-blur-md border-border/50"
+        >
           {/* Project Context Switch */}
           {projectPath && (
             <>
               <div className="px-2 py-1.5">
                 <label className="flex items-center justify-between cursor-pointer hover:bg-accent/50 rounded px-2 py-1.5 transition-colors">
                   <div className="flex items-center gap-2">
-                    <Code2 className={`h-4 w-4 ${enableProjectContext ? 'text-primary' : 'text-muted-foreground'}`} />
+                    <Code2
+                      className={`h-4 w-4 ${enableProjectContext ? "text-primary" : "text-muted-foreground"}`}
+                    />
                     <div>
-                      <div className={`text-sm font-medium ${enableProjectContext ? 'text-primary' : ''}`}>
-                        {t('promptInput.enableProjectContext')}
+                      <div
+                        className={`text-sm font-medium ${enableProjectContext ? "text-primary" : ""}`}
+                      >
+                        {t("promptInput.enableProjectContext")}
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        {t('promptInput.useAcemcpSearch')}
+                        {t("promptInput.useAcemcpSearch")}
                       </p>
                     </div>
                   </div>
@@ -579,13 +642,15 @@ export const ControlBar: React.FC<ControlBarProps> = ({
           <div className="px-2 py-1.5">
             <label className="flex items-center justify-between cursor-pointer hover:bg-accent/50 rounded px-2 py-1.5 transition-colors">
               <div className="flex items-center gap-2">
-                <Zap className={`h-4 w-4 ${enableDualAPI ? 'text-primary' : 'text-muted-foreground'}`} />
+                <Zap
+                  className={`h-4 w-4 ${enableDualAPI ? "text-primary" : "text-muted-foreground"}`}
+                />
                 <div>
-                  <div className={`text-sm font-medium ${enableDualAPI ? 'text-primary' : ''}`}>
-                    {t('promptInput.smartContextExtraction')}
+                  <div className={`text-sm font-medium ${enableDualAPI ? "text-primary" : ""}`}>
+                    {t("promptInput.smartContextExtraction")}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {t('promptInput.aiFilterMessages')}
+                    {t("promptInput.aiFilterMessages")}
                   </p>
                 </div>
               </div>
@@ -593,7 +658,7 @@ export const ControlBar: React.FC<ControlBarProps> = ({
                 checked={enableDualAPI}
                 onCheckedChange={(checked) => {
                   setEnableDualAPI(checked);
-                  localStorage.setItem('enable_dual_api_enhancement', String(checked));
+                  localStorage.setItem("enable_dual_api_enhancement", String(checked));
                 }}
               />
             </label>
@@ -622,9 +687,12 @@ export const ControlBar: React.FC<ControlBarProps> = ({
             return null;
           })()}
 
-          <DropdownMenuItem onClick={() => window.dispatchEvent(new CustomEvent('open-prompt-api-settings'))} className="cursor-pointer">
+          <DropdownMenuItem
+            onClick={() => window.dispatchEvent(new CustomEvent("open-prompt-api-settings"))}
+            className="cursor-pointer"
+          >
             <Settings className="h-3 w-3 mr-2" />
-            {t('promptInput.manageApiConfig')}
+            {t("promptInput.manageApiConfig")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -640,7 +708,10 @@ export const ControlBar: React.FC<ControlBarProps> = ({
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  logger.debug('ControlBar', '[ControlBar] 队列按钮点击', { showQueuePanel, pendingQueueCount });
+                  logger.debug("ControlBar", "[ControlBar] 队列按钮点击", {
+                    showQueuePanel,
+                    pendingQueueCount,
+                  });
                   onToggleQueuePanel();
                 }}
                 className={cn(
@@ -652,19 +723,23 @@ export const ControlBar: React.FC<ControlBarProps> = ({
                       : "border-border/50 bg-background/50 hover:bg-accent/50"
                 )}
               >
-                <ListOrdered className={cn(
-                  "h-3.5 w-3.5",
-                  showQueuePanel ? "text-white" : pendingQueueCount > 0 ? "text-amber-500" : "text-muted-foreground"
-                )} />
+                <ListOrdered
+                  className={cn(
+                    "h-3.5 w-3.5",
+                    showQueuePanel
+                      ? "text-white"
+                      : pendingQueueCount > 0
+                        ? "text-amber-500"
+                        : "text-muted-foreground"
+                  )}
+                />
                 <span className="text-xs font-medium">待发送</span>
                 {pendingQueueCount > 0 && (
                   <Badge
                     variant="secondary"
                     className={cn(
                       "h-4 min-w-4 px-1 text-[10px] font-bold",
-                      showQueuePanel
-                        ? "bg-white/20 text-white"
-                        : "bg-amber-500 text-white"
+                      showQueuePanel ? "bg-white/20 text-white" : "bg-amber-500 text-white"
                     )}
                   >
                     {pendingQueueCount}
@@ -678,13 +753,15 @@ export const ControlBar: React.FC<ControlBarProps> = ({
                   <div className="font-medium text-sm">待发送队列 ({pendingQueueCount})</div>
                   <div className="space-y-1.5 max-h-32 overflow-y-auto">
                     {queueItems
-                      .filter((item: any) => item.status === 'pending')
+                      .filter((item: any) => item.status === "pending")
                       .slice(0, 5)
                       .map((item: any, idx: number) => (
                         <div key={item.id} className="flex items-start gap-2 text-xs">
                           <span className="text-muted-foreground font-mono w-4">{idx + 1}.</span>
                           <span className="line-clamp-2 text-foreground/80">
-                            {item.prompt.length > 50 ? item.prompt.slice(0, 50) + '...' : item.prompt}
+                            {item.prompt.length > 50
+                              ? item.prompt.slice(0, 50) + "..."
+                              : item.prompt}
                           </span>
                         </div>
                       ))}
@@ -703,8 +780,8 @@ export const ControlBar: React.FC<ControlBarProps> = ({
                   <div className="font-medium">提示词队列</div>
                   <div className="text-muted-foreground text-xs mt-1">
                     {isLoading
-                      ? 'AI 正在工作，新消息会加入队列等待发送'
-                      : '点击打开队列面板，添加提示词到队列'}
+                      ? "AI 正在工作，新消息会加入队列等待发送"
+                      : "点击打开队列面板，添加提示词到队列"}
                   </div>
                 </div>
               )}
@@ -715,10 +792,7 @@ export const ControlBar: React.FC<ControlBarProps> = ({
 
       {/* Voice Input Button */}
       {onVoiceTextRecognized && (
-        <VoiceInput
-          onTextRecognized={onVoiceTextRecognized}
-          disabled={disabled}
-        />
+        <VoiceInput onTextRecognized={onVoiceTextRecognized} disabled={disabled} />
       )}
 
       {/* Send/Cancel Button */}
@@ -730,7 +804,7 @@ export const ControlBar: React.FC<ControlBarProps> = ({
           disabled={disabled}
           className="h-8 shadow-md bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white font-medium"
         >
-          {t('buttons.cancel')}
+          {t("buttons.cancel")}
         </Button>
       )}
       <Button
@@ -739,7 +813,7 @@ export const ControlBar: React.FC<ControlBarProps> = ({
         size="default"
         className="h-8 btn-glass-orange"
       >
-        {t('promptInput.send')}
+        {t("promptInput.send")}
       </Button>
     </div>
   );

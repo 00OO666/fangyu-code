@@ -6,7 +6,7 @@
  */
 
 import React, { useState } from "react";
-import { FileText, ChevronUp, ChevronDown } from 'lucide-react';
+import { FileText, ChevronUp, ChevronDown } from "lucide-react";
 import { Prism as SyntaxHighlighter } from "@/lib/lightSyntaxHighlighter";
 import { getClaudeSyntaxTheme } from "@/lib/claudeSyntaxTheme";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -34,7 +34,7 @@ export const ReadResultWidget: React.FC<ReadResultWidgetProps> = ({ content, fil
   const { theme } = useTheme();
 
   // 预先计算行数
-  const lineCount = content.split('\n').filter(line => line.trim()).length;
+  const lineCount = content.split("\n").filter((line) => line.trim()).length;
   // 所有文件默认折叠
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -42,19 +42,19 @@ export const ReadResultWidget: React.FC<ReadResultWidgetProps> = ({ content, fil
    * 解析内容，分离行号和代码
    */
   const parseContent = (rawContent: string) => {
-    const lines = rawContent.split('\n');
+    const lines = rawContent.split("\n");
     const codeLines: string[] = [];
     let minLineNumber = Infinity;
 
     // 判断内容是否可能是带行号的格式
     // 如果超过 50% 的非空行匹配 "数字→" 格式，则认为是带行号的
-    const nonEmptyLines = lines.filter(line => line.trim() !== '');
+    const nonEmptyLines = lines.filter((line) => line.trim() !== "");
     if (nonEmptyLines.length === 0) {
       return { codeContent: rawContent, startLineNumber: 1 };
     }
 
-    const parsableLines = nonEmptyLines.filter(line => /^\s*\d+→/.test(line)).length;
-    const isLikelyNumbered = (parsableLines / nonEmptyLines.length) > 0.5;
+    const parsableLines = nonEmptyLines.filter((line) => /^\s*\d+→/.test(line)).length;
+    const isLikelyNumbered = parsableLines / nonEmptyLines.length > 0.5;
 
     if (!isLikelyNumbered) {
       return { codeContent: rawContent, startLineNumber: 1 };
@@ -72,27 +72,27 @@ export const ReadResultWidget: React.FC<ReadResultWidgetProps> = ({ content, fil
         }
         // 保留箭头后的代码内容
         codeLines.push(match[2]);
-      } else if (line.trim() === '') {
+      } else if (line.trim() === "") {
         // 保留空行
-        codeLines.push('');
+        codeLines.push("");
       } else {
         // 格式异常的行渲染为空行
-        codeLines.push('');
+        codeLines.push("");
       }
     }
 
     // 移除末尾空行
-    while (codeLines.length > 0 && codeLines[codeLines.length - 1] === '') {
+    while (codeLines.length > 0 && codeLines[codeLines.length - 1] === "") {
       codeLines.pop();
     }
 
     return {
-      codeContent: codeLines.join('\n'),
-      startLineNumber: minLineNumber === Infinity ? 1 : minLineNumber
+      codeContent: codeLines.join("\n"),
+      startLineNumber: minLineNumber === Infinity ? 1 : minLineNumber,
     };
   };
 
-  const language = getLanguage(filePath || '');
+  const language = getLanguage(filePath || "");
   const { codeContent, startLineNumber } = parseContent(content);
 
   return (
@@ -110,7 +110,10 @@ export const ReadResultWidget: React.FC<ReadResultWidgetProps> = ({ content, fil
             <FileText className="h-4 w-4 text-blue-500 flex-shrink-0" />
             <span className="text-sm font-medium text-muted-foreground">Read</span>
             <span className="text-muted-foreground/30">|</span>
-            <span className="text-sm font-mono text-foreground/90 font-medium truncate" title={filePath}>
+            <span
+              className="text-sm font-mono text-foreground/90 font-medium truncate"
+              title={filePath}
+            >
               {filePath ? filePath.split(/[/\\]/).pop() : "File content"}
             </span>
             {filePath && (
@@ -146,13 +149,13 @@ export const ReadResultWidget: React.FC<ReadResultWidgetProps> = ({ content, fil
               wrapLongLines={false}
               customStyle={{
                 margin: 0,
-                background: 'transparent',
-                lineHeight: '1.6'
+                background: "transparent",
+                lineHeight: "1.6",
               }}
               codeTagProps={{
                 style: {
-                  fontSize: '0.8rem'
-                }
+                  fontSize: "0.8rem",
+                },
               }}
               lineNumberStyle={{
                 minWidth: "3.5rem",

@@ -1,11 +1,4 @@
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useCallback,
-  useRef,
-} from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
 import type { UpdateInfo, UpdateHandle } from "../lib/updater";
 import { useUpdateCheck } from "../hooks/useUpdateCheck";
 
@@ -60,52 +53,55 @@ export function UpdateProvider({ children }: { children: React.ReactNode }) {
     setIsDismissed(dismissedVersion === current);
   }, [updateInfo?.availableVersion]);
 
-  const checkUpdate = useCallback(async (force: boolean = false) => {
-    const result = await performCheck(force);
+  const checkUpdate = useCallback(
+    async (force: boolean = false) => {
+      const result = await performCheck(force);
 
-    if (result.status === "available") {
-      setHasUpdate(true);
-      setUpdateInfo(result.info);
-      setUpdateHandle(result.update);
+      if (result.status === "available") {
+        setHasUpdate(true);
+        setUpdateInfo(result.info);
+        setUpdateHandle(result.update);
 
-      // 检查是否已经关闭过这个版本的提醒
-      let dismissedVersion = localStorage.getItem(DISMISSED_VERSION_KEY);
-      if (!dismissedVersion) {
-        const legacy = localStorage.getItem(LEGACY_DISMISSED_KEY);
-        if (legacy) {
-          localStorage.setItem(DISMISSED_VERSION_KEY, legacy);
-          localStorage.removeItem(LEGACY_DISMISSED_KEY);
-          dismissedVersion = legacy;
+        // 检查是否已经关闭过这个版本的提醒
+        let dismissedVersion = localStorage.getItem(DISMISSED_VERSION_KEY);
+        if (!dismissedVersion) {
+          const legacy = localStorage.getItem(LEGACY_DISMISSED_KEY);
+          if (legacy) {
+            localStorage.setItem(DISMISSED_VERSION_KEY, legacy);
+            localStorage.removeItem(LEGACY_DISMISSED_KEY);
+            dismissedVersion = legacy;
+          }
         }
-      }
-      // 仅在非强制检查时考虑 isDismissed；如果是用户手动强制检查，即使之前 dismiss 过也应该显示
-      const isDismissedVersion = dismissedVersion === result.info.availableVersion;
-      if (force) {
-        setIsDismissed(false); // 强制检查时重置忽略状态
+        // 仅在非强制检查时考虑 isDismissed；如果是用户手动强制检查，即使之前 dismiss 过也应该显示
+        const isDismissedVersion = dismissedVersion === result.info.availableVersion;
+        if (force) {
+          setIsDismissed(false); // 强制检查时重置忽略状态
+        } else {
+          setIsDismissed(isDismissedVersion);
+        }
+
+        return true; // 有更新
       } else {
-        setIsDismissed(isDismissedVersion);
-      }
+        // up-to-date or error
+        if (result.status === "up-to-date") {
+          // useUpdateCheck 里可能因为“5分钟内已检查过”而跳过检查：这种情况不应该清空已有的更新信息
+          if (result.skipped) {
+            return false;
+          }
 
-      return true; // 有更新
-    } else {
-      // up-to-date or error
-      if (result.status === "up-to-date") {
-        // useUpdateCheck 里可能因为“5分钟内已检查过”而跳过检查：这种情况不应该清空已有的更新信息
-        if (result.skipped) {
-          return false;
+          // 如果确认为最新版本，清除之前的更新状态
+          setHasUpdate(false);
+          setUpdateInfo(null);
+          setUpdateHandle(null);
+          setIsDismissed(false);
         }
 
-        // 如果确认为最新版本，清除之前的更新状态
-        setHasUpdate(false);
-        setUpdateInfo(null);
-        setUpdateHandle(null);
-        setIsDismissed(false);
+        // error: 不清空旧的 updateInfo/hasUpdate，避免更新弹窗/提示在网络波动时自动消失
+        return false;
       }
-
-      // error: 不清空旧的 updateInfo/hasUpdate，避免更新弹窗/提示在网络波动时自动消失
-      return false;
-    }
-  }, [performCheck]);
+    },
+    [performCheck]
+  );
 
   const dismissUpdate = useCallback(() => {
     setIsDismissed(true);
@@ -150,9 +146,7 @@ export function UpdateProvider({ children }: { children: React.ReactNode }) {
     resetDismiss,
   };
 
-  return (
-    <UpdateContext.Provider value={value}>{children}</UpdateContext.Provider>
-  );
+  return <UpdateContext.Provider value={value}>{children}</UpdateContext.Provider>;
 }
 
 export function useUpdate() {
@@ -162,7 +156,3 @@ export function useUpdate() {
   }
   return context;
 }
-
-
-
-

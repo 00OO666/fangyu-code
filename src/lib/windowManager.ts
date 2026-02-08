@@ -4,7 +4,7 @@
  * Provides functions to create, manage, and communicate with independent session windows.
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { invoke } from "@tauri-apps/api/core";
 import { emit, listen, type UnlistenFn } from "@tauri-apps/api/event";
 import type { ThemeName } from "@/types/theme";
@@ -66,7 +66,7 @@ export async function createSessionWindow(params: CreateSessionWindowParams): Pr
     }
     return result.window_label;
   } catch (error) {
-    logger.error('windowManager', "[WindowManager] Failed to create session window:", error);
+    logger.error("windowManager", "[WindowManager] Failed to create session window:", error);
     throw error;
   }
 }
@@ -80,7 +80,7 @@ export async function closeSessionWindow(windowLabel: string): Promise<void> {
   try {
     await invoke("close_session_window", { windowLabel });
   } catch (error) {
-    logger.error('windowManager', "[WindowManager] Failed to close session window:", error);
+    logger.error("windowManager", "[WindowManager] Failed to close session window:", error);
     throw error;
   }
 }
@@ -94,7 +94,7 @@ export async function listSessionWindows(): Promise<string[]> {
   try {
     return await invoke<string[]>("list_session_windows");
   } catch (error) {
-    logger.error('windowManager', "[WindowManager] Failed to list session windows:", error);
+    logger.error("windowManager", "[WindowManager] Failed to list session windows:", error);
     return [];
   }
 }
@@ -108,7 +108,7 @@ export async function focusSessionWindow(windowLabel: string): Promise<void> {
   try {
     await invoke("focus_session_window", { windowLabel });
   } catch (error) {
-    logger.error('windowManager', "[WindowManager] Failed to focus session window:", error);
+    logger.error("windowManager", "[WindowManager] Failed to focus session window:", error);
     throw error;
   }
 }
@@ -127,7 +127,7 @@ export async function focusSessionWindow(windowLabel: string): Promise<void> {
 export async function emitToWindow(
   windowLabel: string,
   eventName: string,
-  payload: any,
+  payload: any
 ): Promise<void> {
   try {
     await invoke("emit_to_window", {
@@ -136,7 +136,7 @@ export async function emitToWindow(
       payload: JSON.stringify(payload),
     });
   } catch (error) {
-    logger.error('windowManager', "[WindowManager] Failed to emit to window:", error);
+    logger.error("windowManager", "[WindowManager] Failed to emit to window:", error);
     throw error;
   }
 }
@@ -155,7 +155,7 @@ export async function broadcastToSessionWindows(eventName: string, payload: any)
       payload: JSON.stringify(payload),
     });
   } catch (error) {
-    logger.error('windowManager', "[WindowManager] Failed to broadcast:", error);
+    logger.error("windowManager", "[WindowManager] Failed to broadcast:", error);
     return 0;
   }
 }
@@ -175,7 +175,7 @@ export async function emitWindowSyncEvent(event: WindowSyncEvent): Promise<void>
   try {
     await emit(WINDOW_SYNC_EVENT, event);
   } catch (error) {
-    logger.error('windowManager', "[WindowManager] Failed to emit sync event:", error);
+    logger.error("windowManager", "[WindowManager] Failed to emit sync event:", error);
   }
 }
 
@@ -186,7 +186,7 @@ export async function emitWindowSyncEvent(event: WindowSyncEvent): Promise<void>
  * @returns Unlisten function
  */
 export async function onWindowSyncEvent(
-  callback: (event: WindowSyncEvent) => void,
+  callback: (event: WindowSyncEvent) => void
 ): Promise<UnlistenFn> {
   return listen<WindowSyncEvent>(WINDOW_SYNC_EVENT, (event) => {
     callback(event.payload);
@@ -230,9 +230,7 @@ export function parseSessionWindowParams(): {
   const engineParam = params.get("engine");
   // 🔧 FIX: 支持 gemini 引擎
   const engine =
-    engineParam === "claude" ||
-    engineParam === "codex" ||
-    engineParam === "gemini"
+    engineParam === "claude" || engineParam === "codex" || engineParam === "gemini"
       ? engineParam
       : undefined;
   return {

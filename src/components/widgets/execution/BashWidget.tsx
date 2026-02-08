@@ -7,7 +7,7 @@
 
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Terminal, ChevronUp, ChevronDown, Loader2, CheckCircle2, XCircle } from 'lucide-react';
+import { Terminal, ChevronUp, ChevronDown, Loader2, CheckCircle2, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface BashWidgetProps {
@@ -24,43 +24,47 @@ export interface BashWidgetProps {
  *
  * 展示 Bash 命令和可折叠的执行结果
  */
-export const BashWidget: React.FC<BashWidgetProps> = ({
-  command,
-  description,
-  result,
-}) => {
+export const BashWidget: React.FC<BashWidgetProps> = ({ command, description, result }) => {
   const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
 
   // 提取结果内容
-  let resultContent = '';
+  let resultContent = "";
   let isError = false;
 
   if (result) {
     isError = result.is_error || false;
-    if (typeof result.content === 'string') {
+    if (typeof result.content === "string") {
       resultContent = result.content;
-    } else if (result.content && typeof result.content === 'object') {
+    } else if (result.content && typeof result.content === "object") {
       if (result.content.text) {
         resultContent = result.content.text;
       } else if (Array.isArray(result.content)) {
         resultContent = result.content
-          .map((c: any) => (typeof c === 'string' ? c : c.text || JSON.stringify(c)))
-          .join('\n');
+          .map((c: any) => (typeof c === "string" ? c : c.text || JSON.stringify(c)))
+          .join("\n");
       } else {
         resultContent = JSON.stringify(result.content, null, 2);
       }
     }
   }
 
-  const statusIcon = result
-    ? isError
-      ? <XCircle className="h-3.5 w-3.5 text-red-500" />
-      : <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
-    : <Loader2 className="h-3.5 w-3.5 text-blue-500 animate-spin" />;
+  const statusIcon = result ? (
+    isError ? (
+      <XCircle className="h-3.5 w-3.5 text-red-500" />
+    ) : (
+      <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
+    )
+  ) : (
+    <Loader2 className="h-3.5 w-3.5 text-blue-500 animate-spin" />
+  );
 
-  const statusText = result ? (isError ? t('widget.failed') : t('widget.completed')) : t('widget.running');
-  const statusColor = result ? (isError ? 'text-red-500' : 'text-green-500') : 'text-blue-500';
+  const statusText = result
+    ? isError
+      ? t("widget.failed")
+      : t("widget.completed")
+    : t("widget.running");
+  const statusColor = result ? (isError ? "text-red-500" : "text-green-500") : "text-blue-500";
 
   return (
     <div className="space-y-2 w-full">
@@ -73,7 +77,9 @@ export const BashWidget: React.FC<BashWidgetProps> = ({
           {/* Terminal 标签 - 不允许换行和收缩 */}
           <div className="flex items-center gap-2 flex-shrink-0">
             <Terminal className="h-4 w-4 text-blue-500" />
-            <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">Terminal</span>
+            <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">
+              Terminal
+            </span>
             <span className="text-muted-foreground/30">|</span>
           </div>
           {/* 命令内容 - 允许截断 */}
@@ -85,9 +91,12 @@ export const BashWidget: React.FC<BashWidgetProps> = ({
 
           {/* 状态与描述 */}
           <div className="flex items-center gap-2 text-xs flex-shrink-0">
-            <div className={cn("flex items-center gap-1 px-1.5 py-0.5 rounded-md", 
-              result ? (isError ? "bg-red-500/10" : "bg-green-500/10") : "bg-blue-500/10"
-            )}>
+            <div
+              className={cn(
+                "flex items-center gap-1 px-1.5 py-0.5 rounded-md",
+                result ? (isError ? "bg-red-500/10" : "bg-green-500/10") : "bg-blue-500/10"
+              )}
+            >
               {statusIcon}
               <span className={cn("font-medium hidden sm:inline", statusColor)}>{statusText}</span>
             </div>
@@ -121,13 +130,15 @@ export const BashWidget: React.FC<BashWidgetProps> = ({
             </div>
 
             {/* 结果输出 */}
-            <div className={cn(
-              "text-xs font-mono whitespace-pre-wrap overflow-x-auto max-h-[300px]",
-              isError
-                ? "text-red-600 dark:text-red-400"
-                : "text-foreground/80"
-            )} style={{ fontSize: '0.8rem', lineHeight: '1.5' }}>
-              {resultContent || (isError ? t('widget.commandFailed') : t('widget.commandCompleted'))}
+            <div
+              className={cn(
+                "text-xs font-mono whitespace-pre-wrap overflow-x-auto max-h-[300px]",
+                isError ? "text-red-600 dark:text-red-400" : "text-foreground/80"
+              )}
+              style={{ fontSize: "0.8rem", lineHeight: "1.5" }}
+            >
+              {resultContent ||
+                (isError ? t("widget.commandFailed") : t("widget.commandCompleted"))}
             </div>
           </div>
         </div>

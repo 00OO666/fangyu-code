@@ -1,28 +1,28 @@
 /**
  * AutonomyController - 自治模式控制器
- * 
+ *
  * 实现 Autopilot 和 Supervised 两种自治模式
- * 
+ *
  * Requirements: 11.1, 11.2, 11.3, 11.4, 11.5
  */
 
 // 自治模式类型
-export type AutonomyMode = 'autopilot' | 'supervised';
+export type AutonomyMode = "autopilot" | "supervised";
 
 // 操作类型
-export type OperationType = 
-  | 'file_create'
-  | 'file_modify'
-  | 'file_delete'
-  | 'command_execute'
-  | 'git_commit'
-  | 'git_push'
-  | 'install_package'
-  | 'config_change'
-  | 'network_request';
+export type OperationType =
+  | "file_create"
+  | "file_modify"
+  | "file_delete"
+  | "command_execute"
+  | "git_commit"
+  | "git_push"
+  | "install_package"
+  | "config_change"
+  | "network_request";
 
 // 操作风险级别
-export type RiskLevel = 'low' | 'medium' | 'high' | 'critical';
+export type RiskLevel = "low" | "medium" | "high" | "critical";
 
 // 操作记录
 export interface OperationRecord {
@@ -71,29 +71,28 @@ export interface AutonomyConfig {
 
 // 操作风险评估规则
 const RISK_RULES: Record<OperationType, RiskLevel> = {
-  file_create: 'low',
-  file_modify: 'medium',
-  file_delete: 'high',
-  command_execute: 'high',
-  git_commit: 'medium',
-  git_push: 'high',
-  install_package: 'medium',
-  config_change: 'high',
-  network_request: 'low',
+  file_create: "low",
+  file_modify: "medium",
+  file_delete: "high",
+  command_execute: "high",
+  git_commit: "medium",
+  git_push: "high",
+  install_package: "medium",
+  config_change: "high",
+  network_request: "low",
 };
-
 
 // 危险操作模式
 const DANGEROUS_PATTERNS: Array<{ pattern: RegExp; riskLevel: RiskLevel }> = [
-  { pattern: /rm\s+-rf/i, riskLevel: 'critical' },
-  { pattern: /del\s+\/[sq]/i, riskLevel: 'critical' },
-  { pattern: /format\s+[a-z]:/i, riskLevel: 'critical' },
-  { pattern: /drop\s+database/i, riskLevel: 'critical' },
-  { pattern: /truncate\s+table/i, riskLevel: 'critical' },
-  { pattern: /git\s+push\s+.*--force/i, riskLevel: 'critical' },
-  { pattern: /git\s+reset\s+--hard/i, riskLevel: 'high' },
-  { pattern: /npm\s+publish/i, riskLevel: 'high' },
-  { pattern: /sudo/i, riskLevel: 'high' },
+  { pattern: /rm\s+-rf/i, riskLevel: "critical" },
+  { pattern: /del\s+\/[sq]/i, riskLevel: "critical" },
+  { pattern: /format\s+[a-z]:/i, riskLevel: "critical" },
+  { pattern: /drop\s+database/i, riskLevel: "critical" },
+  { pattern: /truncate\s+table/i, riskLevel: "critical" },
+  { pattern: /git\s+push\s+.*--force/i, riskLevel: "critical" },
+  { pattern: /git\s+reset\s+--hard/i, riskLevel: "high" },
+  { pattern: /npm\s+publish/i, riskLevel: "high" },
+  { pattern: /sudo/i, riskLevel: "high" },
 ];
 
 // 确认回调类型
@@ -103,22 +102,28 @@ export type ConfirmationCallback = (request: ConfirmationRequest) => Promise<Con
  * AutonomyController 类
  */
 export class AutonomyController {
-  private mode: AutonomyMode = 'supervised';
+  private mode: AutonomyMode = "supervised";
   private config: AutonomyConfig;
   private operations: Map<string, OperationRecord> = new Map();
   private rollbackStack: OperationRecord[] = [];
   private confirmationCallback?: ConfirmationCallback;
-  private pendingConfirmations: Map<string, {
-    resolve: (response: ConfirmationResponse) => void;
-    timeout: NodeJS.Timeout;
-  }> = new Map();
+  private pendingConfirmations: Map<
+    string,
+    {
+      resolve: (response: ConfirmationResponse) => void;
+      timeout: NodeJS.Timeout;
+    }
+  > = new Map();
 
   constructor(config?: Partial<AutonomyConfig>) {
     this.config = {
-      mode: config?.mode ?? 'supervised',
-      autoApproveRiskLevels: config?.autoApproveRiskLevels ?? ['low'],
+      mode: config?.mode ?? "supervised",
+      autoApproveRiskLevels: config?.autoApproveRiskLevels ?? ["low"],
       requireConfirmationFor: config?.requireConfirmationFor ?? [
-        'file_delete', 'command_execute', 'git_push', 'config_change'
+        "file_delete",
+        "command_execute",
+        "git_push",
+        "config_change",
       ],
       maxPendingOperations: config?.maxPendingOperations ?? 10,
       confirmationTimeout: config?.confirmationTimeout ?? 30000,
@@ -153,7 +158,7 @@ export class AutonomyController {
    * 切换模式
    */
   toggleMode(): AutonomyMode {
-    this.mode = this.mode === 'autopilot' ? 'supervised' : 'autopilot';
+    this.mode = this.mode === "autopilot" ? "supervised" : "autopilot";
     this.config.mode = this.mode;
     return this.mode;
   }
@@ -162,14 +167,14 @@ export class AutonomyController {
    * 检查是否为自动驾驶模式
    */
   isAutopilot(): boolean {
-    return this.mode === 'autopilot';
+    return this.mode === "autopilot";
   }
 
   /**
    * 检查是否为监督模式
    */
   isSupervised(): boolean {
-    return this.mode === 'supervised';
+    return this.mode === "supervised";
   }
 
   // ==========================================================================
@@ -188,10 +193,10 @@ export class AutonomyController {
    * Requirements: 11.3
    */
   assessRisk(type: OperationType, details?: Record<string, unknown>): RiskLevel {
-    let baseRisk = RISK_RULES[type] ?? 'medium';
-    
+    let baseRisk = RISK_RULES[type] ?? "medium";
+
     // 检查危险模式
-    if (details?.command && typeof details.command === 'string') {
+    if (details?.command && typeof details.command === "string") {
       for (const { pattern, riskLevel } of DANGEROUS_PATTERNS) {
         if (pattern.test(details.command)) {
           if (this.compareRiskLevel(riskLevel, baseRisk) > 0) {
@@ -200,17 +205,17 @@ export class AutonomyController {
         }
       }
     }
-    
+
     // 检查文件路径
-    if (details?.path && typeof details.path === 'string') {
+    if (details?.path && typeof details.path === "string") {
       const path = details.path.toLowerCase();
-      if (path.includes('config') || path.includes('.env') || path.includes('secret')) {
-        if (this.compareRiskLevel('high', baseRisk) > 0) {
-          baseRisk = 'high';
+      if (path.includes("config") || path.includes(".env") || path.includes("secret")) {
+        if (this.compareRiskLevel("high", baseRisk) > 0) {
+          baseRisk = "high";
         }
       }
     }
-    
+
     return baseRisk;
   }
 
@@ -227,7 +232,6 @@ export class AutonomyController {
     return levels[a] - levels[b];
   }
 
-
   /**
    * 请求执行操作
    * Requirements: 11.2, 11.3
@@ -241,7 +245,7 @@ export class AutonomyController {
     const operationId = this.generateId();
     const riskLevel = this.assessRisk(type, details);
     const reversible = rollbackData !== undefined;
-    
+
     const record: OperationRecord = {
       id: operationId,
       type,
@@ -253,24 +257,24 @@ export class AutonomyController {
       executed: false,
       rollbackData,
     };
-    
+
     this.operations.set(operationId, record);
-    
+
     // 自动驾驶模式：自动批准低风险操作
-    if (this.mode === 'autopilot') {
+    if (this.mode === "autopilot") {
       if (this.config.autoApproveRiskLevels.includes(riskLevel)) {
         record.approved = true;
         return { approved: true, operationId };
       }
     }
-    
+
     // 检查是否需要确认
-    const needsConfirmation = 
-      this.mode === 'supervised' ||
+    const needsConfirmation =
+      this.mode === "supervised" ||
       this.config.requireConfirmationFor.includes(type) ||
-      riskLevel === 'critical' ||
-      riskLevel === 'high';
-    
+      riskLevel === "critical" ||
+      riskLevel === "high";
+
     if (needsConfirmation) {
       const response = await this.requestConfirmation({
         operationId,
@@ -280,7 +284,7 @@ export class AutonomyController {
         details,
         timeout: this.config.confirmationTimeout,
       });
-      
+
       record.approved = response.approved;
       return {
         approved: response.approved,
@@ -288,7 +292,7 @@ export class AutonomyController {
         reason: response.reason,
       };
     }
-    
+
     // 默认批准
     record.approved = true;
     return { approved: true, operationId };
@@ -301,20 +305,20 @@ export class AutonomyController {
   private async requestConfirmation(request: ConfirmationRequest): Promise<ConfirmationResponse> {
     if (!this.confirmationCallback) {
       // 没有回调，默认拒绝高风险操作
-      if (request.riskLevel === 'critical' || request.riskLevel === 'high') {
-        return { approved: false, reason: 'No confirmation callback registered' };
+      if (request.riskLevel === "critical" || request.riskLevel === "high") {
+        return { approved: false, reason: "No confirmation callback registered" };
       }
       return { approved: true };
     }
-    
+
     return new Promise((resolve) => {
       const timeout = setTimeout(() => {
         this.pendingConfirmations.delete(request.operationId);
-        resolve({ approved: false, reason: 'Confirmation timeout' });
+        resolve({ approved: false, reason: "Confirmation timeout" });
       }, request.timeout ?? this.config.confirmationTimeout);
-      
+
       this.pendingConfirmations.set(request.operationId, { resolve, timeout });
-      
+
       this.confirmationCallback!(request)
         .then((response) => {
           clearTimeout(timeout);
@@ -324,7 +328,7 @@ export class AutonomyController {
         .catch(() => {
           clearTimeout(timeout);
           this.pendingConfirmations.delete(request.operationId);
-          resolve({ approved: false, reason: 'Confirmation error' });
+          resolve({ approved: false, reason: "Confirmation error" });
         });
     });
   }
@@ -337,11 +341,11 @@ export class AutonomyController {
     if (record) {
       record.executed = true;
       record.result = { success, error };
-      
+
       // 添加到回滚栈
       if (success && record.reversible && this.config.enableRollback) {
         this.rollbackStack.push(record);
-        
+
         // 限制回滚历史大小
         while (this.rollbackStack.length > this.config.maxRollbackHistory) {
           this.rollbackStack.shift();
@@ -359,7 +363,7 @@ export class AutonomyController {
    * Requirements: 11.4
    */
   getRollbackableOperations(): OperationRecord[] {
-    return this.rollbackStack.filter(op => op.reversible && op.executed);
+    return this.rollbackStack.filter((op) => op.reversible && op.executed);
   }
 
   /**
@@ -368,18 +372,18 @@ export class AutonomyController {
    */
   async rollbackLast(): Promise<{ success: boolean; operation?: OperationRecord; error?: string }> {
     if (!this.config.enableRollback) {
-      return { success: false, error: 'Rollback is disabled' };
+      return { success: false, error: "Rollback is disabled" };
     }
-    
+
     const operation = this.rollbackStack.pop();
     if (!operation) {
-      return { success: false, error: 'No operations to rollback' };
+      return { success: false, error: "No operations to rollback" };
     }
-    
+
     if (!operation.reversible || !operation.rollbackData) {
-      return { success: false, error: 'Operation is not reversible', operation };
+      return { success: false, error: "Operation is not reversible", operation };
     }
-    
+
     return { success: true, operation };
   }
 
@@ -393,14 +397,14 @@ export class AutonomyController {
     error?: string;
   }> {
     if (!this.config.enableRollback) {
-      return { success: false, rolledBack: [], error: 'Rollback is disabled' };
+      return { success: false, rolledBack: [], error: "Rollback is disabled" };
     }
-    
-    const index = this.rollbackStack.findIndex(op => op.id === operationId);
+
+    const index = this.rollbackStack.findIndex((op) => op.id === operationId);
     if (index === -1) {
-      return { success: false, rolledBack: [], error: 'Operation not found in rollback stack' };
+      return { success: false, rolledBack: [], error: "Operation not found in rollback stack" };
     }
-    
+
     const rolledBack = this.rollbackStack.splice(index);
     return { success: true, rolledBack };
   }
@@ -412,7 +416,6 @@ export class AutonomyController {
     this.rollbackStack = [];
   }
 
-
   // ==========================================================================
   // 操作历史
   // ==========================================================================
@@ -421,9 +424,10 @@ export class AutonomyController {
    * 获取操作历史
    */
   getOperationHistory(limit?: number): OperationRecord[] {
-    const operations = Array.from(this.operations.values())
-      .sort((a, b) => b.timestamp - a.timestamp);
-    
+    const operations = Array.from(this.operations.values()).sort(
+      (a, b) => b.timestamp - a.timestamp
+    );
+
     return limit ? operations.slice(0, limit) : operations;
   }
 
@@ -438,8 +442,7 @@ export class AutonomyController {
    * 获取待处理的操作
    */
   getPendingOperations(): OperationRecord[] {
-    return Array.from(this.operations.values())
-      .filter(op => op.approved && !op.executed);
+    return Array.from(this.operations.values()).filter((op) => op.approved && !op.executed);
   }
 
   /**
@@ -456,30 +459,30 @@ export class AutonomyController {
     byType: Record<OperationType, number>;
   } {
     const operations = Array.from(this.operations.values());
-    
+
     const byRiskLevel: Record<RiskLevel, number> = {
       low: 0,
       medium: 0,
       high: 0,
       critical: 0,
     };
-    
+
     const byType: Partial<Record<OperationType, number>> = {};
-    
+
     let approved = 0;
     let rejected = 0;
     let executed = 0;
-    
+
     for (const op of operations) {
       byRiskLevel[op.riskLevel]++;
       byType[op.type] = (byType[op.type] ?? 0) + 1;
-      
+
       if (op.approved) approved++;
       else rejected++;
-      
+
       if (op.executed) executed++;
     }
-    
+
     return {
       mode: this.mode,
       totalOperations: operations.length,
@@ -576,7 +579,7 @@ export class AutonomyController {
     }>
   ): Promise<Array<{ approved: boolean; operationId: string; reason?: string }>> {
     const results: Array<{ approved: boolean; operationId: string; reason?: string }> = [];
-    
+
     for (const op of operations) {
       const result = await this.requestOperation(
         op.type,
@@ -585,13 +588,13 @@ export class AutonomyController {
         op.rollbackData
       );
       results.push(result);
-      
+
       // 如果任何操作被拒绝，停止处理
       if (!result.approved) {
         break;
       }
     }
-    
+
     return results;
   }
 
@@ -606,7 +609,7 @@ export class AutonomyController {
   }> {
     const rolledBack: OperationRecord[] = [];
     const errors: string[] = [];
-    
+
     for (let i = 0; i < count; i++) {
       const result = await this.rollbackLast();
       if (result.success && result.operation) {
@@ -616,7 +619,7 @@ export class AutonomyController {
         break;
       }
     }
-    
+
     return {
       success: errors.length === 0,
       rolledBack,
@@ -629,15 +632,15 @@ export class AutonomyController {
    */
   cancelPendingOperations(): number {
     let cancelled = 0;
-    
+
     for (const [, op] of this.operations) {
       if (op.approved && !op.executed) {
         op.approved = false;
-        op.result = { success: false, error: 'Cancelled' };
+        op.result = { success: false, error: "Cancelled" };
         cancelled++;
       }
     }
-    
+
     return cancelled;
   }
 
@@ -651,7 +654,7 @@ export class AutonomyController {
   respondToConfirmation(operationId: string, response: ConfirmationResponse): boolean {
     const pending = this.pendingConfirmations.get(operationId);
     if (!pending) return false;
-    
+
     clearTimeout(pending.timeout);
     pending.resolve(response);
     this.pendingConfirmations.delete(operationId);
@@ -677,28 +680,28 @@ export class AutonomyController {
    */
   approveAllPending(): number {
     let approved = 0;
-    
+
     for (const operationId of this.pendingConfirmations.keys()) {
       if (this.respondToConfirmation(operationId, { approved: true })) {
         approved++;
       }
     }
-    
+
     return approved;
   }
 
   /**
    * 拒绝所有待确认的操作
    */
-  rejectAllPending(reason: string = 'Batch rejection'): number {
+  rejectAllPending(reason: string = "Batch rejection"): number {
     let rejected = 0;
-    
+
     for (const operationId of this.pendingConfirmations.keys()) {
       if (this.respondToConfirmation(operationId, { approved: false, reason })) {
         rejected++;
       }
     }
-    
+
     return rejected;
   }
 }

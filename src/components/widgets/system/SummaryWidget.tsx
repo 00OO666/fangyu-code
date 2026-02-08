@@ -6,7 +6,7 @@
  */
 
 import React from "react";
-import { Info } from 'lucide-react';
+import { Info } from "lucide-react";
 import { useToolTranslation } from "../common/useToolTranslation";
 
 export interface SummaryWidgetProps {
@@ -28,13 +28,9 @@ export interface SummaryWidgetProps {
  *
  * 展示会话摘要、Token 使用情况和 Leaf ID
  */
-export const SummaryWidget: React.FC<SummaryWidgetProps> = ({
-  summary,
-  leafUuid,
-  usage,
-}) => {
+export const SummaryWidget: React.FC<SummaryWidgetProps> = ({ summary, leafUuid, usage }) => {
   const { translateContent } = useToolTranslation();
-  const [translatedSummary, setTranslatedSummary] = React.useState<string>('');
+  const [translatedSummary, setTranslatedSummary] = React.useState<string>("");
 
   // 翻译摘要内容
   React.useEffect(() => {
@@ -56,7 +52,12 @@ export const SummaryWidget: React.FC<SummaryWidgetProps> = ({
   const formatTokenUsage = (usage: any) => {
     if (!usage) return null;
 
-    const { input_tokens = 0, output_tokens = 0, cache_creation_tokens = 0, cache_read_tokens = 0 } = usage;
+    const {
+      input_tokens = 0,
+      output_tokens = 0,
+      cache_creation_tokens = 0,
+      cache_read_tokens = 0,
+    } = usage;
     const parts = [
       { label: "in", value: input_tokens },
       { label: "out", value: output_tokens },
@@ -64,9 +65,7 @@ export const SummaryWidget: React.FC<SummaryWidgetProps> = ({
       { label: "read", value: cache_read_tokens },
     ];
 
-    const breakdown = parts
-      .map(({ label, value }) => `${value} ${label}`)
-      .join(", ");
+    const breakdown = parts.map(({ label, value }) => `${value} ${label}`).join(", ");
 
     return `Tokens: ${breakdown}`;
   };
@@ -85,9 +84,7 @@ export const SummaryWidget: React.FC<SummaryWidgetProps> = ({
 
           {/* Token 使用展示 */}
           {usage && (
-            <div className="text-xs text-foreground/70 mt-2">
-              {formatTokenUsage(usage)}
-            </div>
+            <div className="text-xs text-foreground/70 mt-2">{formatTokenUsage(usage)}</div>
           )}
 
           {/* Leaf UUID */}

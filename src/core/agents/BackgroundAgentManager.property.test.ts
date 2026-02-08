@@ -1,47 +1,47 @@
 /**
  * Property-Based Tests for BackgroundAgentManager
- * 
+ *
  * Feature: super-ai-agent-desktop
  * Property 16: 并发限制遵守
  * Validates: Requirements 6.3
- * 
+ *
  * NOTE: Using reduced numRuns and shorter timeouts to prevent test hangs
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
-import * as fc from 'fast-check';
-import { BackgroundAgentManager, resetBackgroundManager } from './BackgroundAgentManager';
+import { describe, it, expect, beforeEach } from "vitest";
+import * as fc from "fast-check";
+import { BackgroundAgentManager, resetBackgroundManager } from "./BackgroundAgentManager";
 
 // Fast-check configuration to prevent infinite loops
-const FC_OPTIONS = { 
-  numRuns: 5,           // Reduced from 20 to prevent hangs
-  timeout: 5000,        // 5 second timeout per property
-  interruptAfterTimeLimit: 4000,  // Interrupt if taking too long
+const FC_OPTIONS = {
+  numRuns: 5, // Reduced from 20 to prevent hangs
+  timeout: 5000, // 5 second timeout per property
+  interruptAfterTimeLimit: 4000, // Interrupt if taking too long
 };
 
-describe('BackgroundAgentManager Property Tests', () => {
+describe("BackgroundAgentManager Property Tests", () => {
   beforeEach(() => {
     resetBackgroundManager();
   });
 
   /**
    * Property 16: 并发限制遵守
-   * 
+   *
    * For any model/provider concurrency configuration, the number of
    * simultaneously running tasks should not exceed the configured limit.
-   * 
+   *
    * Validates: Requirements 6.3
    */
-  describe('Property 16: Concurrency Limit Compliance', () => {
-    it('should never exceed provider concurrency limits', async () => {
+  describe("Property 16: Concurrency Limit Compliance", () => {
+    it("should never exceed provider concurrency limits", async () => {
       await fc.assert(
         fc.asyncProperty(
-          fc.integer({ min: 2, max: 4 }),  // provider limit (reduced max)
-          fc.integer({ min: 2, max: 6 }),  // number of tasks (reduced max)
+          fc.integer({ min: 2, max: 4 }), // provider limit (reduced max)
+          fc.integer({ min: 2, max: 6 }), // number of tasks (reduced max)
           async (providerLimit: number, taskCount: number) => {
             resetBackgroundManager();
             const manager = new BackgroundAgentManager();
-            
+
             manager.setConcurrencyConfig({
               defaultConcurrency: 20,
               providerConcurrency: {
@@ -60,14 +60,14 @@ describe('BackgroundAgentManager Property Tests', () => {
               maxConcurrent = Math.max(maxConcurrent, currentRunning);
               await new Promise((resolve) => setTimeout(resolve, 5)); // Reduced from 20ms
               currentRunning--;
-              return 'done';
+              return "done";
             });
 
             const taskIds: string[] = [];
             for (let i = 0; i < taskCount; i++) {
               // Don't await - just collect task IDs
-              const id = manager.spawnBackground('frontend', `Task ${i}`);
-              if (typeof id === 'string') {
+              const id = manager.spawnBackground("frontend", `Task ${i}`);
+              if (typeof id === "string") {
                 taskIds.push(id);
               }
             }
@@ -81,15 +81,15 @@ describe('BackgroundAgentManager Property Tests', () => {
       );
     });
 
-    it('should never exceed total concurrency limit', async () => {
+    it("should never exceed total concurrency limit", async () => {
       await fc.assert(
         fc.asyncProperty(
-          fc.integer({ min: 2, max: 4 }),  // Reduced max
-          fc.integer({ min: 2, max: 8 }),  // Reduced max
+          fc.integer({ min: 2, max: 4 }), // Reduced max
+          fc.integer({ min: 2, max: 8 }), // Reduced max
           async (totalLimit: number, taskCount: number) => {
             resetBackgroundManager();
             const manager = new BackgroundAgentManager();
-            
+
             manager.setConcurrencyConfig({
               defaultConcurrency: totalLimit,
               providerConcurrency: {
@@ -108,12 +108,12 @@ describe('BackgroundAgentManager Property Tests', () => {
               maxTotal = Math.max(maxTotal, currentRunning);
               await new Promise((resolve) => setTimeout(resolve, 5)); // Reduced from 20ms
               currentRunning--;
-              return 'done';
+              return "done";
             });
 
             // Spawn tasks without awaiting the queued ones
             for (let i = 0; i < taskCount; i++) {
-              manager.spawnBackground('frontend', `Task ${i}`);
+              manager.spawnBackground("frontend", `Task ${i}`);
             }
 
             // Wait for all tasks to complete with timeout
@@ -125,10 +125,10 @@ describe('BackgroundAgentManager Property Tests', () => {
       );
     });
 
-    it('should queue tasks when at capacity', async () => {
+    it("should queue tasks when at capacity", async () => {
       resetBackgroundManager();
       const manager = new BackgroundAgentManager();
-      
+
       manager.setConcurrencyConfig({
         defaultConcurrency: 2,
         providerConcurrency: {
@@ -141,14 +141,14 @@ describe('BackgroundAgentManager Property Tests', () => {
 
       manager.setExecutor(async () => {
         await new Promise((resolve) => setTimeout(resolve, 50)); // Reduced from 100ms
-        return 'done';
+        return "done";
       });
 
       // Spawn tasks without awaiting
-      manager.spawnBackground('frontend', 'Task 1');
-      manager.spawnBackground('frontend', 'Task 2');
-      manager.spawnBackground('frontend', 'Task 3');
-      manager.spawnBackground('frontend', 'Task 4');
+      manager.spawnBackground("frontend", "Task 1");
+      manager.spawnBackground("frontend", "Task 2");
+      manager.spawnBackground("frontend", "Task 3");
+      manager.spawnBackground("frontend", "Task 4");
 
       await new Promise((resolve) => setTimeout(resolve, 10));
 
@@ -159,10 +159,10 @@ describe('BackgroundAgentManager Property Tests', () => {
       await new Promise((resolve) => setTimeout(resolve, 200));
     });
 
-    it('should process queue when capacity becomes available', async () => {
+    it("should process queue when capacity becomes available", async () => {
       resetBackgroundManager();
       const manager = new BackgroundAgentManager();
-      
+
       manager.setConcurrencyConfig({
         defaultConcurrency: 1,
         providerConcurrency: {
@@ -184,9 +184,9 @@ describe('BackgroundAgentManager Property Tests', () => {
       });
 
       // Spawn tasks without awaiting
-      manager.spawnBackground('frontend', 'Task 0');
-      manager.spawnBackground('frontend', 'Task 1');
-      manager.spawnBackground('frontend', 'Task 2');
+      manager.spawnBackground("frontend", "Task 0");
+      manager.spawnBackground("frontend", "Task 1");
+      manager.spawnBackground("frontend", "Task 2");
 
       // Wait for all to complete
       await new Promise((resolve) => setTimeout(resolve, 100));
@@ -194,36 +194,36 @@ describe('BackgroundAgentManager Property Tests', () => {
     });
   });
 
-  describe('Task Status Properties', () => {
-    it('should transition through valid states', async () => {
+  describe("Task Status Properties", () => {
+    it("should transition through valid states", async () => {
       resetBackgroundManager();
       const manager = new BackgroundAgentManager();
-      
+
       manager.setExecutor(async () => {
         await new Promise((resolve) => setTimeout(resolve, 20)); // Reduced from 30ms
-        return 'done';
+        return "done";
       });
-      
-      manager.spawnBackground('frontend', 'Test task');
-      
+
+      manager.spawnBackground("frontend", "Test task");
+
       // Wait for completion
       await new Promise((resolve) => setTimeout(resolve, 50));
 
       const tasks = manager.getAllTasks();
       expect(tasks.length).toBeGreaterThan(0);
-      expect(['completed', 'failed']).toContain(tasks[0].status);
+      expect(["completed", "failed"]).toContain(tasks[0].status);
     });
 
-    it('should track progress from 0 to 100', async () => {
+    it("should track progress from 0 to 100", async () => {
       resetBackgroundManager();
       const manager = new BackgroundAgentManager();
-      
+
       manager.setExecutor(async () => {
         await new Promise((resolve) => setTimeout(resolve, 20)); // Reduced from 50ms
-        return 'done';
+        return "done";
       });
 
-      manager.spawnBackground('frontend', 'Test');
+      manager.spawnBackground("frontend", "Test");
 
       await new Promise((resolve) => setTimeout(resolve, 50)); // Reduced from 100ms
 
@@ -233,11 +233,11 @@ describe('BackgroundAgentManager Property Tests', () => {
     });
   });
 
-  describe('Task Cancellation Properties', () => {
-    it('should allow cancelling queued tasks', async () => {
+  describe("Task Cancellation Properties", () => {
+    it("should allow cancelling queued tasks", async () => {
       resetBackgroundManager();
       const manager = new BackgroundAgentManager();
-      
+
       manager.setConcurrencyConfig({
         defaultConcurrency: 1,
         providerConcurrency: {
@@ -250,12 +250,12 @@ describe('BackgroundAgentManager Property Tests', () => {
 
       manager.setExecutor(async () => {
         await new Promise((resolve) => setTimeout(resolve, 50)); // Reduced from 100ms
-        return 'done';
+        return "done";
       });
 
       // Spawn tasks - don't await the promises as they may reject when cancelled
-      const promise1 = manager.spawnBackground('frontend', 'Task 1');
-      const promise2 = manager.spawnBackground('frontend', 'Task 2');
+      const promise1 = manager.spawnBackground("frontend", "Task 1");
+      const promise2 = manager.spawnBackground("frontend", "Task 2");
 
       await new Promise((resolve) => setTimeout(resolve, 5));
 
@@ -264,7 +264,7 @@ describe('BackgroundAgentManager Property Tests', () => {
         try {
           await manager.cancelBackground(queuedTasks[0].id);
           const status = manager.getBackgroundStatus(queuedTasks[0].id);
-          expect(status?.status).toBe('cancelled');
+          expect(status?.status).toBe("cancelled");
         } catch {
           // Task may have already started
         }
@@ -274,21 +274,21 @@ describe('BackgroundAgentManager Property Tests', () => {
       await Promise.allSettled([promise1, promise2]);
     });
 
-    it('should not allow cancelling completed tasks', async () => {
+    it("should not allow cancelling completed tasks", async () => {
       resetBackgroundManager();
       const manager = new BackgroundAgentManager();
-      
+
       manager.setExecutor(async () => {
         await new Promise((resolve) => setTimeout(resolve, 5)); // Reduced from 10ms
-        return 'done';
+        return "done";
       });
-      
-      manager.spawnBackground('frontend', 'Test');
-      
+
+      manager.spawnBackground("frontend", "Test");
+
       await new Promise((resolve) => setTimeout(resolve, 30)); // Reduced from 50ms
 
       const tasks = manager.getAllTasks();
-      if (tasks.length > 0 && tasks[0].status === 'completed') {
+      if (tasks.length > 0 && tasks[0].status === "completed") {
         await expect(manager.cancelBackground(tasks[0].id)).rejects.toThrow();
       }
     });

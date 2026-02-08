@@ -6,8 +6,8 @@
  */
 
 import React from "react";
-import { ReadResultWidget } from './ReadResultWidget';
-import { Loader2, FileText } from 'lucide-react';
+import { ReadResultWidget } from "./ReadResultWidget";
+import { Loader2, FileText } from "lucide-react";
 
 export interface ReadWidgetProps {
   /** 文件路径 */
@@ -24,16 +24,16 @@ export interface ReadWidgetProps {
 export const ReadWidget: React.FC<ReadWidgetProps> = ({ filePath, result }) => {
   // 如果有结果，直接渲染结果组件，不显示额外的标签
   if (result) {
-    let resultContent = '';
-    if (typeof result.content === 'string') {
+    let resultContent = "";
+    if (typeof result.content === "string") {
       resultContent = result.content;
-    } else if (result.content && typeof result.content === 'object') {
+    } else if (result.content && typeof result.content === "object") {
       if (result.content.text) {
         resultContent = result.content.text;
       } else if (Array.isArray(result.content)) {
         resultContent = result.content
-          .map((c: any) => (typeof c === 'string' ? c : c.text || JSON.stringify(c)))
-          .join('\n');
+          .map((c: any) => (typeof c === "string" ? c : c.text || JSON.stringify(c)))
+          .join("\n");
       } else {
         resultContent = JSON.stringify(result.content, null, 2);
       }
@@ -43,7 +43,7 @@ export const ReadWidget: React.FC<ReadWidgetProps> = ({ filePath, result }) => {
     return resultContent ? <ReadResultWidget content={resultContent} filePath={filePath} /> : null;
   }
 
-// 简化版 Loading 状态
+  // 简化版 Loading 状态
   return (
     <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/30 border border-border/50">
       <Loader2 className="h-3.5 w-3.5 text-primary animate-spin" />

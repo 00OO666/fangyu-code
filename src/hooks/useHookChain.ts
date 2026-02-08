@@ -91,7 +91,7 @@ interface UseHookChainOptions {
   /** 执行命令的回调 */
   executeCommand?: (
     command: string,
-    context: HookExecutionContext,
+    context: HookExecutionContext
   ) => Promise<{
     success: boolean;
     output?: string;
@@ -162,7 +162,7 @@ export function useHookChain(options: UseHookChainOptions = {}) {
             (_, path) => {
               const value = getNestedValue(context.toolInput, path);
               return String(value ?? "");
-            },
+            }
           );
         }
 
@@ -225,7 +225,7 @@ export function useHookChain(options: UseHookChainOptions = {}) {
         };
       }
     },
-    [executeCommand, defaultTimeout],
+    [executeCommand, defaultTimeout]
   );
 
   /**
@@ -300,7 +300,7 @@ export function useHookChain(options: UseHookChainOptions = {}) {
         interruptReason,
       };
     },
-    [matchHook, executeHookCommand, enableLogging],
+    [matchHook, executeHookCommand, enableLogging]
   );
 
   /**

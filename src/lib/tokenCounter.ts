@@ -7,7 +7,7 @@
  * 2025年最新官方定价和Claude 4系列模型支持
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import Anthropic from "@anthropic-ai/sdk";
 import { api } from "./api";
 
@@ -383,7 +383,7 @@ export class TokenCounterService {
         });
       }
     } catch (error) {
-      logger.warn('tokenCounter', "[TokenCounter] 初始化失败，将使用估算方法:", error);
+      logger.warn("tokenCounter", "[TokenCounter] 初始化失败，将使用估算方法:", error);
     }
   }
 
@@ -469,7 +469,7 @@ export class TokenCounterService {
     }
 
     // Unknown model - return original
-    logger.warn('tokenCounter', `[TokenCounter] Unknown model: '${model}'. Using default pricing.`);
+    logger.warn("tokenCounter", `[TokenCounter] Unknown model: '${model}'. Using default pricing.`);
     return model;
   }
 
@@ -480,7 +480,7 @@ export class TokenCounterService {
     messages: ClaudeMessage[],
     model?: string,
     tools?: ClaudeTool[],
-    systemPrompt?: string,
+    systemPrompt?: string
   ): Promise<TokenCountResponse> {
     const normalizedModel = this.normalizeModel(model);
 
@@ -514,7 +514,7 @@ export class TokenCounterService {
         cache_read_input_tokens: (response as any).cache_read_input_tokens,
       };
     } catch (error) {
-      logger.warn('tokenCounter', "[TokenCounter] API调用失败，使用估算方法:", error);
+      logger.warn("tokenCounter", "[TokenCounter] API调用失败，使用估算方法:", error);
       return this.estimateTokens(messages, tools, systemPrompt);
     }
   }
@@ -525,7 +525,7 @@ export class TokenCounterService {
   private estimateTokens(
     messages: ClaudeMessage[],
     tools?: ClaudeTool[],
-    systemPrompt?: string,
+    systemPrompt?: string
   ): TokenCountResponse {
     let totalTokens = 0;
 
@@ -571,15 +571,15 @@ export class TokenCounterService {
       model?: string;
       tools?: ClaudeTool[];
       systemPrompt?: string;
-    }>,
+    }>
   ): Promise<TokenCountResponse[]> {
     try {
       const promises = requests.map((req) =>
-        this.countTokens(req.messages, req.model, req.tools, req.systemPrompt),
+        this.countTokens(req.messages, req.model, req.tools, req.systemPrompt)
       );
       return await Promise.all(promises);
     } catch (error) {
-      logger.error('tokenCounter', "[TokenCounter] 批量计算失败:", error);
+      logger.error("tokenCounter", "[TokenCounter] 批量计算失败:", error);
       // 降级到逐个计算
       const results: TokenCountResponse[] = [];
       for (const req of requests) {
@@ -588,7 +588,7 @@ export class TokenCounterService {
             req.messages,
             req.model,
             req.tools,
-            req.systemPrompt,
+            req.systemPrompt
           );
           results.push(result);
         } catch (err) {
@@ -607,7 +607,7 @@ export class TokenCounterService {
     const pricing = CLAUDE_PRICING[normalizedModel as keyof typeof CLAUDE_PRICING];
 
     if (!pricing) {
-      logger.warn('tokenCounter', `[TokenCounter] 未知模型定价: ${normalizedModel}`);
+      logger.warn("tokenCounter", `[TokenCounter] 未知模型定价: ${normalizedModel}`);
       return {
         input_cost: 0,
         output_cost: 0,
@@ -737,7 +737,7 @@ export class TokenCounterService {
       compact?: boolean;
       includeCost?: boolean;
       includeEfficiency?: boolean;
-    } = {},
+    } = {}
   ): string {
     const breakdown = this.calculateBreakdown(usage, model);
 
@@ -867,7 +867,7 @@ export class TokenCounterService {
         cache_read_tokens: 0,
         cache_creation_input_tokens: 0,
         cache_read_input_tokens: 0,
-      },
+      }
     );
   }
 
@@ -904,7 +904,7 @@ export const countTokens = (
   messages: ClaudeMessage[],
   model?: string,
   tools?: ClaudeTool[],
-  systemPrompt?: string,
+  systemPrompt?: string
 ) => tokenCounter.countTokens(messages, model, tools, systemPrompt);
 
 export const calculateCost = (usage: TokenUsage, model?: string) =>
@@ -959,7 +959,7 @@ export function formatUsageBreakdown(
     includeCost?: boolean;
     includeEfficiency?: boolean;
     compact?: boolean;
-  } = {},
+  } = {}
 ): string {
   return tokenCounter.formatBreakdown(usage, model, {
     compact: options.compact,
@@ -990,7 +990,7 @@ export function aggregateTokenUsage(usages: TokenUsage[]): TokenUsage {
         cache_read_tokens: (total.cache_read_tokens || 0) + (normalized.cache_read_tokens || 0),
       };
     },
-    { input_tokens: 0, output_tokens: 0, cache_creation_tokens: 0, cache_read_tokens: 0 },
+    { input_tokens: 0, output_tokens: 0, cache_creation_tokens: 0, cache_read_tokens: 0 }
   );
 }
 
@@ -999,7 +999,7 @@ export function aggregateTokenUsage(usages: TokenUsage[]): TokenUsage {
  */
 export function calculateSessionStats(
   messages: Array<{ usage?: any; timestamp?: string; receivedAt?: string }>,
-  model?: string,
+  model?: string
 ): SessionTokenStats {
   // Extract valid usage data from messages
   const usages = messages.filter((msg) => msg.usage).map((msg) => normalizeTokenUsage(msg.usage));
@@ -1030,11 +1030,11 @@ export function calculateSessionStats(
 
   if (timestampedMessages.length >= 2) {
     const firstTime = new Date(
-      timestampedMessages[0].timestamp || timestampedMessages[0].receivedAt!,
+      timestampedMessages[0].timestamp || timestampedMessages[0].receivedAt!
     );
     const lastTime = new Date(
       timestampedMessages[timestampedMessages.length - 1].timestamp ||
-        timestampedMessages[timestampedMessages.length - 1].receivedAt!,
+        timestampedMessages[timestampedMessages.length - 1].receivedAt!
     );
     const hoursElapsed = (lastTime.getTime() - firstTime.getTime()) / (1000 * 60 * 60);
 
@@ -1063,7 +1063,7 @@ export function calculateSessionStats(
  * Get cached session token data from the API
  */
 export async function getSessionCacheTokens(
-  sessionId: string,
+  sessionId: string
 ): Promise<{ cache_creation: number; cache_read: number }> {
   try {
     const cacheData = await api.getSessionCacheTokens(sessionId);
@@ -1072,7 +1072,7 @@ export async function getSessionCacheTokens(
       cache_read: cacheData.total_cache_read_tokens,
     };
   } catch (error) {
-    logger.warn('tokenCounter', "Failed to fetch session cache tokens:", error);
+    logger.warn("tokenCounter", "Failed to fetch session cache tokens:", error);
     return { cache_creation: 0, cache_read: 0 };
   }
 }

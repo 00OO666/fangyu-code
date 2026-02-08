@@ -5,7 +5,7 @@
  * 在应用启动时调用 initializeToolRegistry() 完成注册
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import type React from "react";
 // ✅ 已迁移组件：从新的 widgets 目录导入
 import {
@@ -59,7 +59,7 @@ import { type ToolRenderer, type ToolRenderProps, toolRegistry } from "./toolReg
  */
 function createToolAdapter<T extends Record<string, any>>(
   WidgetComponent: React.FC<T>,
-  propsMapper: (renderProps: ToolRenderProps) => T,
+  propsMapper: (renderProps: ToolRenderProps) => T
 ): React.FC<ToolRenderProps> {
   return (renderProps: ToolRenderProps) => {
     const widgetProps = propsMapper(renderProps);
@@ -217,7 +217,7 @@ export function initializeToolRegistry(): void {
       return match?.[1]?.trim() || undefined;
     } catch (error) {
       // 如果正则表达式无效，记录错误并返回 undefined
-      logger.error('toolRegistryInit', "[extractTaggedValue] Invalid regex for tag:", tag, error);
+      logger.error("toolRegistryInit", "[extractTaggedValue] Invalid regex for tag:", tag, error);
       return undefined;
     }
   };

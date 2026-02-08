@@ -7,48 +7,40 @@
 // ========================================
 // Canvas 实时渲染
 // ========================================
-export { CanvasPanel, CanvasFloatingWindow } from '../canvas';
-export type { CanvasPanelProps } from '../canvas';
+export { CanvasPanel, CanvasFloatingWindow } from "../canvas";
+export type { CanvasPanelProps } from "../canvas";
 
 // ========================================
 // AI Copilot 侧边栏
 // ========================================
-export { CopilotSidebar } from '../copilot';
-export type {
-  CopilotMessage,
-  QuickAction,
-  CopilotContext,
-  CopilotSidebarProps
-} from '../copilot';
+export { CopilotSidebar } from "../copilot";
+export type { CopilotMessage, QuickAction, CopilotContext, CopilotSidebarProps } from "../copilot";
 
 // ========================================
 // Monaco Diff 编辑器
 // ========================================
-export { MonacoDiffEditor } from '../editor';
-export type { DiffChange, MonacoDiffEditorProps } from '../editor';
+export { MonacoDiffEditor } from "../editor";
+export type { DiffChange, MonacoDiffEditorProps } from "../editor";
 
 // ========================================
 // 文件树浏览器
 // ========================================
-export { FileTreeExplorer } from '../explorer';
-export type { FileNode, FileTreeExplorerProps, ContextAction } from '../explorer';
+export { FileTreeExplorer } from "../explorer";
+export type { FileNode, FileTreeExplorerProps, ContextAction } from "../explorer";
 
 // ========================================
 // 多模态输入
 // ========================================
-export { MultiModalInput } from '../input';
-export type { MediaType, MediaFile, MultiModalInputProps } from '../input';
+export { MultiModalInput } from "../input";
+export type { MediaType, MediaFile, MultiModalInputProps } from "../input";
 
 // ========================================
 // 智能输出解析器
 // ========================================
-export { SmartOutputParser } from '../output';
-export type { OutputType, SmartOutputParserProps } from '../output';
+export { SmartOutputParser } from "../output";
+export type { OutputType, SmartOutputParserProps } from "../output";
 
 // ========================================
 // 多代理工作流系统
 // ========================================
-export {
-  DAGVisualizer,
-  WorkflowControlPanel
-} from '../workflow';
+export { DAGVisualizer, WorkflowControlPanel } from "../workflow";

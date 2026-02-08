@@ -11,8 +11,16 @@
  * @version 1.0.0
  */
 
-import { logger } from '@/lib/logger';
-import { createContext, type ReactNode, useCallback, useContext, useMemo, useRef, useState } from "react";
+import { logger } from "@/lib/logger";
+import {
+  createContext,
+  type ReactNode,
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import type { ModelType } from "@/components/FloatingPromptInput/types";
 
 // ============================================================================
@@ -98,7 +106,7 @@ export interface PromptQueueActions {
 /**
  * 完整的队列 Context 值
  */
-export interface PromptQueueContextValue extends PromptQueueState, PromptQueueActions { }
+export interface PromptQueueContextValue extends PromptQueueState, PromptQueueActions {}
 
 // ============================================================================
 // Context
@@ -160,7 +168,7 @@ export const PromptQueueProvider = ({ children }: PromptQueueProviderProps) => {
       };
 
       setItems((prev) => [...prev, newItem]);
-      logger.debug('usePromptQueue', '添加到队列:', {
+      logger.debug("usePromptQueue", "添加到队列:", {
         id: newItem.id,
         mode,
         promptPreview: prompt.substring(0, 50),
@@ -168,7 +176,7 @@ export const PromptQueueProvider = ({ children }: PromptQueueProviderProps) => {
 
       return newItem;
     },
-    [],
+    []
   );
 
   // 从队列移除
@@ -184,7 +192,7 @@ export const PromptQueueProvider = ({ children }: PromptQueueProviderProps) => {
     });
 
     if (removedItem) {
-      logger.debug('usePromptQueue', "[PromptQueue] 从队列移除:", itemId);
+      logger.debug("usePromptQueue", "[PromptQueue] 从队列移除:", itemId);
     }
 
     return removedItem;
@@ -201,7 +209,7 @@ export const PromptQueueProvider = ({ children }: PromptQueueProviderProps) => {
       const item = prev[index];
       // 只能撤回 pending 状态的项
       if (item.status !== "pending") {
-        logger.warn('usePromptQueue', "[PromptQueue] 无法撤回非 pending 状态的项:", item.status);
+        logger.warn("usePromptQueue", "[PromptQueue] 无法撤回非 pending 状态的项:", item.status);
         return prev;
       }
 
@@ -215,7 +223,7 @@ export const PromptQueueProvider = ({ children }: PromptQueueProviderProps) => {
     });
 
     if (revokedPrompt) {
-      logger.debug('usePromptQueue', "[PromptQueue] 撤回到输入框:", itemId);
+      logger.debug("usePromptQueue", "[PromptQueue] 撤回到输入框:", itemId);
     }
 
     return revokedPrompt;
@@ -224,7 +232,7 @@ export const PromptQueueProvider = ({ children }: PromptQueueProviderProps) => {
   // 标记为发送中
   const markSending = useCallback((itemId: string) => {
     setItems((prev) =>
-      prev.map((item) => (item.id === itemId ? { ...item, status: "sending" as const } : item)),
+      prev.map((item) => (item.id === itemId ? { ...item, status: "sending" as const } : item))
     );
     setCurrentItemId(itemId);
     setIsProcessing(true);
@@ -233,7 +241,7 @@ export const PromptQueueProvider = ({ children }: PromptQueueProviderProps) => {
   // 标记为已发送
   const markSent = useCallback((itemId: string) => {
     setItems((prev) =>
-      prev.map((item) => (item.id === itemId ? { ...item, status: "sent" as const } : item)),
+      prev.map((item) => (item.id === itemId ? { ...item, status: "sent" as const } : item))
     );
     setCurrentItemId(null);
     setIsProcessing(false);
@@ -243,8 +251,8 @@ export const PromptQueueProvider = ({ children }: PromptQueueProviderProps) => {
   const markFailed = useCallback((itemId: string, errorMessage: string) => {
     setItems((prev) =>
       prev.map((item) =>
-        item.id === itemId ? { ...item, status: "failed" as const, errorMessage } : item,
-      ),
+        item.id === itemId ? { ...item, status: "failed" as const, errorMessage } : item
+      )
     );
     setCurrentItemId(null);
     setIsProcessing(false);
@@ -255,13 +263,16 @@ export const PromptQueueProvider = ({ children }: PromptQueueProviderProps) => {
     setItems([]);
     setCurrentItemId(null);
     setIsProcessing(false);
-    logger.debug('usePromptQueue', "[PromptQueue] 队列已清空");
+    logger.debug("usePromptQueue", "[PromptQueue] 队列已清空");
   }, []);
 
   // 🔧 FIX: 移除 items 依赖，改用 itemsRef 访问最新值
   // 获取下一个待发送项（sequential 模式）
   const getNextSequential = useCallback((): PromptQueueItem | null => {
-    return itemsRef.current.find((item) => item.status === "pending" && item.mode === "sequential") || null;
+    return (
+      itemsRef.current.find((item) => item.status === "pending" && item.mode === "sequential") ||
+      null
+    );
   }, []);
 
   // 获取所有待合并项（merge 模式）
@@ -271,7 +282,9 @@ export const PromptQueueProvider = ({ children }: PromptQueueProviderProps) => {
 
   // 打包合并指令为单条
   const getMergedPrompt = useCallback((): string | null => {
-    const mergeItems = itemsRef.current.filter((item) => item.status === "pending" && item.mode === "merge");
+    const mergeItems = itemsRef.current.filter(
+      (item) => item.status === "pending" && item.mode === "merge"
+    );
 
     if (mergeItems.length === 0) return null;
     if (mergeItems.length === 1) return mergeItems[0].prompt;
@@ -294,7 +307,11 @@ export const PromptQueueProvider = ({ children }: PromptQueueProviderProps) => {
       const [removed] = updated.splice(currentIndex, 1);
       updated.splice(newIndex, 0, removed);
 
-      logger.debug('usePromptQueue', "[PromptQueue] 移动队列项:", { itemId, from: currentIndex, to: newIndex });
+      logger.debug("usePromptQueue", "[PromptQueue] 移动队列项:", {
+        itemId,
+        from: currentIndex,
+        to: newIndex,
+      });
       return updated;
     });
   }, []);
@@ -302,17 +319,20 @@ export const PromptQueueProvider = ({ children }: PromptQueueProviderProps) => {
   // 更新队列项模式
   const updateItemMode = useCallback((itemId: string, mode: PromptSendMode) => {
     setItems((prev) => prev.map((item) => (item.id === itemId ? { ...item, mode } : item)));
-    logger.debug('usePromptQueue', "[PromptQueue] 更新模式:", { itemId, mode });
+    logger.debug("usePromptQueue", "[PromptQueue] 更新模式:", { itemId, mode });
   }, []);
 
   // 🆕 更新队列项提示词
   const updateItemPrompt = useCallback((itemId: string, prompt: string) => {
     setItems((prev) =>
       prev.map((item) =>
-        item.id === itemId ? { ...item, prompt, estimatedTokens: estimateTokens(prompt) } : item,
-      ),
+        item.id === itemId ? { ...item, prompt, estimatedTokens: estimateTokens(prompt) } : item
+      )
     );
-    logger.debug('usePromptQueue', "[PromptQueue] 更新提示词:", { itemId, promptPreview: prompt.substring(0, 50) });
+    logger.debug("usePromptQueue", "[PromptQueue] 更新提示词:", {
+      itemId,
+      promptPreview: prompt.substring(0, 50),
+    });
   }, []);
 
   // 🔧 FIX: 移除 items 依赖，改用 itemsRef 访问最新值
@@ -329,49 +349,52 @@ export const PromptQueueProvider = ({ children }: PromptQueueProviderProps) => {
   }, []);
 
   // 🔧 FIX: 简化依赖数组，getter 函数现在是稳定的（不依赖 items）
-  const contextValue: PromptQueueContextValue = useMemo(() => ({
-    // State
-    items,
-    isProcessing,
-    currentItemId,
-    autoMerge,
-    // Actions
-    enqueue,
-    dequeue,
-    revokeToInput,
-    markSending,
-    markSent,
-    markFailed,
-    clearQueue,
-    getNextSequential,
-    getMergeItems,
-    getMergedPrompt,
-    reorderItem,
-    updateItemMode,
-    updateItemPrompt,
-    setAutoMerge,
-    getStats,
-  }), [
-    items,
-    isProcessing,
-    currentItemId,
-    autoMerge,
-    // 以下函数都是稳定的（空依赖或只依赖 setItems）
-    enqueue,
-    dequeue,
-    revokeToInput,
-    markSending,
-    markSent,
-    markFailed,
-    clearQueue,
-    getNextSequential,
-    getMergeItems,
-    getMergedPrompt,
-    reorderItem,
-    updateItemMode,
-    updateItemPrompt,
-    getStats,
-  ]);
+  const contextValue: PromptQueueContextValue = useMemo(
+    () => ({
+      // State
+      items,
+      isProcessing,
+      currentItemId,
+      autoMerge,
+      // Actions
+      enqueue,
+      dequeue,
+      revokeToInput,
+      markSending,
+      markSent,
+      markFailed,
+      clearQueue,
+      getNextSequential,
+      getMergeItems,
+      getMergedPrompt,
+      reorderItem,
+      updateItemMode,
+      updateItemPrompt,
+      setAutoMerge,
+      getStats,
+    }),
+    [
+      items,
+      isProcessing,
+      currentItemId,
+      autoMerge,
+      // 以下函数都是稳定的（空依赖或只依赖 setItems）
+      enqueue,
+      dequeue,
+      revokeToInput,
+      markSending,
+      markSent,
+      markFailed,
+      clearQueue,
+      getNextSequential,
+      getMergeItems,
+      getMergedPrompt,
+      reorderItem,
+      updateItemMode,
+      updateItemPrompt,
+      getStats,
+    ]
+  );
 
   return <PromptQueueContext.Provider value={contextValue}>{children}</PromptQueueContext.Provider>;
 };

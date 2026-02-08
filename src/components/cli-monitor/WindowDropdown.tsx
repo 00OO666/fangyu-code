@@ -16,13 +16,9 @@ interface WindowDropdownProps {
   className?: string;
 }
 
-export const WindowDropdown: React.FC<WindowDropdownProps> = ({
-  onSelect,
-  className,
-}) => {
+export const WindowDropdown: React.FC<WindowDropdownProps> = ({ onSelect, className }) => {
   const getWindowLabel = useCallback(
-    (window: WindowInfo) =>
-      window.session_summary || window.project_path || window.title,
+    (window: WindowInfo) => window.session_summary || window.project_path || window.title,
     []
   );
   const [windows, setWindows] = useState<WindowInfo[]>([]);
@@ -169,12 +165,12 @@ export const WindowDropdown: React.FC<WindowDropdownProps> = ({
                     {isFocusing
                       ? "切换中..."
                       : isLoading
-                      ? "加载中..."
-                      : selectedWindow
-                      ? getWindowLabel(selectedWindow)
-                      : windows.length > 0
-                      ? "选择窗口"
-                      : "无可用窗口"}
+                        ? "加载中..."
+                        : selectedWindow
+                          ? getWindowLabel(selectedWindow)
+                          : windows.length > 0
+                            ? "选择窗口"
+                            : "无可用窗口"}
                   </span>
                 </div>
                 {isFocusing || isLoading ? (
@@ -201,13 +197,9 @@ export const WindowDropdown: React.FC<WindowDropdownProps> = ({
               )}
             >
               {error ? (
-                <div className="px-4 py-3 text-sm text-red-400">
-                  错误: {error}
-                </div>
+                <div className="px-4 py-3 text-sm text-red-400">错误: {error}</div>
               ) : windows.length === 0 ? (
-                <div className="px-4 py-3 text-sm text-gray-400">
-                  未找到 Claude CLI 窗口
-                </div>
+                <div className="px-4 py-3 text-sm text-gray-400">未找到 Claude CLI 窗口</div>
               ) : (
                 windows.map((window) => (
                   <Listbox.Option
@@ -246,9 +238,7 @@ export const WindowDropdown: React.FC<WindowDropdownProps> = ({
                           {window.project_path && (
                             <>
                               <span>•</span>
-                              <span className="truncate">
-                                {window.project_path}
-                              </span>
+                              <span className="truncate">{window.project_path}</span>
                             </>
                           )}
                         </div>

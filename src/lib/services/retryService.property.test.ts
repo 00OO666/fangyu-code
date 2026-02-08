@@ -8,20 +8,20 @@
  * min(baseDelay * backoffMultiplier^(N-1), maxDelay)
  */
 
-import { describe, it, expect, vi } from 'vitest';
-import * as fc from 'fast-check';
+import { describe, it, expect, vi } from "vitest";
+import * as fc from "fast-check";
 import {
   calculateDelay,
   isRetryableError,
   withRetry,
   DEFAULT_RETRY_CONFIG,
   type RetryConfig,
-} from './retryService';
+} from "./retryService";
 
-describe('RetryService Property Tests', () => {
-  describe('Property 4: 指数退避重试', () => {
+describe("RetryService Property Tests", () => {
+  describe("Property 4: 指数退避重试", () => {
     // Feature: fangyu-code-audit, Property 4: 指数退避重试
-    it('延迟应该遵循指数退避公式（无抖动）', () => {
+    it("延迟应该遵循指数退避公式（无抖动）", () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 1, max: 10 }), // attempt
@@ -50,7 +50,7 @@ describe('RetryService Property Tests', () => {
       );
     });
 
-    it('延迟不应超过 maxDelay', () => {
+    it("延迟不应超过 maxDelay", () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 1, max: 20 }), // attempt
@@ -74,7 +74,7 @@ describe('RetryService Property Tests', () => {
       );
     });
 
-    it('带抖动的延迟应在 ±25% 范围内', () => {
+    it("带抖动的延迟应在 ±25% 范围内", () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 1, max: 10 }), // attempt
@@ -114,7 +114,7 @@ describe('RetryService Property Tests', () => {
       );
     });
 
-    it('第一次尝试的延迟应等于 baseDelay（无抖动）', () => {
+    it("第一次尝试的延迟应等于 baseDelay（无抖动）", () => {
       fc.assert(
         fc.property(fc.integer({ min: 100, max: 10000 }), (baseDelay) => {
           const config: RetryConfig = {
@@ -130,7 +130,7 @@ describe('RetryService Property Tests', () => {
       );
     });
 
-    it('延迟应随尝试次数单调递增（直到达到 maxDelay）', () => {
+    it("延迟应随尝试次数单调递增（直到达到 maxDelay）", () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 100, max: 2000 }), // baseDelay
@@ -158,17 +158,17 @@ describe('RetryService Property Tests', () => {
     });
   });
 
-  describe('可重试错误判断', () => {
-    it('应正确识别可重试的错误', () => {
+  describe("可重试错误判断", () => {
+    it("应正确识别可重试的错误", () => {
       const retryablePatterns = [
-        'ECONNRESET',
-        'ETIMEDOUT',
-        'rate_limit',
-        '429',
-        '500',
-        '502',
-        '503',
-        '504',
+        "ECONNRESET",
+        "ETIMEDOUT",
+        "rate_limit",
+        "429",
+        "500",
+        "502",
+        "503",
+        "504",
       ];
 
       fc.assert(
@@ -180,16 +180,16 @@ describe('RetryService Property Tests', () => {
       );
     });
 
-    it('应正确拒绝不可重试的错误', () => {
+    it("应正确拒绝不可重试的错误", () => {
       const nonRetryablePatterns = [
-        'Invalid API key',
-        'Authentication failed',
-        'Permission denied',
-        'Not found',
-        '400',
-        '401',
-        '403',
-        '404',
+        "Invalid API key",
+        "Authentication failed",
+        "Permission denied",
+        "Not found",
+        "400",
+        "401",
+        "403",
+        "404",
       ];
 
       fc.assert(
@@ -202,24 +202,24 @@ describe('RetryService Property Tests', () => {
     });
   });
 
-  describe('withRetry 函数', () => {
-    it('成功时应返回正确的结果', async () => {
-      const result = await withRetry(async () => 'success', { maxRetries: 3 });
+  describe("withRetry 函数", () => {
+    it("成功时应返回正确的结果", async () => {
+      const result = await withRetry(async () => "success", { maxRetries: 3 });
 
       expect(result.success).toBe(true);
-      expect(result.data).toBe('success');
+      expect(result.data).toBe("success");
       expect(result.attempts).toBe(1);
       expect(result.delays).toHaveLength(0);
     });
 
-    it('失败后重试应记录正确的尝试次数', async () => {
+    it("失败后重试应记录正确的尝试次数", async () => {
       let callCount = 0;
       const fn = async () => {
         callCount++;
         if (callCount < 3) {
-          throw new Error('ECONNRESET');
+          throw new Error("ECONNRESET");
         }
-        return 'success';
+        return "success";
       };
 
       const result = await withRetry(fn, {
@@ -233,9 +233,9 @@ describe('RetryService Property Tests', () => {
       expect(result.delays).toHaveLength(2); // 2 次重试前的延迟
     });
 
-    it('达到最大重试次数后应返回失败', async () => {
+    it("达到最大重试次数后应返回失败", async () => {
       const fn = async () => {
-        throw new Error('ETIMEDOUT');
+        throw new Error("ETIMEDOUT");
       };
 
       const result = await withRetry(fn, {
@@ -246,12 +246,12 @@ describe('RetryService Property Tests', () => {
 
       expect(result.success).toBe(false);
       expect(result.attempts).toBe(3); // 1 次初始 + 2 次重试
-      expect(result.error?.message).toContain('ETIMEDOUT');
+      expect(result.error?.message).toContain("ETIMEDOUT");
     });
 
-    it('不可重试的错误应立即返回失败', async () => {
+    it("不可重试的错误应立即返回失败", async () => {
       const fn = async () => {
-        throw new Error('Invalid API key');
+        throw new Error("Invalid API key");
       };
 
       const result = await withRetry(fn, {
@@ -264,16 +264,16 @@ describe('RetryService Property Tests', () => {
       expect(result.delays).toHaveLength(0);
     });
 
-    it('onRetry 回调应被正确调用', async () => {
+    it("onRetry 回调应被正确调用", async () => {
       const onRetry = vi.fn();
       let callCount = 0;
 
       const fn = async () => {
         callCount++;
         if (callCount < 3) {
-          throw new Error('ECONNRESET');
+          throw new Error("ECONNRESET");
         }
-        return 'success';
+        return "success";
       };
 
       await withRetry(fn, {
@@ -288,10 +288,10 @@ describe('RetryService Property Tests', () => {
       expect(onRetry).toHaveBeenCalledWith(2, expect.any(Error), 20);
     });
 
-    it('totalTime 应反映实际耗时', async () => {
+    it("totalTime 应反映实际耗时", async () => {
       const startTime = Date.now();
 
-      const result = await withRetry(async () => 'success', {
+      const result = await withRetry(async () => "success", {
         maxRetries: 1,
         baseDelay: 10,
       });
@@ -301,15 +301,15 @@ describe('RetryService Property Tests', () => {
     });
   });
 
-  describe('延迟记录准确性', () => {
-    it('delays 数组应记录每次重试的延迟', async () => {
+  describe("延迟记录准确性", () => {
+    it("delays 数组应记录每次重试的延迟", async () => {
       let callCount = 0;
       const fn = async () => {
         callCount++;
         if (callCount < 4) {
-          throw new Error('ECONNRESET');
+          throw new Error("ECONNRESET");
         }
-        return 'success';
+        return "success";
       };
 
       const result = await withRetry(fn, {

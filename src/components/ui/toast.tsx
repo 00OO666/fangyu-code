@@ -1,6 +1,6 @@
 import * as React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, CheckCircle, AlertCircle, Info } from 'lucide-react';
+import { X, CheckCircle, AlertCircle, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type ToastType = "success" | "error" | "info";
@@ -30,7 +30,7 @@ interface ToastProps {
 
 /**
  * Toast component for showing temporary notifications
- * 
+ *
  * @example
  * <Toast
  *   message="File saved successfully"
@@ -62,19 +62,19 @@ export const Toast: React.FC<ToastProps> = ({
       return () => clearTimeout(timer);
     }
   }, [duration]);
-  
+
   const icons = {
     success: <CheckCircle className="h-4 w-4" />,
     error: <AlertCircle className="h-4 w-4" />,
     info: <Info className="h-4 w-4" />,
   };
-  
+
   const colors = {
     success: "text-green-600",
     error: "text-destructive",
     info: "text-primary",
   };
-  
+
   return (
     <motion.div
       initial={{ opacity: 0, y: -50, scale: 0.95 }}
@@ -109,10 +109,8 @@ export const ToastContainer: React.FC<ToastContainerProps> = ({ children }) => {
   return (
     <div className="fixed top-16 left-0 right-0 z-50 flex justify-center p-4 pointer-events-none">
       <div className="pointer-events-auto">
-        <AnimatePresence mode="wait">
-          {children}
-        </AnimatePresence>
+        <AnimatePresence mode="wait">{children}</AnimatePresence>
       </div>
     </div>
   );
-}; 
+};

@@ -30,10 +30,7 @@ export function useDebounce<T>(value: T, delay: number): T {
  * @param callback - 需要节流的回调函数
  * @param delay - 延迟时间（毫秒）
  */
-export function useThrottle<T extends (...args: any[]) => any>(
-  callback: T,
-  delay: number
-): T {
+export function useThrottle<T extends (...args: any[]) => any>(callback: T, delay: number): T {
   const lastRun = useRef(Date.now());
 
   return useCallback(
@@ -54,17 +51,11 @@ export function useThrottle<T extends (...args: any[]) => any>(
  * @param fetcher - 数据获取函数
  * @param ttl - 缓存有效期（毫秒）
  */
-export function useCache<T>(
-  key: string,
-  fetcher: () => Promise<T>,
-  ttl: number = 60000
-) {
+export function useCache<T>(key: string, fetcher: () => Promise<T>, ttl: number = 60000) {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
-  const cacheRef = useRef<Map<string, { data: T; timestamp: number }>>(
-    new Map()
-  );
+  const cacheRef = useRef<Map<string, { data: T; timestamp: number }>>(new Map());
 
   const fetchData = useCallback(async () => {
     // 检查缓存
@@ -107,18 +98,11 @@ export function useCache<T>(
  * @param itemHeight - 每个项目的高度
  * @param containerHeight - 容器高度
  */
-export function useVirtualScroll<T>(
-  items: T[],
-  itemHeight: number,
-  containerHeight: number
-) {
+export function useVirtualScroll<T>(items: T[], itemHeight: number, containerHeight: number) {
   const [scrollTop, setScrollTop] = useState(0);
 
   const startIndex = Math.floor(scrollTop / itemHeight);
-  const endIndex = Math.min(
-    startIndex + Math.ceil(containerHeight / itemHeight) + 1,
-    items.length
-  );
+  const endIndex = Math.min(startIndex + Math.ceil(containerHeight / itemHeight) + 1, items.length);
 
   const visibleItems = items.slice(startIndex, endIndex);
   const offsetY = startIndex * itemHeight;
@@ -179,11 +163,7 @@ export function useLazyLoad(callback: () => void, hasMore: boolean) {
  * @param batchSize - 批量大小
  * @param delay - 延迟时间（毫秒）
  */
-export function useBatchUpdate<T>(
-  initialValue: T[],
-  batchSize: number = 10,
-  delay: number = 100
-) {
+export function useBatchUpdate<T>(initialValue: T[], batchSize: number = 10, delay: number = 100) {
   const [items, setItems] = useState<T[]>(initialValue);
   const [displayedItems, setDisplayedItems] = useState<T[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);

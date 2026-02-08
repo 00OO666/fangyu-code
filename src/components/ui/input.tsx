@@ -12,10 +12,8 @@ const inputVariants = cva(
   {
     variants: {
       variant: {
-        default:
-          "bg-background border-border hover:border-border-hover focus:border-primary",
-        filled:
-          "bg-muted border-transparent hover:bg-muted-hover focus:border-primary",
+        default: "bg-background border-border hover:border-border-hover focus:border-primary",
+        filled: "bg-muted border-transparent hover:bg-muted-hover focus:border-primary",
       },
       inputSize: {
         sm: "h-8 px-2.5 py-1.5 text-sm rounded-md",
@@ -31,8 +29,7 @@ const inputVariants = cva(
 );
 
 export interface InputProps
-  extends React.InputHTMLAttributes<HTMLInputElement>,
-    VariantProps<typeof inputVariants> {}
+  extends React.InputHTMLAttributes<HTMLInputElement>, VariantProps<typeof inputVariants> {}
 
 /**
  * Input component for text/number inputs with minimal styling
@@ -64,4 +61,4 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
 Input.displayName = "Input";
 
-export { Input }; 
+export { Input };

@@ -1,10 +1,10 @@
 /**
  * Test Utilities
- * 
+ *
  * Helper functions for testing Super AI Agent Desktop components.
  */
 
-import { vi } from 'vitest';
+import { vi } from "vitest";
 import type {
   Agent,
   AgentRole,
@@ -12,7 +12,7 @@ import type {
   TaskStatus,
   ContextSource,
   SteeringRule,
-} from '@/core/types/unified-agent';
+} from "@/core/types/unified-agent";
 
 // ============================================================================
 // Factory Functions
@@ -20,9 +20,9 @@ import type {
 
 export function createMockAgent(overrides: Partial<Agent> = {}): Agent {
   return {
-    id: 'agent-1',
+    id: "agent-1",
     role: createMockAgentRole(),
-    status: 'idle',
+    status: "idle",
     createdAt: Date.now(),
     lastActiveAt: Date.now(),
     metrics: {
@@ -38,25 +38,25 @@ export function createMockAgent(overrides: Partial<Agent> = {}): Agent {
 
 export function createMockAgentRole(overrides: Partial<AgentRole> = {}): AgentRole {
   return {
-    id: 'orchestrator',
-    name: 'Sisyphus',
-    type: 'orchestrator',
+    id: "orchestrator",
+    name: "Sisyphus",
+    type: "orchestrator",
     model: {
-      provider: 'anthropic',
-      model: 'claude-opus-4-5',
+      provider: "anthropic",
+      model: "claude-opus-4-5",
       temperature: 0.1,
     },
     capabilities: {
-      languages: ['*'],
-      frameworks: ['*'],
-      tools: ['*'],
+      languages: ["*"],
+      frameworks: ["*"],
+      tools: ["*"],
     },
     tools: {
       read: true,
       write: true,
       execute: true,
     },
-    prompt: 'You are the main orchestrator...',
+    prompt: "You are the main orchestrator...",
     temperature: 0.1,
     ...overrides,
   };
@@ -64,11 +64,11 @@ export function createMockAgentRole(overrides: Partial<AgentRole> = {}): AgentRo
 
 export function createMockTask(overrides: Partial<Task> = {}): Task {
   return {
-    id: 'task-1',
-    description: 'Test task',
-    type: 'general',
+    id: "task-1",
+    description: "Test task",
+    type: "general",
     priority: 5,
-    status: 'pending',
+    status: "pending",
     dependencies: [],
     createdAt: Date.now(),
     isBackground: false,
@@ -78,9 +78,9 @@ export function createMockTask(overrides: Partial<Task> = {}): Task {
 
 export function createMockContextSource(overrides: Partial<ContextSource> = {}): ContextSource {
   return {
-    id: 'source-1',
-    type: 'system',
-    content: 'Test content',
+    id: "source-1",
+    type: "system",
+    content: "Test content",
     tokens: 100,
     priority: 50,
     compressible: true,
@@ -90,11 +90,11 @@ export function createMockContextSource(overrides: Partial<ContextSource> = {}):
 
 export function createMockSteeringRule(overrides: Partial<SteeringRule> = {}): SteeringRule {
   return {
-    id: 'rule-1',
-    content: '# Test Rule\n\nThis is a test steering rule.',
-    inclusion: 'always',
+    id: "rule-1",
+    content: "# Test Rule\n\nThis is a test steering rule.",
+    inclusion: "always",
     priority: 50,
-    source: '.fangyu/steering/test.md',
+    source: ".fangyu/steering/test.md",
     ...overrides,
   };
 }
@@ -168,7 +168,7 @@ export function createMockShell(): {
   const outputs = new Map<string, { stdout: string; stderr: string; exitCode: number }>();
 
   const execute = vi.fn((command: string) => {
-    const output = outputs.get(command) || { stdout: '', stderr: '', exitCode: 0 };
+    const output = outputs.get(command) || { stdout: "", stderr: "", exitCode: 0 };
     return Promise.resolve(output);
   });
 
@@ -209,7 +209,7 @@ export function estimateTokens(text: string): number {
 
 export function createContentWithTokens(targetTokens: number): string {
   const chars = targetTokens * 4;
-  return 'x'.repeat(chars);
+  return "x".repeat(chars);
 }
 
 // ============================================================================
@@ -217,23 +217,23 @@ export function createContentWithTokens(targetTokens: number): string {
 // ============================================================================
 
 export function normalizePath(path: string): string {
-  return path.replace(/\\/g, '/').replace(/\/+/g, '/');
+  return path.replace(/\\/g, "/").replace(/\/+/g, "/");
 }
 
 export function isPathTraversal(path: string): boolean {
   const normalized = normalizePath(path);
-  return normalized.includes('..') || normalized.startsWith('/');
+  return normalized.includes("..") || normalized.startsWith("/");
 }
 
 export function isWithinWorkspace(path: string, workspace: string): boolean {
   const normalizedPath = normalizePath(path);
   const normalizedWorkspace = normalizePath(workspace);
-  
+
   if (isPathTraversal(normalizedPath)) {
     return false;
   }
-  
+
   // Simple check: path should not escape workspace
   const fullPath = `${normalizedWorkspace}/${normalizedPath}`;
-  return !fullPath.includes('..');
+  return !fullPath.includes("..");
 }

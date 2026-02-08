@@ -4,7 +4,7 @@
  * 当 AI 响应完成后，自动检测代码块并使用 Biome 格式化
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useRef } from "react";
 import { codeFormatService } from "@/services/codeFormatService";
@@ -55,7 +55,7 @@ function extractFilePath(content: string): string | null {
 
   // 匹配相对路径（src/xxx.tsx）
   const pathMatch = content.match(
-    /^(?:src|components|hooks|lib|services|utils)[/\\][\w/\\.-]+\.(tsx?|jsx?)$/im,
+    /^(?:src|components|hooks|lib|services|utils)[/\\][\w/\\.-]+\.(tsx?|jsx?)$/im
   );
   if (pathMatch) {
     return pathMatch[0];
@@ -71,7 +71,7 @@ export function useAutoCodeFormat(
   messages: Array<{ role: string; content: string }>,
   isStreaming: boolean,
   projectPath: string | undefined,
-  options: FormatOptions = {},
+  options: FormatOptions = {}
 ) {
   const { enabled = true, autoFormat = true, showNotification = true } = options;
 
@@ -160,7 +160,7 @@ export function useAutoCodeFormat(
           }
         } catch (error) {
           // 静默失败，不影响用户体验
-          logger.debug('useAutoCodeFormat', "[AutoCodeFormat] Format failed:", error);
+          logger.debug("useAutoCodeFormat", "[AutoCodeFormat] Format failed:", error);
         }
       }
 
@@ -180,7 +180,7 @@ export function useAutoCodeFormat(
  */
 function analyzeChanges(
   original: string,
-  formatted: string,
+  formatted: string
 ): Array<{
   line?: number;
   type: "indent" | "quote" | "semicolon" | "lineending" | "spacing" | "trailing-comma" | "other";

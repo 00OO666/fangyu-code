@@ -4,7 +4,7 @@
  * 🔧 v2.2.6: 从 usePromptExecution.ts 提取，降低代码复杂度
  */
 
-import type { ClaudeGlobalEventPayload } from './types';
+import type { ClaudeGlobalEventPayload } from "./types";
 
 /**
  * 标准化 Claude 全局事件 payload
@@ -60,7 +60,7 @@ export const safeJsonParse = <T>(str: string, fallback: T): T => {
  * 延迟执行
  */
 export const delay = (ms: number): Promise<void> => {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
 /**
@@ -68,7 +68,7 @@ export const delay = (ms: number): Promise<void> => {
  */
 export const isEmptyMessage = (content: any): boolean => {
   if (!content) return true;
-  if (typeof content === 'string') return content.trim() === '';
+  if (typeof content === "string") return content.trim() === "";
   if (Array.isArray(content)) return content.length === 0;
   return false;
 };

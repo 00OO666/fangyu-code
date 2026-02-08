@@ -7,18 +7,33 @@
  * - 支持展开查看详细 diff
  */
 
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { FileDiff, ChevronDown, ChevronRight, Plus, Minus, FileEdit, File, Loader2 } from 'lucide-react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  FileDiff,
+  ChevronDown,
+  ChevronRight,
+  Plus,
+  Minus,
+  FileEdit,
+  File,
+  Loader2,
+} from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import type { Checkpoint, CheckpointFile } from '@/lib/api';
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import type { Checkpoint, CheckpointFile } from "@/lib/api";
 
 interface FileDiffInfo {
   path: string;
-  status: 'added' | 'modified' | 'deleted' | 'unchanged';
+  status: "added" | "modified" | "deleted" | "unchanged";
   oldHash?: string;
   newHash?: string;
 }
@@ -69,21 +84,21 @@ export function CheckpointDiff({
         // 新增文件
         diffResults.push({
           path,
-          status: 'added',
+          status: "added",
           newHash: toFile.content_hash,
         });
       } else if (fromFile && !toFile) {
         // 删除文件
         diffResults.push({
           path,
-          status: 'deleted',
+          status: "deleted",
           oldHash: fromFile.content_hash,
         });
       } else if (fromFile && toFile && fromFile.content_hash !== toFile.content_hash) {
         // 修改文件
         diffResults.push({
           path,
-          status: 'modified',
+          status: "modified",
           oldHash: fromFile.content_hash,
           newHash: toFile.content_hash,
         });
@@ -104,13 +119,13 @@ export function CheckpointDiff({
   }, [open, fromCheckpoint, toCheckpoint]);
 
   // 获取状态图标
-  const getStatusIcon = (status: FileDiffInfo['status']) => {
+  const getStatusIcon = (status: FileDiffInfo["status"]) => {
     switch (status) {
-      case 'added':
+      case "added":
         return <Plus className="h-4 w-4 text-green-500" />;
-      case 'deleted':
+      case "deleted":
         return <Minus className="h-4 w-4 text-red-500" />;
-      case 'modified':
+      case "modified":
         return <FileEdit className="h-4 w-4 text-yellow-500" />;
       default:
         return <File className="h-4 w-4 text-muted-foreground" />;
@@ -118,30 +133,30 @@ export function CheckpointDiff({
   };
 
   // 获取状态颜色
-  const getStatusColor = (status: FileDiffInfo['status']) => {
+  const getStatusColor = (status: FileDiffInfo["status"]) => {
     switch (status) {
-      case 'added':
-        return 'text-green-600 bg-green-500/10';
-      case 'deleted':
-        return 'text-red-600 bg-red-500/10';
-      case 'modified':
-        return 'text-yellow-600 bg-yellow-500/10';
+      case "added":
+        return "text-green-600 bg-green-500/10";
+      case "deleted":
+        return "text-red-600 bg-red-500/10";
+      case "modified":
+        return "text-yellow-600 bg-yellow-500/10";
       default:
-        return 'text-muted-foreground bg-muted';
+        return "text-muted-foreground bg-muted";
     }
   };
 
   // 获取状态标签
-  const getStatusLabel = (status: FileDiffInfo['status']) => {
+  const getStatusLabel = (status: FileDiffInfo["status"]) => {
     switch (status) {
-      case 'added':
-        return '新增';
-      case 'deleted':
-        return '删除';
-      case 'modified':
-        return '修改';
+      case "added":
+        return "新增";
+      case "deleted":
+        return "删除";
+      case "modified":
+        return "修改";
       default:
-        return '未变';
+        return "未变";
     }
   };
 
@@ -160,17 +175,17 @@ export function CheckpointDiff({
 
   // 统计数据
   const stats = {
-    added: diffs.filter((d) => d.status === 'added').length,
-    modified: diffs.filter((d) => d.status === 'modified').length,
-    deleted: diffs.filter((d) => d.status === 'deleted').length,
+    added: diffs.filter((d) => d.status === "added").length,
+    modified: diffs.filter((d) => d.status === "modified").length,
+    deleted: diffs.filter((d) => d.status === "deleted").length,
   };
 
   const formatTime = (isoString: string) => {
-    return new Date(isoString).toLocaleString('zh-CN', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    return new Date(isoString).toLocaleString("zh-CN", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -178,7 +193,7 @@ export function CheckpointDiff({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={cn('max-w-2xl max-h-[80vh]', className)}>
+      <DialogContent className={cn("max-w-2xl max-h-[80vh]", className)}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileDiff className="h-5 w-5" />
@@ -235,9 +250,7 @@ export function CheckpointDiff({
               {stats.deleted} 删除
             </span>
           )}
-          {diffs.length === 0 && !loading && (
-            <span className="text-muted-foreground">无变更</span>
-          )}
+          {diffs.length === 0 && !loading && <span className="text-muted-foreground">无变更</span>}
         </div>
 
         {/* 差异列表 */}
@@ -277,10 +290,7 @@ export function CheckpointDiff({
                     <span className="flex-1 text-sm font-mono truncate">{diff.path}</span>
 
                     <span
-                      className={cn(
-                        'px-1.5 py-0.5 rounded text-xs',
-                        getStatusColor(diff.status)
-                      )}
+                      className={cn("px-1.5 py-0.5 rounded text-xs", getStatusColor(diff.status))}
                     >
                       {getStatusLabel(diff.status)}
                     </span>
@@ -291,20 +301,20 @@ export function CheckpointDiff({
                     {expandedFiles.has(diff.path) && (
                       <motion.div
                         initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
+                        animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
                         className="overflow-hidden"
                       >
                         <div className="px-8 pb-3 text-xs text-muted-foreground space-y-1">
                           {diff.oldHash && (
                             <div>
-                              <span className="text-red-500">- 旧版本:</span>{' '}
+                              <span className="text-red-500">- 旧版本:</span>{" "}
                               <span className="font-mono">{diff.oldHash.slice(0, 12)}...</span>
                             </div>
                           )}
                           {diff.newHash && (
                             <div>
-                              <span className="text-green-500">+ 新版本:</span>{' '}
+                              <span className="text-green-500">+ 新版本:</span>{" "}
                               <span className="font-mono">{diff.newHash.slice(0, 12)}...</span>
                             </div>
                           )}

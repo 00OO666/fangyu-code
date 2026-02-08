@@ -1,4 +1,4 @@
-import { Zap, Brain, Sparkles } from 'lucide-react';
+import { Zap, Brain, Sparkles } from "lucide-react";
 import { ModelConfig, ThinkingModeConfig } from "./types";
 
 /**
@@ -9,39 +9,39 @@ export const MODELS: ModelConfig[] = [
     id: "sonnet",
     name: "Claude 4.5 Sonnet",
     description: "Faster, efficient for most tasks",
-    icon: <Zap className="h-4 w-4" />
+    icon: <Zap className="h-4 w-4" />,
   },
   {
     id: "sonnet1m",
     name: "Claude 4.5 Sonnet 1M",
     description: "Sonnet with 1 million token context",
-    icon: <Brain className="h-4 w-4" />
+    icon: <Brain className="h-4 w-4" />,
   },
   {
     id: "opus",
     name: "Claude 4.5 Opus",
     description: "Latest model with enhanced coding & reasoning capabilities",
-    icon: <Sparkles className="h-4 w-4" />
+    icon: <Sparkles className="h-4 w-4" />,
   },
   {
     id: "claude-opus-4-6",
     name: "Claude Opus 4.6",
     description: "Claude Opus 4.6 model",
-    icon: <Sparkles className="h-4 w-4" />
+    icon: <Sparkles className="h-4 w-4" />,
   },
   {
     id: "claude-opus-4-6[1m]",
     name: "Claude Opus 4.6 [1M]",
     description: "Claude Opus 4.6 with 1 million token context",
-    icon: <Brain className="h-4 w-4" />
-  }
+    icon: <Brain className="h-4 w-4" />,
+  },
 ];
 
 /**
  * Thinking modes configuration
  * Simplified to on/off toggle (conforming to official Claude Code standard)
  * Default tokens when enabled: 31999 (balanced for most use cases)
- * 
+ *
  * Note: Names and descriptions are translation keys that will be resolved at runtime
  */
 export const THINKING_MODES: ThinkingModeConfig[] = [
@@ -50,15 +50,15 @@ export const THINKING_MODES: ThinkingModeConfig[] = [
     name: "promptInput.thinkingModeOff",
     description: "promptInput.normalSpeed",
     level: 0,
-    tokens: undefined // No extended thinking
+    tokens: undefined, // No extended thinking
   },
   {
     id: "on",
     name: "promptInput.thinkingModeOn",
     description: "promptInput.deepThinking",
     level: 1,
-    tokens: 31999 // Default thinking tokens
-  }
+    tokens: 31999, // Default thinking tokens
+  },
 ];
 
 /**

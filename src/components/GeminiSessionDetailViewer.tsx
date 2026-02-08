@@ -7,20 +7,28 @@
  * - Timestamps and metadata
  */
 
-import { logger } from '@/lib/logger';
-import React, { useState, useEffect, useRef } from 'react';
-import { api } from '@/lib/api';
-import type { GeminiSessionDetail } from '@/types/gemini';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
+import { logger } from "@/lib/logger";
+import React, { useState, useEffect, useRef } from "react";
+import { api } from "@/lib/api";
+import type { GeminiSessionDetail } from "@/types/gemini";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger
-} from '@/components/ui/collapsible';
-import { X, User, Bot, Wrench, Clock, CheckCircle, XCircle, RefreshCw, ChevronDown, ChevronRight, Cpu } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
+  X,
+  User,
+  Bot,
+  Wrench,
+  Clock,
+  CheckCircle,
+  XCircle,
+  RefreshCw,
+  ChevronDown,
+  ChevronRight,
+  Cpu,
+} from "lucide-react";
+import ReactMarkdown from "react-markdown";
 
 interface GeminiSessionDetailViewerProps {
   projectPath: string;
@@ -35,7 +43,7 @@ export const GeminiSessionDetailViewer: React.FC<GeminiSessionDetailViewerProps>
   sessionId,
   onClose,
   onResume,
-  className = '',
+  className = "",
 }) => {
   const [session, setSession] = useState<GeminiSessionDetail | null>(null);
   const [loading, setLoading] = useState(false);
@@ -52,35 +60,35 @@ export const GeminiSessionDetailViewer: React.FC<GeminiSessionDetailViewerProps>
   // 进入历史会话详情时，默认滚动到最底部以显示最新消息
   useEffect(() => {
     if (!session) return;
-    
+
     // 获取滚动容器
     const el = messagesScrollRef.current;
     if (!el) return;
 
     // 标记是否需要保持在底部
     let shouldStick = true;
-    
+
     const scrollToBottom = () => {
       if (shouldStick && el) {
         el.scrollTop = el.scrollHeight;
       }
     };
-    
+
     // 立即尝试滚动
     scrollToBottom();
-    
+
     // 监听内容大小变化
     const observer = new ResizeObserver(() => {
       scrollToBottom();
     });
-    
+
     // 监听内容区域（ScrollArea 的直接子元素）
     if (el.firstElementChild) {
       observer.observe(el.firstElementChild);
     } else {
       observer.observe(el);
     }
-    
+
     // 1秒后停止强制滚动，允许用户自由滚动
     const timer = setTimeout(() => {
       shouldStick = false;
@@ -105,8 +113,8 @@ export const GeminiSessionDetailViewer: React.FC<GeminiSessionDetailViewerProps>
       const detail = await api.getGeminiSessionDetail(projectPath, sessionId);
       setSession(detail);
     } catch (err) {
-      logger.error('GeminiSessionDetailViewer', 'Failed to load session detail:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load session detail');
+      logger.error("GeminiSessionDetailViewer", "Failed to load session detail:", err);
+      setError(err instanceof Error ? err.message : "Failed to load session detail");
     } finally {
       setLoading(false);
     }
@@ -115,13 +123,13 @@ export const GeminiSessionDetailViewer: React.FC<GeminiSessionDetailViewerProps>
   const formatTimestamp = (timestamp: string) => {
     try {
       const date = new Date(timestamp);
-      return date.toLocaleString('zh-CN', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
+      return date.toLocaleString("zh-CN", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
       });
     } catch {
       return timestamp;
@@ -131,16 +139,14 @@ export const GeminiSessionDetailViewer: React.FC<GeminiSessionDetailViewerProps>
   // Check if a tool is a subagent (e.g., codebase_investigator, code_executor)
   const isSubagentTool = (toolName: string) => {
     const subagentTools = [
-      'codebase_investigator',
-      'code_executor',
-      'task',
-      'subagent',
-      'analyst',
-      'planner'
+      "codebase_investigator",
+      "code_executor",
+      "task",
+      "subagent",
+      "analyst",
+      "planner",
     ];
-    return subagentTools.some(name =>
-      toolName.toLowerCase().includes(name.toLowerCase())
-    );
+    return subagentTools.some((name) => toolName.toLowerCase().includes(name.toLowerCase()));
   };
 
   // Component for a single tool call with collapsible support
@@ -154,9 +160,7 @@ export const GeminiSessionDetailViewer: React.FC<GeminiSessionDetailViewerProps>
     return (
       <div
         className={`rounded-md border p-3 mt-2 ${
-          isSubagent
-            ? 'bg-purple-500/5 border-purple-500/30'
-            : 'bg-muted/30'
+          isSubagent ? "bg-purple-500/5 border-purple-500/30" : "bg-muted/30"
         }`}
       >
         {/* Tool Header */}
@@ -166,27 +170,22 @@ export const GeminiSessionDetailViewer: React.FC<GeminiSessionDetailViewerProps>
           ) : (
             <Wrench className="h-4 w-4 text-blue-500" />
           )}
-          <span className="text-sm font-medium">
-            {toolCall.displayName || toolCall.name}
-          </span>
+          <span className="text-sm font-medium">{toolCall.displayName || toolCall.name}</span>
           {isSubagent && (
-            <Badge variant="outline" className="text-xs bg-purple-500/10 text-purple-600 border-purple-500/30">
+            <Badge
+              variant="outline"
+              className="text-xs bg-purple-500/10 text-purple-600 border-purple-500/30"
+            >
               子代理
             </Badge>
           )}
-          {toolCall.status === 'success' && (
-            <CheckCircle className="h-3 w-3 text-green-500" />
-          )}
-          {toolCall.status === 'error' && (
-            <XCircle className="h-3 w-3 text-destructive" />
-          )}
+          {toolCall.status === "success" && <CheckCircle className="h-3 w-3 text-green-500" />}
+          {toolCall.status === "error" && <XCircle className="h-3 w-3 text-destructive" />}
         </div>
 
         {/* Tool Description */}
         {toolCall.description && (
-          <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
-            {toolCall.description}
-          </p>
+          <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{toolCall.description}</p>
         )}
 
         {/* Tool Arguments - Collapsible */}
@@ -264,22 +263,22 @@ export const GeminiSessionDetailViewer: React.FC<GeminiSessionDetailViewerProps>
   };
 
   const renderMessage = (message: any, index: number) => {
-    const isUser = message.type === 'user';
+    const isUser = message.type === "user";
 
     return (
       <div
         key={message.id || index}
-        className={`flex gap-3 p-4 ${isUser ? 'bg-background' : 'bg-muted/30'}`}
+        className={`flex gap-3 p-4 ${isUser ? "bg-background" : "bg-muted/30"}`}
       >
         {/* Avatar */}
-        <div className={`flex-shrink-0 mt-1 ${isUser ? 'text-blue-500' : 'text-purple-500'}`}>
+        <div className={`flex-shrink-0 mt-1 ${isUser ? "text-blue-500" : "text-purple-500"}`}>
           {isUser ? <User className="h-5 w-5" /> : <Bot className="h-5 w-5" />}
         </div>
 
         {/* Message Content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-sm font-medium">{isUser ? '用户' : 'Gemini'}</span>
+            <span className="text-sm font-medium">{isUser ? "用户" : "Gemini"}</span>
             <span className="text-xs text-muted-foreground">
               {formatTimestamp(message.timestamp)}
             </span>
@@ -292,9 +291,7 @@ export const GeminiSessionDetailViewer: React.FC<GeminiSessionDetailViewerProps>
 
           {/* Message Text */}
           {message.content && (
-            <div className="text-sm whitespace-pre-wrap break-words">
-              {message.content}
-            </div>
+            <div className="text-sm whitespace-pre-wrap break-words">{message.content}</div>
           )}
 
           {/* Tool Calls */}
@@ -378,20 +375,12 @@ export const GeminiSessionDetailViewer: React.FC<GeminiSessionDetailViewerProps>
 
         <div className="flex items-center gap-2">
           {onResume && (
-            <Button
-              variant="default"
-              size="sm"
-              onClick={() => onResume(sessionId)}
-            >
+            <Button variant="default" size="sm" onClick={() => onResume(sessionId)}>
               恢复会话
             </Button>
           )}
           {onClose && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
-            >
+            <Button variant="ghost" size="sm" onClick={onClose}>
               <X className="h-4 w-4" />
             </Button>
           )}

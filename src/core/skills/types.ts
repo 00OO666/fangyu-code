@@ -1,6 +1,6 @@
 /**
  * Fangyu Code Skills System - 类型定义
- * 
+ *
  * 灵感来源：Claude Code Skills 系统
  * 与 Spec 模式深度集成
  */
@@ -18,7 +18,7 @@ export interface SkillMetadata {
   compatibility?: string;
   categories?: string[];
   keywords?: string[];
-  triggers?: string[];  // 触发关键词
+  triggers?: string[]; // 触发关键词
 }
 
 // ============================================
@@ -26,7 +26,7 @@ export interface SkillMetadata {
 // ============================================
 
 export interface SkillResource {
-  type: 'script' | 'reference' | 'asset' | 'template';
+  type: "script" | "reference" | "asset" | "template";
   path: string;
   description?: string;
   language?: string;
@@ -40,7 +40,7 @@ export interface SkillWorkflowStep {
   id: string;
   name: string;
   description: string;
-  type: 'action' | 'question' | 'validation' | 'generation';
+  type: "action" | "question" | "validation" | "generation";
   prompt?: string;
   script?: string;
   inputs?: SkillInput[];
@@ -51,7 +51,7 @@ export interface SkillWorkflowStep {
 
 export interface SkillInput {
   name: string;
-  type: 'string' | 'number' | 'boolean' | 'file' | 'directory' | 'choice';
+  type: "string" | "number" | "boolean" | "file" | "directory" | "choice";
   description?: string;
   required?: boolean;
   default?: any;
@@ -61,14 +61,14 @@ export interface SkillInput {
 
 export interface SkillOutput {
   name: string;
-  type: 'string' | 'file' | 'directory' | 'json';
+  type: "string" | "file" | "directory" | "json";
   description?: string;
 }
 
 export interface SkillCondition {
-  type: 'file_exists' | 'env_var' | 'input_match' | 'custom';
+  type: "file_exists" | "env_var" | "input_match" | "custom";
   value: string;
-  operator?: 'equals' | 'contains' | 'matches' | 'exists';
+  operator?: "equals" | "contains" | "matches" | "exists";
   target?: string;
 }
 
@@ -76,7 +76,7 @@ export interface SkillCondition {
 // Skill 模式
 // ============================================
 
-export type SkillMode = 'workflow' | 'task' | 'reference';
+export type SkillMode = "workflow" | "task" | "reference";
 
 // ============================================
 // 完整 Skill 定义
@@ -127,7 +127,7 @@ export interface SkillExecutionContext {
   history: SkillExecutionHistoryItem[];
   startedAt: number;
   projectPath?: string;
-  engine?: 'claude' | 'codex' | 'gemini';
+  engine?: "claude" | "codex" | "gemini";
 }
 
 export interface SkillExecutionHistoryItem {
@@ -163,11 +163,11 @@ export interface SkillSearchOptions {
 // ============================================
 
 export interface SkillLocation {
-  type: 'global' | 'project' | 'custom';
+  type: "global" | "project" | "custom";
   path: string;
 }
 
 export const DEFAULT_SKILL_LOCATIONS: SkillLocation[] = [
-  { type: 'global', path: '~/.fangyu-code/skills' },
-  { type: 'project', path: '.fangyu/skills' },
+  { type: "global", path: "~/.fangyu-code/skills" },
+  { type: "project", path: ".fangyu/skills" },
 ];

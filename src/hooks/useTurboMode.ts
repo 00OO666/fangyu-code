@@ -292,7 +292,7 @@ export function useTurboMode(options: UseTurboModeOptions = {}) {
 
       onModeChange?.(level);
     },
-    [config.sessionTimeout, onModeChange, updateConfig],
+    [config.sessionTimeout, onModeChange, updateConfig]
   );
 
   // 清理
@@ -315,7 +315,7 @@ export function useTurboMode(options: UseTurboModeOptions = {}) {
       const isBlacklisted = config.blacklist.some(
         (pattern) =>
           trimmedCommand === pattern.toLowerCase() ||
-          trimmedCommand.startsWith(pattern.toLowerCase()),
+          trimmedCommand.startsWith(pattern.toLowerCase())
       );
 
       if (isBlacklisted) {
@@ -332,7 +332,7 @@ export function useTurboMode(options: UseTurboModeOptions = {}) {
       const isWhitelisted = config.whitelist.some(
         (pattern) =>
           trimmedCommand === pattern.toLowerCase() ||
-          trimmedCommand.startsWith(pattern.toLowerCase()),
+          trimmedCommand.startsWith(pattern.toLowerCase())
       );
 
       if (isWhitelisted) {
@@ -368,7 +368,7 @@ export function useTurboMode(options: UseTurboModeOptions = {}) {
         requiresConfirmation: config.level !== "full",
       };
     },
-    [config.blacklist, config.whitelist, config.level],
+    [config.blacklist, config.whitelist, config.level]
   );
 
   /**
@@ -392,7 +392,7 @@ export function useTurboMode(options: UseTurboModeOptions = {}) {
           return false;
       }
     },
-    [config.level, config.maxConsecutiveAuto, consecutiveAutoCount],
+    [config.level, config.maxConsecutiveAuto, consecutiveAutoCount]
   );
 
   /**
@@ -444,7 +444,7 @@ export function useTurboMode(options: UseTurboModeOptions = {}) {
 
       return { success: false, error: lastError, retryCount };
     },
-    [onExecute, config.maxRetries, config.retryDelay, config.smartRecovery],
+    [onExecute, config.maxRetries, config.retryDelay, config.smartRecovery]
   );
 
   /**
@@ -510,7 +510,7 @@ export function useTurboMode(options: UseTurboModeOptions = {}) {
 
       return { autoExecuted: false };
     },
-    [analyzeCommand, shouldAutoExecute, executeWithRetry, onConfirmationNeeded],
+    [analyzeCommand, shouldAutoExecute, executeWithRetry, onConfirmationNeeded]
   );
 
   /**

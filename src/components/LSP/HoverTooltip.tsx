@@ -3,9 +3,9 @@
  * 显示 LSP hover 信息
  */
 
-import React, { useEffect, useState } from 'react';
-import ReactMarkdown from 'react-markdown';
-import type { HoverInfo } from '@/core/types/unified-agent';
+import React, { useEffect, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import type { HoverInfo } from "@/core/types/unified-agent";
 
 interface HoverTooltipProps {
   hoverInfo: HoverInfo | null;
@@ -13,11 +13,7 @@ interface HoverTooltipProps {
   onClose: () => void;
 }
 
-export const HoverTooltip: React.FC<HoverTooltipProps> = ({
-  hoverInfo,
-  position,
-  onClose,
-}) => {
+export const HoverTooltip: React.FC<HoverTooltipProps> = ({ hoverInfo, position, onClose }) => {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {

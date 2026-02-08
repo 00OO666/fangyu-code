@@ -1,4 +1,4 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import React, { useState, useEffect } from "react";
 import {
   Dialog,
@@ -11,9 +11,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Loader2, Plus, Trash2, Code, Settings } from 'lucide-react';
+import { Loader2, Plus, Trash2, Code, Settings } from "lucide-react";
 import { api, type MCPServerSpec } from "@/lib/api";
 
 interface MCPServerDialogProps {
@@ -208,7 +214,7 @@ export const MCPServerDialog: React.FC<MCPServerDialogProps> = ({
       const parsed = JSON.parse(jsonInput);
 
       // 检测是否为完整 MCP 配置格式
-      if (parsed.mcpServers && typeof parsed.mcpServers === 'object') {
+      if (parsed.mcpServers && typeof parsed.mcpServers === "object") {
         const serverIds = Object.keys(parsed.mcpServers);
         if (serverIds.length === 0) {
           setJsonError("mcpServers 中没有服务器配置");
@@ -304,7 +310,7 @@ export const MCPServerDialog: React.FC<MCPServerDialogProps> = ({
       onSaved();
       onClose();
     } catch (error) {
-      logger.error('MCPServerDialog', "Failed to save MCP server:", error);
+      logger.error("MCPServerDialog", "Failed to save MCP server:", error);
       alert(`保存失败: ${error instanceof Error ? error.message : "未知错误"}`);
     } finally {
       setSaving(false);
@@ -366,195 +372,183 @@ export const MCPServerDialog: React.FC<MCPServerDialogProps> = ({
                 </Select>
               </div>
 
-          {/* stdio 配置 */}
-          {type === "stdio" && (
-            <>
-              {/* Command */}
-              <div>
-                <Label htmlFor="command">命令 *</Label>
-                <Input
-                  id="command"
-                  value={command}
-                  onChange={(e) => setCommand(e.target.value)}
-                  placeholder="node"
-                />
-              </div>
-
-              {/* Args */}
-              <div>
-                <Label>参数（可选）</Label>
-                <div className="space-y-2">
-                  {args.map((arg, index) => (
-                    <div key={index} className="flex items-center gap-2">
-                      <Input
-                        value={arg}
-                        onChange={(e) => handleUpdateArg(index, e.target.value)}
-                        className="flex-1"
-                        placeholder={`参数 ${index + 1}`}
-                      />
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleRemoveArg(index)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                  <div className="flex items-center gap-2">
+              {/* stdio 配置 */}
+              {type === "stdio" && (
+                <>
+                  {/* Command */}
+                  <div>
+                    <Label htmlFor="command">命令 *</Label>
                     <Input
-                      value={newArgInput}
-                      onChange={(e) => setNewArgInput(e.target.value)}
-                      placeholder="添加参数..."
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          handleAddArg();
-                        }
-                      }}
+                      id="command"
+                      value={command}
+                      onChange={(e) => setCommand(e.target.value)}
+                      placeholder="node"
                     />
-                    <Button variant="outline" size="sm" onClick={handleAddArg}>
-                      <Plus className="h-4 w-4" />
-                    </Button>
                   </div>
-                </div>
-              </div>
 
-              {/* Working Directory */}
-              <div>
-                <Label htmlFor="cwd">工作目录（可选）</Label>
-                <Input
-                  id="cwd"
-                  value={cwd}
-                  onChange={(e) => setCwd(e.target.value)}
-                  placeholder="/path/to/working/directory"
-                />
-              </div>
-
-              {/* Environment Variables */}
-              <div>
-                <Label>环境变量（可选）</Label>
-                <div className="space-y-2">
-                  {Object.entries(env).map(([key, value]) => (
-                    <div key={key} className="flex items-center gap-2">
-                      <Input
-                        value={key}
-                        onChange={(e) => handleUpdateEnv(key, e.target.value, value)}
-                        className="flex-1"
-                        placeholder="KEY"
-                      />
-                      <span className="text-muted-foreground">=</span>
-                      <Input
-                        value={value}
-                        onChange={(e) => handleUpdateEnv(key, key, e.target.value)}
-                        className="flex-1"
-                        placeholder="value"
-                      />
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleRemoveEnv(key)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                  {/* Args */}
+                  <div>
+                    <Label>参数（可选）</Label>
+                    <div className="space-y-2">
+                      {args.map((arg, index) => (
+                        <div key={index} className="flex items-center gap-2">
+                          <Input
+                            value={arg}
+                            onChange={(e) => handleUpdateArg(index, e.target.value)}
+                            className="flex-1"
+                            placeholder={`参数 ${index + 1}`}
+                          />
+                          <Button variant="ghost" size="sm" onClick={() => handleRemoveArg(index)}>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                      <div className="flex items-center gap-2">
+                        <Input
+                          value={newArgInput}
+                          onChange={(e) => setNewArgInput(e.target.value)}
+                          placeholder="添加参数..."
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              handleAddArg();
+                            }
+                          }}
+                        />
+                        <Button variant="outline" size="sm" onClick={handleAddArg}>
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
-                  ))}
-                  <div className="flex items-center gap-2">
-                    <Input
-                      value={newEnvKey}
-                      onChange={(e) => setNewEnvKey(e.target.value)}
-                      placeholder="KEY"
-                      className="flex-1"
-                    />
-                    <span className="text-muted-foreground">=</span>
-                    <Input
-                      value={newEnvValue}
-                      onChange={(e) => setNewEnvValue(e.target.value)}
-                      placeholder="value"
-                      className="flex-1"
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          handleAddEnv();
-                        }
-                      }}
-                    />
-                    <Button variant="outline" size="sm" onClick={handleAddEnv}>
-                      <Plus className="h-4 w-4" />
-                    </Button>
                   </div>
-                </div>
-              </div>
-            </>
-          )}
 
-          {/* http/sse 配置 */}
-          {(type === "http" || type === "sse") && (
-            <>
-              {/* URL */}
-              <div>
-                <Label htmlFor="url">URL *</Label>
-                <Input
-                  id="url"
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
-                  placeholder="http://localhost:3000"
-                />
-              </div>
+                  {/* Working Directory */}
+                  <div>
+                    <Label htmlFor="cwd">工作目录（可选）</Label>
+                    <Input
+                      id="cwd"
+                      value={cwd}
+                      onChange={(e) => setCwd(e.target.value)}
+                      placeholder="/path/to/working/directory"
+                    />
+                  </div>
 
-              {/* Headers */}
-              <div>
-                <Label>请求头（可选）</Label>
-                <div className="space-y-2">
-                  {Object.entries(headers).map(([key, value]) => (
-                    <div key={key} className="flex items-center gap-2">
-                      <Input
-                        value={key}
-                        onChange={(e) => handleUpdateHeader(key, e.target.value, value)}
-                        className="flex-1"
-                        placeholder="Header-Name"
-                      />
-                      <span className="text-muted-foreground">:</span>
-                      <Input
-                        value={value}
-                        onChange={(e) => handleUpdateHeader(key, key, e.target.value)}
-                        className="flex-1"
-                        placeholder="value"
-                      />
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleRemoveHeader(key)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                  {/* Environment Variables */}
+                  <div>
+                    <Label>环境变量（可选）</Label>
+                    <div className="space-y-2">
+                      {Object.entries(env).map(([key, value]) => (
+                        <div key={key} className="flex items-center gap-2">
+                          <Input
+                            value={key}
+                            onChange={(e) => handleUpdateEnv(key, e.target.value, value)}
+                            className="flex-1"
+                            placeholder="KEY"
+                          />
+                          <span className="text-muted-foreground">=</span>
+                          <Input
+                            value={value}
+                            onChange={(e) => handleUpdateEnv(key, key, e.target.value)}
+                            className="flex-1"
+                            placeholder="value"
+                          />
+                          <Button variant="ghost" size="sm" onClick={() => handleRemoveEnv(key)}>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                      <div className="flex items-center gap-2">
+                        <Input
+                          value={newEnvKey}
+                          onChange={(e) => setNewEnvKey(e.target.value)}
+                          placeholder="KEY"
+                          className="flex-1"
+                        />
+                        <span className="text-muted-foreground">=</span>
+                        <Input
+                          value={newEnvValue}
+                          onChange={(e) => setNewEnvValue(e.target.value)}
+                          placeholder="value"
+                          className="flex-1"
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              handleAddEnv();
+                            }
+                          }}
+                        />
+                        <Button variant="outline" size="sm" onClick={handleAddEnv}>
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
-                  ))}
-                  <div className="flex items-center gap-2">
-                    <Input
-                      value={newHeaderKey}
-                      onChange={(e) => setNewHeaderKey(e.target.value)}
-                      placeholder="Header-Name"
-                      className="flex-1"
-                    />
-                    <span className="text-muted-foreground">:</span>
-                    <Input
-                      value={newHeaderValue}
-                      onChange={(e) => setNewHeaderValue(e.target.value)}
-                      placeholder="value"
-                      className="flex-1"
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          handleAddHeader();
-                        }
-                      }}
-                    />
-                    <Button variant="outline" size="sm" onClick={handleAddHeader}>
-                      <Plus className="h-4 w-4" />
-                    </Button>
                   </div>
-                </div>
-              </div>
-            </>
-          )}
+                </>
+              )}
+
+              {/* http/sse 配置 */}
+              {(type === "http" || type === "sse") && (
+                <>
+                  {/* URL */}
+                  <div>
+                    <Label htmlFor="url">URL *</Label>
+                    <Input
+                      id="url"
+                      value={url}
+                      onChange={(e) => setUrl(e.target.value)}
+                      placeholder="http://localhost:3000"
+                    />
+                  </div>
+
+                  {/* Headers */}
+                  <div>
+                    <Label>请求头（可选）</Label>
+                    <div className="space-y-2">
+                      {Object.entries(headers).map(([key, value]) => (
+                        <div key={key} className="flex items-center gap-2">
+                          <Input
+                            value={key}
+                            onChange={(e) => handleUpdateHeader(key, e.target.value, value)}
+                            className="flex-1"
+                            placeholder="Header-Name"
+                          />
+                          <span className="text-muted-foreground">:</span>
+                          <Input
+                            value={value}
+                            onChange={(e) => handleUpdateHeader(key, key, e.target.value)}
+                            className="flex-1"
+                            placeholder="value"
+                          />
+                          <Button variant="ghost" size="sm" onClick={() => handleRemoveHeader(key)}>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                      <div className="flex items-center gap-2">
+                        <Input
+                          value={newHeaderKey}
+                          onChange={(e) => setNewHeaderKey(e.target.value)}
+                          placeholder="Header-Name"
+                          className="flex-1"
+                        />
+                        <span className="text-muted-foreground">:</span>
+                        <Input
+                          value={newHeaderValue}
+                          onChange={(e) => setNewHeaderValue(e.target.value)}
+                          placeholder="value"
+                          className="flex-1"
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              handleAddHeader();
+                            }
+                          }}
+                        />
+                        <Button variant="outline" size="sm" onClick={handleAddHeader}>
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
             </TabsContent>
 
             {/* JSON 模式 */}
@@ -577,9 +571,7 @@ export const MCPServerDialog: React.FC<MCPServerDialogProps> = ({
 }`}
                   className="font-mono text-sm min-h-[300px]"
                 />
-                {jsonError && (
-                  <p className="text-sm text-destructive mt-2">{jsonError}</p>
-                )}
+                {jsonError && <p className="text-sm text-destructive mt-2">{jsonError}</p>}
                 <p className="text-xs text-muted-foreground mt-2">
                   直接输入或粘贴 MCP 服务器配置的 JSON 格式
                 </p>

@@ -19,7 +19,7 @@ interface MockSandbox {
   id: string;
   agentId: string;
   containerId: string | null;
-  status: 'creating' | 'running' | 'stopped' | 'error';
+  status: "creating" | "running" | "stopped" | "error";
   terminals: string[];
   createdAt: number;
 }
@@ -45,15 +45,15 @@ class TestSandboxManager {
 
   async createSandbox(agentId: string): Promise<MockSandbox> {
     const sandboxId = `sandbox-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-    
+
     // Create container
     const containerId = await this.dockerOps.createContainer(sandboxId);
-    
+
     const sandbox: MockSandbox = {
       id: sandboxId,
       agentId,
       containerId,
-      status: 'running',
+      status: "running",
       terminals: [],
       createdAt: Date.now(),
     };
@@ -73,7 +73,7 @@ class TestSandboxManager {
 
     // Clear terminals
     sandbox.terminals = [];
-    sandbox.status = 'stopped';
+    sandbox.status = "stopped";
 
     // Remove from map
     this.sandboxes.delete(sandboxId);
@@ -109,7 +109,7 @@ class TestSandboxManager {
 
 // Generators
 const agentIdArb = fc.stringOf(
-  fc.constantFrom(...'abcdefghijklmnopqrstuvwxyz0123456789'.split('')),
+  fc.constantFrom(..."abcdefghijklmnopqrstuvwxyz0123456789".split("")),
   { minLength: 1, maxLength: 20 }
 );
 
@@ -126,7 +126,7 @@ describe("SandboxManager Property Tests", () => {
         return Promise.resolve(`container-${++containerIdCounter}`);
       }),
       destroyContainer: vi.fn().mockResolvedValue(undefined),
-      execCommand: vi.fn().mockResolvedValue({ stdout: '', stderr: '', exitCode: 0 }),
+      execCommand: vi.fn().mockResolvedValue({ stdout: "", stderr: "", exitCode: 0 }),
     };
   });
 
@@ -182,7 +182,7 @@ describe("SandboxManager Property Tests", () => {
             return Promise.resolve(`container-${Math.random().toString(36).slice(2, 8)}`);
           }),
           destroyContainer: vi.fn().mockResolvedValue(undefined),
-          execCommand: vi.fn().mockResolvedValue({ stdout: '', stderr: '', exitCode: 0 }),
+          execCommand: vi.fn().mockResolvedValue({ stdout: "", stderr: "", exitCode: 0 }),
         };
 
         const manager = new TestSandboxManager(localMockDockerOps);
@@ -239,19 +239,22 @@ describe("SandboxManager Property Tests", () => {
   it("should maintain accurate sandbox count", async () => {
     await fc.assert(
       fc.asyncProperty(
-        fc.array(fc.record({
-          action: fc.constantFrom('create', 'destroy'),
-          agentId: agentIdArb,
-        }), { minLength: 1, maxLength: 20 }),
+        fc.array(
+          fc.record({
+            action: fc.constantFrom("create", "destroy"),
+            agentId: agentIdArb,
+          }),
+          { minLength: 1, maxLength: 20 }
+        ),
         async (actions) => {
           const manager = new TestSandboxManager(mockDockerOps);
           const createdIds: string[] = [];
 
           for (const action of actions) {
-            if (action.action === 'create') {
+            if (action.action === "create") {
               const sandbox = await manager.createSandbox(action.agentId);
               createdIds.push(sandbox.id);
-            } else if (action.action === 'destroy' && createdIds.length > 0) {
+            } else if (action.action === "destroy" && createdIds.length > 0) {
               const idToDestroy = createdIds.shift()!;
               await manager.destroySandbox(idToDestroy);
             }

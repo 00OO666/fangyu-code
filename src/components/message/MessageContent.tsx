@@ -1,4 +1,4 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import React, { memo } from "react";
 import { cn } from "@/lib/utils";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -36,32 +36,29 @@ const MessageContentComponent: React.FC<MessageContentProps> = ({
     <div className={cn("relative", className)}>
       <ErrorBoundary
         onError={(error) => {
-          logger.error('MessageContent', '[MessageContent] Markdown rendering error:', error);
+          logger.error("MessageContent", "[MessageContent] Markdown rendering error:", error);
         }}
         fallback={(error) => (
           <div className="p-4 rounded-md border border-destructive/20 bg-destructive/5 my-2">
             <p className="text-sm font-medium text-destructive mb-2">
               渲染内容时出错 (Markdown/Syntax Highlighting)
             </p>
-            <pre className="text-xs font-mono whitespace-pre-wrap break-words text-muted-foreground bg-background/50 p-2 rounded max-h-[200px] overflow-y-auto" style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
+            <pre
+              className="text-xs font-mono whitespace-pre-wrap break-words text-muted-foreground bg-background/50 p-2 rounded max-h-[200px] overflow-y-auto"
+              style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
+            >
               {content}
             </pre>
             <details className="mt-2">
               <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground">
                 错误详情
               </summary>
-              <p className="text-xs text-destructive mt-1 font-mono">
-                {error.message}
-              </p>
+              <p className="text-xs text-destructive mt-1 font-mono">{error.message}</p>
             </details>
           </div>
         )}
       >
-        <OptimizedMarkdown
-          content={content}
-          isStreaming={isStreaming}
-          className={className}
-        />
+        <OptimizedMarkdown content={content} isStreaming={isStreaming} className={className} />
       </ErrorBoundary>
     </div>
   );

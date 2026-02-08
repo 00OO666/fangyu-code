@@ -7,15 +7,15 @@
  * - 提供窗口状态信息
  */
 
-import { useEffect, useState, useRef } from 'react';
-import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
+import { useEffect, useState, useRef } from "react";
+import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
 
 export interface WindowAttentionState {
   isVisible: boolean;
   isThrottled: boolean;
   isFocused: boolean;
   lastHeartbeat: number;
-  throttleLevel: 'none' | 'light' | 'heavy';
+  throttleLevel: "none" | "light" | "heavy";
 }
 
 export function useWindowAttention() {
@@ -24,12 +24,12 @@ export function useWindowAttention() {
     isThrottled: false,
     isFocused: document.hasFocus(),
     lastHeartbeat: Date.now(),
-    throttleLevel: 'none',
+    throttleLevel: "none",
   });
 
   const workerRef = useRef<Worker | null>(null);
   const lastHeartbeatRef = useRef<number>(Date.now());
-  const windowIdRef = useRef<string>('');
+  const windowIdRef = useRef<string>("");
 
   useEffect(() => {
     const initWindowId = async () => {
@@ -39,12 +39,12 @@ export function useWindowAttention() {
     initWindowId();
 
     workerRef.current = new Worker(
-      new URL('../workers/windowHeartbeat.worker.ts', import.meta.url),
-      { type: 'module' }
+      new URL("../workers/windowHeartbeat.worker.ts", import.meta.url),
+      { type: "module" }
     );
 
     workerRef.current.postMessage({
-      type: 'START',
+      type: "START",
       payload: {
         interval: 1000,
         windowId: windowIdRef.current,
@@ -52,22 +52,22 @@ export function useWindowAttention() {
     });
 
     workerRef.current.onmessage = (e) => {
-      if (e.data.type === 'HEARTBEAT') {
+      if (e.data.type === "HEARTBEAT") {
         const now = Date.now();
         const delay = now - lastHeartbeatRef.current;
         lastHeartbeatRef.current = now;
 
-        let throttleLevel: 'none' | 'light' | 'heavy' = 'none';
+        let throttleLevel: "none" | "light" | "heavy" = "none";
         if (delay > 2000) {
-          throttleLevel = 'heavy';
+          throttleLevel = "heavy";
         } else if (delay > 1500) {
-          throttleLevel = 'light';
+          throttleLevel = "light";
         }
 
         setState((prev) => ({
           ...prev,
           lastHeartbeat: now,
-          isThrottled: throttleLevel !== 'none',
+          isThrottled: throttleLevel !== "none",
           throttleLevel,
         }));
       }
@@ -88,16 +88,16 @@ export function useWindowAttention() {
       setState((prev) => ({ ...prev, isFocused: false }));
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('focus', handleFocus);
-    window.addEventListener('blur', handleBlur);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("focus", handleFocus);
+    window.addEventListener("blur", handleBlur);
 
     return () => {
-      workerRef.current?.postMessage({ type: 'STOP' });
+      workerRef.current?.postMessage({ type: "STOP" });
       workerRef.current?.terminate();
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('focus', handleFocus);
-      window.removeEventListener('blur', handleBlur);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("blur", handleBlur);
     };
   }, []);
 

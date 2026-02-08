@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { X, ZoomIn } from 'lucide-react';
+import { X, ZoomIn } from "lucide-react";
 import { createPortal } from "react-dom";
 import { ImagePreview } from "../ImagePreview";
 
@@ -70,7 +70,7 @@ export const AttachmentPreview: React.FC<AttachmentPreviewProps> = ({
   embeddedImages,
   onRemoveAttachment,
   onRemoveEmbedded,
-  className
+  className,
 }) => {
   const [lightboxImage, setLightboxImage] = useState<{ src: string; alt?: string } | null>(null);
 
@@ -97,7 +97,9 @@ export const AttachmentPreview: React.FC<AttachmentPreviewProps> = ({
                 <div key={attachment.id} className="relative flex-shrink-0 group">
                   <div
                     className="relative w-16 h-16 rounded-md overflow-hidden border border-border/50 shadow-sm cursor-pointer"
-                    onClick={() => setLightboxImage({ src: attachment.previewUrl, alt: "Screenshot preview" })}
+                    onClick={() =>
+                      setLightboxImage({ src: attachment.previewUrl, alt: "Screenshot preview" })
+                    }
                   >
                     <img
                       src={attachment.previewUrl}
@@ -109,7 +111,10 @@ export const AttachmentPreview: React.FC<AttachmentPreviewProps> = ({
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          setLightboxImage({ src: attachment.previewUrl, alt: "Screenshot preview" });
+                          setLightboxImage({
+                            src: attachment.previewUrl,
+                            alt: "Screenshot preview",
+                          });
                         }}
                         className="w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center hover:bg-primary/90 transition-colors shadow-sm"
                         title="点击放大"

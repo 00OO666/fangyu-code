@@ -12,8 +12,8 @@
  * - 移除不安全的 Base64 编码
  */
 
-import { logger } from '@/lib/logger';
-import { invoke } from '@tauri-apps/api/core';
+import { logger } from "@/lib/logger";
+import { invoke } from "@tauri-apps/api/core";
 
 // =============================================================================
 // 类型定义
@@ -50,7 +50,7 @@ export interface StoredAPIKey {
 }
 
 /** API 密钥提供商 */
-export type APIKeyProvider = 'claude' | 'openai' | 'gemini' | 'hiapi' | 'other';
+export type APIKeyProvider = "claude" | "openai" | "gemini" | "hiapi" | "other";
 
 // =============================================================================
 // Web Crypto API 加密工具（开发环境使用）
@@ -68,31 +68,31 @@ async function deriveEncryptionKey(): Promise<CryptoKey> {
     screen.width,
     screen.height,
     new Date().getTimezoneOffset(),
-  ].join('|');
+  ].join("|");
 
   const encoder = new TextEncoder();
   const keyMaterial = await crypto.subtle.importKey(
-    'raw',
+    "raw",
     encoder.encode(deviceFingerprint),
-    'PBKDF2',
+    "PBKDF2",
     false,
-    ['deriveKey']
+    ["deriveKey"]
   );
 
   // 使用固定盐值（设备相关）
-  const salt = encoder.encode('fangyu_code_secure_storage_v1');
+  const salt = encoder.encode("fangyu_code_secure_storage_v1");
 
   return crypto.subtle.deriveKey(
     {
-      name: 'PBKDF2',
+      name: "PBKDF2",
       salt,
       iterations: 100000,
-      hash: 'SHA-256',
+      hash: "SHA-256",
     },
     keyMaterial,
-    { name: 'AES-GCM', length: 256 },
+    { name: "AES-GCM", length: 256 },
     false,
-    ['encrypt', 'decrypt']
+    ["encrypt", "decrypt"]
   );
 }
 
@@ -107,7 +107,7 @@ async function encryptData(plaintext: string): Promise<string> {
   // 生成随机 IV
   const iv = crypto.getRandomValues(new Uint8Array(12));
 
-  const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, data);
+  const encrypted = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, data);
 
   // 将 IV 和密文组合，然后 Base64 编码
   const combined = new Uint8Array(iv.length + encrypted.byteLength);
@@ -131,12 +131,12 @@ async function decryptData(ciphertext: string): Promise<string | null> {
     const iv = combined.slice(0, 12);
     const encrypted = combined.slice(12);
 
-    const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, encrypted);
+    const decrypted = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, encrypted);
 
     const decoder = new TextDecoder();
     return decoder.decode(decrypted);
   } catch (error) {
-    logger.warn('secureStorage', '[SecureStorage] 解密失败，可能是旧格式数据:', error);
+    logger.warn("secureStorage", "[SecureStorage] 解密失败，可能是旧格式数据:", error);
     return null;
   }
 }
@@ -156,7 +156,7 @@ async function decryptDataWithFallback(encoded: string): Promise<string | null> 
     const decoded = atob(encoded);
     // 如果成功解码且看起来像有效数据，记录警告并返回
     if (decoded && decoded.length > 0) {
-      logger.warn('secureStorage', '⚠️ 检测到旧格式数据（Base64），建议重新保存以使用加密存储');
+      logger.warn("secureStorage", "⚠️ 检测到旧格式数据（Base64），建议重新保存以使用加密存储");
       return decoded;
     }
   } catch {
@@ -173,13 +173,13 @@ async function decryptDataWithFallback(encoded: string): Promise<string | null> 
 /**
  * 安全存储前缀
  */
-const SECURE_STORAGE_PREFIX = 'fangyu_secure_';
+const SECURE_STORAGE_PREFIX = "fangyu_secure_";
 
 /**
  * 检查是否在 Tauri 环境中
  */
 function isTauriEnvironment(): boolean {
-  return typeof window !== 'undefined' && '__TAURI__' in window;
+  return typeof window !== "undefined" && "__TAURI__" in window;
 }
 
 /**
@@ -187,8 +187,11 @@ function isTauriEnvironment(): boolean {
  */
 function logSecurityWarning(): void {
   if (!isTauriEnvironment()) {
-    logger.warn('secureStorage', '⚠️ 安全警告: 当前运行在开发环境，使用 Web Crypto API 加密。' +
-      '生产环境请使用 Tauri 安全存储以获得更高安全性。');
+    logger.warn(
+      "secureStorage",
+      "⚠️ 安全警告: 当前运行在开发环境，使用 Web Crypto API 加密。" +
+        "生产环境请使用 Tauri 安全存储以获得更高安全性。"
+    );
   }
 }
 
@@ -205,10 +208,14 @@ export const secureStorage: SecureStorage = {
 
     if (isTauriEnvironment()) {
       try {
-        await invoke('secure_store_set', { key: prefixedKey, value });
+        await invoke("secure_store_set", { key: prefixedKey, value });
         return;
       } catch (error) {
-        logger.warn('secureStorage', '[SecureStorage] Tauri secure storage failed, falling back:', error);
+        logger.warn(
+          "secureStorage",
+          "[SecureStorage] Tauri secure storage failed, falling back:",
+          error
+        );
       }
     }
 
@@ -218,8 +225,8 @@ export const secureStorage: SecureStorage = {
       const encrypted = await encryptData(value);
       localStorage.setItem(prefixedKey, encrypted);
     } catch (error) {
-      logger.error('secureStorage', '[SecureStorage] 加密失败:', error);
-      throw new Error('无法安全存储数据');
+      logger.error("secureStorage", "[SecureStorage] 加密失败:", error);
+      throw new Error("无法安全存储数据");
     }
   },
 
@@ -228,10 +235,14 @@ export const secureStorage: SecureStorage = {
 
     if (isTauriEnvironment()) {
       try {
-        const value = await invoke<string | null>('secure_store_get', { key: prefixedKey });
+        const value = await invoke<string | null>("secure_store_get", { key: prefixedKey });
         return value;
       } catch (error) {
-        logger.warn('secureStorage', '[SecureStorage] Tauri secure storage failed, falling back:', error);
+        logger.warn(
+          "secureStorage",
+          "[SecureStorage] Tauri secure storage failed, falling back:",
+          error
+        );
       }
     }
 
@@ -248,10 +259,14 @@ export const secureStorage: SecureStorage = {
 
     if (isTauriEnvironment()) {
       try {
-        await invoke('secure_store_remove', { key: prefixedKey });
+        await invoke("secure_store_remove", { key: prefixedKey });
         return;
       } catch (error) {
-        logger.warn('secureStorage', '[SecureStorage] Tauri secure storage failed, falling back:', error);
+        logger.warn(
+          "secureStorage",
+          "[SecureStorage] Tauri secure storage failed, falling back:",
+          error
+        );
       }
     }
 
@@ -262,10 +277,14 @@ export const secureStorage: SecureStorage = {
   async clear(): Promise<void> {
     if (isTauriEnvironment()) {
       try {
-        await invoke('secure_store_clear');
+        await invoke("secure_store_clear");
         return;
       } catch (error) {
-        logger.warn('secureStorage', '[SecureStorage] Tauri secure storage failed, falling back:', error);
+        logger.warn(
+          "secureStorage",
+          "[SecureStorage] Tauri secure storage failed, falling back:",
+          error
+        );
       }
     }
 
@@ -288,12 +307,16 @@ export const secureStorage: SecureStorage = {
   async getAllKeys(): Promise<string[]> {
     if (isTauriEnvironment()) {
       try {
-        const keys = await invoke<string[]>('secure_store_list_keys');
+        const keys = await invoke<string[]>("secure_store_list_keys");
         return keys
           .filter((k) => k.startsWith(SECURE_STORAGE_PREFIX))
           .map((k) => k.slice(SECURE_STORAGE_PREFIX.length));
       } catch (error) {
-        logger.warn('secureStorage', '[SecureStorage] Tauri secure storage failed, falling back:', error);
+        logger.warn(
+          "secureStorage",
+          "[SecureStorage] Tauri secure storage failed, falling back:",
+          error
+        );
       }
     }
 
@@ -313,7 +336,7 @@ export const secureStorage: SecureStorage = {
 // API 密钥管理
 // =============================================================================
 
-const API_KEY_PREFIX = 'api_key_';
+const API_KEY_PREFIX = "api_key_";
 
 /**
  * 保存 API 密钥
@@ -430,13 +453,13 @@ export async function setAPIKeyValidation(
  */
 export function maskAPIKey(key: string, visibleChars = 4): string {
   if (!key || key.length <= visibleChars * 2) {
-    return '••••••••';
+    return "••••••••";
   }
 
   const prefix = key.slice(0, visibleChars);
   const suffix = key.slice(-visibleChars);
   const maskedLength = Math.min(key.length - visibleChars * 2, 16);
-  const masked = '•'.repeat(maskedLength);
+  const masked = "•".repeat(maskedLength);
 
   return `${prefix}${masked}${suffix}`;
 }
@@ -486,10 +509,10 @@ export async function migrateKeyToSecureStorage(
     // 从 localStorage 删除
     localStorage.removeItem(localStorageKey);
 
-    logger.debug('secureStorage', `[SecureStorage] Migrated ${provider} API key to secure storage`);
+    logger.debug("secureStorage", `[SecureStorage] Migrated ${provider} API key to secure storage`);
     return true;
   } catch (error) {
-    logger.error('secureStorage', `[SecureStorage] Failed to migrate ${provider} API key:`, error);
+    logger.error("secureStorage", `[SecureStorage] Failed to migrate ${provider} API key:`, error);
     return false;
   }
 }

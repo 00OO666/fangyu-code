@@ -2,7 +2,7 @@
  * Error Monitor Panel v2.0
  *
  * 重新设计的错误监控面板，应用新的设计系统
- * 
+ *
  * 特性：
  * - Glassmorphism 设计风格
  * - 一键复制所有错误详情
@@ -10,9 +10,24 @@
  * - 更好的视觉层次
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import React, { useState, useCallback, useEffect } from "react";
-import { AlertTriangle, X, ChevronDown, ChevronUp, Bug, AlertCircle, Info, Trash2, Copy, Check, TrendingUp, Minimize2, Maximize2, GripHorizontal } from 'lucide-react';
+import {
+  AlertTriangle,
+  X,
+  ChevronDown,
+  ChevronUp,
+  Bug,
+  AlertCircle,
+  Info,
+  Trash2,
+  Copy,
+  Check,
+  TrendingUp,
+  Minimize2,
+  Maximize2,
+  GripHorizontal,
+} from "lucide-react";
 import { useDraggable } from "@/hooks/useDraggable";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -97,9 +112,7 @@ const CATEGORY_CONFIG: Record<
 /**
  * 错误类别徽章
  */
-const CategoryBadge: React.FC<{ category: ConsoleError["category"] }> = ({
-  category,
-}) => {
+const CategoryBadge: React.FC<{ category: ConsoleError["category"] }> = ({ category }) => {
   const config = CATEGORY_CONFIG[category];
   return (
     <span
@@ -158,9 +171,7 @@ const ErrorItem: React.FC<{
               {new Date(error.timestamp).toLocaleTimeString()}
             </span>
           </div>
-          <p className="text-sm text-white/80 line-clamp-2 font-mono">
-            {error.message}
-          </p>
+          <p className="text-sm text-white/80 line-clamp-2 font-mono">{error.message}</p>
         </div>
         <div className="flex items-center gap-1 flex-shrink-0">
           <Button
@@ -192,9 +203,7 @@ const ErrorItem: React.FC<{
           {/* 修复建议 */}
           {error.suggestion && (
             <div className="bg-[var(--ds-primary)]/10 border border-[var(--ds-primary)]/20 rounded-lg p-2">
-              <p className="text-[var(--ds-primary)] font-medium mb-1 text-xs">
-                💡 修复建议
-              </p>
+              <p className="text-[var(--ds-primary)] font-medium mb-1 text-xs">💡 修复建议</p>
               <p className="text-white/70 text-xs">{error.suggestion}</p>
             </div>
           )}
@@ -249,22 +258,14 @@ const DuplicateRateIndicator: React.FC<{
       <TrendingUp
         className={cn(
           "h-3.5 w-3.5",
-          isCritical
-            ? "text-red-400"
-            : isHigh
-              ? "text-yellow-400"
-              : "text-green-400"
+          isCritical ? "text-red-400" : isHigh ? "text-yellow-400" : "text-green-400"
         )}
       />
       <div>
         <span
           className={cn(
             "font-medium",
-            isCritical
-              ? "text-red-400"
-              : isHigh
-                ? "text-yellow-400"
-                : "text-green-400"
+            isCritical ? "text-red-400" : isHigh ? "text-yellow-400" : "text-green-400"
           )}
         >
           重复率: {(rate * 100).toFixed(1)}%
@@ -273,9 +274,7 @@ const DuplicateRateIndicator: React.FC<{
           ({count}/{total})
         </span>
       </div>
-      {isCritical && (
-        <span className="text-red-400 animate-pulse">⚠️ Token 消耗倍增风险</span>
-      )}
+      {isCritical && <span className="text-red-400 animate-pulse">⚠️ Token 消耗倍增风险</span>}
     </div>
   );
 };
@@ -295,8 +294,8 @@ export const ErrorMonitorPanel: React.FC<ErrorMonitorPanelProps> = ({
 
   // 🔧 DEBUG: 组件挂载日志
   useEffect(() => {
-    logger.debug('ErrorMonitorPanel', '[ErrorMonitorPanel] 组件已挂载, errors:', errors.length);
-    return () => logger.debug('ErrorMonitorPanel', '[ErrorMonitorPanel] 组件已卸载');
+    logger.debug("ErrorMonitorPanel", "[ErrorMonitorPanel] 组件已挂载, errors:", errors.length);
+    return () => logger.debug("ErrorMonitorPanel", "[ErrorMonitorPanel] 组件已卸载");
   }, []);
 
   // 动态计算面板高度：最小化时约 60px，展开时 560px
@@ -304,7 +303,7 @@ export const ErrorMonitorPanel: React.FC<ErrorMonitorPanelProps> = ({
 
   // 拖拽功能 - 使用动态高度
   const { position, isDragging, dragHandleProps } = useDraggable({
-    storageKey: 'fangyu-error-panel-position',
+    storageKey: "fangyu-error-panel-position",
     constrainToViewport: true,
     panelSize: { width: 420, height: currentPanelHeight },
     margin: 16,
@@ -316,13 +315,16 @@ export const ErrorMonitorPanel: React.FC<ErrorMonitorPanelProps> = ({
   const totalCount = errors.reduce((sum, e) => sum + e.count, 0);
 
   // 按类别分组
-  const errorsByCategory = errors.reduce((acc, error) => {
-    if (!acc[error.category]) {
-      acc[error.category] = [];
-    }
-    acc[error.category].push(error);
-    return acc;
-  }, {} as Record<ConsoleError["category"], ConsoleError[]>);
+  const errorsByCategory = errors.reduce(
+    (acc, error) => {
+      if (!acc[error.category]) {
+        acc[error.category] = [];
+      }
+      acc[error.category].push(error);
+      return acc;
+    },
+    {} as Record<ConsoleError["category"], ConsoleError[]>
+  );
 
   const filteredErrors = errors.filter((error) => {
     if (filter === "all") return true;
@@ -383,7 +385,7 @@ export const ErrorMonitorPanel: React.FC<ErrorMonitorPanelProps> = ({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      logger.error('ErrorMonitorPanel', "复制失败:", err);
+      logger.error("ErrorMonitorPanel", "复制失败:", err);
     }
   }, [errors, errorCount, warnCount, totalCount, duplicateInfo]);
 
@@ -427,7 +429,7 @@ export const ErrorMonitorPanel: React.FC<ErrorMonitorPanelProps> = ({
       }}
     >
       {/* 头部 - 整个头部都可拖拽，高度增加便于拖拽 */}
-      <div 
+      <div
         className={cn(
           "flex items-center justify-between p-4 border-b border-white/10",
           "select-none cursor-move min-h-[52px]"
@@ -443,10 +445,7 @@ export const ErrorMonitorPanel: React.FC<ErrorMonitorPanelProps> = ({
             )}
           </div>
           <h3 className="font-semibold text-sm text-white/90">错误监控</h3>
-          <Badge
-            variant="outline"
-            className="text-xs bg-red-500/20 text-red-400 border-red-500/30"
-          >
+          <Badge variant="outline" className="text-xs bg-red-500/20 text-red-400 border-red-500/30">
             {totalCount}
           </Badge>
         </div>
@@ -458,9 +457,7 @@ export const ErrorMonitorPanel: React.FC<ErrorMonitorPanelProps> = ({
             onClick={copyAllErrors}
             className={cn(
               "h-7 px-2 text-xs transition-all pointer-events-auto",
-              copied
-                ? "bg-green-500/20 text-green-400"
-                : "hover:bg-white/10 text-white/60"
+              copied ? "bg-green-500/20 text-green-400" : "hover:bg-white/10 text-white/60"
             )}
             title="复制所有错误详情"
           >
@@ -493,11 +490,7 @@ export const ErrorMonitorPanel: React.FC<ErrorMonitorPanelProps> = ({
             onClick={() => setIsMinimized(!isMinimized)}
             className="h-7 w-7 p-0 hover:bg-white/10 text-white/60 pointer-events-auto"
           >
-            {isMinimized ? (
-              <Maximize2 className="h-3 w-3" />
-            ) : (
-              <Minimize2 className="h-3 w-3" />
-            )}
+            {isMinimized ? <Maximize2 className="h-3 w-3" /> : <Minimize2 className="h-3 w-3" />}
           </Button>
         </div>
       </div>
@@ -520,13 +513,8 @@ export const ErrorMonitorPanel: React.FC<ErrorMonitorPanelProps> = ({
             <div className="flex items-center gap-2">
               {(["all", "error", "warn"] as const).map((type) => {
                 const count =
-                  type === "all"
-                    ? errors.length
-                    : type === "error"
-                      ? errorCount
-                      : warnCount;
-                const label =
-                  type === "all" ? "全部" : type === "error" ? "错误" : "警告";
+                  type === "all" ? errors.length : type === "error" ? errorCount : warnCount;
+                const label = type === "all" ? "全部" : type === "error" ? "错误" : "警告";
 
                 return (
                   <Button
@@ -551,10 +539,7 @@ export const ErrorMonitorPanel: React.FC<ErrorMonitorPanelProps> = ({
             {Object.keys(errorsByCategory).length > 0 && (
               <div className="flex flex-wrap gap-1">
                 {Object.entries(errorsByCategory).map(([category]) => (
-                  <CategoryBadge
-                    key={category}
-                    category={category as ConsoleError["category"]}
-                  />
+                  <CategoryBadge key={category} category={category as ConsoleError["category"]} />
                 ))}
               </div>
             )}
@@ -565,17 +550,11 @@ export const ErrorMonitorPanel: React.FC<ErrorMonitorPanelProps> = ({
             <div className="p-3 space-y-2">
               {filteredErrors.length === 0 ? (
                 <div className="text-center py-8 text-white/40 text-sm">
-                  {filter === "all"
-                    ? "暂无错误 ✨"
-                    : `暂无${filter === "error" ? "错误" : "警告"}`}
+                  {filter === "all" ? "暂无错误 ✨" : `暂无${filter === "error" ? "错误" : "警告"}`}
                 </div>
               ) : (
                 filteredErrors.map((error) => (
-                  <ErrorItem
-                    key={error.id}
-                    error={error}
-                    onClear={() => onClearError(error.id)}
-                  />
+                  <ErrorItem key={error.id} error={error} onClear={() => onClearError(error.id)} />
                 ))
               )}
             </div>
@@ -583,9 +562,7 @@ export const ErrorMonitorPanel: React.FC<ErrorMonitorPanelProps> = ({
 
           {/* 底部提示 */}
           <div className="p-2 border-t border-white/10 bg-white/5">
-            <p className="text-xs text-white/40 text-center">
-              拖拽顶部栏移动面板 · 双击重置位置
-            </p>
+            <p className="text-xs text-white/40 text-center">拖拽顶部栏移动面板 · 双击重置位置</p>
           </div>
         </>
       )}

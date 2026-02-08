@@ -1,5 +1,5 @@
-import React from 'react';
-import { cn } from '@/lib/utils';
+import React from "react";
+import { cn } from "@/lib/utils";
 
 export interface GlassButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
@@ -7,12 +7,12 @@ export interface GlassButtonProps extends React.ButtonHTMLAttributes<HTMLButtonE
    * Button variant: 'orange' | 'glass' | 'ghost'
    * @default 'glass'
    */
-  variant?: 'orange' | 'glass' | 'ghost';
+  variant?: "orange" | "glass" | "ghost";
   /**
    * Button size: 'sm' | 'md' | 'lg'
    * @default 'md'
    */
-  size?: 'sm' | 'md' | 'lg';
+  size?: "sm" | "md" | "lg";
   /**
    * Enable loading state
    * @default false
@@ -35,27 +35,19 @@ export interface GlassButtonProps extends React.ButtonHTMLAttributes<HTMLButtonE
  */
 export const GlassButton = React.forwardRef<HTMLButtonElement, GlassButtonProps>(
   (
-    {
-      children,
-      className,
-      variant = 'glass',
-      size = 'md',
-      loading = false,
-      disabled,
-      ...props
-    },
+    { children, className, variant = "glass", size = "md", loading = false, disabled, ...props },
     ref
   ) => {
     const variantClass = {
-      orange: 'btn-glass-orange',
-      glass: 'btn-glass',
-      ghost: 'bg-transparent hover:bg-white/5',
+      orange: "btn-glass-orange",
+      glass: "btn-glass",
+      ghost: "bg-transparent hover:bg-white/5",
     }[variant];
 
     const sizeClass = {
-      sm: 'px-3 py-1.5 text-sm',
-      md: 'px-4 py-2 text-base',
-      lg: 'px-6 py-3 text-lg',
+      sm: "px-3 py-1.5 text-sm",
+      md: "px-4 py-2 text-base",
+      lg: "px-6 py-3 text-lg",
     }[size];
 
     return (
@@ -64,12 +56,12 @@ export const GlassButton = React.forwardRef<HTMLButtonElement, GlassButtonProps>
         className={cn(
           variantClass,
           sizeClass,
-          'rounded-lg font-medium',
-          'transition-all duration-300',
-          'disabled:opacity-50 disabled:cursor-not-allowed',
-          'focus:outline-none focus:ring-2 focus:ring-offset-2',
-          variant === 'orange' && 'focus:ring-orange-500',
-          variant === 'glass' && 'focus:ring-white/20',
+          "rounded-lg font-medium",
+          "transition-all duration-300",
+          "disabled:opacity-50 disabled:cursor-not-allowed",
+          "focus:outline-none focus:ring-2 focus:ring-offset-2",
+          variant === "orange" && "focus:ring-orange-500",
+          variant === "glass" && "focus:ring-white/20",
           className
         )}
         disabled={disabled || loading}
@@ -107,4 +99,4 @@ export const GlassButton = React.forwardRef<HTMLButtonElement, GlassButtonProps>
   }
 );
 
-GlassButton.displayName = 'GlassButton';
+GlassButton.displayName = "GlassButton";

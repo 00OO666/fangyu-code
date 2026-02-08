@@ -1,7 +1,22 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Save, AlertCircle, Loader2, Settings2, Cpu, Languages, Sparkles, Database, Bot, Wrench, RefreshCw, Image, Type } from 'lucide-react';
+import {
+  ArrowLeft,
+  Save,
+  AlertCircle,
+  Loader2,
+  Settings2,
+  Cpu,
+  Languages,
+  Sparkles,
+  Database,
+  Bot,
+  Wrench,
+  RefreshCw,
+  Image,
+  Type,
+} from "lucide-react";
 import { notify } from "@/components/notifications";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -13,11 +28,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  api,
-  type ClaudeSettings,
-  type ClaudeExecutionConfig
-} from "@/lib/api";
+import { api, type ClaudeSettings, type ClaudeExecutionConfig } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { Toast, ToastContainer } from "@/components/ui/toast";
 import { StorageTab } from "./StorageTab";
@@ -68,10 +79,7 @@ interface EnvironmentVariable {
  * Comprehensive Settings UI for managing Claude Code settings
  * Provides a no-code interface for editing the settings.json file
  */
-export const Settings: React.FC<SettingsProps> = ({
-  className,
-  initialTab,
-}) => {
+export const Settings: React.FC<SettingsProps> = ({ className, initialTab }) => {
   const { t } = useTranslation();
   const { goBack } = useNavigation();
   const [settings, setSettings] = useState<ClaudeSettings | null>(null);
@@ -86,10 +94,10 @@ export const Settings: React.FC<SettingsProps> = ({
       setActiveTab("prompt-api");
     };
 
-    window.addEventListener('switch-to-prompt-api-tab', handleSwitchTab);
-    return () => window.removeEventListener('switch-to-prompt-api-tab', handleSwitchTab);
+    window.addEventListener("switch-to-prompt-api-tab", handleSwitchTab);
+    return () => window.removeEventListener("switch-to-prompt-api-tab", handleSwitchTab);
   }, []);
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
   // Permission rules state
   const [allowRules, setAllowRules] = useState<PermissionRule[]>([]);
@@ -122,8 +130,8 @@ export const Settings: React.FC<SettingsProps> = ({
       const loadedSettings = await api.getClaudeSettings();
 
       // Ensure loadedSettings is an object
-      if (!loadedSettings || typeof loadedSettings !== 'object') {
-        logger.warn('Settings', "Loaded settings is not an object:", loadedSettings);
+      if (!loadedSettings || typeof loadedSettings !== "object") {
+        logger.warn("Settings", "Loaded settings is not an object:", loadedSettings);
         setSettings({});
         return;
       }
@@ -136,12 +144,12 @@ export const Settings: React.FC<SettingsProps> = ({
         setExecutionConfig(execConfig);
         setDisableRewindGitOps(execConfig.disable_rewind_git_operations || false);
       } catch (err) {
-        logger.error('Settings', "Failed to load execution config:", err);
+        logger.error("Settings", "Failed to load execution config:", err);
         // Continue with default values
       }
 
       // Parse permissions
-      if (loadedSettings.permissions && typeof loadedSettings.permissions === 'object') {
+      if (loadedSettings.permissions && typeof loadedSettings.permissions === "object") {
         if (Array.isArray(loadedSettings.permissions.allow)) {
           setAllowRules(
             loadedSettings.permissions.allow.map((rule: string, index: number) => ({
@@ -161,7 +169,11 @@ export const Settings: React.FC<SettingsProps> = ({
       }
 
       // Parse environment variables
-      if (loadedSettings.env && typeof loadedSettings.env === 'object' && !Array.isArray(loadedSettings.env)) {
+      if (
+        loadedSettings.env &&
+        typeof loadedSettings.env === "object" &&
+        !Array.isArray(loadedSettings.env)
+      ) {
         setEnvVars(
           Object.entries(loadedSettings.env).map(([key, value], index) => ({
             id: `env-${index}`,
@@ -171,10 +183,9 @@ export const Settings: React.FC<SettingsProps> = ({
           }))
         );
       }
-
     } catch (err) {
-      logger.error('Settings', "Failed to load settings:", err);
-      setError(t('errors.loadFailed'));
+      logger.error("Settings", "Failed to load settings:", err);
+      setError(t("errors.loadFailed"));
       setSettings({});
     } finally {
       setLoading(false);
@@ -194,19 +205,22 @@ export const Settings: React.FC<SettingsProps> = ({
       const updatedSettings: ClaudeSettings = {
         ...settings,
         permissions: {
-          allow: allowRules.map(rule => rule.value).filter(v => v.trim()),
-          deny: denyRules.map(rule => rule.value).filter(v => v.trim()),
+          allow: allowRules.map((rule) => rule.value).filter((v) => v.trim()),
+          deny: denyRules.map((rule) => rule.value).filter((v) => v.trim()),
         },
         env: {
           // UI 中配置的环境变量完全由用户管理（支持删除）
           ...envVars
-            .filter(envVar => envVar.enabled) // 只保存启用的环境变量
-            .reduce((acc, { key, value }) => {
-              if (key.trim() && value.trim()) {
-                acc[key] = value;
-              }
-              return acc;
-            }, {} as Record<string, string>),
+            .filter((envVar) => envVar.enabled) // 只保存启用的环境变量
+            .reduce(
+              (acc, { key, value }) => {
+                if (key.trim() && value.trim()) {
+                  acc[key] = value;
+                }
+                return acc;
+              },
+              {} as Record<string, string>
+            ),
         },
       };
 
@@ -224,14 +238,14 @@ export const Settings: React.FC<SettingsProps> = ({
       }
 
       // 🆕 使用顶部居中通知
-      notify.success(t('settings.saved') || "设置已保存", {
+      notify.success(t("settings.saved") || "设置已保存", {
         position: "top-center",
         duration: 3000,
       });
     } catch (err) {
-      logger.error('Settings', "Failed to save settings:", err);
-      setError(t('errors.saveFailed'));
-      notify.error(t('errors.saveFailed') || "设置保存失败", {
+      logger.error("Settings", "Failed to save settings:", err);
+      setError(t("errors.saveFailed"));
+      notify.error(t("errors.saveFailed") || "设置保存失败", {
         position: "top-center",
         duration: 5000,
       });
@@ -244,7 +258,7 @@ export const Settings: React.FC<SettingsProps> = ({
    * Updates a simple setting value
    */
   const updateSetting = (key: string, value: any) => {
-    setSettings(prev => ({ ...prev, [key]: value }));
+    setSettings((prev) => ({ ...prev, [key]: value }));
   };
 
   /**
@@ -285,9 +299,9 @@ export const Settings: React.FC<SettingsProps> = ({
     };
 
     if (type === "allow") {
-      setAllowRules(prev => [...prev, newRule]);
+      setAllowRules((prev) => [...prev, newRule]);
     } else {
-      setDenyRules(prev => [...prev, newRule]);
+      setDenyRules((prev) => [...prev, newRule]);
     }
   };
 
@@ -296,13 +310,9 @@ export const Settings: React.FC<SettingsProps> = ({
    */
   const updatePermissionRule = (type: "allow" | "deny", id: string, value: string) => {
     if (type === "allow") {
-      setAllowRules(prev => prev.map(rule =>
-        rule.id === id ? { ...rule, value } : rule
-      ));
+      setAllowRules((prev) => prev.map((rule) => (rule.id === id ? { ...rule, value } : rule)));
     } else {
-      setDenyRules(prev => prev.map(rule =>
-        rule.id === id ? { ...rule, value } : rule
-      ));
+      setDenyRules((prev) => prev.map((rule) => (rule.id === id ? { ...rule, value } : rule)));
     }
   };
 
@@ -311,9 +321,9 @@ export const Settings: React.FC<SettingsProps> = ({
    */
   const removePermissionRule = (type: "allow" | "deny", id: string) => {
     if (type === "allow") {
-      setAllowRules(prev => prev.filter(rule => rule.id !== id));
+      setAllowRules((prev) => prev.filter((rule) => rule.id !== id));
     } else {
-      setDenyRules(prev => prev.filter(rule => rule.id !== id));
+      setDenyRules((prev) => prev.filter((rule) => rule.id !== id));
     }
   };
 
@@ -327,27 +337,36 @@ export const Settings: React.FC<SettingsProps> = ({
       value: "",
       enabled: true, // 默认启用新的环境变量
     };
-    setEnvVars(prev => [...prev, newVar]);
+    setEnvVars((prev) => [...prev, newVar]);
   };
 
   /**
    * Updates an environment variable
    */
-  const updateEnvVar = (id: string, field: "key" | "value" | "enabled", value: string | boolean) => {
-    setEnvVars(prev => prev.map(envVar =>
-      envVar.id === id ? { ...envVar, [field]: value } : envVar
-    ));
+  const updateEnvVar = (
+    id: string,
+    field: "key" | "value" | "enabled",
+    value: string | boolean
+  ) => {
+    setEnvVars((prev) =>
+      prev.map((envVar) => (envVar.id === id ? { ...envVar, [field]: value } : envVar))
+    );
   };
 
   /**
    * Removes an environment variable
    */
   const removeEnvVar = (id: string) => {
-    setEnvVars(prev => prev.filter(envVar => envVar.id !== id));
+    setEnvVars((prev) => prev.filter((envVar) => envVar.id !== id));
   };
 
   return (
-    <div className={cn("flex flex-col h-full bg-gradient-to-br from-background via-background to-muted/20 text-foreground", className)}>
+    <div
+      className={cn(
+        "flex flex-col h-full bg-gradient-to-br from-background via-background to-muted/20 text-foreground",
+        className
+      )}
+    >
       <div className="max-w-5xl mx-auto w-full flex flex-col h-full">
         {/* Premium Header with Glassmorphism */}
         <motion.div
@@ -374,9 +393,11 @@ export const Settings: React.FC<SettingsProps> = ({
                 <Settings2 className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <h2 className="text-xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">{t('settings.title')}</h2>
+                <h2 className="text-xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+                  {t("settings.title")}
+                </h2>
                 <p className="text-xs text-muted-foreground">
-                  {t('common.configureClaudePreferences')}
+                  {t("common.configureClaudePreferences")}
                 </p>
               </div>
             </div>
@@ -397,12 +418,12 @@ export const Settings: React.FC<SettingsProps> = ({
             {saving ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-                {t('common.savingSettings')}
+                {t("common.savingSettings")}
               </>
             ) : (
               <>
                 <Save className="h-4 w-4" aria-hidden="true" />
-                {t('common.saveSettings')}
+                {t("common.saveSettings")}
               </>
             )}
           </Button>
@@ -444,7 +465,7 @@ export const Settings: React.FC<SettingsProps> = ({
                   className="gap-2 py-2.5 rounded-xl data-[state=active]:medium-glass data-[state=active]:shadow-lg transition-all duration-200"
                 >
                   <Settings2 className="h-4 w-4" />
-                  <span className="hidden lg:inline">{t('settings.general')}</span>
+                  <span className="hidden lg:inline">{t("settings.general")}</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="engines"
@@ -458,21 +479,21 @@ export const Settings: React.FC<SettingsProps> = ({
                   className="gap-2 py-2.5 rounded-xl data-[state=active]:medium-glass data-[state=active]:shadow-lg transition-all duration-200"
                 >
                   <Languages className="h-4 w-4" />
-                  <span className="hidden lg:inline">{t('settings.translation')}</span>
+                  <span className="hidden lg:inline">{t("settings.translation")}</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="prompt-api"
                   className="gap-2 py-2.5 rounded-xl data-[state=active]:medium-glass data-[state=active]:shadow-lg transition-all duration-200"
                 >
                   <Sparkles className="h-4 w-4" />
-                  <span className="hidden lg:inline">{t('settings.promptApi')}</span>
+                  <span className="hidden lg:inline">{t("settings.promptApi")}</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="storage"
                   className="gap-2 py-2.5 rounded-xl data-[state=active]:medium-glass data-[state=active]:shadow-lg transition-all duration-200"
                 >
                   <Database className="h-4 w-4" />
-                  <span className="hidden lg:inline">{t('settings.storage')}</span>
+                  <span className="hidden lg:inline">{t("settings.storage")}</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="super-agent"
@@ -597,65 +618,50 @@ export const Settings: React.FC<SettingsProps> = ({
                   <FontSettings />
                 </motion.div>
               </TabsContent>
-
             </Tabs>
-          </div >
+          </div>
         )}
-      </div >
+      </div>
 
       {/* Confirmation Dialog for Disabling Rewind Git Operations */}
-      < Dialog open={showRewindGitConfirmDialog} onOpenChange={setShowRewindGitConfirmDialog} >
+      <Dialog open={showRewindGitConfirmDialog} onOpenChange={setShowRewindGitConfirmDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>⚠️ {t('dialogs.confirmGitOps')}</DialogTitle>
+            <DialogTitle>⚠️ {t("dialogs.confirmGitOps")}</DialogTitle>
             <DialogDescription className="space-y-3 pt-2">
-              <p>{t('dialogs.gitOpsWarning')}</p>
+              <p>{t("dialogs.gitOpsWarning")}</p>
               <ul className="list-disc pl-5 space-y-2 text-sm">
                 <li className="text-green-600 dark:text-green-400">
-                  <strong>{t('dialogs.gitOpsCanDo')}</strong>
+                  <strong>{t("dialogs.gitOpsCanDo")}</strong>
                 </li>
                 <li className="text-red-600 dark:text-red-400">
-                  <strong>{t('dialogs.gitOpsCannotDo')}</strong>
+                  <strong>{t("dialogs.gitOpsCannotDo")}</strong>
                 </li>
               </ul>
               <p className="text-yellow-600 dark:text-yellow-400 font-medium">
-                ⚠️ {t('dialogs.gitOpsNote')}
+                ⚠️ {t("dialogs.gitOpsNote")}
               </p>
-              <p className="text-muted-foreground">
-                {t('dialogs.gitOpsUseCase')}
-              </p>
-              <p className="font-medium">{t('dialogs.confirmDeleteMessage')}</p>
+              <p className="text-muted-foreground">{t("dialogs.gitOpsUseCase")}</p>
+              <p className="font-medium">{t("dialogs.confirmDeleteMessage")}</p>
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={cancelEnableRewindGitOpsDisable}
-            >
-              {t('buttons.cancel')}
+            <Button variant="outline" onClick={cancelEnableRewindGitOpsDisable}>
+              {t("buttons.cancel")}
             </Button>
-            <Button
-              variant="destructive"
-              onClick={confirmEnableRewindGitOpsDisable}
-            >
-              {t('dialogs.confirmEnable')}
+            <Button variant="destructive" onClick={confirmEnableRewindGitOpsDisable}>
+              {t("dialogs.confirmEnable")}
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog >
+      </Dialog>
 
       {/* Toast Notification */}
       <ToastContainer>
-        {
-          toast && (
-            <Toast
-              message={toast.message}
-              type={toast.type}
-              onDismiss={() => setToast(null)}
-            />
-          )
-        }
-      </ToastContainer >
-    </div >
+        {toast && (
+          <Toast message={toast.message} type={toast.type} onDismiss={() => setToast(null)} />
+        )}
+      </ToastContainer>
+    </div>
   );
-};  
+};

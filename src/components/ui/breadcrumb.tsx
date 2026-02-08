@@ -1,6 +1,6 @@
-import React from 'react';
-import { ChevronRight } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import React from "react";
+import { ChevronRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export interface BreadcrumbsProps {
   children: React.ReactNode;
@@ -25,7 +25,7 @@ export function Breadcrumbs({
   return (
     <nav
       aria-label="Breadcrumb navigation"
-      className={cn('flex items-center space-x-1 text-sm', className)}
+      className={cn("flex items-center space-x-1 text-sm", className)}
     >
       <ol className="flex items-center space-x-1" role="list">
         {items.map((item, index) => (
@@ -53,14 +53,11 @@ export function BreadcrumbItem({
   current = false,
   className,
 }: BreadcrumbItemProps) {
-  const baseStyles = 'inline-flex items-center transition-colors';
+  const baseStyles = "inline-flex items-center transition-colors";
 
   if (current) {
     return (
-      <li
-        className={cn(baseStyles, 'text-foreground font-medium', className)}
-        aria-current="page"
-      >
+      <li className={cn(baseStyles, "text-foreground font-medium", className)} aria-current="page">
         {children}
       </li>
     );
@@ -80,9 +77,5 @@ export function BreadcrumbItem({
     );
   }
 
-  return (
-    <li className={cn(baseStyles, 'text-muted-foreground', className)}>
-      {children}
-    </li>
-  );
+  return <li className={cn(baseStyles, "text-muted-foreground", className)}>{children}</li>;
 }

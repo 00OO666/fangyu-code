@@ -230,7 +230,10 @@ export const useCliMonitorStore = create<CliMonitorStore>()(
             isScanning: false,
           });
 
-          logger.info("CLI Monitor Store", `Scan complete: ${result.sessions.length} sessions found`);
+          logger.info(
+            "CLI Monitor Store",
+            `Scan complete: ${result.sessions.length} sessions found`
+          );
         } catch (error) {
           logger.error("CLI Monitor Store", `Scan failed: ${error}`);
           set({ isScanning: false });

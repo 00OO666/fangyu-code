@@ -21,7 +21,7 @@ export const useToolResults = (): UseToolResultsReturn => {
       }
       return toolResults.get(toolUseId);
     },
-    [toolResults],
+    [toolResults]
   );
 
   const getResultsForMessage = React.useCallback(
@@ -43,7 +43,7 @@ export const useToolResults = (): UseToolResultsReturn => {
 
       return results;
     },
-    [toolResults],
+    [toolResults]
   );
 
   const getStatusById = React.useCallback(
@@ -59,7 +59,7 @@ export const useToolResults = (): UseToolResultsReturn => {
 
       return result.isError ? "error" : "success";
     },
-    [toolResults],
+    [toolResults]
   );
 
   return {

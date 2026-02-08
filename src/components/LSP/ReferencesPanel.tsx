@@ -3,18 +3,15 @@
  * 显示所有引用位置
  */
 
-import React from 'react';
-import type { Location } from '@/core/types/unified-agent';
+import React from "react";
+import type { Location } from "@/core/types/unified-agent";
 
 interface ReferencesPanelProps {
   references: Location[];
   onNavigate: (location: Location) => void;
 }
 
-export const ReferencesPanel: React.FC<ReferencesPanelProps> = ({
-  references,
-  onNavigate,
-}) => {
+export const ReferencesPanel: React.FC<ReferencesPanelProps> = ({ references, onNavigate }) => {
   if (references.length === 0) {
     return <div className="p-2 text-muted-foreground">No references found</div>;
   }

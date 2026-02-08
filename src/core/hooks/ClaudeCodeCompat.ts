@@ -1,17 +1,12 @@
 /**
  * ClaudeCodeCompat - Claude Code 兼容层
- * 
+ *
  * 解析 Claude Code 格式的 hook 配置，转换为 EnhancedHookEngine 格式
- * 
+ *
  * Requirements: 2.5
  */
 
-import {
-  HookDefinition,
-  HookEventType,
-  HookAction,
-  HookCondition
-} from './EnhancedHookEngine';
+import { HookDefinition, HookEventType, HookAction, HookCondition } from "./EnhancedHookEngine";
 
 // Claude Code Hook 配置格式
 export interface ClaudeCodeHook {
@@ -19,20 +14,20 @@ export interface ClaudeCodeHook {
   description?: string;
   trigger: ClaudeCodeTrigger;
   action: ClaudeCodeAction;
-  condition?: string;  // glob 模式或正则表达式
+  condition?: string; // glob 模式或正则表达式
   enabled?: boolean;
 }
 
 // Claude Code 触发器类型
 export interface ClaudeCodeTrigger {
-  type: 'message' | 'file' | 'session' | 'manual' | 'startup' | 'shutdown';
-  event?: 'before' | 'after' | 'save' | 'open' | 'create' | 'end' | 'switch';
+  type: "message" | "file" | "session" | "manual" | "startup" | "shutdown";
+  event?: "before" | "after" | "save" | "open" | "create" | "end" | "switch";
   pattern?: string;
 }
 
 // Claude Code 动作类型
 export interface ClaudeCodeAction {
-  type: 'send_message' | 'run_command' | 'custom';
+  type: "send_message" | "run_command" | "custom";
   content: string;
   args?: string[];
 }
@@ -51,31 +46,38 @@ export interface ClaudeCodeConfig {
  */
 function convertTriggerToEventType(trigger: ClaudeCodeTrigger): HookEventType {
   const { type, event } = trigger;
-  
+
   switch (type) {
-    case 'message':
-      return event === 'after' ? 'message:after' : 'message:before';
-    case 'file':
+    case "message":
+      return event === "after" ? "message:after" : "message:before";
+    case "file":
       switch (event) {
-        case 'save': return 'file:save';
-        case 'open': return 'file:open';
-        case 'create': return 'file:create';
-        default: return 'file:change';
+        case "save":
+          return "file:save";
+        case "open":
+          return "file:open";
+        case "create":
+          return "file:create";
+        default:
+          return "file:change";
       }
-    case 'session':
+    case "session":
       switch (event) {
-        case 'end': return 'session:end';
-        case 'switch': return 'session:switch';
-        default: return 'session:create';
+        case "end":
+          return "session:end";
+        case "switch":
+          return "session:switch";
+        default:
+          return "session:create";
       }
-    case 'manual':
-      return 'manual:trigger';
-    case 'startup':
-      return 'startup';
-    case 'shutdown':
-      return 'shutdown';
+    case "manual":
+      return "manual:trigger";
+    case "startup":
+      return "startup";
+    case "shutdown":
+      return "shutdown";
     default:
-      return 'message:before';
+      return "message:before";
   }
 }
 
@@ -84,25 +86,25 @@ function convertTriggerToEventType(trigger: ClaudeCodeTrigger): HookEventType {
  */
 function convertAction(action: ClaudeCodeAction): HookAction {
   switch (action.type) {
-    case 'send_message':
+    case "send_message":
       return {
-        type: 'sendMessage',
-        payload: action.content
+        type: "sendMessage",
+        payload: action.content,
       };
-    case 'run_command':
+    case "run_command":
       return {
-        type: 'executeCommand',
-        payload: action.args ? `${action.content} ${action.args.join(' ')}` : action.content
+        type: "executeCommand",
+        payload: action.args ? `${action.content} ${action.args.join(" ")}` : action.content,
       };
-    case 'custom':
+    case "custom":
       return {
-        type: 'custom',
-        payload: { content: action.content, args: action.args }
+        type: "custom",
+        payload: { content: action.content, args: action.args },
       };
     default:
       return {
-        type: 'sendMessage',
-        payload: action.content
+        type: "sendMessage",
+        payload: action.content,
       };
   }
 }
@@ -110,33 +112,36 @@ function convertAction(action: ClaudeCodeAction): HookAction {
 /**
  * 将 Claude Code 条件转换为 HookCondition
  */
-function convertCondition(condition: string | undefined, trigger: ClaudeCodeTrigger): HookCondition | undefined {
+function convertCondition(
+  condition: string | undefined,
+  trigger: ClaudeCodeTrigger
+): HookCondition | undefined {
   if (!condition) {
     return undefined;
   }
-  
+
   // 根据触发器类型决定条件类型
-  if (trigger.type === 'file') {
+  if (trigger.type === "file") {
     return {
-      type: 'fileMatch',
-      pattern: condition
+      type: "fileMatch",
+      pattern: condition,
     };
   }
-  
-  if (trigger.type === 'message') {
+
+  if (trigger.type === "message") {
     return {
-      type: 'contentMatch',
-      pattern: condition
+      type: "contentMatch",
+      pattern: condition,
     };
   }
-  
+
   // 默认使用自定义条件
   return {
-    type: 'custom',
+    type: "custom",
     predicate: (context) => {
-      const content = String(context.data.content ?? '');
-      return content.includes(condition) || new RegExp(condition, 'i').test(content);
-    }
+      const content = String(context.data.content ?? "");
+      return content.includes(condition) || new RegExp(condition, "i").test(content);
+    },
   };
 }
 
@@ -146,8 +151,8 @@ function convertCondition(condition: string | undefined, trigger: ClaudeCodeTrig
 function generateHookId(name: string, index: number): string {
   const sanitized = name
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
   return `claude-${sanitized}-${index}`;
 }
 
@@ -162,9 +167,9 @@ export function convertClaudeCodeHook(hook: ClaudeCodeHook, index: number): Hook
     event: convertTriggerToEventType(hook.trigger),
     condition: convertCondition(hook.condition, hook.trigger),
     actions: [convertAction(hook.action)],
-    priority: 100,  // 默认优先级
+    priority: 100, // 默认优先级
     enabled: hook.enabled ?? true,
-    blocking: false
+    blocking: false,
   };
 }
 
@@ -175,7 +180,7 @@ export function convertClaudeCodeConfig(config: ClaudeCodeConfig): HookDefinitio
   if (!config.hooks || config.hooks.length === 0) {
     return [];
   }
-  
+
   return config.hooks.map((hook, index) => convertClaudeCodeHook(hook, index));
 }
 
@@ -187,7 +192,9 @@ export function parseClaudeCodeConfig(content: string): ClaudeCodeConfig {
     const parsed = JSON.parse(content);
     return parsed as ClaudeCodeConfig;
   } catch (error) {
-    throw new Error(`Failed to parse Claude Code config: ${error instanceof Error ? error.message : String(error)}`);
+    throw new Error(
+      `Failed to parse Claude Code config: ${error instanceof Error ? error.message : String(error)}`
+    );
   }
 }
 
@@ -205,80 +212,86 @@ export function parseClaudeCodeYaml(content: string): ClaudeCodeConfig {
 
   for (const line of lines) {
     const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith('#')) continue;
+    if (!trimmed || trimmed.startsWith("#")) continue;
 
     const currentIndent = line.search(/\S/);
 
     // 检测 hooks 数组项
-    if (trimmed.startsWith('- name:')) {
+    if (trimmed.startsWith("- name:")) {
       if (currentHook && currentHook.name) {
         config.hooks!.push(currentHook as ClaudeCodeHook);
       }
       currentHook = {
-        name: trimmed.slice(7).trim().replace(/^['"]|['"]$/g, ''),
-        trigger: { type: 'message' },
-        action: { type: 'send_message', content: '' }
+        name: trimmed
+          .slice(7)
+          .trim()
+          .replace(/^['"]|['"]$/g, ""),
+        trigger: { type: "message" },
+        action: { type: "send_message", content: "" },
       };
       currentSection = null;
       indent = currentIndent;
       continue;
     }
-    
+
     if (!currentHook) continue;
-    
+
     // 解析键值对
-    const colonIndex = trimmed.indexOf(':');
+    const colonIndex = trimmed.indexOf(":");
     if (colonIndex === -1) continue;
-    
+
     const key = trimmed.slice(0, colonIndex).trim();
-    let value = trimmed.slice(colonIndex + 1).trim().replace(/^['"]|['"]$/g, '');
-    
+    let value = trimmed
+      .slice(colonIndex + 1)
+      .trim()
+      .replace(/^['"]|['"]$/g, "");
+
     switch (key) {
-      case 'description':
+      case "description":
         currentHook.description = value;
         break;
-      case 'condition':
+      case "condition":
         currentHook.condition = value;
         break;
-      case 'enabled':
-        currentHook.enabled = value.toLowerCase() === 'true';
+      case "enabled":
+        currentHook.enabled = value.toLowerCase() === "true";
         break;
-      case 'trigger':
-        currentSection = 'trigger';
+      case "trigger":
+        currentSection = "trigger";
         break;
-      case 'action':
-        currentSection = 'action';
+      case "action":
+        currentSection = "action";
         break;
-      case 'type':
-        if (currentSection === 'trigger') {
-          currentHook.trigger!.type = value as ClaudeCodeTrigger['type'];
-        } else if (currentSection === 'action') {
-          currentHook.action!.type = value as ClaudeCodeAction['type'];
+      case "type":
+        if (currentSection === "trigger") {
+          currentHook.trigger!.type = value as ClaudeCodeTrigger["type"];
+        } else if (currentSection === "action") {
+          currentHook.action!.type = value as ClaudeCodeAction["type"];
         }
         break;
-      case 'event':
-        if (currentSection === 'trigger') {
-          currentHook.trigger!.event = value as ClaudeCodeTrigger['event'];
+      case "event":
+        if (currentSection === "trigger") {
+          currentHook.trigger!.event = value as ClaudeCodeTrigger["event"];
         }
         break;
-      case 'pattern':
-        if (currentSection === 'trigger') {
+      case "pattern":
+        if (currentSection === "trigger") {
           currentHook.trigger!.pattern = value;
         }
         break;
-      case 'content':
-        if (currentSection === 'action') {
+      case "content":
+        if (currentSection === "action") {
           currentHook.action!.content = value;
         }
         break;
     }
   }
-  
+
   // 添加最后一个 hook
   if (currentHook && currentHook.name) {
     config.hooks!.push(currentHook as ClaudeCodeHook);
   }
-  
+
   return config;
 }
 
@@ -287,7 +300,7 @@ export function parseClaudeCodeYaml(content: string): ClaudeCodeConfig {
  */
 export class ClaudeCodeCompat {
   private hooks: HookDefinition[] = [];
-  
+
   /**
    * 从 JSON 配置加载
    */
@@ -296,7 +309,7 @@ export class ClaudeCodeCompat {
     this.hooks = convertClaudeCodeConfig(config);
     return this.hooks;
   }
-  
+
   /**
    * 从 YAML 配置加载
    */
@@ -305,7 +318,7 @@ export class ClaudeCodeCompat {
     this.hooks = convertClaudeCodeConfig(config);
     return this.hooks;
   }
-  
+
   /**
    * 从 Claude Code Hook 对象加载
    */
@@ -313,21 +326,21 @@ export class ClaudeCodeCompat {
     this.hooks = hooks.map((hook, index) => convertClaudeCodeHook(hook, index));
     return this.hooks;
   }
-  
+
   /**
    * 获取转换后的 hooks
    */
   getHooks(): HookDefinition[] {
     return this.hooks;
   }
-  
+
   /**
    * 清除已加载的 hooks
    */
   clear(): void {
     this.hooks = [];
   }
-  
+
   /**
    * 导出为 JSON 格式
    */

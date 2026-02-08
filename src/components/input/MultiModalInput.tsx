@@ -10,35 +10,41 @@
  * 6. OCR 文本识别（可选）
  */
 
-import { logger } from '@/lib/logger';
-import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, Image, FileText, X, Eye, Download, Copy, AlertCircle, Loader2, Camera, ClipboardPaste, Trash2, ZoomIn, ZoomOut, RotateCw } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { logger } from "@/lib/logger";
+import React, { useState, useCallback, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Textarea } from '@/components/ui/textarea';
+  Upload,
+  Image,
+  FileText,
+  X,
+  Eye,
+  Download,
+  Copy,
+  AlertCircle,
+  Loader2,
+  Camera,
+  ClipboardPaste,
+  Trash2,
+  ZoomIn,
+  ZoomOut,
+  RotateCw,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 
 // ============================================
 // 类型定义
 // ============================================
 
-export type MediaType = 'image' | 'pdf' | 'screenshot';
+export type MediaType = "image" | "pdf" | "screenshot";
 
 export interface MediaFile {
   id: string;
@@ -95,8 +101,8 @@ const formatFileSize = (bytes: number): string => {
  */
 const generateThumbnail = async (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
-    if (!file.type.startsWith('image/')) {
-      reject(new Error('不是图片文件'));
+    if (!file.type.startsWith("image/")) {
+      reject(new Error("不是图片文件"));
       return;
     }
 
@@ -104,7 +110,7 @@ const generateThumbnail = async (file: File): Promise<string> => {
     reader.onload = (e) => {
       const img = new Image();
       img.onload = () => {
-        const canvas = document.createElement('canvas');
+        const canvas = document.createElement("canvas");
         const maxSize = 200;
         let width = img.width;
         let height = img.height;
@@ -123,7 +129,7 @@ const generateThumbnail = async (file: File): Promise<string> => {
 
         canvas.width = width;
         canvas.height = height;
-        const ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext("2d");
         ctx?.drawImage(img, 0, 0, width, height);
         resolve(canvas.toDataURL());
       };
@@ -140,7 +146,7 @@ const generateThumbnail = async (file: File): Promise<string> => {
  */
 const extractPDFText = async (file: File): Promise<string> => {
   // 实际应该使用 pdf.js 或调用 Tauri 后端
-  await new Promise(resolve => setTimeout(resolve, 1000));
+  await new Promise((resolve) => setTimeout(resolve, 1000));
   return `[PDF 文本提取]\n文件名: ${file.name}\n大小: ${formatFileSize(file.size)}\n\n这里是提取的PDF文本内容...`;
 };
 
@@ -149,7 +155,7 @@ const extractPDFText = async (file: File): Promise<string> => {
  */
 const performOCR = async (_imageUrl: string): Promise<string> => {
   // 实际应该调用 Tesseract.js 或云端 OCR API
-  await new Promise(resolve => setTimeout(resolve, 1500));
+  await new Promise((resolve) => setTimeout(resolve, 1500));
   return `[OCR 识别结果]\n这里是图片中识别出的文本内容...`;
 };
 
@@ -169,23 +175,23 @@ const FilePreview: React.FC<FilePreviewProps> = ({ file, onClose, onDelete, enab
   const [isOCRing, setIsOCRing] = useState(false);
   const [zoom, setZoom] = useState(100);
   const [rotation, setRotation] = useState(0);
-  const [activeTab, setActiveTab] = useState('preview');
+  const [activeTab, setActiveTab] = useState("preview");
 
   const handleOCR = useCallback(async () => {
-    if (file.type !== 'image') return;
+    if (file.type !== "image") return;
     setIsOCRing(true);
     try {
       const text = await performOCR(file.url);
       setOcrText(text);
     } catch (err) {
-      logger.error('MultiModalInput', 'OCR failed:', err);
+      logger.error("MultiModalInput", "OCR failed:", err);
     } finally {
       setIsOCRing(false);
     }
   }, [file]);
 
   const handleDownload = useCallback(() => {
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = file.url;
     a.download = file.name;
     a.click();
@@ -193,7 +199,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({ file, onClose, onDelete, enab
 
   const handleCopy = useCallback(async () => {
     if (file.extractedText || ocrText) {
-      await navigator.clipboard.writeText(file.extractedText || ocrText || '');
+      await navigator.clipboard.writeText(file.extractedText || ocrText || "");
     }
   }, [file.extractedText, ocrText]);
 
@@ -203,7 +209,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({ file, onClose, onDelete, enab
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center gap-2">
-              {file.type === 'image' ? (
+              {file.type === "image" ? (
                 <Image className="w-5 h-5" />
               ) : (
                 <FileText className="w-5 h-5" />
@@ -212,16 +218,11 @@ const FilePreview: React.FC<FilePreviewProps> = ({ file, onClose, onDelete, enab
             </DialogTitle>
 
             <div className="flex items-center gap-1">
-              {file.type === 'image' && enableOCR && (
+              {file.type === "image" && enableOCR && (
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleOCR}
-                        disabled={isOCRing}
-                      >
+                      <Button variant="outline" size="sm" onClick={handleOCR} disabled={isOCRing}>
                         {isOCRing ? (
                           <Loader2 className="w-4 h-4 animate-spin" />
                         ) : (
@@ -270,7 +271,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({ file, onClose, onDelete, enab
           </TabsList>
 
           <TabsContent value="preview" className="mt-4">
-            {file.type === 'image' || file.type === 'screenshot' ? (
+            {file.type === "image" || file.type === "screenshot" ? (
               <div className="space-y-3">
                 {/* 图片控制 */}
                 <div className="flex items-center justify-center gap-2">
@@ -309,7 +310,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({ file, onClose, onDelete, enab
                       className="max-w-full h-auto"
                       style={{
                         transform: `scale(${zoom / 100}) rotate(${rotation}deg)`,
-                        transition: 'transform 0.2s'
+                        transition: "transform 0.2s",
                       }}
                     />
                   </div>
@@ -319,9 +320,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({ file, onClose, onDelete, enab
               <div className="flex items-center justify-center h-[500px] border rounded-lg bg-muted/30">
                 <div className="text-center">
                   <FileText className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground">
-                    PDF 文件预览
-                  </p>
+                  <p className="text-sm text-muted-foreground">PDF 文件预览</p>
                   <p className="text-xs text-muted-foreground mt-2">
                     {file.metadata?.pages} 页 · {formatFileSize(file.size)}
                   </p>
@@ -354,7 +353,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({ file, onClose, onDelete, enab
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">
-                  {ocrText ? 'OCR 识别结果' : '提取的文本'}
+                  {ocrText ? "OCR 识别结果" : "提取的文本"}
                 </span>
                 <Button variant="outline" size="sm" onClick={handleCopy}>
                   <Copy className="w-4 h-4 mr-2" />
@@ -362,7 +361,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({ file, onClose, onDelete, enab
                 </Button>
               </div>
               <Textarea
-                value={file.extractedText || ocrText || ''}
+                value={file.extractedText || ocrText || ""}
                 readOnly
                 className="h-[500px] font-mono text-xs"
               />
@@ -404,7 +403,7 @@ const FileCard: React.FC<FileCardProps> = ({ file, onPreview, onDelete }) => {
       <CardContent className="p-0 cursor-pointer" onClick={onPreview}>
         {/* 预览区 */}
         <div className="aspect-video bg-muted/30 flex items-center justify-center overflow-hidden">
-          {file.type === 'image' || file.type === 'screenshot' ? (
+          {file.type === "image" || file.type === "screenshot" ? (
             <img
               src={file.thumbnail || file.url}
               alt={file.name}
@@ -418,16 +417,14 @@ const FileCard: React.FC<FileCardProps> = ({ file, onPreview, onDelete }) => {
         {/* 信息区 */}
         <div className="p-3 space-y-2">
           <div className="flex items-center gap-2">
-            {file.type === 'image' ? (
+            {file.type === "image" ? (
               <Image className="w-4 h-4 text-blue-500" />
-            ) : file.type === 'pdf' ? (
+            ) : file.type === "pdf" ? (
               <FileText className="w-4 h-4 text-red-500" />
             ) : (
               <Camera className="w-4 h-4 text-green-500" />
             )}
-            <span className="text-sm font-medium truncate flex-1">
-              {file.name}
-            </span>
+            <span className="text-sm font-medium truncate flex-1">{file.name}</span>
           </div>
 
           <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -458,10 +455,10 @@ export const MultiModalInput: React.FC<MultiModalInputProps> = ({
   onChange,
   maxFiles = 10,
   maxFileSize = 10 * 1024 * 1024, // 10MB
-  acceptedTypes = ['image/*', 'application/pdf'],
+  acceptedTypes = ["image/*", "application/pdf"],
   enableOCR = true,
   enableScreenCapture = true,
-  className
+  className,
 }) => {
   const [files, setFiles] = useState<MediaFile[]>(propFiles);
   const [isDragging, setIsDragging] = useState(false);
@@ -478,91 +475,94 @@ export const MultiModalInput: React.FC<MultiModalInputProps> = ({
   }, [propFiles]);
 
   // 处理文件上传
-  const handleFiles = useCallback(async (fileList: FileList) => {
-    setError(null);
+  const handleFiles = useCallback(
+    async (fileList: FileList) => {
+      setError(null);
 
-    if (files.length + fileList.length > maxFiles) {
-      setError(`最多只能上传 ${maxFiles} 个文件`);
-      return;
-    }
-
-    setIsUploading(true);
-
-    const newFiles: MediaFile[] = [];
-
-    for (let i = 0; i < fileList.length; i++) {
-      const file = fileList[i];
-
-      // 验证文件大小
-      if (file.size > maxFileSize) {
-        setError(`文件 ${file.name} 超过大小限制 (${formatFileSize(maxFileSize)})`);
-        continue;
+      if (files.length + fileList.length > maxFiles) {
+        setError(`最多只能上传 ${maxFiles} 个文件`);
+        return;
       }
 
-      // 验证文件类型
-      const isValidType = acceptedTypes.some(type => {
-        if (type.endsWith('/*')) {
-          return file.type.startsWith(type.replace('/*', ''));
-        }
-        return file.type === type;
-      });
+      setIsUploading(true);
 
-      if (!isValidType) {
-        setError(`文件 ${file.name} 类型不支持`);
-        continue;
+      const newFiles: MediaFile[] = [];
+
+      for (let i = 0; i < fileList.length; i++) {
+        const file = fileList[i];
+
+        // 验证文件大小
+        if (file.size > maxFileSize) {
+          setError(`文件 ${file.name} 超过大小限制 (${formatFileSize(maxFileSize)})`);
+          continue;
+        }
+
+        // 验证文件类型
+        const isValidType = acceptedTypes.some((type) => {
+          if (type.endsWith("/*")) {
+            return file.type.startsWith(type.replace("/*", ""));
+          }
+          return file.type === type;
+        });
+
+        if (!isValidType) {
+          setError(`文件 ${file.name} 类型不支持`);
+          continue;
+        }
+
+        // 创建 MediaFile 对象
+        const url = URL.createObjectURL(file);
+        const mediaFile: MediaFile = {
+          id: `${Date.now()}-${i}`,
+          type: file.type.startsWith("image/") ? "image" : "pdf",
+          name: file.name,
+          size: file.size,
+          url,
+          uploadedAt: new Date(),
+          metadata: {
+            mimeType: file.type,
+          },
+        };
+
+        // 生成缩略图
+        if (file.type.startsWith("image/")) {
+          try {
+            mediaFile.thumbnail = await generateThumbnail(file);
+
+            // 获取图片尺寸
+            const img = new Image();
+            img.src = url;
+            await new Promise((resolve) => {
+              img.onload = () => {
+                mediaFile.metadata!.width = img.width;
+                mediaFile.metadata!.height = img.height;
+                resolve(null);
+              };
+            });
+          } catch (err) {
+            logger.error("MultiModalInput", "Failed to generate thumbnail:", err);
+          }
+        }
+
+        // 提取 PDF 文本
+        if (file.type === "application/pdf") {
+          try {
+            mediaFile.extractedText = await extractPDFText(file);
+          } catch (err) {
+            logger.error("MultiModalInput", "Failed to extract PDF text:", err);
+          }
+        }
+
+        newFiles.push(mediaFile);
       }
 
-      // 创建 MediaFile 对象
-      const url = URL.createObjectURL(file);
-      const mediaFile: MediaFile = {
-        id: `${Date.now()}-${i}`,
-        type: file.type.startsWith('image/') ? 'image' : 'pdf',
-        name: file.name,
-        size: file.size,
-        url,
-        uploadedAt: new Date(),
-        metadata: {
-          mimeType: file.type
-        }
-      };
-
-      // 生成缩略图
-      if (file.type.startsWith('image/')) {
-        try {
-          mediaFile.thumbnail = await generateThumbnail(file);
-
-          // 获取图片尺寸
-          const img = new Image();
-          img.src = url;
-          await new Promise((resolve) => {
-            img.onload = () => {
-              mediaFile.metadata!.width = img.width;
-              mediaFile.metadata!.height = img.height;
-              resolve(null);
-            };
-          });
-        } catch (err) {
-          logger.error('MultiModalInput', 'Failed to generate thumbnail:', err);
-        }
-      }
-
-      // 提取 PDF 文本
-      if (file.type === 'application/pdf') {
-        try {
-          mediaFile.extractedText = await extractPDFText(file);
-        } catch (err) {
-          logger.error('MultiModalInput', 'Failed to extract PDF text:', err);
-        }
-      }
-
-      newFiles.push(mediaFile);
-    }
-
-    const updatedFiles = [...files, ...newFiles];
-    setFiles(updatedFiles);
-    onChange?.(updatedFiles);
-    setIsUploading(false);
-  }, [files, maxFiles, maxFileSize, acceptedTypes, onChange]);
+      const updatedFiles = [...files, ...newFiles];
+      setFiles(updatedFiles);
+      onChange?.(updatedFiles);
+      setIsUploading(false);
+    },
+    [files, maxFiles, maxFileSize, acceptedTypes, onChange]
+  );
 
   // 拖拽处理
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -575,14 +575,17 @@ export const MultiModalInput: React.FC<MultiModalInputProps> = ({
     setIsDragging(false);
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      setIsDragging(false);
 
-    if (e.dataTransfer.files) {
-      handleFiles(e.dataTransfer.files);
-    }
-  }, [handleFiles]);
+      if (e.dataTransfer.files) {
+        handleFiles(e.dataTransfer.files);
+      }
+    },
+    [handleFiles]
+  );
 
   // 粘贴处理
   useEffect(() => {
@@ -592,7 +595,7 @@ export const MultiModalInput: React.FC<MultiModalInputProps> = ({
 
       const imageItems: File[] = [];
       for (let i = 0; i < items.length; i++) {
-        if (items[i].type.startsWith('image/')) {
+        if (items[i].type.startsWith("image/")) {
           const file = items[i].getAsFile();
           if (file) {
             imageItems.push(new File([file], `screenshot-${Date.now()}.png`, { type: file.type }));
@@ -609,7 +612,7 @@ export const MultiModalInput: React.FC<MultiModalInputProps> = ({
             for (let i = 0; i < imageItems.length; i++) {
               yield imageItems[i];
             }
-          }
+          },
         } as unknown as FileList;
         for (let i = 0; i < imageItems.length; i++) {
           (fileList as unknown as Record<number, File>)[i] = imageItems[i];
@@ -618,25 +621,28 @@ export const MultiModalInput: React.FC<MultiModalInputProps> = ({
       }
     };
 
-    window.addEventListener('paste', handlePaste);
-    return () => window.removeEventListener('paste', handlePaste);
+    window.addEventListener("paste", handlePaste);
+    return () => window.removeEventListener("paste", handlePaste);
   }, [handleFiles]);
 
   // 删除文件
-  const handleDelete = useCallback((fileId: string) => {
-    const updatedFiles = files.filter(f => f.id !== fileId);
-    setFiles(updatedFiles);
-    onChange?.(updatedFiles);
-  }, [files, onChange]);
+  const handleDelete = useCallback(
+    (fileId: string) => {
+      const updatedFiles = files.filter((f) => f.id !== fileId);
+      setFiles(updatedFiles);
+      onChange?.(updatedFiles);
+    },
+    [files, onChange]
+  );
 
   // 屏幕捕获（模拟）
   const handleScreenCapture = useCallback(async () => {
     // 实际应该调用 Tauri 的截图 API
-    alert('屏幕捕获功能需要在 Tauri 环境中实现');
+    alert("屏幕捕获功能需要在 Tauri 环境中实现");
   }, []);
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn("space-y-4", className)}>
       {/* 上传区域 */}
       <div
         ref={dropZoneRef}
@@ -644,9 +650,9 @@ export const MultiModalInput: React.FC<MultiModalInputProps> = ({
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         className={cn(
-          'border-2 border-dashed rounded-lg p-6 transition-colors',
-          isDragging ? 'border-primary bg-primary/5' : 'border-muted-foreground/25',
-          isUploading && 'opacity-50 pointer-events-none'
+          "border-2 border-dashed rounded-lg p-6 transition-colors",
+          isDragging ? "border-primary bg-primary/5" : "border-muted-foreground/25",
+          isUploading && "opacity-50 pointer-events-none"
         )}
       >
         <div className="flex flex-col items-center gap-3 text-center">
@@ -660,7 +666,7 @@ export const MultiModalInput: React.FC<MultiModalInputProps> = ({
               <Upload className="w-10 h-10 text-muted-foreground" />
               <div>
                 <p className="text-sm font-medium">
-                  拖拽文件到此处，或{' '}
+                  拖拽文件到此处，或{" "}
                   <button
                     className="text-primary hover:underline"
                     onClick={() => fileInputRef.current?.click()}
@@ -674,21 +680,13 @@ export const MultiModalInput: React.FC<MultiModalInputProps> = ({
               </div>
 
               <div className="flex items-center gap-2 mt-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => fileInputRef.current?.click()}
-                >
+                <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
                   <Image className="w-4 h-4 mr-2" />
                   选择文件
                 </Button>
 
                 {enableScreenCapture && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleScreenCapture}
-                  >
+                  <Button variant="outline" size="sm" onClick={handleScreenCapture}>
                     <Camera className="w-4 h-4 mr-2" />
                     截图
                   </Button>
@@ -702,9 +700,7 @@ export const MultiModalInput: React.FC<MultiModalInputProps> = ({
                         粘贴
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent>
-                      Ctrl+V 粘贴截图
-                    </TooltipContent>
+                    <TooltipContent>Ctrl+V 粘贴截图</TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               </div>
@@ -718,7 +714,7 @@ export const MultiModalInput: React.FC<MultiModalInputProps> = ({
         ref={fileInputRef}
         type="file"
         multiple
-        accept={acceptedTypes.join(',')}
+        accept={acceptedTypes.join(",")}
         className="hidden"
         onChange={(e) => e.target.files && handleFiles(e.target.files)}
       />
@@ -769,7 +765,7 @@ export const MultiModalInput: React.FC<MultiModalInputProps> = ({
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-            {files.map(file => (
+            {files.map((file) => (
               <FileCard
                 key={file.id}
                 file={file}

@@ -6,7 +6,7 @@
  */
 
 import React from "react";
-import { CheckCircle2, Clock, Circle, FileEdit } from 'lucide-react';
+import { CheckCircle2, Clock, Circle, FileEdit } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useToolTranslation } from "../common/useToolTranslation";
@@ -30,18 +30,18 @@ export const TodoWidget: React.FC<TodoWidgetProps> = ({ todos, result: _result }
   const statusIcons = {
     completed: <CheckCircle2 className="h-4 w-4 text-success" />,
     in_progress: <Clock className="h-4 w-4 text-info animate-pulse" />,
-    pending: <Circle className="h-4 w-4 text-muted-foreground" />
+    pending: <Circle className="h-4 w-4 text-muted-foreground" />,
   };
 
   const priorityColors = {
     high: "bg-destructive/10 text-destructive border-destructive/20",
     medium: "bg-warning/10 text-warning border-warning/20",
-    low: "bg-success/10 text-success border-success/20"
+    low: "bg-success/10 text-success border-success/20",
   };
 
   // 获取 todo 的文本内容（兼容 Claude 的 content 和 Gemini 的 description）
   const getTodoText = (todo: any): string => {
-    return todo.content || todo.description || '';
+    return todo.content || todo.description || "";
   };
 
   // 翻译 todo 内容
@@ -90,16 +90,16 @@ export const TodoWidget: React.FC<TodoWidgetProps> = ({ todos, result: _result }
                 {statusIcons[todo.status as keyof typeof statusIcons] || statusIcons.pending}
               </div>
               <div className="flex-1 space-y-1">
-                <p className={cn(
-                  "text-sm",
-                  todo.status === "completed" && "line-through"
-                )}>
+                <p className={cn("text-sm", todo.status === "completed" && "line-through")}>
                   {displayContent}
                 </p>
                 {todo.priority && (
                   <Badge
                     variant="outline"
-                    className={cn("text-xs", priorityColors[todo.priority as keyof typeof priorityColors])}
+                    className={cn(
+                      "text-xs",
+                      priorityColors[todo.priority as keyof typeof priorityColors]
+                    )}
                   >
                     {todo.priority}
                   </Badge>

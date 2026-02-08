@@ -1,4 +1,4 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const STORAGE_KEY = "session_cost_snapshot_v3";
@@ -57,7 +57,7 @@ export function useCostDelta(sessionId: string | undefined, currentCost: number,
       records[snapshot.sessionId] = snapshot;
       localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
     } catch (error) {
-      logger.error('useCostDelta', "[useCostDelta] Failed to save snapshot:", error);
+      logger.error("useCostDelta", "[useCostDelta] Failed to save snapshot:", error);
     }
   }, []);
 
@@ -107,7 +107,7 @@ export function useCostDelta(sessionId: string | undefined, currentCost: number,
             lastUserMessageIndexRef.current = snapshot.lastUserMessageIndex;
             prevCostRef.current = currentCost;
 
-            logger.debug('useCostDelta', '✅ 恢复快照:', {
+            logger.debug("useCostDelta", "✅ 恢复快照:", {
               sessionId,
               baseline: snapshot.lastUserMessageCost,
               currentCost,
@@ -137,13 +137,13 @@ export function useCostDelta(sessionId: string | undefined, currentCost: number,
 
       saveSnapshot(initialSnapshot);
 
-      logger.debug('useCostDelta', '🆕 新会话初始化:', {
+      logger.debug("useCostDelta", "🆕 新会话初始化:", {
         sessionId,
         baseline: currentCost,
         msgIndex: currentMsgIndex,
       });
     } catch (error) {
-      logger.error('useCostDelta', "[useCostDelta] Failed to initialize:", error);
+      logger.error("useCostDelta", "[useCostDelta] Failed to initialize:", error);
     }
   }, [sessionId, currentCost, messages, findLastUserMessageIndex, saveSnapshot]);
 
@@ -163,7 +163,7 @@ export function useCostDelta(sessionId: string | undefined, currentCost: number,
       setLastUserMessageCost(baselineCost);
       lastUserMessageIndexRef.current = currentUserMsgIndex;
 
-      logger.debug('useCostDelta', '🆕 新指令，设置 baseline:', {
+      logger.debug("useCostDelta", "🆕 新指令，设置 baseline:", {
         baselineCost,
         currentCost,
         msgIndex: currentUserMsgIndex,
@@ -259,7 +259,7 @@ export function useCostDelta(sessionId: string | undefined, currentCost: number,
         const thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000;
 
         const cleanedRecords = Object.fromEntries(
-          Object.entries(records).filter(([_, record]) => record.lastUpdate > thirtyDaysAgo),
+          Object.entries(records).filter(([_, record]) => record.lastUpdate > thirtyDaysAgo)
         );
 
         if (Object.keys(cleanedRecords).length !== Object.keys(records).length) {
@@ -267,7 +267,7 @@ export function useCostDelta(sessionId: string | undefined, currentCost: number,
         }
       }
     } catch (error) {
-      logger.error('useCostDelta', "[useCostDelta] Failed to clean up old records:", error);
+      logger.error("useCostDelta", "[useCostDelta] Failed to clean up old records:", error);
     }
   }, []);
 

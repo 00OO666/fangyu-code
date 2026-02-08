@@ -153,6 +153,6 @@ export interface WebSocketConnection {
   /** 注册事件处理器 */
   on: <K extends keyof WebSocketEventHandlers>(
     event: K,
-    handler: NonNullable<WebSocketEventHandlers[K]>,
+    handler: NonNullable<WebSocketEventHandlers[K]>
   ) => () => void;
 }

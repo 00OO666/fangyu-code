@@ -64,7 +64,7 @@ export function useSmartAutoScroll(config: SmartAutoScrollConfig): SmartAutoScro
   // 🆕 计算最后一条消息的内容哈希，用于检测内容变化
   const lastMessageHash = useMemo(
     () => getLastMessageContentHash(displayableMessages),
-    [displayableMessages],
+    [displayableMessages]
   );
 
   // Helper to perform auto-scroll safely

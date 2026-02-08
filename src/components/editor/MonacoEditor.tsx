@@ -3,9 +3,9 @@
  * Monaco编辑器封装组件
  */
 
-import React from 'react';
-import Editor, { OnMount } from '@monaco-editor/react';
-import type { editor } from 'monaco-editor';
+import React from "react";
+import Editor, { OnMount } from "@monaco-editor/react";
+import type { editor } from "monaco-editor";
 
 interface MonacoEditorProps {
   value: string;
@@ -21,11 +21,11 @@ interface MonacoEditorProps {
 export const MonacoEditor: React.FC<MonacoEditorProps> = ({
   value,
   onChange,
-  language = 'typescript',
-  theme = 'vs-dark',
+  language = "typescript",
+  theme = "vs-dark",
   readOnly = false,
-  height = '100%',
-  width = '100%',
+  height = "100%",
+  width = "100%",
   onMount,
 }) => {
   return (
@@ -34,7 +34,7 @@ export const MonacoEditor: React.FC<MonacoEditorProps> = ({
       width={width}
       language={language}
       value={value}
-      onChange={(val) => onChange?.(val || '')}
+      onChange={(val) => onChange?.(val || "")}
       onMount={onMount}
       theme={theme}
       options={{
@@ -45,7 +45,7 @@ export const MonacoEditor: React.FC<MonacoEditorProps> = ({
         scrollBeyondLastLine: false,
         automaticLayout: true,
         tabSize: 2,
-        wordWrap: 'on',
+        wordWrap: "on",
       }}
     />
   );

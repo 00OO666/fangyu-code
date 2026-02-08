@@ -3,6 +3,7 @@
 ## 📋 重构进度
 
 ### ✅ 已完成（阶段 1）
+
 - [x] 提取类型定义到 `types.ts`
 - [x] 提取工具函数到 `utils.ts`
 - [x] 创建 Codex 引擎模块 (`engines/codex.ts`)
@@ -11,6 +12,7 @@
 - [x] 创建引擎统一导出 (`engines/index.ts`)
 
 ### 🔄 待完成（阶段 2）
+
 - [ ] 重构主 Hook 使用新的引擎模块
 - [ ] 简化 `handleSendPrompt` 函数
 - [ ] 移除重复的事件监听器代码
@@ -35,7 +37,10 @@ src/hooks/usePromptExecution/
 ### 示例：设置 Codex 事件监听器
 
 ```typescript
-import { setupCodexEventListeners, type CodexEngineContext } from '@/hooks/usePromptExecution/engines';
+import {
+  setupCodexEventListeners,
+  type CodexEngineContext,
+} from "@/hooks/usePromptExecution/engines";
 
 // 准备上下文
 const context: CodexEngineContext = {
@@ -64,12 +69,12 @@ unlistenRefs.current = unlisteners;
 
 ## 📊 重构收益
 
-| 指标 | 重构前 | 重构后 | 改进 |
-|------|--------|--------|------|
-| 主文件行数 | 2640 行 | ~800 行（预期） | ↓ 70% |
-| 引擎模块数 | 0 | 3 | +3 |
-| 代码重复率 | ~20% | < 5%（预期） | ↓ 75% |
-| 可维护性 | 低 | 高 | ↑ 显著 |
+| 指标       | 重构前  | 重构后          | 改进   |
+| ---------- | ------- | --------------- | ------ |
+| 主文件行数 | 2640 行 | ~800 行（预期） | ↓ 70%  |
+| 引擎模块数 | 0       | 3               | +3     |
+| 代码重复率 | ~20%    | < 5%（预期）    | ↓ 75%  |
+| 可维护性   | 低      | 高              | ↑ 显著 |
 
 ## ⚠️ 注意事项
 

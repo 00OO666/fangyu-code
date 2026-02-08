@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useCallback, useMemo, ReactNode } from 'react';
-import { View } from '@/types/navigation';
+import React, { createContext, useContext, useState, useCallback, useMemo, ReactNode } from "react";
+import { View } from "@/types/navigation";
 
 interface HistoryItem {
   view: View;
@@ -25,33 +25,42 @@ export const NavigationProvider: React.FC<{ children: ReactNode }> = ({ children
   // Initialize history with the default view and empty params
   const [history, setHistory] = useState<HistoryItem[]>([{ view: "projects", params: {} }]);
   const [previousView, setPreviousView] = useState<View | null>(null);
-  const [navigationInterceptor, setNavigationInterceptor] = useState<((nextView: View) => boolean) | null>(null);
+  const [navigationInterceptor, setNavigationInterceptor] = useState<
+    ((nextView: View) => boolean) | null
+  >(null);
 
-  const navigateTo = useCallback((newView: View, params?: Record<string, any>) => {
-    // Check interceptor
-    if (navigationInterceptor) {
-      const shouldProceed = navigationInterceptor(newView);
-      if (!shouldProceed) return;
-    }
-
-    const newParams = params || {};
-
-    // If staying on same view but params change, we still update
-    if (newView === currentView && JSON.stringify(newParams) === JSON.stringify(viewParams)) return;
-
-    setPreviousView(currentView);
-    setCurrentView(newView);
-    setViewParams(newParams);
-
-    setHistory(prev => {
-      const lastItem = prev[prev.length - 1];
-      // Avoid duplicate consecutive entries (check both view and params)
-      if (lastItem.view !== newView || JSON.stringify(lastItem.params) !== JSON.stringify(newParams)) {
-        return [...prev, { view: newView, params: newParams }];
+  const navigateTo = useCallback(
+    (newView: View, params?: Record<string, any>) => {
+      // Check interceptor
+      if (navigationInterceptor) {
+        const shouldProceed = navigationInterceptor(newView);
+        if (!shouldProceed) return;
       }
-      return prev;
-    });
-  }, [currentView, viewParams, navigationInterceptor]);
+
+      const newParams = params || {};
+
+      // If staying on same view but params change, we still update
+      if (newView === currentView && JSON.stringify(newParams) === JSON.stringify(viewParams))
+        return;
+
+      setPreviousView(currentView);
+      setCurrentView(newView);
+      setViewParams(newParams);
+
+      setHistory((prev) => {
+        const lastItem = prev[prev.length - 1];
+        // Avoid duplicate consecutive entries (check both view and params)
+        if (
+          lastItem.view !== newView ||
+          JSON.stringify(lastItem.params) !== JSON.stringify(newParams)
+        ) {
+          return [...prev, { view: newView, params: newParams }];
+        }
+        return prev;
+      });
+    },
+    [currentView, viewParams, navigationInterceptor]
+  );
 
   const goBack = useCallback(() => {
     if (history.length > 1) {
@@ -71,7 +80,7 @@ export const NavigationProvider: React.FC<{ children: ReactNode }> = ({ children
 
       // Update previous view reference (optional, effectively the one we just popped)
       // But conceptually 'previous' usually means 'where we just came from' before this action.
-      // In a browser, 'back' moves you to previous state. 
+      // In a browser, 'back' moves you to previous state.
       // Let's keep previousView as the one we are leaving (which was current).
       setPreviousView(currentView);
     } else {
@@ -86,28 +95,27 @@ export const NavigationProvider: React.FC<{ children: ReactNode }> = ({ children
   }, [history, navigationInterceptor, currentView]);
 
   // 🔧 FIX (v2.7.6): 使用 useMemo 缓存 context value，避免不必要的重渲染
-  const contextValue = useMemo(() => ({
-    currentView,
-    viewParams,
-    previousView,
-    history,
-    navigateTo,
-    goBack,
-    canGoBack: history.length > 1,
-    setNavigationInterceptor
-  }), [currentView, viewParams, previousView, history, navigateTo, goBack]);
-
-  return (
-    <NavigationContext.Provider value={contextValue}>
-      {children}
-    </NavigationContext.Provider>
+  const contextValue = useMemo(
+    () => ({
+      currentView,
+      viewParams,
+      previousView,
+      history,
+      navigateTo,
+      goBack,
+      canGoBack: history.length > 1,
+      setNavigationInterceptor,
+    }),
+    [currentView, viewParams, previousView, history, navigateTo, goBack]
   );
+
+  return <NavigationContext.Provider value={contextValue}>{children}</NavigationContext.Provider>;
 };
 
 export const useNavigation = () => {
   const context = useContext(NavigationContext);
   if (context === undefined) {
-    throw new Error('useNavigation must be used within a NavigationProvider');
+    throw new Error("useNavigation must be used within a NavigationProvider");
   }
   return context;
 };

@@ -32,7 +32,9 @@ interface MessagesActionsContextValue {
 }
 
 const MessagesDataContext = React.createContext<MessagesDataContextValue | undefined>(undefined);
-const MessagesActionsContext = React.createContext<MessagesActionsContextValue | undefined>(undefined);
+const MessagesActionsContext = React.createContext<MessagesActionsContextValue | undefined>(
+  undefined
+);
 
 const buildToolResultMap = (messages: ClaudeStreamMessage[]): Map<string, ToolResultEntry> => {
   const results = new Map<string, ToolResultEntry>();
@@ -123,9 +125,7 @@ export const MessagesProvider: React.FC<MessagesProviderProps> = ({
 
   return (
     <MessagesActionsContext.Provider value={actionsValue}>
-      <MessagesDataContext.Provider value={dataValue}>
-        {children}
-      </MessagesDataContext.Provider>
+      <MessagesDataContext.Provider value={dataValue}>{children}</MessagesDataContext.Provider>
     </MessagesActionsContext.Provider>
   );
 };
@@ -157,5 +157,3 @@ export const useMessagesContext = () => {
 };
 
 MessagesProvider.displayName = "MessagesProvider";
-
-

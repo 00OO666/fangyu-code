@@ -4,27 +4,41 @@
  * 显示 API 连接状态、错误日志和诊断结果
  */
 
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
-import { Activity, AlertCircle, CheckCircle, XCircle, RefreshCw, Stethoscope, Trash2, ChevronDown, ChevronUp, Clock, AlertTriangle, Wifi, WifiOff } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { useApiHealthCheck, type ConnectionStatus } from '@/hooks/useApiHealthCheck';
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import {
+  Activity,
+  AlertCircle,
+  CheckCircle,
+  XCircle,
+  RefreshCw,
+  Stethoscope,
+  Trash2,
+  ChevronDown,
+  ChevronUp,
+  Clock,
+  AlertTriangle,
+  Wifi,
+  WifiOff,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useApiHealthCheck, type ConnectionStatus } from "@/hooks/useApiHealthCheck";
 
 interface ApiHealthPanelProps {
   /** 当前会话 ID */
   sessionId?: string;
   /** 当前引擎 */
-  engine?: 'claude' | 'codex' | 'gemini';
+  engine?: "claude" | "codex" | "gemini";
   /** 紧凑模式（仅显示状态指示器） */
   compact?: boolean;
 }
 
 export const ApiHealthPanel: React.FC<ApiHealthPanelProps> = ({
   sessionId,
-  engine = 'claude',
+  engine = "claude",
   compact = false,
 }) => {
   const {
@@ -45,37 +59,37 @@ export const ApiHealthPanel: React.FC<ApiHealthPanelProps> = ({
   // 状态图标和颜色
   const getStatusInfo = (status: ConnectionStatus) => {
     switch (status) {
-      case 'connected':
+      case "connected":
         return {
           icon: Wifi,
-          color: 'text-green-600 dark:text-green-400',
-          bgColor: 'bg-green-500/10',
-          borderColor: 'border-green-500/50',
-          label: '已连接',
+          color: "text-green-600 dark:text-green-400",
+          bgColor: "bg-green-500/10",
+          borderColor: "border-green-500/50",
+          label: "已连接",
         };
-      case 'disconnected':
+      case "disconnected":
         return {
           icon: WifiOff,
-          color: 'text-red-600 dark:text-red-400',
-          bgColor: 'bg-red-500/10',
-          borderColor: 'border-red-500/50',
-          label: '已断开',
+          color: "text-red-600 dark:text-red-400",
+          bgColor: "bg-red-500/10",
+          borderColor: "border-red-500/50",
+          label: "已断开",
         };
-      case 'reconnecting':
+      case "reconnecting":
         return {
           icon: RefreshCw,
-          color: 'text-orange-600 dark:text-orange-400',
-          bgColor: 'bg-orange-500/10',
-          borderColor: 'border-orange-500/50',
-          label: '重连中',
+          color: "text-orange-600 dark:text-orange-400",
+          bgColor: "bg-orange-500/10",
+          borderColor: "border-orange-500/50",
+          label: "重连中",
         };
       default:
         return {
           icon: Activity,
-          color: 'text-gray-600 dark:text-gray-400',
-          bgColor: 'bg-gray-500/10',
-          borderColor: 'border-gray-500/50',
-          label: '未知',
+          color: "text-gray-600 dark:text-gray-400",
+          bgColor: "bg-gray-500/10",
+          borderColor: "border-gray-500/50",
+          label: "未知",
         };
     }
   };
@@ -106,14 +120,12 @@ export const ApiHealthPanel: React.FC<ApiHealthPanelProps> = ({
         )}
         onClick={() => setExpanded(!expanded)}
       >
-        <StatusIcon className={cn("h-3.5 w-3.5", statusInfo.color, isReconnecting && "animate-spin")} />
-        <span className={cn("font-mono text-xs", statusInfo.color)}>
-          {statusInfo.label}
-        </span>
+        <StatusIcon
+          className={cn("h-3.5 w-3.5", statusInfo.color, isReconnecting && "animate-spin")}
+        />
+        <span className={cn("font-mono text-xs", statusInfo.color)}>{statusInfo.label}</span>
         {consecutiveFailures > 0 && (
-          <span className="text-xs text-muted-foreground">
-            ({consecutiveFailures})
-          </span>
+          <span className="text-xs text-muted-foreground">({consecutiveFailures})</span>
         )}
       </Badge>
     );
@@ -125,7 +137,9 @@ export const ApiHealthPanel: React.FC<ApiHealthPanelProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <StatusIcon className={cn("h-5 w-5", statusInfo.color, isReconnecting && "animate-spin")} />
+          <StatusIcon
+            className={cn("h-5 w-5", statusInfo.color, isReconnecting && "animate-spin")}
+          />
           <h3 className="font-semibold text-sm">API 连接状态</h3>
         </div>
 
@@ -144,11 +158,7 @@ export const ApiHealthPanel: React.FC<ApiHealthPanelProps> = ({
           </Badge>
 
           {/* 展开/折叠按钮 */}
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => setExpanded(!expanded)}
-          >
+          <Button size="sm" variant="ghost" onClick={() => setExpanded(!expanded)}>
             {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </Button>
         </div>
@@ -175,7 +185,7 @@ export const ApiHealthPanel: React.FC<ApiHealthPanelProps> = ({
         {expanded && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
+            animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
             className="space-y-3 overflow-hidden"
@@ -186,11 +196,11 @@ export const ApiHealthPanel: React.FC<ApiHealthPanelProps> = ({
                 size="sm"
                 variant="outline"
                 onClick={() => triggerReconnect()}
-                disabled={isReconnecting || status === 'connected'}
+                disabled={isReconnecting || status === "connected"}
                 className="flex-1"
               >
                 <RefreshCw className={cn("h-3.5 w-3.5 mr-1.5", isReconnecting && "animate-spin")} />
-                {isReconnecting ? '重连中...' : '重新连接'}
+                {isReconnecting ? "重连中..." : "重新连接"}
               </Button>
 
               <Button
@@ -200,8 +210,10 @@ export const ApiHealthPanel: React.FC<ApiHealthPanelProps> = ({
                 disabled={isRunningDiagnostics}
                 className="flex-1"
               >
-                <Stethoscope className={cn("h-3.5 w-3.5 mr-1.5", isRunningDiagnostics && "animate-pulse")} />
-                {isRunningDiagnostics ? '诊断中...' : '运行诊断'}
+                <Stethoscope
+                  className={cn("h-3.5 w-3.5 mr-1.5", isRunningDiagnostics && "animate-pulse")}
+                />
+                {isRunningDiagnostics ? "诊断中..." : "运行诊断"}
               </Button>
             </div>
 
@@ -213,14 +225,17 @@ export const ApiHealthPanel: React.FC<ApiHealthPanelProps> = ({
                   <Badge
                     variant="outline"
                     className={cn(
-                      diagnosticResult.overallStatus === 'healthy' && "border-green-500/50 bg-green-500/10 text-green-600",
-                      diagnosticResult.overallStatus === 'degraded' && "border-orange-500/50 bg-orange-500/10 text-orange-600",
-                      diagnosticResult.overallStatus === 'unhealthy' && "border-red-500/50 bg-red-500/10 text-red-600"
+                      diagnosticResult.overallStatus === "healthy" &&
+                        "border-green-500/50 bg-green-500/10 text-green-600",
+                      diagnosticResult.overallStatus === "degraded" &&
+                        "border-orange-500/50 bg-orange-500/10 text-orange-600",
+                      diagnosticResult.overallStatus === "unhealthy" &&
+                        "border-red-500/50 bg-red-500/10 text-red-600"
                     )}
                   >
-                    {diagnosticResult.overallStatus === 'healthy' && '健康'}
-                    {diagnosticResult.overallStatus === 'degraded' && '部分异常'}
-                    {diagnosticResult.overallStatus === 'unhealthy' && '不健康'}
+                    {diagnosticResult.overallStatus === "healthy" && "健康"}
+                    {diagnosticResult.overallStatus === "degraded" && "部分异常"}
+                    {diagnosticResult.overallStatus === "unhealthy" && "不健康"}
                   </Badge>
                 </div>
 
@@ -231,9 +246,15 @@ export const ApiHealthPanel: React.FC<ApiHealthPanelProps> = ({
                       key={index}
                       className="flex items-start gap-2 text-xs p-2 rounded bg-muted/30"
                     >
-                      {check.status === 'ok' && <CheckCircle className="h-3.5 w-3.5 text-green-600 mt-0.5 flex-shrink-0" />}
-                      {check.status === 'warning' && <AlertTriangle className="h-3.5 w-3.5 text-orange-600 mt-0.5 flex-shrink-0" />}
-                      {check.status === 'error' && <XCircle className="h-3.5 w-3.5 text-red-600 mt-0.5 flex-shrink-0" />}
+                      {check.status === "ok" && (
+                        <CheckCircle className="h-3.5 w-3.5 text-green-600 mt-0.5 flex-shrink-0" />
+                      )}
+                      {check.status === "warning" && (
+                        <AlertTriangle className="h-3.5 w-3.5 text-orange-600 mt-0.5 flex-shrink-0" />
+                      )}
+                      {check.status === "error" && (
+                        <XCircle className="h-3.5 w-3.5 text-red-600 mt-0.5 flex-shrink-0" />
+                      )}
                       <div className="flex-1 min-w-0">
                         <div className="font-medium">{check.name}</div>
                         <div className="text-muted-foreground">{check.message}</div>
@@ -264,12 +285,7 @@ export const ApiHealthPanel: React.FC<ApiHealthPanelProps> = ({
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <h4 className="text-xs font-semibold">错误日志 ({errorLog.length})</h4>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={clearErrorLog}
-                    className="h-6 px-2"
-                  >
+                  <Button size="sm" variant="ghost" onClick={clearErrorLog} className="h-6 px-2">
                     <Trash2 className="h-3 w-3" />
                   </Button>
                 </div>

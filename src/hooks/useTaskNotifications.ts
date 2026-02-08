@@ -10,7 +10,7 @@
  * 来源: Cursor/Windsurf 任务完成通知
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { useCallback, useEffect, useRef } from "react";
 import { api } from "@/lib/api";
 
@@ -42,19 +42,19 @@ interface TaskState {
 async function sendSystemNotification(title: string, body: string, icon?: string) {
   // 检查通知权限
   if (!("Notification" in window)) {
-    logger.warn('useTaskNotifications', "浏览器不支持通知");
+    logger.warn("useTaskNotifications", "浏览器不支持通知");
     return;
   }
 
   if (Notification.permission === "denied") {
-    logger.warn('useTaskNotifications', "通知权限被拒绝");
+    logger.warn("useTaskNotifications", "通知权限被拒绝");
     return;
   }
 
   if (Notification.permission !== "granted") {
     const permission = await Notification.requestPermission();
     if (permission !== "granted") {
-      logger.warn('useTaskNotifications', "通知权限请求被拒绝");
+      logger.warn("useTaskNotifications", "通知权限请求被拒绝");
       return;
     }
   }
@@ -109,7 +109,7 @@ function playNotificationSound(type: "success" | "error") {
     oscillator.start(audioContext.currentTime);
     oscillator.stop(audioContext.currentTime + 0.3);
   } catch (error) {
-    logger.warn('useTaskNotifications', "播放提示音失败:", error);
+    logger.warn("useTaskNotifications", "播放提示音失败:", error);
   }
 }
 
@@ -170,7 +170,7 @@ export function useTaskNotifications(options: TaskNotificationOptions = {}) {
         }
       }
     },
-    [enableSystemNotification, enableSound],
+    [enableSystemNotification, enableSound]
   );
 
   // 轮询检查任务状态

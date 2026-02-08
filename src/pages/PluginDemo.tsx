@@ -2,7 +2,7 @@
  * 插件系统演示页面
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { PluginManager } from "@/plugins";
 
 export function PluginDemo() {
@@ -19,10 +19,10 @@ export function PluginDemo() {
         <PluginManager
           workspacePath={undefined}
           onInstall={(id) => {
-            logger.debug('PluginDemo', "安装插件:", id);
+            logger.debug("PluginDemo", "安装插件:", id);
           }}
           onUninstall={(id) => {
-            logger.debug('PluginDemo', "卸载插件:", id);
+            logger.debug("PluginDemo", "卸载插件:", id);
           }}
         />
       </div>

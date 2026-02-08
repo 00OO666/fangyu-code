@@ -1,6 +1,15 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import React, { useState } from "react";
-import { Plus, Terminal, Globe, Trash2, Info, Loader2, ToggleLeft, ToggleRight } from 'lucide-react';
+import {
+  Plus,
+  Terminal,
+  Globe,
+  Trash2,
+  Info,
+  Loader2,
+  ToggleLeft,
+  ToggleRight,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,16 +39,13 @@ interface EnvironmentVariable {
  * Component for adding new MCP servers
  * Supports both stdio and SSE transport types
  */
-export const MCPAddServer: React.FC<MCPAddServerProps> = ({
-  onServerAdded,
-  onError,
-}) => {
+export const MCPAddServer: React.FC<MCPAddServerProps> = ({ onServerAdded, onError }) => {
   const [transport, setTransport] = useState<"stdio" | "sse">("stdio");
   const [saving, setSaving] = useState(false);
 
   // 应用选择器状态（新增）
   const [apps, setApps] = useState<McpApps>({
-    claude: true,   // 默认启用 Claude
+    claude: true, // 默认启用 Claude
     codex: false,
     gemini: false,
   });
@@ -65,26 +71,27 @@ export const MCPAddServer: React.FC<MCPAddServerProps> = ({
       value: "",
       enabled: true,
     };
-    
+
     if (type === "stdio") {
-      setStdioEnvVars(prev => [...prev, newVar]);
+      setStdioEnvVars((prev) => [...prev, newVar]);
     } else {
-      setSseEnvVars(prev => [...prev, newVar]);
+      setSseEnvVars((prev) => [...prev, newVar]);
     }
   };
 
   /**
    * Updates an environment variable
    */
-  const updateEnvVar = (type: "stdio" | "sse", id: string, field: "key" | "value" | "enabled", value: string | boolean) => {
+  const updateEnvVar = (
+    type: "stdio" | "sse",
+    id: string,
+    field: "key" | "value" | "enabled",
+    value: string | boolean
+  ) => {
     if (type === "stdio") {
-      setStdioEnvVars(prev => prev.map(v => 
-        v.id === id ? { ...v, [field]: value } : v
-      ));
+      setStdioEnvVars((prev) => prev.map((v) => (v.id === id ? { ...v, [field]: value } : v)));
     } else {
-      setSseEnvVars(prev => prev.map(v => 
-        v.id === id ? { ...v, [field]: value } : v
-      ));
+      setSseEnvVars((prev) => prev.map((v) => (v.id === id ? { ...v, [field]: value } : v)));
     }
   };
 
@@ -93,9 +100,9 @@ export const MCPAddServer: React.FC<MCPAddServerProps> = ({
    */
   const removeEnvVar = (type: "stdio" | "sse", id: string) => {
     if (type === "stdio") {
-      setStdioEnvVars(prev => prev.filter(v => v.id !== id));
+      setStdioEnvVars((prev) => prev.filter((v) => v.id !== id));
     } else {
-      setSseEnvVars(prev => prev.filter(v => v.id !== id));
+      setSseEnvVars((prev) => prev.filter((v) => v.id !== id));
     }
   };
 
@@ -126,12 +133,15 @@ export const MCPAddServer: React.FC<MCPAddServerProps> = ({
       const args = stdioArgs.trim() ? stdioArgs.split(/\s+/) : [];
 
       // Convert env vars to object (only include enabled ones)
-      const env = stdioEnvVars.reduce((acc, { key, value, enabled }) => {
-        if (enabled && key.trim() && value.trim()) {
-          acc[key] = value;
-        }
-        return acc;
-      }, {} as Record<string, string>);
+      const env = stdioEnvVars.reduce(
+        (acc, { key, value, enabled }) => {
+          if (enabled && key.trim() && value.trim()) {
+            acc[key] = value;
+          }
+          return acc;
+        },
+        {} as Record<string, string>
+      );
 
       // 构建服务器规范（新版）
       const serverSpec: MCPServerSpec = {
@@ -143,8 +153,8 @@ export const MCPAddServer: React.FC<MCPAddServerProps> = ({
 
       // 使用新的 API
       await api.mcpUpsertServer(
-        stdioName,    // id
-        stdioName,    // name
+        stdioName, // id
+        stdioName, // name
         serverSpec,
         apps
       );
@@ -157,7 +167,7 @@ export const MCPAddServer: React.FC<MCPAddServerProps> = ({
       onServerAdded();
     } catch (error) {
       onError("Failed to add server");
-      logger.error('MCPAddServer', "Failed to add stdio server:", error);
+      logger.error("MCPAddServer", "Failed to add stdio server:", error);
     } finally {
       setSaving(false);
     }
@@ -187,12 +197,15 @@ export const MCPAddServer: React.FC<MCPAddServerProps> = ({
       setSaving(true);
 
       // Convert env vars to object (only include enabled ones)
-      const env = sseEnvVars.reduce((acc, { key, value, enabled }) => {
-        if (enabled && key.trim() && value.trim()) {
-          acc[key] = value;
-        }
-        return acc;
-      }, {} as Record<string, string>);
+      const env = sseEnvVars.reduce(
+        (acc, { key, value, enabled }) => {
+          if (enabled && key.trim() && value.trim()) {
+            acc[key] = value;
+          }
+          return acc;
+        },
+        {} as Record<string, string>
+      );
 
       // 构建服务器规范（新版）
       const serverSpec: MCPServerSpec = {
@@ -203,8 +216,8 @@ export const MCPAddServer: React.FC<MCPAddServerProps> = ({
 
       // 使用新的 API
       await api.mcpUpsertServer(
-        sseName,      // id
-        sseName,      // name
+        sseName, // id
+        sseName, // name
         serverSpec,
         apps
       );
@@ -216,7 +229,7 @@ export const MCPAddServer: React.FC<MCPAddServerProps> = ({
       onServerAdded();
     } catch (error) {
       onError("Failed to add server");
-      logger.error('MCPAddServer', "Failed to add SSE server:", error);
+      logger.error("MCPAddServer", "Failed to add SSE server:", error);
     } finally {
       setSaving(false);
     }
@@ -230,21 +243,19 @@ export const MCPAddServer: React.FC<MCPAddServerProps> = ({
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <Label className="text-sm font-medium">Environment Variables</Label>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => addEnvVar(type)}
-            className="gap-2"
-          >
+          <Button variant="outline" size="sm" onClick={() => addEnvVar(type)} className="gap-2">
             <Plus className="h-3 w-3" />
             Add Variable
           </Button>
         </div>
-        
+
         {envVars.length > 0 && (
           <div className="space-y-2">
             {envVars.map((envVar) => (
-              <div key={envVar.id} className={`flex items-center gap-2 p-2 rounded-md border transition-opacity ${!envVar.enabled ? 'opacity-50 bg-muted/20' : 'bg-background'}`}>
+              <div
+                key={envVar.id}
+                className={`flex items-center gap-2 p-2 rounded-md border transition-opacity ${!envVar.enabled ? "opacity-50 bg-muted/20" : "bg-background"}`}
+              >
                 {/* Enable/Disable Toggle */}
                 <Button
                   variant="ghost"
@@ -259,7 +270,7 @@ export const MCPAddServer: React.FC<MCPAddServerProps> = ({
                     <ToggleLeft className="h-4 w-4 text-muted-foreground" />
                   )}
                 </Button>
-                
+
                 {/* Key Input */}
                 <Input
                   placeholder="KEY"
@@ -268,9 +279,9 @@ export const MCPAddServer: React.FC<MCPAddServerProps> = ({
                   className="flex-1 font-mono text-sm"
                   disabled={!envVar.enabled}
                 />
-                
+
                 <span className="text-muted-foreground">=</span>
-                
+
                 {/* Value Input */}
                 <Input
                   placeholder="value"
@@ -279,7 +290,7 @@ export const MCPAddServer: React.FC<MCPAddServerProps> = ({
                   className="flex-1 font-mono text-sm"
                   disabled={!envVar.enabled}
                 />
-                
+
                 {/* Delete Button */}
                 <Button
                   variant="ghost"
@@ -293,7 +304,7 @@ export const MCPAddServer: React.FC<MCPAddServerProps> = ({
             ))}
           </div>
         )}
-        
+
         {/* Helper Text */}
         {envVars.length > 0 && (
           <p className="text-xs text-muted-foreground">
@@ -351,9 +362,7 @@ export const MCPAddServer: React.FC<MCPAddServerProps> = ({
                   onChange={(e) => setStdioCommand(e.target.value)}
                   className="font-mono"
                 />
-                <p className="text-xs text-muted-foreground">
-                  The command to execute the server
-                </p>
+                <p className="text-xs text-muted-foreground">The command to execute the server</p>
               </div>
 
               <div className="space-y-2">
@@ -365,9 +374,7 @@ export const MCPAddServer: React.FC<MCPAddServerProps> = ({
                   onChange={(e) => setStdioArgs(e.target.value)}
                   className="font-mono"
                 />
-                <p className="text-xs text-muted-foreground">
-                  Space-separated command arguments
-                </p>
+                <p className="text-xs text-muted-foreground">Space-separated command arguments</p>
               </div>
 
               {/* 应用选择器（新增） */}
@@ -458,9 +465,7 @@ export const MCPAddServer: React.FC<MCPAddServerProps> = ({
                   onChange={(e) => setSseUrl(e.target.value)}
                   className="font-mono"
                 />
-                <p className="text-xs text-muted-foreground">
-                  The SSE endpoint URL
-                </p>
+                <p className="text-xs text-muted-foreground">The SSE endpoint URL</p>
               </div>
 
               {/* 应用选择器（新增） */}
@@ -544,4 +549,4 @@ export const MCPAddServer: React.FC<MCPAddServerProps> = ({
       </Card>
     </div>
   );
-}; 
+};

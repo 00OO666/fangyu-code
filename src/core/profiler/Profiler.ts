@@ -97,7 +97,7 @@ export class Profiler {
   }
 
   getMemoryUsage(): { used: number; total: number } {
-    if (typeof performance !== 'undefined' && (performance as any).memory) {
+    if (typeof performance !== "undefined" && (performance as any).memory) {
       const memory = (performance as any).memory;
       return {
         used: memory.usedJSHeapSize,

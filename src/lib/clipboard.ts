@@ -1,4 +1,4 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 
 /**
  * ✅ Unified Clipboard Service - Centralized clipboard operations with automatic fallback
@@ -59,7 +59,7 @@ const getTauriInvoke = async () => {
     tauriInvoke = module.invoke;
     return tauriInvoke;
   } catch (error) {
-    logger.error('clipboard', "[Clipboard] Failed to load Tauri core invoke:", error);
+    logger.error("clipboard", "[Clipboard] Failed to load Tauri core invoke:", error);
     tauriInvoke = null;
     return null;
   }
@@ -80,7 +80,7 @@ export async function copyTextToClipboard(text: string): Promise<void> {
         await invoke("plugin:clipboard-manager|write_text", { text: normalizedText });
         return;
       } catch (error) {
-        logger.error('clipboard', "[Clipboard] Tauri invoke write failed:", error);
+        logger.error("clipboard", "[Clipboard] Tauri invoke write failed:", error);
       }
     }
   }
@@ -91,7 +91,7 @@ export async function copyTextToClipboard(text: string): Promise<void> {
       await navigator.clipboard.writeText(normalizedText);
       return;
     } catch (error) {
-      logger.error('clipboard', "[Clipboard] Navigator clipboard write failed:", error);
+      logger.error("clipboard", "[Clipboard] Navigator clipboard write failed:", error);
     }
   }
 
@@ -125,7 +125,7 @@ export async function copyTextToClipboard(text: string): Promise<void> {
         selection.removeAllRanges();
         selection.addRange(selectedRange);
       }
-      logger.error('clipboard', "[Clipboard] Legacy execCommand copy failed:", error);
+      logger.error("clipboard", "[Clipboard] Legacy execCommand copy failed:", error);
     }
   }
 
@@ -172,7 +172,7 @@ class ClipboardService {
           const text = await invoke("plugin:clipboard-manager|read_text");
           return text as string;
         } catch (error) {
-          logger.error('clipboard', "[Clipboard] Tauri invoke read failed:", error);
+          logger.error("clipboard", "[Clipboard] Tauri invoke read failed:", error);
         }
       }
     }
@@ -182,7 +182,7 @@ class ClipboardService {
       try {
         return await navigator.clipboard.readText();
       } catch (error) {
-        logger.error('clipboard', "[Clipboard] Navigator clipboard read failed:", error);
+        logger.error("clipboard", "[Clipboard] Navigator clipboard read failed:", error);
         throw new Error("Unable to read clipboard: permission denied or not supported");
       }
     }

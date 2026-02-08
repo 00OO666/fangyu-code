@@ -10,23 +10,32 @@
  * 来源: Claude Code Auto Accept UI + Cursor Agent Mode Indicator
  */
 
-import { logger } from '@/lib/logger';
-import { useState } from 'react';
-import {
-  useTurboMode,
-  type TurboModeLevel,
-  type CommandAnalysis,
-} from '@/hooks/useTurboMode';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { logger } from "@/lib/logger";
+import { useState } from "react";
+import { useTurboMode, type TurboModeLevel, type CommandAnalysis } from "@/hooks/useTurboMode";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@/components/ui/dialog';
-import { Zap, ZapOff, Shield, AlertTriangle, Settings, Clock, History, Plus, Trash2, ChevronDown, Check, Info } from 'lucide-react';
+} from "@/components/ui/dialog";
+import {
+  Zap,
+  ZapOff,
+  Shield,
+  AlertTriangle,
+  Settings,
+  Clock,
+  History,
+  Plus,
+  Trash2,
+  ChevronDown,
+  Check,
+  Info,
+} from "lucide-react";
 
 // ============================================================
 // 组件
@@ -49,7 +58,7 @@ export function TurboModeSwitch({ onExecute, onConfirmationNeeded }: TurboModeSw
       : undefined,
     onConfirmationNeeded,
     onModeChange: (level) => {
-      logger.debug('TurboModeSwitch', 'Turbo 模式变更:', level);
+      logger.debug("TurboModeSwitch", "Turbo 模式变更:", level);
     },
   });
 
@@ -71,9 +80,9 @@ export function TurboModeSwitch({ onExecute, onConfirmationNeeded }: TurboModeSw
   const [showSettings, setShowSettings] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [showLevelMenu, setShowLevelMenu] = useState(false);
-  const [newWhitelistCommand, setNewWhitelistCommand] = useState('');
-  const [newBlacklistCommand, setNewBlacklistCommand] = useState('');
-  const [activeTab, setActiveTab] = useState<'whitelist' | 'blacklist'>('whitelist');
+  const [newWhitelistCommand, setNewWhitelistCommand] = useState("");
+  const [newBlacklistCommand, setNewBlacklistCommand] = useState("");
+  const [activeTab, setActiveTab] = useState<"whitelist" | "blacklist">("whitelist");
 
   // 获取剩余时间的可读格式
   const getFormattedRemainingTime = (): string | null => {
@@ -82,7 +91,7 @@ export function TurboModeSwitch({ onExecute, onConfirmationNeeded }: TurboModeSw
 
     const minutes = Math.floor(ms / 60000);
     const seconds = Math.floor((ms % 60000) / 1000);
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
   };
 
   // 模式级别选项
@@ -92,38 +101,38 @@ export function TurboModeSwitch({ onExecute, onConfirmationNeeded }: TurboModeSw
     icon: any;
     color: string;
   }> = [
-    { value: 'off', label: '关闭', icon: ZapOff, color: 'text-gray-400' },
-    { value: 'safe', label: '安全', icon: Shield, color: 'text-green-500' },
-    { value: 'moderate', label: '中等', icon: AlertTriangle, color: 'text-yellow-500' },
-    { value: 'full', label: '完全', icon: Zap, color: 'text-red-500' },
+    { value: "off", label: "关闭", icon: ZapOff, color: "text-gray-400" },
+    { value: "safe", label: "安全", icon: Shield, color: "text-green-500" },
+    { value: "moderate", label: "中等", icon: AlertTriangle, color: "text-yellow-500" },
+    { value: "full", label: "完全", icon: Zap, color: "text-red-500" },
   ];
 
   const currentOption = levelOptions.find((opt) => opt.value === config.level);
 
   // 风险等级显示
-  const getRiskColor = (risk: CommandAnalysis['risk']): string => {
+  const getRiskColor = (risk: CommandAnalysis["risk"]): string => {
     switch (risk) {
-      case 'safe':
-        return 'text-green-500 bg-green-500/10';
-      case 'moderate':
-        return 'text-yellow-500 bg-yellow-500/10';
-      case 'dangerous':
-        return 'text-orange-500 bg-orange-500/10';
-      case 'critical':
-        return 'text-red-500 bg-red-500/10';
+      case "safe":
+        return "text-green-500 bg-green-500/10";
+      case "moderate":
+        return "text-yellow-500 bg-yellow-500/10";
+      case "dangerous":
+        return "text-orange-500 bg-orange-500/10";
+      case "critical":
+        return "text-red-500 bg-red-500/10";
     }
   };
 
-  const getRiskLabel = (risk: CommandAnalysis['risk']): string => {
+  const getRiskLabel = (risk: CommandAnalysis["risk"]): string => {
     switch (risk) {
-      case 'safe':
-        return '安全';
-      case 'moderate':
-        return '中等';
-      case 'dangerous':
-        return '危险';
-      case 'critical':
-        return '严重';
+      case "safe":
+        return "安全";
+      case "moderate":
+        return "中等";
+      case "dangerous":
+        return "危险";
+      case "critical":
+        return "严重";
     }
   };
 
@@ -132,10 +141,10 @@ export function TurboModeSwitch({ onExecute, onConfirmationNeeded }: TurboModeSw
       {/* 主开关按钮 */}
       <div className="relative">
         <Button
-          variant={isActive ? 'default' : 'outline'}
+          variant={isActive ? "default" : "outline"}
           size="sm"
           onClick={() => setShowLevelMenu(!showLevelMenu)}
-          className={`flex items-center gap-2 ${isActive ? 'animate-pulse-slow' : ''}`}
+          className={`flex items-center gap-2 ${isActive ? "animate-pulse-slow" : ""}`}
         >
           {currentOption && <currentOption.icon className={`w-4 h-4 ${currentOption.color}`} />}
           <span className="text-sm font-medium">{currentOption?.label}</span>
@@ -211,11 +220,11 @@ export function TurboModeSwitch({ onExecute, onConfirmationNeeded }: TurboModeSw
             {/* 标签页 */}
             <div className="flex gap-2 border-b border-[var(--border-primary)]">
               <button
-                onClick={() => setActiveTab('whitelist')}
+                onClick={() => setActiveTab("whitelist")}
                 className={`px-4 py-2 text-sm font-medium transition-colors ${
-                  activeTab === 'whitelist'
-                    ? 'border-b-2 border-[var(--accent-primary)] text-[var(--accent-primary)]'
-                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                  activeTab === "whitelist"
+                    ? "border-b-2 border-[var(--accent-primary)] text-[var(--accent-primary)]"
+                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                 }`}
               >
                 <div className="flex items-center gap-2">
@@ -224,11 +233,11 @@ export function TurboModeSwitch({ onExecute, onConfirmationNeeded }: TurboModeSw
                 </div>
               </button>
               <button
-                onClick={() => setActiveTab('blacklist')}
+                onClick={() => setActiveTab("blacklist")}
                 className={`px-4 py-2 text-sm font-medium transition-colors ${
-                  activeTab === 'blacklist'
-                    ? 'border-b-2 border-[var(--accent-primary)] text-[var(--accent-primary)]'
-                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                  activeTab === "blacklist"
+                    ? "border-b-2 border-[var(--accent-primary)] text-[var(--accent-primary)]"
+                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                 }`}
               >
                 <div className="flex items-center gap-2">
@@ -239,7 +248,7 @@ export function TurboModeSwitch({ onExecute, onConfirmationNeeded }: TurboModeSw
             </div>
 
             {/* 白名单内容 */}
-            {activeTab === 'whitelist' && (
+            {activeTab === "whitelist" && (
               <div className="space-y-3">
                 <div className="flex gap-2">
                   <input
@@ -249,9 +258,9 @@ export function TurboModeSwitch({ onExecute, onConfirmationNeeded }: TurboModeSw
                     placeholder="添加命令到白名单..."
                     className="flex-1 px-3 py-2 text-sm rounded border border-[var(--border-primary)] bg-[var(--bg-primary)]"
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter' && newWhitelistCommand.trim()) {
+                      if (e.key === "Enter" && newWhitelistCommand.trim()) {
                         addToWhitelist(newWhitelistCommand.trim());
-                        setNewWhitelistCommand('');
+                        setNewWhitelistCommand("");
                       }
                     }}
                   />
@@ -260,7 +269,7 @@ export function TurboModeSwitch({ onExecute, onConfirmationNeeded }: TurboModeSw
                     onClick={() => {
                       if (newWhitelistCommand.trim()) {
                         addToWhitelist(newWhitelistCommand.trim());
-                        setNewWhitelistCommand('');
+                        setNewWhitelistCommand("");
                       }
                     }}
                   >
@@ -276,11 +285,7 @@ export function TurboModeSwitch({ onExecute, onConfirmationNeeded }: TurboModeSw
                         className="flex items-center justify-between gap-2 px-2 py-1 rounded hover:bg-[var(--bg-hover)]"
                       >
                         <code className="text-xs text-[var(--text-secondary)]">{cmd}</code>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeFromWhitelist(cmd)}
-                        >
+                        <Button variant="ghost" size="sm" onClick={() => removeFromWhitelist(cmd)}>
                           <Trash2 className="w-3 h-3 text-red-500" />
                         </Button>
                       </div>
@@ -296,7 +301,7 @@ export function TurboModeSwitch({ onExecute, onConfirmationNeeded }: TurboModeSw
             )}
 
             {/* 黑名单内容 */}
-            {activeTab === 'blacklist' && (
+            {activeTab === "blacklist" && (
               <div className="space-y-3">
                 <div className="flex gap-2">
                   <input
@@ -306,9 +311,9 @@ export function TurboModeSwitch({ onExecute, onConfirmationNeeded }: TurboModeSw
                     placeholder="添加命令到黑名单..."
                     className="flex-1 px-3 py-2 text-sm rounded border border-[var(--border-primary)] bg-[var(--bg-primary)]"
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter' && newBlacklistCommand.trim()) {
+                      if (e.key === "Enter" && newBlacklistCommand.trim()) {
                         addToBlacklist(newBlacklistCommand.trim());
-                        setNewBlacklistCommand('');
+                        setNewBlacklistCommand("");
                       }
                     }}
                   />
@@ -317,7 +322,7 @@ export function TurboModeSwitch({ onExecute, onConfirmationNeeded }: TurboModeSw
                     onClick={() => {
                       if (newBlacklistCommand.trim()) {
                         addToBlacklist(newBlacklistCommand.trim());
-                        setNewBlacklistCommand('');
+                        setNewBlacklistCommand("");
                       }
                     }}
                   >
@@ -333,11 +338,7 @@ export function TurboModeSwitch({ onExecute, onConfirmationNeeded }: TurboModeSw
                         className="flex items-center justify-between gap-2 px-2 py-1 rounded hover:bg-[var(--bg-hover)]"
                       >
                         <code className="text-xs text-[var(--text-secondary)]">{cmd}</code>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeFromBlacklist(cmd)}
-                        >
+                        <Button variant="ghost" size="sm" onClick={() => removeFromBlacklist(cmd)}>
                           <Trash2 className="w-3 h-3 text-red-500" />
                         </Button>
                       </div>
@@ -372,36 +373,37 @@ export function TurboModeSwitch({ onExecute, onConfirmationNeeded }: TurboModeSw
           <ScrollArea className="h-96 py-4">
             <div className="space-y-2">
               {executionHistory.length === 0 ? (
-                <div className="text-center py-8 text-[var(--text-tertiary)]">
-                  暂无执行历史
-                </div>
+                <div className="text-center py-8 text-[var(--text-tertiary)]">暂无执行历史</div>
               ) : (
-                executionHistory.slice().reverse().map((analysis, idx) => (
-                  <div
-                    key={idx}
-                    className="p-3 rounded border border-[var(--border-primary)] bg-[var(--bg-secondary)]"
-                  >
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <code className="text-sm flex-1 break-all">{analysis.command}</code>
-                      <span
-                        className={`px-2 py-0.5 text-xs rounded-full ${getRiskColor(
-                          analysis.risk
-                        )}`}
-                      >
-                        {getRiskLabel(analysis.risk)}
-                      </span>
+                executionHistory
+                  .slice()
+                  .reverse()
+                  .map((analysis, idx) => (
+                    <div
+                      key={idx}
+                      className="p-3 rounded border border-[var(--border-primary)] bg-[var(--bg-secondary)]"
+                    >
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <code className="text-sm flex-1 break-all">{analysis.command}</code>
+                        <span
+                          className={`px-2 py-0.5 text-xs rounded-full ${getRiskColor(
+                            analysis.risk
+                          )}`}
+                        >
+                          {getRiskLabel(analysis.risk)}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-4 text-xs text-[var(--text-tertiary)]">
+                        <span>分类: {analysis.category}</span>
+                        <span>原因: {analysis.reason}</span>
+                        {analysis.requiresConfirmation ? (
+                          <span className="text-yellow-500">需要确认</span>
+                        ) : (
+                          <span className="text-green-500">自动执行</span>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-4 text-xs text-[var(--text-tertiary)]">
-                      <span>分类: {analysis.category}</span>
-                      <span>原因: {analysis.reason}</span>
-                      {analysis.requiresConfirmation ? (
-                        <span className="text-yellow-500">需要确认</span>
-                      ) : (
-                        <span className="text-green-500">自动执行</span>
-                      )}
-                    </div>
-                  </div>
-                ))
+                  ))
               )}
             </div>
           </ScrollArea>

@@ -7,7 +7,7 @@
  * 🔧 v2.2.6 优化: 支持用户自定义显示设置，让用户能看到完整的大模型输出
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { useMemo } from "react";
 import type { ClaudeStreamMessage } from "@/types/claude";
 import { getGlobalOutputDisplaySettings } from "./useOutputDisplaySettings";
@@ -143,7 +143,7 @@ function isAutoContinueMessage(message: ClaudeStreamMessage): boolean {
  */
 export function useDisplayableMessages(
   messages: ClaudeStreamMessage[],
-  options: DisplayableMessagesOptions = {},
+  options: DisplayableMessagesOptions = {}
 ): ClaudeStreamMessage[] {
   // 🆕 获取全局设置
   const globalSettings = getGlobalOutputDisplaySettings();
@@ -157,7 +157,8 @@ export function useDisplayableMessages(
   // 默认隐藏启动警告（undefined 时为 true）
   const hideStartupWarnings = options.hideStartupWarnings ?? !globalSettings.showSystemMessages;
   // 🔧 FIX: 默认不隐藏自动继续消息的输出，让用户能看到完整的 AI 响应
-  const hideAutoContinueMessages = options.hideAutoContinueMessages ?? !globalSettings.showAutoContinueMessages;
+  const hideAutoContinueMessages =
+    options.hideAutoContinueMessages ?? !globalSettings.showAutoContinueMessages;
   // 默认不显示所有工具结果（undefined 时为 false）
   const showAllToolResults = options.showAllToolResults ?? globalSettings.showToolResults;
 
@@ -252,7 +253,10 @@ export function useDisplayableMessages(
             // 🔧 FIX: 如果有文本内容，立即保留消息（优先级最高）
             if (content.type === "text" && content.text?.trim()) {
               hasVisibleContent = true;
-              logger.debug('useDisplayableMessages', `[Filter] Message ${index}: Found text content, will show`);
+              logger.debug(
+                "useDisplayableMessages",
+                `[Filter] Message ${index}: Found text content, will show`
+              );
               break;
             }
 
@@ -271,7 +275,7 @@ export function useDisplayableMessages(
                     Array.isArray(prevMsg.message.content)
                   ) {
                     const toolUse = prevMsg.message.content.find(
-                      (c: any) => c.type === "tool_use" && c.id === content.tool_use_id,
+                      (c: any) => c.type === "tool_use" && c.id === content.tool_use_id
                     );
 
                     if (toolUse) {
@@ -321,5 +325,12 @@ export function useDisplayableMessages(
       // 其他情况保留消息
       return true;
     });
-  }, [messages, showAllMessages, hideWarmupMessages, hideStartupWarnings, hideAutoContinueMessages, showAllToolResults]);
+  }, [
+    messages,
+    showAllMessages,
+    hideWarmupMessages,
+    hideStartupWarnings,
+    hideAutoContinueMessages,
+    showAllToolResults,
+  ]);
 }

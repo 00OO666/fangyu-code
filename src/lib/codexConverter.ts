@@ -5,7 +5,7 @@
  * for seamless integration with existing message display components.
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import type { ClaudeStreamMessage } from "@/types/claude";
 import type {
   CodexAgentMessageItem,
@@ -71,7 +71,7 @@ function mapCodexToolName(codexName: string): string {
 
 function parseCodexRateLimitEntry(
   raw: any,
-  fallbackWindowMinutes: number,
+  fallbackWindowMinutes: number
 ): CodexRateLimit | undefined {
   if (!raw || typeof raw !== "object") {
     return undefined;
@@ -123,7 +123,7 @@ export function parseCodexRateLimits(raw: any, updatedAt: string): CodexRateLimi
 
   const primary = parseCodexRateLimitEntry(
     hasPrimary ? primaryCandidate : !hasSecondary ? raw : null,
-    299,
+    299
   );
   const secondary = parseCodexRateLimitEntry(secondaryCandidate, 10079);
 
@@ -248,7 +248,7 @@ export class CodexEventConverter {
       const event = JSON.parse(eventLine) as CodexEvent;
       return this.convertEventObject(event);
     } catch (error) {
-      logger.error('codexConverter', "[CodexConverter] Failed to parse event:", eventLine, error);
+      logger.error("codexConverter", "[CodexConverter] Failed to parse event:", eventLine, error);
       return null;
     }
   }
@@ -342,7 +342,13 @@ export class CodexEventConverter {
         return null;
 
       default:
-        logger.warn('codexConverter', 'Unknown event type:', (event as any).type, 'Full event:', event);
+        logger.warn(
+          "codexConverter",
+          "Unknown event type:",
+          (event as any).type,
+          "Full event:",
+          event
+        );
         return null;
     }
   }
@@ -389,7 +395,7 @@ export class CodexEventConverter {
   }
 
   private convertTokenCountEvent(
-    event: import("@/types/codex").CodexEvent,
+    event: import("@/types/codex").CodexEvent
   ): ClaudeStreamMessage | null {
     const ts = event.timestamp || new Date().toISOString();
     const payload: any = (event as any).payload;
@@ -405,21 +411,21 @@ export class CodexEventConverter {
     const totalUsage =
       total && typeof total === "object"
         ? {
-          input_tokens: Number(total.input_tokens) || 0,
-          cached_input_tokens:
-            total.cached_input_tokens !== undefined ? Number(total.cached_input_tokens) || 0 : 0,
-          output_tokens: Number(total.output_tokens) || 0,
-        }
+            input_tokens: Number(total.input_tokens) || 0,
+            cached_input_tokens:
+              total.cached_input_tokens !== undefined ? Number(total.cached_input_tokens) || 0 : 0,
+            output_tokens: Number(total.output_tokens) || 0,
+          }
         : null;
 
     const lastUsage =
       last && typeof last === "object"
         ? {
-          input_tokens: Number(last.input_tokens) || 0,
-          cached_input_tokens:
-            last.cached_input_tokens !== undefined ? Number(last.cached_input_tokens) || 0 : 0,
-          output_tokens: Number(last.output_tokens) || 0,
-        }
+            input_tokens: Number(last.input_tokens) || 0,
+            cached_input_tokens:
+              last.cached_input_tokens !== undefined ? Number(last.cached_input_tokens) || 0 : 0,
+            output_tokens: Number(last.output_tokens) || 0,
+          }
         : null;
 
     // Prefer explicit delta (last_token_usage). If absent, derive delta from totals.
@@ -435,16 +441,16 @@ export class CodexEventConverter {
       deltaUsage = {
         input_tokens: Math.max(
           totalUsage.input_tokens - (this.lastTokenCountTotal.input_tokens || 0),
-          0,
+          0
         ),
         cached_input_tokens: Math.max(
           (totalUsage.cached_input_tokens || 0) -
-          (this.lastTokenCountTotal.cached_input_tokens || 0),
-          0,
+            (this.lastTokenCountTotal.cached_input_tokens || 0),
+          0
         ),
         output_tokens: Math.max(
           totalUsage.output_tokens - (this.lastTokenCountTotal.output_tokens || 0),
-          0,
+          0
         ),
       };
     } else if (totalUsage) {
@@ -496,11 +502,11 @@ export class CodexEventConverter {
    * Note: This handles different payload.type values including function_call, reasoning, etc.
    */
   private convertResponseItem(
-    event: import("@/types/codex").CodexEvent,
+    event: import("@/types/codex").CodexEvent
   ): ClaudeStreamMessage | null {
     const { payload } = event;
     if (!payload) {
-      logger.warn('codexConverter', "[CodexConverter] response_item missing payload:", event);
+      logger.warn("codexConverter", "[CodexConverter] response_item missing payload:", event);
       return null;
     }
 
@@ -539,7 +545,11 @@ export class CodexEventConverter {
 
     // Handle message-type response_item (user/assistant messages)
     if (!payload.role) {
-      logger.warn('codexConverter', "[CodexConverter] response_item missing role and not a recognized type:", event);
+      logger.warn(
+        "codexConverter",
+        "[CodexConverter] response_item missing role and not a recognized type:",
+        event
+      );
       return null;
     }
 
@@ -549,7 +559,7 @@ export class CodexEventConverter {
         (c: any) =>
           c.type === "input_text" &&
           c.text &&
-          (c.text.includes("<environment_context>") || c.text.includes("# AGENTS.md instructions")),
+          (c.text.includes("<environment_context>") || c.text.includes("# AGENTS.md instructions"))
       );
 
       if (isEnvContext) {
@@ -568,7 +578,7 @@ export class CodexEventConverter {
 
     // Check if content is empty or has only empty text blocks
     if (content.length === 0) {
-      logger.warn('codexConverter', "[CodexConverter] response_item has empty content, skipping");
+      logger.warn("codexConverter", "[CodexConverter] response_item has empty content, skipping");
       return null;
     }
 
@@ -580,7 +590,10 @@ export class CodexEventConverter {
     });
 
     if (!hasNonEmptyContent) {
-      logger.warn('codexConverter', "[CodexConverter] response_item has no non-empty content, skipping");
+      logger.warn(
+        "codexConverter",
+        "[CodexConverter] response_item has no non-empty content, skipping"
+      );
       return null;
     }
 
@@ -842,7 +855,7 @@ export class CodexEventConverter {
   private convertItem(
     item: CodexItem,
     phase: "started" | "updated" | "completed",
-    eventTimestamp?: string,
+    eventTimestamp?: string
   ): ClaudeStreamMessage | null {
     const metadata: CodexMessageMetadata = {
       codexItemType: item.type,
@@ -878,7 +891,13 @@ export class CodexEventConverter {
         return this.convertTodoList(item, phase, metadata, eventTimestamp);
 
       default:
-        logger.warn('codexConverter', "[CodexConverter] Unknown item type:", (item as any).type, "Full item:", item);
+        logger.warn(
+          "codexConverter",
+          "[CodexConverter] Unknown item type:",
+          (item as any).type,
+          "Full item:",
+          item
+        );
         return null;
     }
   }
@@ -890,7 +909,7 @@ export class CodexEventConverter {
     item: CodexAgentMessageItem,
     _phase: string,
     metadata: CodexMessageMetadata,
-    eventTimestamp?: string,
+    eventTimestamp?: string
   ): ClaudeStreamMessage {
     const ts = eventTimestamp || new Date().toISOString();
     return {
@@ -918,7 +937,7 @@ export class CodexEventConverter {
     item: CodexReasoningItem,
     _phase: string,
     metadata: CodexMessageMetadata,
-    eventTimestamp?: string,
+    eventTimestamp?: string
   ): ClaudeStreamMessage {
     const ts = eventTimestamp || new Date().toISOString();
     return {
@@ -938,7 +957,7 @@ export class CodexEventConverter {
     item: CodexCommandExecutionItem,
     phase: string,
     metadata: CodexMessageMetadata,
-    eventTimestamp?: string,
+    eventTimestamp?: string
   ): ClaudeStreamMessage {
     const isComplete = phase === "completed";
     const toolUseId = `codex_cmd_${item.id}`;
@@ -999,7 +1018,7 @@ export class CodexEventConverter {
     item: CodexFileChangeItem,
     phase: string,
     metadata: CodexMessageMetadata,
-    eventTimestamp?: string,
+    eventTimestamp?: string
   ): ClaudeStreamMessage {
     const ts = eventTimestamp || new Date().toISOString();
     const toolUseId = `codex_file_${item.id}`;
@@ -1082,7 +1101,7 @@ export class CodexEventConverter {
     item: any, // Use any to handle actual Codex format
     _phase: string,
     metadata: CodexMessageMetadata,
-    eventTimestamp?: string,
+    eventTimestamp?: string
   ): ClaudeStreamMessage {
     const ts = eventTimestamp || new Date().toISOString();
     const toolUseId = `codex_mcp_${item.id}`;
@@ -1147,7 +1166,7 @@ export class CodexEventConverter {
     item: CodexWebSearchItem,
     phase: string,
     metadata: CodexMessageMetadata,
-    eventTimestamp?: string,
+    eventTimestamp?: string
   ): ClaudeStreamMessage {
     const ts = eventTimestamp || new Date().toISOString();
     const toolUseId = `codex_search_${item.id}`;
@@ -1199,13 +1218,13 @@ export class CodexEventConverter {
     item: CodexTodoListItem,
     _phase: string,
     metadata: CodexMessageMetadata,
-    eventTimestamp?: string,
+    eventTimestamp?: string
   ): ClaudeStreamMessage {
     const ts = eventTimestamp || new Date().toISOString();
     const todoText = item.todos
       .map(
         (todo) =>
-          `${todo.status === "completed" ? "✓" : todo.status === "in_progress" ? "⏳" : "○"} ${todo.description}`,
+          `${todo.status === "completed" ? "✓" : todo.status === "in_progress" ? "⏳" : "○"} ${todo.description}`
       )
       .join("\n");
 
@@ -1230,7 +1249,7 @@ export class CodexEventConverter {
       output_tokens: number;
     },
     eventTimestamp?: string,
-    rateLimits?: CodexRateLimits | null,
+    rateLimits?: CodexRateLimits | null
   ): ClaudeStreamMessage {
     const ts = eventTimestamp || new Date().toISOString();
     const totalTokens = usage.input_tokens + usage.output_tokens;
@@ -1265,7 +1284,7 @@ export class CodexEventConverter {
   private createCumulativeUsageMessage(
     event: any,
     eventTimestamp?: string,
-    rateLimits?: CodexRateLimits | null,
+    rateLimits?: CodexRateLimits | null
   ): ClaudeStreamMessage {
     const ts = eventTimestamp || new Date().toISOString();
     const usage = event.usage || {};

@@ -20,18 +20,18 @@
  * **Validates: Requirements 1.5 - Context 嵌套优化**
  */
 
-import { ReactNode } from 'react';
-import { ThemeProvider } from '@/contexts/ThemeContext';
-import { NavigationProvider } from '@/contexts/NavigationContext';
-import { ProjectProvider } from '@/contexts/ProjectContext';
-import { TabProvider } from '@/hooks/useTabs';
-import { UpdateProvider } from '@/contexts/UpdateContext';
-import { OutputCacheProvider } from '@/lib/outputCache';
-import { GlobalTaskStateProvider } from '@/hooks/useGlobalTaskState';
-import { PromptQueueProvider } from '@/hooks/usePromptQueue';
+import { ReactNode } from "react";
+import { ThemeProvider } from "@/contexts/ThemeContext";
+import { NavigationProvider } from "@/contexts/NavigationContext";
+import { ProjectProvider } from "@/contexts/ProjectContext";
+import { TabProvider } from "@/hooks/useTabs";
+import { UpdateProvider } from "@/contexts/UpdateContext";
+import { OutputCacheProvider } from "@/lib/outputCache";
+import { GlobalTaskStateProvider } from "@/hooks/useGlobalTaskState";
+import { PromptQueueProvider } from "@/hooks/usePromptQueue";
 
 interface AppProvidersProps {
-    children: ReactNode;
+  children: ReactNode;
 }
 
 /**
@@ -41,23 +41,23 @@ interface AppProvidersProps {
  * 这样更容易理解和维护
  */
 export function AppProviders({ children }: AppProvidersProps) {
-    return (
-        <ThemeProvider>
-            <UpdateProvider>
-                <GlobalTaskStateProvider>
-                    <OutputCacheProvider>
-                        <NavigationProvider>
-                            <ProjectProvider>
-                                <TabProvider>
-                                    <PromptQueueProvider>{children}</PromptQueueProvider>
-                                </TabProvider>
-                            </ProjectProvider>
-                        </NavigationProvider>
-                    </OutputCacheProvider>
-                </GlobalTaskStateProvider>
-            </UpdateProvider>
-        </ThemeProvider>
-    );
+  return (
+    <ThemeProvider>
+      <UpdateProvider>
+        <GlobalTaskStateProvider>
+          <OutputCacheProvider>
+            <NavigationProvider>
+              <ProjectProvider>
+                <TabProvider>
+                  <PromptQueueProvider>{children}</PromptQueueProvider>
+                </TabProvider>
+              </ProjectProvider>
+            </NavigationProvider>
+          </OutputCacheProvider>
+        </GlobalTaskStateProvider>
+      </UpdateProvider>
+    </ThemeProvider>
+  );
 }
 
 /**
@@ -76,11 +76,11 @@ export function AppProviders({ children }: AppProvidersProps) {
 type ProviderConfig<P = unknown> = [React.ComponentType<P & { children: ReactNode }>, P?];
 
 export function composeProviders(providers: ProviderConfig[]): React.FC<{ children: ReactNode }> {
-    return function ComposedProviders({ children }: { children: ReactNode }) {
-        return providers.reduceRight((acc, [Provider, props]) => {
-            return <Provider {...(props || {})}>{acc}</Provider>;
-        }, children);
-    };
+  return function ComposedProviders({ children }: { children: ReactNode }) {
+    return providers.reduceRight((acc, [Provider, props]) => {
+      return <Provider {...(props || {})}>{acc}</Provider>;
+    }, children);
+  };
 }
 
 export default AppProviders;

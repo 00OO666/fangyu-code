@@ -1,6 +1,6 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import React from "react";
-import { ChevronUp, Check, Brain, Zap, Sparkles, Rocket } from 'lucide-react';
+import { ChevronUp, Check, Brain, Zap, Sparkles, Rocket } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
@@ -12,7 +12,7 @@ import { api } from "@/lib/api";
  * Reference: https://platform.openai.com/docs/guides/reasoning
  */
 /** Reasoning level values used in config.toml (model_reasoning_effort) */
-export type CodexReasoningLevel = 'low' | 'medium' | 'high' | 'xhigh';
+export type CodexReasoningLevel = "low" | "medium" | "high" | "xhigh";
 
 export interface CodexReasoningLevelConfig {
   id: CodexReasoningLevel;
@@ -33,36 +33,36 @@ export interface CodexReasoningLevelConfig {
  */
 export const CODEX_REASONING_LEVELS: CodexReasoningLevelConfig[] = [
   {
-    id: 'low',
-    name: '低',
-    description: '快速响应，最少推理',
+    id: "low",
+    name: "低",
+    description: "快速响应，最少推理",
     icon: <Zap className="h-4 w-4 text-yellow-500" />,
     isDefault: false,
-    configValue: 'low',
+    configValue: "low",
   },
   {
-    id: 'medium',
-    name: '中',
-    description: '平衡模式（默认）',
+    id: "medium",
+    name: "中",
+    description: "平衡模式（默认）",
     icon: <Brain className="h-4 w-4 text-blue-500" />,
     isDefault: true,
-    configValue: 'medium',
+    configValue: "medium",
   },
   {
-    id: 'high',
-    name: '高',
-    description: '详细推理，更多 token',
+    id: "high",
+    name: "高",
+    description: "详细推理，更多 token",
     icon: <Sparkles className="h-4 w-4 text-purple-500" />,
     isDefault: false,
-    configValue: 'high',
+    configValue: "high",
   },
   {
-    id: 'xhigh',
-    name: '极高',
-    description: '最大推理深度，适合复杂任务',
+    id: "xhigh",
+    name: "极高",
+    description: "最大推理深度，适合复杂任务",
     icon: <Rocket className="h-4 w-4 text-red-500" />,
     isDefault: false,
-    configValue: 'xhigh',
+    configValue: "xhigh",
   },
 ];
 
@@ -89,9 +89,10 @@ export const CodexReasoningLevelSelector: React.FC<CodexReasoningLevelSelectorPr
   const [isSaving, setIsSaving] = React.useState(false);
 
   // Find selected level or default
-  const selectedLevelData = CODEX_REASONING_LEVELS.find(l => l.id === selectedLevel)
-    || CODEX_REASONING_LEVELS.find(l => l.isDefault)
-    || CODEX_REASONING_LEVELS[1]; // medium as fallback
+  const selectedLevelData =
+    CODEX_REASONING_LEVELS.find((l) => l.id === selectedLevel) ||
+    CODEX_REASONING_LEVELS.find((l) => l.isDefault) ||
+    CODEX_REASONING_LEVELS[1]; // medium as fallback
 
   /**
    * Handle level change with optional persistence to config.toml
@@ -106,9 +107,16 @@ export const CodexReasoningLevelSelector: React.FC<CodexReasoningLevelSelectorPr
       setIsSaving(true);
       try {
         await api.updateCodexReasoningLevel(level);
-        logger.debug('CodexReasoningLevelSelector', `[CodexReasoningLevel] Successfully saved level: ${level}`);
+        logger.debug(
+          "CodexReasoningLevelSelector",
+          `[CodexReasoningLevel] Successfully saved level: ${level}`
+        );
       } catch (error) {
-        logger.error('CodexReasoningLevelSelector', '[CodexReasoningLevel] Failed to persist level:', error);
+        logger.error(
+          "CodexReasoningLevelSelector",
+          "[CodexReasoningLevel] Failed to persist level:",
+          error
+        );
         // Note: We don't revert the UI state as the local change is still valid for the session
       } finally {
         setIsSaving(false);
@@ -136,8 +144,7 @@ export const CodexReasoningLevelSelector: React.FC<CodexReasoningLevelSelectorPr
             选择推理级别
           </div>
           {CODEX_REASONING_LEVELS.map((level) => {
-            const isSelected = selectedLevel === level.id ||
-              (!selectedLevel && level.isDefault);
+            const isSelected = selectedLevel === level.id || (!selectedLevel && level.isDefault);
             return (
               <button
                 key={level.id}
@@ -152,18 +159,14 @@ export const CodexReasoningLevelSelector: React.FC<CodexReasoningLevelSelectorPr
                 <div className="flex-1 space-y-1">
                   <div className="font-medium text-sm flex items-center gap-2">
                     {level.name}
-                    {isSelected && (
-                      <Check className="h-3.5 w-3.5 text-primary" />
-                    )}
+                    {isSelected && <Check className="h-3.5 w-3.5 text-primary" />}
                     {level.isDefault && (
                       <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary">
                         默认
                       </span>
                     )}
                   </div>
-                  <div className="text-xs text-muted-foreground">
-                    {level.description}
-                  </div>
+                  <div className="text-xs text-muted-foreground">{level.description}</div>
                 </div>
               </button>
             );

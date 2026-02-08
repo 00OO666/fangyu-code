@@ -11,17 +11,34 @@
  * 来源: VSCode Extensions Panel + Cursor Extensions
  */
 
-import { logger } from '@/lib/logger';
-import { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Package, Search, Power, PowerOff, RefreshCw, Trash2, ChevronRight, ChevronDown, AlertCircle, CheckCircle, Clock, Download, ExternalLink, Settings, Loader2, FolderOpen } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Switch } from '@/components/ui/switch';
+import { logger } from "@/lib/logger";
+import { useState, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Package,
+  Search,
+  Power,
+  PowerOff,
+  RefreshCw,
+  Trash2,
+  ChevronRight,
+  ChevronDown,
+  AlertCircle,
+  CheckCircle,
+  Clock,
+  Download,
+  ExternalLink,
+  Settings,
+  Loader2,
+  FolderOpen,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Switch } from "@/components/ui/switch";
 import {
   Dialog,
   DialogContent,
@@ -29,23 +46,18 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+} from "@/components/ui/dialog";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { cn } from '@/lib/utils';
-import { usePluginLoader } from '@/hooks/usePluginLoader';
-import { PluginState, PluginCategory } from '@/types/plugins';
+} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
+import { usePluginLoader } from "@/hooks/usePluginLoader";
+import { PluginState, PluginCategory } from "@/types/plugins";
 
 // ============================================================
 // 类型定义
@@ -64,26 +76,26 @@ interface PluginManagerProps {
   onUninstall?: (pluginId: string) => void;
 }
 
-type ViewMode = 'installed' | 'marketplace' | 'recommended';
-type SortBy = 'name' | 'status' | 'date' | 'category';
+type ViewMode = "installed" | "marketplace" | "recommended";
+type SortBy = "name" | "status" | "date" | "category";
 
 // ============================================================
 // 分类信息
 // ============================================================
 
 const CATEGORY_INFO: Record<PluginCategory, { label: string; icon: string }> = {
-  ai: { label: 'AI 增强', icon: '🤖' },
-  editor: { label: '编辑器', icon: '✏️' },
-  language: { label: '语言支持', icon: '🌐' },
-  theme: { label: '主题', icon: '🎨' },
-  snippet: { label: '代码片段', icon: '📝' },
-  debugger: { label: '调试器', icon: '🐛' },
-  formatter: { label: '格式化', icon: '📐' },
-  linter: { label: '代码检查', icon: '🔍' },
-  testing: { label: '测试', icon: '🧪' },
-  productivity: { label: '效率工具', icon: '⚡' },
-  git: { label: 'Git 工具', icon: '📦' },
-  other: { label: '其他', icon: '📁' },
+  ai: { label: "AI 增强", icon: "🤖" },
+  editor: { label: "编辑器", icon: "✏️" },
+  language: { label: "语言支持", icon: "🌐" },
+  theme: { label: "主题", icon: "🎨" },
+  snippet: { label: "代码片段", icon: "📝" },
+  debugger: { label: "调试器", icon: "🐛" },
+  formatter: { label: "格式化", icon: "📐" },
+  linter: { label: "代码检查", icon: "🔍" },
+  testing: { label: "测试", icon: "🧪" },
+  productivity: { label: "效率工具", icon: "⚡" },
+  git: { label: "Git 工具", icon: "📦" },
+  other: { label: "其他", icon: "📁" },
 };
 
 // ============================================================
@@ -109,18 +121,18 @@ export function PluginManager({
   const pluginLoader = usePluginLoader({
     workspacePath,
     onPluginActivated: (plugin) => {
-      logger.debug('PluginManager', '[PluginManager] Plugin activated:', plugin.id);
+      logger.debug("PluginManager", "[PluginManager] Plugin activated:", plugin.id);
     },
     onPluginError: (plugin, error) => {
-      logger.error('PluginManager', '[PluginManager] Plugin error:', plugin.id, error);
+      logger.error("PluginManager", "[PluginManager] Plugin error:", plugin.id, error);
     },
   });
 
   // UI 状态
-  const [viewMode, setViewMode] = useState<ViewMode>('installed');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<SortBy>('name');
-  const [selectedCategory, setSelectedCategory] = useState<PluginCategory | 'all'>('all');
+  const [viewMode, setViewMode] = useState<ViewMode>("installed");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<SortBy>("name");
+  const [selectedCategory, setSelectedCategory] = useState<PluginCategory | "all">("all");
   const [selectedPlugin, setSelectedPlugin] = useState<PluginState | null>(null);
   const [showDetails, setShowDetails] = useState(false);
   const [showUninstallConfirm, setShowUninstallConfirm] = useState(false);
@@ -148,24 +160,22 @@ export function PluginManager({
     }
 
     // 分类过滤
-    if (selectedCategory !== 'all') {
-      result = result.filter((p) =>
-        p.manifest.categories.includes(selectedCategory)
-      );
+    if (selectedCategory !== "all") {
+      result = result.filter((p) => p.manifest.categories.includes(selectedCategory));
     }
 
     // 排序
     result.sort((a, b) => {
       switch (sortBy) {
-        case 'name':
+        case "name":
           return a.manifest.name.localeCompare(b.manifest.name);
-        case 'status':
+        case "status":
           if (a.activated !== b.activated) return a.activated ? -1 : 1;
           if (a.enabled !== b.enabled) return a.enabled ? -1 : 1;
           return 0;
-        case 'category':
-          return a.manifest.categories[0]?.localeCompare(b.manifest.categories[0] || '') || 0;
-        case 'date':
+        case "category":
+          return a.manifest.categories[0]?.localeCompare(b.manifest.categories[0] || "") || 0;
+        case "date":
           return (b.loadTime || 0) - (a.loadTime || 0);
         default:
           return 0;
@@ -209,11 +219,13 @@ export function PluginManager({
       }
     } else {
       // 本地示例数据模式，直接更新本地状态
-      setLocalPlugins(prev => prev.map(p =>
-        p.id === plugin.id
-          ? { ...p, enabled: newEnabled, activated: newEnabled ? p.activated : false }
-          : p
-      ));
+      setLocalPlugins((prev) =>
+        prev.map((p) =>
+          p.id === plugin.id
+            ? { ...p, enabled: newEnabled, activated: newEnabled ? p.activated : false }
+            : p
+        )
+      );
     }
   };
 
@@ -230,11 +242,9 @@ export function PluginManager({
       }
     } else {
       // 本地示例数据模式，直接更新本地状态
-      setLocalPlugins(prev => prev.map(p =>
-        p.id === plugin.id
-          ? { ...p, activated: newActivated }
-          : p
-      ));
+      setLocalPlugins((prev) =>
+        prev.map((p) => (p.id === plugin.id ? { ...p, activated: newActivated } : p))
+      );
     }
   };
 
@@ -313,18 +323,14 @@ export function PluginManager({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <h4 className="font-medium truncate">{plugin.manifest.name}</h4>
-              <span className="text-xs text-muted-foreground">
-                v{plugin.manifest.version}
-              </span>
+              <span className="text-xs text-muted-foreground">v{plugin.manifest.version}</span>
               {renderStatusBadge(plugin)}
             </div>
             <p className="text-sm text-muted-foreground truncate mt-0.5">
               {plugin.manifest.description}
             </p>
             <div className="flex items-center gap-2 mt-1">
-              <span className="text-xs text-muted-foreground">
-                {plugin.manifest.publisher}
-              </span>
+              <span className="text-xs text-muted-foreground">{plugin.manifest.publisher}</span>
               {plugin.manifest.categories.map((cat) => (
                 <Badge key={cat} variant="outline" className="text-xs h-5">
                   {CATEGORY_INFO[cat]?.icon} {CATEGORY_INFO[cat]?.label}
@@ -342,15 +348,19 @@ export function PluginManager({
                     <Switch
                       checked={plugin.enabled}
                       onCheckedChange={(checked) => {
-                        logger.debug('PluginManager', '[PluginManager] Toggle plugin:', plugin.id, 'to', checked);
+                        logger.debug(
+                          "PluginManager",
+                          "[PluginManager] Toggle plugin:",
+                          plugin.id,
+                          "to",
+                          checked
+                        );
                         handleToggleEnabled(plugin);
                       }}
                     />
                   </div>
                 </TooltipTrigger>
-                <TooltipContent>
-                  {plugin.enabled ? '禁用插件' : '启用插件'}
-                </TooltipContent>
+                <TooltipContent>{plugin.enabled ? "禁用插件" : "启用插件"}</TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </div>
@@ -361,15 +371,13 @@ export function PluginManager({
           {isExpanded && (
             <motion.div
               initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
+              animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               className="border-t"
             >
               <div className="p-3 space-y-3 bg-muted/30">
                 {/* 详细描述 */}
-                <p className="text-sm text-muted-foreground">
-                  {plugin.manifest.description}
-                </p>
+                <p className="text-sm text-muted-foreground">{plugin.manifest.description}</p>
 
                 {/* 错误信息 */}
                 {plugin.error && (
@@ -416,11 +424,7 @@ export function PluginManager({
                     )}
                   </Button>
 
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleReload(plugin)}
-                  >
+                  <Button variant="outline" size="sm" onClick={() => handleReload(plugin)}>
                     <RefreshCw className="h-4 w-4 mr-1" />
                     重新加载
                   </Button>
@@ -487,7 +491,7 @@ export function PluginManager({
   };
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn("space-y-4", className)}>
       {/* 头部 */}
       <div className="flex items-center justify-between">
         <div>
@@ -495,9 +499,7 @@ export function PluginManager({
           <p className="text-sm text-muted-foreground">
             已安装 {stats.total} 个插件，{stats.activated} 个已激活
             {stats.errors > 0 && (
-              <span className="text-destructive ml-2">
-                {stats.errors} 个错误
-              </span>
+              <span className="text-destructive ml-2">{stats.errors} 个错误</span>
             )}
           </p>
         </div>
@@ -519,7 +521,7 @@ export function PluginManager({
             <FolderOpen className="h-4 w-4 mr-1" />
             打开插件目录
           </Button>
-          <Button variant="default" size="sm" onClick={() => setViewMode('marketplace')}>
+          <Button variant="default" size="sm" onClick={() => setViewMode("marketplace")}>
             <Download className="h-4 w-4 mr-1" />
             安装插件
           </Button>
@@ -549,7 +551,7 @@ export function PluginManager({
 
             <Select
               value={selectedCategory}
-              onValueChange={(v) => setSelectedCategory(v as PluginCategory | 'all')}
+              onValueChange={(v) => setSelectedCategory(v as PluginCategory | "all")}
             >
               <SelectTrigger className="w-32">
                 <SelectValue placeholder="分类" />
@@ -584,21 +586,15 @@ export function PluginManager({
             <Card className="p-8 text-center">
               <Package className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
               <p className="text-muted-foreground">
-                {searchQuery ? '未找到匹配的插件' : '暂无已安装的插件'}
+                {searchQuery ? "未找到匹配的插件" : "暂无已安装的插件"}
               </p>
-              <Button
-                variant="outline"
-                className="mt-4"
-                onClick={() => setViewMode('marketplace')}
-              >
+              <Button variant="outline" className="mt-4" onClick={() => setViewMode("marketplace")}>
                 浏览插件市场
               </Button>
             </Card>
           ) : (
             <ScrollArea className="h-[500px]">
-              <div className="space-y-2 pr-4">
-                {filteredPlugins.map(renderPluginCard)}
-              </div>
+              <div className="space-y-2 pr-4">{filteredPlugins.map(renderPluginCard)}</div>
             </ScrollArea>
           )}
         </TabsContent>
@@ -607,12 +603,8 @@ export function PluginManager({
         <TabsContent value="marketplace" className="mt-4">
           <Card className="p-8 text-center">
             <Download className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">
-              插件市场正在建设中...
-            </p>
-            <p className="text-sm text-muted-foreground mt-2">
-              您可以通过文件方式安装本地插件
-            </p>
+            <p className="text-muted-foreground">插件市场正在建设中...</p>
+            <p className="text-sm text-muted-foreground mt-2">您可以通过文件方式安装本地插件</p>
             <Button variant="outline" className="mt-4">
               <FolderOpen className="h-4 w-4 mr-1" />
               从文件安装
@@ -624,9 +616,7 @@ export function PluginManager({
         <TabsContent value="recommended" className="mt-4">
           <Card className="p-8 text-center">
             <Package className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">
-              推荐插件功能即将上线...
-            </p>
+            <p className="text-muted-foreground">推荐插件功能即将上线...</p>
           </Card>
         </TabsContent>
       </Tabs>
@@ -718,15 +708,11 @@ export function PluginManager({
           <DialogHeader>
             <DialogTitle>确认卸载</DialogTitle>
             <DialogDescription>
-              您确定要卸载插件 "{selectedPlugin?.manifest.name}" 吗？
-              此操作不可撤销。
+              您确定要卸载插件 "{selectedPlugin?.manifest.name}" 吗？ 此操作不可撤销。
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowUninstallConfirm(false)}
-            >
+            <Button variant="outline" onClick={() => setShowUninstallConfirm(false)}>
               取消
             </Button>
             <Button

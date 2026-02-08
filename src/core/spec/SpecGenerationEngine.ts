@@ -9,11 +9,11 @@
  * 灵感来源：Spec-Driven 架构实践
  */
 
-import { logger } from '@/lib/logger';
-import type { RealAPIClient } from '../api/RealAPIClient';
+import { logger } from "@/lib/logger";
+import type { RealAPIClient } from "../api/RealAPIClient";
 
 // 规范类型
-export type SpecType = 'feature' | 'bugfix' | 'refactor' | 'architecture' | 'deployment';
+export type SpecType = "feature" | "bugfix" | "refactor" | "architecture" | "deployment";
 
 // 技术规范结构
 export interface TechnicalSpec {
@@ -80,7 +80,7 @@ export interface TechnicalSpec {
 // 组件规范
 export interface ComponentSpec {
   name: string;
-  type: 'frontend' | 'backend' | 'database' | 'service' | 'library';
+  type: "frontend" | "backend" | "database" | "service" | "library";
   description: string;
   responsibilities: string[];
   interfaces?: InterfaceSpec[];
@@ -100,12 +100,12 @@ export interface DependencySpec {
   name: string;
   version?: string;
   purpose: string;
-  type: 'runtime' | 'dev' | 'peer';
+  type: "runtime" | "dev" | "peer";
 }
 
 // API 端点规范
 export interface APIEndpointSpec {
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+  method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
   path: string;
   description: string;
   parameters?: ParameterSpec[];
@@ -148,7 +148,7 @@ export interface ResponseSpec {
 
 // 认证规范
 export interface AuthSpec {
-  type: 'jwt' | 'oauth' | 'api-key' | 'session';
+  type: "jwt" | "oauth" | "api-key" | "session";
   description: string;
 }
 
@@ -180,7 +180,7 @@ export interface TaskSpec {
   id: string;
   title: string;
   description: string;
-  assignedTo?: 'frontend' | 'backend' | 'testing' | 'devops' | 'docs';
+  assignedTo?: "frontend" | "backend" | "testing" | "devops" | "docs";
   estimatedHours?: number;
   dependencies?: string[];
 }
@@ -188,7 +188,7 @@ export interface TaskSpec {
 // 风险规范
 export interface RiskSpec {
   description: string;
-  severity: 'low' | 'medium' | 'high' | 'critical';
+  severity: "low" | "medium" | "high" | "critical";
   mitigation: string;
 }
 
@@ -196,7 +196,7 @@ export interface RiskSpec {
 export interface TestSpec {
   name: string;
   description: string;
-  type: 'unit' | 'integration' | 'e2e' | 'performance';
+  type: "unit" | "integration" | "e2e" | "performance";
   target: string;
   assertions: string[];
 }
@@ -204,7 +204,7 @@ export interface TestSpec {
 // 环境规范
 export interface EnvironmentSpec {
   name: string;
-  type: 'development' | 'staging' | 'production';
+  type: "development" | "staging" | "production";
   configuration: Record<string, unknown>;
 }
 
@@ -221,8 +221,8 @@ export interface SpecGenerationOptions {
   includeAPI?: boolean;
   includeTesting?: boolean;
   includeDeployment?: boolean;
-  detailLevel?: 'brief' | 'standard' | 'detailed';
-  outputFormat?: 'json' | 'yaml' | 'markdown';
+  detailLevel?: "brief" | "standard" | "detailed";
+  outputFormat?: "json" | "yaml" | "markdown";
 }
 
 /**
@@ -232,7 +232,7 @@ export class SpecGenerationEngine {
   private apiClient: RealAPIClient;
   private model: string;
 
-  constructor(apiClient: RealAPIClient, model: string = 'claude-opus-4-5-20250514') {
+  constructor(apiClient: RealAPIClient, model: string = "claude-opus-4-5-20250514") {
     this.apiClient = apiClient;
     this.model = model;
   }
@@ -250,7 +250,7 @@ export class SpecGenerationEngine {
       includeAPI = true,
       includeTesting = true,
       includeDeployment = true,
-      detailLevel = 'standard',
+      detailLevel = "standard",
     } = options;
 
     // 构建提示词
@@ -268,11 +268,11 @@ export class SpecGenerationEngine {
     const response = await this.apiClient.chat({
       messages: [
         {
-          role: 'system',
+          role: "system",
           content: this.getSystemPrompt(),
         },
         {
-          role: 'user',
+          role: "user",
           content: prompt,
         },
       ],
@@ -370,7 +370,7 @@ Output Format:
       // 如果没有找到 JSON，返回基本规范
       return this.createFallbackSpec(text, type);
     } catch (error) {
-      logger.error('SpecGenerationEngine', 'Failed to parse spec:', error);
+      logger.error("SpecGenerationEngine", "Failed to parse spec:", error);
       return this.createFallbackSpec(text, type);
     }
   }
@@ -384,21 +384,21 @@ Output Format:
     return {
       metadata: {
         id: parsed.metadata?.id || `spec-${Date.now()}`,
-        title: parsed.metadata?.title || 'Untitled Specification',
+        title: parsed.metadata?.title || "Untitled Specification",
         type: parsed.metadata?.type || type,
         createdAt: parsed.metadata?.createdAt || now,
-        version: parsed.metadata?.version || '1.0.0',
+        version: parsed.metadata?.version || "1.0.0",
         author: parsed.metadata?.author,
       },
       requirements: {
-        summary: parsed.requirements?.summary || '',
-        description: parsed.requirements?.description || '',
+        summary: parsed.requirements?.summary || "",
+        description: parsed.requirements?.description || "",
         userStories: parsed.requirements?.userStories || [],
         acceptanceCriteria: parsed.requirements?.acceptanceCriteria || [],
         constraints: parsed.requirements?.constraints,
       },
       architecture: {
-        overview: parsed.architecture?.overview || '',
+        overview: parsed.architecture?.overview || "",
         components: parsed.architecture?.components || [],
         dataFlow: parsed.architecture?.dataFlow || [],
         dependencies: parsed.architecture?.dependencies || [],
@@ -411,7 +411,7 @@ Output Format:
         risks: parsed.implementation?.risks,
       },
       testing: {
-        strategy: parsed.testing?.strategy || '',
+        strategy: parsed.testing?.strategy || "",
         unitTests: parsed.testing?.unitTests || [],
         integrationTests: parsed.testing?.integrationTests || [],
         e2eTests: parsed.testing?.e2eTests,
@@ -430,10 +430,10 @@ Output Format:
     return {
       metadata: {
         id: `spec-${Date.now()}`,
-        title: 'Generated Specification',
+        title: "Generated Specification",
         type,
         createdAt: now,
-        version: '1.0.0',
+        version: "1.0.0",
       },
       requirements: {
         summary: text.substring(0, 200),
@@ -441,7 +441,7 @@ Output Format:
         acceptanceCriteria: [],
       },
       architecture: {
-        overview: 'Architecture details to be defined',
+        overview: "Architecture details to be defined",
         components: [],
         dataFlow: [],
         dependencies: [],
@@ -450,7 +450,7 @@ Output Format:
         phases: [],
       },
       testing: {
-        strategy: 'Testing strategy to be defined',
+        strategy: "Testing strategy to be defined",
         unitTests: [],
         integrationTests: [],
       },
@@ -460,15 +460,15 @@ Output Format:
   /**
    * 将规范导出为不同格式
    */
-  async exportSpec(spec: TechnicalSpec, format: 'json' | 'yaml' | 'markdown'): Promise<string> {
+  async exportSpec(spec: TechnicalSpec, format: "json" | "yaml" | "markdown"): Promise<string> {
     switch (format) {
-      case 'json':
+      case "json":
         return JSON.stringify(spec, null, 2);
 
-      case 'yaml':
+      case "yaml":
         return this.convertToYAML(spec);
 
-      case 'markdown':
+      case "markdown":
         return this.convertToMarkdown(spec);
 
       default:
@@ -482,10 +482,10 @@ Output Format:
   private convertToYAML(spec: TechnicalSpec): string {
     // 简单的 YAML 转换（生产环境应使用 yaml 库）
     return JSON.stringify(spec, null, 2)
-      .replace(/"/g, '')
-      .replace(/,$/gm, '')
-      .replace(/\{/g, '')
-      .replace(/\}/g, '');
+      .replace(/"/g, "")
+      .replace(/,$/gm, "")
+      .replace(/\{/g, "")
+      .replace(/\}/g, "");
   }
 
   /**
@@ -503,7 +503,7 @@ Output Format:
 
     if (spec.requirements.acceptanceCriteria.length > 0) {
       md += `### Acceptance Criteria\n`;
-      spec.requirements.acceptanceCriteria.forEach(criteria => {
+      spec.requirements.acceptanceCriteria.forEach((criteria) => {
         md += `- ${criteria}\n`;
       });
       md += `\n`;
@@ -514,7 +514,7 @@ Output Format:
 
     if (spec.architecture.components.length > 0) {
       md += `### Components\n`;
-      spec.architecture.components.forEach(comp => {
+      spec.architecture.components.forEach((comp) => {
         md += `#### ${comp.name} (${comp.type})\n`;
         md += `${comp.description}\n\n`;
       });
@@ -522,12 +522,12 @@ Output Format:
 
     if (spec.implementation.phases.length > 0) {
       md += `## Implementation Plan\n\n`;
-      spec.implementation.phases.forEach(phase => {
+      spec.implementation.phases.forEach((phase) => {
         md += `### Phase ${phase.phase}: ${phase.name}\n`;
         md += `${phase.description}\n\n`;
         if (phase.tasks.length > 0) {
           md += `**Tasks:**\n`;
-          phase.tasks.forEach(task => {
+          phase.tasks.forEach((task) => {
             md += `- ${task.title}: ${task.description}\n`;
           });
           md += `\n`;
@@ -544,10 +544,7 @@ Output Format:
   /**
    * 更新现有规范
    */
-  async updateSpec(
-    existingSpec: TechnicalSpec,
-    updates: string
-  ): Promise<TechnicalSpec> {
+  async updateSpec(existingSpec: TechnicalSpec, updates: string): Promise<TechnicalSpec> {
     let prompt = `Update the following technical specification based on these changes:\n\n`;
     prompt += `Current Spec:\n${JSON.stringify(existingSpec, null, 2)}\n\n`;
     prompt += `Requested Updates:\n${updates}\n\n`;
@@ -556,11 +553,11 @@ Output Format:
     const response = await this.apiClient.chat({
       messages: [
         {
-          role: 'system',
+          role: "system",
           content: this.getSystemPrompt(),
         },
         {
-          role: 'user',
+          role: "user",
           content: prompt,
         },
       ],

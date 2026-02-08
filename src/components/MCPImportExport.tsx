@@ -1,6 +1,6 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import React, { useState } from "react";
-import { Download, Upload, FileText, Loader2, Info, Settings2 } from 'lucide-react';
+import { Download, Upload, FileText, Loader2, Info, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -21,10 +21,7 @@ interface MCPImportExportProps {
 /**
  * Component for importing and exporting MCP server configurations
  */
-export const MCPImportExport: React.FC<MCPImportExportProps> = ({
-  onImportCompleted,
-  onError,
-}) => {
+export const MCPImportExport: React.FC<MCPImportExportProps> = ({ onImportCompleted, onError }) => {
   const [importingJson, setImportingJson] = useState(false);
   const [importingText, setImportingText] = useState(false);
   const [textInput, setTextInput] = useState("");
@@ -44,7 +41,7 @@ export const MCPImportExport: React.FC<MCPImportExportProps> = ({
 
     try {
       setImportingText(true);
-      
+
       // Parse the JSON to validate it
       let jsonData;
       try {
@@ -68,7 +65,7 @@ export const MCPImportExport: React.FC<MCPImportExportProps> = ({
             await api.mcpUpsertServer(id, id, serverSpec, importApps);
             imported++;
           } catch (e) {
-            logger.error('MCPImportExport', `Failed to import server ${id}:`, e);
+            logger.error("MCPImportExport", `Failed to import server ${id}:`, e);
             failed++;
           }
         }
@@ -89,11 +86,11 @@ export const MCPImportExport: React.FC<MCPImportExportProps> = ({
       } else {
         onError("无法识别的 JSON 格式。需要 MCP 服务器配置格式。");
       }
-      
+
       // Clear text input on successful import
       setTextInput("");
     } catch (error) {
-      logger.error('MCPImportExport', "Failed to import from text:", error);
+      logger.error("MCPImportExport", "Failed to import from text:", error);
       onError("导入文本失败");
     } finally {
       setImportingText(false);
@@ -110,7 +107,7 @@ export const MCPImportExport: React.FC<MCPImportExportProps> = ({
     try {
       setImportingJson(true);
       const content = await file.text();
-      
+
       // Parse the JSON to validate it
       let jsonData;
       try {
@@ -132,7 +129,7 @@ export const MCPImportExport: React.FC<MCPImportExportProps> = ({
             await api.mcpUpsertServer(id, id, serverSpec, importApps);
             imported++;
           } catch (e) {
-            logger.error('MCPImportExport', `Failed to import server ${id}:`, e);
+            logger.error("MCPImportExport", `Failed to import server ${id}:`, e);
             failed++;
           }
         }
@@ -154,7 +151,7 @@ export const MCPImportExport: React.FC<MCPImportExportProps> = ({
         onError("无法识别的 JSON 格式。需要 MCP 服务器配置格式。");
       }
     } catch (error) {
-      logger.error('MCPImportExport', "Failed to import JSON:", error);
+      logger.error("MCPImportExport", "Failed to import JSON:", error);
       onError("导入 JSON 文件失败");
     } finally {
       setImportingJson(false);
@@ -170,29 +167,28 @@ export const MCPImportExport: React.FC<MCPImportExportProps> = ({
     try {
       // Get the configuration from .claude.json
       const exportData = await api.mcpExportConfig();
-      
+
       // Create a blob and download it
-      const blob = new Blob([exportData], { type: 'application/json' });
+      const blob = new Blob([exportData], { type: "application/json" });
       const url = URL.createObjectURL(blob);
-      
+
       // Create download link
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.download = `mcp-servers-config-${new Date().toISOString().split('T')[0]}.json`;
+      link.download = `mcp-servers-config-${new Date().toISOString().split("T")[0]}.json`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
+
       // Clean up
       URL.revokeObjectURL(url);
-      
+
       onError("✅ MCP服务器配置导出成功！文件已保存到下载文件夹。");
     } catch (error: any) {
-      logger.error('MCPImportExport', "Failed to export MCP configuration:", error);
+      logger.error("MCPImportExport", "Failed to export MCP configuration:", error);
       onError(`导出MCP配置失败: ${error.toString()}`);
     }
   };
-
 
   return (
     <div className="p-6 space-y-6">
@@ -298,9 +294,7 @@ export const MCPImportExport: React.FC<MCPImportExportProps> = ({
               </div>
               <div className="flex-1">
                 <h4 className="text-sm font-medium">从 JSON 导入</h4>
-                <p className="text-xs text-muted-foreground mt-1">
-                  从 JSON 文件导入服务器配置
-                </p>
+                <p className="text-xs text-muted-foreground mt-1">从 JSON 文件导入服务器配置</p>
               </div>
             </div>
             <div>
@@ -348,17 +342,12 @@ export const MCPImportExport: React.FC<MCPImportExportProps> = ({
                 </p>
               </div>
             </div>
-            <Button
-              onClick={handleExport}
-              variant="outline"
-              className="w-full gap-2"
-            >
+            <Button onClick={handleExport} variant="outline" className="w-full gap-2">
               <Upload className="h-4 w-4" />
               导出配置
             </Button>
           </div>
         </Card>
-
       </div>
 
       {/* Format Examples */}
@@ -368,17 +357,19 @@ export const MCPImportExport: React.FC<MCPImportExportProps> = ({
             <Info className="h-5 w-5 text-primary" />
             <span>支持的 JSON 格式</span>
           </div>
-          
+
           <div className="grid gap-6">
             {/* Claude Desktop Format */}
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                 <h4 className="font-semibold text-sm">Claude Desktop 格式</h4>
-                <Badge variant="secondary" className="text-xs">推荐</Badge>
+                <Badge variant="secondary" className="text-xs">
+                  推荐
+                </Badge>
               </div>
               <pre className="bg-background p-4 rounded-lg overflow-x-auto text-xs border">
-{`{
+                {`{
   "mcpServers": {
     "filesystem": {
       "command": "cmd",
@@ -401,7 +392,7 @@ export const MCPImportExport: React.FC<MCPImportExportProps> = ({
 }`}
               </pre>
             </div>
-            
+
             {/* Single Server Format */}
             <div>
               <div className="flex items-center gap-2 mb-3">
@@ -409,7 +400,7 @@ export const MCPImportExport: React.FC<MCPImportExportProps> = ({
                 <h4 className="font-semibold text-sm">单个服务器格式</h4>
               </div>
               <pre className="bg-background p-4 rounded-lg overflow-x-auto text-xs border">
-{`{
+                {`{
   "type": "stdio",
   "command": "cmd",
   "args": ["/c", "npx", "-y", "mcp-server-git", "--repository", "C:\\\\path\\\\to\\\\repo"],
@@ -420,18 +411,30 @@ export const MCPImportExport: React.FC<MCPImportExportProps> = ({
               </pre>
             </div>
           </div>
-          
+
           <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg border-l-4 border-blue-500">
             <div className="flex items-start gap-3">
               <Info className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
               <div className="space-y-2 text-sm">
                 <p className="font-medium text-blue-700 dark:text-blue-300">使用提示：</p>
                 <ul className="space-y-1 text-blue-600 dark:text-blue-400 text-xs">
-                  <li>• <strong>Claude Desktop 格式</strong>：支持批量导入多个服务器</li>
-                  <li>• <strong>单个服务器格式</strong>：导入时需要手动输入服务器名称</li>
-                  <li>• <strong>Windows 系统</strong>：npx 需要通过 <code>cmd /c</code> 调用，uvx 可直接调用</li>
-                  <li>• <strong>路径格式</strong>：Windows 路径需要使用双反斜杠转义（如 <code>C:\\\\path</code>）</li>
-                  <li>• <strong>环境变量</strong>：可选，用于配置 API 密钥等敏感信息</li>
+                  <li>
+                    • <strong>Claude Desktop 格式</strong>：支持批量导入多个服务器
+                  </li>
+                  <li>
+                    • <strong>单个服务器格式</strong>：导入时需要手动输入服务器名称
+                  </li>
+                  <li>
+                    • <strong>Windows 系统</strong>：npx 需要通过 <code>cmd /c</code> 调用，uvx
+                    可直接调用
+                  </li>
+                  <li>
+                    • <strong>路径格式</strong>：Windows 路径需要使用双反斜杠转义（如{" "}
+                    <code>C:\\\\path</code>）
+                  </li>
+                  <li>
+                    • <strong>环境变量</strong>：可选，用于配置 API 密钥等敏感信息
+                  </li>
                 </ul>
               </div>
             </div>
@@ -440,4 +443,4 @@ export const MCPImportExport: React.FC<MCPImportExportProps> = ({
       </Card>
     </div>
   );
-}; 
+};

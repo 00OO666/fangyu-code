@@ -7,8 +7,8 @@
  * _Requirements: 6.3_
  */
 
-import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
-import type { ValidationStatus, ValidationMessage } from '@/components/common/ValidationFeedback';
+import { useState, useCallback, useRef, useEffect, useMemo } from "react";
+import type { ValidationStatus, ValidationMessage } from "@/components/common/ValidationFeedback";
 
 // =============================================================================
 // 类型定义
@@ -51,7 +51,7 @@ export interface UseValidationOptions<T = string> {
   /** 是否在值变化时自动验证 */
   validateOnChange?: boolean;
   /** 验证模式：first-error 只显示第一个错误，all 显示所有错误 */
-  mode?: 'first-error' | 'all';
+  mode?: "first-error" | "all";
   /** 初始值 */
   initialValue?: T;
 }
@@ -86,7 +86,7 @@ export interface UseValidationReturn<T = string> {
 
 const initialResult: ValidationResult = {
   isValid: true,
-  status: 'idle',
+  status: "idle",
   message: undefined,
   messages: [],
   failedRules: [],
@@ -104,8 +104,8 @@ export function useValidation<T = string>(
     debounceMs = 300,
     validateOnMount = false,
     validateOnChange = true,
-    mode = 'first-error',
-    initialValue = '' as unknown as T,
+    mode = "first-error",
+    initialValue = "" as unknown as T,
   } = options;
 
   const [value, setValueState] = useState<T>(initialValue);
@@ -132,7 +132,7 @@ export function useValidation<T = string>(
     async (valueToValidate: T): Promise<ValidationResult> => {
       const validationId = ++validationIdRef.current;
       setIsValidating(true);
-      setResult((prev) => ({ ...prev, status: 'validating' }));
+      setResult((prev) => ({ ...prev, status: "validating" }));
 
       const messages: ValidationMessage[] = [];
       const failedRules: string[] = [];
@@ -147,7 +147,7 @@ export function useValidation<T = string>(
           const isValid = await Promise.resolve(rule.validate(valueToValidate));
 
           if (!isValid) {
-            const status = rule.status ?? 'error';
+            const status = rule.status ?? "error";
             messages.push({
               message: rule.message,
               status,
@@ -155,7 +155,7 @@ export function useValidation<T = string>(
             failedRules.push(rule.name);
 
             // first-error 模式下，遇到第一个错误就停止
-            if (mode === 'first-error') {
+            if (mode === "first-error") {
               break;
             }
           }
@@ -166,12 +166,18 @@ export function useValidation<T = string>(
           return result;
         }
 
-        const hasErrors = messages.some((m) => m.status === 'error');
-        const hasWarnings = messages.some((m) => m.status === 'warning');
+        const hasErrors = messages.some((m) => m.status === "error");
+        const hasWarnings = messages.some((m) => m.status === "warning");
 
         const newResult: ValidationResult = {
           isValid: !hasErrors,
-          status: hasErrors ? 'error' : hasWarnings ? 'warning' : messages.length > 0 ? 'info' : 'success',
+          status: hasErrors
+            ? "error"
+            : hasWarnings
+              ? "warning"
+              : messages.length > 0
+                ? "info"
+                : "success",
           message: messages[0]?.message,
           messages,
           failedRules,
@@ -224,22 +230,19 @@ export function useValidation<T = string>(
   }, [runValidation, value]);
 
   // 重置
-  const reset = useCallback(
-    (newValue?: T) => {
-      const resetValue = newValue ?? initialValueRef.current;
-      setValueState(resetValue);
-      setResult(initialResult);
-      setIsValidating(false);
-      setIsTouched(false);
-      setIsDirty(false);
-      validationIdRef.current++;
+  const reset = useCallback((newValue?: T) => {
+    const resetValue = newValue ?? initialValueRef.current;
+    setValueState(resetValue);
+    setResult(initialResult);
+    setIsValidating(false);
+    setIsTouched(false);
+    setIsDirty(false);
+    validationIdRef.current++;
 
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
-      }
-    },
-    []
-  );
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+  }, []);
 
   // 标记为已触摸
   const touch = useCallback(() => {
@@ -278,7 +281,18 @@ export function useValidation<T = string>(
       touch,
       clearValidation,
     }),
-    [value, setValue, result, isValidating, isTouched, isDirty, validate, reset, touch, clearValidation]
+    [
+      value,
+      setValue,
+      result,
+      isValidating,
+      isTouched,
+      isDirty,
+      validate,
+      reset,
+      touch,
+      clearValidation,
+    ]
   );
 }
 
@@ -288,43 +302,43 @@ export function useValidation<T = string>(
 
 export const ValidationRules = {
   /** 必填 */
-  required: (message = '此字段为必填项'): ValidationRule => ({
-    name: 'required',
-    validate: (value) => value !== undefined && value !== null && value.toString().trim() !== '',
+  required: (message = "此字段为必填项"): ValidationRule => ({
+    name: "required",
+    validate: (value) => value !== undefined && value !== null && value.toString().trim() !== "",
     message,
   }),
 
   /** 最小长度 */
   minLength: (min: number, message?: string): ValidationRule => ({
-    name: 'minLength',
+    name: "minLength",
     validate: (value) => value.toString().length >= min,
     message: message ?? `最少需要 ${min} 个字符`,
   }),
 
   /** 最大长度 */
   maxLength: (max: number, message?: string): ValidationRule => ({
-    name: 'maxLength',
+    name: "maxLength",
     validate: (value) => value.toString().length <= max,
     message: message ?? `最多允许 ${max} 个字符`,
   }),
 
   /** 正则匹配 */
   pattern: (regex: RegExp, message: string): ValidationRule => ({
-    name: 'pattern',
+    name: "pattern",
     validate: (value) => regex.test(value.toString()),
     message,
   }),
 
   /** 邮箱格式 */
-  email: (message = '请输入有效的邮箱地址'): ValidationRule => ({
-    name: 'email',
+  email: (message = "请输入有效的邮箱地址"): ValidationRule => ({
+    name: "email",
     validate: (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.toString()),
     message,
   }),
 
   /** URL 格式 */
-  url: (message = '请输入有效的 URL'): ValidationRule => ({
-    name: 'url',
+  url: (message = "请输入有效的 URL"): ValidationRule => ({
+    name: "url",
     validate: (value) => {
       try {
         new URL(value.toString());
@@ -338,7 +352,7 @@ export const ValidationRules = {
 
   /** 数字范围 */
   range: (min: number, max: number, message?: string): ValidationRule<number> => ({
-    name: 'range',
+    name: "range",
     validate: (value) => value >= min && value <= max,
     message: message ?? `值必须在 ${min} 到 ${max} 之间`,
   }),

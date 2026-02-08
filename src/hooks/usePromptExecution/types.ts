@@ -87,7 +87,7 @@ export interface UsePromptExecutionConfig {
   processMessageWithTranslation: (
     message: ClaudeStreamMessage,
     payload: string,
-    currentTranslationResult?: TranslationResult,
+    currentTranslationResult?: TranslationResult
   ) => Promise<void>;
 }
 
@@ -103,7 +103,7 @@ export interface UsePromptExecutionReturn {
     prompt: string,
     model: ModelType,
     maxThinkingTokens?: number,
-    forceImmediate?: boolean,
+    forceImmediate?: boolean
   ) => Promise<void>;
 }
 

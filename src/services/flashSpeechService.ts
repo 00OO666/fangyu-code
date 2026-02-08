@@ -22,7 +22,7 @@ export class FlashSpeechService {
 
   constructor(config: FlashSpeechConfig) {
     this.config = {
-      baseUrl: 'https://api.flashspeech.com/v1',
+      baseUrl: "https://api.flashspeech.com/v1",
       ...config,
     };
   }
@@ -32,7 +32,7 @@ export class FlashSpeechService {
    */
   async startRecording(): Promise<void> {
     if (this.isRecording) {
-      throw new Error('Already recording');
+      throw new Error("Already recording");
     }
 
     try {
@@ -58,24 +58,24 @@ export class FlashSpeechService {
    */
   async stopRecording(): Promise<string> {
     if (!this.isRecording || !this.mediaRecorder) {
-      throw new Error('Not recording');
+      throw new Error("Not recording");
     }
 
     return new Promise((resolve, reject) => {
       if (!this.mediaRecorder) {
-        reject(new Error('MediaRecorder not initialized'));
+        reject(new Error("MediaRecorder not initialized"));
         return;
       }
 
       this.mediaRecorder.onstop = async () => {
         try {
-          const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
+          const audioBlob = new Blob(this.audioChunks, { type: "audio/webm" });
           const text = await this.recognizeAudio(audioBlob);
           this.isRecording = false;
 
           // 停止所有音频轨道
           if (this.mediaRecorder?.stream) {
-            this.mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            this.mediaRecorder.stream.getTracks().forEach((track) => track.stop());
           }
 
           resolve(text);
@@ -93,14 +93,14 @@ export class FlashSpeechService {
    */
   private async recognizeAudio(audioBlob: Blob): Promise<string> {
     const formData = new FormData();
-    formData.append('audio', audioBlob, 'recording.webm');
-    formData.append('language', 'zh-CN'); // 支持中英文混合
+    formData.append("audio", audioBlob, "recording.webm");
+    formData.append("language", "zh-CN"); // 支持中英文混合
 
     try {
       const response = await fetch(`${this.config.baseUrl}/recognize`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${this.config.apiKey}`,
+          Authorization: `Bearer ${this.config.apiKey}`,
         },
         body: formData,
       });
@@ -110,7 +110,7 @@ export class FlashSpeechService {
       }
 
       const result = await response.json();
-      return result.text || '';
+      return result.text || "";
     } catch (error) {
       throw new Error(`Recognition failed: ${error}`);
     }
@@ -123,7 +123,7 @@ export class FlashSpeechService {
     if (this.mediaRecorder && this.isRecording) {
       this.mediaRecorder.stop();
       if (this.mediaRecorder.stream) {
-        this.mediaRecorder.stream.getTracks().forEach(track => track.stop());
+        this.mediaRecorder.stream.getTracks().forEach((track) => track.stop());
       }
       this.isRecording = false;
       this.audioChunks = [];
@@ -142,10 +142,10 @@ export class FlashSpeechService {
  * 获取闪电说服务实例
  */
 export function getFlashSpeechService(): FlashSpeechService {
-  const apiKey = localStorage.getItem('flashspeech_api_key') || '';
+  const apiKey = localStorage.getItem("flashspeech_api_key") || "";
 
   if (!apiKey) {
-    throw new Error('闪电说 API Key 未配置，请在设置中配置');
+    throw new Error("闪电说 API Key 未配置，请在设置中配置");
   }
 
   return new FlashSpeechService({ apiKey });

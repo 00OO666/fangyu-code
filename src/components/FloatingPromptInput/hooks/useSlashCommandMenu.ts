@@ -5,16 +5,12 @@
  * 支持 Claude 和 Gemini 引擎
  */
 
-import { useState, useCallback, useMemo, useEffect } from 'react';
-import {
-  type SlashCommand,
-  BUILT_IN_SLASH_COMMANDS,
-  filterSlashCommands,
-} from '../slashCommands';
-import { GEMINI_BUILT_IN_SLASH_COMMANDS } from '../geminiSlashCommands';
+import { useState, useCallback, useMemo, useEffect } from "react";
+import { type SlashCommand, BUILT_IN_SLASH_COMMANDS, filterSlashCommands } from "../slashCommands";
+import { GEMINI_BUILT_IN_SLASH_COMMANDS } from "../geminiSlashCommands";
 
 /** 执行引擎类型 */
-type ExecutionEngine = 'claude' | 'gemini' | 'codex';
+type ExecutionEngine = "claude" | "gemini" | "codex";
 
 interface UseSlashCommandMenuOptions {
   /** 当前输入的文本 */
@@ -55,16 +51,16 @@ function detectSlashCommand(text: string): { isSlashCommand: boolean; query: str
   const trimmed = text.trim();
 
   // 必须以 / 开头
-  if (!trimmed.startsWith('/')) {
-    return { isSlashCommand: false, query: '' };
+  if (!trimmed.startsWith("/")) {
+    return { isSlashCommand: false, query: "" };
   }
 
   // 不能包含空格（空格后就是参数了）
   // 但可以在空格前显示菜单
-  const firstSpaceIndex = trimmed.indexOf(' ');
+  const firstSpaceIndex = trimmed.indexOf(" ");
   if (firstSpaceIndex > 0) {
     // 有空格，不显示菜单（用户已经输入了命令）
-    return { isSlashCommand: false, query: '' };
+    return { isSlashCommand: false, query: "" };
   }
 
   // 提取 / 后面的查询
@@ -78,25 +74,25 @@ export function useSlashCommandMenu({
   onCommandSelect,
   customCommands = [],
   disabled = false,
-  engine = 'claude',
+  engine = "claude",
 }: UseSlashCommandMenuOptions): UseSlashCommandMenuReturn {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isManuallyClose, setIsManuallyClose] = useState(false);
 
   // 检测斜杠命令
   const { isSlashCommand, query } = useMemo(() => {
-    if (disabled) return { isSlashCommand: false, query: '' };
+    if (disabled) return { isSlashCommand: false, query: "" };
     return detectSlashCommand(prompt);
   }, [prompt, disabled]);
 
   // 根据引擎选择内置命令列表
   const builtInCommands = useMemo(() => {
     switch (engine) {
-      case 'gemini':
+      case "gemini":
         return GEMINI_BUILT_IN_SLASH_COMMANDS;
-      case 'claude':
+      case "claude":
         return BUILT_IN_SLASH_COMMANDS;
-      case 'codex':
+      case "codex":
         // Codex 暂不支持非交互式斜杠命令
         return [];
       default:
@@ -131,11 +127,14 @@ export function useSlashCommandMenu({
   }, [prompt]);
 
   // 选择命令
-  const selectCommand = useCallback((command: SlashCommand) => {
-    const fullCommand = `/${command.name}`;
-    onCommandSelect?.(fullCommand);
-    setIsManuallyClose(true);
-  }, [onCommandSelect]);
+  const selectCommand = useCallback(
+    (command: SlashCommand) => {
+      const fullCommand = `/${command.name}`;
+      onCommandSelect?.(fullCommand);
+      setIsManuallyClose(true);
+    },
+    [onCommandSelect]
+  );
 
   // 关闭菜单
   const closeMenu = useCallback(() => {
@@ -143,51 +142,50 @@ export function useSlashCommandMenu({
   }, []);
 
   // 处理键盘事件
-  const handleKeyDown = useCallback((e: React.KeyboardEvent): boolean => {
-    if (!isOpen) return false;
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent): boolean => {
+      if (!isOpen) return false;
 
-    switch (e.key) {
-      case 'ArrowUp':
-        e.preventDefault();
-        setSelectedIndex(prev =>
-          prev > 0 ? prev - 1 : filteredCommands.length - 1
-        );
-        return true;
-
-      case 'ArrowDown':
-        e.preventDefault();
-        setSelectedIndex(prev =>
-          prev < filteredCommands.length - 1 ? prev + 1 : 0
-        );
-        return true;
-
-      case 'Enter':
-        // 仅当菜单打开时拦截 Enter
-        if (filteredCommands[selectedIndex]) {
+      switch (e.key) {
+        case "ArrowUp":
           e.preventDefault();
-          selectCommand(filteredCommands[selectedIndex]);
+          setSelectedIndex((prev) => (prev > 0 ? prev - 1 : filteredCommands.length - 1));
           return true;
-        }
-        return false;
 
-      case 'Tab':
-        // Tab 也可以选择
-        if (filteredCommands[selectedIndex]) {
+        case "ArrowDown":
           e.preventDefault();
-          selectCommand(filteredCommands[selectedIndex]);
+          setSelectedIndex((prev) => (prev < filteredCommands.length - 1 ? prev + 1 : 0));
           return true;
-        }
-        return false;
 
-      case 'Escape':
-        e.preventDefault();
-        closeMenu();
-        return true;
+        case "Enter":
+          // 仅当菜单打开时拦截 Enter
+          if (filteredCommands[selectedIndex]) {
+            e.preventDefault();
+            selectCommand(filteredCommands[selectedIndex]);
+            return true;
+          }
+          return false;
 
-      default:
-        return false;
-    }
-  }, [isOpen, filteredCommands, selectedIndex, selectCommand, closeMenu]);
+        case "Tab":
+          // Tab 也可以选择
+          if (filteredCommands[selectedIndex]) {
+            e.preventDefault();
+            selectCommand(filteredCommands[selectedIndex]);
+            return true;
+          }
+          return false;
+
+        case "Escape":
+          e.preventDefault();
+          closeMenu();
+          return true;
+
+        default:
+          return false;
+      }
+    },
+    [isOpen, filteredCommands, selectedIndex, selectCommand, closeMenu]
+  );
 
   return {
     isOpen,

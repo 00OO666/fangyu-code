@@ -1,4 +1,4 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { listen } from "@tauri-apps/api/event";
 import { useEffect } from "react";
 import { useNavigation } from "@/contexts/NavigationContext";
@@ -34,7 +34,7 @@ export const useGlobalEvents = () => {
               : `已切换到会话 ${session.id.slice(-8)}`,
             type: result.isNew ? "success" : "info",
           },
-        }),
+        })
       );
     };
 
@@ -66,7 +66,7 @@ export const useGlobalEvents = () => {
           }
         });
       } catch (err) {
-        logger.error('useGlobalEvents', "Failed to setup claude-complete listener:", err);
+        logger.error("useGlobalEvents", "Failed to setup claude-complete listener:", err);
       }
     };
 
@@ -89,12 +89,12 @@ export const useGlobalEvents = () => {
 
     window.addEventListener(
       "open-prompt-api-settings",
-      handleOpenPromptAPISettings as EventListener,
+      handleOpenPromptAPISettings as EventListener
     );
     return () =>
       window.removeEventListener(
         "open-prompt-api-settings",
-        handleOpenPromptAPISettings as EventListener,
+        handleOpenPromptAPISettings as EventListener
       );
   }, [currentView, navigateTo]);
 };

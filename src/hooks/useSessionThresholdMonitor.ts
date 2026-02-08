@@ -1,4 +1,4 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import { tokenExtractor } from "@/lib/tokenExtractor";
@@ -54,9 +54,7 @@ const WARNING_INTERVAL = 60000;
 /**
  * Hook for monitoring session token usage and triggering summary generation
  */
-export const useSessionThresholdMonitor = (
-  options: UseSessionThresholdMonitorOptions,
-) => {
+export const useSessionThresholdMonitor = (options: UseSessionThresholdMonitorOptions) => {
   const {
     sessionId,
     messages,
@@ -101,29 +99,32 @@ export const useSessionThresholdMonitor = (
   }, []);
 
   // 🔧 备用：字符估算（当没有 usage 数据时使用）
-  const estimateTokenCount = useCallback((msgs: ClaudeStreamMessage[]): number => {
-    // 先尝试使用实际 usage 数据
-    const actualTokens = calculateActualTokenCount(msgs);
-    if (actualTokens > 0) {
-      return actualTokens;
-    }
-
-    // 回退到字符估算（改进版：中文 1 字符 ≈ 2 tokens，英文 1 token ≈ 4 字符）
-    let totalTokens = 0;
-
-    for (const msg of msgs) {
-      if (msg.type === "user" || msg.type === "assistant") {
-        const content = extractTextContent(msg);
-        // 统计中文字符和非中文字符
-        const chineseChars = (content.match(/[\u4e00-\u9fff]/g) || []).length;
-        const otherChars = content.length - chineseChars;
-        // 中文：1 字符 ≈ 2 tokens，其他：4 字符 ≈ 1 token
-        totalTokens += chineseChars * 2 + Math.ceil(otherChars / 4);
+  const estimateTokenCount = useCallback(
+    (msgs: ClaudeStreamMessage[]): number => {
+      // 先尝试使用实际 usage 数据
+      const actualTokens = calculateActualTokenCount(msgs);
+      if (actualTokens > 0) {
+        return actualTokens;
       }
-    }
 
-    return totalTokens;
-  }, [calculateActualTokenCount]);
+      // 回退到字符估算（改进版：中文 1 字符 ≈ 2 tokens，英文 1 token ≈ 4 字符）
+      let totalTokens = 0;
+
+      for (const msg of msgs) {
+        if (msg.type === "user" || msg.type === "assistant") {
+          const content = extractTextContent(msg);
+          // 统计中文字符和非中文字符
+          const chineseChars = (content.match(/[\u4e00-\u9fff]/g) || []).length;
+          const otherChars = content.length - chineseChars;
+          // 中文：1 字符 ≈ 2 tokens，其他：4 字符 ≈ 1 token
+          totalTokens += chineseChars * 2 + Math.ceil(otherChars / 4);
+        }
+      }
+
+      return totalTokens;
+    },
+    [calculateActualTokenCount]
+  );
 
   // 提取消息文本内容
   const extractTextContent = (msg: ClaudeStreamMessage): string => {
@@ -209,7 +210,11 @@ ${conversationText}`;
           apiKey = providerConfig.anthropic_api_key || providerConfig.anthropic_auth_token;
           apiBase = providerConfig.anthropic_base_url;
         } catch (e) {
-          logger.warn('useSessionThresholdMonitor', "[useSessionThresholdMonitor] Failed to get provider config, using defaults:", e);
+          logger.warn(
+            "useSessionThresholdMonitor",
+            "[useSessionThresholdMonitor] Failed to get provider config, using defaults:",
+            e
+          );
         }
 
         const summary = await api.generateTextWithLLM(summaryPrompt, "haiku", apiKey, apiBase);
@@ -231,12 +236,17 @@ ${conversationText}`;
             timestamp: new Date().toISOString(),
           },
         };
-        logger.error('useSessionThresholdMonitor', "[useSessionThresholdMonitor] Failed to generate summary:", errorInfo);
+        logger.error(
+          "useSessionThresholdMonitor",
+          "[useSessionThresholdMonitor] Failed to generate summary:",
+          errorInfo
+        );
         isGeneratingSummaryRef.current = false;
         setStatus((prev) => ({ ...prev, isGeneratingSummary: false }));
 
         // 🆕 显示友好的错误通知，带"去修改"按钮
-        const isAuthError = errorMessage.includes("401") ||
+        const isAuthError =
+          errorMessage.includes("401") ||
           errorMessage.includes("authentication") ||
           errorMessage.includes("API key") ||
           errorMessage.includes("Unauthorized");
@@ -250,7 +260,9 @@ ${conversationText}`;
               label: "去修改",
               onClick: () => {
                 // 打开设置页面的 API 配置
-                window.dispatchEvent(new CustomEvent("open-settings", { detail: { tab: "provider" } }));
+                window.dispatchEvent(
+                  new CustomEvent("open-settings", { detail: { tab: "provider" } })
+                );
               },
             },
           });
@@ -281,7 +293,7 @@ ${conversationText}`;
         return fallbackSummary;
       }
     },
-    [onSummaryGenerated],
+    [onSummaryGenerated]
   );
 
   // 🔧 FIX: 使用 ref 追踪 isGeneratingSummary，避免在依赖数组中包含 status
@@ -297,7 +309,9 @@ ${conversationText}`;
     const now = Date.now();
     if (percentage > 1.0 && now - lastExceedWarningTimeRef.current > WARNING_INTERVAL) {
       lastExceedWarningTimeRef.current = now;
-      logger.warn('useSessionThresholdMonitor', `⚠️ Token usage exceeds 100%:`,
+      logger.warn(
+        "useSessionThresholdMonitor",
+        `⚠️ Token usage exceeds 100%:`,
         `\n  Current tokens: ${currentTokens.toLocaleString()}`,
         `\n  Max tokens: ${config.maxContextTokens.toLocaleString()}`,
         `\n  Percentage: ${(percentage * 100).toFixed(1)}%`,

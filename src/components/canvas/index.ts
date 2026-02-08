@@ -4,4 +4,3 @@
 
 export { CanvasPanel, type CanvasPanelProps } from "./CanvasPanel";
 export { CanvasFloatingWindow } from "./CanvasFloatingWindow";
-

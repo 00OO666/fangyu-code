@@ -3,15 +3,15 @@
  * 允许用户上传自定义背景图片
  */
 
-import React, { useEffect, useMemo, useState } from 'react';
-import { open, message, confirm } from '@tauri-apps/plugin-dialog';
-import { readFile, writeFile, exists, remove, BaseDirectory } from '@tauri-apps/plugin-fs';
-import { convertFileSrc } from '@tauri-apps/api/core';
-import { appDataDir, join } from '@tauri-apps/api/path';
-import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
-import { cn } from '@/lib/utils';
-import { Upload, RotateCcw, Image as ImageIcon, Trash2 } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from "react";
+import { open, message, confirm } from "@tauri-apps/plugin-dialog";
+import { readFile, writeFile, exists, remove, BaseDirectory } from "@tauri-apps/plugin-fs";
+import { convertFileSrc } from "@tauri-apps/api/core";
+import { appDataDir, join } from "@tauri-apps/api/path";
+import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
+import { cn } from "@/lib/utils";
+import { Upload, RotateCcw, Image as ImageIcon, Trash2 } from "lucide-react";
 
 interface BackgroundSettingsProps {
   className?: string;
@@ -24,14 +24,14 @@ interface BackgroundEntry {
   label: string;
 }
 
-const BACKGROUND_LIST_KEY = 'custom-backgrounds';
-const BACKGROUND_ACTIVE_KEY = 'custom-background-active';
-const BACKGROUND_STORAGE_KEY = 'custom-background-path';
-const BACKGROUND_FILE_KEY = 'custom-background-file';
-const BACKGROUND_BLUR_KEY = 'custom-background-blur';
+const BACKGROUND_LIST_KEY = "custom-backgrounds";
+const BACKGROUND_ACTIVE_KEY = "custom-background-active";
+const BACKGROUND_STORAGE_KEY = "custom-background-path";
+const BACKGROUND_FILE_KEY = "custom-background-file";
+const BACKGROUND_BLUR_KEY = "custom-background-blur";
 const DEFAULT_BLUR = 12;
 const MAX_BLUR = 30;
-const BACKGROUND_FILE_PREFIX = 'custom-background';
+const BACKGROUND_FILE_PREFIX = "custom-background";
 
 export const BackgroundSettings: React.FC<BackgroundSettingsProps> = ({ className }) => {
   const [backgrounds, setBackgrounds] = useState<BackgroundEntry[]>([]);
@@ -68,22 +68,22 @@ export const BackgroundSettings: React.FC<BackgroundSettingsProps> = ({ classNam
           const decoded = JSON.parse(storedList);
           if (Array.isArray(decoded)) {
             parsedList = decoded
-              .filter((item) => item && typeof item === 'object')
+              .filter((item) => item && typeof item === "object")
               .map((item) => ({
-                id: String(item.id || ''),
-                fileName: String(item.fileName || ''),
+                id: String(item.id || ""),
+                fileName: String(item.fileName || ""),
                 addedAt: Number(item.addedAt || Date.now()),
-                label: String(item.label || item.fileName || '背景'),
+                label: String(item.label || item.fileName || "背景"),
               }))
               .filter((item) => item.id && item.fileName);
           }
         } catch (error) {
-          console.warn('背景列表解析失败，将重置', error);
+          console.warn("背景列表解析失败，将重置", error);
         }
       }
 
       const storedActiveId = localStorage.getItem(BACKGROUND_ACTIVE_KEY);
-      const activeDisabled = storedActiveId === 'none';
+      const activeDisabled = storedActiveId === "none";
       let activeId = activeDisabled ? null : storedActiveId;
 
       // 兼容旧版单图模式
@@ -103,12 +103,14 @@ export const BackgroundSettings: React.FC<BackgroundSettingsProps> = ({ classNam
 
           if (fileExists) {
             const legacyId = `legacy-${Date.now()}`;
-            parsedList = [{
-              id: legacyId,
-              fileName: legacyFileName,
-              addedAt: Date.now(),
-              label: legacyFileName,
-            }];
+            parsedList = [
+              {
+                id: legacyId,
+                fileName: legacyFileName,
+                addedAt: Date.now(),
+                label: legacyFileName,
+              },
+            ];
             activeId = legacyId;
             localStorage.setItem(BACKGROUND_LIST_KEY, JSON.stringify(parsedList));
             localStorage.setItem(BACKGROUND_ACTIVE_KEY, legacyId);
@@ -157,7 +159,7 @@ export const BackgroundSettings: React.FC<BackgroundSettingsProps> = ({ classNam
       setBackgrounds(parsedList);
       setActiveBackgroundId(activeId);
     } catch (error) {
-      console.error('加载自定义背景失败:', error);
+      console.error("加载自定义背景失败:", error);
     }
   };
 
@@ -170,8 +172,8 @@ export const BackgroundSettings: React.FC<BackgroundSettingsProps> = ({ classNam
         multiple: false,
         filters: [
           {
-            name: '图片',
-            extensions: ['png', 'jpg', 'jpeg', 'webp', 'gif'],
+            name: "图片",
+            extensions: ["png", "jpg", "jpeg", "webp", "gif"],
           },
         ],
       });
@@ -188,7 +190,7 @@ export const BackgroundSettings: React.FC<BackgroundSettingsProps> = ({ classNam
       }
 
       const extensionMatch = /(\.[^./\\]+)$/.exec(selectedPath);
-      const safeExt = extensionMatch ? extensionMatch[1].toLowerCase() : '.jpg';
+      const safeExt = extensionMatch ? extensionMatch[1].toLowerCase() : ".jpg";
       const uniqueId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
       const fileName = `${BACKGROUND_FILE_PREFIX}-${uniqueId}${safeExt}`;
       const label = selectedPath.split(/[\\/]/).pop() || fileName;
@@ -226,27 +228,27 @@ export const BackgroundSettings: React.FC<BackgroundSettingsProps> = ({ classNam
       const assetUrl = `${convertFileSrc(fullPath)}?v=${addedAt}`;
       setBackgroundPreviews((prev) => ({ ...prev, [uniqueId]: assetUrl }));
 
-      window.dispatchEvent(new Event('background-settings-changed'));
+      window.dispatchEvent(new Event("background-settings-changed"));
     } catch (error) {
-      console.error('上传背景图片失败:', error);
+      console.error("上传背景图片失败:", error);
       const errorMessage = error instanceof Error ? error.message : String(error);
-      await message(`上传失败：${errorMessage}`, { title: '背景设置', kind: 'error' });
+      await message(`上传失败：${errorMessage}`, { title: "背景设置", kind: "error" });
     } finally {
       setIsUploading(false);
     }
   };
 
   const handleResetBackground = () => {
-    localStorage.setItem(BACKGROUND_ACTIVE_KEY, 'none');
+    localStorage.setItem(BACKGROUND_ACTIVE_KEY, "none");
     setActiveBackgroundId(null);
 
-    window.dispatchEvent(new Event('background-settings-changed'));
+    window.dispatchEvent(new Event("background-settings-changed"));
   };
 
   const handleSelectBackground = (id: string) => {
     setActiveBackgroundId(id);
     localStorage.setItem(BACKGROUND_ACTIVE_KEY, id);
-    window.dispatchEvent(new Event('background-settings-changed'));
+    window.dispatchEvent(new Event("background-settings-changed"));
   };
 
   const handleRemoveBackground = async (id: string) => {
@@ -254,8 +256,8 @@ export const BackgroundSettings: React.FC<BackgroundSettingsProps> = ({ classNam
     if (!target) return;
 
     const confirmed = await confirm(`确定删除背景「${target.label}」吗？`, {
-      title: '背景设置',
-      kind: 'warning',
+      title: "背景设置",
+      kind: "warning",
     });
     if (!confirmed) return;
 
@@ -264,7 +266,7 @@ export const BackgroundSettings: React.FC<BackgroundSettingsProps> = ({ classNam
       await remove(target.fileName, { baseDir: BaseDirectory.AppData });
     } catch (error) {
       removeFailed = true;
-      console.warn('删除背景文件失败:', error);
+      console.warn("删除背景文件失败:", error);
     }
 
     const nextBackgrounds = backgrounds.filter((bg) => bg.id !== id);
@@ -283,22 +285,22 @@ export const BackgroundSettings: React.FC<BackgroundSettingsProps> = ({ classNam
       if (nextActive) {
         localStorage.setItem(BACKGROUND_ACTIVE_KEY, nextActive);
       } else {
-        localStorage.setItem(BACKGROUND_ACTIVE_KEY, 'none');
+        localStorage.setItem(BACKGROUND_ACTIVE_KEY, "none");
       }
     }
 
     if (removeFailed) {
-      await message('背景文件删除失败，但已从列表移除。', { title: '背景设置', kind: 'warning' });
+      await message("背景文件删除失败，但已从列表移除。", { title: "背景设置", kind: "warning" });
     }
 
-    window.dispatchEvent(new Event('background-settings-changed'));
+    window.dispatchEvent(new Event("background-settings-changed"));
   };
 
   const handleBlurChange = (values: number[]) => {
     const nextBlur = values[0] ?? 0;
     setBlurAmount(nextBlur);
     localStorage.setItem(BACKGROUND_BLUR_KEY, String(nextBlur));
-    window.dispatchEvent(new Event('background-settings-changed'));
+    window.dispatchEvent(new Event("background-settings-changed"));
   };
 
   return (
@@ -306,22 +308,16 @@ export const BackgroundSettings: React.FC<BackgroundSettingsProps> = ({ classNam
       {/* 标题 */}
       <div>
         <h3 className="text-lg font-semibold text-gray-200 mb-2">背景图片设置</h3>
-        <p className="text-sm text-gray-400">
-          上传自定义背景图片，支持 PNG、JPG、WEBP 等格式
-        </p>
+        <p className="text-sm text-gray-400">上传自定义背景图片，支持 PNG、JPG、WEBP 等格式</p>
       </div>
 
       {/* 当前预览 */}
       {activePreviewUrl ? (
         <div className="relative rounded-lg overflow-hidden border border-white/10">
-          <img
-            src={activePreviewUrl}
-            alt="背景预览"
-            className="w-full h-48 object-cover"
-          />
+          <img src={activePreviewUrl} alt="背景预览" className="w-full h-48 object-cover" />
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
             <div className="text-white text-sm font-medium">
-              当前背景{activeLabel ? `：${activeLabel}` : ''}
+              当前背景{activeLabel ? `：${activeLabel}` : ""}
             </div>
           </div>
         </div>
@@ -339,7 +335,7 @@ export const BackgroundSettings: React.FC<BackgroundSettingsProps> = ({ classNam
           className="flex items-center gap-2"
         >
           <Upload className="w-4 h-4" />
-          {isUploading ? '上传中...' : '上传背景图片'}
+          {isUploading ? "上传中..." : "上传背景图片"}
         </Button>
 
         {activeBackgroundId && (
@@ -366,8 +362,8 @@ export const BackgroundSettings: React.FC<BackgroundSettingsProps> = ({ classNam
                 <div
                   key={bg.id}
                   className={cn(
-                    'rounded-lg border overflow-hidden bg-black/20',
-                    isActive ? 'border-primary/60 ring-1 ring-primary/40' : 'border-white/10'
+                    "rounded-lg border overflow-hidden bg-black/20",
+                    isActive ? "border-primary/60 ring-1 ring-primary/40" : "border-white/10"
                   )}
                 >
                   <button
@@ -376,11 +372,7 @@ export const BackgroundSettings: React.FC<BackgroundSettingsProps> = ({ classNam
                     className="w-full text-left"
                   >
                     {preview ? (
-                      <img
-                        src={preview}
-                        alt={bg.label}
-                        className="h-28 w-full object-cover"
-                      />
+                      <img src={preview} alt={bg.label} className="h-28 w-full object-cover" />
                     ) : (
                       <div className="h-28 w-full flex items-center justify-center text-xs text-gray-500">
                         预览生成中...
@@ -394,11 +386,11 @@ export const BackgroundSettings: React.FC<BackgroundSettingsProps> = ({ classNam
                     <div className="flex items-center gap-1">
                       <Button
                         size="sm"
-                        variant={isActive ? 'secondary' : 'ghost'}
+                        variant={isActive ? "secondary" : "ghost"}
                         onClick={() => handleSelectBackground(bg.id)}
                         className="px-2"
                       >
-                        {isActive ? '当前' : '使用'}
+                        {isActive ? "当前" : "使用"}
                       </Button>
                       <Button
                         size="sm"

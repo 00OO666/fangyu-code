@@ -1,4 +1,4 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 
 /**
  * Window Heartbeat Worker
@@ -21,17 +21,17 @@ self.onmessage = (e: MessageEvent) => {
   const { type, payload } = e.data;
 
   switch (type) {
-    case 'START':
+    case "START":
       config = payload as HeartbeatConfig;
       startHeartbeat();
       break;
 
-    case 'STOP':
+    case "STOP":
       stopHeartbeat();
       break;
 
-    case 'PING':
-      self.postMessage({ type: 'PONG', timestamp: Date.now() });
+    case "PING":
+      self.postMessage({ type: "PONG", timestamp: Date.now() });
       break;
   }
 };
@@ -41,19 +41,22 @@ function startHeartbeat() {
 
   heartbeatTimer = self.setInterval(() => {
     self.postMessage({
-      type: 'HEARTBEAT',
+      type: "HEARTBEAT",
       windowId: config!.windowId,
       timestamp: Date.now(),
     });
   }, config.interval);
 
-  logger.debug('windowHeartbeat.worker', `[Worker] Heartbeat started for window ${config.windowId}`);
+  logger.debug(
+    "windowHeartbeat.worker",
+    `[Worker] Heartbeat started for window ${config.windowId}`
+  );
 }
 
 function stopHeartbeat() {
   if (heartbeatTimer !== null) {
     self.clearInterval(heartbeatTimer);
     heartbeatTimer = null;
-    logger.debug('windowHeartbeat.worker', '[Worker] Heartbeat stopped');
+    logger.debug("windowHeartbeat.worker", "[Worker] Heartbeat stopped");
   }
 }

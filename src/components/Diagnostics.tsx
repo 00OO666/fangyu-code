@@ -1,8 +1,16 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import React, { useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { motion } from "framer-motion";
-import { Activity, CheckCircle2, AlertTriangle, XCircle, Wrench, RefreshCw, Info } from 'lucide-react';
+import {
+  Activity,
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
+  Wrench,
+  RefreshCw,
+  Info,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -59,7 +67,7 @@ export const Diagnostics: React.FC = () => {
       const result = await invoke<DiagnosticReport>("run_diagnostics");
       setReport(result);
     } catch (error) {
-      logger.error('Diagnostics', "诊断失败:", error);
+      logger.error("Diagnostics", "诊断失败:", error);
     } finally {
       setLoading(false);
     }
@@ -72,7 +80,7 @@ export const Diagnostics: React.FC = () => {
       alert(`修复完成！成功: ${result.fixedCount}, 失败: ${result.failedCount}`);
       await runDiagnostics(); // 重新诊断
     } catch (error) {
-      logger.error('Diagnostics', "修复失败:", error);
+      logger.error("Diagnostics", "修复失败:", error);
     } finally {
       setFixing(false);
     }
@@ -98,11 +106,7 @@ export const Diagnostics: React.FC = () => {
       info: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
     };
 
-    return (
-      <Badge className={variants[severity] || variants.info}>
-        {severity.toUpperCase()}
-      </Badge>
-    );
+    return <Badge className={variants[severity] || variants.info}>{severity.toUpperCase()}</Badge>;
   };
 
   return (
@@ -119,11 +123,7 @@ export const Diagnostics: React.FC = () => {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button
-            onClick={runDiagnostics}
-            disabled={loading}
-            variant="outline"
-          >
+          <Button onClick={runDiagnostics} disabled={loading} variant="outline">
             {loading ? (
               <>
                 <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
@@ -173,21 +173,15 @@ export const Diagnostics: React.FC = () => {
                     {report.healthStatus === "healthy"
                       ? "健康"
                       : report.healthStatus === "warning"
-                      ? "警告"
-                      : "严重"}
+                        ? "警告"
+                        : "严重"}
                   </h2>
-                  <p className="text-sm text-muted-foreground">
-                    生成时间: {report.generatedAt}
-                  </p>
+                  <p className="text-sm text-muted-foreground">生成时间: {report.generatedAt}</p>
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-2xl font-bold text-primary">
-                  {report.totalTokenCost}
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  tokens / 对话
-                </div>
+                <div className="text-2xl font-bold text-primary">{report.totalTokenCost}</div>
+                <div className="text-sm text-muted-foreground">tokens / 对话</div>
               </div>
             </div>
           </Card>
@@ -204,9 +198,7 @@ export const Diagnostics: React.FC = () => {
                   <div className="flex-1">
                     <div className="font-medium">{item.name}</div>
                     {item.suggestion && (
-                      <div className="text-sm text-muted-foreground">
-                        {item.suggestion}
-                      </div>
+                      <div className="text-sm text-muted-foreground">{item.suggestion}</div>
                     )}
                   </div>
                   <div className="flex items-center gap-4">
@@ -215,19 +207,15 @@ export const Diagnostics: React.FC = () => {
                         item.status === "warning"
                           ? "bg-yellow-100 text-yellow-800"
                           : item.status === "enabled"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-gray-100 text-gray-800"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-gray-100 text-gray-800"
                       }
                     >
                       {item.status}
                     </Badge>
                     <div className="text-right min-w-[80px]">
-                      <div className="font-mono font-semibold">
-                        {item.tokens}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        tokens
-                      </div>
+                      <div className="font-mono font-semibold">{item.tokens}</div>
+                      <div className="text-xs text-muted-foreground">tokens</div>
                     </div>
                   </div>
                 </div>
@@ -238,22 +226,15 @@ export const Diagnostics: React.FC = () => {
           {/* 问题列表 */}
           {report.issues.length > 0 && (
             <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-4">
-                发现的问题 ({report.issues.length})
-              </h3>
+              <h3 className="text-lg font-semibold mb-4">发现的问题 ({report.issues.length})</h3>
               <div className="space-y-4">
                 {report.issues.map((issue) => (
-                  <div
-                    key={issue.id}
-                    className="border rounded-lg p-4 space-y-2"
-                  >
+                  <div key={issue.id} className="border rounded-lg p-4 space-y-2">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           {getSeverityBadge(issue.severity)}
-                          <span className="text-sm text-muted-foreground">
-                            {issue.category}
-                          </span>
+                          <span className="text-sm text-muted-foreground">{issue.category}</span>
                         </div>
                         <h4 className="font-semibold">{issue.title}</h4>
                         <p className="text-sm text-muted-foreground mt-1 whitespace-pre-line">
@@ -266,9 +247,7 @@ export const Diagnostics: React.FC = () => {
                         )}
                       </div>
                       {issue.autoFixable && (
-                        <Badge className="bg-green-100 text-green-800">
-                          可自动修复
-                        </Badge>
+                        <Badge className="bg-green-100 text-green-800">可自动修复</Badge>
                       )}
                     </div>
                   </div>
@@ -321,9 +300,7 @@ export const Diagnostics: React.FC = () => {
         <Card className="p-12 text-center">
           <Activity className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
           <h3 className="text-lg font-semibold mb-2">尚未运行诊断</h3>
-          <p className="text-muted-foreground mb-4">
-            点击"运行诊断"按钮开始检查配置
-          </p>
+          <p className="text-muted-foreground mb-4">点击"运行诊断"按钮开始检查配置</p>
           <Button onClick={runDiagnostics}>
             <Activity className="w-4 h-4 mr-2" />
             运行诊断

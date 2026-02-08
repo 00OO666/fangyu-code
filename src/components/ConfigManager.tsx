@@ -10,13 +10,13 @@
  * 解决问题：C盘 Token 消耗 5 倍于 F 盘
  */
 
-import { useState, useEffect, useCallback } from 'react';
-import { invoke } from '@tauri-apps/api/core';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
+import { useState, useEffect, useCallback } from "react";
+import { invoke } from "@tauri-apps/api/core";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -24,7 +24,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import {
   AlertDialog,
@@ -36,15 +36,25 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from '@/components/ui/tabs';
-import { Activity, Trash2, HardDrive, RefreshCw, Shield, Zap, AlertTriangle, CheckCircle2, XCircle, Download, FolderOpen, Settings, Cpu, Database } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { useTranslation } from 'react-i18next';
+  Activity,
+  Trash2,
+  HardDrive,
+  RefreshCw,
+  Shield,
+  Zap,
+  AlertTriangle,
+  CheckCircle2,
+  XCircle,
+  Download,
+  FolderOpen,
+  Settings,
+  Cpu,
+  Database,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 // ============================================================
 // 类型定义
@@ -66,7 +76,7 @@ interface ConfigHealthReport {
 }
 
 interface ConfigIssue {
-  level: 'critical' | 'warning' | 'info';
+  level: "critical" | "warning" | "info";
   title: string;
   description: string;
   fix_action?: string;
@@ -84,7 +94,7 @@ interface ProjectCacheInfo {
 interface ConfigItem {
   id: string;
   name: string;
-  category: 'mcp' | 'skill' | 'hook' | 'setting';
+  category: "mcp" | "skill" | "hook" | "setting";
   enabled: boolean;
   description: string;
   config_path: string;
@@ -112,7 +122,7 @@ interface ConfigManagerEmbeddedProps {
 
 export function ConfigManager({ open, onOpenChange }: ConfigManagerProps) {
   useTranslation(); // 保留 hook 调用以支持未来国际化
-  const [activeTab, setActiveTab] = useState('health');
+  const [activeTab, setActiveTab] = useState("health");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -131,14 +141,14 @@ export function ConfigManager({ open, onOpenChange }: ConfigManagerProps) {
     title: string;
     description: string;
     action: () => Promise<void>;
-  }>({ open: false, title: '', description: '', action: async () => { } });
+  }>({ open: false, title: "", description: "", action: async () => {} });
 
   // 加载健康度报告
   const loadHealthReport = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const report = await invoke<ConfigHealthReport>('get_config_health');
+      const report = await invoke<ConfigHealthReport>("get_config_health");
       setHealthReport(report);
     } catch (err) {
       setError(String(err));
@@ -151,7 +161,7 @@ export function ConfigManager({ open, onOpenChange }: ConfigManagerProps) {
   const loadProjectCaches = useCallback(async () => {
     setIsLoading(true);
     try {
-      const caches = await invoke<ProjectCacheInfo[]>('get_projects_cache');
+      const caches = await invoke<ProjectCacheInfo[]>("get_projects_cache");
       setProjectCaches(caches);
     } catch (err) {
       setError(String(err));
@@ -164,7 +174,7 @@ export function ConfigManager({ open, onOpenChange }: ConfigManagerProps) {
   const loadConfigItems = useCallback(async () => {
     setIsLoading(true);
     try {
-      const items = await invoke<ConfigItem[]>('get_config_items');
+      const items = await invoke<ConfigItem[]>("get_config_items");
       setConfigItems(items);
     } catch (err) {
       setError(String(err));
@@ -176,7 +186,7 @@ export function ConfigManager({ open, onOpenChange }: ConfigManagerProps) {
   // 清理单个项目缓存
   const cleanProjectCache = async (projectName: string) => {
     try {
-      await invoke<number>('clean_project_cache', { projectName });
+      await invoke<number>("clean_project_cache", { projectName });
       await loadProjectCaches();
       await loadHealthReport();
     } catch (err) {
@@ -187,7 +197,7 @@ export function ConfigManager({ open, onOpenChange }: ConfigManagerProps) {
   // 清理旧缓存
   const cleanOldCache = async (days: number) => {
     try {
-      const result = await invoke<CleanupResult>('clean_old_cache', { days });
+      const result = await invoke<CleanupResult>("clean_old_cache", { days });
       await loadProjectCaches();
       await loadHealthReport();
       alert(`清理完成！删除 ${result.files_deleted} 个文件，释放 ${result.bytes_freed_formatted}`);
@@ -199,7 +209,7 @@ export function ConfigManager({ open, onOpenChange }: ConfigManagerProps) {
   // 切换配置项
   const toggleConfigItem = async (item: ConfigItem) => {
     try {
-      await invoke('toggle_config_item', {
+      await invoke("toggle_config_item", {
         id: item.id,
         category: item.category,
         enabled: !item.enabled,
@@ -213,7 +223,7 @@ export function ConfigManager({ open, onOpenChange }: ConfigManagerProps) {
   // 备份配置
   const backupConfig = async () => {
     try {
-      const backupPath = await invoke<string>('backup_config');
+      const backupPath = await invoke<string>("backup_config");
       alert(`配置已备份到: ${backupPath}`);
     } catch (err) {
       setError(String(err));
@@ -231,24 +241,24 @@ export function ConfigManager({ open, onOpenChange }: ConfigManagerProps) {
   useEffect(() => {
     if (!open) return;
 
-    if (activeTab === 'cache') {
+    if (activeTab === "cache") {
       loadProjectCaches();
-    } else if (activeTab === 'items') {
+    } else if (activeTab === "items") {
       loadConfigItems();
     }
   }, [activeTab, open, loadProjectCaches, loadConfigItems]);
 
   // 获取健康度颜色
   const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-green-500';
-    if (score >= 60) return 'text-yellow-500';
-    return 'text-red-500';
+    if (score >= 80) return "text-green-500";
+    if (score >= 60) return "text-yellow-500";
+    return "text-red-500";
   };
 
   const getScoreLabel = (score: number) => {
-    if (score >= 80) return '健康';
-    if (score >= 60) return '需优化';
-    return '严重问题';
+    if (score >= 80) return "健康";
+    if (score >= 60) return "需优化";
+    return "严重问题";
   };
 
   // 格式化文件大小
@@ -273,7 +283,11 @@ export function ConfigManager({ open, onOpenChange }: ConfigManagerProps) {
             </VisuallyHidden.Root>
           </DialogHeader>
 
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="flex-1 flex flex-col overflow-hidden"
+          >
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="health" className="gap-2">
                 <Activity className="h-4 w-4" />
@@ -301,7 +315,9 @@ export function ConfigManager({ open, onOpenChange }: ConfigManagerProps) {
                     {/* 健康度评分 */}
                     <div className="flex items-center gap-6 p-4 bg-muted/50 rounded-lg">
                       <div className="text-center">
-                        <div className={cn("text-5xl font-bold", getScoreColor(healthReport.score))}>
+                        <div
+                          className={cn("text-5xl font-bold", getScoreColor(healthReport.score))}
+                        >
                           {healthReport.score}
                         </div>
                         <div className="text-sm text-muted-foreground mt-1">
@@ -319,25 +335,27 @@ export function ConfigManager({ open, onOpenChange }: ConfigManagerProps) {
                         icon={<Database className="h-5 w-5" />}
                         label="缓存大小"
                         value={healthReport.projects_cache_size_formatted}
-                        status={healthReport.projects_cache_size > 100 * 1024 * 1024 ? 'critical' : 'ok'}
+                        status={
+                          healthReport.projects_cache_size > 100 * 1024 * 1024 ? "critical" : "ok"
+                        }
                       />
                       <StatCard
                         icon={<FolderOpen className="h-5 w-5" />}
                         label="会话文件"
                         value={`${healthReport.session_files_count} 个`}
-                        status={healthReport.session_files_count > 500 ? 'warning' : 'ok'}
+                        status={healthReport.session_files_count > 500 ? "warning" : "ok"}
                       />
                       <StatCard
                         icon={<Zap className="h-5 w-5" />}
                         label="活跃 Skills"
                         value={`${healthReport.active_skills} / ${healthReport.active_skills + healthReport.disabled_skills}`}
-                        status={healthReport.active_skills > 10 ? 'warning' : 'ok'}
+                        status={healthReport.active_skills > 10 ? "warning" : "ok"}
                       />
                       <StatCard
                         icon={<Cpu className="h-5 w-5" />}
                         label="活跃 MCP"
                         value={`${healthReport.active_mcps} 个`}
-                        status={healthReport.active_mcps > 5 ? 'warning' : 'ok'}
+                        status={healthReport.active_mcps > 5 ? "warning" : "ok"}
                       />
                     </div>
 
@@ -346,7 +364,8 @@ export function ConfigManager({ open, onOpenChange }: ConfigManagerProps) {
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">CLAUDE.md</span>
                         <div className="text-sm text-muted-foreground">
-                          {formatSize(healthReport.claude_md_size)} (~{healthReport.claude_md_tokens} tokens)
+                          {formatSize(healthReport.claude_md_size)} (~
+                          {healthReport.claude_md_tokens} tokens)
                         </div>
                       </div>
                       <Progress
@@ -354,7 +373,8 @@ export function ConfigManager({ open, onOpenChange }: ConfigManagerProps) {
                         className="h-2 mt-2"
                       />
                       <div className="text-xs text-muted-foreground mt-1">
-                        建议保持在 5KB 以下（当前 {healthReport.claude_md_size > 5120 ? '偏大' : '正常'}）
+                        建议保持在 5KB 以下（当前{" "}
+                        {healthReport.claude_md_size > 5120 ? "偏大" : "正常"}）
                       </div>
                     </div>
 
@@ -366,18 +386,22 @@ export function ConfigManager({ open, onOpenChange }: ConfigManagerProps) {
                           发现的问题
                         </h3>
                         {healthReport.issues.map((issue, idx) => (
-                          <IssueCard key={idx} issue={issue} onFix={() => {
-                            if (issue.fix_action === 'clean_old_cache') {
-                              setConfirmDialog({
-                                open: true,
-                                title: '清理旧缓存',
-                                description: '将删除 30 天前的所有会话文件，此操作不可撤销。',
-                                action: () => cleanOldCache(30),
-                              });
-                            } else if (issue.fix_action === 'clean_large_sessions') {
-                              setActiveTab('cache');
-                            }
-                          }} />
+                          <IssueCard
+                            key={idx}
+                            issue={issue}
+                            onFix={() => {
+                              if (issue.fix_action === "clean_old_cache") {
+                                setConfirmDialog({
+                                  open: true,
+                                  title: "清理旧缓存",
+                                  description: "将删除 30 天前的所有会话文件，此操作不可撤销。",
+                                  action: () => cleanOldCache(30),
+                                });
+                              } else if (issue.fix_action === "clean_large_sessions") {
+                                setActiveTab("cache");
+                              }
+                            }}
+                          />
                         ))}
                       </div>
                     )}
@@ -420,12 +444,14 @@ export function ConfigManager({ open, onOpenChange }: ConfigManagerProps) {
                   <Button
                     variant="destructive"
                     size="sm"
-                    onClick={() => setConfirmDialog({
-                      open: true,
-                      title: '清理 30 天前的缓存',
-                      description: '将删除所有 30 天前的会话文件，此操作不可撤销。确定要继续吗？',
-                      action: () => cleanOldCache(30),
-                    })}
+                    onClick={() =>
+                      setConfirmDialog({
+                        open: true,
+                        title: "清理 30 天前的缓存",
+                        description: "将删除所有 30 天前的会话文件，此操作不可撤销。确定要继续吗？",
+                        action: () => cleanOldCache(30),
+                      })
+                    }
                   >
                     <Trash2 className="h-4 w-4 mr-1" />
                     清理旧缓存
@@ -440,7 +466,9 @@ export function ConfigManager({ open, onOpenChange }: ConfigManagerProps) {
                       className={cn(
                         "flex items-center justify-between p-3 rounded-lg border",
                         cache.size > 20 * 1024 * 1024 && "border-red-500/50 bg-red-500/5",
-                        cache.size > 5 * 1024 * 1024 && cache.size <= 20 * 1024 * 1024 && "border-yellow-500/50 bg-yellow-500/5"
+                        cache.size > 5 * 1024 * 1024 &&
+                          cache.size <= 20 * 1024 * 1024 &&
+                          "border-yellow-500/50 bg-yellow-500/5"
                       )}
                     >
                       <div className="flex-1 min-w-0">
@@ -448,22 +476,33 @@ export function ConfigManager({ open, onOpenChange }: ConfigManagerProps) {
                           {cache.name}
                         </div>
                         <div className="text-xs text-muted-foreground mt-0.5">
-                          {cache.session_count} 个会话 • 最后修改 {new Date(cache.last_modified * 1000).toLocaleDateString()}
+                          {cache.session_count} 个会话 • 最后修改{" "}
+                          {new Date(cache.last_modified * 1000).toLocaleDateString()}
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
-                        <Badge variant={cache.size > 20 * 1024 * 1024 ? "destructive" : cache.size > 5 * 1024 * 1024 ? "secondary" : "outline"}>
+                        <Badge
+                          variant={
+                            cache.size > 20 * 1024 * 1024
+                              ? "destructive"
+                              : cache.size > 5 * 1024 * 1024
+                                ? "secondary"
+                                : "outline"
+                          }
+                        >
                           {cache.size_formatted}
                         </Badge>
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => setConfirmDialog({
-                            open: true,
-                            title: `清理 ${cache.name}`,
-                            description: `将删除该项目的所有会话文件（${cache.session_count} 个），释放 ${cache.size_formatted}。此操作不可撤销。`,
-                            action: () => cleanProjectCache(cache.name),
-                          })}
+                          onClick={() =>
+                            setConfirmDialog({
+                              open: true,
+                              title: `清理 ${cache.name}`,
+                              description: `将删除该项目的所有会话文件（${cache.session_count} 个），释放 ${cache.size_formatted}。此操作不可撤销。`,
+                              action: () => cleanProjectCache(cache.name),
+                            })
+                          }
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -477,9 +516,7 @@ export function ConfigManager({ open, onOpenChange }: ConfigManagerProps) {
             {/* 配置开关 Tab */}
             <TabsContent value="items" className="flex-1 overflow-hidden">
               <div className="flex items-center justify-between p-4 border-b">
-                <div className="text-sm text-muted-foreground">
-                  管理 Skills 和 Hooks 的开关状态
-                </div>
+                <div className="text-sm text-muted-foreground">管理 Skills 和 Hooks 的开关状态</div>
                 <Button variant="outline" size="sm" onClick={() => loadConfigItems()}>
                   <RefreshCw className="h-4 w-4 mr-1" />
                   刷新
@@ -494,9 +531,11 @@ export function ConfigManager({ open, onOpenChange }: ConfigManagerProps) {
                       Skills
                     </h3>
                     <div className="space-y-2">
-                      {configItems.filter(item => item.category === 'skill').map((item) => (
-                        <ConfigItemRow key={item.id} item={item} onToggle={toggleConfigItem} />
-                      ))}
+                      {configItems
+                        .filter((item) => item.category === "skill")
+                        .map((item) => (
+                          <ConfigItemRow key={item.id} item={item} onToggle={toggleConfigItem} />
+                        ))}
                     </div>
                   </div>
 
@@ -507,9 +546,11 @@ export function ConfigManager({ open, onOpenChange }: ConfigManagerProps) {
                       Hooks
                     </h3>
                     <div className="space-y-2">
-                      {configItems.filter(item => item.category === 'hook').map((item) => (
-                        <ConfigItemRow key={item.id} item={item} onToggle={toggleConfigItem} />
-                      ))}
+                      {configItems
+                        .filter((item) => item.category === "hook")
+                        .map((item) => (
+                          <ConfigItemRow key={item.id} item={item} onToggle={toggleConfigItem} />
+                        ))}
                     </div>
                   </div>
                 </div>
@@ -531,7 +572,10 @@ export function ConfigManager({ open, onOpenChange }: ConfigManagerProps) {
       </Dialog>
 
       {/* 确认对话框 */}
-      <AlertDialog open={confirmDialog.open} onOpenChange={(open) => setConfirmDialog({ ...confirmDialog, open })}>
+      <AlertDialog
+        open={confirmDialog.open}
+        onOpenChange={(open) => setConfirmDialog({ ...confirmDialog, open })}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>{confirmDialog.title}</AlertDialogTitle>
@@ -539,10 +583,12 @@ export function ConfigManager({ open, onOpenChange }: ConfigManagerProps) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>取消</AlertDialogCancel>
-            <AlertDialogAction onClick={async () => {
-              await confirmDialog.action();
-              setConfirmDialog({ ...confirmDialog, open: false });
-            }}>
+            <AlertDialogAction
+              onClick={async () => {
+                await confirmDialog.action();
+                setConfirmDialog({ ...confirmDialog, open: false });
+              }}
+            >
               确认
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -556,19 +602,26 @@ export function ConfigManager({ open, onOpenChange }: ConfigManagerProps) {
 // 子组件
 // ============================================================
 
-function StatCard({ icon, label, value, status }: {
+function StatCard({
+  icon,
+  label,
+  value,
+  status,
+}: {
   icon: React.ReactNode;
   label: string;
   value: string;
-  status: 'ok' | 'warning' | 'critical';
+  status: "ok" | "warning" | "critical";
 }) {
   return (
-    <div className={cn(
-      "p-3 rounded-lg border",
-      status === 'critical' && "border-red-500/50 bg-red-500/5",
-      status === 'warning' && "border-yellow-500/50 bg-yellow-500/5",
-      status === 'ok' && "border-border"
-    )}>
+    <div
+      className={cn(
+        "p-3 rounded-lg border",
+        status === "critical" && "border-red-500/50 bg-red-500/5",
+        status === "warning" && "border-yellow-500/50 bg-yellow-500/5",
+        status === "ok" && "border-border"
+      )}
+    >
       <div className="flex items-center gap-2 text-muted-foreground mb-1">
         {icon}
         <span className="text-xs">{label}</span>
@@ -607,27 +660,28 @@ function IssueCard({ issue, onFix }: { issue: ConfigIssue; onFix?: () => void })
   );
 }
 
-function ConfigItemRow({ item, onToggle }: { item: ConfigItem; onToggle: (item: ConfigItem) => void }) {
+function ConfigItemRow({
+  item,
+  onToggle,
+}: {
+  item: ConfigItem;
+  onToggle: (item: ConfigItem) => void;
+}) {
   return (
-    <div className={cn(
-      "flex items-center justify-between p-3 rounded-lg border",
-      !item.enabled && "opacity-50"
-    )}>
+    <div
+      className={cn(
+        "flex items-center justify-between p-3 rounded-lg border",
+        !item.enabled && "opacity-50"
+      )}
+    >
       <div className="flex-1 min-w-0">
         <div className="font-medium">{item.name}</div>
-        <div className="text-xs text-muted-foreground truncate mt-0.5">
-          {item.description}
-        </div>
+        <div className="text-xs text-muted-foreground truncate mt-0.5">{item.description}</div>
         {item.size && (
-          <div className="text-xs text-muted-foreground mt-0.5">
-            {formatSize(item.size)}
-          </div>
+          <div className="text-xs text-muted-foreground mt-0.5">{formatSize(item.size)}</div>
         )}
       </div>
-      <Switch
-        checked={item.enabled}
-        onCheckedChange={() => onToggle(item)}
-      />
+      <Switch checked={item.enabled} onCheckedChange={() => onToggle(item)} />
     </div>
   );
 }
@@ -644,7 +698,7 @@ function formatSize(bytes: number): string {
  * 嵌入式配置管理组件（用于设置页面）
  */
 export function ConfigManagerEmbedded({ className }: ConfigManagerEmbeddedProps) {
-  const [activeTab, setActiveTab] = useState('health');
+  const [activeTab, setActiveTab] = useState("health");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -663,14 +717,14 @@ export function ConfigManagerEmbedded({ className }: ConfigManagerEmbeddedProps)
     title: string;
     description: string;
     action: () => Promise<void>;
-  }>({ open: false, title: '', description: '', action: async () => { } });
+  }>({ open: false, title: "", description: "", action: async () => {} });
 
   // 加载健康度报告
   const loadHealthReport = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const report = await invoke<ConfigHealthReport>('get_config_health');
+      const report = await invoke<ConfigHealthReport>("get_config_health");
       setHealthReport(report);
     } catch (err) {
       setError(String(err));
@@ -683,7 +737,7 @@ export function ConfigManagerEmbedded({ className }: ConfigManagerEmbeddedProps)
   const loadProjectCaches = useCallback(async () => {
     setIsLoading(true);
     try {
-      const caches = await invoke<ProjectCacheInfo[]>('get_projects_cache');
+      const caches = await invoke<ProjectCacheInfo[]>("get_projects_cache");
       setProjectCaches(caches);
     } catch (err) {
       setError(String(err));
@@ -696,7 +750,7 @@ export function ConfigManagerEmbedded({ className }: ConfigManagerEmbeddedProps)
   const loadConfigItems = useCallback(async () => {
     setIsLoading(true);
     try {
-      const items = await invoke<ConfigItem[]>('get_config_items');
+      const items = await invoke<ConfigItem[]>("get_config_items");
       setConfigItems(items);
     } catch (err) {
       setError(String(err));
@@ -708,7 +762,7 @@ export function ConfigManagerEmbedded({ className }: ConfigManagerEmbeddedProps)
   // 清理单个项目缓存
   const cleanProjectCache = async (projectName: string) => {
     try {
-      await invoke<number>('clean_project_cache', { projectName });
+      await invoke<number>("clean_project_cache", { projectName });
       await loadProjectCaches();
       await loadHealthReport();
     } catch (err) {
@@ -719,7 +773,7 @@ export function ConfigManagerEmbedded({ className }: ConfigManagerEmbeddedProps)
   // 清理旧缓存
   const cleanOldCache = async (days: number) => {
     try {
-      const result = await invoke<CleanupResult>('clean_old_cache', { days });
+      const result = await invoke<CleanupResult>("clean_old_cache", { days });
       await loadProjectCaches();
       await loadHealthReport();
       alert(`清理完成！删除 ${result.files_deleted} 个文件，释放 ${result.bytes_freed_formatted}`);
@@ -731,7 +785,7 @@ export function ConfigManagerEmbedded({ className }: ConfigManagerEmbeddedProps)
   // 切换配置项
   const toggleConfigItem = async (item: ConfigItem) => {
     try {
-      await invoke('toggle_config_item', {
+      await invoke("toggle_config_item", {
         id: item.id,
         category: item.category,
         enabled: !item.enabled,
@@ -745,7 +799,7 @@ export function ConfigManagerEmbedded({ className }: ConfigManagerEmbeddedProps)
   // 备份配置
   const backupConfig = async () => {
     try {
-      const backupPath = await invoke<string>('backup_config');
+      const backupPath = await invoke<string>("backup_config");
       alert(`配置已备份到: ${backupPath}`);
     } catch (err) {
       setError(String(err));
@@ -759,24 +813,24 @@ export function ConfigManagerEmbedded({ className }: ConfigManagerEmbeddedProps)
 
   // Tab 切换时加载数据
   useEffect(() => {
-    if (activeTab === 'cache') {
+    if (activeTab === "cache") {
       loadProjectCaches();
-    } else if (activeTab === 'items') {
+    } else if (activeTab === "items") {
       loadConfigItems();
     }
   }, [activeTab, loadProjectCaches, loadConfigItems]);
 
   // 获取健康度颜色
   const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-green-500';
-    if (score >= 60) return 'text-yellow-500';
-    return 'text-red-500';
+    if (score >= 80) return "text-green-500";
+    if (score >= 60) return "text-yellow-500";
+    return "text-red-500";
   };
 
   const getScoreLabel = (score: number) => {
-    if (score >= 80) return '健康';
-    if (score >= 60) return '需优化';
-    return '严重问题';
+    if (score >= 80) return "健康";
+    if (score >= 60) return "需优化";
+    return "严重问题";
   };
 
   return (
@@ -839,25 +893,27 @@ export function ConfigManagerEmbedded({ className }: ConfigManagerEmbeddedProps)
                     icon={<Database className="h-5 w-5" />}
                     label="缓存大小"
                     value={healthReport.projects_cache_size_formatted}
-                    status={healthReport.projects_cache_size > 100 * 1024 * 1024 ? 'critical' : 'ok'}
+                    status={
+                      healthReport.projects_cache_size > 100 * 1024 * 1024 ? "critical" : "ok"
+                    }
                   />
                   <StatCard
                     icon={<FolderOpen className="h-5 w-5" />}
                     label="会话文件"
                     value={`${healthReport.session_files_count} 个`}
-                    status={healthReport.session_files_count > 500 ? 'warning' : 'ok'}
+                    status={healthReport.session_files_count > 500 ? "warning" : "ok"}
                   />
                   <StatCard
                     icon={<Zap className="h-5 w-5" />}
                     label="活跃 Skills"
                     value={`${healthReport.active_skills} / ${healthReport.active_skills + healthReport.disabled_skills}`}
-                    status={healthReport.active_skills > 10 ? 'warning' : 'ok'}
+                    status={healthReport.active_skills > 10 ? "warning" : "ok"}
                   />
                   <StatCard
                     icon={<Cpu className="h-5 w-5" />}
                     label="活跃 MCP"
                     value={`${healthReport.active_mcps} 个`}
-                    status={healthReport.active_mcps > 5 ? 'warning' : 'ok'}
+                    status={healthReport.active_mcps > 5 ? "warning" : "ok"}
                   />
                 </div>
 
@@ -866,7 +922,8 @@ export function ConfigManagerEmbedded({ className }: ConfigManagerEmbeddedProps)
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">CLAUDE.md</span>
                     <div className="text-sm text-muted-foreground">
-                      {formatSize(healthReport.claude_md_size)} (~{healthReport.claude_md_tokens} tokens)
+                      {formatSize(healthReport.claude_md_size)} (~{healthReport.claude_md_tokens}{" "}
+                      tokens)
                     </div>
                   </div>
                   <Progress
@@ -883,18 +940,22 @@ export function ConfigManagerEmbedded({ className }: ConfigManagerEmbeddedProps)
                       发现的问题
                     </h3>
                     {healthReport.issues.map((issue, idx) => (
-                      <IssueCard key={idx} issue={issue} onFix={() => {
-                        if (issue.fix_action === 'clean_old_cache') {
-                          setConfirmDialog({
-                            open: true,
-                            title: '清理旧缓存',
-                            description: '将删除 30 天前的所有会话文件，此操作不可撤销。',
-                            action: () => cleanOldCache(30),
-                          });
-                        } else if (issue.fix_action === 'clean_large_sessions') {
-                          setActiveTab('cache');
-                        }
-                      }} />
+                      <IssueCard
+                        key={idx}
+                        issue={issue}
+                        onFix={() => {
+                          if (issue.fix_action === "clean_old_cache") {
+                            setConfirmDialog({
+                              open: true,
+                              title: "清理旧缓存",
+                              description: "将删除 30 天前的所有会话文件，此操作不可撤销。",
+                              action: () => cleanOldCache(30),
+                            });
+                          } else if (issue.fix_action === "clean_large_sessions") {
+                            setActiveTab("cache");
+                          }
+                        }}
+                      />
                     ))}
                   </div>
                 )}
@@ -916,12 +977,14 @@ export function ConfigManagerEmbedded({ className }: ConfigManagerEmbeddedProps)
               <Button
                 variant="destructive"
                 size="sm"
-                onClick={() => setConfirmDialog({
-                  open: true,
-                  title: '清理 30 天前的缓存',
-                  description: '将删除所有 30 天前的会话文件，此操作不可撤销。',
-                  action: () => cleanOldCache(30),
-                })}
+                onClick={() =>
+                  setConfirmDialog({
+                    open: true,
+                    title: "清理 30 天前的缓存",
+                    description: "将删除所有 30 天前的会话文件，此操作不可撤销。",
+                    action: () => cleanOldCache(30),
+                  })
+                }
               >
                 <Trash2 className="h-4 w-4 mr-1" />
                 清理旧缓存
@@ -934,7 +997,9 @@ export function ConfigManagerEmbedded({ className }: ConfigManagerEmbeddedProps)
                   className={cn(
                     "flex items-center justify-between p-3 rounded-lg border",
                     cache.size > 20 * 1024 * 1024 && "border-red-500/50 bg-red-500/5",
-                    cache.size > 5 * 1024 * 1024 && cache.size <= 20 * 1024 * 1024 && "border-yellow-500/50 bg-yellow-500/5"
+                    cache.size > 5 * 1024 * 1024 &&
+                      cache.size <= 20 * 1024 * 1024 &&
+                      "border-yellow-500/50 bg-yellow-500/5"
                   )}
                 >
                   <div className="flex-1 min-w-0">
@@ -946,18 +1011,28 @@ export function ConfigManagerEmbedded({ className }: ConfigManagerEmbeddedProps)
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Badge variant={cache.size > 20 * 1024 * 1024 ? "destructive" : cache.size > 5 * 1024 * 1024 ? "secondary" : "outline"}>
+                    <Badge
+                      variant={
+                        cache.size > 20 * 1024 * 1024
+                          ? "destructive"
+                          : cache.size > 5 * 1024 * 1024
+                            ? "secondary"
+                            : "outline"
+                      }
+                    >
                       {cache.size_formatted}
                     </Badge>
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => setConfirmDialog({
-                        open: true,
-                        title: `清理 ${cache.name}`,
-                        description: `将删除该项目的所有会话文件（${cache.session_count} 个），释放 ${cache.size_formatted}。`,
-                        action: () => cleanProjectCache(cache.name),
-                      })}
+                      onClick={() =>
+                        setConfirmDialog({
+                          open: true,
+                          title: `清理 ${cache.name}`,
+                          description: `将删除该项目的所有会话文件（${cache.session_count} 个），释放 ${cache.size_formatted}。`,
+                          action: () => cleanProjectCache(cache.name),
+                        })
+                      }
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -974,12 +1049,14 @@ export function ConfigManagerEmbedded({ className }: ConfigManagerEmbeddedProps)
               <div>
                 <h3 className="font-medium mb-3 flex items-center gap-2">
                   <Zap className="h-4 w-4" />
-                  Skills ({configItems.filter(item => item.category === 'skill').length})
+                  Skills ({configItems.filter((item) => item.category === "skill").length})
                 </h3>
                 <div className="space-y-2">
-                  {configItems.filter(item => item.category === 'skill').map((item) => (
-                    <ConfigItemRow key={item.id} item={item} onToggle={toggleConfigItem} />
-                  ))}
+                  {configItems
+                    .filter((item) => item.category === "skill")
+                    .map((item) => (
+                      <ConfigItemRow key={item.id} item={item} onToggle={toggleConfigItem} />
+                    ))}
                 </div>
               </div>
 
@@ -987,12 +1064,14 @@ export function ConfigManagerEmbedded({ className }: ConfigManagerEmbeddedProps)
               <div>
                 <h3 className="font-medium mb-3 flex items-center gap-2">
                   <Shield className="h-4 w-4" />
-                  Hooks ({configItems.filter(item => item.category === 'hook').length})
+                  Hooks ({configItems.filter((item) => item.category === "hook").length})
                 </h3>
                 <div className="space-y-2">
-                  {configItems.filter(item => item.category === 'hook').map((item) => (
-                    <ConfigItemRow key={item.id} item={item} onToggle={toggleConfigItem} />
-                  ))}
+                  {configItems
+                    .filter((item) => item.category === "hook")
+                    .map((item) => (
+                      <ConfigItemRow key={item.id} item={item} onToggle={toggleConfigItem} />
+                    ))}
                 </div>
               </div>
             </div>
@@ -1001,7 +1080,10 @@ export function ConfigManagerEmbedded({ className }: ConfigManagerEmbeddedProps)
       </div>
 
       {/* 确认对话框 */}
-      <AlertDialog open={confirmDialog.open} onOpenChange={(open) => setConfirmDialog({ ...confirmDialog, open })}>
+      <AlertDialog
+        open={confirmDialog.open}
+        onOpenChange={(open) => setConfirmDialog({ ...confirmDialog, open })}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>{confirmDialog.title}</AlertDialogTitle>
@@ -1009,10 +1091,12 @@ export function ConfigManagerEmbedded({ className }: ConfigManagerEmbeddedProps)
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>取消</AlertDialogCancel>
-            <AlertDialogAction onClick={async () => {
-              await confirmDialog.action();
-              setConfirmDialog({ ...confirmDialog, open: false });
-            }}>
+            <AlertDialogAction
+              onClick={async () => {
+                await confirmDialog.action();
+                setConfirmDialog({ ...confirmDialog, open: false });
+              }}
+            >
               确认
             </AlertDialogAction>
           </AlertDialogFooter>

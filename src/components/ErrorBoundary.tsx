@@ -1,12 +1,9 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import React, { Component, ReactNode } from "react";
-import { AlertCircle, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
+import { AlertCircle, RefreshCw, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  toUserFriendlyError,
-  type UserFriendlyError,
-} from "@/lib/userFriendlyErrors";
+import { toUserFriendlyError, type UserFriendlyError } from "@/lib/userFriendlyErrors";
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -61,7 +58,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     // Log the error to console
-    logger.error('ErrorBoundary', "Error caught by boundary:", error, errorInfo);
+    logger.error("ErrorBoundary", "Error caught by boundary:", error, errorInfo);
 
     // ✅ NEW: Call optional error handler (e.g., for monitoring/logging)
     this.props.onError?.(error, errorInfo);
@@ -103,16 +100,12 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                   <h3 className="text-lg font-semibold">{friendlyError.title}</h3>
 
                   {/* 用户友好的描述 */}
-                  <p className="text-sm text-muted-foreground">
-                    {friendlyError.description}
-                  </p>
+                  <p className="text-sm text-muted-foreground">{friendlyError.description}</p>
 
                   {/* 建议解决方案 */}
                   {friendlyError.suggestions.length > 0 && (
                     <div className="mt-3 p-3 bg-muted/50 rounded-md">
-                      <p className="text-xs font-medium text-muted-foreground mb-2">
-                        建议：
-                      </p>
+                      <p className="text-xs font-medium text-muted-foreground mb-2">建议：</p>
                       <ul className="text-xs text-muted-foreground space-y-1">
                         {friendlyError.suggestions.map((suggestion, index) => (
                           <li key={index} className="flex items-start gap-2">
@@ -156,14 +149,18 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                       {showTechnicalDetails && (
                         <div className="mt-2 space-y-2">
                           <div>
-                            <p className="text-xs font-medium text-muted-foreground mb-1">错误消息：</p>
+                            <p className="text-xs font-medium text-muted-foreground mb-1">
+                              错误消息：
+                            </p>
                             <pre className="text-xs bg-muted p-2 rounded overflow-auto max-h-20 whitespace-pre-wrap break-words">
                               {this.state.error.message}
                             </pre>
                           </div>
                           {this.state.error.stack && (
                             <div>
-                              <p className="text-xs font-medium text-muted-foreground mb-1">错误堆栈：</p>
+                              <p className="text-xs font-medium text-muted-foreground mb-1">
+                                错误堆栈：
+                              </p>
                               <pre className="text-xs bg-muted p-2 rounded overflow-auto max-h-40 whitespace-pre-wrap break-words font-mono">
                                 {this.state.error.stack}
                               </pre>
@@ -183,4 +180,4 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
     return this.props.children;
   }
-} 
+}

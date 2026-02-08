@@ -116,7 +116,7 @@ function normalizeUsageForIndicator(rawUsage: any): {
 function extractCurrentUsage(
   messages: ClaudeStreamMessage[],
   engine?: string,
-  contextWindowSize?: number,
+  contextWindowSize?: number
 ): {
   inputTokens: number;
   outputTokens: number;
@@ -133,7 +133,7 @@ function extractCurrentUsage(
   };
 
   const scan = (
-    shouldConsider: (msg: ClaudeStreamMessage) => boolean,
+    shouldConsider: (msg: ClaudeStreamMessage) => boolean
   ): {
     inputTokens: number;
     outputTokens: number;
@@ -201,7 +201,7 @@ function extractCurrentUsage(
 export function useContextWindowUsage(
   messages: ClaudeStreamMessage[],
   model?: string,
-  engine?: string,
+  engine?: string
 ): UseContextWindowUsageResult {
   return useMemo(() => {
     // 获取上下文窗口大小（根据引擎和模型）

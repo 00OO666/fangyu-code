@@ -5,7 +5,7 @@
  * 新建会话使用此默认模型，历史会话保持原有模型记忆。
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { ModelType } from "./types";
 
 const STORAGE_KEY = "claude_default_model";
@@ -22,7 +22,7 @@ export function getDefaultModel(): ModelType | null {
     }
     return null;
   } catch (error) {
-    logger.warn('defaultModelStorage', "[defaultModelStorage] Failed to get default model:", error);
+    logger.warn("defaultModelStorage", "[defaultModelStorage] Failed to get default model:", error);
     return null;
   }
 }
@@ -35,7 +35,11 @@ export function setDefaultModel(model: ModelType): void {
   try {
     localStorage.setItem(STORAGE_KEY, model);
   } catch (error) {
-    logger.error('defaultModelStorage', "[defaultModelStorage] Failed to set default model:", error);
+    logger.error(
+      "defaultModelStorage",
+      "[defaultModelStorage] Failed to set default model:",
+      error
+    );
   }
 }
 
@@ -46,7 +50,11 @@ export function clearDefaultModel(): void {
   try {
     localStorage.removeItem(STORAGE_KEY);
   } catch (error) {
-    logger.error('defaultModelStorage', "[defaultModelStorage] Failed to clear default model:", error);
+    logger.error(
+      "defaultModelStorage",
+      "[defaultModelStorage] Failed to clear default model:",
+      error
+    );
   }
 }
 

@@ -1,4 +1,4 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { isFeatureEnabled } from "@/config/featureFlags";
 import type { ClaudeStreamMessage } from "@/types/claude";
 import { getFirstTextContent, getMessageRole } from "@/lib/messageTypeGuards";
@@ -33,7 +33,7 @@ const DEFAULT_WINDOW_SIZE = 50; // Include last 50 messages by default
  */
 export const getOptimizedMessageContext = (
   messages: ClaudeStreamMessage[],
-  windowSize: number = DEFAULT_WINDOW_SIZE,
+  windowSize: number = DEFAULT_WINDOW_SIZE
 ): OptimizedMessageContext => {
   // Feature flag check
   if (!isFeatureEnabled("LAZY_HISTORY_LOADING")) {
@@ -65,8 +65,14 @@ export const getOptimizedMessageContext = (
   const avgTokensPerMessage = 500;
   const estimatedTokensSaved = excludedCount * avgTokensPerMessage;
 
-  logger.debug('MessageContextOptimizer', `Optimized context: ${totalMessages} → ${optimizedMessages.length} messages`);
-  logger.debug('MessageContextOptimizer', `Excluded ${excludedCount} old messages, saved ~${estimatedTokensSaved} tokens`);
+  logger.debug(
+    "MessageContextOptimizer",
+    `Optimized context: ${totalMessages} → ${optimizedMessages.length} messages`
+  );
+  logger.debug(
+    "MessageContextOptimizer",
+    `Excluded ${excludedCount} old messages, saved ~${estimatedTokensSaved} tokens`
+  );
 
   return {
     messages: optimizedMessages,
@@ -86,7 +92,7 @@ export const getOptimizedMessageContext = (
  */
 export const calculateOptimalWindowSize = (
   messages: ClaudeStreamMessage[],
-  targetTokenBudget: number = 10000,
+  targetTokenBudget: number = 10000
 ): number => {
   if (messages.length === 0) return DEFAULT_WINDOW_SIZE;
 
@@ -137,7 +143,7 @@ export const getMessageWindow = (
   totalMessages: number,
   currentWindow: MessageWindow,
   direction: "up" | "down",
-  loadSize: number = 25,
+  loadSize: number = 25
 ): MessageWindow => {
   if (direction === "up") {
     // Load more older messages
@@ -173,7 +179,7 @@ export const initializeMessageWindow = (totalMessages: number): MessageWindow =>
  */
 export const getOptimizationStats = (
   originalCount: number,
-  optimizedCount: number,
+  optimizedCount: number
 ): {
   reductionPercent: number;
   estimatedTokensSaved: number;

@@ -46,38 +46,50 @@ metadata:
 # Skill 标题
 
 ## 概述
+
 [功能描述]
 
 ## 触发条件
+
 [触发关键词列表]
 
 ## 工作流程
+
 ### 步骤 1: xxx
+
 [指令]
 
 ### 步骤 2: xxx
+
 [指令]
 
 ## 注意事项
+
 [重要提醒]
 ```
 
 ## 🎯 三种模式
 
 ### 1. Workflow 模式
+
 适用于有明确步骤的流程：
+
 - 任务规划
 - 代码审查
 - 部署流程
 
 ### 2. Task 模式
+
 适用于工具集合：
+
 - 调试助手
 - 代码生成
 - 文档生成
 
 ### 3. Reference 模式
+
 适用于规范和标准：
+
 - 编码规范
 - API 文档
 - 最佳实践
@@ -85,23 +97,27 @@ metadata:
 ## 🔧 使用方式
 
 ### 自动触发
+
 输入包含触发词时自动匹配：
+
 ```
 用户: 帮我规划一下这个功能
 → 自动激活 task-planner Skill
 ```
 
 ### 手动选择
+
 在 Skills 面板中选择并激活。
 
 ### API 调用
+
 ```typescript
-import { useSkills } from '@/hooks/useSkills';
+import { useSkills } from "@/hooks/useSkills";
 
 const { matchInput, generatePrompt } = useSkills();
 
 // 匹配 Skill
-const matches = await matchInput('帮我调试这个问题');
+const matches = await matchInput("帮我调试这个问题");
 
 // 生成 Prompt 注入
 if (matches.length > 0) {
@@ -112,10 +128,10 @@ if (matches.length > 0) {
 
 ## 📦 内置 Skills
 
-| Skill | 触发词 | 用途 |
-|-------|--------|------|
+| Skill        | 触发词           | 用途     |
+| ------------ | ---------------- | -------- |
 | task-planner | 规划、拆解、计划 | 任务规划 |
-| smart-debug | 调试、报错、诊断 | 智能调试 |
+| smart-debug  | 调试、报错、诊断 | 智能调试 |
 
 ## 🛠️ 创建自定义 Skill
 
@@ -127,6 +143,7 @@ if (matches.length > 0) {
 ## 🔗 与 Spec 模式集成
 
 Skills 可以与 Spec 模式配合使用：
+
 - Skill 提供工作流程指导
 - Spec 提供具体的需求文档
 - 两者结合实现更精准的开发辅助

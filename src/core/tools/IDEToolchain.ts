@@ -1,22 +1,22 @@
 /**
  * IDEToolchain - IDE 工具链统一接口
- * 
+ *
  * 整合 LSP、AST-Grep、Powers、Skills
  * 实现 analyzeCode、validateSyntax 方法
- * 
+ *
  * Requirements: 3.5, 3.6
  */
 
-import { LSPTools, MockLSPClient, LSPClient } from './LSPTools';
-import { ASTGrepTools, ASTGrepExecutor, MockASTGrepExecutor } from './ASTGrepTools';
-import { PowersManager, PowerStorage, MCPClient, MockPowerStorage, MockMCPClient } from './PowersManager';
+import { LSPTools, MockLSPClient, LSPClient } from "./LSPTools";
+import { ASTGrepTools, ASTGrepExecutor, MockASTGrepExecutor } from "./ASTGrepTools";
 import {
-  Diagnostic,
-  Location,
-  Range,
-  ASTMatch,
-  CodeAnalysis
-} from '../types/unified-agent';
+  PowersManager,
+  PowerStorage,
+  MCPClient,
+  MockPowerStorage,
+  MockMCPClient,
+} from "./PowersManager";
+import { Diagnostic, Location, Range, ASTMatch, CodeAnalysis } from "../types/unified-agent";
 
 // 代码分析选项
 export interface AnalyzeOptions {
@@ -47,7 +47,7 @@ export interface CodeSearchResult {
 
 // 重构建议
 export interface RefactorSuggestion {
-  type: 'rename' | 'extract' | 'inline' | 'move';
+  type: "rename" | "extract" | "inline" | "move";
   description: string;
   range: Range;
   newCode?: string;
@@ -74,10 +74,7 @@ export class IDEToolchain {
   constructor(config: ToolchainConfig) {
     this.workspaceRoot = config.workspaceRoot;
 
-    this.lsp = new LSPTools(
-      config.workspaceRoot,
-      config.lspClient ?? new MockLSPClient()
-    );
+    this.lsp = new LSPTools(config.workspaceRoot, config.lspClient ?? new MockLSPClient());
 
     this.ast = new ASTGrepTools(
       config.workspaceRoot,
@@ -107,36 +104,56 @@ export class IDEToolchain {
     // 获取 hover 信息
     if (options.includeHover !== false) {
       tasks.push(
-        this.lsp.hover(file, line, character)
-          .then(hover => { result.hover = hover ?? undefined; })
-          .catch(() => { /* ignore */ })
+        this.lsp
+          .hover(file, line, character)
+          .then((hover) => {
+            result.hover = hover ?? undefined;
+          })
+          .catch(() => {
+            /* ignore */
+          })
       );
     }
 
     // 获取定义位置
     if (options.includeDefinition) {
       tasks.push(
-        this.lsp.definition(file, line, character)
-          .then(def => { result.definition = def ?? undefined; })
-          .catch(() => { /* ignore */ })
+        this.lsp
+          .definition(file, line, character)
+          .then((def) => {
+            result.definition = def ?? undefined;
+          })
+          .catch(() => {
+            /* ignore */
+          })
       );
     }
 
     // 获取引用
     if (options.includeReferences) {
       tasks.push(
-        this.lsp.references(file, line, character)
-          .then(refs => { result.references = refs; })
-          .catch(() => { /* ignore */ })
+        this.lsp
+          .references(file, line, character)
+          .then((refs) => {
+            result.references = refs;
+          })
+          .catch(() => {
+            /* ignore */
+          })
       );
     }
 
     // 获取诊断信息
     if (options.includeDiagnostics !== false) {
       tasks.push(
-        this.lsp.diagnostics(file)
-          .then(diags => { result.diagnostics = diags; })
-          .catch(() => { /* ignore */ })
+        this.lsp
+          .diagnostics(file)
+          .then((diags) => {
+            result.diagnostics = diags;
+          })
+          .catch(() => {
+            /* ignore */
+          })
       );
     }
 
@@ -152,15 +169,15 @@ export class IDEToolchain {
   async validateSyntax(file: string): Promise<SyntaxValidationResult> {
     const diagnostics = await this.lsp.diagnostics(file);
 
-    const errors = diagnostics.filter(d => d.severity === 'error');
-    const warnings = diagnostics.filter(d => d.severity === 'warning');
-    const hints = diagnostics.filter(d => d.severity === 'hint' || d.severity === 'info');
+    const errors = diagnostics.filter((d) => d.severity === "error");
+    const warnings = diagnostics.filter((d) => d.severity === "warning");
+    const hints = diagnostics.filter((d) => d.severity === "hint" || d.severity === "info");
 
     const valid = errors.length === 0;
 
     let summary: string;
     if (valid && warnings.length === 0) {
-      summary = 'No issues found';
+      summary = "No issues found";
     } else if (valid) {
       summary = `${warnings.length} warning(s)`;
     } else {
@@ -172,76 +189,49 @@ export class IDEToolchain {
       errors,
       warnings,
       hints,
-      summary
+      summary,
     };
   }
 
   /**
    * 搜索代码模式
    */
-  async searchCode(
-    pattern: string,
-    language: string,
-    path?: string
-  ): Promise<CodeSearchResult> {
+  async searchCode(pattern: string, language: string, path?: string): Promise<CodeSearchResult> {
     const matches = await this.ast.search(pattern, language, path);
 
     return {
       pattern,
       language,
       matches,
-      totalCount: matches.length
+      totalCount: matches.length,
     };
   }
 
   /**
    * 替换代码模式
    */
-  async replaceCode(
-    pattern: string,
-    replacement: string,
-    language: string,
-    path?: string
-  ) {
-    return this.ast.replace(
-      pattern,
-      replacement,
-      path ?? this.workspaceRoot,
-      language
-    );
+  async replaceCode(pattern: string, replacement: string, language: string, path?: string) {
+    return this.ast.replace(pattern, replacement, path ?? this.workspaceRoot, language);
   }
 
   /**
    * 获取符号的所有引用
    */
-  async findAllReferences(
-    file: string,
-    line: number,
-    character: number
-  ): Promise<Location[]> {
+  async findAllReferences(file: string, line: number, character: number): Promise<Location[]> {
     return this.lsp.references(file, line, character);
   }
 
   /**
    * 重命名符号
    */
-  async renameSymbol(
-    file: string,
-    line: number,
-    character: number,
-    newName: string
-  ) {
+  async renameSymbol(file: string, line: number, character: number, newName: string) {
     return this.lsp.rename(file, line, character, newName);
   }
 
   /**
    * 获取代码补全
    */
-  async getCompletions(
-    file: string,
-    line: number,
-    character: number
-  ) {
+  async getCompletions(file: string, line: number, character: number) {
     return this.lsp.completion(file, line, character);
   }
 
@@ -294,7 +284,7 @@ export class IDEToolchain {
     const results = new Map<string, SyntaxValidationResult>();
 
     await Promise.all(
-      files.map(async file => {
+      files.map(async (file) => {
         const result = await this.validateSyntax(file);
         results.set(file, result);
       })
@@ -331,7 +321,7 @@ export class IDEToolchain {
       totalErrors,
       totalWarnings,
       fileCount: files.length,
-      filesWithErrors
+      filesWithErrors,
     };
   }
 }

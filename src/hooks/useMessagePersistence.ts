@@ -5,13 +5,13 @@
  * 🔧 v2.2.6: 新增，解决刷新后消息丢失的问题
  */
 
-import { logger } from '@/lib/logger';
-import { useEffect, useCallback, useRef } from 'react';
-import type { ClaudeStreamMessage } from '@/types/claude';
+import { logger } from "@/lib/logger";
+import { useEffect, useCallback, useRef } from "react";
+import type { ClaudeStreamMessage } from "@/types/claude";
 
-const DB_NAME = 'fangyu-code-messages';
+const DB_NAME = "fangyu-code-messages";
 const DB_VERSION = 1;
-const STORE_NAME = 'messages';
+const STORE_NAME = "messages";
 const MAX_MESSAGES = 500; // 最多保存 500 条消息
 
 interface StoredSession {
@@ -41,7 +41,7 @@ const openDB = (): Promise<IDBDatabase> => {
     request.onupgradeneeded = (event) => {
       const db = (event.target as IDBOpenDBRequest).result;
       if (!db.objectStoreNames.contains(STORE_NAME)) {
-        db.createObjectStore(STORE_NAME, { keyPath: 'sessionId' });
+        db.createObjectStore(STORE_NAME, { keyPath: "sessionId" });
       }
     };
   });
@@ -53,7 +53,7 @@ const openDB = (): Promise<IDBDatabase> => {
 const saveMessages = async (sessionId: string, messages: ClaudeStreamMessage[]): Promise<void> => {
   try {
     const db = await openDB();
-    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const tx = db.transaction(STORE_NAME, "readwrite");
     const store = tx.objectStore(STORE_NAME);
 
     // 只保存最近的消息
@@ -67,7 +67,7 @@ const saveMessages = async (sessionId: string, messages: ClaudeStreamMessage[]):
 
     store.put(data);
   } catch (error) {
-    logger.warn('useMessagePersistence', '[MessagePersistence] Failed to save messages:', error);
+    logger.warn("useMessagePersistence", "[MessagePersistence] Failed to save messages:", error);
   }
 };
 
@@ -77,7 +77,7 @@ const saveMessages = async (sessionId: string, messages: ClaudeStreamMessage[]):
 const loadMessages = async (sessionId: string): Promise<ClaudeStreamMessage[]> => {
   try {
     const db = await openDB();
-    const tx = db.transaction(STORE_NAME, 'readonly');
+    const tx = db.transaction(STORE_NAME, "readonly");
     const store = tx.objectStore(STORE_NAME);
 
     return new Promise((resolve) => {
@@ -89,7 +89,7 @@ const loadMessages = async (sessionId: string): Promise<ClaudeStreamMessage[]> =
       request.onerror = () => resolve([]);
     });
   } catch (error) {
-    logger.warn('useMessagePersistence', '[MessagePersistence] Failed to load messages:', error);
+    logger.warn("useMessagePersistence", "[MessagePersistence] Failed to load messages:", error);
     return [];
   }
 };
@@ -100,11 +100,11 @@ const loadMessages = async (sessionId: string): Promise<ClaudeStreamMessage[]> =
 const clearMessages = async (sessionId: string): Promise<void> => {
   try {
     const db = await openDB();
-    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const tx = db.transaction(STORE_NAME, "readwrite");
     const store = tx.objectStore(STORE_NAME);
     store.delete(sessionId);
   } catch (error) {
-    logger.warn('useMessagePersistence', '[MessagePersistence] Failed to clear messages:', error);
+    logger.warn("useMessagePersistence", "[MessagePersistence] Failed to clear messages:", error);
   }
 };
 
@@ -114,7 +114,7 @@ const clearMessages = async (sessionId: string): Promise<void> => {
 const cleanupOldSessions = async (): Promise<void> => {
   try {
     const db = await openDB();
-    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const tx = db.transaction(STORE_NAME, "readwrite");
     const store = tx.objectStore(STORE_NAME);
     const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
 
@@ -130,7 +130,11 @@ const cleanupOldSessions = async (): Promise<void> => {
       }
     };
   } catch (error) {
-    logger.warn('useMessagePersistence', '[MessagePersistence] Failed to cleanup old sessions:', error);
+    logger.warn(
+      "useMessagePersistence",
+      "[MessagePersistence] Failed to cleanup old sessions:",
+      error
+    );
   }
 };
 
@@ -143,7 +147,7 @@ export interface UseMessagePersistenceOptions {
 export interface UseMessagePersistenceReturn {
   loadPersistedMessages: () => Promise<ClaudeStreamMessage[]>;
   persistMessages: (messages: ClaudeStreamMessage[]) => void;
-  persistMessagesImmediately: (messages: ClaudeStreamMessage[]) => Promise<void>;  // 🆕 立即保存
+  persistMessagesImmediately: (messages: ClaudeStreamMessage[]) => Promise<void>; // 🆕 立即保存
   clearPersistedMessages: () => Promise<void>;
 }
 

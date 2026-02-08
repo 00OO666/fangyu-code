@@ -1,14 +1,9 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Copy, Check, RefreshCw, Edit2, AlertCircle } from 'lucide-react';
+import { Copy, Check, RefreshCw, Edit2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { clipboardService } from "@/lib/clipboard";
 
@@ -33,7 +28,7 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
       await clipboardService.writeText(content);
       setCopyState("success");
     } catch (error) {
-      logger.error('MessageActions', "[MessageActions] Copy failed:", error);
+      logger.error("MessageActions", "[MessageActions] Copy failed:", error);
       setCopyState("error");
     } finally {
       setTimeout(() => setCopyState("idle"), 2000);
@@ -49,10 +44,12 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
 
   return (
     <TooltipProvider>
-      <div className={cn(
-        "flex items-center gap-1 bg-background/80 backdrop-blur-sm border border-border/50 rounded-md shadow-sm p-1 transition-all",
-        className
-      )}>
+      <div
+        className={cn(
+          "flex items-center gap-1 bg-background/80 backdrop-blur-sm border border-border/50 rounded-md shadow-sm p-1 transition-all",
+          className
+        )}
+      >
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
@@ -85,7 +82,7 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
                 <RefreshCw className="h-3.5 w-3.5" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>{t('message.regenerate')}</TooltipContent>
+            <TooltipContent>{t("message.regenerate")}</TooltipContent>
           </Tooltip>
         )}
 
@@ -101,7 +98,7 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
                 <Edit2 className="h-3.5 w-3.5" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>{t('message.editMessage')}</TooltipContent>
+            <TooltipContent>{t("message.editMessage")}</TooltipContent>
           </Tooltip>
         )}
       </div>

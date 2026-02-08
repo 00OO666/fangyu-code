@@ -1,4 +1,4 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { useEffect, useState, lazy, Suspense } from "react";
 import { AppProviders } from "@/components/providers";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -14,8 +14,12 @@ import { WindowAttentionIndicator } from "@/components/WindowAttentionIndicator"
 const FirstLaunchChangelogDialog = lazy(() => import("@/components/FirstLaunchChangelogDialog"));
 const TauriAutoUpdateDialog = lazy(() => import("@/components/TauriAutoUpdateDialog"));
 // 🔧 FIX: 命名导出需要特殊处理
-const ErrorMonitorPanel = lazy(() => import("@/components/ErrorMonitorPanel").then(module => ({ default: module.ErrorMonitorPanel })));
-const CommandPalette = lazy(() => import("@/components/CommandPalette").then(module => ({ default: module.CommandPalette })));
+const ErrorMonitorPanel = lazy(() =>
+  import("@/components/ErrorMonitorPanel").then((module) => ({ default: module.ErrorMonitorPanel }))
+);
+const CommandPalette = lazy(() =>
+  import("@/components/CommandPalette").then((module) => ({ default: module.CommandPalette }))
+);
 
 /**
  * 主应用组件 - 管理 Claude 目录浏览器界面
@@ -32,23 +36,28 @@ function App() {
   const [showErrorMonitor, setShowErrorMonitor] = useState(() => {
     // 开发模式默认显示，生产模式检查 localStorage
     if (import.meta.env.DEV) return true;
-    return localStorage.getItem('fangyu-show-error-monitor') === 'true';
+    return localStorage.getItem("fangyu-show-error-monitor") === "true";
   });
 
   // 🔧 FIX: 开发模式下确保面板显示（解决 HMR 热更新后状态丢失问题）
   useEffect(() => {
     // 🔧 FIX: 清除可能导致面板不可见的旧位置数据
-    const savedPos = localStorage.getItem('fangyu-error-panel-position');
+    const savedPos = localStorage.getItem("fangyu-error-panel-position");
     if (savedPos) {
       try {
         const pos = JSON.parse(savedPos);
         // 如果位置超出屏幕范围，重置
-        if (pos.x < 0 || pos.y < 0 || pos.x > window.innerWidth - 100 || pos.y > window.innerHeight - 100) {
-          logger.debug('App', '[App] 错误监控面板位置超出屏幕，重置位置');
-          localStorage.removeItem('fangyu-error-panel-position');
+        if (
+          pos.x < 0 ||
+          pos.y < 0 ||
+          pos.x > window.innerWidth - 100 ||
+          pos.y > window.innerHeight - 100
+        ) {
+          logger.debug("App", "[App] 错误监控面板位置超出屏幕，重置位置");
+          localStorage.removeItem("fangyu-error-panel-position");
         }
       } catch {
-        localStorage.removeItem('fangyu-error-panel-position');
+        localStorage.removeItem("fangyu-error-panel-position");
       }
     }
   }, []);
@@ -57,7 +66,7 @@ function App() {
   const { errors, clearErrors, clearError } = useConsoleMonitor({
     enabled: import.meta.env.DEV || showErrorMonitor,
     maxErrors: 50,
-    showOriginal: true
+    showOriginal: true,
   });
 
   // 全局快捷键监听
@@ -65,36 +74,36 @@ function App() {
     const handleKeyDown = (event: KeyboardEvent) => {
       // 调试：打印所有按键
       if (event.ctrlKey && event.shiftKey) {
-        logger.debug('App', '[App] Ctrl+Shift+' + event.key + ' pressed');
+        logger.debug("App", "[App] Ctrl+Shift+" + event.key + " pressed");
       }
-      
+
       // F12 - 打开/关闭开发者工具
-      if (event.key === 'F12') {
+      if (event.key === "F12") {
         event.preventDefault();
         api.openDevtools().catch(console.error);
       }
-      
+
       // Ctrl+Shift+E - 切换错误监控面板（生产环境也可用）
-      if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'e') {
-        logger.debug('App', '[App] Ctrl+Shift+E detected!');
+      if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "e") {
+        logger.debug("App", "[App] Ctrl+Shift+E detected!");
         event.preventDefault();
         event.stopPropagation();
-        setShowErrorMonitor(prev => {
+        setShowErrorMonitor((prev) => {
           const newValue = !prev;
           // 持久化到 localStorage
           if (newValue) {
-            localStorage.setItem('fangyu-show-error-monitor', 'true');
+            localStorage.setItem("fangyu-show-error-monitor", "true");
           } else {
-            localStorage.removeItem('fangyu-show-error-monitor');
+            localStorage.removeItem("fangyu-show-error-monitor");
           }
-          logger.debug('App', `[App] 错误监控面板: ${newValue ? '已开启' : '已关闭'}`);
+          logger.debug("App", `[App] 错误监控面板: ${newValue ? "已开启" : "已关闭"}`);
           return newValue;
         });
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown, { capture: true });
-    return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
+    window.addEventListener("keydown", handleKeyDown, { capture: true });
+    return () => window.removeEventListener("keydown", handleKeyDown, { capture: true });
   }, []);
 
   return (
@@ -128,11 +137,7 @@ function App() {
       {/* 错误监控面板（开发模式自动显示，生产模式 Ctrl+Shift+E 开启） */}
       {showErrorMonitor && (
         <Suspense fallback={null}>
-          <ErrorMonitorPanel
-            errors={errors}
-            onClearAll={clearErrors}
-            onClearError={clearError}
-          />
+          <ErrorMonitorPanel errors={errors} onClearAll={clearErrors} onClearError={clearError} />
         </Suspense>
       )}
 

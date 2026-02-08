@@ -11,7 +11,7 @@
  * - 显示已审批/已拒绝状态
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import React, {
   createContext,
   useContext,
@@ -31,7 +31,7 @@ export interface PendingPlanApproval {
 }
 
 /** 计划状态类型 */
-export type PlanStatus = 'pending' | 'approved' | 'rejected';
+export type PlanStatus = "pending" | "approved" | "rejected";
 
 interface PlanModeContextValue {
   /** 是否处于 Plan 模式 */
@@ -70,9 +70,7 @@ interface PlanModeContextValue {
   setSendPromptCallback: (callback: ((prompt: string) => void) | null) => void;
 }
 
-const PlanModeContext = createContext<PlanModeContextValue | undefined>(
-  undefined
-);
+const PlanModeContext = createContext<PlanModeContextValue | undefined>(undefined);
 
 interface PlanModeProviderProps {
   children: ReactNode;
@@ -91,7 +89,7 @@ function generatePlanId(plan: string): string {
   let hash = 0;
   for (let i = 0; i < content.length; i++) {
     const char = content.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
+    hash = (hash << 5) - hash + char;
     hash = hash & hash; // Convert to 32bit integer
   }
   return `plan_${Math.abs(hash)}_${plan.length}`;
@@ -107,7 +105,7 @@ function loadPlanIds(key: string): Set<string> {
       return new Set(JSON.parse(stored));
     }
   } catch (e) {
-    logger.error('PlanModeContext', `[PlanMode] Failed to load ${key}:`, e);
+    logger.error("PlanModeContext", `[PlanMode] Failed to load ${key}:`, e);
   }
   return new Set();
 }
@@ -119,7 +117,7 @@ function savePlanIds(key: string, ids: Set<string>) {
   try {
     sessionStorage.setItem(key, JSON.stringify([...ids]));
   } catch (e) {
-    logger.error('PlanModeContext', `[PlanMode] Failed to save ${key}:`, e);
+    logger.error("PlanModeContext", `[PlanMode] Failed to save ${key}:`, e);
   }
 }
 
@@ -129,14 +127,13 @@ export function PlanModeProvider({
   onPlanModeChange,
 }: PlanModeProviderProps) {
   const [isPlanMode, setIsPlanModeInternal] = useState(initialPlanMode);
-  const [pendingApproval, setPendingApproval] =
-    useState<PendingPlanApproval | null>(null);
+  const [pendingApproval, setPendingApproval] = useState<PendingPlanApproval | null>(null);
   const [showApprovalDialog, setShowApprovalDialog] = useState(false);
-  const [approvedPlanIds, setApprovedPlanIds] = useState<Set<string>>(
-    () => loadPlanIds('approved_plan_ids')
+  const [approvedPlanIds, setApprovedPlanIds] = useState<Set<string>>(() =>
+    loadPlanIds("approved_plan_ids")
   );
-  const [rejectedPlanIds, setRejectedPlanIds] = useState<Set<string>>(
-    () => loadPlanIds('rejected_plan_ids')
+  const [rejectedPlanIds, setRejectedPlanIds] = useState<Set<string>>(() =>
+    loadPlanIds("rejected_plan_ids")
   );
 
   // 发送提示词的回调引用
@@ -161,42 +158,53 @@ export function PlanModeProvider({
   }, [onPlanModeChange]);
 
   // 获取计划状态
-  const getPlanStatus = useCallback((planId: string): PlanStatus => {
-    if (approvedPlanIds.has(planId)) return 'approved';
-    if (rejectedPlanIds.has(planId)) return 'rejected';
-    return 'pending';
-  }, [approvedPlanIds, rejectedPlanIds]);
+  const getPlanStatus = useCallback(
+    (planId: string): PlanStatus => {
+      if (approvedPlanIds.has(planId)) return "approved";
+      if (rejectedPlanIds.has(planId)) return "rejected";
+      return "pending";
+    },
+    [approvedPlanIds, rejectedPlanIds]
+  );
 
   // 检查计划是否已审批
-  const isPlanApproved = useCallback((planId: string) => {
-    return approvedPlanIds.has(planId);
-  }, [approvedPlanIds]);
+  const isPlanApproved = useCallback(
+    (planId: string) => {
+      return approvedPlanIds.has(planId);
+    },
+    [approvedPlanIds]
+  );
 
   // 检查计划是否已拒绝
-  const isPlanRejected = useCallback((planId: string) => {
-    return rejectedPlanIds.has(planId);
-  }, [rejectedPlanIds]);
+  const isPlanRejected = useCallback(
+    (planId: string) => {
+      return rejectedPlanIds.has(planId);
+    },
+    [rejectedPlanIds]
+  );
 
   // 触发计划审批
-  const triggerPlanApproval = useCallback((plan: string) => {
-    const planId = generatePlanId(plan);
+  const triggerPlanApproval = useCallback(
+    (plan: string) => {
+      const planId = generatePlanId(plan);
 
-    // 如果已审批或已拒绝，不再弹窗
-    if (approvedPlanIds.has(planId)) {
-      return;
-    }
-    if (rejectedPlanIds.has(planId)) {
-      return;
-    }
+      // 如果已审批或已拒绝，不再弹窗
+      if (approvedPlanIds.has(planId)) {
+        return;
+      }
+      if (rejectedPlanIds.has(planId)) {
+        return;
+      }
 
-
-    setPendingApproval({
-      plan,
-      planId,
-      timestamp: Date.now(),
-    });
-    setShowApprovalDialog(true);
-  }, [approvedPlanIds, rejectedPlanIds]);
+      setPendingApproval({
+        plan,
+        planId,
+        timestamp: Date.now(),
+      });
+      setShowApprovalDialog(true);
+    },
+    [approvedPlanIds, rejectedPlanIds]
+  );
 
   // 设置发送提示词回调
   const setSendPromptCallback = useCallback((callback: ((prompt: string) => void) | null) => {
@@ -209,10 +217,10 @@ export function PlanModeProvider({
 
     const { planId } = pendingApproval;
     // 标记为已审批
-    setApprovedPlanIds(prev => {
+    setApprovedPlanIds((prev) => {
       const newSet = new Set(prev);
       newSet.add(planId);
-      savePlanIds('approved_plan_ids', newSet);
+      savePlanIds("approved_plan_ids", newSet);
       return newSet;
     });
 
@@ -239,10 +247,10 @@ export function PlanModeProvider({
 
     const { planId } = pendingApproval;
     // 标记为已拒绝
-    setRejectedPlanIds(prev => {
+    setRejectedPlanIds((prev) => {
       const newSet = new Set(prev);
       newSet.add(planId);
-      savePlanIds('rejected_plan_ids', newSet);
+      savePlanIds("rejected_plan_ids", newSet);
       return newSet;
     });
 
@@ -259,45 +267,44 @@ export function PlanModeProvider({
 
   // ✅ 性能优化 (v2.7.6): 使用 useMemo 缓存 context value
   // 只有当依赖的值真正变化时才重新创建对象，减少不必要的重渲染
-  const value = React.useMemo<PlanModeContextValue>(() => ({
-    isPlanMode,
-    setIsPlanMode,
-    togglePlanMode,
-    pendingApproval,
-    showApprovalDialog,
-    triggerPlanApproval,
-    approvePlan,
-    rejectPlan,
-    closeApprovalDialog,
-    getPlanStatus,
-    isPlanApproved,
-    isPlanRejected,
-    approvedPlanIds,
-    rejectedPlanIds,
-    setSendPromptCallback,
-  }), [
-    isPlanMode,
-    setIsPlanMode,
-    togglePlanMode,
-    pendingApproval,
-    showApprovalDialog,
-    triggerPlanApproval,
-    approvePlan,
-    rejectPlan,
-    closeApprovalDialog,
-    getPlanStatus,
-    isPlanApproved,
-    isPlanRejected,
-    approvedPlanIds,
-    rejectedPlanIds,
-    setSendPromptCallback,
-  ]);
-
-  return (
-    <PlanModeContext.Provider value={value}>
-      {children}
-    </PlanModeContext.Provider>
+  const value = React.useMemo<PlanModeContextValue>(
+    () => ({
+      isPlanMode,
+      setIsPlanMode,
+      togglePlanMode,
+      pendingApproval,
+      showApprovalDialog,
+      triggerPlanApproval,
+      approvePlan,
+      rejectPlan,
+      closeApprovalDialog,
+      getPlanStatus,
+      isPlanApproved,
+      isPlanRejected,
+      approvedPlanIds,
+      rejectedPlanIds,
+      setSendPromptCallback,
+    }),
+    [
+      isPlanMode,
+      setIsPlanMode,
+      togglePlanMode,
+      pendingApproval,
+      showApprovalDialog,
+      triggerPlanApproval,
+      approvePlan,
+      rejectPlan,
+      closeApprovalDialog,
+      getPlanStatus,
+      isPlanApproved,
+      isPlanRejected,
+      approvedPlanIds,
+      rejectedPlanIds,
+      setSendPromptCallback,
+    ]
   );
+
+  return <PlanModeContext.Provider value={value}>{children}</PlanModeContext.Provider>;
 }
 
 export function usePlanMode() {

@@ -29,12 +29,7 @@ export const ViewModeToggle: React.FC<ViewModeToggleProps> = ({ className }) => 
       title={isCliMonitorMode ? "切换到普通模式" : "切换到 CLI 监控模式"}
     >
       {/* 图标 */}
-      <svg
-        className="w-5 h-5"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         {isCliMonitorMode ? (
           // CLI 监控模式图标（网格）
           <path
@@ -58,9 +53,7 @@ export const ViewModeToggle: React.FC<ViewModeToggleProps> = ({ className }) => 
       <span>{isCliMonitorMode ? "CLI 监控" : "普通模式"}</span>
 
       {/* 活跃会话数量徽章 */}
-      {isCliMonitorMode && (
-        <ActiveSessionsBadge />
-      )}
+      {isCliMonitorMode && <ActiveSessionsBadge />}
     </button>
   );
 };

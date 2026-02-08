@@ -8,7 +8,7 @@
  */
 
 import { useState, useMemo } from "react";
-import { HelpCircle, Send, XCircle, CheckCircle, Check } from 'lucide-react';
+import { HelpCircle, Send, XCircle, CheckCircle, Check } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -47,7 +47,7 @@ export function AskUserQuestionDialog({
 
   // 处理单选
   const handleSingleSelect = (questionKey: string, optionLabel: string) => {
-    setSelectedAnswers(prev => ({
+    setSelectedAnswers((prev) => ({
       ...prev,
       [questionKey]: optionLabel,
     }));
@@ -55,7 +55,7 @@ export function AskUserQuestionDialog({
 
   // 处理多选
   const handleMultiSelect = (questionKey: string, optionLabel: string, checked: boolean) => {
-    setSelectedAnswers(prev => {
+    setSelectedAnswers((prev) => {
       const current = prev[questionKey];
       const currentArray = Array.isArray(current) ? current : [];
 
@@ -69,7 +69,7 @@ export function AskUserQuestionDialog({
         // 从数组移除
         return {
           ...prev,
-          [questionKey]: currentArray.filter(item => item !== optionLabel),
+          [questionKey]: currentArray.filter((item) => item !== optionLabel),
         };
       }
     });
@@ -89,7 +89,7 @@ export function AskUserQuestionDialog({
 
   // 检查是否所有问题都已回答
   const allAnswered = useMemo(() => {
-    return questions.every(q => {
+    return questions.every((q) => {
       const key = q.header || q.question;
       const answer = selectedAnswers[key];
       if (Array.isArray(answer)) {
@@ -124,9 +124,7 @@ export function AskUserQuestionDialog({
             </div>
             <div>
               <DialogTitle className="text-lg">Claude 正在询问你</DialogTitle>
-              <DialogDescription>
-                请回答以下问题，Claude 将根据你的答案继续执行
-              </DialogDescription>
+              <DialogDescription>请回答以下问题，Claude 将根据你的答案继续执行</DialogDescription>
             </div>
           </div>
         </DialogHeader>
@@ -144,9 +142,7 @@ export function AskUserQuestionDialog({
                     key={qIndex}
                     className={cn(
                       "p-4 rounded-lg border space-y-3 transition-all",
-                      hasAnswer
-                        ? "border-green-500/30 bg-green-500/5"
-                        : "border-border bg-muted/20"
+                      hasAnswer ? "border-green-500/30 bg-green-500/5" : "border-border bg-muted/20"
                     )}
                   >
                     {/* 问题头部 */}
@@ -162,9 +158,7 @@ export function AskUserQuestionDialog({
                       </div>
                       <div className="flex-1">
                         {q.header && (
-                          <div className="text-sm font-semibold text-primary mb-1">
-                            {q.header}
-                          </div>
+                          <div className="text-sm font-semibold text-primary mb-1">{q.header}</div>
                         )}
                         <div className="text-sm text-foreground">{q.question}</div>
                       </div>
@@ -229,7 +223,9 @@ export function AskUserQuestionDialog({
                                   <div
                                     className={cn(
                                       "text-sm font-medium mb-0.5",
-                                      isSelected ? "text-green-700 dark:text-green-300" : "text-foreground"
+                                      isSelected
+                                        ? "text-green-700 dark:text-green-300"
+                                        : "text-foreground"
                                     )}
                                   >
                                     {option.label}
@@ -273,17 +269,15 @@ export function AskUserQuestionDialog({
           <p className="font-medium mb-1">提示：</p>
           <ul className="list-disc list-inside space-y-1">
             <li>请为每个问题选择一个或多个选项</li>
-            <li>点击<strong>提交答案</strong>后，你的选择将发送给 Claude</li>
+            <li>
+              点击<strong>提交答案</strong>后，你的选择将发送给 Claude
+            </li>
             <li>Claude 将根据你的答案继续执行任务</li>
           </ul>
         </div>
 
         <DialogFooter className="gap-2 sm:gap-2">
-          <Button
-            variant="outline"
-            onClick={handleClose}
-            className="gap-2"
-          >
+          <Button variant="outline" onClick={handleClose} className="gap-2">
             <XCircle className="h-4 w-4" />
             稍后回答
           </Button>
@@ -293,7 +287,8 @@ export function AskUserQuestionDialog({
             className="gap-2 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Send className="h-4 w-4" />
-            提交答案 {allAnswered ? "" : `(${Object.keys(selectedAnswers).length}/${questions.length})`}
+            提交答案{" "}
+            {allAnswered ? "" : `(${Object.keys(selectedAnswers).length}/${questions.length})`}
           </Button>
         </DialogFooter>
       </DialogContent>

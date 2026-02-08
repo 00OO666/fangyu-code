@@ -10,7 +10,7 @@
  * All functions are pure or have minimal side effects for better testability
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { open } from "@tauri-apps/plugin-dialog";
 import { copyTextToClipboard } from "@/lib/clipboard";
 import type { ClaudeStreamMessage } from "@/types/claude";
@@ -60,9 +60,9 @@ export async function selectProjectPath(): Promise<string | null> {
 
     return selected as string | null;
   } catch (err) {
-    logger.error('sessionHelpers', "Failed to select directory:", err);
+    logger.error("sessionHelpers", "Failed to select directory:", err);
     throw new Error(
-      `Failed to select directory: ${err instanceof Error ? err.message : String(err)}`,
+      `Failed to select directory: ${err instanceof Error ? err.message : String(err)}`
     );
   }
 }
@@ -87,7 +87,7 @@ export async function copyAsJsonl(rawJsonlOutput: string[]): Promise<void> {
  */
 export async function copyAsMarkdown(
   messages: ClaudeStreamMessage[],
-  projectPath: string,
+  projectPath: string
 ): Promise<void> {
   let markdown = `# Claude 代码会话\n\n`;
   markdown += `**Project:** ${projectPath}\n`;
@@ -235,7 +235,7 @@ export function extractTextFromContent(content: MessageContent): string {
  */
 export function getConversationContext(
   messages: ClaudeStreamMessage[],
-  customConfig?: Partial<PromptContextConfig>,
+  customConfig?: Partial<PromptContextConfig>
 ): string[] {
   // Load config from localStorage and merge with custom config
   const config = {

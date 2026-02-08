@@ -3,7 +3,7 @@
  * Theme System Type Definitions
  */
 
-export type ThemeName = 'deep-glass-pro' | 'deep-glass-scifi';
+export type ThemeName = "deep-glass-pro" | "deep-glass-scifi";
 
 export interface ThemeColors {
   // 背景色
@@ -20,8 +20,8 @@ export interface ThemeColors {
   textDisabled: string;
 
   // 强调色
-  accentPrimary: string;    // 主强调色（Amber for sci-fi, Blue for pro）
-  accentSecondary: string;  // 次强调色（Sci-Fi Blue for sci-fi）
+  accentPrimary: string; // 主强调色（Amber for sci-fi, Blue for pro）
+  accentSecondary: string; // 次强调色（Sci-Fi Blue for sci-fi）
   accentBlue: string;
   accentGreen: string;
   accentYellow: string;
@@ -35,9 +35,9 @@ export interface ThemeColors {
 }
 
 export interface ThemeFonts {
-  display: string;  // 显示字体（Orbitron for sci-fi, Inter for pro）
-  mono: string;     // 等宽字体
-  sans: string;     // 正文字体
+  display: string; // 显示字体（Orbitron for sci-fi, Inter for pro）
+  mono: string; // 等宽字体
+  sans: string; // 正文字体
 }
 
 export interface ThemeEffects {
@@ -47,12 +47,12 @@ export interface ThemeEffects {
   blurGlassStrong: string;
 
   // 特效开关
-  enableScanline: boolean;      // 扫描线效果
-  enableNeonGlow: boolean;      // 霓虹灯发光
+  enableScanline: boolean; // 扫描线效果
+  enableNeonGlow: boolean; // 霓虹灯发光
   enableBackgroundGlow: boolean; // 背景光晕
 
   // 性能模式
-  performanceMode: 'full' | 'balanced' | 'minimal';
+  performanceMode: "full" | "balanced" | "minimal";
 }
 
 export interface Theme {

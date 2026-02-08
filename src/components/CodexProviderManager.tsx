@@ -1,23 +1,45 @@
-import { logger } from '@/lib/logger';
-import { useState, useEffect } from 'react';
+import { logger } from "@/lib/logger";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { Badge } from "@/components/ui/badge";
-import { Settings2, Globe, Check, AlertCircle, RefreshCw, Trash2, TestTube, Eye, EyeOff, Plus, Edit, Trash, FileCode, ExternalLink, Search } from 'lucide-react';
-import { api, type CodexProviderConfig, type CurrentCodexConfig } from '@/lib/api';
-import { Toast } from '@/components/ui/toast';
-import CodexProviderForm from './CodexProviderForm';
+import {
+  Settings2,
+  Globe,
+  Check,
+  AlertCircle,
+  RefreshCw,
+  Trash2,
+  TestTube,
+  Eye,
+  EyeOff,
+  Plus,
+  Edit,
+  Trash,
+  FileCode,
+  ExternalLink,
+  Search,
+} from "lucide-react";
+import { api, type CodexProviderConfig, type CurrentCodexConfig } from "@/lib/api";
+import { Toast } from "@/components/ui/toast";
+import CodexProviderForm from "./CodexProviderForm";
 import {
   codexProviderPresets,
   extractApiKeyFromAuth,
   extractBaseUrlFromConfig,
   extractModelFromConfig,
   getCategoryKey,
-} from '@/config/codexProviderPresets';
+} from "@/config/codexProviderPresets";
 import { useTranslation } from "@/hooks/useTranslation";
-import { InlineAPITester } from './settings/InlineAPITester';
+import { InlineAPITester } from "./settings/InlineAPITester";
 
 interface CodexProviderManagerProps {
   onBack?: () => void;
@@ -35,7 +57,10 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
   const [showTokens, setShowTokens] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingProvider, setEditingProvider] = useState<CodexProviderConfig | null>(null);
-  const [toastMessage, setToastMessage] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [toastMessage, setToastMessage] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
 
   // Delete confirmation dialog state
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -59,19 +84,23 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
       try {
         customPresets = await api.getCodexProviderPresets();
       } catch (error) {
-        logger.warn('CodexProviderManager', 'Failed to load custom Codex presets, using defaults:', error);
+        logger.warn(
+          "CodexProviderManager",
+          "Failed to load custom Codex presets, using defaults:",
+          error
+        );
       }
 
       try {
         config = await api.getCurrentCodexConfig();
       } catch (error) {
-        logger.warn('CodexProviderManager', 'Failed to load current Codex config:', error);
+        logger.warn("CodexProviderManager", "Failed to load current Codex config:", error);
       }
 
       // 合并内置预设和自定义预设
       const builtInPresets: CodexProviderConfig[] = codexProviderPresets
-        .filter(p => !p.isCustomTemplate) // 排除自定义模板
-        .map(p => ({
+        .filter((p) => !p.isCustomTemplate) // 排除自定义模板
+        .map((p) => ({
           id: p.id,
           name: p.name,
           description: p.description,
@@ -87,8 +116,8 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
       setPresets([...builtInPresets, ...customPresets]);
       setCurrentConfig(config);
     } catch (error) {
-      logger.error('CodexProviderManager', 'Failed to load Codex provider data:', error);
-      setToastMessage({ message: t('provider.loadCodexConfigFailed'), type: 'error' });
+      logger.error("CodexProviderManager", "Failed to load Codex provider data:", error);
+      setToastMessage({ message: t("provider.loadCodexConfigFailed"), type: "error" });
     } finally {
       setLoading(false);
     }
@@ -98,11 +127,11 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
     try {
       setSwitching(config.id);
       const message = await api.switchCodexProvider(config);
-      setToastMessage({ message, type: 'success' });
+      setToastMessage({ message, type: "success" });
       await loadData();
     } catch (error) {
-      logger.error('CodexProviderManager', 'Failed to switch Codex provider:', error);
-      setToastMessage({ message: t('provider.switchCodexFailed'), type: 'error' });
+      logger.error("CodexProviderManager", "Failed to switch Codex provider:", error);
+      setToastMessage({ message: t("provider.switchCodexFailed"), type: "error" });
     } finally {
       setSwitching(null);
     }
@@ -110,13 +139,13 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
 
   const clearProvider = async () => {
     try {
-      setSwitching('clear');
+      setSwitching("clear");
       const message = await api.clearCodexProviderConfig();
-      setToastMessage({ message, type: 'success' });
+      setToastMessage({ message, type: "success" });
       await loadData();
     } catch (error) {
-      logger.error('CodexProviderManager', 'Failed to clear Codex provider:', error);
-      setToastMessage({ message: t('provider.clearCodexConfigFailed'), type: 'error' });
+      logger.error("CodexProviderManager", "Failed to clear Codex provider:", error);
+      setToastMessage({ message: t("provider.clearCodexConfigFailed"), type: "error" });
     } finally {
       setSwitching(null);
     }
@@ -128,10 +157,10 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
       const baseUrl = extractBaseUrlFromConfig(config.config);
       const apiKey = extractApiKeyFromAuth(config.auth);
       const message = await api.testCodexProviderConnection(baseUrl, apiKey);
-      setToastMessage({ message, type: 'success' });
+      setToastMessage({ message, type: "success" });
     } catch (error) {
-      logger.error('CodexProviderManager', 'Failed to test Codex connection:', error);
-      setToastMessage({ message: t('provider.connectionTestFailed'), type: 'error' });
+      logger.error("CodexProviderManager", "Failed to test Codex connection:", error);
+      setToastMessage({ message: t("provider.connectionTestFailed"), type: "error" });
     } finally {
       setTesting(null);
     }
@@ -158,13 +187,13 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
     try {
       setDeleting(providerToDelete.id);
       await api.deleteCodexProviderConfig(providerToDelete.id);
-      setToastMessage({ message: t('provider.codexDeleteSuccess'), type: 'success' });
+      setToastMessage({ message: t("provider.codexDeleteSuccess"), type: "success" });
       await loadData();
       setDeleteDialogOpen(false);
       setProviderToDelete(null);
     } catch (error) {
-      logger.error('CodexProviderManager', 'Failed to delete Codex provider:', error);
-      setToastMessage({ message: t('provider.codexDeleteFailed'), type: 'error' });
+      logger.error("CodexProviderManager", "Failed to delete Codex provider:", error);
+      setToastMessage({ message: t("provider.codexDeleteFailed"), type: "error" });
     } finally {
       setDeleting(null);
     }
@@ -175,7 +204,7 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
     setProviderToDelete(null);
   };
 
-  const handleFormSubmit = async (formData: Omit<CodexProviderConfig, 'id'>) => {
+  const handleFormSubmit = async (formData: Omit<CodexProviderConfig, "id">) => {
     try {
       if (editingProvider) {
         const updatedConfig = { ...formData, id: editingProvider.id };
@@ -185,24 +214,31 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
         if (isCurrentProvider(editingProvider)) {
           try {
             await api.switchCodexProvider(updatedConfig);
-            setToastMessage({ message: t('provider.codexUpdateSyncSuccess'), type: 'success' });
+            setToastMessage({ message: t("provider.codexUpdateSyncSuccess"), type: "success" });
           } catch (switchError) {
-            logger.error('CodexProviderManager', 'Failed to sync Codex provider config:', switchError);
-            setToastMessage({ message: t('provider.codexUpdateSyncFailed'), type: 'error' });
+            logger.error(
+              "CodexProviderManager",
+              "Failed to sync Codex provider config:",
+              switchError
+            );
+            setToastMessage({ message: t("provider.codexUpdateSyncFailed"), type: "error" });
           }
         } else {
-          setToastMessage({ message: t('provider.codexUpdateSuccess'), type: 'success' });
+          setToastMessage({ message: t("provider.codexUpdateSuccess"), type: "success" });
         }
       } else {
         await api.addCodexProviderConfig(formData);
-        setToastMessage({ message: t('provider.codexAddSuccess'), type: 'success' });
+        setToastMessage({ message: t("provider.codexAddSuccess"), type: "success" });
       }
       setShowForm(false);
       setEditingProvider(null);
       await loadData();
     } catch (error) {
-      logger.error('CodexProviderManager', 'Failed to save Codex provider:', error);
-      setToastMessage({ message: editingProvider ? t('provider.codexUpdateFailed') : t('provider.codexAddFailed'), type: 'error' });
+      logger.error("CodexProviderManager", "Failed to save Codex provider:", error);
+      setToastMessage({
+        message: editingProvider ? t("provider.codexUpdateFailed") : t("provider.codexAddFailed"),
+        type: "error",
+      });
     }
   };
 
@@ -216,7 +252,7 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
     if (!currentConfig) return false;
     // 通过 baseUrl 判断（更可靠）
     const configBaseUrl = extractBaseUrlFromConfig(config.config);
-    const currentBaseUrl = currentConfig.baseUrl || '';
+    const currentBaseUrl = currentConfig.baseUrl || "";
     // 官方供应商特殊处理
     if (config.isOfficial && !currentBaseUrl) {
       return true;
@@ -228,22 +264,22 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
   const isBuiltInPreset = (config: CodexProviderConfig): boolean => {
     // 如果配置有 createdAt 字段（即使值为 null），说明是用户自定义的配置
     // 内置预设从代码中加载，不会有 createdAt 字段
-    if ('createdAt' in config) {
+    if ("createdAt" in config) {
       return false;
     }
     // 检查 ID 是否在内置预设列表中
-    return codexProviderPresets.some(p => p.id === config.id);
+    return codexProviderPresets.some((p) => p.id === config.id);
   };
 
   const toggleApiTester = (configId: string) => {
-    setExpandedTesterId(prev => prev === configId ? null : configId);
+    setExpandedTesterId((prev) => (prev === configId ? null : configId));
   };
 
   const maskToken = (token: string): string => {
     if (!token || token.length <= 10) return token;
     const start = token.substring(0, 8);
     const end = token.substring(token.length - 4);
-    return `${start}${'*'.repeat(Math.min(token.length - 12, 20))}${end}`;
+    return `${start}${"*".repeat(Math.min(token.length - 12, 20))}${end}`;
   };
 
   if (loading) {
@@ -251,7 +287,7 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
           <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground mx-auto mb-4" />
-          <p className="text-sm text-muted-foreground">{t('provider.loadingCodexConfig')}</p>
+          <p className="text-sm text-muted-foreground">{t("provider.loadingCodexConfig")}</p>
         </div>
       </div>
     );
@@ -263,30 +299,29 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
       <div className="flex items-center justify-between p-4 border-b">
         <div className="flex items-center gap-3">
           {onBack && (
-            <Button variant="ghost" size="icon" onClick={onBack} className="h-8 w-8" aria-label={t('provider.backToSettings')}>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onBack}
+              className="h-8 w-8"
+              aria-label={t("provider.backToSettings")}
+            >
               <Settings2 className="h-4 w-4" aria-hidden="true" />
             </Button>
           )}
           <div>
             <h1 className="text-lg font-semibold flex items-center gap-2">
               <FileCode className="h-5 w-5" />
-              {t('provider.codexProviderManager')}
+              {t("provider.codexProviderManager")}
             </h1>
-            <p className="text-xs text-muted-foreground">
-              {t('provider.switchCodexProvider')}
-            </p>
+            <p className="text-xs text-muted-foreground">{t("provider.switchCodexProvider")}</p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <Button
-            variant="default"
-            size="sm"
-            onClick={handleAddProvider}
-            className="text-xs"
-          >
+          <Button variant="default" size="sm" onClick={handleAddProvider} className="text-xs">
             <Plus className="h-3 w-3 mr-1" aria-hidden="true" />
-            {t('provider.addProvider')}
+            {t("provider.addProvider")}
           </Button>
           <Button
             variant="outline"
@@ -295,21 +330,21 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
             className="text-xs"
           >
             <Eye className="h-3 w-3 mr-1" aria-hidden="true" />
-            {t('provider.viewCurrentConfig')}
+            {t("provider.viewCurrentConfig")}
           </Button>
           <Button
             variant="destructive"
             size="sm"
             onClick={clearProvider}
-            disabled={switching === 'clear'}
+            disabled={switching === "clear"}
             className="text-xs"
           >
-            {switching === 'clear' ? (
+            {switching === "clear" ? (
               <RefreshCw className="h-3 w-3 mr-1 animate-spin" aria-hidden="true" />
             ) : (
               <Trash2 className="h-3 w-3 mr-1" aria-hidden="true" />
             )}
-            {t('provider.clearConfig')}
+            {t("provider.clearConfig")}
           </Button>
         </div>
       </div>
@@ -321,16 +356,21 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
             <div className="flex items-center justify-center py-12">
               <div className="text-center">
                 <Globe className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-sm text-muted-foreground mb-4">{t('provider.noCodexProviders')}</p>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {t("provider.noCodexProviders")}
+                </p>
                 <Button onClick={handleAddProvider} size="sm">
                   <Plus className="h-4 w-4 mr-2" />
-                  {t('provider.addFirstProvider')}
+                  {t("provider.addFirstProvider")}
                 </Button>
               </div>
             </div>
           ) : (
             presets.map((config) => (
-              <Card key={config.id} className={`overflow-hidden ${isCurrentProvider(config) ? 'ring-2 ring-primary' : ''}`}>
+              <Card
+                key={config.id}
+                className={`overflow-hidden ${isCurrentProvider(config) ? "ring-2 ring-primary" : ""}`}
+              >
                 <div className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
@@ -342,17 +382,20 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
                         {isCurrentProvider(config) && (
                           <Badge variant="secondary" className="text-xs">
                             <Check className="h-3 w-3 mr-1" />
-                            {t('provider.currentUsing')}
+                            {t("provider.currentUsing")}
                           </Badge>
                         )}
                         {config.isOfficial && (
                           <Badge variant="outline" className="text-xs bg-blue-50 dark:bg-blue-950">
-                            {t('provider.official')}
+                            {t("provider.official")}
                           </Badge>
                         )}
                         {config.isPartner && (
-                          <Badge variant="outline" className="text-xs bg-green-50 dark:bg-green-950">
-                            {t('provider.partner')}
+                          <Badge
+                            variant="outline"
+                            className="text-xs bg-green-50 dark:bg-green-950"
+                          >
+                            {t("provider.partner")}
                           </Badge>
                         )}
                         {config.category && (
@@ -364,11 +407,16 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
 
                       <div className="space-y-1 text-sm text-muted-foreground">
                         {config.description && (
-                          <p><span className="font-medium">{t('provider.description')}</span>{config.description.startsWith('provider.') ? t(config.description) : config.description}</p>
+                          <p>
+                            <span className="font-medium">{t("provider.description")}</span>
+                            {config.description.startsWith("provider.")
+                              ? t(config.description)
+                              : config.description}
+                          </p>
                         )}
                         {config.websiteUrl && (
                           <p className="flex items-center gap-1">
-                            <span className="font-medium">{t('provider.website')}</span>
+                            <span className="font-medium">{t("provider.website")}</span>
                             <a
                               href={config.websiteUrl}
                               target="_blank"
@@ -383,15 +431,24 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
                         {!config.isOfficial && (
                           <>
                             {extractApiKeyFromAuth(config.auth) && (
-                              <p><span className="font-medium">{t('provider.apiKey')}</span>
-                                {showTokens ? extractApiKeyFromAuth(config.auth) : maskToken(extractApiKeyFromAuth(config.auth))}
+                              <p>
+                                <span className="font-medium">{t("provider.apiKey")}</span>
+                                {showTokens
+                                  ? extractApiKeyFromAuth(config.auth)
+                                  : maskToken(extractApiKeyFromAuth(config.auth))}
                               </p>
                             )}
                             {extractBaseUrlFromConfig(config.config) && (
-                              <p><span className="font-medium">{t('provider.apiUrl')}</span>{extractBaseUrlFromConfig(config.config)}</p>
+                              <p>
+                                <span className="font-medium">{t("provider.apiUrl")}</span>
+                                {extractBaseUrlFromConfig(config.config)}
+                              </p>
                             )}
                             {extractModelFromConfig(config.config) && (
-                              <p><span className="font-medium">{t('provider.model')}</span>{extractModelFromConfig(config.config)}</p>
+                              <p>
+                                <span className="font-medium">{t("provider.model")}</span>
+                                {extractModelFromConfig(config.config)}
+                              </p>
                             )}
                           </>
                         )}
@@ -407,7 +464,7 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
                             onClick={() => testConnection(config)}
                             disabled={testing === config.id}
                             className="text-xs"
-                            aria-label={t('tooltips.testConnection')}
+                            aria-label={t("tooltips.testConnection")}
                           >
                             {testing === config.id ? (
                               <RefreshCw className="h-3 w-3 animate-spin" aria-hidden="true" />
@@ -421,7 +478,7 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
                             variant="outline"
                             size="sm"
                             onClick={() => toggleApiTester(config.id)}
-                            className={`text-xs ${expandedTesterId === config.id ? 'bg-green-100 dark:bg-green-900/30 text-green-600' : 'text-green-600 hover:text-green-700'}`}
+                            className={`text-xs ${expandedTesterId === config.id ? "bg-green-100 dark:bg-green-900/30 text-green-600" : "text-green-600 hover:text-green-700"}`}
                             aria-label="测试所有模型"
                             title="测试代理商支持的所有 OpenAI 模型"
                           >
@@ -437,7 +494,7 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
                             size="sm"
                             onClick={() => handleEditProvider(config)}
                             className="text-xs"
-                            aria-label={t('provider.editProvider')}
+                            aria-label={t("provider.editProvider")}
                           >
                             <Edit className="h-3 w-3" aria-hidden="true" />
                           </Button>
@@ -448,7 +505,7 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
                             onClick={() => handleDeleteProvider(config)}
                             disabled={deleting === config.id}
                             className="text-xs text-red-600 hover:text-red-700"
-                            aria-label={t('dialogs.confirmDelete')}
+                            aria-label={t("dialogs.confirmDelete")}
                           >
                             {deleting === config.id ? (
                               <RefreshCw className="h-3 w-3 animate-spin" aria-hidden="true" />
@@ -470,7 +527,9 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
                         ) : (
                           <Check className="h-3 w-3 mr-1" aria-hidden="true" />
                         )}
-                        {isCurrentProvider(config) ? t('provider.alreadySelected') : t('provider.switchToConfig')}
+                        {isCurrentProvider(config)
+                          ? t("provider.alreadySelected")
+                          : t("provider.switchToConfig")}
                       </Button>
                     </div>
                   </div>
@@ -480,8 +539,8 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
                 {!config.isOfficial && (
                   <InlineAPITester
                     provider="openai"
-                    apiKey={extractApiKeyFromAuth(config.auth) || ''}
-                    baseUrl={extractBaseUrlFromConfig(config.config) || ''}
+                    apiKey={extractApiKeyFromAuth(config.auth) || ""}
+                    baseUrl={extractBaseUrlFromConfig(config.config) || ""}
                     isOpen={expandedTesterId === config.id}
                     onClose={() => setExpandedTesterId(null)}
                   />
@@ -504,7 +563,7 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
                 ) : (
                   <Eye className="h-3 w-3 mr-1" aria-hidden="true" />
                 )}
-                {showTokens ? t('provider.hideApiKey') : t('provider.showApiKey')}
+                {showTokens ? t("provider.hideApiKey") : t("provider.showApiKey")}
               </Button>
             </div>
           )}
@@ -515,7 +574,7 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
       <Dialog open={showCurrentConfig} onOpenChange={setShowCurrentConfig}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>{t('provider.currentCodexConfig')}</DialogTitle>
+            <DialogTitle>{t("provider.currentCodexConfig")}</DialogTitle>
             <VisuallyHidden.Root>
               <DialogDescription>查看当前 Codex 配置信息</DialogDescription>
             </VisuallyHidden.Root>
@@ -579,7 +638,7 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
                     ) : (
                       <Eye className="h-3 w-3 mr-1" aria-hidden="true" />
                     )}
-                    {showTokens ? t('provider.hideApiKey') : t('provider.showApiKey')}
+                    {showTokens ? t("provider.hideApiKey") : t("provider.showApiKey")}
                   </Button>
                 </div>
               </div>
@@ -587,9 +646,9 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
               <div className="flex items-center justify-center py-8">
                 <div className="text-center">
                   <AlertCircle className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                  <p className="text-sm text-muted-foreground">{t('provider.noCodexConfig')}</p>
+                  <p className="text-sm text-muted-foreground">{t("provider.noCodexConfig")}</p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    {t('provider.selectProviderOrOfficial')}
+                    {t("provider.selectProviderOrOfficial")}
                   </p>
                 </div>
               </div>
@@ -602,7 +661,9 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
       <Dialog open={showForm} onOpenChange={handleFormCancel}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editingProvider ? t('provider.editCodexProvider') : t('provider.addCodexProvider')}</DialogTitle>
+            <DialogTitle>
+              {editingProvider ? t("provider.editCodexProvider") : t("provider.addCodexProvider")}
+            </DialogTitle>
             <VisuallyHidden.Root>
               <DialogDescription>配置 Codex 提供商信息</DialogDescription>
             </VisuallyHidden.Root>
@@ -619,24 +680,28 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{t('provider.confirmDeleteCodexProvider')}</DialogTitle>
+            <DialogTitle>{t("provider.confirmDeleteCodexProvider")}</DialogTitle>
             <VisuallyHidden.Root>
               <DialogDescription>确认删除此 Codex 提供商配置</DialogDescription>
             </VisuallyHidden.Root>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <p>{t('provider.confirmDeleteCodexMessage', { name: providerToDelete?.name })}</p>
+            <p>{t("provider.confirmDeleteCodexMessage", { name: providerToDelete?.name })}</p>
             {providerToDelete && (
               <div className="p-3 bg-muted rounded-md">
-                <p className="text-sm"><span className="font-medium">{t('provider.name')}</span>{providerToDelete.name}</p>
+                <p className="text-sm">
+                  <span className="font-medium">{t("provider.name")}</span>
+                  {providerToDelete.name}
+                </p>
                 {providerToDelete.description && (
-                  <p className="text-sm"><span className="font-medium">{t('provider.description')}</span>{providerToDelete.description}</p>
+                  <p className="text-sm">
+                    <span className="font-medium">{t("provider.description")}</span>
+                    {providerToDelete.description}
+                  </p>
                 )}
               </div>
             )}
-            <p className="text-sm text-muted-foreground">
-              {t('provider.deleteCannotUndo')}
-            </p>
+            <p className="text-sm text-muted-foreground">{t("provider.deleteCannotUndo")}</p>
           </div>
           <div className="flex justify-end gap-2">
             <Button
@@ -644,14 +709,14 @@ export default function CodexProviderManager({ onBack }: CodexProviderManagerPro
               onClick={cancelDeleteProvider}
               disabled={deleting === providerToDelete?.id}
             >
-              {t('buttons.cancel')}
+              {t("buttons.cancel")}
             </Button>
             <Button
               variant="destructive"
               onClick={confirmDeleteProvider}
               disabled={deleting === providerToDelete?.id}
             >
-              {deleting === providerToDelete?.id ? t('provider.deleting') : t('buttons.confirm')}
+              {deleting === providerToDelete?.id ? t("provider.deleting") : t("buttons.confirm")}
             </Button>
           </div>
         </DialogContent>

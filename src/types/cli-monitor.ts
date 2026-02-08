@@ -74,7 +74,7 @@ export interface GridViewConfig {
   /** 列数 */
   cols: number;
   /** 显示模式 */
-  mode: 'compact' | 'comfortable' | 'spacious';
+  mode: "compact" | "comfortable" | "spacious";
 }
 
 /**
@@ -94,17 +94,17 @@ export interface SessionFilter {
 /**
  * 会话排序选项
  */
-export type SessionSortBy = 'modified' | 'created' | 'message_count' | 'project_path';
+export type SessionSortBy = "modified" | "created" | "message_count" | "project_path";
 
 /**
  * 排序方向
  */
-export type SortDirection = 'asc' | 'desc';
+export type SortDirection = "asc" | "desc";
 
 /**
  * 视图模式
  */
-export type ViewMode = 'normal' | 'cli-monitor';
+export type ViewMode = "normal" | "cli-monitor";
 
 /**
  * 会话颜色标识

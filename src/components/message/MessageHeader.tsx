@@ -1,5 +1,5 @@
 import React from "react";
-import { User, Bot, Clock } from 'lucide-react';
+import { User, Bot, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatTimestamp } from "@/lib/messageUtils";
 
@@ -22,7 +22,7 @@ export const MessageHeader: React.FC<MessageHeaderProps> = ({
   variant,
   timestamp,
   showAvatar = true,
-  className
+  className,
 }) => {
   const isUser = variant === "user";
   const Icon = isUser ? User : Bot;
@@ -44,10 +44,7 @@ export const MessageHeader: React.FC<MessageHeaderProps> = ({
             isUser ? "bg-primary/10" : "bg-blue-500/10"
           )}
         >
-          <Icon className={cn(
-            "w-4 h-4",
-            isUser ? "text-primary" : "text-blue-500"
-          )} />
+          <Icon className={cn("w-4 h-4", isUser ? "text-primary" : "text-blue-500")} />
         </div>
       )}
       <span className="font-medium">{label}</span>

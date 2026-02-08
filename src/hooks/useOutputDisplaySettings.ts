@@ -5,8 +5,8 @@
  * 解决问题：用户看不到完整的大模型输出（思考过程、系统消息等）
  */
 
-import { logger } from '@/lib/logger';
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { logger } from "@/lib/logger";
+import { useState, useEffect, useCallback, useMemo } from "react";
 
 /**
  * 输出显示设置接口
@@ -30,21 +30,21 @@ export interface OutputDisplaySettings {
   defaultExpandThinking: boolean;
 }
 
-const STORAGE_KEY = 'fangyu-output-display-settings';
+const STORAGE_KEY = "fangyu-output-display-settings";
 
 /**
  * 默认设置 - 优化用户体验
  * 默认显示更多内容，让用户能看到完整的操作过程
  */
 const DEFAULT_SETTINGS: OutputDisplaySettings = {
-  showAllMessages: true,          // ✅ 显示所有消息（包括系统消息、Warmup等）
-  showThinkingProcess: true,      // 默认显示思考过程
-  showToolResults: true,          // 默认显示工具结果
-  showSystemMessages: true,       // ✅ 显示系统消息
-  showWarmupMessages: true,       // ✅ 显示 Warmup
+  showAllMessages: true, // ✅ 显示所有消息（包括系统消息、Warmup等）
+  showThinkingProcess: true, // 默认显示思考过程
+  showToolResults: true, // 默认显示工具结果
+  showSystemMessages: true, // ✅ 显示系统消息
+  showWarmupMessages: true, // ✅ 显示 Warmup
   showAutoContinueMessages: true, // 🔧 FIX: 默认显示自动继续消息的输出
-  showDebugInfo: false,           // 默认隐藏调试信息
-  defaultExpandThinking: true,    // 默认展开思考过程
+  showDebugInfo: false, // 默认隐藏调试信息
+  defaultExpandThinking: true, // 默认展开思考过程
 };
 
 /**
@@ -59,7 +59,11 @@ function loadSettings(): OutputDisplaySettings {
       return { ...DEFAULT_SETTINGS, ...parsed };
     }
   } catch (error) {
-    logger.warn('useOutputDisplaySettings', '[OutputDisplaySettings] Failed to load settings:', error);
+    logger.warn(
+      "useOutputDisplaySettings",
+      "[OutputDisplaySettings] Failed to load settings:",
+      error
+    );
   }
   return DEFAULT_SETTINGS;
 }
@@ -71,7 +75,11 @@ function saveSettings(settings: OutputDisplaySettings): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
   } catch (error) {
-    logger.warn('useOutputDisplaySettings', '[OutputDisplaySettings] Failed to save settings:', error);
+    logger.warn(
+      "useOutputDisplaySettings",
+      "[OutputDisplaySettings] Failed to save settings:",
+      error
+    );
   }
 }
 
@@ -103,15 +111,15 @@ export function useOutputDisplaySettings() {
       }
     };
 
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
   /**
    * 更新设置
    */
   const updateSettings = useCallback((updates: Partial<OutputDisplaySettings>) => {
-    setSettings(prev => {
+    setSettings((prev) => {
       const newSettings = { ...prev, ...updates };
       saveSettings(newSettings);
       return newSettings;
@@ -130,7 +138,7 @@ export function useOutputDisplaySettings() {
    * 切换单个设置
    */
   const toggleSetting = useCallback((key: keyof OutputDisplaySettings) => {
-    setSettings(prev => {
+    setSettings((prev) => {
       const newSettings = { ...prev, [key]: !prev[key] };
       saveSettings(newSettings);
       return newSettings;
@@ -140,12 +148,15 @@ export function useOutputDisplaySettings() {
   /**
    * 计算消息过滤选项（供 useDisplayableMessages 使用）
    */
-  const filterOptions = useMemo(() => ({
-    hideWarmupMessages: !settings.showWarmupMessages && !settings.showAllMessages,
-    hideStartupWarnings: !settings.showSystemMessages && !settings.showAllMessages,
-    hideAutoContinueMessages: !settings.showAutoContinueMessages && !settings.showAllMessages,
-    showAllToolResults: settings.showToolResults || settings.showAllMessages,
-  }), [settings]);
+  const filterOptions = useMemo(
+    () => ({
+      hideWarmupMessages: !settings.showWarmupMessages && !settings.showAllMessages,
+      hideStartupWarnings: !settings.showSystemMessages && !settings.showAllMessages,
+      hideAutoContinueMessages: !settings.showAutoContinueMessages && !settings.showAllMessages,
+      showAllToolResults: settings.showToolResults || settings.showAllMessages,
+    }),
+    [settings]
+  );
 
   return {
     settings,

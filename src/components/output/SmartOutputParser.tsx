@@ -11,12 +11,12 @@
  * - ANSI 彩色输出
  */
 
-import React, { useMemo } from 'react';
-import { FileJson, Table, GitBranch, Activity, CheckCircle, XCircle, Terminal } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import React, { useMemo } from "react";
+import { FileJson, Table, GitBranch, Activity, CheckCircle, XCircle, Terminal } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Table as UITable,
   TableBody,
@@ -24,24 +24,24 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 
 // ANSI 颜色转换
-import Anser from 'anser';
+import Anser from "anser";
 
 // ============================================
 // 类型定义
 // ============================================
 
 export type OutputType =
-  | 'json'
-  | 'table'
-  | 'git-log'
-  | 'dependency-tree'
-  | 'process-list'
-  | 'test-result'
-  | 'ansi'
-  | 'text';
+  | "json"
+  | "table"
+  | "git-log"
+  | "dependency-tree"
+  | "process-list"
+  | "test-result"
+  | "ansi"
+  | "text";
 
 export interface SmartOutputParserProps {
   /** 命令输出内容 */
@@ -82,12 +82,12 @@ const isJSON = (str: string): boolean => {
  * 检测表格（空格或tab分隔）
  */
 const isTable = (str: string): boolean => {
-  const lines = str.trim().split('\n');
+  const lines = str.trim().split("\n");
   if (lines.length < 2) return false;
 
   // 检查是否所有行都有相似的列数
   const firstLineCols = lines[0].split(/\s{2,}|\t/).length;
-  return lines.slice(1).every(line => {
+  return lines.slice(1).every((line) => {
     const cols = line.split(/\s{2,}|\t/).length;
     return Math.abs(cols - firstLineCols) <= 1;
   });
@@ -97,7 +97,7 @@ const isTable = (str: string): boolean => {
  * 检测 Git 日志
  */
 const isGitLog = (str: string, command?: string): boolean => {
-  if (command?.includes('git log') || command?.includes('git reflog')) {
+  if (command?.includes("git log") || command?.includes("git reflog")) {
     return true;
   }
   return /^commit\s+[0-9a-f]{7,40}/m.test(str) || /^[0-9a-f]{7,40}\s+/m.test(str);
@@ -107,7 +107,7 @@ const isGitLog = (str: string, command?: string): boolean => {
  * 检测 npm/yarn 依赖树
  */
 const isDependencyTree = (str: string, command?: string): boolean => {
-  if (command?.includes('npm list') || command?.includes('yarn list')) {
+  if (command?.includes("npm list") || command?.includes("yarn list")) {
     return true;
   }
   return /[├└─│]\s+[\w@/]/.test(str);
@@ -117,7 +117,7 @@ const isDependencyTree = (str: string, command?: string): boolean => {
  * 检测进程列表
  */
 const isProcessList = (str: string, command?: string): boolean => {
-  if (command?.includes('ps ') || command?.includes('tasklist')) {
+  if (command?.includes("ps ") || command?.includes("tasklist")) {
     return true;
   }
   return /PID.*CMD/i.test(str) || /Image Name.*PID/i.test(str);
@@ -127,8 +127,8 @@ const isProcessList = (str: string, command?: string): boolean => {
  * 检测测试结果
  */
 const isTestResult = (str: string, command?: string): boolean => {
-  const testCommands = ['npm test', 'npm run test', 'jest', 'vitest', 'pytest', 'cargo test'];
-  if (command && testCommands.some(cmd => command.includes(cmd))) {
+  const testCommands = ["npm test", "npm run test", "jest", "vitest", "pytest", "cargo test"];
+  if (command && testCommands.some((cmd) => command.includes(cmd))) {
     return true;
   }
   return /(PASS|FAIL|Test Suites|Tests:|✓|✗)/i.test(str);
@@ -157,18 +157,18 @@ const parseJSON = (str: string): any => {
  * 解析表格
  */
 const parseTable = (str: string): { headers: string[]; rows: string[][] } => {
-  const lines = str.trim().split('\n');
-  const headers = lines[0].split(/\s{2,}|\t/).map(h => h.trim());
-  const rows = lines.slice(1).map(line =>
-    line.split(/\s{2,}|\t/).map(cell => cell.trim())
-  );
+  const lines = str.trim().split("\n");
+  const headers = lines[0].split(/\s{2,}|\t/).map((h) => h.trim());
+  const rows = lines.slice(1).map((line) => line.split(/\s{2,}|\t/).map((cell) => cell.trim()));
   return { headers, rows };
 };
 
 /**
  * 解析 Git 日志
  */
-const parseGitLog = (str: string): Array<{
+const parseGitLog = (
+  str: string
+): Array<{
   hash: string;
   author?: string;
   date?: string;
@@ -194,29 +194,31 @@ const parseGitLog = (str: string): Array<{
       hash,
       author: authorMatch?.[1],
       date: dateMatch?.[1],
-      message: messageMatch?.[1] || '(no message)'
+      message: messageMatch?.[1] || "(no message)",
     });
   }
 
-  return commits.length > 0 ? commits : [{ hash: 'N/A', message: str }];
+  return commits.length > 0 ? commits : [{ hash: "N/A", message: str }];
 };
 
 /**
  * 解析测试结果
  */
-const parseTestResult = (str: string): {
+const parseTestResult = (
+  str: string
+): {
   total: number;
   passed: number;
   failed: number;
   skipped: number;
-  tests: Array<{ name: string; status: 'pass' | 'fail' | 'skip' }>;
+  tests: Array<{ name: string; status: "pass" | "fail" | "skip" }>;
 } => {
   const result = {
     total: 0,
     passed: 0,
     failed: 0,
     skipped: 0,
-    tests: [] as any[]
+    tests: [] as any[],
   };
 
   // Jest/Vitest 格式
@@ -231,13 +233,11 @@ const parseTestResult = (str: string): {
   result.total = result.passed + result.failed + result.skipped;
 
   // 提取测试用例
-  const testLines = str.split('\n').filter(line =>
-    /[✓✗]/.test(line) || /PASS|FAIL/i.test(line)
-  );
+  const testLines = str.split("\n").filter((line) => /[✓✗]/.test(line) || /PASS|FAIL/i.test(line));
 
-  result.tests = testLines.slice(0, 20).map(line => ({
-    name: line.replace(/[✓✗]/g, '').trim(),
-    status: (/✓|PASS/i.test(line) ? 'pass' : /✗|FAIL/i.test(line) ? 'fail' : 'skip') as any
+  result.tests = testLines.slice(0, 20).map((line) => ({
+    name: line.replace(/[✓✗]/g, "").trim(),
+    status: (/✓|PASS/i.test(line) ? "pass" : /✗|FAIL/i.test(line) ? "fail" : "skip") as any,
   }));
 
   return result;
@@ -275,7 +275,9 @@ const TableViewer: React.FC<{ headers: string[]; rows: string[][] }> = ({ header
       <div className="flex items-center gap-2 mb-3">
         <Table className="w-4 h-4 text-green-500" />
         <span className="text-sm font-medium">表格数据</span>
-        <Badge variant="outline" className="text-xs">{rows.length} 行</Badge>
+        <Badge variant="outline" className="text-xs">
+          {rows.length} 行
+        </Badge>
       </div>
       <ScrollArea className="h-[400px]">
         <UITable>
@@ -314,7 +316,9 @@ const GitLogViewer: React.FC<{ commits: any[] }> = ({ commits }) => {
       <div className="flex items-center gap-2 mb-3">
         <GitBranch className="w-4 h-4 text-purple-500" />
         <span className="text-sm font-medium">Git 提交历史</span>
-        <Badge variant="outline" className="text-xs">{commits.length} 个提交</Badge>
+        <Badge variant="outline" className="text-xs">
+          {commits.length} 个提交
+        </Badge>
       </div>
       <ScrollArea className="h-[400px]">
         <div className="space-y-3">
@@ -329,9 +333,7 @@ const GitLogViewer: React.FC<{ commits: any[] }> = ({ commits }) => {
                 )}
               </div>
               <p className="text-sm">{commit.message}</p>
-              {commit.date && (
-                <p className="text-xs text-muted-foreground mt-1">{commit.date}</p>
-              )}
+              {commit.date && <p className="text-xs text-muted-foreground mt-1">{commit.date}</p>}
             </div>
           ))}
         </div>
@@ -377,8 +379,12 @@ const TestResultViewer: React.FC<{ result: any }> = ({ result }) => {
           <div className="space-y-2">
             {result.tests.map((test: any, i: number) => (
               <div key={i} className="flex items-center gap-2 p-2 bg-muted/30 rounded text-sm">
-                {test.status === 'pass' && <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />}
-                {test.status === 'fail' && <XCircle className="w-4 h-4 text-red-500 flex-shrink-0" />}
+                {test.status === "pass" && (
+                  <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                )}
+                {test.status === "fail" && (
+                  <XCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
+                )}
                 <span className="flex-1 truncate">{test.name}</span>
               </div>
             ))}
@@ -437,7 +443,7 @@ export const SmartOutputParser: React.FC<SmartOutputParserProps> = ({
   command,
   type: propType,
   showRawToggle = true,
-  className
+  className,
 }) => {
   const [showRaw, setShowRaw] = React.useState(false);
 
@@ -447,16 +453,16 @@ export const SmartOutputParser: React.FC<SmartOutputParserProps> = ({
       // 强制类型
       let data: any;
       switch (propType) {
-        case 'json':
+        case "json":
           data = parseJSON(output);
           break;
-        case 'table':
+        case "table":
           data = parseTable(output);
           break;
-        case 'git-log':
+        case "git-log":
           data = parseGitLog(output);
           break;
-        case 'test-result':
+        case "test-result":
           data = parseTestResult(output);
           break;
         default:
@@ -467,49 +473,49 @@ export const SmartOutputParser: React.FC<SmartOutputParserProps> = ({
 
     // 自动检测
     if (isJSON(output)) {
-      return { type: 'json', data: parseJSON(output), raw: output };
+      return { type: "json", data: parseJSON(output), raw: output };
     }
 
     if (isTestResult(output, command)) {
-      return { type: 'test-result', data: parseTestResult(output), raw: output };
+      return { type: "test-result", data: parseTestResult(output), raw: output };
     }
 
     if (isGitLog(output, command)) {
-      return { type: 'git-log', data: parseGitLog(output), raw: output };
+      return { type: "git-log", data: parseGitLog(output), raw: output };
     }
 
     if (isDependencyTree(output, command)) {
-      return { type: 'dependency-tree', data: output, raw: output };
+      return { type: "dependency-tree", data: output, raw: output };
     }
 
     if (isProcessList(output, command)) {
-      return { type: 'process-list', data: output, raw: output };
+      return { type: "process-list", data: output, raw: output };
     }
 
     if (isTable(output)) {
-      return { type: 'table', data: parseTable(output), raw: output };
+      return { type: "table", data: parseTable(output), raw: output };
     }
 
     if (hasANSI(output)) {
-      return { type: 'ansi', data: output, raw: output };
+      return { type: "ansi", data: output, raw: output };
     }
 
-    return { type: 'text', data: output, raw: output };
+    return { type: "text", data: output, raw: output };
   }, [output, command, propType]);
 
   return (
-    <div className={cn('bg-background border rounded-lg overflow-hidden', className)}>
+    <div className={cn("bg-background border rounded-lg overflow-hidden", className)}>
       {/* 工具栏 */}
       {showRawToggle && (
         <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/30">
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="text-xs">
-              {parsed.type === 'json' && 'JSON'}
-              {parsed.type === 'table' && '表格'}
-              {parsed.type === 'git-log' && 'Git 日志'}
-              {parsed.type === 'test-result' && '测试结果'}
-              {parsed.type === 'ansi' && 'ANSI'}
-              {parsed.type === 'text' && '文本'}
+              {parsed.type === "json" && "JSON"}
+              {parsed.type === "table" && "表格"}
+              {parsed.type === "git-log" && "Git 日志"}
+              {parsed.type === "test-result" && "测试结果"}
+              {parsed.type === "ansi" && "ANSI"}
+              {parsed.type === "text" && "文本"}
             </Badge>
           </div>
           <Button
@@ -518,7 +524,7 @@ export const SmartOutputParser: React.FC<SmartOutputParserProps> = ({
             className="h-6 text-xs"
             onClick={() => setShowRaw(!showRaw)}
           >
-            {showRaw ? '智能视图' : '原始输出'}
+            {showRaw ? "智能视图" : "原始输出"}
           </Button>
         </div>
       )}
@@ -528,14 +534,14 @@ export const SmartOutputParser: React.FC<SmartOutputParserProps> = ({
         <TextViewer text={parsed.raw} />
       ) : (
         <>
-          {parsed.type === 'json' && <JSONViewer data={parsed.data} />}
-          {parsed.type === 'table' && <TableViewer {...parsed.data} />}
-          {parsed.type === 'git-log' && <GitLogViewer commits={parsed.data} />}
-          {parsed.type === 'test-result' && <TestResultViewer result={parsed.data} />}
-          {parsed.type === 'ansi' && <ANSIViewer text={parsed.data} />}
-          {(parsed.type === 'text' || parsed.type === 'dependency-tree' || parsed.type === 'process-list') && (
-            <TextViewer text={parsed.data} />
-          )}
+          {parsed.type === "json" && <JSONViewer data={parsed.data} />}
+          {parsed.type === "table" && <TableViewer {...parsed.data} />}
+          {parsed.type === "git-log" && <GitLogViewer commits={parsed.data} />}
+          {parsed.type === "test-result" && <TestResultViewer result={parsed.data} />}
+          {parsed.type === "ansi" && <ANSIViewer text={parsed.data} />}
+          {(parsed.type === "text" ||
+            parsed.type === "dependency-tree" ||
+            parsed.type === "process-list") && <TextViewer text={parsed.data} />}
         </>
       )}
     </div>

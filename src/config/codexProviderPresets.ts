@@ -4,11 +4,11 @@
  */
 
 export type ProviderCategory =
-  | "official"      // 官方
-  | "cn_official"   // 国产官方
-  | "aggregator"    // 聚合网站
-  | "third_party"   // 第三方供应商
-  | "custom";       // 自定义
+  | "official" // 官方
+  | "cn_official" // 国产官方
+  | "aggregator" // 聚合网站
+  | "third_party" // 第三方供应商
+  | "custom"; // 自定义
 
 export interface CodexProviderPreset {
   id: string;
@@ -43,7 +43,7 @@ export function generateThirdPartyAuth(apiKey: string): Record<string, any> {
 export function generateThirdPartyConfig(
   providerName: string,
   baseUrl: string,
-  modelName = "gpt-5-codex",
+  modelName = "gpt-5-codex"
 ): string {
   // 清理供应商名称，确保符合TOML键名规范
   const cleanProviderName =
@@ -77,10 +77,10 @@ export function extractBaseUrlFromConfig(configText: string): string {
  */
 export function extractModelFromConfig(configText: string): string {
   // 匹配顶层的 model = "xxx"，而不是 [model_providers.xxx] 下的
-  const lines = configText.split('\n');
+  const lines = configText.split("\n");
   for (const line of lines) {
     const trimmed = line.trim();
-    if (trimmed.startsWith('model =')) {
+    if (trimmed.startsWith("model =")) {
       const match = trimmed.match(/model\s*=\s*"([^"]+)"/);
       if (match) return match[1];
     }
@@ -92,10 +92,7 @@ export function extractModelFromConfig(configText: string): string {
  * 更新 config.toml 中的 base_url
  */
 export function setBaseUrlInConfig(configText: string, newUrl: string): string {
-  return configText.replace(
-    /base_url\s*=\s*"[^"]*"/,
-    `base_url = "${newUrl}"`
-  );
+  return configText.replace(/base_url\s*=\s*"[^"]*"/, `base_url = "${newUrl}"`);
 }
 
 /**
@@ -103,21 +100,21 @@ export function setBaseUrlInConfig(configText: string, newUrl: string): string {
  */
 export function setModelInConfig(configText: string, newModel: string): string {
   // 只更新顶层的 model = "xxx"
-  const lines = configText.split('\n');
+  const lines = configText.split("\n");
   let inModelProviders = false;
-  const result = lines.map(line => {
+  const result = lines.map((line) => {
     const trimmed = line.trim();
-    if (trimmed.startsWith('[model_providers')) {
+    if (trimmed.startsWith("[model_providers")) {
       inModelProviders = true;
-    } else if (trimmed.startsWith('[') && !trimmed.startsWith('[model_providers')) {
+    } else if (trimmed.startsWith("[") && !trimmed.startsWith("[model_providers")) {
       inModelProviders = false;
     }
-    if (!inModelProviders && trimmed.startsWith('model =')) {
+    if (!inModelProviders && trimmed.startsWith("model =")) {
       return `model = "${newModel}"`;
     }
     return line;
   });
-  return result.join('\n');
+  return result.join("\n");
 }
 
 /**
@@ -179,14 +176,14 @@ requires_openai_auth = true`,
  * 根据 ID 获取预设
  */
 export function getPresetById(id: string): CodexProviderPreset | undefined {
-  return codexProviderPresets.find(p => p.id === id);
+  return codexProviderPresets.find((p) => p.id === id);
 }
 
 /**
  * 根据分类获取预设列表
  */
 export function getPresetsByCategory(category: ProviderCategory): CodexProviderPreset[] {
-  return codexProviderPresets.filter(p => p.category === category);
+  return codexProviderPresets.filter((p) => p.category === category);
 }
 
 /**

@@ -13,14 +13,14 @@
  * - https://www.letsgroto.com/blog/ux-best-practices-for-ai-chatbots
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ClaudeStreamMessage } from "@/types/claude";
 
 // 🔧 FIX: Use ref to track messages without triggering re-renders
 
 // 🚨 EMERGENCY KILL SWITCH: Set to false to completely disable auto-resume
-const AUTO_RESUME_ENABLED = false;  // 🔧 临时禁用以诊断 token 消耗问题
+const AUTO_RESUME_ENABLED = false; // 🔧 临时禁用以诊断 token 消耗问题
 
 interface AutoResumeConfig {
   /** 会话 ID */
@@ -96,7 +96,7 @@ function saveSessionMetadata(
     attemptCount: number;
     lastResumeTime: number;
     cancelled: boolean;
-  },
+  }
 ) {
   const key = `auto_resume_${sessionId}`;
   localStorage.setItem(key, JSON.stringify(metadata));
@@ -144,13 +144,18 @@ function extractLatestTodoList(messages: ClaudeStreamMessage[]): any[] | null {
         (msg as any).tool_use?.parameters?.todos;
 
       if (todos && Array.isArray(todos)) {
-        logger.debug('useAutoResume', "[useAutoResume] 📋 Found TodoList with", todos.length, "items");
+        logger.debug(
+          "useAutoResume",
+          "[useAutoResume] 📋 Found TodoList with",
+          todos.length,
+          "items"
+        );
         return todos;
       }
     }
   }
 
-  logger.debug('useAutoResume', "[useAutoResume] ℹ️ No TodoList found in messages");
+  logger.debug("useAutoResume", "[useAutoResume] ℹ️ No TodoList found in messages");
   return null;
 }
 
@@ -159,13 +164,13 @@ function extractLatestTodoList(messages: ClaudeStreamMessage[]): any[] | null {
  */
 function detectIncompleteTasksFromTodo(todos: any[]): boolean {
   const hasInProgress = todos.some(
-    (todo) => todo.status === "in_progress" || todo.status === "pending",
+    (todo) => todo.status === "in_progress" || todo.status === "pending"
   );
 
   if (hasInProgress) {
     const inProgressTasks = todos.filter((t) => t.status === "in_progress");
     const pendingTasks = todos.filter((t) => t.status === "pending");
-    logger.debug('useAutoResume', '🎯 Found incomplete tasks:', {
+    logger.debug("useAutoResume", "🎯 Found incomplete tasks:", {
       in_progress: inProgressTasks.length,
       pending: pendingTasks.length,
     });
@@ -201,7 +206,10 @@ function detectIncompleteTasksFromContent(messages: ClaudeStreamMessage[]): bool
 
     // 如果最后一条是用户消息，不需要继续（用户已经发送了新消息）
     if (msgType === "user" && i === messages.length - 1) {
-      logger.debug('useAutoResume', "[useAutoResume] 📝 Last message is from user, no need to resume");
+      logger.debug(
+        "useAutoResume",
+        "[useAutoResume] 📝 Last message is from user, no need to resume"
+      );
       return false;
     }
 
@@ -216,7 +224,7 @@ function detectIncompleteTasksFromContent(messages: ClaudeStreamMessage[]): bool
       const hasContinueMarker =
         content.includes("待续") ||
         content.includes("未完成") ||
-        (content.includes("in_progress") && content.includes("status"));  // Must have both
+        (content.includes("in_progress") && content.includes("status")); // Must have both
 
       // 2. 检查是否有工具调用失败
       const hasToolError =
@@ -237,13 +245,17 @@ function detectIncompleteTasksFromContent(messages: ClaudeStreamMessage[]): bool
 
       // 如果有继续标记或工具错误，且没有明确结束，认为需要继续
       if ((hasContinueMarker || hasToolError) && !hasEndMarker) {
-        logger.debug('useAutoResume', '🎯 Detected incomplete task from content:', content.slice(0, 100));
+        logger.debug(
+          "useAutoResume",
+          "🎯 Detected incomplete task from content:",
+          content.slice(0, 100)
+        );
         return true;
       }
 
       // 如果有明确结束标记，不需要继续
       if (hasEndMarker) {
-        logger.debug('useAutoResume', "[useAutoResume] ✅ Found end marker, no need to resume");
+        logger.debug("useAutoResume", "[useAutoResume] ✅ Found end marker, no need to resume");
         return false;
       }
     }
@@ -258,7 +270,12 @@ function detectIncompleteTasksFromContent(messages: ClaudeStreamMessage[]): bool
 function detectIncompleteTasks(messages: ClaudeStreamMessage[]): boolean {
   if (!messages || messages.length === 0) return false;
 
-  logger.debug('useAutoResume', "[useAutoResume] 🔍 Checking", messages.length, "messages for incomplete tasks");
+  logger.debug(
+    "useAutoResume",
+    "[useAutoResume] 🔍 Checking",
+    messages.length,
+    "messages for incomplete tasks"
+  );
 
   // 🆕 优先级 1: 检查 TodoList 中的 in_progress 状态（最准确）
   const latestTodos = extractLatestTodoList(messages);
@@ -326,7 +343,7 @@ export function useAutoResume(config: AutoResumeConfig): AutoResumeReturn {
 
   // 取消自动继续
   const cancel = useCallback(() => {
-    logger.debug('useAutoResume', "[useAutoResume] ❌ User cancelled auto-resume");
+    logger.debug("useAutoResume", "[useAutoResume] ❌ User cancelled auto-resume");
     clearTimers();
     setShouldResume(false);
     setCountdown(0);
@@ -342,7 +359,7 @@ export function useAutoResume(config: AutoResumeConfig): AutoResumeReturn {
 
   // 手动触发继续
   const resume = useCallback(() => {
-    logger.debug('useAutoResume', "[useAutoResume] ✅ Manual resume triggered");
+    logger.debug("useAutoResume", "[useAutoResume] ✅ Manual resume triggered");
     clearTimers();
     setShouldResume(true);
     setCountdown(0);
@@ -362,7 +379,7 @@ export function useAutoResume(config: AutoResumeConfig): AutoResumeReturn {
   useEffect(() => {
     // 🚨 EMERGENCY KILL SWITCH: Check if auto-resume is enabled
     if (!AUTO_RESUME_ENABLED) {
-      logger.debug('useAutoResume', "[useAutoResume] 🚫 Auto-resume is disabled by kill switch");
+      logger.debug("useAutoResume", "[useAutoResume] 🚫 Auto-resume is disabled by kill switch");
       return;
     }
 
@@ -376,7 +393,7 @@ export function useAutoResume(config: AutoResumeConfig): AutoResumeReturn {
 
     // 检查是否超过最大尝试次数
     if (metadataRef.current.attemptCount >= maxAttempts) {
-      logger.debug('useAutoResume', "[useAutoResume] 🛑 Max attempts reached:", maxAttempts);
+      logger.debug("useAutoResume", "[useAutoResume] 🛑 Max attempts reached:", maxAttempts);
       return;
     }
 
@@ -384,7 +401,12 @@ export function useAutoResume(config: AutoResumeConfig): AutoResumeReturn {
     const now = Date.now();
     const timeSinceLastResume = now - metadataRef.current.lastResumeTime;
     if (timeSinceLastResume < minInterval) {
-      logger.debug('useAutoResume', "[useAutoResume] ⏱️ Too soon to resume:", timeSinceLastResume, "ms");
+      logger.debug(
+        "useAutoResume",
+        "[useAutoResume] ⏱️ Too soon to resume:",
+        timeSinceLastResume,
+        "ms"
+      );
       return;
     }
 
@@ -399,11 +421,19 @@ export function useAutoResume(config: AutoResumeConfig): AutoResumeReturn {
         const timeSinceLastMessage = now - lastMessageTime;
 
         if (timeSinceLastMessage > inactiveTimeout) {
-          logger.debug('useAutoResume', '⏰ Session inactive for too long:', timeSinceLastMessage, 'ms');
+          logger.debug(
+            "useAutoResume",
+            "⏰ Session inactive for too long:",
+            timeSinceLastMessage,
+            "ms"
+          );
           return;
         }
       } else {
-        logger.debug('useAutoResume', 'ℹ️ Message has no timestamp, skipping timeout check (likely historical data)');
+        logger.debug(
+          "useAutoResume",
+          "ℹ️ Message has no timestamp, skipping timeout check (likely historical data)"
+        );
       }
     }
 
@@ -411,11 +441,11 @@ export function useAutoResume(config: AutoResumeConfig): AutoResumeReturn {
     // 🔧 CRITICAL FIX: Use messagesRef instead of messages to prevent infinite loop
     const hasIncompleteTasks = detectIncompleteTasks(messagesRef.current);
     if (!hasIncompleteTasks) {
-      logger.debug('useAutoResume', "[useAutoResume] ✅ No incomplete tasks detected");
+      logger.debug("useAutoResume", "[useAutoResume] ✅ No incomplete tasks detected");
       return;
     }
 
-    logger.debug('useAutoResume', "[useAutoResume] 🚀 Starting auto-resume countdown...");
+    logger.debug("useAutoResume", "[useAutoResume] 🚀 Starting auto-resume countdown...");
 
     // 开始倒计时
     let remainingSeconds = Math.floor(delay / 1000);
@@ -440,7 +470,7 @@ export function useAutoResume(config: AutoResumeConfig): AutoResumeReturn {
 
     // 主定时器：delay 后触发继续
     timerRef.current = setTimeout(() => {
-      logger.debug('useAutoResume', "[useAutoResume] ✅ Auto-resume triggered!");
+      logger.debug("useAutoResume", "[useAutoResume] ✅ Auto-resume triggered!");
       setShouldResume(true);
       setCountdown(0);
 

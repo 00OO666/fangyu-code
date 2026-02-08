@@ -32,10 +32,7 @@ export const CliProcessingIndicator: React.FC<CliProcessingIndicatorProps> = ({
   const [verbIndex, setVerbIndex] = useState(0);
 
   // 随机选择初始动词
-  const initialVerbIndex = useMemo(() =>
-    Math.floor(Math.random() * PROCESSING_VERBS.length),
-    []
-  );
+  const initialVerbIndex = useMemo(() => Math.floor(Math.random() * PROCESSING_VERBS.length), []);
 
   useEffect(() => {
     if (isProcessing) {
@@ -103,7 +100,7 @@ export const CliProcessingIndicator: React.FC<CliProcessingIndicatorProps> = ({
             transition={{
               duration: 1.2,
               repeat: Infinity,
-              ease: "easeInOut"
+              ease: "easeInOut",
             }}
             className="text-amber-500 dark:text-amber-400 font-bold"
           >
@@ -135,7 +132,7 @@ export const CliProcessingIndicator: React.FC<CliProcessingIndicatorProps> = ({
                 onClick={onCancel}
                 className="hover:text-red-500 transition-colors cursor-pointer"
               >
-                {t('cliIndicator.escToCancel', 'esc to cancel')}
+                {t("cliIndicator.escToCancel", "esc to cancel")}
               </button>
             )}
             {onCancel && <span className="mx-1">·</span>}
@@ -145,7 +142,7 @@ export const CliProcessingIndicator: React.FC<CliProcessingIndicatorProps> = ({
                 transition={{ duration: 1.5, repeat: Infinity }}
                 className="inline-block w-1.5 h-1.5 rounded-full bg-amber-500/70"
               />
-              {t('cliIndicator.thinking', 'thinking')}
+              {t("cliIndicator.thinking", "thinking")}
             </span>
             )
           </span>

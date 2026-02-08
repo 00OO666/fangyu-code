@@ -8,12 +8,12 @@
  * 4. 动画过渡：平滑进出，不突兀
  */
 
-import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { PlayCircle, XCircle, Loader2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { PlayCircle, XCircle, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 interface AutoResumeIndicatorProps {
   /** 是否显示 */
@@ -45,26 +45,22 @@ export const AutoResumeIndicator: React.FC<AutoResumeIndicatorProps> = ({
           initial={{ opacity: 0, y: 20, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 20, scale: 0.95 }}
-          transition={{ duration: 0.3, type: 'spring', stiffness: 200, damping: 20 }}
+          transition={{ duration: 0.3, type: "spring", stiffness: 200, damping: 20 }}
           className={cn(
-            'fixed bottom-28 left-1/2 -translate-x-1/2',
-            'flex items-center gap-3 px-4 py-3 rounded-lg shadow-xl',
-            'bg-gradient-to-r from-blue-500/90 to-indigo-500/90',
-            'backdrop-blur-md border border-white/20',
+            "fixed bottom-28 left-1/2 -translate-x-1/2",
+            "flex items-center gap-3 px-4 py-3 rounded-lg shadow-xl",
+            "bg-gradient-to-r from-blue-500/90 to-indigo-500/90",
+            "backdrop-blur-md border border-white/20",
             className
           )}
-          style={{ zIndex: 'var(--z-dropdown)' }}
+          style={{ zIndex: "var(--z-dropdown)" }}
         >
           {/* 左侧图标 + 文本 */}
           <div className="flex items-center gap-2">
             <Loader2 className="h-5 w-5 text-white animate-spin" />
             <div className="flex flex-col">
-              <span className="text-sm font-semibold text-white">
-                检测到未完成任务
-              </span>
-              <span className="text-xs text-white/80">
-                {countdown} 秒后自动继续
-              </span>
+              <span className="text-sm font-semibold text-white">检测到未完成任务</span>
+              <span className="text-xs text-white/80">{countdown} 秒后自动继续</span>
             </div>
           </div>
 
@@ -125,10 +121,7 @@ export const AutoResumeIndicator: React.FC<AutoResumeIndicatorProps> = ({
 
           {/* 剩余次数标记 */}
           {remainingAttempts > 0 && (
-            <Badge
-              variant="outline"
-              className="ml-2 bg-white/20 text-white border-white/30"
-            >
+            <Badge variant="outline" className="ml-2 bg-white/20 text-white border-white/30">
               剩余 {remainingAttempts} 次
             </Badge>
           )}

@@ -5,7 +5,7 @@
  */
 
 import React from "react";
-import { FileText, ExternalLink, X } from 'lucide-react';
+import { FileText, ExternalLink, X } from "lucide-react";
 import { createPortal } from "react-dom";
 import { Prism as SyntaxHighlighter } from "@/lib/lightSyntaxHighlighter";
 import { getClaudeSyntaxTheme } from "@/lib/claudeSyntaxTheme";
@@ -116,9 +116,7 @@ export const FullScreenPreview: React.FC<FullScreenPreviewProps> = ({
           <div className="p-6">
             {isMarkdown ? (
               <div className="prose prose-sm dark:prose-invert max-w-none">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {content}
-                </ReactMarkdown>
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
               </div>
             ) : (
               <SyntaxHighlighter
@@ -126,9 +124,9 @@ export const FullScreenPreview: React.FC<FullScreenPreviewProps> = ({
                 style={getClaudeSyntaxTheme(isDarkTheme(theme))}
                 customStyle={{
                   margin: 0,
-                  background: 'transparent',
-                  fontSize: '0.75rem',
-                  lineHeight: '1.5',
+                  background: "transparent",
+                  fontSize: "0.75rem",
+                  lineHeight: "1.5",
                 }}
                 showLineNumbers
                 wrapLongLines={true}

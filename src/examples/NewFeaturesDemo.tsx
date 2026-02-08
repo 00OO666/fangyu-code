@@ -6,7 +6,16 @@
  */
 
 import { motion } from "framer-motion";
-import { Bug, Calendar, CheckCircle, ChevronRight, History, Sparkles, Star, Zap } from 'lucide-react';
+import {
+  Bug,
+  Calendar,
+  CheckCircle,
+  ChevronRight,
+  History,
+  Sparkles,
+  Star,
+  Zap,
+} from "lucide-react";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";

@@ -1,5 +1,5 @@
 import React from "react";
-import { ChevronUp, Check, Star, Sparkles, Brain, FlaskConical, Gauge } from 'lucide-react';
+import { ChevronUp, Check, Star, Sparkles, Brain, FlaskConical, Gauge } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
@@ -21,30 +21,30 @@ export interface GeminiModelConfig {
  */
 export const GEMINI_MODELS: GeminiModelConfig[] = [
   {
-    id: 'gemini-3-flash',
-    name: 'Gemini 3 Flash',
-    description: '最新最快模型（2025年12月17日）',
+    id: "gemini-3-flash",
+    name: "Gemini 3 Flash",
+    description: "最新最快模型（2025年12月17日）",
     icon: <Gauge className="h-4 w-4 text-yellow-500" />,
     isDefault: true,
   },
   {
-    id: 'gemini-3-pro',
-    name: 'Gemini 3 Pro',
-    description: '最强推理和编码能力',
+    id: "gemini-3-pro",
+    name: "Gemini 3 Pro",
+    description: "最强推理和编码能力",
     icon: <Sparkles className="h-4 w-4 text-blue-500" />,
     isDefault: false,
   },
   {
-    id: 'gemini-3-pro-preview',
-    name: 'Gemini 3 Pro (Preview)',
-    description: '实验性预览版本',
+    id: "gemini-3-pro-preview",
+    name: "Gemini 3 Pro (Preview)",
+    description: "实验性预览版本",
     icon: <FlaskConical className="h-4 w-4 text-purple-500" />,
     isDefault: false,
   },
   {
-    id: 'gemini-3-flash-thinking',
-    name: 'Gemini 3 Flash Thinking',
-    description: '带思考链的快速模型',
+    id: "gemini-3-flash-thinking",
+    name: "Gemini 3 Flash Thinking",
+    description: "带思考链的快速模型",
     icon: <Brain className="h-4 w-4 text-green-500" />,
     isDefault: false,
   },
@@ -68,9 +68,10 @@ export const GeminiModelSelector: React.FC<GeminiModelSelectorProps> = ({
   const [open, setOpen] = React.useState(false);
 
   // Find selected model or default
-  const selectedModelData = GEMINI_MODELS.find(m => m.id === selectedModel)
-    || GEMINI_MODELS.find(m => m.isDefault)
-    || GEMINI_MODELS[0];
+  const selectedModelData =
+    GEMINI_MODELS.find((m) => m.id === selectedModel) ||
+    GEMINI_MODELS.find((m) => m.isDefault) ||
+    GEMINI_MODELS[0];
 
   return (
     <Popover
@@ -95,8 +96,7 @@ export const GeminiModelSelector: React.FC<GeminiModelSelectorProps> = ({
             选择 Gemini 模型
           </div>
           {GEMINI_MODELS.map((model) => {
-            const isSelected = selectedModel === model.id ||
-              (!selectedModel && model.isDefault);
+            const isSelected = selectedModel === model.id || (!selectedModel && model.isDefault);
             return (
               <button
                 key={model.id}
@@ -114,18 +114,14 @@ export const GeminiModelSelector: React.FC<GeminiModelSelectorProps> = ({
                 <div className="flex-1 space-y-1">
                   <div className="font-medium text-sm flex items-center gap-2">
                     {model.name}
-                    {isSelected && (
-                      <Check className="h-3.5 w-3.5 text-primary" />
-                    )}
+                    {isSelected && <Check className="h-3.5 w-3.5 text-primary" />}
                     {model.isDefault && (
                       <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary">
                         推荐
                       </span>
                     )}
                   </div>
-                  <div className="text-xs text-muted-foreground">
-                    {model.description}
-                  </div>
+                  <div className="text-xs text-muted-foreground">{model.description}</div>
                 </div>
               </button>
             );

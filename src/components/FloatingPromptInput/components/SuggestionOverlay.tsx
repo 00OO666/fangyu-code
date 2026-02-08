@@ -5,9 +5,9 @@
  * 样式与 placeholder 一致，作为智能 placeholder 替代方案
  */
 
-import React from 'react';
-import { cn } from '@/lib/utils';
-import type { PromptSuggestion } from '../hooks/usePromptSuggestion';
+import React from "react";
+import { cn } from "@/lib/utils";
+import type { PromptSuggestion } from "../hooks/usePromptSuggestion";
 
 interface SuggestionOverlayProps {
   /** 当前建议 */
@@ -79,14 +79,12 @@ export const SuggestionOverlay: React.FC<SuggestionOverlayProps> = ({
       aria-hidden="true"
       style={{
         // 精确匹配 textarea 的内边距
-        padding: '9px 40px 9px 12px',
+        padding: "9px 40px 9px 12px",
       }}
     >
       {/* 占位：与用户输入等宽的透明区域 */}
       {!isFullReplacement && currentPrompt && (
-        <span className="invisible whitespace-pre-wrap break-words text-sm">
-          {currentPrompt}
-        </span>
+        <span className="invisible whitespace-pre-wrap break-words text-sm">{currentPrompt}</span>
       )}
 
       {/* 建议文本 - 使用 placeholder 样式 */}
@@ -94,14 +92,12 @@ export const SuggestionOverlay: React.FC<SuggestionOverlayProps> = ({
         className={cn(
           "whitespace-pre-wrap break-words text-sm",
           // 使用与 placeholder 相同的颜色
-          "text-muted-foreground",
+          "text-muted-foreground"
         )}
       >
         {completionText}
         {/* Tab 提示内联显示，类似官方 CLI */}
-        <span className="text-muted-foreground/50 ml-2 text-xs">
-          (tab to accept)
-        </span>
+        <span className="text-muted-foreground/50 ml-2 text-xs">(tab to accept)</span>
       </span>
     </div>
   );

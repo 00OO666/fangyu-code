@@ -3,7 +3,7 @@
  * Handles non-blocking, prioritized translation of messages
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { type TranslationResult, translationMiddleware } from "./translationMiddleware";
 
 export interface TranslationTask {
@@ -54,7 +54,7 @@ export class ProgressiveTranslationManager {
     messageId: string,
     content: string,
     priority: TranslationPriority = TranslationPriority.NORMAL,
-    callback?: (result: TranslationResult | null) => void,
+    callback?: (result: TranslationResult | null) => void
   ): void {
     // Check cache first
     const cacheKey = this.getCacheKey(content);
@@ -198,7 +198,11 @@ export class ProgressiveTranslationManager {
         this.subscribers.delete(task.id);
       }
     } catch (error: any) {
-      logger.error('progressiveTranslation', `[ProgressiveTranslation] Error processing task ${task.id}:`, error);
+      logger.error(
+        "progressiveTranslation",
+        `[ProgressiveTranslation] Error processing task ${task.id}:`,
+        error
+      );
 
       // Handle retry logic
       if (task.retryCount < 3 && !error.name?.includes("Abort")) {

@@ -11,13 +11,26 @@
  * 来源: Claude Code Subagents + Cursor Agent Presets
  */
 
-import { logger } from '@/lib/logger';
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Bot, Plus, Search, Edit, Trash2, Download, Play, CheckCircle2, AlertCircle, Loader2, Star, Globe } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
+import { logger } from "@/lib/logger";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Bot,
+  Plus,
+  Search,
+  Edit,
+  Trash2,
+  Download,
+  Play,
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
+  Star,
+  Globe,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -25,7 +38,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import {
   Select,
@@ -33,10 +46,10 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { cn } from '@/lib/utils';
-import { api } from '@/lib/api';
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
+import { api } from "@/lib/api";
 
 // ============================================================
 // 类型定义
@@ -60,7 +73,7 @@ interface Subagent {
 interface SubagentExecution {
   id: string;
   subagent_name: string;
-  status: 'running' | 'completed' | 'failed';
+  status: "running" | "completed" | "failed";
   started_at: string;
   completed_at?: string;
   result?: any;
@@ -75,79 +88,79 @@ interface SubagentManagerProps {
 // 预设模板市场
 const PRESET_TEMPLATES: Subagent[] = [
   {
-    name: 'code-reviewer',
-    description: '代码审查专家，提供详细的代码质量分析和改进建议',
+    name: "code-reviewer",
+    description: "代码审查专家，提供详细的代码质量分析和改进建议",
     system_prompt: `你是一位经验丰富的代码审查专家。分析代码时请关注：
 1. 代码质量和可读性
 2. 潜在的bug和性能问题
 3. 安全漏洞
 4. 最佳实践和设计模式
 5. 提供具体的改进建议`,
-    model: 'claude-sonnet-4-5',
+    model: "claude-sonnet-4-5",
     temperature: 0.3,
-    tags: ['代码', '审查', '质量'],
+    tags: ["代码", "审查", "质量"],
     is_template: true,
-    author: 'Fangyu Code',
+    author: "Fangyu Code",
   },
   {
-    name: 'test-generator',
-    description: '测试用例生成器，为代码自动生成全面的单元测试',
+    name: "test-generator",
+    description: "测试用例生成器，为代码自动生成全面的单元测试",
     system_prompt: `你是测试用例生成专家。为给定的代码生成：
 1. 边界条件测试
 2. 异常处理测试
 3. 正常流程测试
 4. 集成测试建议
 使用最适合的测试框架（Jest/Pytest/etc.）`,
-    model: 'claude-sonnet-4-5',
+    model: "claude-sonnet-4-5",
     temperature: 0.5,
-    tags: ['测试', '质量保证'],
+    tags: ["测试", "质量保证"],
     is_template: true,
-    author: 'Fangyu Code',
+    author: "Fangyu Code",
   },
   {
-    name: 'documentation-writer',
-    description: '文档撰写专家，生成清晰的API文档和使用说明',
+    name: "documentation-writer",
+    description: "文档撰写专家，生成清晰的API文档和使用说明",
     system_prompt: `你是技术文档撰写专家。为代码生成：
 1. API文档（参数、返回值、示例）
 2. 使用指南
 3. 最佳实践
 4. 常见问题解答
 使用Markdown格式，示例代码清晰`,
-    model: 'claude-sonnet-4-5',
+    model: "claude-sonnet-4-5",
     temperature: 0.6,
-    tags: ['文档', '技术写作'],
+    tags: ["文档", "技术写作"],
     is_template: true,
-    author: 'Fangyu Code',
+    author: "Fangyu Code",
   },
   {
-    name: 'bug-hunter',
-    description: '调试专家，快速定位和修复代码中的bug',
+    name: "bug-hunter",
+    description: "调试专家，快速定位和修复代码中的bug",
     system_prompt: `你是调试专家。分析代码时：
 1. 识别潜在的bug和错误
 2. 分析错误原因
 3. 提供具体的修复方案
 4. 建议预防类似问题的方法
 使用清晰的步骤说明`,
-    model: 'claude-sonnet-4-5',
+    model: "claude-sonnet-4-5",
     temperature: 0.4,
-    tags: ['调试', '修复'],
+    tags: ["调试", "修复"],
     is_template: true,
-    author: 'Fangyu Code',
+    author: "Fangyu Code",
   },
   {
-    name: 'refactor-advisor',
-    description: '重构顾问，提供代码重构和优化建议',
+    name: "refactor-advisor",
+    description: "重构顾问，提供代码重构和优化建议",
     system_prompt: `你是代码重构专家。分析代码后提供：
 1. 代码结构改进建议
 2. 性能优化方案
 3. 设计模式应用
 4. 代码简化和去重
 保持功能不变的前提下改进代码`,
-    model: 'claude-sonnet-4-5',
+    model: "claude-sonnet-4-5",
     temperature: 0.5,
-    tags: ['重构', '优化'],
+    tags: ["重构", "优化"],
     is_template: true,
-    author: 'Fangyu Code',
+    author: "Fangyu Code",
   },
 ];
 
@@ -158,8 +171,8 @@ const PRESET_TEMPLATES: Subagent[] = [
 export function SubagentManager({ onSelectSubagent, className }: SubagentManagerProps) {
   const [subagents, setSubagents] = useState<Subagent[]>([]);
   const [executions, setExecutions] = useState<SubagentExecution[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterTag, setFilterTag] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterTag, setFilterTag] = useState<string>("all");
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showTemplateDialog, setShowTemplateDialog] = useState(false);
   const [editingSubagent, setEditingSubagent] = useState<Subagent | null>(null);
@@ -172,7 +185,7 @@ export function SubagentManager({ onSelectSubagent, className }: SubagentManager
       const list = await api.listSubagents();
       setSubagents(list);
     } catch (error) {
-      logger.error('SubagentManager', '加载子代理列表失败:', error);
+      logger.error("SubagentManager", "加载子代理列表失败:", error);
     } finally {
       setLoading(false);
     }
@@ -213,7 +226,7 @@ export function SubagentManager({ onSelectSubagent, className }: SubagentManager
       );
     }
 
-    if (filterTag !== 'all') {
+    if (filterTag !== "all") {
       result = result.filter((agent) => agent.tags?.includes(filterTag));
     }
 
@@ -224,16 +237,16 @@ export function SubagentManager({ onSelectSubagent, className }: SubagentManager
   const handleSaveSubagent = async (data: Partial<Subagent>) => {
     try {
       const mergedData = editingSubagent ? { ...editingSubagent, ...data } : data;
-      const name = mergedData.name || '';
-      const description = mergedData.description || '';
-      const content = mergedData.system_prompt || '';
+      const name = mergedData.name || "";
+      const description = mergedData.description || "";
+      const content = mergedData.system_prompt || "";
 
-      await api.createSubagent(name, description, content, 'user');
+      await api.createSubagent(name, description, content, "user");
       loadSubagents();
       setShowCreateDialog(false);
       setEditingSubagent(null);
     } catch (error) {
-      logger.error('SubagentManager', '保存子代理失败:', error);
+      logger.error("SubagentManager", "保存子代理失败:", error);
     }
   };
 
@@ -245,7 +258,7 @@ export function SubagentManager({ onSelectSubagent, className }: SubagentManager
       // TODO: 实现删除API
       loadSubagents();
     } catch (error) {
-      logger.error('SubagentManager', '删除子代理失败:', error);
+      logger.error("SubagentManager", "删除子代理失败:", error);
     }
   };
 
@@ -263,10 +276,10 @@ export function SubagentManager({ onSelectSubagent, className }: SubagentManager
   // 导出子代理
   const handleExport = (subagent: Subagent) => {
     const blob = new Blob([JSON.stringify(subagent, null, 2)], {
-      type: 'application/json',
+      type: "application/json",
     });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = `${subagent.name}.json`;
     a.click();
@@ -274,7 +287,7 @@ export function SubagentManager({ onSelectSubagent, className }: SubagentManager
   };
 
   return (
-    <div className={cn('flex flex-col h-full bg-background', className)}>
+    <div className={cn("flex flex-col h-full bg-background", className)}>
       {/* 头部 */}
       <div className="p-4 border-b">
         <div className="flex items-center justify-between mb-3">
@@ -420,7 +433,7 @@ function SubagentCard({
   onSelect,
   executions,
 }: SubagentCardProps) {
-  const isRunning = executions.some((e) => e.status === 'running');
+  const isRunning = executions.some((e) => e.status === "running");
 
   return (
     <motion.div
@@ -432,8 +445,8 @@ function SubagentCard({
     >
       <div className="flex items-start justify-between mb-2">
         <div className="flex items-center gap-2">
-          <div className={cn('p-1.5 rounded', isRunning ? 'bg-blue-500/10' : 'bg-muted')}>
-            <Bot className={cn('h-4 w-4', isRunning ? 'text-blue-500' : 'text-muted-foreground')} />
+          <div className={cn("p-1.5 rounded", isRunning ? "bg-blue-500/10" : "bg-muted")}>
+            <Bot className={cn("h-4 w-4", isRunning ? "text-blue-500" : "text-muted-foreground")} />
           </div>
           <div>
             <h3 className="font-medium text-sm">{subagent.name}</h3>
@@ -494,9 +507,9 @@ interface ExecutionStatusProps {
 
 function ExecutionStatus({ execution }: ExecutionStatusProps) {
   const StatusIcon =
-    execution.status === 'running'
+    execution.status === "running"
       ? Loader2
-      : execution.status === 'completed'
+      : execution.status === "completed"
         ? CheckCircle2
         : AlertCircle;
 
@@ -504,15 +517,15 @@ function ExecutionStatus({ execution }: ExecutionStatusProps) {
     <div className="flex items-center gap-2 p-2 rounded bg-background text-xs">
       <StatusIcon
         className={cn(
-          'h-3 w-3',
-          execution.status === 'running' && 'animate-spin text-blue-500',
-          execution.status === 'completed' && 'text-green-500',
-          execution.status === 'failed' && 'text-red-500'
+          "h-3 w-3",
+          execution.status === "running" && "animate-spin text-blue-500",
+          execution.status === "completed" && "text-green-500",
+          execution.status === "failed" && "text-red-500"
         )}
       />
       <span className="flex-1 truncate">{execution.subagent_name}</span>
       <span className="text-muted-foreground">
-        {execution.status === 'running' ? '执行中...' : execution.status}
+        {execution.status === "running" ? "执行中..." : execution.status}
       </span>
     </div>
   );
@@ -533,10 +546,10 @@ function SubagentEditor({ open, onOpenChange, subagent, onSave }: SubagentEditor
       setFormData(subagent);
     } else if (open) {
       setFormData({
-        name: '',
-        description: '',
-        system_prompt: '',
-        model: 'claude-sonnet-4-5',
+        name: "",
+        description: "",
+        system_prompt: "",
+        model: "claude-sonnet-4-5",
         temperature: 0.7,
         tags: [],
       });
@@ -552,7 +565,7 @@ function SubagentEditor({ open, onOpenChange, subagent, onSave }: SubagentEditor
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{subagent ? '编辑子代理' : '创建子代理'}</DialogTitle>
+          <DialogTitle>{subagent ? "编辑子代理" : "创建子代理"}</DialogTitle>
           <VisuallyHidden.Root>
             <DialogDescription>配置子代理的名称、描述、系统提示词和模型参数</DialogDescription>
           </VisuallyHidden.Root>
@@ -562,7 +575,7 @@ function SubagentEditor({ open, onOpenChange, subagent, onSave }: SubagentEditor
           <div>
             <label className="text-sm font-medium">名称</label>
             <Input
-              value={formData.name || ''}
+              value={formData.name || ""}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               placeholder="例如: code-reviewer"
               required
@@ -572,7 +585,7 @@ function SubagentEditor({ open, onOpenChange, subagent, onSave }: SubagentEditor
           <div>
             <label className="text-sm font-medium">描述</label>
             <Input
-              value={formData.description || ''}
+              value={formData.description || ""}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               placeholder="简短描述子代理的功能"
               required
@@ -582,7 +595,7 @@ function SubagentEditor({ open, onOpenChange, subagent, onSave }: SubagentEditor
           <div>
             <label className="text-sm font-medium">系统提示词</label>
             <Textarea
-              value={formData.system_prompt || ''}
+              value={formData.system_prompt || ""}
               onChange={(e) => setFormData({ ...formData, system_prompt: e.target.value })}
               placeholder="定义子代理的行为和能力..."
               rows={6}
@@ -626,11 +639,14 @@ function SubagentEditor({ open, onOpenChange, subagent, onSave }: SubagentEditor
           <div>
             <label className="text-sm font-medium">标签 (逗号分隔)</label>
             <Input
-              value={formData.tags?.join(', ') || ''}
+              value={formData.tags?.join(", ") || ""}
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  tags: e.target.value.split(',').map((t) => t.trim()).filter(Boolean),
+                  tags: e.target.value
+                    .split(",")
+                    .map((t) => t.trim())
+                    .filter(Boolean),
                 })
               }
               placeholder="代码, 审查, 质量"
@@ -706,7 +722,7 @@ function TemplateMarketDialog({
             </div>
           ))}
         </div>
-      </DialogContent >
-    </Dialog >
+      </DialogContent>
+    </Dialog>
   );
 }

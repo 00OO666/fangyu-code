@@ -15,8 +15,8 @@
  * 3. 在 useTabs.switchToTab 中恢复状态
  */
 
-import { logger } from '@/lib/logger';
-import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
+import { logger } from "@/lib/logger";
+import React, { createContext, useContext, useState, useCallback, useRef } from "react";
 
 // ============================================================================
 // Types
@@ -35,7 +35,7 @@ export interface TabExecutionState {
   /** 项目路径 */
   projectPath: string;
   /** 执行引擎 */
-  engine: 'claude' | 'codex' | 'gemini';
+  engine: "claude" | "codex" | "gemini";
   /** 开始时间 */
   startedAt: number;
   /** 最后更新时间 */
@@ -60,7 +60,13 @@ interface GlobalExecutionContextValue {
   updateTabState: (tabId: string, state: Partial<TabExecutionState>) => void;
 
   /** 标记Tab开始执行 */
-  startExecution: (tabId: string, sessionId: string | null, projectPath: string, engine: 'claude' | 'codex' | 'gemini', prompt?: string) => void;
+  startExecution: (
+    tabId: string,
+    sessionId: string | null,
+    projectPath: string,
+    engine: "claude" | "codex" | "gemini",
+    prompt?: string
+  ) => void;
 
   /** 标记Tab执行完成 */
   endExecution: (tabId: string) => void;
@@ -106,7 +112,7 @@ export const GlobalExecutionProvider: React.FC<GlobalExecutionProviderProps> = (
    * 🔧 FIX: 不使用 useCallback，避免作为依赖时导致无限循环
    */
   const getActiveExecutions = (): TabExecutionState[] => {
-    return Array.from(statesRef.current.values()).filter(state => state.isStreaming);
+    return Array.from(statesRef.current.values()).filter((state) => state.isStreaming);
   };
 
   /**
@@ -120,81 +126,96 @@ export const GlobalExecutionProvider: React.FC<GlobalExecutionProviderProps> = (
   /**
    * 更新Tab执行状态
    */
-  const updateTabState = useCallback((tabId: string, partialState: Partial<TabExecutionState>) => {
-    const existing = statesRef.current.get(tabId);
+  const updateTabState = useCallback(
+    (tabId: string, partialState: Partial<TabExecutionState>) => {
+      const existing = statesRef.current.get(tabId);
 
-    const newState: TabExecutionState = {
-      tabId,
-      isStreaming: partialState.isStreaming ?? existing?.isStreaming ?? false,
-      sessionId: partialState.sessionId ?? existing?.sessionId ?? null,
-      projectPath: partialState.projectPath ?? existing?.projectPath ?? '',
-      engine: partialState.engine ?? existing?.engine ?? 'claude',
-      startedAt: partialState.startedAt ?? existing?.startedAt ?? Date.now(),
-      lastUpdateAt: Date.now(),
-      currentPrompt: partialState.currentPrompt ?? existing?.currentPrompt,
-      promptCount: partialState.promptCount ?? existing?.promptCount ?? 0,
-    };
+      const newState: TabExecutionState = {
+        tabId,
+        isStreaming: partialState.isStreaming ?? existing?.isStreaming ?? false,
+        sessionId: partialState.sessionId ?? existing?.sessionId ?? null,
+        projectPath: partialState.projectPath ?? existing?.projectPath ?? "",
+        engine: partialState.engine ?? existing?.engine ?? "claude",
+        startedAt: partialState.startedAt ?? existing?.startedAt ?? Date.now(),
+        lastUpdateAt: Date.now(),
+        currentPrompt: partialState.currentPrompt ?? existing?.currentPrompt,
+        promptCount: partialState.promptCount ?? existing?.promptCount ?? 0,
+      };
 
-    statesRef.current.set(tabId, newState);
+      statesRef.current.set(tabId, newState);
 
-    // 只在 isStreaming 状态变化时触发UI更新（减少不必要的渲染）
-    if (existing?.isStreaming !== newState.isStreaming) {
-      triggerUpdate();
-    }
-  }, [triggerUpdate]);
+      // 只在 isStreaming 状态变化时触发UI更新（减少不必要的渲染）
+      if (existing?.isStreaming !== newState.isStreaming) {
+        triggerUpdate();
+      }
+    },
+    [triggerUpdate]
+  );
 
   /**
    * 标记Tab开始执行
    */
-  const startExecution = useCallback((
-    tabId: string,
-    sessionId: string | null,
-    projectPath: string,
-    engine: 'claude' | 'codex' | 'gemini',
-    prompt?: string
-  ) => {
-    const existing = statesRef.current.get(tabId);
+  const startExecution = useCallback(
+    (
+      tabId: string,
+      sessionId: string | null,
+      projectPath: string,
+      engine: "claude" | "codex" | "gemini",
+      prompt?: string
+    ) => {
+      const existing = statesRef.current.get(tabId);
 
-    updateTabState(tabId, {
-      isStreaming: true,
-      sessionId,
-      projectPath,
-      engine,
-      currentPrompt: prompt,
-      promptCount: (existing?.promptCount ?? 0) + 1,
-      startedAt: Date.now(),
-    });
+      updateTabState(tabId, {
+        isStreaming: true,
+        sessionId,
+        projectPath,
+        engine,
+        currentPrompt: prompt,
+        promptCount: (existing?.promptCount ?? 0) + 1,
+        startedAt: Date.now(),
+      });
 
-    logger.debug('GlobalExecutionContext', `[GlobalExecution] ▶️ Tab ${tabId} started execution (engine: ${engine}, session: ${sessionId});`);
-  }, [updateTabState]);
+      logger.debug(
+        "GlobalExecutionContext",
+        `[GlobalExecution] ▶️ Tab ${tabId} started execution (engine: ${engine}, session: ${sessionId});`
+      );
+    },
+    [updateTabState]
+  );
 
   /**
    * 标记Tab执行完成
    */
-  const endExecution = useCallback((tabId: string) => {
-    const existing = statesRef.current.get(tabId);
-    if (!existing) return;
+  const endExecution = useCallback(
+    (tabId: string) => {
+      const existing = statesRef.current.get(tabId);
+      if (!existing) return;
 
-    updateTabState(tabId, {
-      isStreaming: false,
-      currentPrompt: undefined,
-    });
+      updateTabState(tabId, {
+        isStreaming: false,
+        currentPrompt: undefined,
+      });
 
-    logger.debug('GlobalExecutionContext', `[GlobalExecution] ⏹️ Tab ${tabId} ended execution`);
-  }, [updateTabState]);
+      logger.debug("GlobalExecutionContext", `[GlobalExecution] ⏹️ Tab ${tabId} ended execution`);
+    },
+    [updateTabState]
+  );
 
   /**
    * 清除Tab状态（Tab关闭时）
    */
-  const clearTabState = useCallback((tabId: string) => {
-    const hadState = statesRef.current.has(tabId);
-    statesRef.current.delete(tabId);
+  const clearTabState = useCallback(
+    (tabId: string) => {
+      const hadState = statesRef.current.has(tabId);
+      statesRef.current.delete(tabId);
 
-    if (hadState) {
-      triggerUpdate();
-      logger.debug('GlobalExecutionContext', `[GlobalExecution] 🗑️ Tab ${tabId} state cleared`);
-    }
-  }, [triggerUpdate]);
+      if (hadState) {
+        triggerUpdate();
+        logger.debug("GlobalExecutionContext", `[GlobalExecution] 🗑️ Tab ${tabId} state cleared`);
+      }
+    },
+    [triggerUpdate]
+  );
 
   /**
    * 获取执行中Tab数量
@@ -222,9 +243,7 @@ export const GlobalExecutionProvider: React.FC<GlobalExecutionProviderProps> = (
   };
 
   return (
-    <GlobalExecutionContext.Provider value={value}>
-      {children}
-    </GlobalExecutionContext.Provider>
+    <GlobalExecutionContext.Provider value={value}>{children}</GlobalExecutionContext.Provider>
   );
 };
 
@@ -238,7 +257,7 @@ export const GlobalExecutionProvider: React.FC<GlobalExecutionProviderProps> = (
 export const useGlobalExecution = (): GlobalExecutionContextValue => {
   const context = useContext(GlobalExecutionContext);
   if (!context) {
-    throw new Error('useGlobalExecution must be used within GlobalExecutionProvider');
+    throw new Error("useGlobalExecution must be used within GlobalExecutionProvider");
   }
   return context;
 };

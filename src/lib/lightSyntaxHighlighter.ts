@@ -9,75 +9,88 @@
  * 预计节省：~1.4 MB (gzip: ~450 KB)
  */
 
-import SyntaxHighlighter from 'react-syntax-highlighter/dist/esm/light';
+import SyntaxHighlighter from "react-syntax-highlighter/dist/esm/light";
 
 // 只导入最常用的语言
-import javascript from 'react-syntax-highlighter/dist/esm/languages/prism/javascript';
-import typescript from 'react-syntax-highlighter/dist/esm/languages/prism/typescript';
-import jsx from 'react-syntax-highlighter/dist/esm/languages/prism/jsx';
-import tsx from 'react-syntax-highlighter/dist/esm/languages/prism/tsx';
-import python from 'react-syntax-highlighter/dist/esm/languages/prism/python';
-import rust from 'react-syntax-highlighter/dist/esm/languages/prism/rust';
-import go from 'react-syntax-highlighter/dist/esm/languages/prism/go';
-import java from 'react-syntax-highlighter/dist/esm/languages/prism/java';
-import cpp from 'react-syntax-highlighter/dist/esm/languages/prism/cpp';
-import c from 'react-syntax-highlighter/dist/esm/languages/prism/c';
-import bash from 'react-syntax-highlighter/dist/esm/languages/prism/bash';
-import json from 'react-syntax-highlighter/dist/esm/languages/prism/json';
-import yaml from 'react-syntax-highlighter/dist/esm/languages/prism/yaml';
-import markdown from 'react-syntax-highlighter/dist/esm/languages/prism/markdown';
-import sql from 'react-syntax-highlighter/dist/esm/languages/prism/sql';
-import css from 'react-syntax-highlighter/dist/esm/languages/prism/css';
-import html from 'react-syntax-highlighter/dist/esm/languages/prism/markup';
-import xml from 'react-syntax-highlighter/dist/esm/languages/prism/markup';
+import javascript from "react-syntax-highlighter/dist/esm/languages/prism/javascript";
+import typescript from "react-syntax-highlighter/dist/esm/languages/prism/typescript";
+import jsx from "react-syntax-highlighter/dist/esm/languages/prism/jsx";
+import tsx from "react-syntax-highlighter/dist/esm/languages/prism/tsx";
+import python from "react-syntax-highlighter/dist/esm/languages/prism/python";
+import rust from "react-syntax-highlighter/dist/esm/languages/prism/rust";
+import go from "react-syntax-highlighter/dist/esm/languages/prism/go";
+import java from "react-syntax-highlighter/dist/esm/languages/prism/java";
+import cpp from "react-syntax-highlighter/dist/esm/languages/prism/cpp";
+import c from "react-syntax-highlighter/dist/esm/languages/prism/c";
+import bash from "react-syntax-highlighter/dist/esm/languages/prism/bash";
+import json from "react-syntax-highlighter/dist/esm/languages/prism/json";
+import yaml from "react-syntax-highlighter/dist/esm/languages/prism/yaml";
+import markdown from "react-syntax-highlighter/dist/esm/languages/prism/markdown";
+import sql from "react-syntax-highlighter/dist/esm/languages/prism/sql";
+import css from "react-syntax-highlighter/dist/esm/languages/prism/css";
+import html from "react-syntax-highlighter/dist/esm/languages/prism/markup";
+import xml from "react-syntax-highlighter/dist/esm/languages/prism/markup";
 
 // 注册语言
-SyntaxHighlighter.registerLanguage('javascript', javascript);
-SyntaxHighlighter.registerLanguage('js', javascript);
-SyntaxHighlighter.registerLanguage('typescript', typescript);
-SyntaxHighlighter.registerLanguage('ts', typescript);
-SyntaxHighlighter.registerLanguage('jsx', jsx);
-SyntaxHighlighter.registerLanguage('tsx', tsx);
-SyntaxHighlighter.registerLanguage('python', python);
-SyntaxHighlighter.registerLanguage('py', python);
-SyntaxHighlighter.registerLanguage('rust', rust);
-SyntaxHighlighter.registerLanguage('rs', rust);
-SyntaxHighlighter.registerLanguage('go', go);
-SyntaxHighlighter.registerLanguage('golang', go);
-SyntaxHighlighter.registerLanguage('java', java);
-SyntaxHighlighter.registerLanguage('cpp', cpp);
-SyntaxHighlighter.registerLanguage('c++', cpp);
-SyntaxHighlighter.registerLanguage('c', c);
-SyntaxHighlighter.registerLanguage('bash', bash);
-SyntaxHighlighter.registerLanguage('sh', bash);
-SyntaxHighlighter.registerLanguage('shell', bash);
-SyntaxHighlighter.registerLanguage('json', json);
-SyntaxHighlighter.registerLanguage('yaml', yaml);
-SyntaxHighlighter.registerLanguage('yml', yaml);
-SyntaxHighlighter.registerLanguage('markdown', markdown);
-SyntaxHighlighter.registerLanguage('md', markdown);
-SyntaxHighlighter.registerLanguage('sql', sql);
-SyntaxHighlighter.registerLanguage('css', css);
-SyntaxHighlighter.registerLanguage('html', html);
-SyntaxHighlighter.registerLanguage('xml', xml);
+SyntaxHighlighter.registerLanguage("javascript", javascript);
+SyntaxHighlighter.registerLanguage("js", javascript);
+SyntaxHighlighter.registerLanguage("typescript", typescript);
+SyntaxHighlighter.registerLanguage("ts", typescript);
+SyntaxHighlighter.registerLanguage("jsx", jsx);
+SyntaxHighlighter.registerLanguage("tsx", tsx);
+SyntaxHighlighter.registerLanguage("python", python);
+SyntaxHighlighter.registerLanguage("py", python);
+SyntaxHighlighter.registerLanguage("rust", rust);
+SyntaxHighlighter.registerLanguage("rs", rust);
+SyntaxHighlighter.registerLanguage("go", go);
+SyntaxHighlighter.registerLanguage("golang", go);
+SyntaxHighlighter.registerLanguage("java", java);
+SyntaxHighlighter.registerLanguage("cpp", cpp);
+SyntaxHighlighter.registerLanguage("c++", cpp);
+SyntaxHighlighter.registerLanguage("c", c);
+SyntaxHighlighter.registerLanguage("bash", bash);
+SyntaxHighlighter.registerLanguage("sh", bash);
+SyntaxHighlighter.registerLanguage("shell", bash);
+SyntaxHighlighter.registerLanguage("json", json);
+SyntaxHighlighter.registerLanguage("yaml", yaml);
+SyntaxHighlighter.registerLanguage("yml", yaml);
+SyntaxHighlighter.registerLanguage("markdown", markdown);
+SyntaxHighlighter.registerLanguage("md", markdown);
+SyntaxHighlighter.registerLanguage("sql", sql);
+SyntaxHighlighter.registerLanguage("css", css);
+SyntaxHighlighter.registerLanguage("html", html);
+SyntaxHighlighter.registerLanguage("xml", xml);
 
 // 支持的语言列表
 export const SUPPORTED_LANGUAGES = new Set([
-  'javascript', 'js',
-  'typescript', 'ts',
-  'jsx', 'tsx',
-  'python', 'py',
-  'rust', 'rs',
-  'go', 'golang',
-  'java',
-  'cpp', 'c++', 'c',
-  'bash', 'sh', 'shell',
-  'json',
-  'yaml', 'yml',
-  'markdown', 'md',
-  'sql',
-  'css',
-  'html', 'xml'
+  "javascript",
+  "js",
+  "typescript",
+  "ts",
+  "jsx",
+  "tsx",
+  "python",
+  "py",
+  "rust",
+  "rs",
+  "go",
+  "golang",
+  "java",
+  "cpp",
+  "c++",
+  "c",
+  "bash",
+  "sh",
+  "shell",
+  "json",
+  "yaml",
+  "yml",
+  "markdown",
+  "md",
+  "sql",
+  "css",
+  "html",
+  "xml",
 ]);
 
 /**
@@ -96,7 +109,7 @@ export function normalizeLanguage(language: string): string {
     return normalized;
   }
   // 降级为 text
-  return 'text';
+  return "text";
 }
 
 export { SyntaxHighlighter, SyntaxHighlighter as Prism };

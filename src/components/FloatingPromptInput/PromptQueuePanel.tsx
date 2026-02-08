@@ -12,19 +12,30 @@
  * @version 1.0.0
  */
 
-import { logger } from '@/lib/logger';
-import React, { useCallback, useState, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ListOrdered, X, Undo2, Zap, Package, Trash2, ChevronUp, ChevronDown, Clock, Send, AlertCircle, CheckCircle2, Loader2, Wand2, Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { logger } from "@/lib/logger";
+import React, { useCallback, useState, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { cn } from '@/lib/utils';
-import type { PromptQueueItem, PromptSendMode } from '@/hooks/usePromptQueue';
+  ListOrdered,
+  X,
+  Undo2,
+  Zap,
+  Package,
+  Trash2,
+  ChevronUp,
+  ChevronDown,
+  Clock,
+  Send,
+  AlertCircle,
+  CheckCircle2,
+  Loader2,
+  Wand2,
+  Plus,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
+import type { PromptQueueItem, PromptSendMode } from "@/hooks/usePromptQueue";
 
 // ============================================================================
 // Type Definitions
@@ -74,17 +85,17 @@ interface PromptQueuePanelProps {
 /**
  * 队列项状态图标
  */
-const StatusIcon: React.FC<{ status: PromptQueueItem['status'] }> = ({ status }) => {
+const StatusIcon: React.FC<{ status: PromptQueueItem["status"] }> = ({ status }) => {
   switch (status) {
-    case 'pending':
+    case "pending":
       return <Clock className="w-3.5 h-3.5 text-amber-500" />;
-    case 'sending':
+    case "sending":
       return <Loader2 className="w-3.5 h-3.5 text-blue-500 animate-spin" />;
-    case 'sent':
+    case "sent":
       return <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />;
-    case 'failed':
+    case "failed":
       return <AlertCircle className="w-3.5 h-3.5 text-red-500" />;
-    case 'revoked':
+    case "revoked":
       return <Undo2 className="w-3.5 h-3.5 text-gray-400" />;
     default:
       return null;
@@ -101,18 +112,18 @@ const ModeTag: React.FC<{
 }> = ({ mode, onModeChange, disabled }) => {
   const modeConfig = {
     sequential: {
-      label: '排队',
-      color: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+      label: "排队",
+      color: "bg-blue-500/20 text-blue-400 border-blue-500/30",
       icon: ListOrdered,
     },
     interrupt: {
-      label: '插队',
-      color: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
+      label: "插队",
+      color: "bg-amber-500/20 text-amber-400 border-amber-500/30",
       icon: Zap,
     },
     merge: {
-      label: '打包',
-      color: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
+      label: "打包",
+      color: "bg-purple-500/20 text-purple-400 border-purple-500/30",
       icon: Package,
     },
   };
@@ -123,7 +134,7 @@ const ModeTag: React.FC<{
   const handleClick = () => {
     if (disabled || !onModeChange) return;
     // 循环切换模式
-    const modes: PromptSendMode[] = ['sequential', 'merge', 'interrupt'];
+    const modes: PromptSendMode[] = ["sequential", "merge", "interrupt"];
     const currentIndex = modes.indexOf(mode);
     const nextMode = modes[(currentIndex + 1) % modes.length];
     onModeChange(nextMode);
@@ -134,11 +145,11 @@ const ModeTag: React.FC<{
       onClick={handleClick}
       disabled={disabled}
       className={cn(
-        'inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium border',
-        'transition-all duration-150',
+        "inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium border",
+        "transition-all duration-150",
         config.color,
-        !disabled && 'hover:opacity-80 cursor-pointer',
-        disabled && 'opacity-50 cursor-not-allowed'
+        !disabled && "hover:opacity-80 cursor-pointer",
+        disabled && "opacity-50 cursor-not-allowed"
       )}
     >
       <Icon className="w-3 h-3" />
@@ -177,13 +188,11 @@ const QueueItem: React.FC<{
   onUpdateMode,
   onOptimize,
 }) => {
-  const isPending = item.status === 'pending';
+  const isPending = item.status === "pending";
   const canOperate = isPending && !isOptimizing;
 
   // 截取预览文本
-  const previewText = item.prompt.length > 60
-    ? item.prompt.substring(0, 60) + '...'
-    : item.prompt;
+  const previewText = item.prompt.length > 60 ? item.prompt.substring(0, 60) + "..." : item.prompt;
 
   return (
     <motion.div
@@ -192,18 +201,16 @@ const QueueItem: React.FC<{
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -20 }}
       className={cn(
-        'group flex items-start gap-2 p-2 rounded-lg border',
-        'bg-background/50 hover:bg-background/80',
-        'transition-colors duration-150',
-        item.status === 'sending' && 'border-blue-500/50 bg-blue-500/5',
-        item.status === 'failed' && 'border-red-500/50 bg-red-500/5'
+        "group flex items-start gap-2 p-2 rounded-lg border",
+        "bg-background/50 hover:bg-background/80",
+        "transition-colors duration-150",
+        item.status === "sending" && "border-blue-500/50 bg-blue-500/5",
+        item.status === "failed" && "border-red-500/50 bg-red-500/5"
       )}
     >
       {/* 序号和状态 */}
       <div className="flex flex-col items-center gap-1 pt-0.5">
-        <span className="text-xs text-muted-foreground font-mono w-5 text-center">
-          {index + 1}
-        </span>
+        <span className="text-xs text-muted-foreground font-mono w-5 text-center">{index + 1}</span>
         <StatusIcon status={item.status} />
       </div>
 
@@ -217,30 +224,24 @@ const QueueItem: React.FC<{
             disabled={!canOperate}
           />
           {item.estimatedTokens && (
-            <span className="text-xs text-muted-foreground">
-              ~{item.estimatedTokens} tokens
-            </span>
+            <span className="text-xs text-muted-foreground">~{item.estimatedTokens} tokens</span>
           )}
         </div>
 
         {/* 提示词预览 */}
-        <p className="text-sm text-foreground/80 break-words leading-relaxed">
-          {previewText}
-        </p>
+        <p className="text-sm text-foreground/80 break-words leading-relaxed">{previewText}</p>
 
         {/* 错误信息 */}
-        {item.errorMessage && (
-          <p className="text-xs text-red-400 mt-1">
-            {item.errorMessage}
-          </p>
-        )}
+        {item.errorMessage && <p className="text-xs text-red-400 mt-1">{item.errorMessage}</p>}
       </div>
 
       {/* 操作按钮 */}
-      <div className={cn(
-        'flex flex-col gap-1 opacity-0 group-hover:opacity-100',
-        'transition-opacity duration-150'
-      )}>
+      <div
+        className={cn(
+          "flex flex-col gap-1 opacity-0 group-hover:opacity-100",
+          "transition-opacity duration-150"
+        )}
+      >
         {/* 上移/下移 */}
         <div className="flex gap-0.5">
           <TooltipProvider delayDuration={300}>
@@ -311,7 +312,7 @@ const QueueItem: React.FC<{
               </Button>
             </TooltipTrigger>
             <TooltipContent side="left">
-              {isLoading ? '插队发送（作为指导）' : '立即发送'}
+              {isLoading ? "插队发送（作为指导）" : "立即发送"}
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -336,7 +337,7 @@ const QueueItem: React.FC<{
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="left">
-                {isOptimizing ? '优化中...' : '优化提示词'}
+                {isOptimizing ? "优化中..." : "优化提示词"}
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -389,76 +390,92 @@ export const PromptQueuePanel: React.FC<PromptQueuePanelProps> = ({
   onOptimizePrompt,
 }) => {
   // 🆕 队列面板内部输入框状态
-  const [queueInput, setQueueInput] = useState('');
-  const [selectedMode, setSelectedMode] = useState<PromptSendMode>('sequential');
+  const [queueInput, setQueueInput] = useState("");
+  const [selectedMode, setSelectedMode] = useState<PromptSendMode>("sequential");
   const [optimizingId, setOptimizingId] = useState<string | null>(null);
   const queueTextareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const pendingItems = items.filter(i => i.status === 'pending');
-  const mergeItems = items.filter(i => i.status === 'pending' && i.mode === 'merge');
+  const pendingItems = items.filter((i) => i.status === "pending");
+  const mergeItems = items.filter((i) => i.status === "pending" && i.mode === "merge");
 
   // 🆕 提交队列输入
   const handleQueueInputSubmit = useCallback(() => {
     if (queueInput.trim() && onQueueSubmit) {
       onQueueSubmit(queueInput.trim(), selectedMode);
-      setQueueInput('');
+      setQueueInput("");
       // 重置输入框高度
       if (queueTextareaRef.current) {
-        queueTextareaRef.current.style.height = 'auto';
+        queueTextareaRef.current.style.height = "auto";
       }
     }
   }, [queueInput, selectedMode, onQueueSubmit]);
 
   // 🆕 处理键盘事件
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleQueueInputSubmit();
-    }
-  }, [handleQueueInputSubmit]);
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleQueueInputSubmit();
+      }
+    },
+    [handleQueueInputSubmit]
+  );
 
   // 🆕 自动调整输入框高度
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setQueueInput(e.target.value);
     const textarea = e.target;
-    textarea.style.height = 'auto';
+    textarea.style.height = "auto";
     textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`;
   }, []);
 
-  const handleMoveUp = useCallback((itemId: string, currentIndex: number) => {
-    if (currentIndex > 0) {
-      onReorder(itemId, currentIndex - 1);
-    }
-  }, [onReorder]);
+  const handleMoveUp = useCallback(
+    (itemId: string, currentIndex: number) => {
+      if (currentIndex > 0) {
+        onReorder(itemId, currentIndex - 1);
+      }
+    },
+    [onReorder]
+  );
 
-  const handleMoveDown = useCallback((itemId: string, currentIndex: number) => {
-    const pendingIndices = items
-      .map((item, idx) => ({ item, idx }))
-      .filter(({ item }) => item.status === 'pending');
+  const handleMoveDown = useCallback(
+    (itemId: string, currentIndex: number) => {
+      const pendingIndices = items
+        .map((item, idx) => ({ item, idx }))
+        .filter(({ item }) => item.status === "pending");
 
-    const currentPendingIndex = pendingIndices.findIndex(({ item }) => item.id === itemId);
-    if (currentPendingIndex < pendingIndices.length - 1) {
-      onReorder(itemId, currentIndex + 1);
-    }
-  }, [items, onReorder]);
+      const currentPendingIndex = pendingIndices.findIndex(({ item }) => item.id === itemId);
+      if (currentPendingIndex < pendingIndices.length - 1) {
+        onReorder(itemId, currentIndex + 1);
+      }
+    },
+    [items, onReorder]
+  );
 
   // 🆕 优化提示词
-  const handleOptimize = useCallback(async (itemId: string, prompt: string) => {
-    if (!onOptimizePrompt) return;
-    setOptimizingId(itemId);
-    try {
-      const optimized = await onOptimizePrompt(itemId, prompt);
-      if (optimized && onUpdatePrompt) {
-        // 更新队列项的提示词
-        onUpdatePrompt(itemId, optimized);
-        logger.debug('PromptQueuePanel', '[PromptQueuePanel] Optimized:', optimized.substring(0, 50));
+  const handleOptimize = useCallback(
+    async (itemId: string, prompt: string) => {
+      if (!onOptimizePrompt) return;
+      setOptimizingId(itemId);
+      try {
+        const optimized = await onOptimizePrompt(itemId, prompt);
+        if (optimized && onUpdatePrompt) {
+          // 更新队列项的提示词
+          onUpdatePrompt(itemId, optimized);
+          logger.debug(
+            "PromptQueuePanel",
+            "[PromptQueuePanel] Optimized:",
+            optimized.substring(0, 50)
+          );
+        }
+      } catch (error) {
+        logger.error("PromptQueuePanel", "[PromptQueuePanel] Optimize failed:", error);
+      } finally {
+        setOptimizingId(null);
       }
-    } catch (error) {
-      logger.error('PromptQueuePanel', '[PromptQueuePanel] Optimize failed:', error);
-    } finally {
-      setOptimizingId(null);
-    }
-  }, [onOptimizePrompt, onUpdatePrompt]);
+    },
+    [onOptimizePrompt, onUpdatePrompt]
+  );
 
   if (pendingItems.length === 0) {
     return (
@@ -518,9 +535,7 @@ export const PromptQueuePanel: React.FC<PromptQueuePanelProps> = ({
                     打包发送 ({mergeItems.length})
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>
-                  将 {mergeItems.length} 条「打包」模式的指令合并发送
-                </TooltipContent>
+                <TooltipContent>将 {mergeItems.length} 条「打包」模式的指令合并发送</TooltipContent>
               </Tooltip>
             </TooltipProvider>
           )}
@@ -583,15 +598,19 @@ export const PromptQueuePanel: React.FC<PromptQueuePanelProps> = ({
                 value={queueInput}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
-                onFocus={() => logger.debug('PromptQueuePanel', '[PromptQueuePanel] Textarea focused')}
-                onClick={() => logger.debug('PromptQueuePanel', '[PromptQueuePanel] Textarea clicked')}
+                onFocus={() =>
+                  logger.debug("PromptQueuePanel", "[PromptQueuePanel] Textarea focused")
+                }
+                onClick={() =>
+                  logger.debug("PromptQueuePanel", "[PromptQueuePanel] Textarea clicked")
+                }
                 placeholder="输入指令加入队列..."
                 className={cn(
-                  'w-full px-3 py-2 text-sm rounded-lg border resize-none',
-                  'bg-background border-border',
-                  'focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50',
-                  'placeholder:text-muted-foreground/60',
-                  'min-h-[36px] max-h-[120px]'
+                  "w-full px-3 py-2 text-sm rounded-lg border resize-none",
+                  "bg-background border-border",
+                  "focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50",
+                  "placeholder:text-muted-foreground/60",
+                  "min-h-[36px] max-h-[120px]"
                 )}
                 rows={1}
                 autoFocus
@@ -600,11 +619,7 @@ export const PromptQueuePanel: React.FC<PromptQueuePanelProps> = ({
 
             {/* 模式选择 */}
             <div className="flex flex-col gap-1">
-              <ModeTag
-                mode={selectedMode}
-                onModeChange={setSelectedMode}
-                disabled={false}
-              />
+              <ModeTag mode={selectedMode} onModeChange={setSelectedMode} disabled={false} />
             </div>
 
             {/* 添加按钮 */}

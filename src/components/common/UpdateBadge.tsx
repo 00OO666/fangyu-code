@@ -1,4 +1,4 @@
-import { X, Download } from 'lucide-react';
+import { X, Download } from "lucide-react";
 import { useUpdate } from "@/contexts/UpdateContext";
 
 interface UpdateBadgeProps {
@@ -38,9 +38,7 @@ export function UpdateBadge({ className = "", onClick }: UpdateBadgeProps) {
       title="有新版本可用"
     >
       <Download className="w-3 h-3 text-primary" />
-      <span className="text-foreground font-medium">
-        v{updateInfo.availableVersion}
-      </span>
+      <span className="text-foreground font-medium">v{updateInfo.availableVersion}</span>
       <button
         onClick={(e) => {
           e.stopPropagation();
@@ -60,6 +58,3 @@ export function UpdateBadge({ className = "", onClick }: UpdateBadgeProps) {
     </div>
   );
 }
-
-
-

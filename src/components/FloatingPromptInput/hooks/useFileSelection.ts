@@ -27,7 +27,11 @@ export function useFileSelection({
 
   // Detect @ symbol for file picker
   const detectAtSymbol = (newValue: string, newCursorPosition: number) => {
-    if (projectPath?.trim() && newValue.length > prompt.length && newValue[newCursorPosition - 1] === '@') {
+    if (
+      projectPath?.trim() &&
+      newValue.length > prompt.length &&
+      newValue[newCursorPosition - 1] === "@"
+    ) {
       setShowFilePicker(true);
       setFilePickerQuery("");
       onCursorPositionChange(newCursorPosition);
@@ -41,12 +45,12 @@ export function useFileSelection({
     // Find the @ position before cursor
     let atPosition = -1;
     for (let i = newCursorPosition - 1; i >= 0; i--) {
-      if (newValue[i] === '@') {
+      if (newValue[i] === "@") {
         atPosition = i;
         break;
       }
       // Stop if we hit whitespace
-      if (newValue[i] === ' ' || newValue[i] === '\n') {
+      if (newValue[i] === " " || newValue[i] === "\n") {
         break;
       }
     }
@@ -69,7 +73,7 @@ export function useFileSelection({
     // Find the @ position before cursor
     let atPosition = -1;
     for (let i = cursorPosition - 1; i >= 0; i--) {
-      if (prompt[i] === '@') {
+      if (prompt[i] === "@") {
         atPosition = i;
         break;
       }
@@ -83,17 +87,18 @@ export function useFileSelection({
 
     const beforeAt = prompt.substring(0, atPosition);
     const afterCursor = prompt.substring(cursorPosition);
-    
+
     // Use relative path if projectPath is set
-    const relativePath = (projectPath && entry.path.startsWith(projectPath))
-      ? entry.path.slice((projectPath || '').length + 1)
-      : entry.path;
-    
+    const relativePath =
+      projectPath && entry.path.startsWith(projectPath)
+        ? entry.path.slice((projectPath || "").length + 1)
+        : entry.path;
+
     const newPrompt = `${beforeAt}@${relativePath} ${afterCursor}`;
     onPromptChange(newPrompt);
     setShowFilePicker(false);
     setFilePickerQuery("");
-    
+
     // Focus back on textarea and set cursor position
     setTimeout(() => {
       textarea.focus();
@@ -107,7 +112,7 @@ export function useFileSelection({
   const handleFilePickerClose = () => {
     setShowFilePicker(false);
     setFilePickerQuery("");
-    
+
     // Return focus to textarea
     setTimeout(() => {
       const textarea = isExpanded ? expandedTextareaRef.current : textareaRef.current;

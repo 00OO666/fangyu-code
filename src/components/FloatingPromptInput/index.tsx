@@ -1,9 +1,25 @@
-import { logger } from '@/lib/logger';
-import React, { useState, useRef, forwardRef, useImperativeHandle, useEffect, useReducer, useCallback, useContext, useMemo } from "react";
+import { logger } from "@/lib/logger";
+import React, {
+  useState,
+  useRef,
+  forwardRef,
+  useImperativeHandle,
+  useEffect,
+  useReducer,
+  useCallback,
+  useContext,
+  useMemo,
+} from "react";
 import { AnimatePresence } from "framer-motion";
-import { Sparkles } from 'lucide-react';
+import { Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { FloatingPromptInputProps, FloatingPromptInputRef, ThinkingMode, ModelType, ModelConfig } from "./types";
+import {
+  FloatingPromptInputProps,
+  FloatingPromptInputRef,
+  ThinkingMode,
+  ModelType,
+  ModelConfig,
+} from "./types";
 import { THINKING_MODES, MODELS } from "./constants";
 import { useImageHandling } from "./hooks/useImageHandling";
 import { useFileSelection } from "./hooks/useFileSelection";
@@ -25,7 +41,11 @@ import { useMemoryDetection } from "@/hooks/useMemoryDetection";
 import { MemoryImportSuggestion } from "@/components/MemoryImportSuggestion";
 
 // 🆕 Prompt Queue 功能
-import { PromptQueueContext, type PromptSendMode, type PromptQueueContextValue } from "@/hooks/usePromptQueue";
+import {
+  PromptQueueContext,
+  type PromptSendMode,
+  type PromptQueueContextValue,
+} from "@/hooks/usePromptQueue";
 import { PromptQueuePanel } from "./PromptQueuePanel";
 
 // 🆕 预填充消息支持（用于摘要续接等场景）
@@ -40,7 +60,12 @@ import { FileDropZone, type FileAttachment } from "@/components/FileDropZone";
 import { useFileAttachments } from "@/hooks/useFileAttachments";
 
 // Re-export types for external use
-export type { FloatingPromptInputRef, FloatingPromptInputProps, ThinkingMode, ModelType } from "./types";
+export type {
+  FloatingPromptInputRef,
+  FloatingPromptInputProps,
+  ThinkingMode,
+  ModelType,
+} from "./types";
 
 /**
  * FloatingPromptInput - Refactored modular component
@@ -80,18 +105,18 @@ const FloatingPromptInputInner = (
     compactProgress: _compactProgress,
     deltaMessagesCount: _deltaMessagesCount,
   }: FloatingPromptInputProps,
-  ref: React.Ref<FloatingPromptInputRef>,
+  ref: React.Ref<FloatingPromptInputRef>
 ) => {
   // 🆕 使用父组件传入的配置，而不是 Zustand Store
   // 🔧 FIX: 移除 Zustand store 的使用，避免双重状态管理导致无限循环
   // 父组件 ClaudeCodeSession 已经管理了 executionEngineConfig 状态
   const executionEngineConfig = externalEngineConfig || {
-    engine: 'claude' as const,
-    codexMode: 'read-only' as const,
-    codexModel: 'gpt-5.2',
-    geminiModel: 'gemini-3-flash',
+    engine: "claude" as const,
+    codexMode: "read-only" as const,
+    codexModel: "gpt-5.2",
+    geminiModel: "gemini-3-flash",
   };
-  const setExecutionEngineConfig = onExecutionEngineConfigChange || (() => { });
+  const setExecutionEngineConfig = onExecutionEngineConfigChange || (() => {});
 
   // 🔧 FIX: 使用 useReducer 的第三个参数（lazy initialization）避免每次渲染都调用 getInitialModel
   // 原问题：传递对象表达式作为初始状态时，表达式会在每次渲染时被求值，导致 console.log 输出 1000+ 次
@@ -121,15 +146,15 @@ const FloatingPromptInputInner = (
     let selectedModel: ModelType;
 
     if (parsedSessionModel) {
-      logger.debug('index', '[FloatingPromptInput] 历史会话，使用保存的模型:', parsedSessionModel);
+      logger.debug("index", "[FloatingPromptInput] 历史会话，使用保存的模型:", parsedSessionModel);
       selectedModel = parsedSessionModel;
     } else {
       const userDefaultModel = getDefaultModel();
       if (userDefaultModel) {
-        logger.debug('index', '[FloatingPromptInput] 新会话，使用用户默认模型:', userDefaultModel);
+        logger.debug("index", "[FloatingPromptInput] 新会话，使用用户默认模型:", userDefaultModel);
         selectedModel = userDefaultModel;
       } else {
-        logger.debug('index', '[FloatingPromptInput] 未设置默认模型，回退到:', defaultModel);
+        logger.debug("index", "[FloatingPromptInput] 未设置默认模型，回退到:", defaultModel);
         selectedModel = defaultModel;
       }
     }
@@ -184,14 +209,14 @@ const FloatingPromptInputInner = (
   }, []);
 
   // 🔧 FIX: 稳定的回调函数，避免每次渲染创建新函数
-  const handleNoopCancel = useCallback(() => { }, []);
+  const handleNoopCancel = useCallback(() => {}, []);
 
   const handleToggleQueuePanel = useCallback(() => {
-    setShowQueuePanel(prev => !prev);
+    setShowQueuePanel((prev) => !prev);
   }, []);
 
   const handleMemoryImportComplete = useCallback(() => {
-    logger.debug('index', '[FloatingPromptInput] Memory imported successfully');
+    logger.debug("index", "[FloatingPromptInput] Memory imported successfully");
   }, []);
 
   const handleCloseMemoryPanel = useCallback(() => {
@@ -221,35 +246,45 @@ const FloatingPromptInputInner = (
   // 🔧 FIX: 使用可选的 Context 访问，避免在 PromptQueueProvider 外部使用时崩溃
   const promptQueueContext = useContext(PromptQueueContext);
   const [showQueuePanel, setShowQueuePanel] = useState(false);
-  
+
   // 🔧 FIX: 创建一个空的队列对象作为 fallback
-  const emptyQueue: PromptQueueContextValue = useMemo(() => ({
-    items: [],
-    isProcessing: false,
-    currentItemId: null,
-    autoMerge: false,
-    enqueue: () => ({ id: '', prompt: '', model: 'sonnet' as const, createdAt: 0, mode: 'sequential' as const, status: 'pending' as const }),
-    dequeue: () => null,
-    revokeToInput: () => null,
-    markSending: () => {},
-    markSent: () => {},
-    markFailed: () => {},
-    clearQueue: () => {},
-    getNextSequential: () => null,
-    getMergeItems: () => [],
-    getMergedPrompt: () => null,
-    reorderItem: () => {},
-    updateItemMode: () => {},
-    updateItemPrompt: () => {},
-    setAutoMerge: () => {},
-    getStats: () => ({ total: 0, pending: 0, sending: 0, sent: 0 }),
-  }), []);
-  
+  const emptyQueue: PromptQueueContextValue = useMemo(
+    () => ({
+      items: [],
+      isProcessing: false,
+      currentItemId: null,
+      autoMerge: false,
+      enqueue: () => ({
+        id: "",
+        prompt: "",
+        model: "sonnet" as const,
+        createdAt: 0,
+        mode: "sequential" as const,
+        status: "pending" as const,
+      }),
+      dequeue: () => null,
+      revokeToInput: () => null,
+      markSending: () => {},
+      markSent: () => {},
+      markFailed: () => {},
+      clearQueue: () => {},
+      getNextSequential: () => null,
+      getMergeItems: () => [],
+      getMergedPrompt: () => null,
+      reorderItem: () => {},
+      updateItemMode: () => {},
+      updateItemPrompt: () => {},
+      setAutoMerge: () => {},
+      getStats: () => ({ total: 0, pending: 0, sending: 0, sent: 0 }),
+    }),
+    []
+  );
+
   const promptQueue = promptQueueContext || emptyQueue;
-  
+
   // 🔧 FIX: 使用 useMemo 避免每次渲染都创建新数组
   const pendingCount = React.useMemo(
-    () => promptQueue.items.filter(i => i.status === 'pending').length,
+    () => promptQueue.items.filter((i) => i.status === "pending").length,
     [promptQueue.items]
   );
 
@@ -273,7 +308,11 @@ const FloatingPromptInputInner = (
         const { promptQueue: queue, onSend: send } = latestRefs.current;
         const nextItem = queue.getNextSequential();
         if (nextItem) {
-          logger.debug('index', '[FloatingPromptInput] Auto-processing next queue item:', nextItem.id);
+          logger.debug(
+            "index",
+            "[FloatingPromptInput] Auto-processing next queue item:",
+            nextItem.id
+          );
           queue.dequeue(nextItem.id);
           send(nextItem.prompt, nextItem.model, undefined, false);
         }
@@ -281,7 +320,6 @@ const FloatingPromptInputInner = (
       return () => clearTimeout(timer);
     }
   }, [isLoading]); // 只依赖 isLoading，避免无限循环
-
 
   // 草稿持久化 Hook - 确保输入内容在页面切换后不丢失
   const { saveDraft, clearDraft } = useDraftPersistence({
@@ -298,7 +336,7 @@ const FloatingPromptInputInner = (
     // 组件挂载时检查是否有预填充消息
     const prefillMessage = consumePrefillMessage();
     if (prefillMessage) {
-      logger.debug('index', '[FloatingPromptInput] 检测到预填充消息，自动填充到输入框');
+      logger.debug("index", "[FloatingPromptInput] 检测到预填充消息，自动填充到输入框");
       dispatch({ type: "SET_PROMPT", payload: prefillMessage });
     }
   }, []); // 只在组件挂载时执行一次
@@ -306,8 +344,8 @@ const FloatingPromptInputInner = (
   // Initialize enableProjectContext from localStorage
   useEffect(() => {
     try {
-      const stored = localStorage.getItem('enable_project_context');
-      if (stored === 'true') {
+      const stored = localStorage.getItem("enable_project_context");
+      if (stored === "true") {
         dispatch({ type: "SET_ENABLE_PROJECT_CONTEXT", payload: true });
       }
     } catch {
@@ -323,18 +361,22 @@ const FloatingPromptInputInner = (
         // 从 settings.json 读取真实状态
         const settings = await api.getClaudeSettings();
         const hasMaxThinkingTokens = settings?.env?.MAX_THINKING_TOKENS !== undefined;
-        const actualMode = hasMaxThinkingTokens ? 'on' : 'off';
+        const actualMode = hasMaxThinkingTokens ? "on" : "off";
 
         dispatch({ type: "SET_THINKING_MODE", payload: actualMode });
 
         // 同步更新 localStorage 以保持一致
-        localStorage.setItem('thinking_mode', actualMode);
+        localStorage.setItem("thinking_mode", actualMode);
       } catch (error) {
-        logger.error('index', '[ThinkingMode] Failed to read settings, falling back to localStorage:', error);
+        logger.error(
+          "index",
+          "[ThinkingMode] Failed to read settings, falling back to localStorage:",
+          error
+        );
         // 降级：从 localStorage 读取
         try {
-          const stored = localStorage.getItem('thinking_mode');
-          if (stored === 'off' || stored === 'on') {
+          const stored = localStorage.getItem("thinking_mode");
+          if (stored === "off" || stored === "on") {
             dispatch({ type: "SET_THINKING_MODE", payload: stored });
           }
         } catch {
@@ -403,32 +445,27 @@ const FloatingPromptInputInner = (
     expandedTextareaRef,
   });
 
-
-  const {
-    isEnhancing,
-    handleEnhancePromptWithAPI,
-    enableDualAPI,
-    setEnableDualAPI,
-  } = usePromptEnhancement({
-    prompt: state.prompt,
-    isExpanded: state.isExpanded,
-    onPromptChange: handlePromptChange,
-    getConversationContext,
-    messages,
-    textareaRef,
-    expandedTextareaRef,
-    projectPath,
-    sessionId,
-    projectId,
-    enableProjectContext: state.enableProjectContext,
-    enableMultiRound: true,
-  });
+  const { isEnhancing, handleEnhancePromptWithAPI, enableDualAPI, setEnableDualAPI } =
+    usePromptEnhancement({
+      prompt: state.prompt,
+      isExpanded: state.isExpanded,
+      onPromptChange: handlePromptChange,
+      getConversationContext,
+      messages,
+      textareaRef,
+      expandedTextareaRef,
+      projectPath,
+      sessionId,
+      projectId,
+      enableProjectContext: state.enableProjectContext,
+      enableMultiRound: true,
+    });
 
   // 🆕 Prompt Suggestions Hook
   const [enablePromptSuggestion, setEnablePromptSuggestion] = useState(() => {
     try {
-      const stored = localStorage.getItem('enable_prompt_suggestion');
-      return stored !== null ? stored === 'true' : true; // 默认启用
+      const stored = localStorage.getItem("enable_prompt_suggestion");
+      return stored !== null ? stored === "true" : true; // 默认启用
     } catch {
       return true;
     }
@@ -439,9 +476,9 @@ const FloatingPromptInputInner = (
     const handleToggle = (e: CustomEvent<{ enabled: boolean }>) => {
       setEnablePromptSuggestion(e.detail.enabled);
     };
-    window.addEventListener('prompt-suggestion-toggle', handleToggle as EventListener);
+    window.addEventListener("prompt-suggestion-toggle", handleToggle as EventListener);
     return () => {
-      window.removeEventListener('prompt-suggestion-toggle', handleToggle as EventListener);
+      window.removeEventListener("prompt-suggestion-toggle", handleToggle as EventListener);
     };
   }, []);
 
@@ -459,7 +496,7 @@ const FloatingPromptInputInner = (
 
   // 🆕 斜杠命令支持 Claude 和 Gemini 引擎（Codex 暂不支持非交互式斜杠命令）
   const currentEngine = executionEngineConfig.engine;
-  const isSlashCommandSupported = currentEngine === 'claude' || currentEngine === 'gemini';
+  const isSlashCommandSupported = currentEngine === "claude" || currentEngine === "gemini";
 
   // 🆕 自定义斜杠命令 Hook - 从后端获取用户和项目命令
   // Claude: ~/.claude/commands/*.md
@@ -491,9 +528,9 @@ const FloatingPromptInputInner = (
   // Persist project context switch
   useEffect(() => {
     try {
-      localStorage.setItem('enable_project_context', state.enableProjectContext.toString());
+      localStorage.setItem("enable_project_context", state.enableProjectContext.toString());
     } catch (error) {
-      logger.warn('index', 'Failed to save enable_project_context to localStorage:', error);
+      logger.warn("index", "Failed to save enable_project_context to localStorage:", error);
     }
   }, [state.enableProjectContext]);
 
@@ -531,19 +568,20 @@ const FloatingPromptInputInner = (
         const settings = await api.getClaudeSettings();
         const envVars = settings?.data?.env || settings?.env;
 
-        if (envVars && typeof envVars === 'object') {
-          const customModel = envVars.ANTHROPIC_MODEL ||
+        if (envVars && typeof envVars === "object") {
+          const customModel =
+            envVars.ANTHROPIC_MODEL ||
             envVars.ANTHROPIC_DEFAULT_SONNET_MODEL ||
             envVars.ANTHROPIC_DEFAULT_OPUS_MODEL;
 
-          if (customModel && typeof customModel === 'string') {
+          if (customModel && typeof customModel === "string") {
             // Check if it's a built-in model ID (sonnet, opus, sonnet1m)
             const isBuiltInModel = [
-              'sonnet',
-              'opus',
-              'sonnet1m',
-              'claude-opus-4-6',
-              'claude-opus-4-6[1m]',
+              "sonnet",
+              "opus",
+              "sonnet1m",
+              "claude-opus-4-6",
+              "claude-opus-4-6[1m]",
             ].includes(customModel.toLowerCase());
 
             if (!isBuiltInModel) {
@@ -552,20 +590,20 @@ const FloatingPromptInputInner = (
                 id: "custom" as ModelType,
                 name: customModel,
                 description: "Custom model from environment variables",
-                icon: <Sparkles className="h-4 w-4" />
+                icon: <Sparkles className="h-4 w-4" />,
               };
 
-              setAvailableModels(prev => {
-                const hasCustom = prev.some(m => m.id === "custom");
+              setAvailableModels((prev) => {
+                const hasCustom = prev.some((m) => m.id === "custom");
                 if (!hasCustom) return [...prev, customModelConfig];
                 // Update existing custom model if name changed
-                return prev.map(m => m.id === "custom" ? customModelConfig : m);
+                return prev.map((m) => (m.id === "custom" ? customModelConfig : m));
               });
             }
           }
         }
       } catch (error) {
-        logger.error('index', '[FloatingPromptInput] Failed to load custom model:', error);
+        logger.error("index", "[FloatingPromptInput] Failed to load custom model:", error);
       }
     };
 
@@ -586,23 +624,23 @@ const FloatingPromptInputInner = (
 
     // Persist to localStorage
     try {
-      localStorage.setItem('thinking_mode', newMode);
+      localStorage.setItem("thinking_mode", newMode);
     } catch {
       // Ignore localStorage errors
     }
 
     try {
-      const thinkingMode = THINKING_MODES.find(m => m.id === newMode);
+      const thinkingMode = THINKING_MODES.find((m) => m.id === newMode);
       const enabled = newMode === "on";
       const tokens = thinkingMode?.tokens;
       await api.updateThinkingMode(enabled, tokens);
     } catch (error) {
-      logger.error('index', "Failed to update thinking mode:", error);
+      logger.error("index", "Failed to update thinking mode:", error);
       // Revert state and localStorage on API error
       const revertedMode = currentMode;
       dispatch({ type: "SET_THINKING_MODE", payload: revertedMode });
       try {
-        localStorage.setItem('thinking_mode', revertedMode);
+        localStorage.setItem("thinking_mode", revertedMode);
       } catch {
         // Ignore localStorage errors
       }
@@ -621,7 +659,7 @@ const FloatingPromptInputInner = (
   // Auto-resize textarea
   const adjustTextareaHeight = (textarea: HTMLTextAreaElement | null) => {
     if (!textarea) return;
-    textarea.style.height = 'auto';
+    textarea.style.height = "auto";
     const maxHeight = state.isExpanded ? 600 : 300;
     const newHeight = Math.min(textarea.scrollHeight, maxHeight);
     textarea.style.height = `${newHeight}px`;
@@ -638,9 +676,9 @@ const FloatingPromptInputInner = (
   // Tab key listener - 🆕 只在没有建议时切换 thinking mode
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Tab' && !e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      if (e.key === "Tab" && !e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) {
         const activeElement = document.activeElement;
-        const isInTextarea = activeElement?.tagName === 'TEXTAREA';
+        const isInTextarea = activeElement?.tagName === "TEXTAREA";
         // 🆕 在 textarea 中且有建议时，不处理（由组件内部 handleKeyDown 处理）
         if (isInTextarea && suggestion) {
           return;
@@ -651,13 +689,13 @@ const FloatingPromptInputInner = (
         }
       }
     };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [disabled, handleToggleThinkingMode, suggestion]);
 
   // Event handlers
   // 🆕 默认改为 interrupt 模式（插队指导/纠正）
-  const handleSend = (sendMode: PromptSendMode = 'interrupt') => {
+  const handleSend = (sendMode: PromptSendMode = "interrupt") => {
     // Allow sending if there's text content OR image attachments
     if ((state.prompt.trim() || imageAttachments.length > 0) && !disabled) {
       let finalPrompt = state.prompt.trim();
@@ -669,44 +707,63 @@ const FloatingPromptInputInner = (
       if (imageAttachments.length > 0) {
         // Codex CLI doesn't recognize @ prefix syntax, use direct paths instead
         // Claude Code CLI uses @ prefix to reference files
-        const isCodex = executionEngineConfig.engine === 'codex';
-        const imagePathMentions = imageAttachments.map(attachment => {
-          if (isCodex) {
-            // For Codex: use direct path without @ prefix
-            return attachment.filePath.includes(' ') ? `"${attachment.filePath}"` : attachment.filePath;
-          } else {
-            // For Claude Code: use @ prefix for file reference
-            return attachment.filePath.includes(' ') ? `@"${attachment.filePath}"` : `@${attachment.filePath}`;
-          }
-        }).join(' ');
+        const isCodex = executionEngineConfig.engine === "codex";
+        const imagePathMentions = imageAttachments
+          .map((attachment) => {
+            if (isCodex) {
+              // For Codex: use direct path without @ prefix
+              return attachment.filePath.includes(" ")
+                ? `"${attachment.filePath}"`
+                : attachment.filePath;
+            } else {
+              // For Claude Code: use @ prefix for file reference
+              return attachment.filePath.includes(" ")
+                ? `@"${attachment.filePath}"`
+                : `@${attachment.filePath}`;
+            }
+          })
+          .join(" ");
 
-        finalPrompt = finalPrompt + (finalPrompt.endsWith(' ') || finalPrompt === '' ? '' : ' ') + imagePathMentions;
+        finalPrompt =
+          finalPrompt +
+          (finalPrompt.endsWith(" ") || finalPrompt === "" ? "" : " ") +
+          imagePathMentions;
       }
 
       // 🆕 强规则：按 Enter 发送的提示词自动复制到剪贴板，方便找回
       try {
-        navigator.clipboard.writeText(finalPrompt).then(() => {
-          logger.debug('index', '[FloatingPromptInput] 提示词已复制到剪贴板:', finalPrompt.substring(0, 50) + '...');
-        }).catch(err => {
-          logger.warn('index', '[FloatingPromptInput] 复制到剪贴板失败:', err);
-        });
+        navigator.clipboard
+          .writeText(finalPrompt)
+          .then(() => {
+            logger.debug(
+              "index",
+              "[FloatingPromptInput] 提示词已复制到剪贴板:",
+              finalPrompt.substring(0, 50) + "..."
+            );
+          })
+          .catch((err) => {
+            logger.warn("index", "[FloatingPromptInput] 复制到剪贴板失败:", err);
+          });
       } catch (err) {
-        logger.warn('index', '[FloatingPromptInput] 剪贴板 API 不可用:', err);
+        logger.warn("index", "[FloatingPromptInput] 剪贴板 API 不可用:", err);
       }
 
       // When custom model is selected, pass the actual model name instead of "custom"
       let modelToSend = state.selectedModel;
-      if (state.selectedModel === 'custom') {
-        const customModelConfig = availableModels.find(m => m.id === 'custom');
+      if (state.selectedModel === "custom") {
+        const customModelConfig = availableModels.find((m) => m.id === "custom");
         if (customModelConfig) {
           modelToSend = customModelConfig.name as ModelType;
         }
       }
 
       // 🆕 队列逻辑：如果 AI 正在工作且不是插队模式，加入队列
-      if (isLoading && sendMode !== 'interrupt') {
+      if (isLoading && sendMode !== "interrupt") {
         promptQueue.enqueue(finalPrompt, modelToSend, sendMode);
-        logger.debug('index', '[FloatingPromptInput] AI 正在工作，已加入队列:', { mode: sendMode, promptPreview: finalPrompt.substring(0, 50) });
+        logger.debug("index", "[FloatingPromptInput] AI 正在工作，已加入队列:", {
+          mode: sendMode,
+          promptPreview: finalPrompt.substring(0, 50),
+        });
 
         // 清空输入框
         dispatch({ type: "RESET_INPUT" });
@@ -715,7 +772,7 @@ const FloatingPromptInputInner = (
         clearDraft();
         setTimeout(() => {
           const textarea = state.isExpanded ? expandedTextareaRef.current : textareaRef.current;
-          if (textarea) textarea.style.height = 'auto';
+          if (textarea) textarea.style.height = "auto";
         }, 0);
         return;
       }
@@ -727,60 +784,68 @@ const FloatingPromptInputInner = (
       clearDraft();
       setTimeout(() => {
         const textarea = state.isExpanded ? expandedTextareaRef.current : textareaRef.current;
-        if (textarea) textarea.style.height = 'auto';
+        if (textarea) textarea.style.height = "auto";
       }, 0);
 
       // 插队模式：直接发送，不添加前缀
       const promptToSend = finalPrompt;
 
       // 🆕 插队模式需要 forceImmediate=true 绕过 usePromptExecution 的队列检查
-      const forceImmediate = sendMode === 'interrupt';
+      const forceImmediate = sendMode === "interrupt";
 
       // 异步执行 onSend，失败时恢复输入框
-      Promise.resolve(onSend(promptToSend, modelToSend, undefined, forceImmediate)).catch((error) => {
-        logger.error('index', '[FloatingPromptInput] 发送失败，恢复输入框:', error);
-        dispatch({ type: "SET_PROMPT", payload: savedPrompt });
-        setImageAttachments(savedAttachments);
-        setEmbeddedImages(savedEmbedded);
-        saveDraft(savedPrompt);
-      });
+      Promise.resolve(onSend(promptToSend, modelToSend, undefined, forceImmediate)).catch(
+        (error) => {
+          logger.error("index", "[FloatingPromptInput] 发送失败，恢复输入框:", error);
+          dispatch({ type: "SET_PROMPT", payload: savedPrompt });
+          setImageAttachments(savedAttachments);
+          setEmbeddedImages(savedEmbedded);
+          saveDraft(savedPrompt);
+        }
+      );
     }
   };
 
   // 🆕 队列操作回调
-  const handleRevokeToInput = useCallback((itemId: string) => {
-    const revokedPrompt = promptQueue.revokeToInput(itemId);
-    if (revokedPrompt) {
-      dispatch({ type: "SET_PROMPT", payload: revokedPrompt });
-      saveDraft(revokedPrompt);
-      // 聚焦输入框
-      setTimeout(() => {
-        const textarea = state.isExpanded ? expandedTextareaRef.current : textareaRef.current;
-        if (textarea) textarea.focus();
-      }, 0);
-    }
-  }, [promptQueue, state.isExpanded, saveDraft]);
-
-  const handleSendImmediate = useCallback((itemId: string) => {
-    const item = promptQueue.items.find(i => i.id === itemId);
-    if (item) {
-      promptQueue.dequeue(itemId);
-      if (isLoading) {
-        // 插队模式：直接发送
-        onSend(item.prompt, item.model, undefined, true);
-      } else {
-        // 直接发送：不添加前缀
-        onSend(item.prompt, item.model, undefined, false);
+  const handleRevokeToInput = useCallback(
+    (itemId: string) => {
+      const revokedPrompt = promptQueue.revokeToInput(itemId);
+      if (revokedPrompt) {
+        dispatch({ type: "SET_PROMPT", payload: revokedPrompt });
+        saveDraft(revokedPrompt);
+        // 聚焦输入框
+        setTimeout(() => {
+          const textarea = state.isExpanded ? expandedTextareaRef.current : textareaRef.current;
+          if (textarea) textarea.focus();
+        }, 0);
       }
-    }
-  }, [promptQueue, onSend, isLoading]);
+    },
+    [promptQueue, state.isExpanded, saveDraft]
+  );
+
+  const handleSendImmediate = useCallback(
+    (itemId: string) => {
+      const item = promptQueue.items.find((i) => i.id === itemId);
+      if (item) {
+        promptQueue.dequeue(itemId);
+        if (isLoading) {
+          // 插队模式：直接发送
+          onSend(item.prompt, item.model, undefined, true);
+        } else {
+          // 直接发送：不添加前缀
+          onSend(item.prompt, item.model, undefined, false);
+        }
+      }
+    },
+    [promptQueue, onSend, isLoading]
+  );
 
   const handleSendMerged = useCallback(() => {
     const mergedPrompt = promptQueue.getMergedPrompt();
     if (mergedPrompt) {
       const mergeItems = promptQueue.getMergeItems();
       // 标记所有 merge 项为已发送
-      mergeItems.forEach(item => {
+      mergeItems.forEach((item) => {
         promptQueue.markSent(item.id);
       });
       // 发送打包的提示词（forceImmediate=false，正常排队）
@@ -788,98 +853,122 @@ const FloatingPromptInputInner = (
     }
   }, [promptQueue, onSend, state.selectedModel]);
 
-  const handleDeleteQueueItem = useCallback((itemId: string) => {
-    promptQueue.dequeue(itemId);
-  }, [promptQueue]);
+  const handleDeleteQueueItem = useCallback(
+    (itemId: string) => {
+      promptQueue.dequeue(itemId);
+    },
+    [promptQueue]
+  );
 
-  const handleReorderQueueItem = useCallback((itemId: string, newIndex: number) => {
-    promptQueue.reorderItem(itemId, newIndex);
-  }, [promptQueue]);
+  const handleReorderQueueItem = useCallback(
+    (itemId: string, newIndex: number) => {
+      promptQueue.reorderItem(itemId, newIndex);
+    },
+    [promptQueue]
+  );
 
-  const handleUpdateQueueItemMode = useCallback((itemId: string, mode: PromptSendMode) => {
-    promptQueue.updateItemMode(itemId, mode);
-  }, [promptQueue]);
+  const handleUpdateQueueItemMode = useCallback(
+    (itemId: string, mode: PromptSendMode) => {
+      promptQueue.updateItemMode(itemId, mode);
+    },
+    [promptQueue]
+  );
 
   // 🆕 更新队列项提示词
-  const handleUpdateQueueItemPrompt = useCallback((itemId: string, prompt: string) => {
-    promptQueue.updateItemPrompt(itemId, prompt);
-  }, [promptQueue]);
+  const handleUpdateQueueItemPrompt = useCallback(
+    (itemId: string, prompt: string) => {
+      promptQueue.updateItemPrompt(itemId, prompt);
+    },
+    [promptQueue]
+  );
 
   // 🆕 处理 AI 生成的图片（Nano Banana）
-  const handleImageGenerated = useCallback(async (imageBase64: string, mimeType: string) => {
-    try {
-      // 将 base64 图片保存到临时文件，然后添加到附件
-      const result = await api.saveClipboardImage(`data:${mimeType};base64,${imageBase64}`);
+  const handleImageGenerated = useCallback(
+    async (imageBase64: string, mimeType: string) => {
+      try {
+        // 将 base64 图片保存到临时文件，然后添加到附件
+        const result = await api.saveClipboardImage(`data:${mimeType};base64,${imageBase64}`);
 
-      if (result.success && result.file_path) {
-        // 创建预览 URL
-        const byteCharacters = atob(imageBase64);
-        const byteNumbers = new Array(byteCharacters.length);
-        for (let i = 0; i < byteCharacters.length; i++) {
-          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        if (result.success && result.file_path) {
+          // 创建预览 URL
+          const byteCharacters = atob(imageBase64);
+          const byteNumbers = new Array(byteCharacters.length);
+          for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+          }
+          const byteArray = new Uint8Array(byteNumbers);
+          const blob = new Blob([byteArray], { type: mimeType });
+          const blobUrl = URL.createObjectURL(blob);
+
+          // 添加到图片附件列表
+          const newAttachment = {
+            id: Date.now().toString(),
+            filePath: result.file_path,
+            previewUrl: blobUrl,
+            width: 0,
+            height: 0,
+          };
+
+          setImageAttachments((prev) => [...prev, newAttachment]);
+          logger.debug("index", "[FloatingPromptInput] AI 生成图片已添加到附件:", result.file_path);
+        } else {
+          logger.error("index", "[FloatingPromptInput] 保存 AI 生成图片失败:", result.error);
         }
-        const byteArray = new Uint8Array(byteNumbers);
-        const blob = new Blob([byteArray], { type: mimeType });
-        const blobUrl = URL.createObjectURL(blob);
-
-        // 添加到图片附件列表
-        const newAttachment = {
-          id: Date.now().toString(),
-          filePath: result.file_path,
-          previewUrl: blobUrl,
-          width: 0,
-          height: 0,
-        };
-
-        setImageAttachments(prev => [...prev, newAttachment]);
-        logger.debug('index', '[FloatingPromptInput] AI 生成图片已添加到附件:', result.file_path);
-      } else {
-        logger.error('index', '[FloatingPromptInput] 保存 AI 生成图片失败:', result.error);
+      } catch (error) {
+        logger.error("index", "[FloatingPromptInput] 处理 AI 生成图片失败:", error);
       }
-    } catch (error) {
-      logger.error('index', '[FloatingPromptInput] 处理 AI 生成图片失败:', error);
-    }
-  }, [setImageAttachments]);
+    },
+    [setImageAttachments]
+  );
 
   // 🆕 队列输入框提交（sequential 模式，等待执行）
-  const handleQueueSubmit = useCallback((prompt: string, mode: PromptSendMode) => {
-    if (prompt.trim()) {
-      promptQueue.enqueue(prompt.trim(), state.selectedModel, mode);
-      logger.debug('index', '[FloatingPromptInput] 加入队列:', { mode, promptPreview: prompt.substring(0, 50) });
-    }
-  }, [promptQueue, state.selectedModel]);
+  const handleQueueSubmit = useCallback(
+    (prompt: string, mode: PromptSendMode) => {
+      if (prompt.trim()) {
+        promptQueue.enqueue(prompt.trim(), state.selectedModel, mode);
+        logger.debug("index", "[FloatingPromptInput] 加入队列:", {
+          mode,
+          promptPreview: prompt.substring(0, 50),
+        });
+      }
+    },
+    [promptQueue, state.selectedModel]
+  );
 
   // 🆕 优化提示词（调用 prompt enhancement API）
-  const handleOptimizePrompt = useCallback(async (_itemId: string, originalPrompt: string): Promise<string | null> => {
-    try {
-      logger.debug('index', '[FloatingPromptInput] 优化提示词:', originalPrompt.substring(0, 50));
-      // 调用 handleEnhancePromptWithAPI（需要临时设置 prompt）
-      const savedPrompt = state.prompt;
-      dispatch({ type: "SET_PROMPT", payload: originalPrompt });
+  const handleOptimizePrompt = useCallback(
+    async (_itemId: string, originalPrompt: string): Promise<string | null> => {
+      try {
+        logger.debug("index", "[FloatingPromptInput] 优化提示词:", originalPrompt.substring(0, 50));
+        // 调用 handleEnhancePromptWithAPI（需要临时设置 prompt）
+        const savedPrompt = state.prompt;
+        dispatch({ type: "SET_PROMPT", payload: originalPrompt });
 
-      // 获取第一个可用的 provider
-      const providers = getEnabledProviders();
-      if (providers.length === 0) {
-        logger.warn('index', '[FloatingPromptInput] 没有可用的优化 provider');
+        // 获取第一个可用的 provider
+        const providers = getEnabledProviders();
+        if (providers.length === 0) {
+          logger.warn("index", "[FloatingPromptInput] 没有可用的优化 provider");
+          dispatch({ type: "SET_PROMPT", payload: savedPrompt });
+          return null;
+        }
+
+        // 等待优化完成
+        await handleEnhancePromptWithAPI(providers[0].id);
+
+        // 获取优化后的文本
+        const optimizedPrompt = state.prompt;
+
+        // 恢复原来的 prompt
         dispatch({ type: "SET_PROMPT", payload: savedPrompt });
+
+        return optimizedPrompt !== originalPrompt ? optimizedPrompt : null;
+      } catch (error) {
+        logger.error("index", "[FloatingPromptInput] 优化失败:", error);
         return null;
       }
-
-      // 等待优化完成
-      await handleEnhancePromptWithAPI(providers[0].id);
-
-      // 获取优化后的文本
-      const optimizedPrompt = state.prompt;
-
-      // 恢复原来的 prompt
-      dispatch({ type: "SET_PROMPT", payload: savedPrompt });
-
-      return optimizedPrompt !== originalPrompt ? optimizedPrompt : null;
-    } catch (error) {
-      logger.error('index', '[FloatingPromptInput] 优化失败:', error);
-      return null;
-    }
-  }, [state.prompt, handleEnhancePromptWithAPI, getEnabledProviders]);
+    },
+    [state.prompt, handleEnhancePromptWithAPI, getEnabledProviders]
+  );
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
@@ -898,7 +987,7 @@ const FloatingPromptInputInner = (
       return;
     }
 
-    if (showFilePicker && e.key === 'Escape') {
+    if (showFilePicker && e.key === "Escape") {
       e.preventDefault();
       setShowFilePicker(false);
       setFilePickerQuery("");
@@ -906,7 +995,7 @@ const FloatingPromptInputInner = (
     }
 
     // 🆕 Tab 键接受建议 (斜杠命令菜单未打开时)
-    if (e.key === 'Tab' && !e.shiftKey && suggestion && !showFilePicker && !showSlashCommandMenu) {
+    if (e.key === "Tab" && !e.shiftKey && suggestion && !showFilePicker && !showSlashCommandMenu) {
       e.preventDefault();
       const accepted = acceptSuggestion();
       if (accepted) {
@@ -916,7 +1005,7 @@ const FloatingPromptInputInner = (
     }
 
     // 🆕 Escape 键取消建议
-    if (e.key === 'Escape' && suggestion && !showFilePicker) {
+    if (e.key === "Escape" && suggestion && !showFilePicker) {
       e.preventDefault();
       dismissSuggestion();
       return;
@@ -977,10 +1066,7 @@ const FloatingPromptInputInner = (
       </AnimatePresence>
 
       {/* ✅ 重构布局: 输入区域不再使用 fixed 定位，作为 Flex 容器的一部分 */}
-      <div className={cn(
-        "flex-shrink-0 border-t deep-glass",
-        className
-      )}>
+      <div className={cn("flex-shrink-0 border-t deep-glass", className)}>
         <AttachmentPreview
           imageAttachments={imageAttachments}
           embeddedImages={embeddedImages}
@@ -996,13 +1082,13 @@ const FloatingPromptInputInner = (
             onAttachmentsChange={(update) => {
               // FileDropZone 使用函数式更新，但我们用 hook 管理状态
               // 这里只处理删除操作（通过 removeFile）
-              if (typeof update === 'function') {
+              if (typeof update === "function") {
                 const newList = update(fileAttachments.attachments);
                 // 找出被删除的项
                 const removedIds = fileAttachments.attachments
-                  .filter(a => !newList.find(n => n.id === a.id))
-                  .map(a => a.id);
-                removedIds.forEach(id => fileAttachments.removeFile(id));
+                  .filter((a) => !newList.find((n) => n.id === a.id))
+                  .map((a) => a.id);
+                removedIds.forEach((id) => fileAttachments.removeFile(id));
               }
             }}
             disabled={disabled}
@@ -1095,7 +1181,7 @@ const FloatingPromptInputInner = (
             onImageGenerated={handleImageGenerated}
             // 🆕 语音输入回调
             onVoiceTextRecognized={(text) => {
-              dispatch({ type: 'SET_PROMPT', payload: state.prompt + text });
+              dispatch({ type: "SET_PROMPT", payload: state.prompt + text });
             }}
           />
         </div>

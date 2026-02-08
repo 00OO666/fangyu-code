@@ -1,14 +1,14 @@
-import React, { ReactNode, useState, useEffect } from 'react';
+import React, { ReactNode, useState, useEffect } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
-import { useNavigation } from '@/contexts/NavigationContext';
-import { useUpdate } from '@/contexts/UpdateContext';
-import { useTheme } from '@/contexts/ThemeContext';
-import { message } from '@tauri-apps/plugin-dialog';
-import { UpdateDialog } from '@/components/dialogs/UpdateDialog';
-import { AboutDialog } from '@/components/dialogs/AboutDialog';
-import { exists, BaseDirectory } from '@tauri-apps/plugin-fs';
-import { convertFileSrc } from '@tauri-apps/api/core';
-import { appDataDir, join } from '@tauri-apps/api/path';
+import { useNavigation } from "@/contexts/NavigationContext";
+import { useUpdate } from "@/contexts/UpdateContext";
+import { useTheme } from "@/contexts/ThemeContext";
+import { message } from "@tauri-apps/plugin-dialog";
+import { UpdateDialog } from "@/components/dialogs/UpdateDialog";
+import { AboutDialog } from "@/components/dialogs/AboutDialog";
+import { exists, BaseDirectory } from "@tauri-apps/plugin-fs";
+import { convertFileSrc } from "@tauri-apps/api/core";
+import { appDataDir, join } from "@tauri-apps/api/path";
 
 interface BackgroundEntry {
   id: string;
@@ -16,11 +16,11 @@ interface BackgroundEntry {
   addedAt: number;
 }
 
-const BACKGROUND_LIST_KEY = 'custom-backgrounds';
-const BACKGROUND_ACTIVE_KEY = 'custom-background-active';
-const BACKGROUND_STORAGE_KEY = 'custom-background-path';
-const BACKGROUND_FILE_KEY = 'custom-background-file';
-const BACKGROUND_BLUR_KEY = 'custom-background-blur';
+const BACKGROUND_LIST_KEY = "custom-backgrounds";
+const BACKGROUND_ACTIVE_KEY = "custom-background-active";
+const BACKGROUND_STORAGE_KEY = "custom-background-path";
+const BACKGROUND_FILE_KEY = "custom-background-file";
+const BACKGROUND_BLUR_KEY = "custom-background-blur";
 const DEFAULT_BLUR = 12;
 const MAX_BLUR = 30;
 
@@ -37,7 +37,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const [customBackgroundUrl, setCustomBackgroundUrl] = useState<string | null>(null);
   const [backgroundBlur, setBackgroundBlur] = useState(DEFAULT_BLUR);
 
-  const isSciFi = themeName === 'deep-glass-scifi';
+  const isSciFi = themeName === "deep-glass-scifi";
 
   // 加载自定义背景图片
   useEffect(() => {
@@ -57,21 +57,21 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             const decoded = JSON.parse(storedList);
             if (Array.isArray(decoded)) {
               parsedList = decoded
-                .filter((item) => item && typeof item === 'object')
+                .filter((item) => item && typeof item === "object")
                 .map((item) => ({
-                  id: String(item.id || ''),
-                  fileName: String(item.fileName || ''),
+                  id: String(item.id || ""),
+                  fileName: String(item.fileName || ""),
                   addedAt: Number(item.addedAt || Date.now()),
                 }))
                 .filter((item) => item.id && item.fileName);
             }
           } catch (error) {
-            console.warn('背景列表解析失败，将跳过', error);
+            console.warn("背景列表解析失败，将跳过", error);
           }
         }
 
         const storedActiveId = localStorage.getItem(BACKGROUND_ACTIVE_KEY);
-        const activeDisabled = storedActiveId === 'none';
+        const activeDisabled = storedActiveId === "none";
         let activeId = activeDisabled ? null : storedActiveId;
 
         if (parsedList.length === 0) {
@@ -133,7 +133,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         const assetUrl = `${convertFileSrc(fullPath)}?v=${activeBackground.addedAt}`;
         setCustomBackgroundUrl(assetUrl);
       } catch (error) {
-        console.error('加载自定义背景失败:', error);
+        console.error("加载自定义背景失败:", error);
       }
     };
 
@@ -143,8 +143,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       void loadCustomBackground();
     };
 
-    window.addEventListener('background-settings-changed', handleBackgroundUpdate);
-    return () => window.removeEventListener('background-settings-changed', handleBackgroundUpdate);
+    window.addEventListener("background-settings-changed", handleBackgroundUpdate);
+    return () => window.removeEventListener("background-settings-changed", handleBackgroundUpdate);
   }, []);
 
   const handleCheckUpdate = async () => {
@@ -157,14 +157,17 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       setShowUpdateDialog(true);
     } else {
       // 如果没有更新，显示提示
-      await message('当前已是最新版本', { title: '检查更新', kind: 'info' });
+      await message("当前已是最新版本", { title: "检查更新", kind: "info" });
     }
   };
   // 🔧 handleCheckUpdate 保留用于未来功能
   void handleCheckUpdate;
 
   return (
-    <div className="h-screen w-screen overflow-hidden flex text-foreground selection:bg-primary/20 selection:text-primary relative" style={{ background: 'var(--bg-main)' }}>
+    <div
+      className="h-screen w-screen overflow-hidden flex text-foreground selection:bg-primary/20 selection:text-primary relative"
+      style={{ background: "var(--bg-main)" }}
+    >
       {/* 背景层 - 根据主题显示不同背景 */}
       <div className="fixed inset-0 z-0">
         {isSciFi ? (
@@ -174,7 +177,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           // Pro 主题：自定义背景或默认山景背景图片
           <>
             <img
-              src={customBackgroundUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuAn-1TBhuyjDS8e5LTj-Q2NbycbMUTLHCD4xC1NFVCRQV1UC_FY5DDCY1RApKEKfkDEnErwj3z_JOwepYSo4WqfFAvXQrxtEqMgcyW8vVOJuh5xY7k_cGLTOus7J-jzmnd53En18E84pSWYUDurg3AeKzCJNEiLQSHsyoTZNnHXTHs0I5DWPq2VoqDlElxpbOqPKI3DRRNcTGrYMgTJVkwu5WhU4y9_TTL5ZXCijhHxRvLxLuwYZLmSYSH_xE5CbW7kVHp28oboS5lL"}
+              src={
+                customBackgroundUrl ||
+                "https://lh3.googleusercontent.com/aida-public/AB6AXuAn-1TBhuyjDS8e5LTj-Q2NbycbMUTLHCD4xC1NFVCRQV1UC_FY5DDCY1RApKEKfkDEnErwj3z_JOwepYSo4WqfFAvXQrxtEqMgcyW8vVOJuh5xY7k_cGLTOus7J-jzmnd53En18E84pSWYUDurg3AeKzCJNEiLQSHsyoTZNnHXTHs0I5DWPq2VoqDlElxpbOqPKI3DRRNcTGrYMgTJVkwu5WhU4y9_TTL5ZXCijhHxRvLxLuwYZLmSYSH_xE5CbW7kVHp28oboS5lL"
+              }
               alt="Background"
               className="w-full h-full object-cover opacity-80"
             />
@@ -183,7 +189,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               style={{
                 backdropFilter: `blur(${backgroundBlur}px)`,
                 WebkitBackdropFilter: `blur(${backgroundBlur}px)`,
-                background: 'rgba(10, 12, 16, 0.18)',
+                background: "rgba(10, 12, 16, 0.18)",
               }}
             />
             <div className="absolute inset-0 bg-black/35"></div>
@@ -208,10 +214,12 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           {/* Spacer for centering */}
           <div className="w-20"></div>
           {/* App Title */}
-          <div className={`text-xs font-medium uppercase tracking-widest opacity-70 ${
-            isSciFi ? 'font-display text-amber-500 neon-text-amber' : 'text-gray-400'
-          }`}>
-            {isSciFi ? 'DEEP GLASS SCI-FI STATION' : 'Deep Glass Pro AI Station V1'}
+          <div
+            className={`text-xs font-medium uppercase tracking-widest opacity-70 ${
+              isSciFi ? "font-display text-amber-500 neon-text-amber" : "text-gray-400"
+            }`}
+          >
+            {isSciFi ? "DEEP GLASS SCI-FI STATION" : "Deep Glass Pro AI Station V1"}
           </div>
           {/* Window Controls */}
           <div className="flex items-center gap-4 w-20 justify-end text-gray-400">
@@ -220,9 +228,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         </header>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden scroll-smooth">
-          {children}
-        </div>
+        <div className="flex-1 overflow-y-auto overflow-x-hidden scroll-smooth">{children}</div>
       </main>
 
       {/* Global Dialogs */}
@@ -231,7 +237,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       <AboutDialog
         open={showAboutDialog}
         onClose={() => setShowAboutDialog(false)}
-        onViewNewFeatures={() => navigateTo('new-features')}
+        onViewNewFeatures={() => navigateTo("new-features")}
       />
     </div>
   );

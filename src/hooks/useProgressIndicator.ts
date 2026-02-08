@@ -7,8 +7,8 @@
  * _Requirements: 6.2_
  */
 
-import { useState, useCallback, useRef, useEffect } from 'react';
-import type { ProgressVariant } from '@/components/common/ProgressIndicator';
+import { useState, useCallback, useRef, useEffect } from "react";
+import type { ProgressVariant } from "@/components/common/ProgressIndicator";
 
 // =============================================================================
 // 类型定义
@@ -69,8 +69,8 @@ export function useProgressIndicator(
     showDelay = 200,
     hideDelay = 300,
     longOperationThreshold = 500,
-    defaultLabel = '处理中...',
-    defaultVariant = 'default',
+    defaultLabel = "处理中...",
+    defaultVariant = "default",
   } = options;
 
   const [progress, setProgress] = useState<ProgressState>({
@@ -167,8 +167,8 @@ export function useProgressIndicator(
           return {
             isVisible: true,
             value: 100,
-            label: label ?? '完成',
-            variant: 'success',
+            label: label ?? "完成",
+            variant: "success",
           };
         }
         return prev;
@@ -201,8 +201,8 @@ export function useProgressIndicator(
       setProgress({
         isVisible: true,
         value: undefined,
-        label: label ?? '操作失败',
-        variant: 'error',
+        label: label ?? "操作失败",
+        variant: "error",
       });
 
       // 延迟隐藏
@@ -241,7 +241,7 @@ export function useProgressIndicator(
 
   // 包装异步操作
   const withProgress = useCallback(
-    async <T,>(
+    async <T>(
       operation: () => Promise<T>,
       operationOptions?: { label?: string; showProgress?: boolean }
     ): Promise<T> => {
@@ -259,7 +259,7 @@ export function useProgressIndicator(
         return result;
       } catch (err) {
         if (showProgress) {
-          error(err instanceof Error ? err.message : '操作失败');
+          error(err instanceof Error ? err.message : "操作失败");
         }
         throw err;
       }

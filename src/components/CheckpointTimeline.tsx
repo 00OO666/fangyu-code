@@ -8,16 +8,25 @@
  * - 可视化时间线展示
  */
 
-import { logger } from '@/lib/logger';
-import { useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { History, Undo2, Trash2, ChevronDown, ChevronUp, Clock, FileCode, Wrench, Hand, Zap, AlertCircle, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { logger } from "@/lib/logger";
+import { useState, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible';
+  History,
+  Undo2,
+  Trash2,
+  ChevronDown,
+  ChevronUp,
+  Clock,
+  FileCode,
+  Wrench,
+  Hand,
+  Zap,
+  AlertCircle,
+  Loader2,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,9 +36,9 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { api, Checkpoint, CheckpointType } from '@/lib/api';
-import { cn } from '@/lib/utils';
+} from "@/components/ui/alert-dialog";
+import { api, Checkpoint, CheckpointType } from "@/lib/api";
+import { cn } from "@/lib/utils";
 
 interface CheckpointTimelineProps {
   sessionId: string;
@@ -63,8 +72,8 @@ export function CheckpointTimeline({
       const data = await api.listCheckpoints(sessionId);
       setCheckpoints(data || []);
     } catch (err) {
-      logger.error('CheckpointTimeline', 'Failed to load checkpoints:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load checkpoints');
+      logger.error("CheckpointTimeline", "Failed to load checkpoints:", err);
+      setError(err instanceof Error ? err.message : "Failed to load checkpoints");
     } finally {
       setLoading(false);
     }
@@ -78,17 +87,13 @@ export function CheckpointTimeline({
   const handleRestore = async (checkpoint: Checkpoint) => {
     try {
       setRestoringId(checkpoint.id);
-      const restoredFiles = await api.restoreCheckpoint(
-        sessionId,
-        checkpoint.id,
-        projectPath
-      );
-      logger.debug('CheckpointTimeline', 'Restored files:', restoredFiles);
+      const restoredFiles = await api.restoreCheckpoint(sessionId, checkpoint.id, projectPath);
+      logger.debug("CheckpointTimeline", "Restored files:", restoredFiles);
       onRestore?.(checkpoint);
       setConfirmRestore(null);
     } catch (err) {
-      logger.error('CheckpointTimeline', 'Failed to restore checkpoint:', err);
-      setError(err instanceof Error ? err.message : 'Failed to restore checkpoint');
+      logger.error("CheckpointTimeline", "Failed to restore checkpoint:", err);
+      setError(err instanceof Error ? err.message : "Failed to restore checkpoint");
     } finally {
       setRestoringId(null);
     }
@@ -102,8 +107,8 @@ export function CheckpointTimeline({
       setCheckpoints((prev) => prev.filter((c) => c.id !== checkpoint.id));
       setConfirmDelete(null);
     } catch (err) {
-      logger.error('CheckpointTimeline', 'Failed to delete checkpoint:', err);
-      setError(err instanceof Error ? err.message : 'Failed to delete checkpoint');
+      logger.error("CheckpointTimeline", "Failed to delete checkpoint:", err);
+      setError(err instanceof Error ? err.message : "Failed to delete checkpoint");
     } finally {
       setDeletingId(null);
     }
@@ -112,11 +117,11 @@ export function CheckpointTimeline({
   // 获取检查点类型图标
   const getTypeIcon = (type: CheckpointType) => {
     switch (type) {
-      case 'auto':
+      case "auto":
         return <Zap className="h-3.5 w-3.5 text-yellow-500" />;
-      case 'manual':
+      case "manual":
         return <Hand className="h-3.5 w-3.5 text-blue-500" />;
-      case 'tool_call':
+      case "tool_call":
         return <Wrench className="h-3.5 w-3.5 text-purple-500" />;
       default:
         return <History className="h-3.5 w-3.5 text-muted-foreground" />;
@@ -126,12 +131,12 @@ export function CheckpointTimeline({
   // 获取检查点类型标签
   const getTypeLabel = (type: CheckpointType) => {
     switch (type) {
-      case 'auto':
-        return '自动';
-      case 'manual':
-        return '手动';
-      case 'tool_call':
-        return '工具调用';
+      case "auto":
+        return "自动";
+      case "manual":
+        return "手动";
+      case "tool_call":
+        return "工具调用";
       default:
         return type;
     }
@@ -146,37 +151,31 @@ export function CheckpointTimeline({
     const diffHours = Math.floor(diffMins / 60);
     const diffDays = Math.floor(diffHours / 24);
 
-    if (diffMins < 1) return '刚刚';
+    if (diffMins < 1) return "刚刚";
     if (diffMins < 60) return `${diffMins} 分钟前`;
     if (diffHours < 24) return `${diffHours} 小时前`;
     if (diffDays < 7) return `${diffDays} 天前`;
 
-    return date.toLocaleDateString('zh-CN', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    return date.toLocaleDateString("zh-CN", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   if (!sessionId) return null;
 
   return (
-    <div className={cn('', className)}>
+    <div className={cn("", className)}>
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <CollapsibleTrigger asChild>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="w-full justify-between h-8 px-2"
-          >
+          <Button variant="ghost" size="sm" className="w-full justify-between h-8 px-2">
             <span className="flex items-center gap-1.5">
               <History className="h-4 w-4" />
               <span className="text-xs">检查点</span>
               {checkpoints.length > 0 && (
-                <span className="text-xs text-muted-foreground">
-                  ({checkpoints.length})
-                </span>
+                <span className="text-xs text-muted-foreground">({checkpoints.length})</span>
               )}
             </span>
             {isOpen ? (
@@ -200,9 +199,7 @@ export function CheckpointTimeline({
                 <span>{error}</span>
               </div>
             ) : checkpoints.length === 0 ? (
-              <div className="text-center py-4 text-muted-foreground text-xs">
-                暂无检查点
-              </div>
+              <div className="text-center py-4 text-muted-foreground text-xs">暂无检查点</div>
             ) : (
               <AnimatePresence>
                 {checkpoints.map((checkpoint, index) => (
@@ -298,7 +295,8 @@ export function CheckpointTimeline({
           <AlertDialogHeader>
             <AlertDialogTitle>确认恢复检查点</AlertDialogTitle>
             <AlertDialogDescription>
-              将恢复到检查点 "{confirmRestore?.name || `#${checkpoints.indexOf(confirmRestore!) + 1}`}"。
+              将恢复到检查点 "
+              {confirmRestore?.name || `#${checkpoints.indexOf(confirmRestore!) + 1}`}"。
               这将覆盖当前的文件内容。此操作不可撤销。
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -320,7 +318,8 @@ export function CheckpointTimeline({
           <AlertDialogHeader>
             <AlertDialogTitle>确认删除检查点</AlertDialogTitle>
             <AlertDialogDescription>
-              确定要删除检查点 "{confirmDelete?.name || `#${checkpoints.indexOf(confirmDelete!) + 1}`}" 吗？
+              确定要删除检查点 "
+              {confirmDelete?.name || `#${checkpoints.indexOf(confirmDelete!) + 1}`}" 吗？
               此操作不可撤销。
             </AlertDialogDescription>
           </AlertDialogHeader>

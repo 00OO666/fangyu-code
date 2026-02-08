@@ -4,7 +4,7 @@
  * 获取当前配置的 Hooks 数量
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 
@@ -56,7 +56,7 @@ export function useHooksCount(): HooksCountResult {
         setCount(total);
       } catch (err) {
         if (cancelled) return;
-        logger.error('useHooksCount', "Failed to fetch hooks count:", err);
+        logger.error("useHooksCount", "Failed to fetch hooks count:", err);
         setError(err instanceof Error ? err.message : "Unknown error");
         setCount(0);
       } finally {

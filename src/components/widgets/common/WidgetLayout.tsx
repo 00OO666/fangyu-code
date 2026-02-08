@@ -10,7 +10,7 @@
  */
 
 import React from "react";
-import type { LucideIcon } from 'lucide-react';
+import type { LucideIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -19,7 +19,10 @@ import { cn } from "@/lib/utils";
 export type WidgetStatus = "default" | "success" | "error" | "warning" | "info" | "loading";
 
 /** 状态样式映射 */
-const statusStyles: Record<WidgetStatus, { border: string; bg: string; icon: string; text: string }> = {
+const statusStyles: Record<
+  WidgetStatus,
+  { border: string; bg: string; icon: string; text: string }
+> = {
   default: {
     border: "border-border/50",
     bg: "bg-muted/30",
@@ -59,7 +62,10 @@ const statusStyles: Record<WidgetStatus, { border: string; bg: string; icon: str
 };
 
 /** 状态到徽章变体的映射 */
-const statusToBadgeVariant: Record<WidgetStatus, "default" | "secondary" | "destructive" | "outline" | "success" | "warning" | "info"> = {
+const statusToBadgeVariant: Record<
+  WidgetStatus,
+  "default" | "secondary" | "destructive" | "outline" | "success" | "warning" | "info"
+> = {
   default: "secondary",
   success: "success",
   error: "destructive",
@@ -76,7 +82,14 @@ export interface WidgetLayoutProps {
   /** 徽章文本 */
   badge?: string;
   /** 徽章变体（优先级低于 status） */
-  badgeVariant?: "default" | "secondary" | "destructive" | "outline" | "success" | "warning" | "info";
+  badgeVariant?:
+    | "default"
+    | "secondary"
+    | "destructive"
+    | "outline"
+    | "success"
+    | "warning"
+    | "info";
   /** 子内容 */
   children: React.ReactNode;
   /** 自定义类名 */
@@ -106,25 +119,24 @@ export const WidgetLayout: React.FC<WidgetLayoutProps> = ({
   const effectiveBadgeVariant = badgeVariant ?? statusToBadgeVariant[effectiveStatus];
 
   return (
-    <Card className={cn(
-      "my-2 overflow-hidden transition-colors duration-200",
-      effectiveStatus !== "default" && `border-${effectiveStatus === "error" ? "destructive" : effectiveStatus}/20`,
-      className
-    )}>
+    <Card
+      className={cn(
+        "my-2 overflow-hidden transition-colors duration-200",
+        effectiveStatus !== "default" &&
+          `border-${effectiveStatus === "error" ? "destructive" : effectiveStatus}/20`,
+        className
+      )}
+    >
       {(Icon || title || badge) && (
-        <div className={cn(
-          "flex items-center gap-2 border-b px-3 py-2",
-          styles.border,
-          styles.bg
-        )}>
-          {Icon && (
-            <Icon className={cn("h-4 w-4", styles.icon)} />
-          )}
+        <div className={cn("flex items-center gap-2 border-b px-3 py-2", styles.border, styles.bg)}>
+          {Icon && <Icon className={cn("h-4 w-4", styles.icon)} />}
           {title && (
-            <span className={cn(
-              "text-sm font-medium",
-              effectiveStatus !== "default" ? styles.text : "text-foreground"
-            )}>
+            <span
+              className={cn(
+                "text-sm font-medium",
+                effectiveStatus !== "default" ? styles.text : "text-foreground"
+              )}
+            >
               {title}
             </span>
           )}
@@ -135,9 +147,7 @@ export const WidgetLayout: React.FC<WidgetLayoutProps> = ({
           )}
         </div>
       )}
-      <CardContent className="p-3">
-        {children}
-      </CardContent>
+      <CardContent className="p-3">{children}</CardContent>
     </Card>
   );
 };

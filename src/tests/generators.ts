@@ -1,10 +1,10 @@
 /**
  * Property-Based Testing Generators
- * 
+ *
  * Custom fast-check arbitraries for Super AI Agent Desktop types.
  */
 
-import * as fc from 'fast-check';
+import * as fc from "fast-check";
 import type {
   AgentRoleType,
   TaskType,
@@ -21,30 +21,30 @@ import type {
   Reference,
   OperationType,
   Operation,
-} from '@/core/types/unified-agent';
+} from "@/core/types/unified-agent";
 
 // ============================================================================
 // Agent Generators
 // ============================================================================
 
 export const agentRoleTypeArb: fc.Arbitrary<AgentRoleType> = fc.constantFrom(
-  'orchestrator',
-  'oracle',
-  'librarian',
-  'explorer',
-  'frontend',
-  'backend',
-  'docs',
-  'testing',
-  'review',
-  'devops'
+  "orchestrator",
+  "oracle",
+  "librarian",
+  "explorer",
+  "frontend",
+  "backend",
+  "docs",
+  "testing",
+  "review",
+  "devops"
 );
 
 export const modelProviderArb: fc.Arbitrary<ModelProvider> = fc.constantFrom(
-  'anthropic',
-  'openai',
-  'google',
-  'xai'
+  "anthropic",
+  "openai",
+  "google",
+  "xai"
 );
 
 export const agentRoleArb: fc.Arbitrary<AgentRole> = fc.record({
@@ -76,23 +76,23 @@ export const agentRoleArb: fc.Arbitrary<AgentRole> = fc.record({
 // ============================================================================
 
 export const taskTypeArb: fc.Arbitrary<TaskType> = fc.constantFrom(
-  'frontend',
-  'backend',
-  'docs',
-  'testing',
-  'review',
-  'devops',
-  'research',
-  'general'
+  "frontend",
+  "backend",
+  "docs",
+  "testing",
+  "review",
+  "devops",
+  "research",
+  "general"
 );
 
 export const taskStatusArb: fc.Arbitrary<TaskStatus> = fc.constantFrom(
-  'pending',
-  'queued',
-  'in_progress',
-  'completed',
-  'failed',
-  'cancelled'
+  "pending",
+  "queued",
+  "in_progress",
+  "completed",
+  "failed",
+  "cancelled"
 );
 
 export const taskArb: fc.Arbitrary<Task> = fc.record({
@@ -115,27 +115,27 @@ export const taskArb: fc.Arbitrary<Task> = fc.record({
 // ============================================================================
 
 export const hookEventTypeArb: fc.Arbitrary<HookEventType> = fc.constantFrom(
-  'onMessage',
-  'onComplete',
-  'onSessionCreate',
-  'onFileSave',
-  'manual',
-  'tool.execute.before',
-  'tool.execute.after',
-  'chat.message',
-  'session.idle',
-  'session.error',
-  'agent.spawn',
-  'agent.complete',
-  'task.start',
-  'task.complete',
-  'context.threshold'
+  "onMessage",
+  "onComplete",
+  "onSessionCreate",
+  "onFileSave",
+  "manual",
+  "tool.execute.before",
+  "tool.execute.after",
+  "chat.message",
+  "session.idle",
+  "session.error",
+  "agent.spawn",
+  "agent.complete",
+  "task.start",
+  "task.complete",
+  "context.threshold"
 );
 
 export const steeringInclusionArb: fc.Arbitrary<SteeringInclusion> = fc.constantFrom(
-  'always',
-  'fileMatch',
-  'manual'
+  "always",
+  "fileMatch",
+  "manual"
 );
 
 export const steeringRuleArb: fc.Arbitrary<SteeringRule> = fc.record({
@@ -152,12 +152,12 @@ export const steeringRuleArb: fc.Arbitrary<SteeringRule> = fc.record({
 // ============================================================================
 
 export const contextSourceTypeArb: fc.Arbitrary<ContextSourceType> = fc.constantFrom(
-  'system',
-  'steering',
-  'environment',
-  'history',
-  'tools',
-  'reference'
+  "system",
+  "steering",
+  "environment",
+  "history",
+  "tools",
+  "reference"
 );
 
 export const contextSourceArb: fc.Arbitrary<ContextSource> = fc.record({
@@ -175,12 +175,12 @@ export const contextSourceArb: fc.Arbitrary<ContextSource> = fc.record({
 // ============================================================================
 
 export const referenceTypeArb: fc.Arbitrary<ReferenceType> = fc.constantFrom(
-  'file',
-  'folder',
-  'problems',
-  'terminal',
-  'gitDiff',
-  'codebase'
+  "file",
+  "folder",
+  "problems",
+  "terminal",
+  "gitDiff",
+  "codebase"
 );
 
 export const referenceArb: fc.Arbitrary<Reference> = fc.record({
@@ -195,11 +195,11 @@ export const referenceArb: fc.Arbitrary<Reference> = fc.record({
 // ============================================================================
 
 export const operationTypeArb: fc.Arbitrary<OperationType> = fc.constantFrom(
-  'file.read',
-  'file.write',
-  'file.delete',
-  'command.execute',
-  'network.request'
+  "file.read",
+  "file.write",
+  "file.delete",
+  "command.execute",
+  "network.request"
 );
 
 export const operationArb: fc.Arbitrary<Operation> = fc.record({
@@ -215,63 +215,67 @@ export const operationArb: fc.Arbitrary<Operation> = fc.record({
 // ============================================================================
 
 export const safeFileNameArb: fc.Arbitrary<string> = fc.stringOf(
-  fc.constantFrom(...'abcdefghijklmnopqrstuvwxyz0123456789_-'.split('')),
+  fc.constantFrom(..."abcdefghijklmnopqrstuvwxyz0123456789_-".split("")),
   { minLength: 1, maxLength: 50 }
 );
 
 export const safeFilePathArb: fc.Arbitrary<string> = fc
   .array(safeFileNameArb, { minLength: 1, maxLength: 5 })
-  .map((parts) => parts.join('/'));
+  .map((parts) => parts.join("/"));
 
 export const pathTraversalArb: fc.Arbitrary<string> = fc
-  .array(fc.constantFrom('..', '.', 'normal', 'path', 'file'), { minLength: 1, maxLength: 5 })
-  .map((parts) => parts.join('/'));
+  .array(fc.constantFrom("..", ".", "normal", "path", "file"), { minLength: 1, maxLength: 5 })
+  .map((parts) => parts.join("/"));
 
 // ============================================================================
 // Sensitive Data Generators
 // ============================================================================
 
 export const apiKeyArb: fc.Arbitrary<string> = fc.oneof(
-  fc.constant('sk-').chain((prefix) =>
-    fc.hexaString({ minLength: 32, maxLength: 64 }).map((s) => prefix + s)
-  ),
-  fc.constant('AKIA').chain((prefix) =>
-    fc.stringOf(fc.constantFrom(...'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.split('')), {
-      minLength: 16,
-      maxLength: 16,
-    }).map((s) => prefix + s)
+  fc
+    .constant("sk-")
+    .chain((prefix) => fc.hexaString({ minLength: 32, maxLength: 64 }).map((s) => prefix + s)),
+  fc.constant("AKIA").chain((prefix) =>
+    fc
+      .stringOf(fc.constantFrom(..."ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split("")), {
+        minLength: 16,
+        maxLength: 16,
+      })
+      .map((s) => prefix + s)
   )
 );
 
 export const passwordArb: fc.Arbitrary<string> = fc.string({ minLength: 8, maxLength: 32 });
 
-export const contentWithSensitiveDataArb: fc.Arbitrary<string> = fc.tuple(
-  fc.string({ minLength: 10, maxLength: 100 }),
-  apiKeyArb,
-  fc.string({ minLength: 10, maxLength: 100 })
-).map(([before, key, after]) => `${before} API_KEY=${key} ${after}`);
+export const contentWithSensitiveDataArb: fc.Arbitrary<string> = fc
+  .tuple(
+    fc.string({ minLength: 10, maxLength: 100 }),
+    apiKeyArb,
+    fc.string({ minLength: 10, maxLength: 100 })
+  )
+  .map(([before, key, after]) => `${before} API_KEY=${key} ${after}`);
 
 // ============================================================================
 // Shell Command Generators
 // ============================================================================
 
 export const safeCommandArb: fc.Arbitrary<string> = fc.constantFrom(
-  'ls',
-  'pwd',
-  'echo hello',
-  'cat file.txt',
-  'npm run build',
-  'git status'
+  "ls",
+  "pwd",
+  "echo hello",
+  "cat file.txt",
+  "npm run build",
+  "git status"
 );
 
 export const dangerousCommandArb: fc.Arbitrary<string> = fc.constantFrom(
-  'rm -rf /',
-  'rm -rf ~',
-  'format c:',
-  'del /f /s /q c:\\*',
-  'sudo rm -rf /',
-  ':(){:|:&};:',
-  'mkfs.ext4 /dev/sda'
+  "rm -rf /",
+  "rm -rf ~",
+  "format c:",
+  "del /f /s /q c:\\*",
+  "sudo rm -rf /",
+  ":(){:|:&};:",
+  "mkfs.ext4 /dev/sda"
 );
 
 // ============================================================================
@@ -296,7 +300,9 @@ export const tokenCountArb: fc.Arbitrary<number> = fc.integer({ min: 100, max: 2
 
 export const contextPercentageArb: fc.Arbitrary<number> = fc.float({ min: 0, max: 1 });
 
-export const thresholdTestArb: fc.Arbitrary<{ used: number; total: number }> = fc.record({
-  used: fc.integer({ min: 0, max: 200000 }),
-  total: fc.integer({ min: 50000, max: 200000 }),
-}).filter(({ used, total }) => used <= total);
+export const thresholdTestArb: fc.Arbitrary<{ used: number; total: number }> = fc
+  .record({
+    used: fc.integer({ min: 0, max: 200000 }),
+    total: fc.integer({ min: 50000, max: 200000 }),
+  })
+  .filter(({ used, total }) => used <= total);

@@ -41,7 +41,7 @@ export function OutputCacheProvider({ children }: OutputCacheProviderProps) {
     (sessionId: number): CachedSessionOutput | null => {
       return cache.get(sessionId) || null;
     },
-    [cache],
+    [cache]
   );
 
   const setCachedOutput = useCallback((sessionId: number, data: CachedSessionOutput) => {

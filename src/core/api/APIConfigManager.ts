@@ -1,36 +1,35 @@
 /**
  * APIConfigManager - API 配置管理器
- * 
+ *
  * 管理多个 AI 提供商的 API 配置
  * 支持 HiAPI、Anthropic、OpenAI、Google 等
- * 
+ *
  * Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 7.1
- * 
+ *
  * 安全存储：API 密钥使用 Tauri 安全存储，其他配置使用 localStorage
  */
 
-import { logger } from '@/lib/logger';
-import { RealAPIClient, APIClientConfig, createHiAPIClient, createOpenAIClient } from './RealAPIClient';
+import { logger } from "@/lib/logger";
+import {
+  RealAPIClient,
+  APIClientConfig,
+  createHiAPIClient,
+  createOpenAIClient,
+} from "./RealAPIClient";
 import {
   saveAPIKey,
   getAPIKey,
   removeAPIKey,
   maskAPIKey,
   type APIKeyProvider as SecureAPIKeyProvider,
-} from '../../lib/secureStorage';
+} from "../../lib/secureStorage";
 
 // =============================================================================
 // 类型定义
 // =============================================================================
 
 /** 提供商类型 */
-export type APIProvider = 
-  | 'hiapi'
-  | 'openai'
-  | 'anthropic'
-  | 'google'
-  | 'azure'
-  | 'custom';
+export type APIProvider = "hiapi" | "openai" | "anthropic" | "google" | "azure" | "custom";
 
 /** 提供商配置 */
 export interface ProviderConfig {
@@ -49,7 +48,7 @@ export interface ProviderConfig {
 /** 配置存储（不包含 API 密钥） */
 export interface APIConfigStore {
   activeProvider: APIProvider;
-  providers: Record<APIProvider, Omit<ProviderConfig, 'apiKey'> & { hasApiKey: boolean }>;
+  providers: Record<APIProvider, Omit<ProviderConfig, "apiKey"> & { hasApiKey: boolean }>;
   defaultModel: string;
   lastUpdated: number;
 }
@@ -68,72 +67,72 @@ export interface ValidationResult {
 // =============================================================================
 
 /** 默认提供商配置 */
-const DEFAULT_PROVIDER_CONFIGS: Record<APIProvider, Omit<ProviderConfig, 'apiKey'>> = {
+const DEFAULT_PROVIDER_CONFIGS: Record<APIProvider, Omit<ProviderConfig, "apiKey">> = {
   hiapi: {
-    provider: 'hiapi',
-    name: 'HiAPI 中转服务',
-    baseUrl: 'https://hiapi.online/v1',
+    provider: "hiapi",
+    name: "HiAPI 中转服务",
+    baseUrl: "https://hiapi.online/v1",
     enabled: true,
     priority: 1,
     timeout: 30000,
     maxRetries: 3,
     models: [
-      'claude-3.5-sonnet',
-      'claude-3-opus',
-      'gpt-4o',
-      'gpt-4-turbo',
-      'gpt-4o-mini',
-      'gemini-2.5-pro',
-      'gemini-1.5-pro',
+      "claude-3.5-sonnet",
+      "claude-3-opus",
+      "gpt-4o",
+      "gpt-4-turbo",
+      "gpt-4o-mini",
+      "gemini-2.5-pro",
+      "gemini-1.5-pro",
     ],
   },
   openai: {
-    provider: 'openai',
-    name: 'OpenAI',
-    baseUrl: 'https://api.openai.com/v1',
+    provider: "openai",
+    name: "OpenAI",
+    baseUrl: "https://api.openai.com/v1",
     enabled: false,
     priority: 2,
     timeout: 30000,
     maxRetries: 3,
-    models: ['gpt-4o', 'gpt-4-turbo', 'gpt-4o-mini', 'gpt-3.5-turbo'],
+    models: ["gpt-4o", "gpt-4-turbo", "gpt-4o-mini", "gpt-3.5-turbo"],
   },
   anthropic: {
-    provider: 'anthropic',
-    name: 'Anthropic',
-    baseUrl: 'https://api.anthropic.com/v1',
+    provider: "anthropic",
+    name: "Anthropic",
+    baseUrl: "https://api.anthropic.com/v1",
     enabled: false,
     priority: 3,
     timeout: 30000,
     maxRetries: 3,
     headers: {
-      'anthropic-version': '2023-06-01',
+      "anthropic-version": "2023-06-01",
     },
-    models: ['claude-3.5-sonnet', 'claude-3-opus', 'claude-3-sonnet', 'claude-3-haiku'],
+    models: ["claude-3.5-sonnet", "claude-3-opus", "claude-3-sonnet", "claude-3-haiku"],
   },
   google: {
-    provider: 'google',
-    name: 'Google AI',
-    baseUrl: 'https://generativelanguage.googleapis.com/v1beta',
+    provider: "google",
+    name: "Google AI",
+    baseUrl: "https://generativelanguage.googleapis.com/v1beta",
     enabled: false,
     priority: 4,
     timeout: 30000,
     maxRetries: 3,
-    models: ['gemini-2.5-pro', 'gemini-1.5-pro', 'gemini-1.5-flash'],
+    models: ["gemini-2.5-pro", "gemini-1.5-pro", "gemini-1.5-flash"],
   },
   azure: {
-    provider: 'azure',
-    name: 'Azure OpenAI',
-    baseUrl: '',
+    provider: "azure",
+    name: "Azure OpenAI",
+    baseUrl: "",
     enabled: false,
     priority: 5,
     timeout: 30000,
     maxRetries: 3,
-    models: ['gpt-4o', 'gpt-4-turbo'],
+    models: ["gpt-4o", "gpt-4-turbo"],
   },
   custom: {
-    provider: 'custom',
-    name: '自定义',
-    baseUrl: '',
+    provider: "custom",
+    name: "自定义",
+    baseUrl: "",
     enabled: false,
     priority: 10,
     timeout: 30000,
@@ -149,9 +148,9 @@ const DEFAULT_PROVIDER_CONFIGS: Record<APIProvider, Omit<ProviderConfig, 'apiKey
 export class APIConfigManager {
   private configs: Map<APIProvider, ProviderConfig> = new Map();
   private clients: Map<APIProvider, RealAPIClient> = new Map();
-  private activeProvider: APIProvider = 'hiapi';
-  private defaultModel: string = 'gpt-4o';
-  private storageKey: string = 'fangyu-api-config';
+  private activeProvider: APIProvider = "hiapi";
+  private defaultModel: string = "gpt-4o";
+  private storageKey: string = "fangyu-api-config";
 
   constructor() {
     this.initializeDefaults();
@@ -168,13 +167,13 @@ export class APIConfigManager {
   configureProvider(provider: APIProvider, config: Partial<ProviderConfig>): void {
     const existing = this.configs.get(provider);
     const defaultConfig = DEFAULT_PROVIDER_CONFIGS[provider];
-    
+
     const newConfig: ProviderConfig = {
       ...defaultConfig,
       ...existing,
       ...config,
       provider,
-      apiKey: config.apiKey ?? existing?.apiKey ?? '',
+      apiKey: config.apiKey ?? existing?.apiKey ?? "",
     };
 
     this.configs.set(provider, newConfig);
@@ -229,7 +228,7 @@ export class APIConfigManager {
    */
   getEnabledProviders(): ProviderConfig[] {
     return Array.from(this.configs.values())
-      .filter(c => c.enabled && c.apiKey)
+      .filter((c) => c.enabled && c.apiKey)
       .sort((a, b) => a.priority - b.priority);
   }
 
@@ -250,7 +249,7 @@ export class APIConfigManager {
       return {
         valid: false,
         provider,
-        message: 'API 密钥未配置',
+        message: "API 密钥未配置",
       };
     }
 
@@ -271,11 +270,11 @@ export class APIConfigManager {
       if (valid) {
         // 尝试获取模型列表
         const models = await client.listModels();
-        
+
         return {
           valid: true,
           provider,
-          message: '验证成功',
+          message: "验证成功",
           latency,
           models: models.length > 0 ? models : config.models,
         };
@@ -284,14 +283,14 @@ export class APIConfigManager {
       return {
         valid: false,
         provider,
-        message: 'API 密钥无效或已过期',
+        message: "API 密钥无效或已过期",
         latency,
       };
     } catch (error) {
       return {
         valid: false,
         provider,
-        message: error instanceof Error ? error.message : '验证失败',
+        message: error instanceof Error ? error.message : "验证失败",
         latency: Date.now() - startTime,
       };
     }
@@ -302,7 +301,7 @@ export class APIConfigManager {
    */
   async validateAllProviders(): Promise<ValidationResult[]> {
     const results: ValidationResult[] = [];
-    
+
     for (const config of this.configs.values()) {
       if (config.apiKey) {
         const result = await this.validateCredentials(config.provider);
@@ -363,8 +362,9 @@ export class APIConfigManager {
    * 导出配置
    */
   exportConfig(): APIConfigStore {
-    const providers: Record<APIProvider, Omit<ProviderConfig, 'apiKey'> & { hasApiKey: boolean }> = {} as Record<APIProvider, Omit<ProviderConfig, 'apiKey'> & { hasApiKey: boolean }>;
-    
+    const providers: Record<APIProvider, Omit<ProviderConfig, "apiKey"> & { hasApiKey: boolean }> =
+      {} as Record<APIProvider, Omit<ProviderConfig, "apiKey"> & { hasApiKey: boolean }>;
+
     for (const [provider, config] of this.configs) {
       const { apiKey, ...rest } = config;
       providers[provider] = { ...rest, hasApiKey: !!apiKey };
@@ -409,7 +409,7 @@ export class APIConfigManager {
       // 保存其他配置到 localStorage（不包含 API 密钥）
       const configStore: APIConfigStore = {
         activeProvider: this.activeProvider,
-        providers: {} as APIConfigStore['providers'],
+        providers: {} as APIConfigStore["providers"],
         defaultModel: this.defaultModel,
         lastUpdated: Date.now(),
       };
@@ -424,7 +424,7 @@ export class APIConfigManager {
 
       localStorage.setItem(this.storageKey, JSON.stringify(configStore));
     } catch (error) {
-      logger.error('APIConfigManager', '[APIConfigManager] Failed to save config:', error);
+      logger.error("APIConfigManager", "[APIConfigManager] Failed to save config:", error);
     }
   }
 
@@ -445,10 +445,10 @@ export class APIConfigManager {
       for (const [provider, config] of Object.entries(configStore.providers)) {
         const apiProvider = provider as APIProvider;
         const secureProvider = this.mapToSecureProvider(apiProvider);
-        
-        let apiKey = '';
+
+        let apiKey = "";
         if (secureProvider && config.hasApiKey) {
-          apiKey = await getAPIKey(secureProvider) || '';
+          apiKey = (await getAPIKey(secureProvider)) || "";
         }
 
         this.configureProvider(apiProvider, {
@@ -459,7 +459,7 @@ export class APIConfigManager {
 
       return true;
     } catch (error) {
-      logger.error('APIConfigManager', '[APIConfigManager] Failed to load config:', error);
+      logger.error("APIConfigManager", "[APIConfigManager] Failed to load config:", error);
       return false;
     }
   }
@@ -479,7 +479,7 @@ export class APIConfigManager {
         for (const [provider, config] of Object.entries(configStore.providers)) {
           this.configureProvider(provider as APIProvider, {
             ...config,
-            apiKey: '', // API 密钥需要异步加载
+            apiKey: "", // API 密钥需要异步加载
           });
         }
         return true;
@@ -495,11 +495,11 @@ export class APIConfigManager {
    */
   private mapToSecureProvider(provider: APIProvider): SecureAPIKeyProvider | null {
     const mapping: Partial<Record<APIProvider, SecureAPIKeyProvider>> = {
-      hiapi: 'hiapi',
-      openai: 'openai',
-      anthropic: 'claude',
-      google: 'gemini',
-      custom: 'other',
+      hiapi: "hiapi",
+      openai: "openai",
+      anthropic: "claude",
+      google: "gemini",
+      custom: "other",
     };
     return mapping[provider] || null;
   }
@@ -509,7 +509,7 @@ export class APIConfigManager {
    */
   getMaskedApiKey(provider: APIProvider): string {
     const config = this.configs.get(provider);
-    if (!config?.apiKey) return '';
+    if (!config?.apiKey) return "";
     return maskAPIKey(config.apiKey);
   }
 
@@ -519,7 +519,7 @@ export class APIConfigManager {
   async removeApiKey(provider: APIProvider): Promise<void> {
     const config = this.configs.get(provider);
     if (config) {
-      config.apiKey = '';
+      config.apiKey = "";
       this.clients.delete(provider);
 
       const secureProvider = this.mapToSecureProvider(provider);
@@ -535,8 +535,8 @@ export class APIConfigManager {
   reset(): void {
     this.configs.clear();
     this.clients.clear();
-    this.activeProvider = 'hiapi';
-    this.defaultModel = 'gpt-4o';
+    this.activeProvider = "hiapi";
+    this.defaultModel = "gpt-4o";
     this.initializeDefaults();
   }
 
@@ -551,7 +551,7 @@ export class APIConfigManager {
     for (const [provider, config] of Object.entries(DEFAULT_PROVIDER_CONFIGS)) {
       this.configs.set(provider as APIProvider, {
         ...config,
-        apiKey: '',
+        apiKey: "",
       });
     }
   }
@@ -571,10 +571,10 @@ export class APIConfigManager {
     let client: RealAPIClient;
 
     switch (provider) {
-      case 'hiapi':
+      case "hiapi":
         client = createHiAPIClient(config.apiKey, clientConfig);
         break;
-      case 'openai':
+      case "openai":
         client = createOpenAIClient(config.apiKey, clientConfig);
         break;
       default:

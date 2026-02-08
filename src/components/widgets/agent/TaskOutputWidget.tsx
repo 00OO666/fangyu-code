@@ -6,7 +6,7 @@
  */
 
 import React, { useState, useMemo } from "react";
-import { ClipboardList, CheckCircle, Clock, AlertCircle, ChevronRight, Bot } from 'lucide-react';
+import { ClipboardList, CheckCircle, Clock, AlertCircle, ChevronRight, Bot } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface TaskOutputWidgetProps {
@@ -35,7 +35,7 @@ function parseTaskOutput(content: any): {
   if (!content) return {};
 
   // 如果是字符串，尝试解析 JSON
-  if (typeof content === 'string') {
+  if (typeof content === "string") {
     try {
       const parsed = JSON.parse(content);
       return parseTaskOutput(parsed);
@@ -45,7 +45,7 @@ function parseTaskOutput(content: any): {
   }
 
   // 如果是对象，提取字段
-  if (typeof content === 'object') {
+  if (typeof content === "object") {
     return {
       status: content.status,
       output: content.output || content.result || content.message,
@@ -60,7 +60,10 @@ function parseTaskOutput(content: any): {
 /**
  * 获取状态图标和颜色
  */
-function getStatusDisplay(status?: string, isError?: boolean): {
+function getStatusDisplay(
+  status?: string,
+  isError?: boolean
+): {
   icon: React.ReactNode;
   color: string;
   label: string;
@@ -68,39 +71,39 @@ function getStatusDisplay(status?: string, isError?: boolean): {
   if (isError) {
     return {
       icon: <AlertCircle className="h-3.5 w-3.5" />,
-      color: 'text-red-500',
-      label: '失败',
+      color: "text-red-500",
+      label: "失败",
     };
   }
 
   switch (status?.toLowerCase()) {
-    case 'completed':
-    case 'done':
-    case 'success':
+    case "completed":
+    case "done":
+    case "success":
       return {
         icon: <CheckCircle className="h-3.5 w-3.5" />,
-        color: 'text-green-500',
-        label: '已完成',
+        color: "text-green-500",
+        label: "已完成",
       };
-    case 'running':
-    case 'in_progress':
+    case "running":
+    case "in_progress":
       return {
         icon: <Clock className="h-3.5 w-3.5 animate-spin" />,
-        color: 'text-blue-500',
-        label: '运行中',
+        color: "text-blue-500",
+        label: "运行中",
       };
-    case 'pending':
-    case 'waiting':
+    case "pending":
+    case "waiting":
       return {
         icon: <Clock className="h-3.5 w-3.5" />,
-        color: 'text-yellow-500',
-        label: '等待中',
+        color: "text-yellow-500",
+        label: "等待中",
       };
     default:
       return {
         icon: <CheckCircle className="h-3.5 w-3.5" />,
-        color: 'text-green-500',
-        label: '已完成',
+        color: "text-green-500",
+        label: "已完成",
       };
   }
 }
@@ -150,12 +153,8 @@ export const TaskOutputWidget: React.FC<TaskOutputWidgetProps> = ({
       {/* 参数信息 */}
       {(block !== undefined || timeout !== undefined) && (
         <div className="ml-6 flex items-center gap-3 text-xs text-muted-foreground">
-          {block !== undefined && (
-            <span>阻塞: {block ? '是' : '否'}</span>
-          )}
-          {timeout !== undefined && (
-            <span>超时: {timeout}ms</span>
-          )}
+          {block !== undefined && <span>阻塞: {block ? "是" : "否"}</span>}
+          {timeout !== undefined && <span>超时: {timeout}ms</span>}
         </div>
       )}
 
@@ -166,17 +165,21 @@ export const TaskOutputWidget: React.FC<TaskOutputWidgetProps> = ({
             onClick={() => setIsExpanded(!isExpanded)}
             className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
           >
-            <ChevronRight className={cn("h-3 w-3 transition-transform", isExpanded && "rotate-90")} />
+            <ChevronRight
+              className={cn("h-3 w-3 transition-transform", isExpanded && "rotate-90")}
+            />
             <span>输出详情</span>
           </button>
 
           {isExpanded && (
-            <div className={cn(
-              "rounded-lg border p-3",
-              result?.is_error || parsed.error
-                ? "border-red-500/20 bg-red-500/5"
-                : "border-purple-500/20 bg-purple-500/5"
-            )}>
+            <div
+              className={cn(
+                "rounded-lg border p-3",
+                result?.is_error || parsed.error
+                  ? "border-red-500/20 bg-red-500/5"
+                  : "border-purple-500/20 bg-purple-500/5"
+              )}
+            >
               <pre className="text-xs font-mono whitespace-pre-wrap break-all text-foreground/90 max-h-[400px] overflow-auto">
                 {parsed.error || parsed.output}
               </pre>

@@ -23,11 +23,6 @@ export {
   useTabs,
   useActiveTab,
   useTabSession,
-} from './tabs';
+} from "./tabs";
 
-export type {
-  Tab,
-  TabSession,
-  TabSessionData,
-  TabContextValue,
-} from './tabs';
+export type { Tab, TabSession, TabSessionData, TabContextValue } from "./tabs";

@@ -1,4 +1,4 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { invoke } from "@tauri-apps/api/core";
 import { codexProviderPresets } from "@/config/codexProviderPresets";
 import { HooksManager } from "@/lib/hooksManager";
@@ -185,7 +185,7 @@ export const api = {
 
       return allSessions;
     } catch (error) {
-      logger.error('api', "Failed to get project sessions:", error);
+      logger.error("api", "Failed to get project sessions:", error);
       throw error;
     }
   },
@@ -250,7 +250,7 @@ export const api = {
       // Due to #[serde(flatten)] in Rust, the result is directly the settings object
       return await invoke<ClaudeSettings>("get_claude_settings");
     } catch (error) {
-      logger.error('api', "Failed to get Claude settings:", error);
+      logger.error("api", "Failed to get Claude settings:", error);
       throw error;
     }
   },
@@ -264,7 +264,7 @@ export const api = {
     try {
       return await invoke<string>("open_new_session", { path });
     } catch (error) {
-      logger.error('api', "Failed to open new session:", error);
+      logger.error("api", "Failed to open new session:", error);
       throw error;
     }
   },
@@ -277,7 +277,7 @@ export const api = {
     try {
       return await invoke<string>("get_system_prompt");
     } catch (error) {
-      logger.error('api', "Failed to get system prompt:", error);
+      logger.error("api", "Failed to get system prompt:", error);
       throw error;
     }
   },
@@ -290,7 +290,7 @@ export const api = {
     try {
       return await invoke<ClaudeVersionStatus>("check_claude_version");
     } catch (error) {
-      logger.error('api', "Failed to check Claude version:", error);
+      logger.error("api", "Failed to check Claude version:", error);
       throw error;
     }
   },
@@ -304,7 +304,7 @@ export const api = {
     try {
       return await invoke<string>("save_system_prompt", { content });
     } catch (error) {
-      logger.error('api', "Failed to save system prompt:", error);
+      logger.error("api", "Failed to save system prompt:", error);
       throw error;
     }
   },
@@ -317,7 +317,7 @@ export const api = {
     try {
       return await invoke<string>("get_codex_system_prompt");
     } catch (error) {
-      logger.error('api', "Failed to get Codex system prompt:", error);
+      logger.error("api", "Failed to get Codex system prompt:", error);
       throw error;
     }
   },
@@ -331,7 +331,7 @@ export const api = {
     try {
       return await invoke<string>("save_codex_system_prompt", { content });
     } catch (error) {
-      logger.error('api', "Failed to save Codex system prompt:", error);
+      logger.error("api", "Failed to save Codex system prompt:", error);
       throw error;
     }
   },
@@ -344,7 +344,7 @@ export const api = {
     try {
       return await invoke<string>("get_gemini_system_prompt");
     } catch (error) {
-      logger.error('api', "Failed to get Gemini system prompt:", error);
+      logger.error("api", "Failed to get Gemini system prompt:", error);
       throw error;
     }
   },
@@ -358,7 +358,7 @@ export const api = {
     try {
       return await invoke<string>("save_gemini_system_prompt", { content });
     } catch (error) {
-      logger.error('api', "Failed to save Gemini system prompt:", error);
+      logger.error("api", "Failed to save Gemini system prompt:", error);
       throw error;
     }
   },
@@ -372,7 +372,7 @@ export const api = {
     try {
       return await invoke<string>("save_claude_settings", { settings });
     } catch (error) {
-      logger.error('api', "Failed to save Claude settings:", error);
+      logger.error("api", "Failed to save Claude settings:", error);
       throw error;
     }
   },
@@ -387,7 +387,7 @@ export const api = {
     try {
       return await invoke<string>("update_thinking_mode", { enabled, tokens });
     } catch (error) {
-      logger.error('api', "Failed to update thinking mode:", error);
+      logger.error("api", "Failed to update thinking mode:", error);
       throw error;
     }
   },
@@ -400,7 +400,7 @@ export const api = {
     try {
       return await invoke<ClaudeExecutionConfig>("get_claude_execution_config");
     } catch (error) {
-      logger.error('api', "Failed to get Claude execution config:", error);
+      logger.error("api", "Failed to get Claude execution config:", error);
       throw error;
     }
   },
@@ -414,7 +414,7 @@ export const api = {
     try {
       return await invoke<void>("update_claude_execution_config", { config });
     } catch (error) {
-      logger.error('api', "Failed to update Claude execution config:", error);
+      logger.error("api", "Failed to update Claude execution config:", error);
       throw error;
     }
   },
@@ -428,7 +428,7 @@ export const api = {
     try {
       return await invoke<ClaudeMdFile[]>("find_claude_md_files", { projectPath });
     } catch (error) {
-      logger.error('api', "Failed to find CLAUDE.md files:", error);
+      logger.error("api", "Failed to find CLAUDE.md files:", error);
       throw error;
     }
   },
@@ -442,7 +442,7 @@ export const api = {
     try {
       return await invoke<string>("read_claude_md_file", { filePath });
     } catch (error) {
-      logger.error('api', "Failed to read CLAUDE.md file:", error);
+      logger.error("api", "Failed to read CLAUDE.md file:", error);
       throw error;
     }
   },
@@ -457,7 +457,7 @@ export const api = {
     try {
       return await invoke<string>("save_claude_md_file", { filePath, content });
     } catch (error) {
-      logger.error('api', "Failed to save CLAUDE.md file:", error);
+      logger.error("api", "Failed to save CLAUDE.md file:", error);
       throw error;
     }
   },
@@ -483,7 +483,7 @@ export const api = {
     model: string,
     planMode?: boolean,
     maxThinkingTokens?: number,
-    tabId?: string,
+    tabId?: string
   ): Promise<void> {
     return invoke("execute_claude_code", {
       projectPath,
@@ -506,7 +506,7 @@ export const api = {
     model: string,
     planMode?: boolean,
     maxThinkingTokens?: number,
-    tabId?: string,
+    tabId?: string
   ): Promise<void> {
     return invoke("continue_claude_code", {
       projectPath,
@@ -530,7 +530,7 @@ export const api = {
     model: string,
     planMode?: boolean,
     maxThinkingTokens?: number,
-    tabId?: string,
+    tabId?: string
   ): Promise<void> {
     return invoke("resume_claude_code", {
       projectPath,
@@ -705,7 +705,7 @@ export const api = {
     try {
       return await invoke<string | null>("get_claude_binary_path");
     } catch (error) {
-      logger.error('api', "Failed to get Claude binary path:", error);
+      logger.error("api", "Failed to get Claude binary path:", error);
       throw error;
     }
   },
@@ -719,7 +719,7 @@ export const api = {
     try {
       return await invoke<void>("set_claude_binary_path", { path });
     } catch (error) {
-      logger.error('api', "Failed to set Claude binary path:", error);
+      logger.error("api", "Failed to set Claude binary path:", error);
       throw error;
     }
   },
@@ -757,12 +757,12 @@ export const api = {
    */
   async getHooksConfig(
     scope: "user" | "project" | "local",
-    projectPath?: string,
+    projectPath?: string
   ): Promise<HooksConfiguration> {
     try {
       return await invoke<HooksConfiguration>("get_hooks_config", { scope, projectPath });
     } catch (error) {
-      logger.error('api', "Failed to get hooks config:", error);
+      logger.error("api", "Failed to get hooks config:", error);
       throw error;
     }
   },
@@ -777,12 +777,12 @@ export const api = {
   async updateHooksConfig(
     scope: "user" | "project" | "local",
     hooks: HooksConfiguration,
-    projectPath?: string,
+    projectPath?: string
   ): Promise<string> {
     try {
       return await invoke<string>("update_hooks_config", { scope, projectPath, hooks });
     } catch (error) {
-      logger.error('api', "Failed to update hooks config:", error);
+      logger.error("api", "Failed to update hooks config:", error);
       throw error;
     }
   },
@@ -798,7 +798,7 @@ export const api = {
         command,
       });
     } catch (error) {
-      logger.error('api', "Failed to validate hook command:", error);
+      logger.error("api", "Failed to validate hook command:", error);
       throw error;
     }
   },
@@ -818,7 +818,7 @@ export const api = {
 
       return HooksManager.mergeConfigs(userHooks, projectHooks, localHooks);
     } catch (error) {
-      logger.error('api', "Failed to get merged hooks config:", error);
+      logger.error("api", "Failed to get merged hooks config:", error);
       throw error;
     }
   },
@@ -844,7 +844,7 @@ export const api = {
     try {
       return await invoke("list_hook_files");
     } catch (error) {
-      logger.error('api', "Failed to list hook files:", error);
+      logger.error("api", "Failed to list hook files:", error);
       throw error;
     }
   },
@@ -860,7 +860,7 @@ export const api = {
     try {
       return await invoke("toggle_hook_file", { hookPath, enabled, eventType });
     } catch (error) {
-      logger.error('api', "Failed to toggle hook file:", error);
+      logger.error("api", "Failed to toggle hook file:", error);
       throw error;
     }
   },
@@ -873,7 +873,7 @@ export const api = {
     try {
       return await invoke("get_active_hooks");
     } catch (error) {
-      logger.error('api', "Failed to get active hooks:", error);
+      logger.error("api", "Failed to get active hooks:", error);
       throw error;
     }
   },
@@ -891,7 +891,7 @@ export const api = {
     try {
       return await invoke("sync_claude_json_to_settings");
     } catch (error) {
-      logger.error('api', "Failed to sync claude.json to settings:", error);
+      logger.error("api", "Failed to sync claude.json to settings:", error);
       throw error;
     }
   },
@@ -905,7 +905,7 @@ export const api = {
     try {
       return await invoke("sync_settings_to_claude_json");
     } catch (error) {
-      logger.error('api', "Failed to sync settings to claude.json:", error);
+      logger.error("api", "Failed to sync settings to claude.json:", error);
       throw error;
     }
   },
@@ -920,7 +920,7 @@ export const api = {
     try {
       return await invoke("toggle_mcp_server_unified", { serverId, enabled });
     } catch (error) {
-      logger.error('api', "Failed to toggle MCP server:", error);
+      logger.error("api", "Failed to toggle MCP server:", error);
       throw error;
     }
   },
@@ -940,7 +940,7 @@ export const api = {
     try {
       return await invoke("get_mcp_sync_status");
     } catch (error) {
-      logger.error('api', "Failed to get MCP sync status:", error);
+      logger.error("api", "Failed to get MCP sync status:", error);
       throw error;
     }
   },
@@ -953,7 +953,7 @@ export const api = {
     try {
       return await invoke("full_sync_mcp_configs");
     } catch (error) {
-      logger.error('api', "Failed to full sync MCP configs:", error);
+      logger.error("api", "Failed to full sync MCP configs:", error);
       throw error;
     }
   },
@@ -967,7 +967,7 @@ export const api = {
     try {
       return await invoke<void>("set_custom_claude_path", { customPath });
     } catch (error) {
-      logger.error('api', "Failed to set custom Claude path:", error);
+      logger.error("api", "Failed to set custom Claude path:", error);
       throw error;
     }
   },
@@ -980,7 +980,7 @@ export const api = {
     try {
       return await invoke<string>("get_claude_path");
     } catch (error) {
-      logger.error('api', "Failed to get Claude path:", error);
+      logger.error("api", "Failed to get Claude path:", error);
       throw error;
     }
   },
@@ -993,7 +993,7 @@ export const api = {
     try {
       return await invoke<void>("clear_custom_claude_path");
     } catch (error) {
-      logger.error('api', "Failed to clear custom Claude path:", error);
+      logger.error("api", "Failed to clear custom Claude path:", error);
       throw error;
     }
   },
@@ -1010,7 +1010,7 @@ export const api = {
     try {
       return await invoke<SavedImageResult>("save_clipboard_image", { base64Data, format });
     } catch (error) {
-      logger.error('api', "Failed to save clipboard image:", error);
+      logger.error("api", "Failed to save clipboard image:", error);
       throw error;
     }
   },
@@ -1069,7 +1069,7 @@ export const api = {
     sessionId?: string,
     projectId?: string,
     maxContextLength?: number,
-    enableMultiRound?: boolean,
+    enableMultiRound?: boolean
   ): Promise<{
     originalPrompt: string;
     enhancedPrompt: string;
@@ -1087,7 +1087,7 @@ export const api = {
         enableMultiRound,
       });
     } catch (error) {
-      logger.error('api', "Failed to enhance prompt with context:", error);
+      logger.error("api", "Failed to enhance prompt with context:", error);
       throw error;
     }
   },
@@ -1100,7 +1100,7 @@ export const api = {
     try {
       return await invoke<boolean>("test_acemcp_availability");
     } catch (error) {
-      logger.error('api', "Failed to test acemcp availability:", error);
+      logger.error("api", "Failed to test acemcp availability:", error);
       return false;
     }
   },
@@ -1112,7 +1112,7 @@ export const api = {
     baseUrl: string,
     token: string,
     batchSize?: number,
-    maxLinesPerBlob?: number,
+    maxLinesPerBlob?: number
   ): Promise<void> {
     try {
       return await invoke("save_acemcp_config", {
@@ -1122,7 +1122,7 @@ export const api = {
         maxLinesPerBlob,
       });
     } catch (error) {
-      logger.error('api', "Failed to save acemcp config:", error);
+      logger.error("api", "Failed to save acemcp config:", error);
       throw error;
     }
   },
@@ -1139,7 +1139,7 @@ export const api = {
     try {
       return await invoke("load_acemcp_config");
     } catch (error) {
-      logger.error('api', "Failed to load acemcp config:", error);
+      logger.error("api", "Failed to load acemcp config:", error);
       // 返回默认配置
       return {
         baseUrl: "",
@@ -1158,10 +1158,10 @@ export const api = {
     try {
       // 后台执行，不等待结果
       invoke("preindex_project", { projectPath }).catch((error) => {
-        logger.warn('api', "Background pre-indexing failed:", error);
+        logger.warn("api", "Background pre-indexing failed:", error);
       });
     } catch (error) {
-      logger.warn('api', "Failed to start pre-indexing:", error);
+      logger.warn("api", "Failed to start pre-indexing:", error);
     }
   },
 
@@ -1173,7 +1173,7 @@ export const api = {
     try {
       return await invoke<string>("export_acemcp_sidecar", { targetPath });
     } catch (error) {
-      logger.error('api', "Failed to export sidecar:", error);
+      logger.error("api", "Failed to export sidecar:", error);
       throw error;
     }
   },
@@ -1185,7 +1185,7 @@ export const api = {
     try {
       return await invoke<string | null>("get_extracted_sidecar_path");
     } catch (error) {
-      logger.error('api', "Failed to get extracted sidecar path:", error);
+      logger.error("api", "Failed to get extracted sidecar path:", error);
       return null;
     }
   },
@@ -1228,7 +1228,7 @@ export const api = {
     try {
       return await invoke<void>("init_auto_compact_manager");
     } catch (error) {
-      logger.error('api', "Failed to initialize auto-compact manager:", error);
+      logger.error("api", "Failed to initialize auto-compact manager:", error);
       throw error;
     }
   },
@@ -1243,12 +1243,12 @@ export const api = {
   async registerAutoCompactSession(
     sessionId: string,
     projectPath: string,
-    model: string,
+    model: string
   ): Promise<void> {
     try {
       return await invoke<void>("register_auto_compact_session", { sessionId, projectPath, model });
     } catch (error) {
-      logger.error('api', "Failed to register auto-compact session:", error);
+      logger.error("api", "Failed to register auto-compact session:", error);
       throw error;
     }
   },
@@ -1263,7 +1263,7 @@ export const api = {
     try {
       return await invoke<boolean>("update_session_context", { sessionId, tokenCount });
     } catch (error) {
-      logger.error('api', "Failed to update session context:", error);
+      logger.error("api", "Failed to update session context:", error);
       throw error;
     }
   },
@@ -1278,7 +1278,7 @@ export const api = {
     try {
       return await invoke<void>("trigger_manual_compaction", { sessionId, customInstructions });
     } catch (error) {
-      logger.error('api', "Failed to trigger manual compaction:", error);
+      logger.error("api", "Failed to trigger manual compaction:", error);
       throw error;
     }
   },
@@ -1291,7 +1291,7 @@ export const api = {
     try {
       return await invoke<AutoCompactConfig>("get_auto_compact_config");
     } catch (error) {
-      logger.error('api', "Failed to get auto-compact config:", error);
+      logger.error("api", "Failed to get auto-compact config:", error);
       throw error;
     }
   },
@@ -1305,7 +1305,7 @@ export const api = {
     try {
       return await invoke<void>("update_auto_compact_config", { config });
     } catch (error) {
-      logger.error('api', "Failed to update auto-compact config:", error);
+      logger.error("api", "Failed to update auto-compact config:", error);
       throw error;
     }
   },
@@ -1319,7 +1319,7 @@ export const api = {
     try {
       return await invoke<SessionContext | null>("get_session_context_stats", { sessionId });
     } catch (error) {
-      logger.error('api', "Failed to get session context stats:", error);
+      logger.error("api", "Failed to get session context stats:", error);
       throw error;
     }
   },
@@ -1332,7 +1332,7 @@ export const api = {
     try {
       return await invoke<SessionContext[]>("get_all_monitored_sessions");
     } catch (error) {
-      logger.error('api', "Failed to get monitored sessions:", error);
+      logger.error("api", "Failed to get monitored sessions:", error);
       throw error;
     }
   },
@@ -1346,7 +1346,7 @@ export const api = {
     try {
       return await invoke<void>("unregister_auto_compact_session", { sessionId });
     } catch (error) {
-      logger.error('api', "Failed to unregister auto-compact session:", error);
+      logger.error("api", "Failed to unregister auto-compact session:", error);
       throw error;
     }
   },
@@ -1359,7 +1359,7 @@ export const api = {
     try {
       return await invoke<void>("stop_auto_compact_monitoring");
     } catch (error) {
-      logger.error('api', "Failed to stop auto-compact monitoring:", error);
+      logger.error("api", "Failed to stop auto-compact monitoring:", error);
       throw error;
     }
   },
@@ -1372,7 +1372,7 @@ export const api = {
     try {
       return await invoke<void>("start_auto_compact_monitoring");
     } catch (error) {
-      logger.error('api', "Failed to start auto-compact monitoring:", error);
+      logger.error("api", "Failed to start auto-compact monitoring:", error);
       throw error;
     }
   },
@@ -1385,7 +1385,7 @@ export const api = {
     try {
       return await invoke<AutoCompactStatus>("get_auto_compact_status");
     } catch (error) {
-      logger.error('api', "Failed to get auto-compact status:", error);
+      logger.error("api", "Failed to get auto-compact status:", error);
       throw error;
     }
   },
@@ -1398,7 +1398,7 @@ export const api = {
     try {
       return await invoke("get_active_sessions");
     } catch (error) {
-      logger.error('api', "Failed to get active sessions:", error);
+      logger.error("api", "Failed to get active sessions:", error);
       throw error;
     }
   },
@@ -1417,7 +1417,7 @@ export const api = {
     try {
       return await invoke<HookExecutionResult>("trigger_hook_event", { event, context });
     } catch (error) {
-      logger.error('api', "Failed to trigger hook event:", error);
+      logger.error("api", "Failed to trigger hook event:", error);
       throw error;
     }
   },
@@ -1432,7 +1432,7 @@ export const api = {
     try {
       return await invoke<boolean>("test_hook_condition", { condition, context });
     } catch (error) {
-      logger.error('api', "Failed to test hook condition:", error);
+      logger.error("api", "Failed to test hook condition:", error);
       throw error;
     }
   },
@@ -1445,7 +1445,7 @@ export const api = {
    */
   async executePreCommitReview(
     projectPath: string,
-    config?: import("@/types/enhanced-hooks").PreCommitCodeReviewConfig,
+    config?: import("@/types/enhanced-hooks").PreCommitCodeReviewConfig
   ): Promise<import("@/types/enhanced-hooks").CommitDecision> {
     try {
       return await invoke<import("@/types/enhanced-hooks").CommitDecision>(
@@ -1453,10 +1453,10 @@ export const api = {
         {
           projectPath,
           config,
-        },
+        }
       );
     } catch (error) {
-      logger.error('api', "Failed to execute pre-commit review:", error);
+      logger.error("api", "Failed to execute pre-commit review:", error);
       throw error;
     }
   },
@@ -1471,7 +1471,7 @@ export const api = {
     sessionId: string,
     projectId: string,
     projectPath: string,
-    messages: string[],
+    messages: string[]
   ): Promise<void> {
     try {
       return await invoke<void>("track_session_messages", {
@@ -1481,7 +1481,7 @@ export const api = {
         messages,
       });
     } catch (error) {
-      logger.error('api', "Failed to track session messages:", error);
+      logger.error("api", "Failed to track session messages:", error);
       throw error;
     }
   },
@@ -1501,7 +1501,7 @@ export const api = {
     sessionId: string,
     projectId: string,
     projectPath: string,
-    promptText: string,
+    promptText: string
   ): Promise<number> {
     try {
       return await invoke<number>("record_prompt_sent", {
@@ -1511,7 +1511,7 @@ export const api = {
         promptText,
       });
     } catch (error) {
-      logger.error('api', "Failed to record prompt:", error);
+      logger.error("api", "Failed to record prompt:", error);
       throw error;
     }
   },
@@ -1524,7 +1524,7 @@ export const api = {
     projectId: string,
     projectPath: string,
     promptIndex: number,
-    promptText?: string,
+    promptText?: string
   ): Promise<void> {
     try {
       const payload: Record<string, unknown> = {
@@ -1540,7 +1540,7 @@ export const api = {
         ...payload,
       });
     } catch (error) {
-      logger.error('api', "Failed to mark prompt completed:", error);
+      logger.error("api", "Failed to mark prompt completed:", error);
       throw error;
     }
   },
@@ -1553,7 +1553,7 @@ export const api = {
     projectId: string,
     projectPath: string,
     promptIndex: number,
-    mode: RewindMode = "both",
+    mode: RewindMode = "both"
   ): Promise<string> {
     try {
       return await invoke<string>("revert_to_prompt", {
@@ -1564,7 +1564,7 @@ export const api = {
         mode,
       });
     } catch (error) {
-      logger.error('api', "Failed to revert to prompt:", error);
+      logger.error("api", "Failed to revert to prompt:", error);
       throw error;
     }
   },
@@ -1580,7 +1580,7 @@ export const api = {
         projectId,
       });
     } catch (error) {
-      logger.error('api', "Failed to get prompt list:", error);
+      logger.error("api", "Failed to get prompt list:", error);
       return [];
     }
   },
@@ -1597,7 +1597,7 @@ export const api = {
         projectId,
       });
     } catch (error) {
-      logger.error('api', "Failed to get unified prompt list:", error);
+      logger.error("api", "Failed to get unified prompt list:", error);
       return [];
     }
   },
@@ -1609,7 +1609,7 @@ export const api = {
   async checkRewindCapabilities(
     sessionId: string,
     projectId: string,
-    promptIndex: number,
+    promptIndex: number
   ): Promise<RewindCapabilities> {
     try {
       return await invoke<RewindCapabilities>("check_rewind_capabilities", {
@@ -1618,7 +1618,7 @@ export const api = {
         promptIndex,
       });
     } catch (error) {
-      logger.error('api', "Failed to check rewind capabilities:", error);
+      logger.error("api", "Failed to check rewind capabilities:", error);
       throw error;
     }
   },
@@ -1632,7 +1632,7 @@ export const api = {
     try {
       return await invoke<any[]>("list_plugins", { projectPath });
     } catch (error) {
-      logger.error('api', "Failed to list plugins:", error);
+      logger.error("api", "Failed to list plugins:", error);
       return [];
     }
   },
@@ -1644,7 +1644,7 @@ export const api = {
     try {
       return await invoke<string>("open_plugins_directory", { projectPath });
     } catch (error) {
-      logger.error('api', "Failed to open plugins directory:", error);
+      logger.error("api", "Failed to open plugins directory:", error);
       throw error;
     }
   },
@@ -1656,7 +1656,7 @@ export const api = {
     try {
       return await invoke<any[]>("list_subagents", { projectPath });
     } catch (error) {
-      logger.error('api', "Failed to list subagents:", error);
+      logger.error("api", "Failed to list subagents:", error);
       return [];
     }
   },
@@ -1668,7 +1668,7 @@ export const api = {
     try {
       return await invoke<any[]>("list_agent_skills", { projectPath });
     } catch (error) {
-      logger.error('api', "Failed to list agent skills:", error);
+      logger.error("api", "Failed to list agent skills:", error);
       return [];
     }
   },
@@ -1680,7 +1680,7 @@ export const api = {
     try {
       return await invoke<string>("read_subagent", { filePath });
     } catch (error) {
-      logger.error('api', "Failed to read subagent:", error);
+      logger.error("api", "Failed to read subagent:", error);
       throw error;
     }
   },
@@ -1692,7 +1692,7 @@ export const api = {
     try {
       return await invoke<string>("read_skill", { filePath });
     } catch (error) {
-      logger.error('api', "Failed to read skill:", error);
+      logger.error("api", "Failed to read skill:", error);
       throw error;
     }
   },
@@ -1704,7 +1704,7 @@ export const api = {
     try {
       return await invoke<string>("open_agents_directory", { projectPath });
     } catch (error) {
-      logger.error('api', "Failed to open agents directory:", error);
+      logger.error("api", "Failed to open agents directory:", error);
       throw error;
     }
   },
@@ -1716,7 +1716,7 @@ export const api = {
     try {
       return await invoke<string>("open_skills_directory", { projectPath });
     } catch (error) {
-      logger.error('api', "Failed to open skills directory:", error);
+      logger.error("api", "Failed to open skills directory:", error);
       throw error;
     }
   },
@@ -1734,12 +1734,12 @@ export const api = {
     description: string,
     content: string,
     scope: "project" | "user",
-    projectPath?: string,
+    projectPath?: string
   ): Promise<{ name: string; path: string; scope: string; description: string; content: string }> {
     try {
       return await invoke("create_subagent", { name, description, content, scope, projectPath });
     } catch (error) {
-      logger.error('api', "Failed to create subagent:", error);
+      logger.error("api", "Failed to create subagent:", error);
       throw error;
     }
   },
@@ -1757,12 +1757,12 @@ export const api = {
     description: string,
     content: string,
     scope: "project" | "user",
-    projectPath?: string,
+    projectPath?: string
   ): Promise<{ name: string; path: string; scope: string; description: string; content: string }> {
     try {
       return await invoke("create_skill", { name, description, content, scope, projectPath });
     } catch (error) {
-      logger.error('api', "Failed to create skill:", error);
+      logger.error("api", "Failed to create skill:", error);
       throw error;
     }
   },
@@ -1778,12 +1778,12 @@ export const api = {
     skillName: string,
     scope: "project" | "user",
     enabled: boolean,
-    projectPath?: string,
+    projectPath?: string
   ): Promise<boolean> {
     try {
       return await invoke("toggle_skill", { skillName, scope, enabled, projectPath });
     } catch (error) {
-      logger.error('api', "Failed to toggle skill:", error);
+      logger.error("api", "Failed to toggle skill:", error);
       throw error;
     }
   },
@@ -1795,7 +1795,7 @@ export const api = {
     try {
       return await invoke<void>("open_directory_in_explorer", { directoryPath });
     } catch (error) {
-      logger.error('api', "Failed to open directory in explorer:", error);
+      logger.error("api", "Failed to open directory in explorer:", error);
       throw error;
     }
   },
@@ -1807,7 +1807,7 @@ export const api = {
     try {
       return await invoke<void>("open_file_with_default_app", { filePath });
     } catch (error) {
-      logger.error('api', "Failed to open file with default app:", error);
+      logger.error("api", "Failed to open file with default app:", error);
       throw error;
     }
   },
@@ -1842,7 +1842,7 @@ export const api = {
     try {
       return await invoke("execute_codex", { options });
     } catch (error) {
-      logger.error('api', "Failed to execute Codex:", error);
+      logger.error("api", "Failed to execute Codex:", error);
       throw error;
     }
   },
@@ -1855,12 +1855,12 @@ export const api = {
    */
   async resumeCodex(
     sessionId: string,
-    options: Omit<import("@/types/codex").CodexExecutionOptions, "sessionId">,
+    options: Omit<import("@/types/codex").CodexExecutionOptions, "sessionId">
   ): Promise<void> {
     try {
       return await invoke("resume_codex", { sessionId, options });
     } catch (error) {
-      logger.error('api', "Failed to resume Codex session:", error);
+      logger.error("api", "Failed to resume Codex session:", error);
       throw error;
     }
   },
@@ -1871,12 +1871,12 @@ export const api = {
    * @returns Promise resolving when execution starts
    */
   async resumeLastCodex(
-    options: Omit<import("@/types/codex").CodexExecutionOptions, "resumeLast">,
+    options: Omit<import("@/types/codex").CodexExecutionOptions, "resumeLast">
   ): Promise<void> {
     try {
       return await invoke("resume_last_codex", { options });
     } catch (error) {
-      logger.error('api', "Failed to resume last Codex session:", error);
+      logger.error("api", "Failed to resume last Codex session:", error);
       throw error;
     }
   },
@@ -1890,7 +1890,7 @@ export const api = {
     try {
       return await invoke("cancel_codex", { sessionId });
     } catch (error) {
-      logger.error('api', "Failed to cancel Codex execution:", error);
+      logger.error("api", "Failed to cancel Codex execution:", error);
       throw error;
     }
   },
@@ -1904,12 +1904,12 @@ export const api = {
     try {
       // Check cache first
       if (!forceRefresh && isCacheValid(SESSION_CACHE.codexSessions)) {
-        logger.debug('api', "[api] Using cached Codex sessions");
+        logger.debug("api", "[api] Using cached Codex sessions");
         return SESSION_CACHE.codexSessions.data;
       }
 
       // Load from backend
-      logger.debug('api', "[api] Loading Codex sessions from backend...");
+      logger.debug("api", "[api] Loading Codex sessions from backend...");
       const sessions = await invoke<import("@/types/codex").CodexSession[]>("list_codex_sessions");
 
       // Update cache
@@ -1920,7 +1920,7 @@ export const api = {
 
       return sessions;
     } catch (error) {
-      logger.error('api', "Failed to list Codex sessions:", error);
+      logger.error("api", "Failed to list Codex sessions:", error);
       throw error;
     }
   },
@@ -1931,7 +1931,7 @@ export const api = {
    */
   invalidateCodexSessionsCache() {
     SESSION_CACHE.codexSessions = undefined;
-    logger.debug('api', "[api] Codex sessions cache invalidated");
+    logger.debug("api", "[api] Codex sessions cache invalidated");
   },
 
   /**
@@ -1946,7 +1946,7 @@ export const api = {
       this.invalidateCodexSessionsCache();
       return result;
     } catch (error) {
-      logger.error('api', "Failed to delete Codex session:", error);
+      logger.error("api", "Failed to delete Codex session:", error);
       throw error;
     }
   },
@@ -1963,7 +1963,7 @@ export const api = {
     try {
       return await invoke("check_codex_availability");
     } catch (error) {
-      logger.error('api', "Failed to check Codex availability:", error);
+      logger.error("api", "Failed to check Codex availability:", error);
       return {
         available: false,
         error: error instanceof Error ? error.message : String(error),
@@ -1991,7 +1991,7 @@ export const api = {
     try {
       return await invoke("get_codex_mode_config");
     } catch (error) {
-      logger.error('api', "Failed to get Codex mode config:", error);
+      logger.error("api", "Failed to get Codex mode config:", error);
       throw error;
     }
   },
@@ -2006,7 +2006,7 @@ export const api = {
   async setCodexModeConfig(
     mode: "auto" | "native" | "wsl",
     wslDistro?: string | null,
-    customCodexPath?: string | null,
+    customCodexPath?: string | null
   ): Promise<string> {
     try {
       return await invoke<string>("set_codex_mode_config", {
@@ -2015,7 +2015,7 @@ export const api = {
         customCodexPath: customCodexPath || null,
       });
     } catch (error) {
-      logger.error('api', "Failed to set Codex mode config:", error);
+      logger.error("api", "Failed to set Codex mode config:", error);
       throw error;
     }
   },
@@ -2042,7 +2042,7 @@ export const api = {
     try {
       return await invoke("get_gemini_wsl_mode_config");
     } catch (error) {
-      logger.error('api', "Failed to get Gemini WSL mode config:", error);
+      logger.error("api", "Failed to get Gemini WSL mode config:", error);
       throw error;
     }
   },
@@ -2055,7 +2055,7 @@ export const api = {
    */
   async setGeminiWslModeConfig(
     mode: "auto" | "native" | "wsl",
-    wslDistro?: string | null,
+    wslDistro?: string | null
   ): Promise<void> {
     try {
       await invoke("set_gemini_wsl_mode_config", {
@@ -2063,7 +2063,7 @@ export const api = {
         wslDistro: wslDistro || null,
       });
     } catch (error) {
-      logger.error('api', "Failed to set Gemini WSL mode config:", error);
+      logger.error("api", "Failed to set Gemini WSL mode config:", error);
       throw error;
     }
   },
@@ -2091,7 +2091,7 @@ export const api = {
     try {
       return await invoke("get_claude_wsl_mode_config");
     } catch (error) {
-      logger.error('api', "Failed to get Claude WSL mode config:", error);
+      logger.error("api", "Failed to get Claude WSL mode config:", error);
       throw error;
     }
   },
@@ -2104,7 +2104,7 @@ export const api = {
    */
   async setClaudeWslModeConfig(
     mode: "auto" | "native" | "wsl",
-    wslDistro?: string | null,
+    wslDistro?: string | null
   ): Promise<string> {
     try {
       return await invoke("set_claude_wsl_mode_config", {
@@ -2112,7 +2112,7 @@ export const api = {
         wslDistro: wslDistro || null,
       });
     } catch (error) {
-      logger.error('api', "Failed to set Claude WSL mode config:", error);
+      logger.error("api", "Failed to set Claude WSL mode config:", error);
       throw error;
     }
   },
@@ -2124,7 +2124,7 @@ export const api = {
     try {
       return await invoke<string>("get_codex_path");
     } catch (error) {
-      logger.error('api', "Failed to get Codex path:", error);
+      logger.error("api", "Failed to get Codex path:", error);
       throw error;
     }
   },
@@ -2144,7 +2144,7 @@ export const api = {
         await invoke<void>("clear_custom_codex_path");
       }
     } catch (error) {
-      logger.error('api', "Failed to set custom Codex path:", error);
+      logger.error("api", "Failed to set custom Codex path:", error);
       throw error;
     }
   },
@@ -2158,7 +2158,7 @@ export const api = {
     try {
       return await invoke<boolean>("validate_codex_path_cmd", { path: path.trim() });
     } catch (error) {
-      logger.error('api', "Failed to validate Codex path:", error);
+      logger.error("api", "Failed to validate Codex path:", error);
       return false;
     }
   },
@@ -2171,7 +2171,7 @@ export const api = {
     try {
       return await invoke<string[]>("scan_codex_paths");
     } catch (error) {
-      logger.error('api', "Failed to scan Codex paths:", error);
+      logger.error("api", "Failed to scan Codex paths:", error);
       return [];
     }
   },
@@ -2190,7 +2190,7 @@ export const api = {
   async recordCodexPromptSent(
     sessionId: string,
     projectPath: string,
-    promptText: string,
+    promptText: string
   ): Promise<number> {
     try {
       return await invoke<number>("record_codex_prompt_sent", {
@@ -2199,7 +2199,7 @@ export const api = {
         promptText,
       });
     } catch (error) {
-      logger.error('api', "Failed to record Codex prompt sent:", error);
+      logger.error("api", "Failed to record Codex prompt sent:", error);
       throw error;
     }
   },
@@ -2214,7 +2214,7 @@ export const api = {
     sessionId: string,
     projectPath: string,
     promptIndex: number,
-    promptText?: string,
+    promptText?: string
   ): Promise<void> {
     try {
       const payload: Record<string, unknown> = {
@@ -2229,7 +2229,7 @@ export const api = {
         ...payload,
       });
     } catch (error) {
-      logger.error('api', "Failed to record Codex prompt completed:", error);
+      logger.error("api", "Failed to record Codex prompt completed:", error);
       throw error;
     }
   },
@@ -2241,7 +2241,7 @@ export const api = {
     try {
       return await invoke<PromptRecord[]>("get_codex_prompt_list", { sessionId });
     } catch (error) {
-      logger.error('api', "Failed to get Codex prompt list:", error);
+      logger.error("api", "Failed to get Codex prompt list:", error);
       return [];
     }
   },
@@ -2253,7 +2253,7 @@ export const api = {
    */
   async checkCodexRewindCapabilities(
     sessionId: string,
-    promptIndex: number,
+    promptIndex: number
   ): Promise<RewindCapabilities> {
     try {
       return await invoke<RewindCapabilities>("check_codex_rewind_capabilities", {
@@ -2261,7 +2261,7 @@ export const api = {
         promptIndex,
       });
     } catch (error) {
-      logger.error('api', "Failed to check Codex rewind capabilities:", error);
+      logger.error("api", "Failed to check Codex rewind capabilities:", error);
       // Fallback to conversation-only to keep UI functional
       return {
         conversation: true,
@@ -2285,7 +2285,7 @@ export const api = {
     sessionId: string,
     projectPath: string,
     promptIndex: number,
-    mode: RewindMode = "both",
+    mode: RewindMode = "both"
   ): Promise<string> {
     try {
       return await invoke<string>("revert_codex_to_prompt", {
@@ -2295,7 +2295,7 @@ export const api = {
         mode,
       });
     } catch (error) {
-      logger.error('api', "Failed to revert Codex to prompt:", error);
+      logger.error("api", "Failed to revert Codex to prompt:", error);
       throw error;
     }
   },
@@ -2314,7 +2314,7 @@ export const api = {
   async recordGeminiPromptSent(
     sessionId: string,
     projectPath: string,
-    promptText: string,
+    promptText: string
   ): Promise<number> {
     try {
       return await invoke<number>("record_gemini_prompt_sent", {
@@ -2323,7 +2323,7 @@ export const api = {
         promptText,
       });
     } catch (error) {
-      logger.error('api', "Failed to record Gemini prompt sent:", error);
+      logger.error("api", "Failed to record Gemini prompt sent:", error);
       throw error;
     }
   },
@@ -2338,7 +2338,7 @@ export const api = {
     sessionId: string,
     projectPath: string,
     promptIndex: number,
-    promptText?: string,
+    promptText?: string
   ): Promise<void> {
     try {
       const payload: Record<string, unknown> = {
@@ -2353,7 +2353,7 @@ export const api = {
         ...payload,
       });
     } catch (error) {
-      logger.error('api', "Failed to record Gemini prompt completed:", error);
+      logger.error("api", "Failed to record Gemini prompt completed:", error);
       throw error;
     }
   },
@@ -2365,7 +2365,7 @@ export const api = {
     try {
       return await invoke<PromptRecord[]>("get_gemini_prompt_list", { sessionId, projectPath });
     } catch (error) {
-      logger.error('api', "Failed to get Gemini prompt list:", error);
+      logger.error("api", "Failed to get Gemini prompt list:", error);
       return [];
     }
   },
@@ -2379,7 +2379,7 @@ export const api = {
   async checkGeminiRewindCapabilities(
     sessionId: string,
     projectPath: string,
-    promptIndex: number,
+    promptIndex: number
   ): Promise<RewindCapabilities> {
     try {
       return await invoke<RewindCapabilities>("check_gemini_rewind_capabilities", {
@@ -2388,7 +2388,7 @@ export const api = {
         promptIndex,
       });
     } catch (error) {
-      logger.error('api', "Failed to check Gemini rewind capabilities:", error);
+      logger.error("api", "Failed to check Gemini rewind capabilities:", error);
       // Fallback to conversation-only to keep UI functional
       return {
         conversation: true,
@@ -2412,7 +2412,7 @@ export const api = {
     sessionId: string,
     projectPath: string,
     promptIndex: number,
-    mode: RewindMode = "both",
+    mode: RewindMode = "both"
   ): Promise<string> {
     try {
       return await invoke<string>("revert_gemini_to_prompt", {
@@ -2422,7 +2422,7 @@ export const api = {
         mode,
       });
     } catch (error) {
-      logger.error('api', "Failed to revert Gemini to prompt:", error);
+      logger.error("api", "Failed to revert Gemini to prompt:", error);
       throw error;
     }
   },
@@ -2439,7 +2439,7 @@ export const api = {
     try {
       return await invoke<CodexProviderConfig[]>("get_codex_provider_presets");
     } catch (error) {
-      logger.error('api', "Failed to get Codex provider presets:", error);
+      logger.error("api", "Failed to get Codex provider presets:", error);
       throw error;
     }
   },
@@ -2452,7 +2452,7 @@ export const api = {
     try {
       return await invoke<CurrentCodexConfig>("get_current_codex_config");
     } catch (error) {
-      logger.error('api', "Failed to get current Codex config:", error);
+      logger.error("api", "Failed to get current Codex config:", error);
       throw error;
     }
   },
@@ -2467,7 +2467,7 @@ export const api = {
     try {
       return await invoke<string>("switch_codex_provider", { config });
     } catch (error) {
-      logger.error('api', "Failed to switch Codex provider:", error);
+      logger.error("api", "Failed to switch Codex provider:", error);
       throw error;
     }
   },
@@ -2493,7 +2493,7 @@ export const api = {
     try {
       existingConfigs = await this.getCodexProviderPresets();
     } catch (error) {
-      logger.warn('api', "Failed to load existing Codex configs:", error);
+      logger.warn("api", "Failed to load existing Codex configs:", error);
     }
     const existingIds = existingConfigs.map((c) => c.id);
 
@@ -2514,7 +2514,7 @@ export const api = {
     try {
       return await invoke<string>("add_codex_provider_config", { config: fullConfig });
     } catch (error) {
-      logger.error('api', "Failed to add Codex provider config:", error);
+      logger.error("api", "Failed to add Codex provider config:", error);
       throw error;
     }
   },
@@ -2528,7 +2528,7 @@ export const api = {
     try {
       return await invoke<string>("update_codex_provider_config", { config });
     } catch (error) {
-      logger.error('api', "Failed to update Codex provider config:", error);
+      logger.error("api", "Failed to update Codex provider config:", error);
       throw error;
     }
   },
@@ -2542,7 +2542,7 @@ export const api = {
     try {
       return await invoke<string>("delete_codex_provider_config", { id });
     } catch (error) {
-      logger.error('api', "Failed to delete Codex provider config:", error);
+      logger.error("api", "Failed to delete Codex provider config:", error);
       throw error;
     }
   },
@@ -2556,7 +2556,7 @@ export const api = {
     try {
       return await invoke<string>("clear_codex_provider_config");
     } catch (error) {
-      logger.error('api', "Failed to clear Codex provider config:", error);
+      logger.error("api", "Failed to clear Codex provider config:", error);
       throw error;
     }
   },
@@ -2571,7 +2571,7 @@ export const api = {
     try {
       return await invoke<string>("test_codex_provider_connection", { baseUrl, apiKey });
     } catch (error) {
-      logger.error('api', "Failed to test Codex provider connection:", error);
+      logger.error("api", "Failed to test Codex provider connection:", error);
       throw error;
     }
   },
@@ -2585,7 +2585,7 @@ export const api = {
     try {
       return await invoke<string>("update_codex_reasoning_level", { level });
     } catch (error) {
-      logger.error('api', "Failed to update Codex reasoning level:", error);
+      logger.error("api", "Failed to update Codex reasoning level:", error);
       throw error;
     }
   },
@@ -2602,7 +2602,7 @@ export const api = {
     try {
       return await invoke<GeminiProviderConfig[]>("get_gemini_provider_presets");
     } catch (error) {
-      logger.error('api', "Failed to get Gemini provider presets:", error);
+      logger.error("api", "Failed to get Gemini provider presets:", error);
       throw error;
     }
   },
@@ -2615,7 +2615,7 @@ export const api = {
     try {
       return await invoke<CurrentGeminiProviderConfig>("get_current_gemini_provider_config");
     } catch (error) {
-      logger.error('api', "Failed to get current Gemini provider config:", error);
+      logger.error("api", "Failed to get current Gemini provider config:", error);
       throw error;
     }
   },
@@ -2630,7 +2630,7 @@ export const api = {
     try {
       return await invoke<string>("switch_gemini_provider", { config });
     } catch (error) {
-      logger.error('api', "Failed to switch Gemini provider:", error);
+      logger.error("api", "Failed to switch Gemini provider:", error);
       throw error;
     }
   },
@@ -2657,7 +2657,7 @@ export const api = {
     try {
       return await invoke<string>("add_gemini_provider_config", { config: fullConfig });
     } catch (error) {
-      logger.error('api', "Failed to add Gemini provider config:", error);
+      logger.error("api", "Failed to add Gemini provider config:", error);
       throw error;
     }
   },
@@ -2671,7 +2671,7 @@ export const api = {
     try {
       return await invoke<string>("update_gemini_provider_config", { config });
     } catch (error) {
-      logger.error('api', "Failed to update Gemini provider config:", error);
+      logger.error("api", "Failed to update Gemini provider config:", error);
       throw error;
     }
   },
@@ -2685,7 +2685,7 @@ export const api = {
     try {
       return await invoke<string>("delete_gemini_provider_config", { id });
     } catch (error) {
-      logger.error('api', "Failed to delete Gemini provider config:", error);
+      logger.error("api", "Failed to delete Gemini provider config:", error);
       throw error;
     }
   },
@@ -2699,7 +2699,7 @@ export const api = {
     try {
       return await invoke<string>("clear_gemini_provider_config");
     } catch (error) {
-      logger.error('api', "Failed to clear Gemini provider config:", error);
+      logger.error("api", "Failed to clear Gemini provider config:", error);
       throw error;
     }
   },
@@ -2714,7 +2714,7 @@ export const api = {
     try {
       return await invoke<string>("test_gemini_provider_connection", { baseUrl, apiKey });
     } catch (error) {
-      logger.error('api', "Failed to test Gemini provider connection:", error);
+      logger.error("api", "Failed to test Gemini provider connection:", error);
       throw error;
     }
   },
@@ -2735,7 +2735,7 @@ export const api = {
     sessionId: string,
     targetEngine: "claude" | "codex",
     projectId: string,
-    projectPath: string,
+    projectPath: string
   ): Promise<ConversionResult> {
     try {
       return await invoke<ConversionResult>("convert_session", {
@@ -2745,7 +2745,7 @@ export const api = {
         projectPath,
       });
     } catch (error) {
-      logger.error('api', "Failed to convert session:", error);
+      logger.error("api", "Failed to convert session:", error);
       throw error;
     }
   },
@@ -2760,7 +2760,7 @@ export const api = {
   async convertClaudeToCodex(
     sessionId: string,
     projectId: string,
-    projectPath: string,
+    projectPath: string
   ): Promise<ConversionResult> {
     try {
       return await invoke<ConversionResult>("convert_claude_to_codex", {
@@ -2769,7 +2769,7 @@ export const api = {
         projectPath,
       });
     } catch (error) {
-      logger.error('api', "Failed to convert Claude to Codex:", error);
+      logger.error("api", "Failed to convert Claude to Codex:", error);
       throw error;
     }
   },
@@ -2784,7 +2784,7 @@ export const api = {
   async convertCodexToClaude(
     sessionId: string,
     projectId: string,
-    projectPath: string,
+    projectPath: string
   ): Promise<ConversionResult> {
     try {
       return await invoke<ConversionResult>("convert_codex_to_claude", {
@@ -2793,7 +2793,7 @@ export const api = {
         projectPath,
       });
     } catch (error) {
-      logger.error('api', "Failed to convert Codex to Claude:", error);
+      logger.error("api", "Failed to convert Codex to Claude:", error);
       throw error;
     }
   },
@@ -2809,7 +2809,7 @@ export const api = {
     try {
       return await invoke("execute_gemini", { options });
     } catch (error) {
-      logger.error('api', "Failed to execute Gemini:", error);
+      logger.error("api", "Failed to execute Gemini:", error);
       throw error;
     }
   },
@@ -2822,7 +2822,7 @@ export const api = {
     try {
       await invoke("cancel_gemini", { sessionId });
     } catch (error) {
-      logger.error('api', "Failed to cancel Gemini:", error);
+      logger.error("api", "Failed to cancel Gemini:", error);
       throw error;
     }
   },
@@ -2835,7 +2835,7 @@ export const api = {
     try {
       return await invoke("check_gemini_installed");
     } catch (error) {
-      logger.error('api', "Failed to check Gemini installation:", error);
+      logger.error("api", "Failed to check Gemini installation:", error);
       return {
         installed: false,
         error: String(error),
@@ -2851,7 +2851,7 @@ export const api = {
     try {
       return await invoke("get_gemini_config");
     } catch (error) {
-      logger.error('api', "Failed to get Gemini config:", error);
+      logger.error("api", "Failed to get Gemini config:", error);
       throw error;
     }
   },
@@ -2864,7 +2864,7 @@ export const api = {
     try {
       await invoke("update_gemini_config", { config });
     } catch (error) {
-      logger.error('api', "Failed to update Gemini config:", error);
+      logger.error("api", "Failed to update Gemini config:", error);
       throw error;
     }
   },
@@ -2877,7 +2877,7 @@ export const api = {
     try {
       return await invoke("get_gemini_models");
     } catch (error) {
-      logger.error('api', "Failed to get Gemini models:", error);
+      logger.error("api", "Failed to get Gemini models:", error);
       throw error;
     }
   },
@@ -2892,12 +2892,12 @@ export const api = {
    * @returns Promise resolving to array of session logs
    */
   async getGeminiSessionLogs(
-    projectPath: string,
+    projectPath: string
   ): Promise<import("@/types/gemini").GeminiSessionLog[]> {
     try {
       return await invoke("get_gemini_session_logs", { projectPath });
     } catch (error) {
-      logger.error('api', "Failed to get Gemini session logs:", error);
+      logger.error("api", "Failed to get Gemini session logs:", error);
       throw error;
     }
   },
@@ -2908,12 +2908,12 @@ export const api = {
    * @returns Promise resolving to array of session info
    */
   async listGeminiSessions(
-    projectPath: string,
+    projectPath: string
   ): Promise<import("@/types/gemini").GeminiSessionInfo[]> {
     try {
       return await invoke("list_gemini_sessions", { projectPath });
     } catch (error) {
-      logger.error('api', "Failed to list Gemini sessions:", error);
+      logger.error("api", "Failed to list Gemini sessions:", error);
       throw error;
     }
   },
@@ -2926,12 +2926,12 @@ export const api = {
    */
   async getGeminiSessionDetail(
     projectPath: string,
-    sessionId: string,
+    sessionId: string
   ): Promise<import("@/types/gemini").GeminiSessionDetail> {
     try {
       return await invoke("get_gemini_session_detail", { projectPath, sessionId });
     } catch (error) {
-      logger.error('api', "Failed to get Gemini session detail:", error);
+      logger.error("api", "Failed to get Gemini session detail:", error);
       throw error;
     }
   },
@@ -2945,7 +2945,7 @@ export const api = {
     try {
       await invoke("delete_gemini_session", { projectPath, sessionId });
     } catch (error) {
-      logger.error('api', "Failed to delete Gemini session:", error);
+      logger.error("api", "Failed to delete Gemini session:", error);
       throw error;
     }
   },
@@ -2963,7 +2963,7 @@ export const api = {
     try {
       return await invoke<SmartProjectResult>("create_smart_project", { sessionTitle });
     } catch (error) {
-      logger.error('api', "Failed to create smart project:", error);
+      logger.error("api", "Failed to create smart project:", error);
       throw error;
     }
   },
@@ -2978,7 +2978,7 @@ export const api = {
     try {
       return await invoke<SmartProjectResult>("rename_smart_project", { oldPath, newTitle });
     } catch (error) {
-      logger.error('api', "Failed to rename smart project:", error);
+      logger.error("api", "Failed to rename smart project:", error);
       throw error;
     }
   },
@@ -2992,7 +2992,7 @@ export const api = {
     try {
       return await invoke<string>("generate_session_title", { firstMessage });
     } catch (error) {
-      logger.error('api', "Failed to generate session title:", error);
+      logger.error("api", "Failed to generate session title:", error);
       throw error;
     }
   },
@@ -3007,7 +3007,7 @@ export const api = {
     try {
       return await invoke<string>("create_project_claude_md", { projectPath, sessionTitle });
     } catch (error) {
-      logger.error('api', "Failed to create project CLAUDE.md:", error);
+      logger.error("api", "Failed to create project CLAUDE.md:", error);
       throw error;
     }
   },
@@ -3022,7 +3022,7 @@ export const api = {
     try {
       await invoke("init_checkpoint_manager", { storagePath });
     } catch (error) {
-      logger.error('api', "Failed to initialize checkpoint manager:", error);
+      logger.error("api", "Failed to initialize checkpoint manager:", error);
       throw error;
     }
   },
@@ -3041,7 +3041,7 @@ export const api = {
     projectPath: string,
     checkpointType: CheckpointType = "auto",
     name?: string,
-    description?: string,
+    description?: string
   ): Promise<Checkpoint> {
     try {
       return await invoke<Checkpoint>("create_checkpoint", {
@@ -3052,7 +3052,7 @@ export const api = {
         description,
       });
     } catch (error) {
-      logger.error('api', "Failed to create checkpoint:", error);
+      logger.error("api", "Failed to create checkpoint:", error);
       throw error;
     }
   },
@@ -3066,7 +3066,7 @@ export const api = {
     try {
       return await invoke<Checkpoint[]>("list_checkpoints", { sessionId });
     } catch (error) {
-      logger.error('api', "Failed to list checkpoints:", error);
+      logger.error("api", "Failed to list checkpoints:", error);
       throw error;
     }
   },
@@ -3081,7 +3081,7 @@ export const api = {
   async restoreCheckpoint(
     sessionId: string,
     checkpointId: string,
-    projectPath: string,
+    projectPath: string
   ): Promise<string[]> {
     try {
       return await invoke<string[]>("restore_checkpoint", {
@@ -3090,7 +3090,7 @@ export const api = {
         projectPath,
       });
     } catch (error) {
-      logger.error('api', "Failed to restore checkpoint:", error);
+      logger.error("api", "Failed to restore checkpoint:", error);
       throw error;
     }
   },
@@ -3104,7 +3104,7 @@ export const api = {
     try {
       await invoke("delete_checkpoint", { sessionId, checkpointId });
     } catch (error) {
-      logger.error('api', "Failed to delete checkpoint:", error);
+      logger.error("api", "Failed to delete checkpoint:", error);
       throw error;
     }
   },
@@ -3117,7 +3117,7 @@ export const api = {
     try {
       await invoke("delete_session_checkpoints", { sessionId });
     } catch (error) {
-      logger.error('api', "Failed to delete session checkpoints:", error);
+      logger.error("api", "Failed to delete session checkpoints:", error);
       throw error;
     }
   },
@@ -3131,7 +3131,7 @@ export const api = {
     try {
       return await invoke<Checkpoint | null>("get_latest_checkpoint", { sessionId });
     } catch (error) {
-      logger.error('api', "Failed to get latest checkpoint:", error);
+      logger.error("api", "Failed to get latest checkpoint:", error);
       throw error;
     }
   },
@@ -3148,7 +3148,7 @@ export const api = {
     try {
       await invoke("init_task_manager", { maxConcurrent });
     } catch (error) {
-      logger.error('api', "Failed to initialize task manager:", error);
+      logger.error("api", "Failed to initialize task manager:", error);
       throw error;
     }
   },
@@ -3162,7 +3162,7 @@ export const api = {
     description?: string,
     priority?: TaskPriority,
     sessionId?: string,
-    tags?: string[],
+    tags?: string[]
   ): Promise<string> {
     try {
       return await invoke("create_background_task", {
@@ -3174,7 +3174,7 @@ export const api = {
         tags,
       });
     } catch (error) {
-      logger.error('api', "Failed to create background task:", error);
+      logger.error("api", "Failed to create background task:", error);
       throw error;
     }
   },
@@ -3186,7 +3186,7 @@ export const api = {
     try {
       await invoke("start_background_task", { taskId });
     } catch (error) {
-      logger.error('api', "Failed to start background task:", error);
+      logger.error("api", "Failed to start background task:", error);
       throw error;
     }
   },
@@ -3198,7 +3198,7 @@ export const api = {
     try {
       await invoke("pause_background_task", { taskId });
     } catch (error) {
-      logger.error('api', "Failed to pause background task:", error);
+      logger.error("api", "Failed to pause background task:", error);
       throw error;
     }
   },
@@ -3210,7 +3210,7 @@ export const api = {
     try {
       await invoke("resume_background_task", { taskId });
     } catch (error) {
-      logger.error('api', "Failed to resume background task:", error);
+      logger.error("api", "Failed to resume background task:", error);
       throw error;
     }
   },
@@ -3222,7 +3222,7 @@ export const api = {
     try {
       await invoke("cancel_background_task", { taskId });
     } catch (error) {
-      logger.error('api', "Failed to cancel background task:", error);
+      logger.error("api", "Failed to cancel background task:", error);
       throw error;
     }
   },
@@ -3234,7 +3234,7 @@ export const api = {
     try {
       await invoke("complete_background_task", { taskId, result });
     } catch (error) {
-      logger.error('api', "Failed to complete background task:", error);
+      logger.error("api", "Failed to complete background task:", error);
       throw error;
     }
   },
@@ -3246,7 +3246,7 @@ export const api = {
     try {
       await invoke("retry_background_task", { taskId });
     } catch (error) {
-      logger.error('api', "Failed to retry background task:", error);
+      logger.error("api", "Failed to retry background task:", error);
       throw error;
     }
   },
@@ -3258,7 +3258,7 @@ export const api = {
     try {
       await invoke("update_task_progress", { taskId, progress });
     } catch (error) {
-      logger.error('api', "Failed to update task progress:", error);
+      logger.error("api", "Failed to update task progress:", error);
       throw error;
     }
   },
@@ -3270,7 +3270,7 @@ export const api = {
     try {
       return await invoke("get_background_task", { taskId });
     } catch (error) {
-      logger.error('api', "Failed to get background task:", error);
+      logger.error("api", "Failed to get background task:", error);
       throw error;
     }
   },
@@ -3282,7 +3282,7 @@ export const api = {
     try {
       return await invoke("list_background_tasks", { sessionId, activeOnly });
     } catch (error) {
-      logger.error('api', "Failed to list background tasks:", error);
+      logger.error("api", "Failed to list background tasks:", error);
       throw error;
     }
   },
@@ -3294,7 +3294,7 @@ export const api = {
     try {
       return await invoke("get_task_stats");
     } catch (error) {
-      logger.error('api', "Failed to get task stats:", error);
+      logger.error("api", "Failed to get task stats:", error);
       throw error;
     }
   },
@@ -3306,7 +3306,7 @@ export const api = {
     try {
       await invoke("delete_background_task", { taskId });
     } catch (error) {
-      logger.error('api', "Failed to delete background task:", error);
+      logger.error("api", "Failed to delete background task:", error);
       throw error;
     }
   },
@@ -3318,7 +3318,7 @@ export const api = {
     try {
       await invoke("cleanup_completed_tasks", { olderThanHours });
     } catch (error) {
-      logger.error('api', "Failed to cleanup completed tasks:", error);
+      logger.error("api", "Failed to cleanup completed tasks:", error);
       throw error;
     }
   },
@@ -3330,7 +3330,7 @@ export const api = {
     try {
       return await invoke("get_next_pending_task");
     } catch (error) {
-      logger.error('api', "Failed to get next pending task:", error);
+      logger.error("api", "Failed to get next pending task:", error);
       throw error;
     }
   },
@@ -3346,7 +3346,7 @@ export const api = {
     try {
       await invoke("init_parallel_agent_manager");
     } catch (error) {
-      logger.error('api', "Failed to initialize parallel agent manager:", error);
+      logger.error("api", "Failed to initialize parallel agent manager:", error);
       throw error;
     }
   },
@@ -3358,7 +3358,7 @@ export const api = {
     try {
       return await invoke("create_parallel_group", { name, sessionId, description });
     } catch (error) {
-      logger.error('api', "Failed to create parallel group:", error);
+      logger.error("api", "Failed to create parallel group:", error);
       throw error;
     }
   },
@@ -3373,7 +3373,7 @@ export const api = {
     prompt: string,
     agentType?: AgentType,
     dependencies?: string[],
-    priority?: number,
+    priority?: number
   ): Promise<string> {
     try {
       return await invoke("add_parallel_task", {
@@ -3386,7 +3386,7 @@ export const api = {
         priority,
       });
     } catch (error) {
-      logger.error('api', "Failed to add parallel task:", error);
+      logger.error("api", "Failed to add parallel task:", error);
       throw error;
     }
   },
@@ -3398,12 +3398,12 @@ export const api = {
     groupId: string,
     name: string,
     agentType?: AgentType,
-    capabilities?: string[],
+    capabilities?: string[]
   ): Promise<string> {
     try {
       return await invoke("add_parallel_agent", { groupId, name, agentType, capabilities });
     } catch (error) {
-      logger.error('api', "Failed to add parallel agent:", error);
+      logger.error("api", "Failed to add parallel agent:", error);
       throw error;
     }
   },
@@ -3415,7 +3415,7 @@ export const api = {
     try {
       return await invoke("start_parallel_group", { groupId });
     } catch (error) {
-      logger.error('api', "Failed to start parallel group:", error);
+      logger.error("api", "Failed to start parallel group:", error);
       throw error;
     }
   },
@@ -3427,7 +3427,7 @@ export const api = {
     try {
       await invoke("complete_parallel_task", { groupId, taskId, result });
     } catch (error) {
-      logger.error('api', "Failed to complete parallel task:", error);
+      logger.error("api", "Failed to complete parallel task:", error);
       throw error;
     }
   },
@@ -3439,7 +3439,7 @@ export const api = {
     try {
       await invoke("fail_parallel_task", { groupId, taskId, error });
     } catch (error) {
-      logger.error('api', "Failed to fail parallel task:", error);
+      logger.error("api", "Failed to fail parallel task:", error);
       throw error;
     }
   },
@@ -3451,7 +3451,7 @@ export const api = {
     try {
       return await invoke("get_parallel_group", { groupId });
     } catch (error) {
-      logger.error('api', "Failed to get parallel group:", error);
+      logger.error("api", "Failed to get parallel group:", error);
       throw error;
     }
   },
@@ -3463,7 +3463,7 @@ export const api = {
     try {
       return await invoke("get_group_stats", { groupId });
     } catch (error) {
-      logger.error('api', "Failed to get group stats:", error);
+      logger.error("api", "Failed to get group stats:", error);
       throw error;
     }
   },
@@ -3475,7 +3475,7 @@ export const api = {
     try {
       return await invoke("list_session_groups", { sessionId });
     } catch (error) {
-      logger.error('api', "Failed to list session groups:", error);
+      logger.error("api", "Failed to list session groups:", error);
       throw error;
     }
   },
@@ -3487,7 +3487,7 @@ export const api = {
     try {
       await invoke("delete_parallel_group", { groupId });
     } catch (error) {
-      logger.error('api', "Failed to delete parallel group:", error);
+      logger.error("api", "Failed to delete parallel group:", error);
       throw error;
     }
   },
@@ -3500,12 +3500,12 @@ export const api = {
     fromAgent: string,
     toAgent: string | null,
     messageType: AgentMessageType,
-    payload: AgentMessagePayload,
+    payload: AgentMessagePayload
   ): Promise<void> {
     try {
       await invoke("send_agent_message", { groupId, fromAgent, toAgent, messageType, payload });
     } catch (error) {
-      logger.error('api', "Failed to send agent message:", error);
+      logger.error("api", "Failed to send agent message:", error);
       throw error;
     }
   },
@@ -3517,7 +3517,7 @@ export const api = {
     try {
       await invoke("lock_resource", { groupId, resource, agentId });
     } catch (error) {
-      logger.error('api', "Failed to lock resource:", error);
+      logger.error("api", "Failed to lock resource:", error);
       throw error;
     }
   },
@@ -3529,7 +3529,7 @@ export const api = {
     try {
       await invoke("unlock_resource", { groupId, resource, agentId });
     } catch (error) {
-      logger.error('api', "Failed to unlock resource:", error);
+      logger.error("api", "Failed to unlock resource:", error);
       throw error;
     }
   },
@@ -3543,7 +3543,7 @@ export const api = {
     try {
       await invoke("open_devtools");
     } catch (error) {
-      logger.error('api', "Failed to open devtools:", error);
+      logger.error("api", "Failed to open devtools:", error);
       throw error;
     }
   },
@@ -3555,7 +3555,7 @@ export const api = {
     try {
       await invoke("close_devtools");
     } catch (error) {
-      logger.error('api', "Failed to close devtools:", error);
+      logger.error("api", "Failed to close devtools:", error);
       throw error;
     }
   },
@@ -3567,7 +3567,7 @@ export const api = {
     try {
       return await invoke<boolean>("is_devtools_open");
     } catch (error) {
-      logger.error('api', "Failed to check devtools status:", error);
+      logger.error("api", "Failed to check devtools status:", error);
       return false;
     }
   },
@@ -3607,7 +3607,7 @@ export const api = {
         apiBase: apiBase || null,
       });
     } catch (error) {
-      logger.error('api', "Failed to generate text with LLM:", error);
+      logger.error("api", "Failed to generate text with LLM:", error);
       throw error;
     }
   },

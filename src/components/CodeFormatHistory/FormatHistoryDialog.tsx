@@ -5,7 +5,7 @@
  */
 
 import { AnimatePresence, motion } from "framer-motion";
-import { AlertCircle, CheckCircle, Clock, Copy, FileText, Trash2, X } from 'lucide-react';
+import { AlertCircle, CheckCircle, Clock, Copy, FileText, Trash2, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { codeFormatService, type FormatChange } from "@/services/codeFormatService";
 import { notify } from "@/services/notificationService";
@@ -55,7 +55,7 @@ export function FormatHistoryDialog({ open, onClose, initialRecord }: FormatHist
     return allHistory.filter(
       (record) =>
         record.filePath.toLowerCase().includes(query) ||
-        record.summary.toLowerCase().includes(query),
+        record.summary.toLowerCase().includes(query)
     );
   }, [allHistory, searchQuery]);
 
@@ -101,12 +101,15 @@ export function FormatHistoryDialog({ open, onClose, initialRecord }: FormatHist
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             className="fixed inset-0 bg-black/50 backdrop-blur-sm"
-            style={{ zIndex: 'var(--z-modal-backdrop)' }}
+            style={{ zIndex: "var(--z-modal-backdrop)" }}
             onClick={onClose}
           />
 
           {/* 弹窗 */}
-          <div className="fixed inset-0 flex items-center justify-center p-4" style={{ zIndex: 'var(--z-modal)' }}>
+          <div
+            className="fixed inset-0 flex items-center justify-center p-4"
+            style={{ zIndex: "var(--z-modal)" }}
+          >
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}

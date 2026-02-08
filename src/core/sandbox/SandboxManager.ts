@@ -15,10 +15,10 @@
  * - Devin 的隔离环境
  */
 
-import { logger } from '@/lib/logger';
-import { BrowserEventEmitter } from '../../lib/BrowserEventEmitter';
-import { v4 as uuidv4 } from 'uuid';
-import { invoke } from '@tauri-apps/api/core';
+import { logger } from "@/lib/logger";
+import { BrowserEventEmitter } from "../../lib/BrowserEventEmitter";
+import { v4 as uuidv4 } from "uuid";
+import { invoke } from "@tauri-apps/api/core";
 import type {
   Sandbox,
   SandboxSpec,
@@ -27,8 +27,8 @@ import type {
   SandboxMetrics,
   FileChange,
   TerminalHistoryEntry,
-  WorkflowConfig
-} from '../types/workflow';
+  WorkflowConfig,
+} from "../types/workflow";
 
 // ============================================
 // 类型定义
@@ -59,18 +59,18 @@ interface SandboxCreateOptions {
 // ============================================
 
 const DEFAULT_SANDBOX_SPEC: SandboxSpec = {
-  baseImage: 'node:20-alpine',
-  workspaceDir: '/workspace',
+  baseImage: "node:20-alpine",
+  workspaceDir: "/workspace",
   environmentVars: {
-    NODE_ENV: 'development',
-    TERM: 'xterm-256color'
+    NODE_ENV: "development",
+    TERM: "xterm-256color",
   },
   exposedPorts: [3000, 5173, 8080],
   volumes: [],
-  memoryLimit: '2g',
+  memoryLimit: "2g",
   cpuLimit: 1,
-  networkMode: 'bridge',
-  capabilities: []
+  networkMode: "bridge",
+  capabilities: [],
 };
 
 // ============================================
@@ -94,16 +94,28 @@ export class SandboxManager extends BrowserEventEmitter {
   private async checkDockerAvailability(): Promise<void> {
     try {
       // 使用 Tauri 调用 Docker info 检查可用性
-      const result = await invoke<{ available: boolean; version?: string }>('docker_check_availability');
+      const result = await invoke<{ available: boolean; version?: string }>(
+        "docker_check_availability"
+      );
       this.isDockerAvailable = result.available;
       if (result.available) {
-        logger.debug('SandboxManager', `[SandboxManager] Docker available, version: ${result.version}`);
+        logger.debug(
+          "SandboxManager",
+          `[SandboxManager] Docker available, version: ${result.version}`
+        );
       } else {
-        logger.warn('SandboxManager', '[SandboxManager] Docker not available, using simulation mode');
+        logger.warn(
+          "SandboxManager",
+          "[SandboxManager] Docker not available, using simulation mode"
+        );
       }
     } catch (error) {
       // Tauri 命令不存在时，回退到模拟模式
-      logger.warn('SandboxManager', '[SandboxManager] Docker check failed, using simulation mode:', error);
+      logger.warn(
+        "SandboxManager",
+        "[SandboxManager] Docker check failed, using simulation mode:",
+        error
+      );
       this.isDockerAvailable = false;
     }
   }
@@ -126,21 +138,23 @@ export class SandboxManager extends BrowserEventEmitter {
       cpuLimit: this.config.sandbox.cpuLimit,
       environmentVars: {
         ...DEFAULT_SANDBOX_SPEC.environmentVars,
-        ...options.envVars
+        ...options.envVars,
       },
-      volumes: options.projectPath ? [
-        {
-          hostPath: options.projectPath,
-          containerPath: '/workspace',
-          mode: 'rw'
-        }
-      ] : []
+      volumes: options.projectPath
+        ? [
+            {
+              hostPath: options.projectPath,
+              containerPath: "/workspace",
+              mode: "rw",
+            },
+          ]
+        : [],
     };
 
     const sandbox: Sandbox = {
       id: sandboxId,
       agentId: options.agentId,
-      status: 'creating',
+      status: "creating",
       spec,
       createdAt: now,
       lastActiveAt: now,
@@ -148,14 +162,14 @@ export class SandboxManager extends BrowserEventEmitter {
       files: {
         rootPath: spec.workspaceDir,
         watchedPaths: [spec.workspaceDir],
-        recentChanges: []
+        recentChanges: [],
       },
       metrics: {
         cpuUsage: 0,
         memoryUsage: 0,
         diskUsage: 0,
-        networkIO: { bytesIn: 0, bytesOut: 0 }
-      }
+        networkIO: { bytesIn: 0, bytesOut: 0 },
+      },
     };
 
     // 如果 Docker 可用，创建实际容器
@@ -163,14 +177,17 @@ export class SandboxManager extends BrowserEventEmitter {
       await this.createDockerContainer(sandbox);
     }
 
-    sandbox.status = 'running';
+    sandbox.status = "running";
     this.sandboxes.set(sandboxId, sandbox);
 
     // 创建默认终端
-    await this.createTerminal(sandboxId, 'main');
+    await this.createTerminal(sandboxId, "main");
 
-    this.emit('sandbox:created', { sandbox });
-    logger.debug('SandboxManager', `[SandboxManager] Created sandbox ${sandboxId} for agent ${options.agentId}`);
+    this.emit("sandbox:created", { sandbox });
+    logger.debug(
+      "SandboxManager",
+      `[SandboxManager] Created sandbox ${sandboxId} for agent ${options.agentId}`
+    );
 
     return sandbox;
   }
@@ -181,7 +198,7 @@ export class SandboxManager extends BrowserEventEmitter {
   private async createDockerContainer(sandbox: Sandbox): Promise<void> {
     try {
       // 使用 Tauri 调用 Docker API 创建容器
-      const result = await invoke<{ containerId: string }>('docker_create_container', {
+      const result = await invoke<{ containerId: string }>("docker_create_container", {
         name: `sandbox-${sandbox.id.slice(0, 12)}`,
         image: sandbox.spec.baseImage,
         memoryLimit: sandbox.spec.memoryLimit,
@@ -194,10 +211,17 @@ export class SandboxManager extends BrowserEventEmitter {
       });
 
       sandbox.containerId = result.containerId;
-      logger.debug('SandboxManager', `[SandboxManager] Created Docker container: ${result.containerId}`);
+      logger.debug(
+        "SandboxManager",
+        `[SandboxManager] Created Docker container: ${result.containerId}`
+      );
     } catch (error) {
       // Tauri 命令不存在时，使用模拟容器 ID
-      logger.warn('SandboxManager', '[SandboxManager] Docker create failed, using simulation:', error);
+      logger.warn(
+        "SandboxManager",
+        "[SandboxManager] Docker create failed, using simulation:",
+        error
+      );
       sandbox.containerId = `sim-container-${sandbox.id.slice(0, 12)}`;
     }
   }
@@ -206,7 +230,7 @@ export class SandboxManager extends BrowserEventEmitter {
    * 构建 Docker 命令
    */
   private buildDockerCommand(spec: SandboxSpec): string {
-    const parts = ['docker', 'run', '-d', '--rm'];
+    const parts = ["docker", "run", "-d", "--rm"];
 
     // 名称
     parts.push(`--name sandbox-${Date.now()}`);
@@ -240,9 +264,9 @@ export class SandboxManager extends BrowserEventEmitter {
     parts.push(spec.baseImage);
 
     // 保持运行
-    parts.push('tail -f /dev/null');
+    parts.push("tail -f /dev/null");
 
-    return parts.join(' ');
+    return parts.join(" ");
   }
 
   /**
@@ -252,7 +276,7 @@ export class SandboxManager extends BrowserEventEmitter {
     const sandbox = this.sandboxes.get(sandboxId);
     if (!sandbox) return;
 
-    sandbox.status = 'stopped';
+    sandbox.status = "stopped";
 
     // 销毁 Docker 容器
     if (sandbox.containerId && this.isDockerAvailable) {
@@ -265,9 +289,9 @@ export class SandboxManager extends BrowserEventEmitter {
     }
 
     this.sandboxes.delete(sandboxId);
-    this.emit('sandbox:destroyed', { sandboxId });
+    this.emit("sandbox:destroyed", { sandboxId });
 
-    logger.debug('SandboxManager', `[SandboxManager] Destroyed sandbox ${sandboxId}`);
+    logger.debug("SandboxManager", `[SandboxManager] Destroyed sandbox ${sandboxId}`);
   }
 
   /**
@@ -276,10 +300,14 @@ export class SandboxManager extends BrowserEventEmitter {
   private async destroyDockerContainer(containerId: string): Promise<void> {
     try {
       // 使用 Tauri 调用 docker stop && docker rm
-      await invoke('docker_destroy_container', { containerId });
-      logger.debug('SandboxManager', `[SandboxManager] Destroyed Docker container: ${containerId}`);
+      await invoke("docker_destroy_container", { containerId });
+      logger.debug("SandboxManager", `[SandboxManager] Destroyed Docker container: ${containerId}`);
     } catch (error) {
-      logger.warn('SandboxManager', `[SandboxManager] Failed to destroy container ${containerId}:`, error);
+      logger.warn(
+        "SandboxManager",
+        `[SandboxManager] Failed to destroy container ${containerId}:`,
+        error
+      );
     }
   }
 
@@ -301,12 +329,12 @@ export class SandboxManager extends BrowserEventEmitter {
       name: name || `terminal-${sandbox.terminals.length + 1}`,
       cwd: sandbox.spec.workspaceDir,
       isActive: true,
-      history: []
+      history: [],
     };
 
     sandbox.terminals.push(terminal);
 
-    this.emit('terminal:created', { sandboxId, terminal });
+    this.emit("terminal:created", { sandboxId, terminal });
     return terminal;
   }
 
@@ -317,10 +345,10 @@ export class SandboxManager extends BrowserEventEmitter {
     const sandbox = this.sandboxes.get(sandboxId);
     if (!sandbox) return;
 
-    const terminalIndex = sandbox.terminals.findIndex(t => t.id === terminalId);
+    const terminalIndex = sandbox.terminals.findIndex((t) => t.id === terminalId);
     if (terminalIndex >= 0) {
       sandbox.terminals[terminalIndex].isActive = false;
-      this.emit('terminal:closed', { sandboxId, terminalId });
+      this.emit("terminal:closed", { sandboxId, terminalId });
     }
   }
 
@@ -343,7 +371,7 @@ export class SandboxManager extends BrowserEventEmitter {
 
     // 找到或使用默认终端
     let terminal = terminalId
-      ? sandbox.terminals.find(t => t.id === terminalId)
+      ? sandbox.terminals.find((t) => t.id === terminalId)
       : sandbox.terminals[0];
 
     if (!terminal) {
@@ -366,7 +394,7 @@ export class SandboxManager extends BrowserEventEmitter {
       output: result.stdout + result.stderr,
       exitCode: result.exitCode,
       timestamp: startTime,
-      duration: result.duration
+      duration: result.duration,
     };
     terminal.history.push(historyEntry);
 
@@ -375,7 +403,7 @@ export class SandboxManager extends BrowserEventEmitter {
       terminal.history = terminal.history.slice(-100);
     }
 
-    this.emit('command:executed', { sandboxId, terminalId: terminal.id, command, result });
+    this.emit("command:executed", { sandboxId, terminalId: terminal.id, command, result });
 
     return result;
   }
@@ -394,7 +422,7 @@ export class SandboxManager extends BrowserEventEmitter {
     try {
       // 使用 Tauri 调用 docker exec
       const result = await invoke<{ stdout: string; stderr: string; exitCode: number }>(
-        'docker_exec_command',
+        "docker_exec_command",
         {
           containerId,
           command,
@@ -411,7 +439,11 @@ export class SandboxManager extends BrowserEventEmitter {
       };
     } catch (error) {
       // Tauri 命令不存在时，回退到模拟执行
-      logger.warn('SandboxManager', '[SandboxManager] Docker exec failed, using simulation:', error);
+      logger.warn(
+        "SandboxManager",
+        "[SandboxManager] Docker exec failed, using simulation:",
+        error
+      );
       return this.simulateExecution(command);
     }
   }
@@ -426,38 +458,38 @@ export class SandboxManager extends BrowserEventEmitter {
     await this.sleep(Math.random() * 500 + 100);
 
     // 简单的命令模拟
-    if (command.startsWith('echo ')) {
+    if (command.startsWith("echo ")) {
       return {
         stdout: command.slice(5),
-        stderr: '',
+        stderr: "",
         exitCode: 0,
-        duration: Date.now() - startTime
+        duration: Date.now() - startTime,
       };
     }
 
-    if (command === 'pwd') {
+    if (command === "pwd") {
       return {
-        stdout: '/workspace',
-        stderr: '',
+        stdout: "/workspace",
+        stderr: "",
         exitCode: 0,
-        duration: Date.now() - startTime
+        duration: Date.now() - startTime,
       };
     }
 
-    if (command === 'ls') {
+    if (command === "ls") {
       return {
-        stdout: 'src\npackage.json\nnode_modules\nREADME.md',
-        stderr: '',
+        stdout: "src\npackage.json\nnode_modules\nREADME.md",
+        stderr: "",
         exitCode: 0,
-        duration: Date.now() - startTime
+        duration: Date.now() - startTime,
       };
     }
 
     return {
       stdout: `[Simulated] Command executed: ${command}`,
-      stderr: '',
+      stderr: "",
       exitCode: 0,
-      duration: Date.now() - startTime
+      duration: Date.now() - startTime,
     };
   }
 
@@ -471,7 +503,7 @@ export class SandboxManager extends BrowserEventEmitter {
   async readFile(sandboxId: string, path: string): Promise<FileOperationResult> {
     const sandbox = this.sandboxes.get(sandboxId);
     if (!sandbox) {
-      return { success: false, error: 'Sandbox not found' };
+      return { success: false, error: "Sandbox not found" };
     }
 
     sandbox.lastActiveAt = Date.now();
@@ -493,21 +525,17 @@ export class SandboxManager extends BrowserEventEmitter {
     // 模拟文件读取
     return {
       success: true,
-      content: `// Simulated content of ${path}\nlogger.debug('SandboxManager', 'Hello from sandbox');`
+      content: `// Simulated content of ${path}\nlogger.debug('SandboxManager', 'Hello from sandbox');`,
     };
   }
 
   /**
    * ✏️ 写入文件
    */
-  async writeFile(
-    sandboxId: string,
-    path: string,
-    content: string
-  ): Promise<FileOperationResult> {
+  async writeFile(sandboxId: string, path: string, content: string): Promise<FileOperationResult> {
     const sandbox = this.sandboxes.get(sandboxId);
     if (!sandbox) {
-      return { success: false, error: 'Sandbox not found' };
+      return { success: false, error: "Sandbox not found" };
     }
 
     sandbox.lastActiveAt = Date.now();
@@ -522,7 +550,7 @@ export class SandboxManager extends BrowserEventEmitter {
       );
 
       if (result.exitCode === 0) {
-        this.recordFileChange(sandbox, 'create', path);
+        this.recordFileChange(sandbox, "create", path);
         return { success: true };
       } else {
         return { success: false, error: result.stderr };
@@ -530,7 +558,7 @@ export class SandboxManager extends BrowserEventEmitter {
     }
 
     // 模拟写入
-    this.recordFileChange(sandbox, 'create', path);
+    this.recordFileChange(sandbox, "create", path);
     return { success: true };
   }
 
@@ -545,7 +573,7 @@ export class SandboxManager extends BrowserEventEmitter {
   ): Promise<FileOperationResult> {
     const sandbox = this.sandboxes.get(sandboxId);
     if (!sandbox) {
-      return { success: false, error: 'Sandbox not found' };
+      return { success: false, error: "Sandbox not found" };
     }
 
     sandbox.lastActiveAt = Date.now();
@@ -560,7 +588,7 @@ export class SandboxManager extends BrowserEventEmitter {
     const writeResult = await this.writeFile(sandboxId, path, updatedContent);
 
     if (writeResult.success) {
-      this.recordFileChange(sandbox, 'modify', path);
+      this.recordFileChange(sandbox, "modify", path);
     }
 
     return writeResult;
@@ -572,7 +600,7 @@ export class SandboxManager extends BrowserEventEmitter {
   async deleteFile(sandboxId: string, path: string): Promise<FileOperationResult> {
     const sandbox = this.sandboxes.get(sandboxId);
     if (!sandbox) {
-      return { success: false, error: 'Sandbox not found' };
+      return { success: false, error: "Sandbox not found" };
     }
 
     sandbox.lastActiveAt = Date.now();
@@ -585,14 +613,14 @@ export class SandboxManager extends BrowserEventEmitter {
       );
 
       if (result.exitCode === 0) {
-        this.recordFileChange(sandbox, 'delete', path);
+        this.recordFileChange(sandbox, "delete", path);
         return { success: true };
       } else {
         return { success: false, error: result.stderr };
       }
     }
 
-    this.recordFileChange(sandbox, 'delete', path);
+    this.recordFileChange(sandbox, "delete", path);
     return { success: true };
   }
 
@@ -601,7 +629,7 @@ export class SandboxManager extends BrowserEventEmitter {
    */
   private recordFileChange(
     sandbox: Sandbox,
-    type: FileChange['type'],
+    type: FileChange["type"],
     path: string,
     oldPath?: string
   ): void {
@@ -609,7 +637,7 @@ export class SandboxManager extends BrowserEventEmitter {
       type,
       path,
       oldPath,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
 
     sandbox.files.recentChanges.push(change);
@@ -619,7 +647,7 @@ export class SandboxManager extends BrowserEventEmitter {
       sandbox.files.recentChanges = sandbox.files.recentChanges.slice(-50);
     }
 
-    this.emit('file:changed', { sandboxId: sandbox.id, change });
+    this.emit("file:changed", { sandboxId: sandbox.id, change });
   }
 
   // ============================================
@@ -635,7 +663,7 @@ export class SandboxManager extends BrowserEventEmitter {
   ): Promise<{ success: boolean; error?: string }> {
     const sandbox = this.sandboxes.get(sandboxId);
     if (!sandbox) {
-      return { success: false, error: 'Sandbox not found' };
+      return { success: false, error: "Sandbox not found" };
     }
 
     sandbox.lastActiveAt = Date.now();
@@ -645,22 +673,22 @@ export class SandboxManager extends BrowserEventEmitter {
       isActive: true,
       currentUrl: url,
       viewport: { width: 1280, height: 720 },
-      screenshots: []
+      screenshots: [],
     };
 
     if (this.isDockerAvailable && sandbox.containerId) {
       // 安装并启动 Playwright
       await this.executeInContainer(
         sandbox.containerId,
-        'npx playwright install chromium --with-deps',
+        "npx playwright install chromium --with-deps",
         sandbox.spec.workspaceDir
       );
 
       // 启动浏览器（实际实现会更复杂）
-      logger.debug('SandboxManager', `[SandboxManager] Launching browser at ${url}`);
+      logger.debug("SandboxManager", `[SandboxManager] Launching browser at ${url}`);
     }
 
-    this.emit('browser:launched', { sandboxId, url });
+    this.emit("browser:launched", { sandboxId, url });
     return { success: true };
   }
 
@@ -674,7 +702,8 @@ export class SandboxManager extends BrowserEventEmitter {
     }
 
     // TODO: 实际截图实现
-    const fakeScreenshot = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+    const fakeScreenshot =
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
 
     sandbox.browser.screenshots.push(fakeScreenshot);
 
@@ -683,7 +712,7 @@ export class SandboxManager extends BrowserEventEmitter {
       sandbox.browser.screenshots = sandbox.browser.screenshots.slice(-10);
     }
 
-    this.emit('browser:screenshot', { sandboxId, screenshot: fakeScreenshot });
+    this.emit("browser:screenshot", { sandboxId, screenshot: fakeScreenshot });
     return fakeScreenshot;
   }
 
@@ -695,7 +724,7 @@ export class SandboxManager extends BrowserEventEmitter {
     if (!sandbox || !sandbox.browser) return;
 
     sandbox.browser.isActive = false;
-    this.emit('browser:closed', { sandboxId });
+    this.emit("browser:closed", { sandboxId });
   }
 
   // ============================================
@@ -714,8 +743,8 @@ export class SandboxManager extends BrowserEventEmitter {
       // docker stats --no-stream --format json {containerId}
       const result = await this.executeInContainer(
         sandbox.containerId,
-        'cat /proc/meminfo | head -3',
-        '/'
+        "cat /proc/meminfo | head -3",
+        "/"
       );
 
       // 解析并更新指标（简化实现）
@@ -725,8 +754,8 @@ export class SandboxManager extends BrowserEventEmitter {
         diskUsage: Math.random() * 1024 * 1024 * 100,
         networkIO: {
           bytesIn: Math.random() * 10000,
-          bytesOut: Math.random() * 5000
-        }
+          bytesOut: Math.random() * 5000,
+        },
       };
     }
 
@@ -740,7 +769,7 @@ export class SandboxManager extends BrowserEventEmitter {
     const intervalId = setInterval(async () => {
       const metrics = await this.getMetrics(sandboxId);
       if (metrics) {
-        this.emit('metrics:updated', { sandboxId, metrics });
+        this.emit("metrics:updated", { sandboxId, metrics });
       }
     }, intervalMs);
 
@@ -781,7 +810,7 @@ export class SandboxManager extends BrowserEventEmitter {
    * 休眠
    */
   private sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }
 

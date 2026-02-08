@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "@/lib/lightSyntaxHighlighter";
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/contexts/ThemeContext";
 import { getClaudeSyntaxTheme } from "@/lib/claudeSyntaxTheme";
@@ -58,7 +58,8 @@ const getResultContent = (value: unknown): string => {
 const COLLAPSE_HEIGHT = 300; // px
 
 export const ResultMessage: React.FC<ResultMessageProps> = ({ message, className }) => {
-  const isError = Boolean((message as any).is_error) || Boolean(message.subtype?.toLowerCase().includes("error"));
+  const isError =
+    Boolean((message as any).is_error) || Boolean(message.subtype?.toLowerCase().includes("error"));
   const { theme } = useTheme();
   const syntaxTheme = useMemo(() => getClaudeSyntaxTheme(isDarkTheme(theme)), [theme]);
 
@@ -98,14 +99,20 @@ export const ResultMessage: React.FC<ResultMessageProps> = ({ message, className
       extracted.cache_creation_tokens +
       extracted.cache_read_tokens;
 
-    return `Total tokens: ${totalTokens} (${extracted.input_tokens} in, ${extracted.output_tokens} out` +
+    return (
+      `Total tokens: ${totalTokens} (${extracted.input_tokens} in, ${extracted.output_tokens} out` +
       (extracted.cache_creation_tokens > 0 ? `, ${extracted.cache_creation_tokens} creation` : "") +
       (extracted.cache_read_tokens > 0 ? `, ${extracted.cache_read_tokens} read` : "") +
-      `)`;
+      `)`
+    );
   }, [message.usage]);
 
   // 注意：Claude CLI 使用驼峰命名 costUSD/totalCostUSD
-  const cost = (message as any).costUSD ?? (message as any).totalCostUSD ?? (message as any).cost_usd ?? (message as any).total_cost_usd;
+  const cost =
+    (message as any).costUSD ??
+    (message as any).totalCostUSD ??
+    (message as any).cost_usd ??
+    (message as any).total_cost_usd;
   const durationMs = (message as any).duration_ms;
   const numTurns = (message as any).num_turns;
 
@@ -114,13 +121,20 @@ export const ResultMessage: React.FC<ResultMessageProps> = ({ message, className
   }
 
   return (
-    <div className={cn("my-4 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3", className)}>
+    <div
+      className={cn(
+        "my-4 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3",
+        className
+      )}
+    >
       <div className="flex items-start gap-3">
         <AlertCircle className="mt-0.5 h-5 w-5 text-destructive" />
         <div className="flex-1 space-y-3">
           <div className="flex items-center justify-between">
             <h4 className="text-sm font-semibold text-destructive">执行失败</h4>
-            {timestamp && <span className="text-xs font-mono text-destructive/80">{timestamp}</span>}
+            {timestamp && (
+              <span className="text-xs font-mono text-destructive/80">{timestamp}</span>
+            )}
           </div>
 
           {(resultContent || errorMessage) && (
@@ -132,9 +146,7 @@ export const ResultMessage: React.FC<ResultMessageProps> = ({ message, className
                   shouldCollapse && collapsed && "overflow-hidden"
                 )}
                 style={
-                  shouldCollapse && collapsed
-                    ? { maxHeight: `${COLLAPSE_HEIGHT}px` }
-                    : undefined
+                  shouldCollapse && collapsed ? { maxHeight: `${COLLAPSE_HEIGHT}px` } : undefined
                 }
               >
                 {resultContent && (
@@ -159,7 +171,10 @@ export const ResultMessage: React.FC<ResultMessageProps> = ({ message, className
                             return (
                               <ErrorBoundary
                                 fallback={() => (
-                                  <pre className="p-3 text-xs font-mono overflow-auto text-foreground/80 bg-muted/20 rounded whitespace-pre-wrap break-words" style={{ overflowWrap: 'anywhere' }}>
+                                  <pre
+                                    className="p-3 text-xs font-mono overflow-auto text-foreground/80 bg-muted/20 rounded whitespace-pre-wrap break-words"
+                                    style={{ overflowWrap: "anywhere" }}
+                                  >
                                     {codeStr}
                                   </pre>
                                 )}
@@ -178,7 +193,10 @@ export const ResultMessage: React.FC<ResultMessageProps> = ({ message, className
                           // 代码块但不支持语法高亮，降级为纯文本
                           if (!inline && match) {
                             return (
-                              <pre className="p-3 text-xs font-mono overflow-auto text-foreground/80 bg-muted/20 rounded whitespace-pre-wrap break-words" style={{ overflowWrap: 'anywhere' }}>
+                              <pre
+                                className="p-3 text-xs font-mono overflow-auto text-foreground/80 bg-muted/20 rounded whitespace-pre-wrap break-words"
+                                style={{ overflowWrap: "anywhere" }}
+                              >
                                 {codeStr}
                               </pre>
                             );
@@ -224,7 +242,9 @@ export const ResultMessage: React.FC<ResultMessageProps> = ({ message, className
 
           <div className="space-y-1 text-xs text-muted-foreground">
             {typeof cost === "number" && <div>Cost: ${cost.toFixed(4)} USD</div>}
-            {typeof durationMs === "number" && <div>Duration: {(durationMs / 1000).toFixed(2)}s</div>}
+            {typeof durationMs === "number" && (
+              <div>Duration: {(durationMs / 1000).toFixed(2)}s</div>
+            )}
             {typeof numTurns === "number" && <div>Turns: {numTurns}</div>}
             {usageSummary && <div>{usageSummary}</div>}
           </div>

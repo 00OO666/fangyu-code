@@ -1,4 +1,4 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { useEffect, useRef, useState } from "react";
 
 /**
@@ -59,22 +59,22 @@ export const useMemoryDetection = (inputText: string, options: UseMemoryDetectio
         // 动态导入 Tauri API（仅在 Tauri 环境中可用）
         const tauriModule = await import("@tauri-apps/api/core").catch(() => null);
         if (!tauriModule) {
-          logger.warn('useMemoryDetection', "[useMemoryDetection] Tauri API not available");
+          logger.warn("useMemoryDetection", "[useMemoryDetection] Tauri API not available");
           setIsDetecting(false);
           return;
         }
 
-        const result = await (tauriModule as any).invoke("detect_memory_keywords", {
+        const result = (await (tauriModule as any).invoke("detect_memory_keywords", {
           text: inputText,
-        }) as MemoryMatch[];
+        })) as MemoryMatch[];
 
         if (!controller.signal.aborted) {
           setMatches(result);
-          logger.debug('useMemoryDetection', "[useMemoryDetection] Detected matches:", result);
+          logger.debug("useMemoryDetection", "[useMemoryDetection] Detected matches:", result);
         }
       } catch (error) {
         if (!controller.signal.aborted) {
-          logger.error('useMemoryDetection', "[useMemoryDetection] Error:", error);
+          logger.error("useMemoryDetection", "[useMemoryDetection] Error:", error);
           setMatches([]);
         }
       } finally {

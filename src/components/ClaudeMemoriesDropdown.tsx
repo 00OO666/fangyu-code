@@ -1,7 +1,7 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, Edit2, FileText, Loader2 } from 'lucide-react';
+import { ChevronDown, Edit2, FileText, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -25,7 +25,7 @@ interface ClaudeMemoriesDropdownProps {
 
 /**
  * ClaudeMemoriesDropdown component - Shows all CLAUDE.md files in a project
- * 
+ *
  * @example
  * <ClaudeMemoriesDropdown
  *   projectPath="/Users/example/project"
@@ -41,14 +41,14 @@ export const ClaudeMemoriesDropdown: React.FC<ClaudeMemoriesDropdownProps> = ({
   const [files, setFiles] = useState<ClaudeMdFile[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Load CLAUDE.md files when dropdown opens
   useEffect(() => {
     if (isOpen && files.length === 0) {
       loadClaudeMdFiles();
     }
   }, [isOpen]);
-  
+
   const loadClaudeMdFiles = async () => {
     try {
       setLoading(true);
@@ -56,19 +56,19 @@ export const ClaudeMemoriesDropdown: React.FC<ClaudeMemoriesDropdownProps> = ({
       const foundFiles = await api.findClaudeMdFiles(projectPath);
       setFiles(foundFiles);
     } catch (err) {
-      logger.error('ClaudeMemoriesDropdown', "Failed to load CLAUDE.md files:", err);
+      logger.error("ClaudeMemoriesDropdown", "Failed to load CLAUDE.md files:", err);
       setError("Failed to load CLAUDE.md files");
     } finally {
       setLoading(false);
     }
   };
-  
+
   const formatFileSize = (bytes: number): string => {
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
-  
+
   return (
     <div className={cn("w-full", className)}>
       <Card className="overflow-hidden">
@@ -84,14 +84,11 @@ export const ClaudeMemoriesDropdown: React.FC<ClaudeMemoriesDropdownProps> = ({
               <span className="text-xs text-muted-foreground">({files.length})</span>
             )}
           </div>
-          <motion.div
-            animate={{ rotate: isOpen ? 180 : 0 }}
-            transition={{ duration: 0.2 }}
-          >
+          <motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
             <ChevronDown className="h-4 w-4 text-muted-foreground" />
           </motion.div>
         </button>
-        
+
         {/* Dropdown Content */}
         <AnimatePresence>
           {isOpen && (
@@ -156,4 +153,4 @@ export const ClaudeMemoriesDropdown: React.FC<ClaudeMemoriesDropdownProps> = ({
       </Card>
     </div>
   );
-}; 
+};

@@ -1,7 +1,8 @@
 /* Font loading overrides for fonts missing font-display */
 @font-face {
   font-family: "Alibaba PuHuiTi";
-  src: url("../../node_modules/@tslsmart/font-puhuiti/assets/alibaba-puhuiti-light.ttf") format("truetype");
+  src: url("../../node_modules/@tslsmart/font-puhuiti/assets/alibaba-puhuiti-light.ttf")
+    format("truetype");
   font-weight: 300;
   font-style: normal;
   font-display: swap;
@@ -9,7 +10,8 @@
 
 @font-face {
   font-family: "Alibaba PuHuiTi";
-  src: url("../../node_modules/@tslsmart/font-puhuiti/assets/alibaba-puhuiti-regular.ttf") format("truetype");
+  src: url("../../node_modules/@tslsmart/font-puhuiti/assets/alibaba-puhuiti-regular.ttf")
+    format("truetype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -17,7 +19,8 @@
 
 @font-face {
   font-family: "Alibaba PuHuiTi";
-  src: url("../../node_modules/@tslsmart/font-puhuiti/assets/alibaba-puhuiti-medium.ttf") format("truetype");
+  src: url("../../node_modules/@tslsmart/font-puhuiti/assets/alibaba-puhuiti-medium.ttf")
+    format("truetype");
   font-weight: 500;
   font-style: normal;
   font-display: swap;

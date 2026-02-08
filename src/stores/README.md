@@ -5,17 +5,20 @@
 ## 核心原则
 
 ### 1. Zustand 用于全局状态
+
 - 跨组件共享的状态
 - 需要持久化的状态
 - 高频更新的状态（避免 Context 重渲染）
 
 ### 2. Context 用于依赖注入
+
 - 主题配置
 - 国际化
 - 路由信息
 - 一次性配置（不频繁变化）
 
 ### 3. useState 用于组件内部状态
+
 - 表单输入
 - UI 状态（展开/折叠）
 - 临时状态
@@ -33,6 +36,7 @@ src/stores/
 ## 使用示例
 
 ### 读取状态（使用选择器）
+
 ```typescript
 // ✅ 正确：使用选择器，只订阅需要的状态
 const engine = useSessionStore((state) => state.executionEngineConfig.engine);
@@ -42,16 +46,18 @@ const store = useSessionStore();
 ```
 
 ### 更新状态
+
 ```typescript
 // ✅ 正确：使用 action
 const setEngine = useSessionStore((state) => state.setExecutionEngineConfig);
-setEngine({ engine: 'claude' });
+setEngine({ engine: "claude" });
 
 // ❌ 错误：直接修改状态
-store.executionEngineConfig.engine = 'claude';
+store.executionEngineConfig.engine = "claude";
 ```
 
 ### 持久化
+
 ```typescript
 // 使用 persist 中间件
 export const useStore = create<Store>()(
@@ -80,11 +86,13 @@ export const useStore = create<Store>()(
 ### 示例：迁移引擎配置
 
 Before (Context):
+
 ```typescript
 const { engineConfig, setEngineConfig } = useSessionContext();
 ```
 
 After (Zustand):
+
 ```typescript
 const engineConfig = useExecutionEngineConfig();
 const setEngineConfig = useSetExecutionEngineConfig();

@@ -11,7 +11,7 @@
  * @returns 语言标识符（用于语法高亮）
  */
 export const getLanguage = (path: string): string => {
-  const ext = path.split('.').pop()?.toLowerCase();
+  const ext = path.split(".").pop()?.toLowerCase();
   const languageMap: Record<string, string> = {
     ts: "typescript",
     tsx: "tsx",
@@ -50,5 +50,5 @@ export const getLanguage = (path: string): string => {
     svelte: "svelte",
   };
 
-  return languageMap[ext || ''] || 'text';
+  return languageMap[ext || ""] || "text";
 };

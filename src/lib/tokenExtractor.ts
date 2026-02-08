@@ -130,7 +130,7 @@ export interface TokenTooltipInfo {
  * @returns 标准化的token使用数据
  */
 export function normalizeRawUsage(
-  rawUsage: RawTokenUsage | null | undefined,
+  rawUsage: RawTokenUsage | null | undefined
 ): StandardizedTokenUsage {
   if (!rawUsage) {
     return {
@@ -214,7 +214,7 @@ export function normalizeRawUsage(
  * @returns 标准化的token使用数据
  */
 export function extractMessageTokens(
-  message: ClaudeStreamMessage | ExtendedClaudeStreamMessage,
+  message: ClaudeStreamMessage | ExtendedClaudeStreamMessage
 ): StandardizedTokenUsage {
   // 尝试从不同位置获取usage数据（基于代码分析的优先级）
   const primaryUsage = (message as ExtendedClaudeStreamMessage).message?.usage; // 优先级1：message.usage (主要使用)
@@ -235,7 +235,7 @@ export function extractMessageTokens(
  */
 export function formatMessageTokenDisplay(
   tokens: StandardizedTokenUsage,
-  options: TokenDisplayOptions = {},
+  options: TokenDisplayOptions = {}
 ): string {
   const { showDetails = false, compact = false, customFormatter } = options;
 
@@ -291,7 +291,7 @@ export function formatMessageTokenDisplay(
  */
 export function createMessageTokenTooltip(
   tokens: StandardizedTokenUsage,
-  model?: string,
+  model?: string
 ): TokenTooltipInfo {
   // 构建详细breakdown
   const breakdown = {
@@ -345,7 +345,7 @@ export function createMessageTokenTooltip(
  * @returns 标准化的token使用数据数组
  */
 export function extractBatchMessageTokens(
-  messages: ClaudeStreamMessage[],
+  messages: ClaudeStreamMessage[]
 ): StandardizedTokenUsage[] {
   return messages.map((message) => extractMessageTokens(message));
 }
@@ -357,7 +357,7 @@ export function extractBatchMessageTokens(
  * @returns 会话总计token使用数据
  */
 export function calculateSessionTokenTotals(
-  messages: ClaudeStreamMessage[],
+  messages: ClaudeStreamMessage[]
 ): StandardizedTokenUsage {
   const tokenData = extractBatchMessageTokens(messages);
 
@@ -375,7 +375,7 @@ export function calculateSessionTokenTotals(
       cache_creation_tokens: 0,
       cache_read_tokens: 0,
       total_tokens: 0,
-    },
+    }
   );
 }
 

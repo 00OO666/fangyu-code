@@ -5,7 +5,7 @@
  * 支持 Claude、Codex、Gemini 引擎
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import type { ClaudeStreamMessage } from "@/types/claude";
 import { AsyncQueue } from "./AsyncQueue";
@@ -99,7 +99,7 @@ export class SessionConnection {
    */
   async connect(): Promise<void> {
     if (this.isSetup) {
-      logger.warn('SessionConnection', "[SessionConnection] Already connected");
+      logger.warn("SessionConnection", "[SessionConnection] Already connected");
       return;
     }
 
@@ -128,7 +128,7 @@ export class SessionConnection {
     const outputUnlisten = await listen<string>(`${eventPrefix}-output:${sessionId}`, (event) => {
       try {
         if (debug) {
-          logger.debug('SessionConnection', `[SessionConnection] Received:`, event.payload);
+          logger.debug("SessionConnection", `[SessionConnection] Received:`, event.payload);
         }
 
         // 存储原始消息
@@ -140,14 +140,14 @@ export class SessionConnection {
           this.messageQueue.enqueue(result.message);
         }
       } catch (error) {
-        logger.error('SessionConnection', "[SessionConnection] Failed to process message:", error);
+        logger.error("SessionConnection", "[SessionConnection] Failed to process message:", error);
       }
     });
     this.unlisteners.push(outputUnlisten);
 
     // 监听错误
     const errorUnlisten = await listen<string>(`${eventPrefix}-error:${sessionId}`, (event) => {
-      logger.error('SessionConnection', `[SessionConnection] Error:`, event.payload);
+      logger.error("SessionConnection", `[SessionConnection] Error:`, event.payload);
       this.config.onError?.(event.payload);
     });
     this.unlisteners.push(errorUnlisten);
@@ -157,12 +157,12 @@ export class SessionConnection {
       `${eventPrefix}-complete:${sessionId}`,
       (event) => {
         if (debug) {
-          logger.debug('SessionConnection', `[SessionConnection] Complete:`, event.payload);
+          logger.debug("SessionConnection", `[SessionConnection] Complete:`, event.payload);
         }
         this.setState("closed");
         this.config.onComplete?.(event.payload);
         this.close();
-      },
+      }
     );
     this.unlisteners.push(completeUnlisten);
 
@@ -172,14 +172,14 @@ export class SessionConnection {
       (event) => {
         if (event.payload.session_id === sessionId) {
           if (debug) {
-            logger.debug('SessionConnection', `[SessionConnection] State change:`, event.payload);
+            logger.debug("SessionConnection", `[SessionConnection] State change:`, event.payload);
           }
           if (event.payload.status === "stopped") {
             this.setState("closed");
             this.close();
           }
         }
-      },
+      }
     );
     this.unlisteners.push(stateUnlisten);
 
@@ -196,10 +196,14 @@ export class SessionConnection {
                 this.messageQueue.enqueue(result.message);
               }
             } catch (error) {
-              logger.error('SessionConnection', "[SessionConnection] Failed to process global message:", error);
+              logger.error(
+                "SessionConnection",
+                "[SessionConnection] Failed to process global message:",
+                error
+              );
             }
           }
-        },
+        }
       );
       this.unlisteners.push(globalUnlisten);
     }
@@ -244,7 +248,7 @@ export class SessionConnection {
       try {
         unlisten();
       } catch (error) {
-        logger.warn('SessionConnection', "[SessionConnection] Failed to unlisten:", error);
+        logger.warn("SessionConnection", "[SessionConnection] Failed to unlisten:", error);
       }
     }
     this.unlisteners = [];

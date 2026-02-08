@@ -5,24 +5,24 @@
  * _Requirements: 2.2_
  */
 
-import { invoke } from '@tauri-apps/api/core';
+import { invoke } from "@tauri-apps/api/core";
 import {
   withRetry,
   withAPIRetry,
   type RetryConfig,
   type RetryResult,
-} from '../services/retryService';
+} from "../services/retryService";
 
 /**
  * 可重试的 Tauri 错误模式
  */
 const RETRYABLE_TAURI_ERRORS = [
-  'network',
-  'timeout',
-  'connection',
-  'ECONNRESET',
-  'ETIMEDOUT',
-  'ECONNREFUSED',
+  "network",
+  "timeout",
+  "connection",
+  "ECONNRESET",
+  "ETIMEDOUT",
+  "ECONNREFUSED",
 ];
 
 /**
@@ -38,18 +38,15 @@ export async function invokeWithRetry<T>(
   args?: Record<string, unknown>,
   config?: Partial<RetryConfig>
 ): Promise<RetryResult<T>> {
-  return withRetry<T>(
-    () => invoke<T>(cmd, args),
-    {
-      ...config,
-      retryableErrors: RETRYABLE_TAURI_ERRORS,
-      onRetry: (attempt, error, delay) => {
-        console.warn(
-          `[RetryWrapper] Retrying ${cmd} (attempt ${attempt}), error: ${error.message}, delay: ${delay}ms`
-        );
-      },
-    }
-  );
+  return withRetry<T>(() => invoke<T>(cmd, args), {
+    ...config,
+    retryableErrors: RETRYABLE_TAURI_ERRORS,
+    onRetry: (attempt, error, delay) => {
+      console.warn(
+        `[RetryWrapper] Retrying ${cmd} (attempt ${attempt}), error: ${error.message}, delay: ${delay}ms`
+      );
+    },
+  });
 }
 
 /**
@@ -98,7 +95,7 @@ export async function fetchWithRetry(
 
     // 对于 429 错误，抛出可重试的错误
     if (response.status === 429) {
-      throw new Error('429 Rate Limited');
+      throw new Error("429 Rate Limited");
     }
 
     return response;
@@ -140,7 +137,7 @@ export function createRetryableAPIClient(
   defaultHeaders?: Record<string, string>,
   defaultConfig?: Partial<RetryConfig>
 ) {
-  const normalizedBaseUrl = baseUrl.replace(/\/$/, '');
+  const normalizedBaseUrl = baseUrl.replace(/\/$/, "");
 
   return {
     /**
@@ -150,7 +147,7 @@ export function createRetryableAPIClient(
       const response = await fetchWithRetryOrThrow(
         `${normalizedBaseUrl}${path}`,
         {
-          method: 'GET',
+          method: "GET",
           headers: defaultHeaders,
         },
         { ...defaultConfig, ...config }
@@ -166,17 +163,13 @@ export function createRetryableAPIClient(
     /**
      * POST 请求
      */
-    async post<T>(
-      path: string,
-      body?: unknown,
-      config?: Partial<RetryConfig>
-    ): Promise<T> {
+    async post<T>(path: string, body?: unknown, config?: Partial<RetryConfig>): Promise<T> {
       const response = await fetchWithRetryOrThrow(
         `${normalizedBaseUrl}${path}`,
         {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
             ...defaultHeaders,
           },
           body: body ? JSON.stringify(body) : undefined,
@@ -194,17 +187,13 @@ export function createRetryableAPIClient(
     /**
      * PUT 请求
      */
-    async put<T>(
-      path: string,
-      body?: unknown,
-      config?: Partial<RetryConfig>
-    ): Promise<T> {
+    async put<T>(path: string, body?: unknown, config?: Partial<RetryConfig>): Promise<T> {
       const response = await fetchWithRetryOrThrow(
         `${normalizedBaseUrl}${path}`,
         {
-          method: 'PUT',
+          method: "PUT",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
             ...defaultHeaders,
           },
           body: body ? JSON.stringify(body) : undefined,
@@ -226,7 +215,7 @@ export function createRetryableAPIClient(
       const response = await fetchWithRetryOrThrow(
         `${normalizedBaseUrl}${path}`,
         {
-          method: 'DELETE',
+          method: "DELETE",
           headers: defaultHeaders,
         },
         { ...defaultConfig, ...config }

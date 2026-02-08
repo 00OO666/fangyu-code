@@ -11,34 +11,49 @@
  * 来源: Cursor Composer + Windsurf Background Tasks
  */
 
-import { logger } from '@/lib/logger';
-import { useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, X, Trash2, RefreshCw, Clock, CheckCircle2, AlertCircle, XCircle, Loader2, ChevronDown, ChevronRight, Terminal, Sparkles, FileCode, Zap, BarChart3, Filter } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { logger } from "@/lib/logger";
+import { useState, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible';
+  Play,
+  Pause,
+  X,
+  Trash2,
+  RefreshCw,
+  Clock,
+  CheckCircle2,
+  AlertCircle,
+  XCircle,
+  Loader2,
+  ChevronDown,
+  ChevronRight,
+  Terminal,
+  Sparkles,
+  FileCode,
+  Zap,
+  BarChart3,
+  Filter,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
-import { api } from '@/lib/api';
+} from "@/components/ui/select";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { api } from "@/lib/api";
 
 // ============================================================
 // 类型定义
 // ============================================================
 
-type TaskPriority = 'low' | 'normal' | 'high' | 'critical';
-type TaskStatus = 'pending' | 'running' | 'paused' | 'completed' | 'failed' | 'cancelled';
+type TaskPriority = "low" | "normal" | "high" | "critical";
+type TaskStatus = "pending" | "running" | "paused" | "completed" | "failed" | "cancelled";
 
 interface TaskProgress {
   current_step: number;
@@ -98,20 +113,23 @@ export function BackgroundTasksPanel({ sessionId, className }: BackgroundTasksPa
   const [tasks, setTasks] = useState<BackgroundTask[]>([]);
   const [stats, setStats] = useState<TaskStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | TaskStatus>('all');
+  const [filter, setFilter] = useState<"all" | TaskStatus>("all");
   const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set());
 
   // 加载任务列表
   const loadTasks = useCallback(async () => {
     try {
       setLoading(true);
-      const taskList = await api.listBackgroundTasks(sessionId, filter === 'all' ? undefined : false);
+      const taskList = await api.listBackgroundTasks(
+        sessionId,
+        filter === "all" ? undefined : false
+      );
       const taskStats = await api.getTaskStats();
 
       setTasks(taskList);
       setStats(taskStats);
     } catch (error) {
-      logger.error('BackgroundTasksPanel', '加载任务列表失败:', error);
+      logger.error("BackgroundTasksPanel", "加载任务列表失败:", error);
     } finally {
       setLoading(false);
     }
@@ -130,7 +148,7 @@ export function BackgroundTasksPanel({ sessionId, className }: BackgroundTasksPa
       await api.pauseBackgroundTask(taskId);
       loadTasks();
     } catch (error) {
-      logger.error('BackgroundTasksPanel', '暂停任务失败:', error);
+      logger.error("BackgroundTasksPanel", "暂停任务失败:", error);
     }
   };
 
@@ -139,7 +157,7 @@ export function BackgroundTasksPanel({ sessionId, className }: BackgroundTasksPa
       await api.resumeBackgroundTask(taskId);
       loadTasks();
     } catch (error) {
-      logger.error('BackgroundTasksPanel', '恢复任务失败:', error);
+      logger.error("BackgroundTasksPanel", "恢复任务失败:", error);
     }
   };
 
@@ -148,7 +166,7 @@ export function BackgroundTasksPanel({ sessionId, className }: BackgroundTasksPa
       await api.cancelBackgroundTask(taskId);
       loadTasks();
     } catch (error) {
-      logger.error('BackgroundTasksPanel', '取消任务失败:', error);
+      logger.error("BackgroundTasksPanel", "取消任务失败:", error);
     }
   };
 
@@ -157,7 +175,7 @@ export function BackgroundTasksPanel({ sessionId, className }: BackgroundTasksPa
       await api.retryBackgroundTask(taskId);
       loadTasks();
     } catch (error) {
-      logger.error('BackgroundTasksPanel', '重试任务失败:', error);
+      logger.error("BackgroundTasksPanel", "重试任务失败:", error);
     }
   };
 
@@ -166,7 +184,7 @@ export function BackgroundTasksPanel({ sessionId, className }: BackgroundTasksPa
       await api.deleteBackgroundTask(taskId);
       loadTasks();
     } catch (error) {
-      logger.error('BackgroundTasksPanel', '删除任务失败:', error);
+      logger.error("BackgroundTasksPanel", "删除任务失败:", error);
     }
   };
 
@@ -184,7 +202,7 @@ export function BackgroundTasksPanel({ sessionId, className }: BackgroundTasksPa
 
   // 过滤任务
   const filteredTasks = tasks.filter((task) => {
-    if (filter === 'all') return true;
+    if (filter === "all") return true;
     return task.status === filter;
   });
 
@@ -200,37 +218,37 @@ export function BackgroundTasksPanel({ sessionId, className }: BackgroundTasksPa
   // 获取状态颜色
   const getStatusColor = (status: TaskStatus) => {
     switch (status) {
-      case 'pending':
-        return 'text-gray-500';
-      case 'running':
-        return 'text-blue-500';
-      case 'paused':
-        return 'text-yellow-500';
-      case 'completed':
-        return 'text-green-500';
-      case 'failed':
-        return 'text-red-500';
-      case 'cancelled':
-        return 'text-gray-400';
+      case "pending":
+        return "text-gray-500";
+      case "running":
+        return "text-blue-500";
+      case "paused":
+        return "text-yellow-500";
+      case "completed":
+        return "text-green-500";
+      case "failed":
+        return "text-red-500";
+      case "cancelled":
+        return "text-gray-400";
       default:
-        return 'text-gray-500';
+        return "text-gray-500";
     }
   };
 
   // 获取状态图标
   const getStatusIcon = (status: TaskStatus) => {
     switch (status) {
-      case 'pending':
+      case "pending":
         return Clock;
-      case 'running':
+      case "running":
         return Loader2;
-      case 'paused':
+      case "paused":
         return Pause;
-      case 'completed':
+      case "completed":
         return CheckCircle2;
-      case 'failed':
+      case "failed":
         return AlertCircle;
-      case 'cancelled':
+      case "cancelled":
         return XCircle;
       default:
         return Clock;
@@ -240,16 +258,16 @@ export function BackgroundTasksPanel({ sessionId, className }: BackgroundTasksPa
   // 获取优先级颜色
   const getPriorityBadge = (priority: TaskPriority) => {
     const colors = {
-      low: 'bg-gray-500/10 text-gray-500',
-      normal: 'bg-blue-500/10 text-blue-500',
-      high: 'bg-orange-500/10 text-orange-500',
-      critical: 'bg-red-500/10 text-red-500',
+      low: "bg-gray-500/10 text-gray-500",
+      normal: "bg-blue-500/10 text-blue-500",
+      high: "bg-orange-500/10 text-orange-500",
+      critical: "bg-red-500/10 text-red-500",
     };
     return colors[priority] || colors.normal;
   };
 
   return (
-    <div className={cn('flex flex-col h-full bg-background', className)}>
+    <div className={cn("flex flex-col h-full bg-background", className)}>
       {/* 头部 */}
       <div className="flex items-center justify-between p-4 border-b">
         <div className="flex items-center gap-3">
@@ -282,12 +300,7 @@ export function BackgroundTasksPanel({ sessionId, className }: BackgroundTasksPa
           </Select>
 
           {/* 刷新按钮 */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={loadTasks}
-            className="h-8"
-          >
+          <Button variant="ghost" size="sm" onClick={loadTasks} className="h-8">
             <RefreshCw className="h-4 w-4" />
           </Button>
         </div>
@@ -356,7 +369,7 @@ interface StatCardProps {
 function StatCard({ label, value, color }: StatCardProps) {
   return (
     <div className="flex flex-col items-center p-2 rounded-lg bg-background border">
-      <span className={cn('text-2xl font-bold', color)}>{value}</span>
+      <span className={cn("text-2xl font-bold", color)}>{value}</span>
       <span className="text-xs text-muted-foreground">{label}</span>
     </div>
   );
@@ -424,7 +437,7 @@ function TaskCard({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <h3 className="font-medium text-sm truncate">{task.name}</h3>
-              <Badge className={cn('text-xs', getPriorityBadge(task.priority))}>
+              <Badge className={cn("text-xs", getPriorityBadge(task.priority))}>
                 {task.priority}
               </Badge>
               {task.tags.length > 0 && (
@@ -435,7 +448,7 @@ function TaskCard({
             </div>
 
             {/* 进度条 */}
-            {task.status === 'running' && (
+            {task.status === "running" && (
               <div className="space-y-1">
                 <Progress value={task.progress.percentage} className="h-1" />
                 <p className="text-xs text-muted-foreground">
@@ -445,24 +458,20 @@ function TaskCard({
             )}
 
             {/* 状态消息 */}
-            {task.status !== 'running' && (
-              <p className="text-xs text-muted-foreground truncate">
-                {task.progress.message}
-              </p>
+            {task.status !== "running" && (
+              <p className="text-xs text-muted-foreground truncate">{task.progress.message}</p>
             )}
           </div>
 
           {/* 状态指示器 */}
-          <div className={cn('flex items-center gap-1', getStatusColor(task.status))}>
-            <StatusIcon
-              className={cn('h-4 w-4', task.status === 'running' && 'animate-spin')}
-            />
+          <div className={cn("flex items-center gap-1", getStatusColor(task.status))}>
+            <StatusIcon className={cn("h-4 w-4", task.status === "running" && "animate-spin")} />
             <span className="text-xs capitalize">{task.status}</span>
           </div>
 
           {/* 操作按钮 */}
           <div className="flex items-center gap-1">
-            {task.status === 'running' && (
+            {task.status === "running" && (
               <>
                 <Button
                   variant="ghost"
@@ -491,7 +500,7 @@ function TaskCard({
               </>
             )}
 
-            {task.status === 'paused' && (
+            {task.status === "paused" && (
               <>
                 <Button
                   variant="ghost"
@@ -520,7 +529,7 @@ function TaskCard({
               </>
             )}
 
-            {task.status === 'failed' && task.retry_count < task.max_retries && (
+            {task.status === "failed" && task.retry_count < task.max_retries && (
               <Button
                 variant="ghost"
                 size="sm"
@@ -535,9 +544,9 @@ function TaskCard({
               </Button>
             )}
 
-            {(task.status === 'completed' ||
-              task.status === 'failed' ||
-              task.status === 'cancelled') && (
+            {(task.status === "completed" ||
+              task.status === "failed" ||
+              task.status === "cancelled") && (
               <Button
                 variant="ghost"
                 size="sm"
@@ -567,18 +576,18 @@ function TaskCard({
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <span className="text-muted-foreground">创建时间: </span>
-                <span>{new Date(task.created_at).toLocaleString('zh-CN')}</span>
+                <span>{new Date(task.created_at).toLocaleString("zh-CN")}</span>
               </div>
               {task.started_at && (
                 <div>
                   <span className="text-muted-foreground">开始时间: </span>
-                  <span>{new Date(task.started_at).toLocaleString('zh-CN')}</span>
+                  <span>{new Date(task.started_at).toLocaleString("zh-CN")}</span>
                 </div>
               )}
               {task.completed_at && (
                 <div>
                   <span className="text-muted-foreground">完成时间: </span>
-                  <span>{new Date(task.completed_at).toLocaleString('zh-CN')}</span>
+                  <span>{new Date(task.completed_at).toLocaleString("zh-CN")}</span>
                 </div>
               )}
               {task.result && (

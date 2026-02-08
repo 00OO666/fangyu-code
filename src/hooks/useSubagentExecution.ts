@@ -107,7 +107,7 @@ export function useSubagentExecution(options: UseSubagentExecutionOptions = {}) 
 
       return id;
     },
-    [],
+    []
   );
 
   /**
@@ -141,7 +141,7 @@ export function useSubagentExecution(options: UseSubagentExecutionOptions = {}) 
         return newMap;
       });
     },
-    [],
+    []
   );
 
   /**
@@ -195,7 +195,7 @@ export function useSubagentExecution(options: UseSubagentExecutionOptions = {}) 
         return newMap;
       });
     },
-    [autoCleanup, cleanupDelay],
+    [autoCleanup, cleanupDelay]
   );
 
   /**
@@ -274,7 +274,7 @@ export function useSubagentExecution(options: UseSubagentExecutionOptions = {}) 
 
       return startExecution(execution.subagentName, execution.prompt, execution.metadata);
     },
-    [executions, startExecution],
+    [executions, startExecution]
   );
 
   /**
@@ -284,7 +284,7 @@ export function useSubagentExecution(options: UseSubagentExecutionOptions = {}) 
     (executionId: string): SubagentExecution | undefined => {
       return executions.get(executionId);
     },
-    [executions],
+    [executions]
   );
 
   /**
@@ -303,10 +303,10 @@ export function useSubagentExecution(options: UseSubagentExecutionOptions = {}) 
       }
 
       return result.sort(
-        (a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime(),
+        (a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime()
       );
     },
-    [executions],
+    [executions]
   );
 
   /**
@@ -331,7 +331,7 @@ export function useSubagentExecution(options: UseSubagentExecutionOptions = {}) 
         eventListenersRef.current.get(executionId)?.delete(listener);
       };
     },
-    [],
+    []
   );
 
   /**

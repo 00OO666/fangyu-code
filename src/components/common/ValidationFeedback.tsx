@@ -7,16 +7,16 @@
  * _Requirements: 6.3_
  */
 
-import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { cn } from '@/lib/utils';
-import { CheckCircle, AlertCircle, AlertTriangle, Info, X } from 'lucide-react';
+import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
+import { CheckCircle, AlertCircle, AlertTriangle, Info, X } from "lucide-react";
 
 // =============================================================================
 // 类型定义
 // =============================================================================
 
-export type ValidationStatus = 'idle' | 'validating' | 'success' | 'warning' | 'error' | 'info';
+export type ValidationStatus = "idle" | "validating" | "success" | "warning" | "error" | "info";
 
 export interface ValidationMessage {
   /** 消息内容 */
@@ -64,45 +64,45 @@ const statusConfig: Record<
 > = {
   idle: {
     icon: Info,
-    bgColor: 'bg-transparent',
-    textColor: 'text-gray-500 dark:text-gray-400',
-    borderColor: 'border-transparent',
-    iconColor: 'text-gray-400 dark:text-gray-500',
+    bgColor: "bg-transparent",
+    textColor: "text-gray-500 dark:text-gray-400",
+    borderColor: "border-transparent",
+    iconColor: "text-gray-400 dark:text-gray-500",
   },
   validating: {
     icon: Info,
-    bgColor: 'bg-blue-50 dark:bg-blue-900/20',
-    textColor: 'text-blue-600 dark:text-blue-400',
-    borderColor: 'border-blue-200 dark:border-blue-800',
-    iconColor: 'text-blue-500 dark:text-blue-400',
+    bgColor: "bg-blue-50 dark:bg-blue-900/20",
+    textColor: "text-blue-600 dark:text-blue-400",
+    borderColor: "border-blue-200 dark:border-blue-800",
+    iconColor: "text-blue-500 dark:text-blue-400",
   },
   success: {
     icon: CheckCircle,
-    bgColor: 'bg-green-50 dark:bg-green-900/20',
-    textColor: 'text-green-600 dark:text-green-400',
-    borderColor: 'border-green-200 dark:border-green-800',
-    iconColor: 'text-green-500 dark:text-green-400',
+    bgColor: "bg-green-50 dark:bg-green-900/20",
+    textColor: "text-green-600 dark:text-green-400",
+    borderColor: "border-green-200 dark:border-green-800",
+    iconColor: "text-green-500 dark:text-green-400",
   },
   warning: {
     icon: AlertTriangle,
-    bgColor: 'bg-yellow-50 dark:bg-yellow-900/20',
-    textColor: 'text-yellow-600 dark:text-yellow-400',
-    borderColor: 'border-yellow-200 dark:border-yellow-800',
-    iconColor: 'text-yellow-500 dark:text-yellow-400',
+    bgColor: "bg-yellow-50 dark:bg-yellow-900/20",
+    textColor: "text-yellow-600 dark:text-yellow-400",
+    borderColor: "border-yellow-200 dark:border-yellow-800",
+    iconColor: "text-yellow-500 dark:text-yellow-400",
   },
   error: {
     icon: AlertCircle,
-    bgColor: 'bg-red-50 dark:bg-red-900/20',
-    textColor: 'text-red-600 dark:text-red-400',
-    borderColor: 'border-red-200 dark:border-red-800',
-    iconColor: 'text-red-500 dark:text-red-400',
+    bgColor: "bg-red-50 dark:bg-red-900/20",
+    textColor: "text-red-600 dark:text-red-400",
+    borderColor: "border-red-200 dark:border-red-800",
+    iconColor: "text-red-500 dark:text-red-400",
   },
   info: {
     icon: Info,
-    bgColor: 'bg-cyan-50 dark:bg-cyan-900/20',
-    textColor: 'text-cyan-600 dark:text-cyan-400',
-    borderColor: 'border-cyan-200 dark:border-cyan-800',
-    iconColor: 'text-cyan-500 dark:text-cyan-400',
+    bgColor: "bg-cyan-50 dark:bg-cyan-900/20",
+    textColor: "text-cyan-600 dark:text-cyan-400",
+    borderColor: "border-cyan-200 dark:border-cyan-800",
+    iconColor: "text-cyan-500 dark:text-cyan-400",
   },
 };
 
@@ -113,19 +113,12 @@ const statusConfig: Record<
 /** 加载动画 */
 const LoadingSpinner: React.FC<{ className?: string }> = ({ className }) => (
   <svg
-    className={cn('animate-spin', className)}
+    className={cn("animate-spin", className)}
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
     viewBox="0 0 24 24"
   >
-    <circle
-      className="opacity-25"
-      cx="12"
-      cy="12"
-      r="10"
-      stroke="currentColor"
-      strokeWidth="4"
-    />
+    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
     <path
       className="opacity-75"
       fill="currentColor"
@@ -147,39 +140,37 @@ const SingleMessage: React.FC<{
   const config = statusConfig[status];
   const Icon = config.icon;
 
-  if (status === 'idle' && !message) {
+  if (status === "idle" && !message) {
     return null;
   }
 
   return (
     <motion.div
       initial={{ opacity: 0, y: inline ? 0 : -10, height: 0 }}
-      animate={{ opacity: 1, y: 0, height: 'auto' }}
+      animate={{ opacity: 1, y: 0, height: "auto" }}
       exit={{ opacity: 0, y: inline ? 0 : -10, height: 0 }}
       transition={{ duration: animationDuration / 1000 }}
       className={cn(
-        'flex items-start gap-2',
-        inline
-          ? 'py-1'
-          : cn('px-3 py-2 rounded-md border', config.bgColor, config.borderColor)
+        "flex items-start gap-2",
+        inline ? "py-1" : cn("px-3 py-2 rounded-md border", config.bgColor, config.borderColor)
       )}
     >
       {showIcon && (
         <span className="flex-shrink-0 mt-0.5">
-          {status === 'validating' ? (
-            <LoadingSpinner className={cn('w-4 h-4', config.iconColor)} />
+          {status === "validating" ? (
+            <LoadingSpinner className={cn("w-4 h-4", config.iconColor)} />
           ) : (
-            <Icon className={cn('w-4 h-4', config.iconColor)} />
+            <Icon className={cn("w-4 h-4", config.iconColor)} />
           )}
         </span>
       )}
-      <span className={cn('flex-1 text-sm', config.textColor)}>{message}</span>
+      <span className={cn("flex-1 text-sm", config.textColor)}>{message}</span>
       {dismissible && onDismiss && (
         <button
           type="button"
           onClick={onDismiss}
           className={cn(
-            'flex-shrink-0 p-0.5 rounded hover:bg-black/5 dark:hover:bg-white/5 transition-colors',
+            "flex-shrink-0 p-0.5 rounded hover:bg-black/5 dark:hover:bg-white/5 transition-colors",
             config.textColor
           )}
           aria-label="关闭"
@@ -196,7 +187,7 @@ const SingleMessage: React.FC<{
 // =============================================================================
 
 export const ValidationFeedback: React.FC<ValidationFeedbackProps> = ({
-  status = 'idle',
+  status = "idle",
   message,
   messages,
   showIcon = true,
@@ -209,7 +200,7 @@ export const ValidationFeedback: React.FC<ValidationFeedbackProps> = ({
   // 如果有多条消息，渲染消息列表
   if (messages && messages.length > 0) {
     return (
-      <div className={cn('flex flex-col gap-1', className)}>
+      <div className={cn("flex flex-col gap-1", className)}>
         <AnimatePresence mode="sync">
           {messages.map((msg, index) => (
             <SingleMessage

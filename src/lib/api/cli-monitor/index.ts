@@ -4,12 +4,7 @@
  */
 
 import { invoke } from "@tauri-apps/api/core";
-import type {
-  CliSession,
-  ProcessInfo,
-  ScanResult,
-  WindowScanResult,
-} from "@/types/cli-monitor";
+import type { CliSession, ProcessInfo, ScanResult, WindowScanResult } from "@/types/cli-monitor";
 import { logger } from "@/lib/logger";
 
 /**
@@ -86,10 +81,7 @@ export async function watchSessions(
  * @param sessions 所有会话列表
  * @returns 会话详细信息，如果未找到则返回 null
  */
-export function getSessionById(
-  sessionId: string,
-  sessions: CliSession[]
-): CliSession | null {
+export function getSessionById(sessionId: string, sessions: CliSession[]): CliSession | null {
   return sessions.find((s) => s.session_id === sessionId) || null;
 }
 
@@ -304,7 +296,10 @@ export async function readLastMessages(sessionId: string, count: number): Promis
   try {
     logger.info("CLI Monitor", `Reading last ${count} messages from session ${sessionId}`);
     const content = await invoke<SessionContent>("read_last_messages", { sessionId, count });
-    logger.info("CLI Monitor", `Read ${content.messages.length} messages from session ${sessionId}`);
+    logger.info(
+      "CLI Monitor",
+      `Read ${content.messages.length} messages from session ${sessionId}`
+    );
     return content;
   } catch (error) {
     logger.error(`[CLI Monitor] Failed to read last messages (${sessionId}):`, error);
@@ -317,7 +312,10 @@ export async function readLastMessages(sessionId: string, count: number): Promis
  * @param sessionId - 会话 ID
  * @param maxChars - 最大字符数
  */
-export async function getSessionSummary(sessionId: string, maxChars: number = 100): Promise<string> {
+export async function getSessionSummary(
+  sessionId: string,
+  maxChars: number = 100
+): Promise<string> {
   try {
     const summary = await invoke<string>("get_session_summary", { sessionId, maxChars });
     return summary;

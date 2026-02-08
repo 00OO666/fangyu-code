@@ -13,7 +13,7 @@ export interface SessionSnapshot {
   /**
    * Engine/model used in this session.
    */
-  engine: 'claude' | 'codex' | 'gemini';
+  engine: "claude" | "codex" | "gemini";
   /**
    * Display title of the session.
    */

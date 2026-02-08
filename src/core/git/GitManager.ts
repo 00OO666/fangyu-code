@@ -35,7 +35,7 @@ export class GitManager {
 
   async getStatus(): Promise<GitStatus> {
     return {
-      branch: 'main',
+      branch: "main",
       ahead: 0,
       behind: 0,
       staged: [],
@@ -49,9 +49,7 @@ export class GitManager {
   }
 
   async getBranches(): Promise<GitBranch[]> {
-    return [
-      { name: 'main', current: true, remote: false },
-    ];
+    return [{ name: "main", current: true, remote: false }];
   }
 
   async createBranch(name: string): Promise<void> {
@@ -71,19 +69,19 @@ export class GitManager {
   }
 
   async commit(message: string): Promise<string> {
-    return 'commit-hash';
+    return "commit-hash";
   }
 
-  async push(remote: string = 'origin', branch?: string): Promise<void> {
+  async push(remote: string = "origin", branch?: string): Promise<void> {
     // Implementation would call git commands
   }
 
-  async pull(remote: string = 'origin', branch?: string): Promise<void> {
+  async pull(remote: string = "origin", branch?: string): Promise<void> {
     // Implementation would call git commands
   }
 
   async getDiff(file?: string): Promise<string> {
-    return '';
+    return "";
   }
 
   async getFileHistory(file: string, limit: number = 10): Promise<GitCommit[]> {

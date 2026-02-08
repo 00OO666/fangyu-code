@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
-import { FolderOpen, Clock } from 'lucide-react';
+import { FolderOpen, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,10 +20,10 @@ export const SessionHeader: React.FC<SessionHeaderProps> = ({
   setProjectPath,
   handleSelectPath,
   recentProjects,
-  isLoading
+  isLoading,
 }) => {
   const { t } = useTranslation();
-  
+
   return (
     <motion.div
       initial={{ opacity: 0, y: -20 }}
@@ -36,9 +36,11 @@ export const SessionHeader: React.FC<SessionHeaderProps> = ({
         {!projectPath && (
           <div className="text-center mb-6">
             <FolderOpen className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
-            <h3 className="text-lg font-semibold mb-2">{t('sessionHeader.selectProjectDirectory')}</h3>
+            <h3 className="text-lg font-semibold mb-2">
+              {t("sessionHeader.selectProjectDirectory")}
+            </h3>
             <p className="text-sm text-muted-foreground">
-              {t('sessionHeader.selectProjectPrompt')}
+              {t("sessionHeader.selectProjectPrompt")}
             </p>
           </div>
         )}
@@ -46,14 +48,14 @@ export const SessionHeader: React.FC<SessionHeaderProps> = ({
         {/* Project path input */}
         <div className="space-y-2">
           <Label htmlFor="project-path" className="text-sm font-medium">
-            {t('sessionHeader.projectPath')}
+            {t("sessionHeader.projectPath")}
           </Label>
           <div className="flex items-center gap-2">
             <Input
               id="project-path"
               value={projectPath}
               onChange={(e) => setProjectPath(e.target.value)}
-              placeholder={t('sessionHeader.projectPathPlaceholder')}
+              placeholder={t("sessionHeader.projectPathPlaceholder")}
               className="flex-1"
               disabled={isLoading}
             />
@@ -64,7 +66,7 @@ export const SessionHeader: React.FC<SessionHeaderProps> = ({
               className="gap-2"
             >
               <FolderOpen className="h-4 w-4" />
-              {t('sessionHeader.browse')}
+              {t("sessionHeader.browse")}
             </Button>
           </div>
         </div>
@@ -74,7 +76,7 @@ export const SessionHeader: React.FC<SessionHeaderProps> = ({
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Clock className="h-4 w-4" />
-              <span>{t('sessionHeader.recentProjects')}</span>
+              <span>{t("sessionHeader.recentProjects")}</span>
             </div>
             <div className="grid gap-2">
               {recentProjects.map((project) => (
@@ -90,7 +92,7 @@ export const SessionHeader: React.FC<SessionHeaderProps> = ({
                     <div className="flex items-center gap-2 w-full">
                       <FolderOpen className="h-4 w-4 flex-shrink-0 text-primary" />
                       <span className="font-medium text-sm truncate">
-                        {project.path.split('/').pop() || project.path.split('\\').pop()}
+                        {project.path.split("/").pop() || project.path.split("\\").pop()}
                       </span>
                     </div>
                     <span className="text-xs text-muted-foreground truncate w-full">

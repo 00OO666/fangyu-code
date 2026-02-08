@@ -9,21 +9,21 @@
  */
 export const STORAGE_KEYS = {
   /** 字体配置 */
-  FONT_CONFIG: 'fangyu-font-config',
+  FONT_CONFIG: "fangyu-font-config",
   /** 主题配置 */
-  THEME: 'fangyu-theme',
+  THEME: "fangyu-theme",
   /** 背景图片列表 */
-  BACKGROUND_LIST: 'custom-backgrounds',
+  BACKGROUND_LIST: "custom-backgrounds",
   /** 当前激活的背景 */
-  BACKGROUND_ACTIVE: 'custom-background-active',
+  BACKGROUND_ACTIVE: "custom-background-active",
   /** 背景图片路径 */
-  BACKGROUND_PATH: 'custom-background-path',
+  BACKGROUND_PATH: "custom-background-path",
   /** 背景图片文件名 */
-  BACKGROUND_FILE: 'custom-background-file',
+  BACKGROUND_FILE: "custom-background-file",
   /** 背景模糊度 */
-  BACKGROUND_BLUR: 'custom-background-blur',
+  BACKGROUND_BLUR: "custom-background-blur",
   /** 输出显示设置 */
-  OUTPUT_DISPLAY: 'fangyu-output-display-settings',
+  OUTPUT_DISPLAY: "fangyu-output-display-settings",
 } as const;
 
 /**
@@ -31,7 +31,7 @@ export const STORAGE_KEYS = {
  */
 export const APP_CONFIG = {
   /** 应用名称 */
-  APP_NAME: 'Fangyu Code',
+  APP_NAME: "Fangyu Code",
   /** 默认背景模糊度 */
   DEFAULT_BLUR: 12,
   /** 最大背景模糊度 */

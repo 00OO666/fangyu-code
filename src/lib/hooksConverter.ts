@@ -19,7 +19,7 @@ export function convertToEnhanced(config: HooksConfiguration): EnhancedHooksConf
         command: hook.command,
         timeout: hook.timeout || 60,
         retry: 1,
-      })),
+      }))
     );
   }
 
@@ -29,7 +29,7 @@ export function convertToEnhanced(config: HooksConfiguration): EnhancedHooksConf
         command: hook.command,
         timeout: hook.timeout || 60,
         retry: 1,
-      })),
+      }))
     );
   }
 
@@ -40,7 +40,7 @@ export function convertToEnhanced(config: HooksConfiguration): EnhancedHooksConf
         command: hook.command,
         timeout: hook.timeout || 60,
         retry: 1,
-      })),
+      }))
     );
   }
 
@@ -50,7 +50,7 @@ export function convertToEnhanced(config: HooksConfiguration): EnhancedHooksConf
         command: hook.command,
         timeout: hook.timeout || 60,
         retry: 1,
-      })),
+      }))
     );
   }
 
@@ -60,7 +60,7 @@ export function convertToEnhanced(config: HooksConfiguration): EnhancedHooksConf
         command: hook.command,
         timeout: hook.timeout || 60,
         retry: 1,
-      })),
+      }))
     );
   }
 
@@ -71,7 +71,7 @@ export function convertToEnhanced(config: HooksConfiguration): EnhancedHooksConf
         command: hook.command,
         timeout: hook.timeout || 60,
         retry: 1,
-      })),
+      }))
     );
   }
 
@@ -81,7 +81,7 @@ export function convertToEnhanced(config: HooksConfiguration): EnhancedHooksConf
         command: hook.command,
         timeout: hook.timeout || 60,
         retry: 1,
-      })),
+      }))
     );
   }
 
@@ -91,7 +91,7 @@ export function convertToEnhanced(config: HooksConfiguration): EnhancedHooksConf
         command: hook.command,
         timeout: hook.timeout || 60,
         retry: 1,
-      })),
+      }))
     );
   }
 
@@ -174,7 +174,7 @@ export function convertFromEnhanced(enhanced: EnhancedHooksConfiguration): Hooks
  */
 export function mergeConfigurations(
   existing: HooksConfiguration,
-  enhanced: EnhancedHooksConfiguration,
+  enhanced: EnhancedHooksConfiguration
 ): EnhancedHooksConfiguration {
   const converted = convertToEnhanced(existing);
 

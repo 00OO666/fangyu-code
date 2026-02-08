@@ -51,10 +51,7 @@ export class TemplateEngine {
     );
   }
 
-  async generateProject(
-    templateId: string,
-    targetPath: string,
-  ): Promise<void> {
+  async generateProject(templateId: string, targetPath: string): Promise<void> {
     const template = this.getTemplate(templateId);
     if (!template) {
       throw new Error(`Template ${templateId} not found`);
@@ -66,7 +63,7 @@ export class TemplateEngine {
   renderTemplate(content: string, variables: Record<string, string>): string {
     let result = content;
     for (const [key, value] of Object.entries(variables)) {
-      const regex = new RegExp(`\\{\\{\\s*${key}\\s*\\}\\}`, 'g');
+      const regex = new RegExp(`\\{\\{\\s*${key}\\s*\\}\\}`, "g");
       result = result.replace(regex, value);
     }
     return result;

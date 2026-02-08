@@ -1,13 +1,23 @@
 /**
  * SkillsPanel - Skills 管理面板
- * 
+ *
  * 显示和管理已加载的 Skills
  */
 
-import React, { useState, useMemo } from 'react';
-import { Sparkles, Search, RefreshCw, ChevronRight, Workflow, ListTodo, BookOpen, Tag, Zap } from 'lucide-react';
-import { useSkills } from '../../hooks/useSkills';
-import type { Skill, SkillMode } from '../../core/skills';
+import React, { useState, useMemo } from "react";
+import {
+  Sparkles,
+  Search,
+  RefreshCw,
+  ChevronRight,
+  Workflow,
+  ListTodo,
+  BookOpen,
+  Tag,
+  Zap,
+} from "lucide-react";
+import { useSkills } from "../../hooks/useSkills";
+import type { Skill, SkillMode } from "../../core/skills";
 
 // ============================================
 // 类型
@@ -25,11 +35,11 @@ interface SkillsPanelProps {
 
 const ModeIcon: React.FC<{ mode: SkillMode }> = ({ mode }) => {
   switch (mode) {
-    case 'workflow':
+    case "workflow":
       return <Workflow className="w-4 h-4 text-blue-400" />;
-    case 'task':
+    case "task":
       return <ListTodo className="w-4 h-4 text-green-400" />;
-    case 'reference':
+    case "reference":
       return <BookOpen className="w-4 h-4 text-purple-400" />;
     default:
       return <Sparkles className="w-4 h-4 text-gray-400" />;
@@ -46,23 +56,19 @@ const SkillCard: React.FC<{
   return (
     <div className="bg-[#1e1e1e] rounded-lg border border-[#333] hover:border-[#555] transition-colors">
       {/* 头部 */}
-      <div 
+      <div
         className="p-3 cursor-pointer flex items-center gap-3"
         onClick={() => setExpanded(!expanded)}
       >
         <ModeIcon mode={skill.mode} />
-        
+
         <div className="flex-1 min-w-0">
-          <div className="font-medium text-sm text-white truncate">
-            {skill.metadata.name}
-          </div>
-          <div className="text-xs text-gray-400 truncate">
-            {skill.metadata.description}
-          </div>
+          <div className="font-medium text-sm text-white truncate">{skill.metadata.name}</div>
+          <div className="text-xs text-gray-400 truncate">{skill.metadata.description}</div>
         </div>
 
-        <ChevronRight 
-          className={`w-4 h-4 text-gray-500 transition-transform ${expanded ? 'rotate-90' : ''}`}
+        <ChevronRight
+          className={`w-4 h-4 text-gray-500 transition-transform ${expanded ? "rotate-90" : ""}`}
         />
       </div>
 
@@ -78,10 +84,7 @@ const SkillCard: React.FC<{
               </div>
               <div className="flex flex-wrap gap-1">
                 {skill.metadata.triggers.slice(0, 5).map((trigger, i) => (
-                  <span 
-                    key={i}
-                    className="px-2 py-0.5 bg-[#2a2a2a] rounded text-xs text-gray-300"
-                  >
+                  <span key={i} className="px-2 py-0.5 bg-[#2a2a2a] rounded text-xs text-gray-300">
                     {trigger}
                   </span>
                 ))}
@@ -98,7 +101,7 @@ const SkillCard: React.FC<{
               </div>
               <div className="flex flex-wrap gap-1">
                 {skill.metadata.keywords.slice(0, 5).map((keyword, i) => (
-                  <span 
+                  <span
                     key={i}
                     className="px-2 py-0.5 bg-blue-500/20 rounded text-xs text-blue-300"
                   >
@@ -111,9 +114,7 @@ const SkillCard: React.FC<{
 
           {/* 概述 */}
           <div className="mt-2">
-            <div className="text-xs text-gray-400 line-clamp-3">
-              {skill.overview}
-            </div>
+            <div className="text-xs text-gray-400 line-clamp-3">{skill.overview}</div>
           </div>
 
           {/* 操作按钮 */}
@@ -150,30 +151,31 @@ const SkillCard: React.FC<{
 export const SkillsPanel: React.FC<SkillsPanelProps> = ({
   projectPath,
   onSkillSelect,
-  onSkillActivate
+  onSkillActivate,
 }) => {
   const { skills, loading, error, refresh, generatePrompt, stats } = useSkills(projectPath);
-  
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterMode, setFilterMode] = useState<SkillMode | 'all'>('all');
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterMode, setFilterMode] = useState<SkillMode | "all">("all");
 
   // 过滤 Skills
   const filteredSkills = useMemo(() => {
     let result = skills;
 
     // 按模式过滤
-    if (filterMode !== 'all') {
-      result = result.filter(s => s.mode === filterMode);
+    if (filterMode !== "all") {
+      result = result.filter((s) => s.mode === filterMode);
     }
 
     // 按搜索词过滤
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      result = result.filter(s => 
-        s.metadata.name.toLowerCase().includes(query) ||
-        s.metadata.description.toLowerCase().includes(query) ||
-        s.metadata.keywords?.some(k => k.toLowerCase().includes(query)) ||
-        s.metadata.triggers?.some(t => t.toLowerCase().includes(query))
+      result = result.filter(
+        (s) =>
+          s.metadata.name.toLowerCase().includes(query) ||
+          s.metadata.description.toLowerCase().includes(query) ||
+          s.metadata.keywords?.some((k) => k.toLowerCase().includes(query)) ||
+          s.metadata.triggers?.some((t) => t.toLowerCase().includes(query))
       );
     }
 
@@ -195,14 +197,14 @@ export const SkillsPanel: React.FC<SkillsPanelProps> = ({
             <span className="font-medium text-white">Skills</span>
             <span className="text-xs text-gray-500">({stats.total})</span>
           </div>
-          
+
           <button
             onClick={refresh}
             disabled={loading}
             className="p-1.5 hover:bg-[#333] rounded transition-colors"
             title="刷新"
           >
-            <RefreshCw className={`w-4 h-4 text-gray-400 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-4 h-4 text-gray-400 ${loading ? "animate-spin" : ""}`} />
           </button>
         </div>
 
@@ -220,18 +222,18 @@ export const SkillsPanel: React.FC<SkillsPanelProps> = ({
 
         {/* 模式过滤 */}
         <div className="flex gap-1 mt-2">
-          {(['all', 'workflow', 'task', 'reference'] as const).map(mode => (
+          {(["all", "workflow", "task", "reference"] as const).map((mode) => (
             <button
               key={mode}
               onClick={() => setFilterMode(mode)}
               className={`px-2 py-1 rounded text-xs transition-colors ${
                 filterMode === mode
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-[#252525] text-gray-400 hover:bg-[#333]'
+                  ? "bg-blue-600 text-white"
+                  : "bg-[#252525] text-gray-400 hover:bg-[#333]"
               }`}
             >
-              {mode === 'all' ? '全部' : mode}
-              {mode !== 'all' && stats.byMode[mode] && (
+              {mode === "all" ? "全部" : mode}
+              {mode !== "all" && stats.byMode[mode] && (
                 <span className="ml-1 opacity-60">({stats.byMode[mode]})</span>
               )}
             </button>
@@ -248,21 +250,17 @@ export const SkillsPanel: React.FC<SkillsPanelProps> = ({
         )}
 
         {loading && skills.length === 0 && (
-          <div className="text-center py-8 text-gray-500">
-            加载中...
-          </div>
+          <div className="text-center py-8 text-gray-500">加载中...</div>
         )}
 
         {!loading && filteredSkills.length === 0 && (
           <div className="text-center py-8 text-gray-500">
-            {searchQuery ? '没有找到匹配的 Skills' : '暂无 Skills'}
-            <div className="text-xs mt-2">
-              Skills 目录: ~/.fangyu-code/skills/
-            </div>
+            {searchQuery ? "没有找到匹配的 Skills" : "暂无 Skills"}
+            <div className="text-xs mt-2">Skills 目录: ~/.fangyu-code/skills/</div>
           </div>
         )}
 
-        {filteredSkills.map(skill => (
+        {filteredSkills.map((skill) => (
           <SkillCard
             key={skill.metadata.name}
             skill={skill}

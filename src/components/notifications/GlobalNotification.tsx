@@ -5,42 +5,45 @@
  * 如：MCP/Hook/Skill 的开启关闭、系统设置更改等
  */
 
-import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, XCircle, Info, AlertTriangle, X } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Notification, NotificationType } from '@/types/notification';
-import { notificationService } from '@/services/notificationService';
+import React, { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { CheckCircle2, XCircle, Info, AlertTriangle, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Notification, NotificationType } from "@/types/notification";
+import { notificationService } from "@/services/notificationService";
 
-const typeConfig: Record<NotificationType, {
-  icon: React.FC<{ className?: string }>;
-  iconClassName: string;
-  bgClassName: string;
-  borderClassName: string;
-}> = {
+const typeConfig: Record<
+  NotificationType,
+  {
+    icon: React.FC<{ className?: string }>;
+    iconClassName: string;
+    bgClassName: string;
+    borderClassName: string;
+  }
+> = {
   success: {
     icon: CheckCircle2,
-    iconClassName: 'text-emerald-500',
-    bgClassName: 'bg-emerald-500/10',
-    borderClassName: 'border-emerald-500/20',
+    iconClassName: "text-emerald-500",
+    bgClassName: "bg-emerald-500/10",
+    borderClassName: "border-emerald-500/20",
   },
   error: {
     icon: XCircle,
-    iconClassName: 'text-red-500',
-    bgClassName: 'bg-red-500/10',
-    borderClassName: 'border-red-500/20',
+    iconClassName: "text-red-500",
+    bgClassName: "bg-red-500/10",
+    borderClassName: "border-red-500/20",
   },
   warning: {
     icon: AlertTriangle,
-    iconClassName: 'text-amber-500',
-    bgClassName: 'bg-amber-500/10',
-    borderClassName: 'border-amber-500/20',
+    iconClassName: "text-amber-500",
+    bgClassName: "bg-amber-500/10",
+    borderClassName: "border-amber-500/20",
   },
   info: {
     icon: Info,
-    iconClassName: 'text-blue-500',
-    bgClassName: 'bg-blue-500/10',
-    borderClassName: 'border-blue-500/20',
+    iconClassName: "text-blue-500",
+    bgClassName: "bg-blue-500/10",
+    borderClassName: "border-blue-500/20",
   },
 };
 
@@ -49,7 +52,10 @@ interface GlobalNotificationItemProps {
   onClose: (id: string) => void;
 }
 
-const GlobalNotificationItem: React.FC<GlobalNotificationItemProps> = ({ notification, onClose }) => {
+const GlobalNotificationItem: React.FC<GlobalNotificationItemProps> = ({
+  notification,
+  onClose,
+}) => {
   const config = typeConfig[notification.type];
   const Icon = config.icon;
 
@@ -61,17 +67,15 @@ const GlobalNotificationItem: React.FC<GlobalNotificationItemProps> = ({ notific
       exit={{ opacity: 0, x: 20, scale: 0.9 }}
       transition={{ duration: 0.2 }}
       className={cn(
-        'flex items-center gap-2 px-3 py-2 rounded-lg border backdrop-blur-sm shadow-lg',
+        "flex items-center gap-2 px-3 py-2 rounded-lg border backdrop-blur-sm shadow-lg",
         config.bgClassName,
         config.borderClassName
       )}
     >
-      <Icon className={cn('h-4 w-4 flex-shrink-0', config.iconClassName)} />
+      <Icon className={cn("h-4 w-4 flex-shrink-0", config.iconClassName)} />
 
       <div className="flex-1 min-w-0">
-        <div className="text-xs font-medium text-foreground truncate">
-          {notification.message}
-        </div>
+        <div className="text-xs font-medium text-foreground truncate">{notification.message}</div>
         {notification.description && (
           <div className="text-[10px] text-muted-foreground truncate">
             {notification.description}
@@ -83,9 +87,9 @@ const GlobalNotificationItem: React.FC<GlobalNotificationItemProps> = ({ notific
         <button
           onClick={notification.action.onClick}
           className={cn(
-            'text-[10px] font-medium px-2 py-0.5 rounded-full',
+            "text-[10px] font-medium px-2 py-0.5 rounded-full",
             config.bgClassName,
-            'hover:brightness-110 transition-all'
+            "hover:brightness-110 transition-all"
           )}
         >
           {notification.action.label}
@@ -115,16 +119,16 @@ export const GlobalNotification: React.FC<GlobalNotificationProps> = ({
 
   useEffect(() => {
     const unsubscribe = notificationService.subscribe((notification) => {
-      if (notification.position === 'global') {
+      if (notification.position === "global") {
         if (notification.duration === 0) {
           // 关闭通知
-          setNotifications(prev => prev.filter(n => n.id !== notification.id));
+          setNotifications((prev) => prev.filter((n) => n.id !== notification.id));
         } else {
           // 添加或更新通知
-          setNotifications(prev => {
-            const exists = prev.find(n => n.id === notification.id);
+          setNotifications((prev) => {
+            const exists = prev.find((n) => n.id === notification.id);
             if (exists) {
-              return prev.map(n => n.id === notification.id ? notification : n);
+              return prev.map((n) => (n.id === notification.id ? notification : n));
             }
             // 限制最大数量，移除最早的
             const newList = [...prev, notification];
@@ -147,9 +151,9 @@ export const GlobalNotification: React.FC<GlobalNotificationProps> = ({
   if (notifications.length === 0) return null;
 
   return (
-    <div className={cn('flex flex-col gap-2', className)}>
+    <div className={cn("flex flex-col gap-2", className)}>
       <AnimatePresence mode="popLayout">
-        {notifications.map(notification => (
+        {notifications.map((notification) => (
           <GlobalNotificationItem
             key={notification.id}
             notification={notification}

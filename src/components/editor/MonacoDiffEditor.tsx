@@ -9,20 +9,27 @@
  * 5. 一键接受/拒绝修改
  */
 
-import React, { useState, useCallback, useRef } from 'react';
-import { Check, X, ChevronDown, ChevronRight, RefreshCw, Download, Copy, Maximize2, Minimize2, FileCode, GitCompare } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import React, { useState, useCallback, useRef } from "react";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+  Check,
+  X,
+  ChevronDown,
+  ChevronRight,
+  RefreshCw,
+  Download,
+  Copy,
+  Maximize2,
+  Minimize2,
+  FileCode,
+  GitCompare,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-import { DiffEditor } from '@monaco-editor/react';
-import type { editor } from 'monaco-editor';
+import { DiffEditor } from "@monaco-editor/react";
+import type { editor } from "monaco-editor";
 
 // ============================================
 // 类型定义
@@ -31,7 +38,7 @@ import type { editor } from 'monaco-editor';
 export interface DiffChange {
   startLineNumber: number;
   endLineNumber: number;
-  changeType: 'insert' | 'delete' | 'modify';
+  changeType: "insert" | "delete" | "modify";
   originalText?: string;
   modifiedText?: string;
 }
@@ -65,37 +72,37 @@ export interface MonacoDiffEditorProps {
  * 从文件路径检测语言
  */
 const detectLanguageFromPath = (path: string): string => {
-  const ext = path.split('.').pop()?.toLowerCase();
+  const ext = path.split(".").pop()?.toLowerCase();
   const mapping: Record<string, string> = {
-    ts: 'typescript',
-    tsx: 'typescript',
-    js: 'javascript',
-    jsx: 'javascript',
-    py: 'python',
-    rs: 'rust',
-    go: 'go',
-    java: 'java',
-    cpp: 'cpp',
-    c: 'c',
-    css: 'css',
-    scss: 'scss',
-    html: 'html',
-    json: 'json',
-    md: 'markdown',
-    yml: 'yaml',
-    yaml: 'yaml',
-    sql: 'sql',
-    sh: 'shell'
+    ts: "typescript",
+    tsx: "typescript",
+    js: "javascript",
+    jsx: "javascript",
+    py: "python",
+    rs: "rust",
+    go: "go",
+    java: "java",
+    cpp: "cpp",
+    c: "c",
+    css: "css",
+    scss: "scss",
+    html: "html",
+    json: "json",
+    md: "markdown",
+    yml: "yaml",
+    yaml: "yaml",
+    sql: "sql",
+    sh: "shell",
   };
-  return mapping[ext || ''] || 'plaintext';
+  return mapping[ext || ""] || "plaintext";
 };
 
 /**
  * 计算差异统计
  */
 const calculateDiffStats = (original: string, modified: string) => {
-  const originalLines = original.split('\n');
-  const modifiedLines = modified.split('\n');
+  const originalLines = original.split("\n");
+  const modifiedLines = modified.split("\n");
 
   let additions = 0;
   let deletions = 0;
@@ -103,8 +110,8 @@ const calculateDiffStats = (original: string, modified: string) => {
   // 简单的行差异计算
   const maxLength = Math.max(originalLines.length, modifiedLines.length);
   for (let i = 0; i < maxLength; i++) {
-    const origLine = originalLines[i] || '';
-    const modLine = modifiedLines[i] || '';
+    const origLine = originalLines[i] || "";
+    const modLine = modifiedLines[i] || "";
 
     if (origLine !== modLine) {
       if (!origLine) additions++;
@@ -133,7 +140,7 @@ export const MonacoDiffEditor: React.FC<MonacoDiffEditorProps> = ({
   inline = false,
   onAccept,
   onReject,
-  className
+  className,
 }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showStats, setShowStats] = useState(true);
@@ -142,63 +149,66 @@ export const MonacoDiffEditor: React.FC<MonacoDiffEditorProps> = ({
   const diffEditorRef = useRef<editor.IStandaloneDiffEditor | null>(null);
 
   // 确定语言
-  const language = propLanguage || (filePath ? detectLanguageFromPath(filePath) : 'typescript');
+  const language = propLanguage || (filePath ? detectLanguageFromPath(filePath) : "typescript");
 
   // 计算统计
   const stats = calculateDiffStats(original, currentModified);
 
   // 编辑器挂载
-  const handleEditorMount = useCallback((editor: editor.IStandaloneDiffEditor) => {
-    diffEditorRef.current = editor;
+  const handleEditorMount = useCallback(
+    (editor: editor.IStandaloneDiffEditor) => {
+      diffEditorRef.current = editor;
 
-    // 配置编辑器选项
-    const modifiedEditor = editor.getModifiedEditor();
-    modifiedEditor.updateOptions({
-      fontSize: 14,
-      lineHeight: 22,
-      minimap: { enabled: false },
-      scrollBeyondLastLine: false,
-      readOnly,
-      renderWhitespace: 'selection',
-      renderLineHighlight: 'none', // 🔧 FIX: 禁用行高亮
-      // 🆕 性能优化：禁用不必要的功能
-      occurrencesHighlight: 'off', // 禁用高亮
-      renderValidationDecorations: 'off', // 禁用验证装饰
-      quickSuggestions: false, // 禁用快速建议
-      parameterHints: { enabled: false }, // 禁用参数提示
-      suggestOnTriggerCharacters: false, // 禁用触发字符建议
-      acceptSuggestionOnEnter: 'off', // 禁用回车接受建议
-      tabCompletion: 'off', // 禁用 Tab 补全
-      wordBasedSuggestions: 'off', // 禁用基于单词的建议
-      folding: false, // 禁用代码折叠
-      foldingHighlight: false, // 禁用折叠高亮
-      links: false, // 禁用链接检测
-      colorDecorators: false, // 禁用颜色装饰器
-      lightbulb: { enabled: false as any }, // 禁用灯泡提示
-      contextmenu: false, // 禁用右键菜单
-      mouseWheelZoom: false, // 禁用鼠标滚轮缩放
-      smoothScrolling: false, // 禁用平滑滚动
-    });
+      // 配置编辑器选项
+      const modifiedEditor = editor.getModifiedEditor();
+      modifiedEditor.updateOptions({
+        fontSize: 14,
+        lineHeight: 22,
+        minimap: { enabled: false },
+        scrollBeyondLastLine: false,
+        readOnly,
+        renderWhitespace: "selection",
+        renderLineHighlight: "none", // 🔧 FIX: 禁用行高亮
+        // 🆕 性能优化：禁用不必要的功能
+        occurrencesHighlight: "off", // 禁用高亮
+        renderValidationDecorations: "off", // 禁用验证装饰
+        quickSuggestions: false, // 禁用快速建议
+        parameterHints: { enabled: false }, // 禁用参数提示
+        suggestOnTriggerCharacters: false, // 禁用触发字符建议
+        acceptSuggestionOnEnter: "off", // 禁用回车接受建议
+        tabCompletion: "off", // 禁用 Tab 补全
+        wordBasedSuggestions: "off", // 禁用基于单词的建议
+        folding: false, // 禁用代码折叠
+        foldingHighlight: false, // 禁用折叠高亮
+        links: false, // 禁用链接检测
+        colorDecorators: false, // 禁用颜色装饰器
+        lightbulb: { enabled: false as any }, // 禁用灯泡提示
+        contextmenu: false, // 禁用右键菜单
+        mouseWheelZoom: false, // 禁用鼠标滚轮缩放
+        smoothScrolling: false, // 禁用平滑滚动
+      });
 
-    const originalEditor = editor.getOriginalEditor();
-    originalEditor.updateOptions({
-      fontSize: 14,
-      lineHeight: 22,
-      minimap: { enabled: false },
-      scrollBeyondLastLine: false,
-      readOnly: true,
-      renderWhitespace: 'selection',
-      // 🆕 原始编辑器也应用相同的性能优化
-      renderLineHighlight: 'none',
-      occurrencesHighlight: 'off',
-      quickSuggestions: false,
-      folding: false,
-      links: false,
-      contextmenu: false,
-      mouseWheelZoom: false,
-      smoothScrolling: false,
-    });
-  }, [readOnly]);
+      const originalEditor = editor.getOriginalEditor();
+      originalEditor.updateOptions({
+        fontSize: 14,
+        lineHeight: 22,
+        minimap: { enabled: false },
+        scrollBeyondLastLine: false,
+        readOnly: true,
+        renderWhitespace: "selection",
+        // 🆕 原始编辑器也应用相同的性能优化
+        renderLineHighlight: "none",
+        occurrencesHighlight: "off",
+        quickSuggestions: false,
+        folding: false,
+        links: false,
+        contextmenu: false,
+        mouseWheelZoom: false,
+        smoothScrolling: false,
+      });
+    },
+    [readOnly]
+  );
 
   // 接受修改
   const handleAccept = useCallback(() => {
@@ -218,11 +228,11 @@ export const MonacoDiffEditor: React.FC<MonacoDiffEditorProps> = ({
 
   // 下载修改后的代码
   const handleDownload = useCallback(() => {
-    const blob = new Blob([currentModified], { type: 'text/plain' });
+    const blob = new Blob([currentModified], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = filePath?.split('/').pop() || 'modified.txt';
+    a.download = filePath?.split("/").pop() || "modified.txt";
     a.click();
     URL.revokeObjectURL(url);
   }, [currentModified, filePath]);
@@ -235,8 +245,8 @@ export const MonacoDiffEditor: React.FC<MonacoDiffEditorProps> = ({
   return (
     <div
       className={cn(
-        'flex flex-col h-full bg-background border rounded-lg overflow-hidden',
-        isFullscreen && 'fixed inset-0 z-50 rounded-none',
+        "flex flex-col h-full bg-background border rounded-lg overflow-hidden",
+        isFullscreen && "fixed inset-0 z-50 rounded-none",
         className
       )}
     >
@@ -251,7 +261,7 @@ export const MonacoDiffEditor: React.FC<MonacoDiffEditorProps> = ({
           {filePath && (
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <FileCode className="w-3 h-3" />
-              <span>{filePath.split('/').pop()}</span>
+              <span>{filePath.split("/").pop()}</span>
               <Badge variant="outline" className="text-[10px] ml-1">
                 {language}
               </Badge>
@@ -262,18 +272,22 @@ export const MonacoDiffEditor: React.FC<MonacoDiffEditorProps> = ({
           {showStats && stats.changes > 0 && (
             <div className="flex items-center gap-2 ml-2 animate-slide-in-up">
               {stats.additions > 0 && (
-                <Badge variant="outline" className="text-[10px] bg-green-500/10 text-green-600 border-green-300">
+                <Badge
+                  variant="outline"
+                  className="text-[10px] bg-green-500/10 text-green-600 border-green-300"
+                >
                   +{stats.additions}
                 </Badge>
               )}
               {stats.deletions > 0 && (
-                <Badge variant="outline" className="text-[10px] bg-red-500/10 text-red-600 border-red-300">
+                <Badge
+                  variant="outline"
+                  className="text-[10px] bg-red-500/10 text-red-600 border-red-300"
+                >
                   -{stats.deletions}
                 </Badge>
               )}
-              <span className="text-xs text-muted-foreground">
-                {stats.changes} 处变更
-              </span>
+              <span className="text-xs text-muted-foreground">{stats.changes} 处变更</span>
             </div>
           )}
 
@@ -311,12 +325,7 @@ export const MonacoDiffEditor: React.FC<MonacoDiffEditorProps> = ({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-7 px-2"
-                    onClick={handleReject}
-                  >
+                  <Button variant="outline" size="sm" className="h-7 px-2" onClick={handleReject}>
                     <X className="w-3 h-3 mr-1" />
                     拒绝
                   </Button>
@@ -384,18 +393,18 @@ export const MonacoDiffEditor: React.FC<MonacoDiffEditorProps> = ({
             readOnly,
             automaticLayout: true,
             scrollBeyondLastLine: false,
-            renderLineHighlight: 'all',
+            renderLineHighlight: "all",
             enableSplitViewResizing: true,
             renderOverviewRuler: true,
-            diffWordWrap: 'on',
+            diffWordWrap: "on",
             ignoreTrimWhitespace: false,
             renderIndicators: true,
             originalEditable: false,
             scrollbar: {
-              vertical: 'auto',
-              horizontal: 'auto',
-              useShadows: false
-            }
+              vertical: "auto",
+              horizontal: "auto",
+              useShadows: false,
+            },
           }}
         />
       </div>

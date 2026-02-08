@@ -13,8 +13,8 @@
  * - Claude Tasks Mode 的结构化规划
  */
 
-import { logger } from '@/lib/logger';
-import { v4 as uuidv4 } from 'uuid';
+import { logger } from "@/lib/logger";
+import { v4 as uuidv4 } from "uuid";
 import type {
   Task,
   TaskType,
@@ -22,7 +22,7 @@ import type {
   WorkflowDAG,
   WorkflowEdge,
   WorkflowMetadata,
-} from '../types/workflow';
+} from "../types/workflow";
 
 // ============================================
 // Prompt Templates
@@ -138,7 +138,7 @@ export interface PlanningResult {
   workflow: WorkflowDAG;
   analysis: {
     summary: string;
-    complexity: 'simple' | 'moderate' | 'complex' | 'extreme';
+    complexity: "simple" | "moderate" | "complex" | "extreme";
     estimatedHours: number;
     keyComponents: string[];
     techStack: string[];
@@ -185,14 +185,17 @@ export class TaskPlanner {
     const result: PlanningResult = {
       workflow,
       analysis: parsedResult.analysis,
-      thinkingProcess: response.thinking
+      thinkingProcess: response.thinking,
     };
 
     // 保存到历史
     this.planningHistory.set(workflow.metadata.id, result);
 
-    logger.debug('TaskPlanner', `[TaskPlanner] Generated workflow in ${Date.now() - startTime}ms`);
-    logger.debug('TaskPlanner', `[TaskPlanner] Tasks: ${workflow.tasks.length}, Parallel groups: ${workflow.parallelGroups.length}`);
+    logger.debug("TaskPlanner", `[TaskPlanner] Generated workflow in ${Date.now() - startTime}ms`);
+    logger.debug(
+      "TaskPlanner",
+      `[TaskPlanner] Tasks: ${workflow.tasks.length}, Parallel groups: ${workflow.parallelGroups.length}`
+    );
 
     return result;
   }
@@ -209,16 +212,17 @@ export class TaskPlanner {
     },
     failureAnalysis?: string
   ): Promise<WorkflowDAG> {
-    const prompt = WORKFLOW_ADJUSTMENT_PROMPT
-      .replace('{{completedTasks}}', JSON.stringify(executionState.completedTasks))
-      .replace('{{failedTasks}}', JSON.stringify(executionState.failedTasks))
-      .replace('{{inProgressTasks}}', JSON.stringify(executionState.inProgressTasks))
-      .replace('{{pendingTasks}}', JSON.stringify(
-        currentWorkflow.tasks
-          .filter(t => t.status === 'pending')
-          .map(t => t.id)
-      ))
-      .replace('{{failureAnalysis}}', failureAnalysis || '无');
+    const prompt = WORKFLOW_ADJUSTMENT_PROMPT.replace(
+      "{{completedTasks}}",
+      JSON.stringify(executionState.completedTasks)
+    )
+      .replace("{{failedTasks}}", JSON.stringify(executionState.failedTasks))
+      .replace("{{inProgressTasks}}", JSON.stringify(executionState.inProgressTasks))
+      .replace(
+        "{{pendingTasks}}",
+        JSON.stringify(currentWorkflow.tasks.filter((t) => t.status === "pending").map((t) => t.id))
+      )
+      .replace("{{failureAnalysis}}", failureAnalysis || "无");
 
     const response = await this.callClaudeAPI(prompt, false);
     const adjustedTasks = this.parseAdjustmentResponse(response);
@@ -261,14 +265,14 @@ export class TaskPlanner {
 
     const suggestions: string[] = [];
     if (score > 4) {
-      suggestions.push('建议拆分为多个子任务');
-      suggestions.push('考虑分配给专门的代理');
+      suggestions.push("建议拆分为多个子任务");
+      suggestions.push("考虑分配给专门的代理");
     }
 
     return {
       score: Math.min(score, 5),
       factors,
-      suggestions
+      suggestions,
     };
   }
 
@@ -277,7 +281,7 @@ export class TaskPlanner {
    */
   identifyParallelOpportunities(workflow: WorkflowDAG): string[][] {
     const parallelGroups: string[][] = [];
-    const taskMap = new Map(workflow.tasks.map(t => [t.id, t]));
+    const taskMap = new Map(workflow.tasks.map((t) => [t.id, t]));
 
     // 使用拓扑排序找到同一层级的任务
     const levels = this.topologicalSort(workflow);
@@ -285,7 +289,7 @@ export class TaskPlanner {
     for (const level of levels) {
       if (level.length > 1) {
         // 检查这些任务是否真的可以并行
-        const canParallelize = level.every(taskId => {
+        const canParallelize = level.every((taskId) => {
           const task = taskMap.get(taskId)!;
           // 检查资源冲突
           return !this.hasResourceConflict(task, level, taskMap);
@@ -305,26 +309,27 @@ export class TaskPlanner {
   // ============================================
 
   private buildPrompt(userPrompt: string, context?: PlanningContext): string {
-    let projectContext = '';
+    let projectContext = "";
 
     if (context) {
       if (context.projectPath) {
         projectContext += `项目路径: ${context.projectPath}\n`;
       }
       if (context.existingFiles?.length) {
-        projectContext += `现有文件: ${context.existingFiles.slice(0, 20).join(', ')}\n`;
+        projectContext += `现有文件: ${context.existingFiles.slice(0, 20).join(", ")}\n`;
       }
       if (context.techStack?.length) {
-        projectContext += `技术栈: ${context.techStack.join(', ')}\n`;
+        projectContext += `技术栈: ${context.techStack.join(", ")}\n`;
       }
       if (context.constraints?.length) {
-        projectContext += `约束条件: ${context.constraints.join('; ')}\n`;
+        projectContext += `约束条件: ${context.constraints.join("; ")}\n`;
       }
     }
 
-    return TASK_DECOMPOSITION_PROMPT
-      .replace('{{userPrompt}}', userPrompt)
-      .replace('{{projectContext}}', projectContext || '无特定上下文');
+    return TASK_DECOMPOSITION_PROMPT.replace("{{userPrompt}}", userPrompt).replace(
+      "{{projectContext}}",
+      projectContext || "无特定上下文"
+    );
   }
 
   private async callClaudeAPI(
@@ -334,28 +339,33 @@ export class TaskPlanner {
     const requestBody: any = {
       model: this.config.model,
       max_tokens: 16000,
-      messages: [{
-        role: 'user',
-        content: prompt
-      }]
+      messages: [
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
     };
 
     if (useThinking) {
       requestBody.thinking = {
-        type: 'enabled',
-        budget_tokens: this.config.maxThinkingTokens
+        type: "enabled",
+        budget_tokens: this.config.maxThinkingTokens,
       };
     }
 
-    const response = await fetch(`${this.config.baseUrl || 'https://api.anthropic.com'}/v1/messages`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': this.config.apiKey,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify(requestBody)
-    });
+    const response = await fetch(
+      `${this.config.baseUrl || "https://api.anthropic.com"}/v1/messages`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": this.config.apiKey,
+          "anthropic-version": "2023-06-01",
+        },
+        body: JSON.stringify(requestBody),
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`Claude API error: ${response.status} ${response.statusText}`);
@@ -363,13 +373,13 @@ export class TaskPlanner {
 
     const data = await response.json();
 
-    let content = '';
-    let thinking = '';
+    let content = "";
+    let thinking = "";
 
     for (const block of data.content) {
-      if (block.type === 'text') {
+      if (block.type === "text") {
         content = block.text;
-      } else if (block.type === 'thinking') {
+      } else if (block.type === "thinking") {
         thinking = block.thinking;
       }
     }
@@ -385,7 +395,7 @@ export class TaskPlanner {
       try {
         return JSON.parse(response.content);
       } catch {
-        throw new Error('Failed to parse Claude response as JSON');
+        throw new Error("Failed to parse Claude response as JSON");
       }
     }
 
@@ -405,42 +415,42 @@ export class TaskPlanner {
       id: t.id || `task-${index + 1}`,
       description: t.description,
       type: t.type as TaskType,
-      priority: (t.priority || 'medium') as TaskPriority,
+      priority: (t.priority || "medium") as TaskPriority,
       dependencies: t.dependencies || [],
       dependents: [], // 后续计算
       estimatedComplexity: t.estimatedComplexity || 3,
       requiredSkills: t.requiredSkills || [],
       requiredTools: t.requiredTools || [],
-      status: 'pending',
+      status: "pending",
       progress: 0,
       metrics: {
-        retryCount: 0
+        retryCount: 0,
       },
       subtasks: t.subtasks?.map((st: any, stIndex: number) => ({
         id: `${t.id}-sub-${stIndex + 1}`,
         description: st.description,
-        type: 'sequential' as TaskType,
+        type: "sequential" as TaskType,
         priority: t.priority as TaskPriority,
         dependencies: [],
         dependents: [],
         estimatedComplexity: 2,
         requiredSkills: [],
         requiredTools: [],
-        status: 'pending',
+        status: "pending",
         progress: 0,
         metrics: { retryCount: 0 },
-        metadata: {}
+        metadata: {},
       })),
       metadata: {
         acceptanceCriteria: t.acceptanceCriteria,
-        suggestedAgentType: t.suggestedAgentType
-      }
+        suggestedAgentType: t.suggestedAgentType,
+      },
     }));
 
     // 计算 dependents
     for (const task of tasks) {
       for (const depId of task.dependencies) {
-        const depTask = tasks.find(t => t.id === depId);
+        const depTask = tasks.find((t) => t.id === depId);
         if (depTask) {
           depTask.dependents.push(task.id);
         }
@@ -455,29 +465,31 @@ export class TaskPlanner {
           id: `${depId}->${task.id}`,
           from: depId,
           to: task.id,
-          type: 'dependency'
+          type: "dependency",
         });
       }
     }
 
     // 找到入口和出口
-    const entryPoints = tasks.filter(t => t.dependencies.length === 0).map(t => t.id);
-    const exitPoints = tasks.filter(t => t.dependents.length === 0).map(t => t.id);
+    const entryPoints = tasks.filter((t) => t.dependencies.length === 0).map((t) => t.id);
+    const exitPoints = tasks.filter((t) => t.dependents.length === 0).map((t) => t.id);
 
     // 构建元数据
     const metadata: WorkflowMetadata = {
       id: workflowId,
-      name: parsedResult.analysis?.summary?.slice(0, 50) || 'Untitled Workflow',
+      name: parsedResult.analysis?.summary?.slice(0, 50) || "Untitled Workflow",
       description: originalPrompt,
-      version: '1.0.0',
+      version: "1.0.0",
       createdAt: now,
       updatedAt: now,
-      createdBy: 'TaskPlanner',
+      createdBy: "TaskPlanner",
       tags: parsedResult.analysis?.techStack || [],
       estimatedTotalTime: parsedResult.analysis?.estimatedHours * 60 || 60,
-      parallelismLevel: Math.max(...(parsedResult.parallelGroups?.map((g: string[]) => g.length) || [1])),
+      parallelismLevel: Math.max(
+        ...(parsedResult.parallelGroups?.map((g: string[]) => g.length) || [1])
+      ),
       criticalPath: parsedResult.criticalPath || [],
-      complexity: parsedResult.analysis?.complexity || 'moderate'
+      complexity: parsedResult.analysis?.complexity || "moderate",
     };
 
     return {
@@ -486,7 +498,7 @@ export class TaskPlanner {
       edges,
       parallelGroups: parsedResult.parallelGroups || [],
       entryPoints,
-      exitPoints
+      exitPoints,
     };
   }
 
@@ -500,7 +512,7 @@ export class TaskPlanner {
         visited.add(taskId);
         recStack.add(taskId);
 
-        const task = workflow.tasks.find(t => t.id === taskId);
+        const task = workflow.tasks.find((t) => t.id === taskId);
         if (task) {
           for (const depId of task.dependents) {
             if (!visited.has(depId) && hasCycle(depId)) {
@@ -525,14 +537,14 @@ export class TaskPlanner {
     const connectedTasks = new Set<string>();
     for (const task of workflow.tasks) {
       connectedTasks.add(task.id);
-      task.dependencies.forEach(d => connectedTasks.add(d));
-      task.dependents.forEach(d => connectedTasks.add(d));
+      task.dependencies.forEach((d) => connectedTasks.add(d));
+      task.dependents.forEach((d) => connectedTasks.add(d));
     }
 
     // 检查依赖是否存在
     for (const task of workflow.tasks) {
       for (const depId of task.dependencies) {
-        if (!workflow.tasks.find(t => t.id === depId)) {
+        if (!workflow.tasks.find((t) => t.id === depId)) {
           throw new Error(`Task ${task.id} depends on non-existent task: ${depId}`);
         }
       }
@@ -541,7 +553,7 @@ export class TaskPlanner {
 
   private calculateCriticalPath(workflow: WorkflowDAG): void {
     // 使用最长路径算法计算关键路径
-    const taskMap = new Map(workflow.tasks.map(t => [t.id, t]));
+    const taskMap = new Map(workflow.tasks.map((t) => [t.id, t]));
     const distances = new Map<string, number>();
     const predecessors = new Map<string, string>();
 
@@ -570,7 +582,7 @@ export class TaskPlanner {
 
     // 找到最长路径的终点
     let maxDist = -Infinity;
-    let endTask = '';
+    let endTask = "";
     for (const [taskId, dist] of distances) {
       if (dist > maxDist) {
         maxDist = dist;
@@ -583,7 +595,7 @@ export class TaskPlanner {
     let current = endTask;
     while (current) {
       criticalPath.unshift(current);
-      current = predecessors.get(current) || '';
+      current = predecessors.get(current) || "";
     }
 
     workflow.metadata.criticalPath = criticalPath;
@@ -592,7 +604,7 @@ export class TaskPlanner {
   private topologicalSort(workflow: WorkflowDAG): string[][] {
     const levels: string[][] = [];
     const inDegree = new Map<string, number>();
-    const taskMap = new Map(workflow.tasks.map(t => [t.id, t]));
+    const taskMap = new Map(workflow.tasks.map((t) => [t.id, t]));
 
     // 计算入度
     for (const task of workflow.tasks) {
@@ -600,9 +612,7 @@ export class TaskPlanner {
     }
 
     // BFS 分层
-    let currentLevel = workflow.tasks
-      .filter(t => t.dependencies.length === 0)
-      .map(t => t.id);
+    let currentLevel = workflow.tasks.filter((t) => t.dependencies.length === 0).map((t) => t.id);
 
     while (currentLevel.length > 0) {
       levels.push(currentLevel);
@@ -641,10 +651,8 @@ export class TaskPlanner {
       if (!otherTask) continue;
 
       // 检查技能冲突（例如都需要数据库操作）
-      const sharedSkills = task.requiredSkills.filter(
-        s => otherTask.requiredSkills.includes(s)
-      );
-      if (sharedSkills.includes('database-migration')) {
+      const sharedSkills = task.requiredSkills.filter((s) => otherTask.requiredSkills.includes(s));
+      if (sharedSkills.includes("database-migration")) {
         return true; // 数据库迁移不能并行
       }
     }
@@ -652,21 +660,18 @@ export class TaskPlanner {
     return false;
   }
 
-  private applyAdjustments(
-    workflow: WorkflowDAG,
-    adjustments: any
-  ): WorkflowDAG {
+  private applyAdjustments(workflow: WorkflowDAG, adjustments: any): WorkflowDAG {
     // 应用调整
     const updatedWorkflow = { ...workflow };
 
     // 更新任务
     if (adjustments.updatedTasks) {
       for (const update of adjustments.updatedTasks) {
-        const taskIndex = updatedWorkflow.tasks.findIndex(t => t.id === update.id);
+        const taskIndex = updatedWorkflow.tasks.findIndex((t) => t.id === update.id);
         if (taskIndex >= 0) {
           updatedWorkflow.tasks[taskIndex] = {
             ...updatedWorkflow.tasks[taskIndex],
-            ...update
+            ...update,
           };
         }
       }
@@ -675,11 +680,11 @@ export class TaskPlanner {
     // 移除任务
     if (adjustments.removedTasks) {
       updatedWorkflow.tasks = updatedWorkflow.tasks.filter(
-        t => !adjustments.removedTasks.includes(t.id)
+        (t) => !adjustments.removedTasks.includes(t.id)
       );
       updatedWorkflow.edges = updatedWorkflow.edges.filter(
-        e => !adjustments.removedTasks.includes(e.from) &&
-             !adjustments.removedTasks.includes(e.to)
+        (e) =>
+          !adjustments.removedTasks.includes(e.from) && !adjustments.removedTasks.includes(e.to)
       );
     }
 
@@ -697,8 +702,8 @@ export class TaskPlanner {
 
 // 导出默认配置
 export const DEFAULT_PLANNER_CONFIG: TaskPlannerConfig = {
-  model: 'claude-opus-4-5-20251101',
-  apiKey: '',
+  model: "claude-opus-4-5-20251101",
+  apiKey: "",
   maxThinkingTokens: 10000,
-  temperature: 0.7
+  temperature: 0.7,
 };

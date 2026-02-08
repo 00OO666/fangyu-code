@@ -4,32 +4,34 @@
  * 提供 UI 界面用于生成技术规范
  */
 
-import { logger } from '@/lib/logger';
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, Download, Loader2, Sparkles } from 'lucide-react';
-import { SpecGenerationEngine, type SpecType, type TechnicalSpec } from '@/core/spec/SpecGenerationEngine';
-import { RealAPIClient } from '@/core/api/RealAPIClient';
+import { logger } from "@/lib/logger";
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FileText, Download, Loader2, Sparkles } from "lucide-react";
+import {
+  SpecGenerationEngine,
+  type SpecType,
+  type TechnicalSpec,
+} from "@/core/spec/SpecGenerationEngine";
+import { RealAPIClient } from "@/core/api/RealAPIClient";
 
 interface SpecGenerationPanelProps {
   apiClient: RealAPIClient;
 }
 
-export const SpecGenerationPanel: React.FC<SpecGenerationPanelProps> = ({
-  apiClient,
-}) => {
-  const [requirements, setRequirements] = useState('');
-  const [specType, setSpecType] = useState<SpecType>('feature');
-  const [detailLevel, setDetailLevel] = useState<'brief' | 'standard' | 'detailed'>('standard');
+export const SpecGenerationPanel: React.FC<SpecGenerationPanelProps> = ({ apiClient }) => {
+  const [requirements, setRequirements] = useState("");
+  const [specType, setSpecType] = useState<SpecType>("feature");
+  const [detailLevel, setDetailLevel] = useState<"brief" | "standard" | "detailed">("standard");
   const [includeArchitecture, setIncludeArchitecture] = useState(true);
   const [includeAPI, setIncludeAPI] = useState(true);
   const [includeTesting, setIncludeTesting] = useState(true);
   const [includeDeployment, setIncludeDeployment] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedSpec, setGeneratedSpec] = useState<TechnicalSpec | null>(null);
-  const [activeTab, setActiveTab] = useState<'input' | 'output'>('input');
+  const [activeTab, setActiveTab] = useState<"input" | "output">("input");
 
   const handleGenerate = async () => {
     if (!requirements.trim()) return;
@@ -45,23 +47,23 @@ export const SpecGenerationPanel: React.FC<SpecGenerationPanelProps> = ({
         detailLevel,
       });
       setGeneratedSpec(spec);
-      setActiveTab('output');
+      setActiveTab("output");
     } catch (error) {
-      logger.error('SpecGenerationPanel', 'Failed to generate spec:', error);
+      logger.error("SpecGenerationPanel", "Failed to generate spec:", error);
     } finally {
       setIsGenerating(false);
     }
   };
 
-  const handleExport = async (format: 'json' | 'yaml' | 'markdown') => {
+  const handleExport = async (format: "json" | "yaml" | "markdown") => {
     if (!generatedSpec) return;
 
     const engine = new SpecGenerationEngine(apiClient);
     const exported = await engine.exportSpec(generatedSpec, format);
 
-    const blob = new Blob([exported], { type: 'text/plain' });
+    const blob = new Blob([exported], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = `spec-${generatedSpec.metadata.id}.${format}`;
     a.click();
@@ -75,15 +77,19 @@ export const SpecGenerationPanel: React.FC<SpecGenerationPanelProps> = ({
           <Sparkles className="h-5 w-5 text-primary" />
           <h2 className="text-xl font-semibold">规范生成引擎</h2>
         </div>
-        <p className="text-sm text-muted-foreground mt-1">
-          将自然语言需求转换为结构化技术规范
-        </p>
+        <p className="text-sm text-muted-foreground mt-1">将自然语言需求转换为结构化技术规范</p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'input' | 'output')} className="flex-1 flex flex-col">
+      <Tabs
+        value={activeTab}
+        onValueChange={(v) => setActiveTab(v as "input" | "output")}
+        className="flex-1 flex flex-col"
+      >
         <TabsList className="mx-6 mt-4">
           <TabsTrigger value="input">输入需求</TabsTrigger>
-          <TabsTrigger value="output" disabled={!generatedSpec}>查看规范</TabsTrigger>
+          <TabsTrigger value="output" disabled={!generatedSpec}>
+            查看规范
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="input" className="flex-1 px-6 pb-6 space-y-4">
@@ -190,15 +196,15 @@ export const SpecGenerationPanel: React.FC<SpecGenerationPanelProps> = ({
           {generatedSpec && (
             <>
               <div className="flex gap-2">
-                <Button size="sm" variant="outline" onClick={() => handleExport('json')}>
+                <Button size="sm" variant="outline" onClick={() => handleExport("json")}>
                   <Download className="h-4 w-4 mr-2" />
                   导出 JSON
                 </Button>
-                <Button size="sm" variant="outline" onClick={() => handleExport('yaml')}>
+                <Button size="sm" variant="outline" onClick={() => handleExport("yaml")}>
                   <Download className="h-4 w-4 mr-2" />
                   导出 YAML
                 </Button>
-                <Button size="sm" variant="outline" onClick={() => handleExport('markdown')}>
+                <Button size="sm" variant="outline" onClick={() => handleExport("markdown")}>
                   <Download className="h-4 w-4 mr-2" />
                   导出 Markdown
                 </Button>
@@ -235,7 +241,9 @@ export const SpecGenerationPanel: React.FC<SpecGenerationPanelProps> = ({
                     <div className="space-y-2">
                       {generatedSpec.architecture.components.map((comp, i) => (
                         <div key={i} className="border-l-2 border-primary pl-3">
-                          <div className="font-medium text-sm">{comp.name} ({comp.type})</div>
+                          <div className="font-medium text-sm">
+                            {comp.name} ({comp.type})
+                          </div>
                           <div className="text-sm text-muted-foreground">{comp.description}</div>
                         </div>
                       ))}
@@ -249,8 +257,12 @@ export const SpecGenerationPanel: React.FC<SpecGenerationPanelProps> = ({
                     <div className="space-y-3">
                       {generatedSpec.implementation.phases.map((phase, i) => (
                         <div key={i} className="border rounded-md p-3">
-                          <div className="font-medium text-sm">阶段 {phase.phase}: {phase.name}</div>
-                          <div className="text-sm text-muted-foreground mt-1">{phase.description}</div>
+                          <div className="font-medium text-sm">
+                            阶段 {phase.phase}: {phase.name}
+                          </div>
+                          <div className="text-sm text-muted-foreground mt-1">
+                            {phase.description}
+                          </div>
                           {phase.tasks.length > 0 && (
                             <ul className="mt-2 space-y-1 text-sm">
                               {phase.tasks.map((task, j) => (

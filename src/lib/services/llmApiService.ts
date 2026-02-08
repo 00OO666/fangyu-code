@@ -7,7 +7,7 @@
  * @module llmApiService
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { fetch as tauriFetch } from "@tauri-apps/plugin-http";
 
 /**
@@ -364,7 +364,7 @@ export class LLMApiService {
   static async call(
     provider: LLMProvider,
     request: LLMRequest,
-    options: LLMCallOptions = {},
+    options: LLMCallOptions = {}
   ): Promise<LLMResponse> {
     const { timeout = 30000, maxRetries = 3, retryDelay = 1000, signal: externalSignal } = options;
 
@@ -384,7 +384,7 @@ export class LLMApiService {
         temperature: request.temperature ?? provider.temperature,
         maxTokens: request.maxTokens ?? provider.maxTokens,
       },
-      provider.model,
+      provider.model
     );
 
     // 5. 构建请求头
@@ -424,7 +424,7 @@ export class LLMApiService {
           if (!response.ok) {
             const errorText = await response.text();
             throw new Error(
-              `${format} API request failed: ${response.status} ${response.statusText}\n${errorText}`,
+              `${format} API request failed: ${response.status} ${response.statusText}\n${errorText}`
             );
           }
 
@@ -457,7 +457,11 @@ export class LLMApiService {
           error.message?.includes("404");
 
         if (isUserCancelled || is4xxError) {
-          logger.error('llmApiService', `[LLMApiService] ${format} API call failed (non-retryable);:`, error);
+          logger.error(
+            "llmApiService",
+            `[LLMApiService] ${format} API call failed (non-retryable);:`,
+            error
+          );
           throw error;
         }
 
@@ -468,7 +472,7 @@ export class LLMApiService {
           const delay = retryDelay * 2 ** attempt;
           console.warn(
             `[LLMApiService] ${format} API call failed (attempt ${attempt + 1}/${maxRetries + 1}), retrying in ${delay}ms...`,
-            error.message,
+            error.message
           );
           await new Promise((resolve) => setTimeout(resolve, delay));
           continue;
@@ -477,7 +481,7 @@ export class LLMApiService {
         // 🆕 所有重试都失败
         console.error(
           `[LLMApiService] ${format} API call failed after ${maxRetries + 1} attempts:`,
-          error,
+          error
         );
         throw error;
       }
@@ -494,7 +498,7 @@ export class LLMApiService {
     provider: LLMProvider,
     systemPrompt: string,
     userPrompt: string,
-    options?: LLMCallOptions,
+    options?: LLMCallOptions
   ): Promise<string> {
     const response = await LLMApiService.call(
       provider,
@@ -502,7 +506,7 @@ export class LLMApiService {
         systemPrompt,
         userPrompt,
       },
-      options,
+      options
     );
     return response.content;
   }
@@ -520,7 +524,7 @@ export class LLMApiService {
     provider: LLMProvider,
     request: LLMRequest,
     onChunk: (chunk: string, fullContent: string) => void,
-    options: LLMCallOptions = {},
+    options: LLMCallOptions = {}
   ): Promise<LLMResponse> {
     const { timeout = 60000, signal: externalSignal } = options;
 
@@ -528,7 +532,10 @@ export class LLMApiService {
     const format = provider.apiFormat || detectApiFormat(provider.apiUrl);
     if (format !== "openai") {
       // 对于非 OpenAI 格式，回退到非流式调用
-      logger.warn('llmApiService', `[LLMApiService] Streaming not supported for ${format}, falling back to non-streaming`);
+      logger.warn(
+        "llmApiService",
+        `[LLMApiService] Streaming not supported for ${format}, falling back to non-streaming`
+      );
       const response = await LLMApiService.call(provider, request, options);
       onChunk(response.content, response.content);
       return response;
@@ -575,7 +582,9 @@ export class LLMApiService {
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`OpenAI API streaming failed: ${response.status} ${response.statusText}\n${errorText}`);
+        throw new Error(
+          `OpenAI API streaming failed: ${response.status} ${response.statusText}\n${errorText}`
+        );
       }
 
       // 处理 SSE 流
@@ -612,7 +621,11 @@ export class LLMApiService {
               }
             } catch (e) {
               // 忽略解析错误，继续处理
-              logger.debug('llmApiService', "[LLMApiService] Failed to parse SSE line:", trimmedLine);
+              logger.debug(
+                "llmApiService",
+                "[LLMApiService] Failed to parse SSE line:",
+                trimmedLine
+              );
             }
           }
         }

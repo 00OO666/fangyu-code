@@ -1,6 +1,6 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { useState, useEffect } from "react";
-import { Download, RefreshCw, AlertCircle, ExternalLink } from 'lucide-react';
+import { Download, RefreshCw, AlertCircle, ExternalLink } from "lucide-react";
 import { useUpdate } from "@/contexts/UpdateContext";
 import { relaunchApp } from "@/lib/updater";
 import { open as openUrl } from "@tauri-apps/plugin-shell";
@@ -56,7 +56,7 @@ export function UpdateDialog({ open, onClose }: UpdateDialogProps) {
       await openUrl(releaseUrl);
       handleDismissAndClose();
     } catch (err) {
-      logger.error('UpdateDialog', "打开下载页面失败:", err);
+      logger.error("UpdateDialog", "打开下载页面失败:", err);
       setError("无法打开下载页面，请手动访问 GitHub Releases");
     }
   };
@@ -99,7 +99,7 @@ export function UpdateDialog({ open, onClose }: UpdateDialogProps) {
         setIsInstalled(true);
       }
     } catch (err) {
-      logger.error('UpdateDialog', "下载安装失败:", err);
+      logger.error("UpdateDialog", "下载安装失败:", err);
       const message = err instanceof Error ? err.message : "下载安装失败，请尝试手动下载";
       if (message.toLowerCase().includes("signature") || message.toLowerCase().includes("verify")) {
         setError("更新包签名校验失败，无法自动更新；请前往下载页面手动更新。");
@@ -117,7 +117,7 @@ export function UpdateDialog({ open, onClose }: UpdateDialogProps) {
     try {
       await relaunchApp();
     } catch (err) {
-      logger.error('UpdateDialog', "重启失败:", err);
+      logger.error("UpdateDialog", "重启失败:", err);
       setError("重启失败，请手动重启应用");
     }
   };
@@ -163,9 +163,7 @@ export function UpdateDialog({ open, onClose }: UpdateDialogProps) {
         {/* Release Notes */}
         {updateInfo.notes && (
           <div>
-            <h3 className="text-sm font-medium text-foreground mb-2">
-              更新内容：
-            </h3>
+            <h3 className="text-sm font-medium text-foreground mb-2">更新内容：</h3>
             <div className="bg-muted rounded-lg p-3 max-h-48 overflow-y-auto">
               <pre className="text-xs text-muted-foreground whitespace-pre-wrap font-sans">
                 {updateInfo.notes}
@@ -179,9 +177,7 @@ export function UpdateDialog({ open, onClose }: UpdateDialogProps) {
           <div>
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-muted-foreground">下载中...</span>
-              <span className="text-sm font-medium text-primary">
-                {downloadProgress}%
-              </span>
+              <span className="text-sm font-medium text-primary">{downloadProgress}%</span>
             </div>
             <Progress value={downloadProgress} />
           </div>
@@ -198,18 +194,12 @@ export function UpdateDialog({ open, onClose }: UpdateDialogProps) {
         {/* Success */}
         {isInstalled && (
           <div className={cn("p-3 rounded-lg", statusStyles.success)}>
-            <p className="text-sm">
-              更新已安装，请重启应用以使用新版本
-            </p>
+            <p className="text-sm">更新已安装，请重启应用以使用新版本</p>
           </div>
         )}
 
         <DialogFooter className="gap-2">
-          <Button
-            variant="ghost"
-            onClick={handleDismissAndClose}
-            disabled={isDownloading}
-          >
+          <Button variant="ghost" onClick={handleDismissAndClose} disabled={isDownloading}>
             稍后提醒
           </Button>
 
@@ -239,11 +229,7 @@ export function UpdateDialog({ open, onClose }: UpdateDialogProps) {
                 )}
               </Button>
               {error && (
-                <Button
-                  variant="outline"
-                  onClick={handleOpenDownloadPage}
-                  disabled={isDownloading}
-                >
+                <Button variant="outline" onClick={handleOpenDownloadPage} disabled={isDownloading}>
                   <ExternalLink className="w-4 h-4 mr-2" />
                   手动下载
                 </Button>

@@ -1,4 +1,4 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 
@@ -44,7 +44,7 @@ interface SessionActivityStatus {
  * Based on Claude Code's 5-hour session window policy and activity detection
  */
 export const useSessionActivityStatus = (
-  options: UseSessionActivityStatusOptions = {},
+  options: UseSessionActivityStatusOptions = {}
 ): SessionActivityStatus => {
   const {
     sessionId,
@@ -120,7 +120,7 @@ export const useSessionActivityStatus = (
         });
       }
     } catch (error) {
-      logger.warn('useSessionActivityStatus', "Failed to fetch session activity status:", error);
+      logger.warn("useSessionActivityStatus", "Failed to fetch session activity status:", error);
       // On error, default to inactive to prevent unwanted cost tracking
       setActivityInfo({
         sessionId,
@@ -190,7 +190,7 @@ export const useSessionActivityStatus = (
               ...prev,
               lastActivity: new Date().toISOString(),
             }
-          : null,
+          : null
       );
     }
   };

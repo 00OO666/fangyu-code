@@ -10,7 +10,7 @@ import { MessageActions } from "./MessageActions";
 import { cn } from "@/lib/utils";
 import { tokenExtractor } from "@/lib/tokenExtractor";
 import { formatTimestamp } from "@/lib/messageUtils";
-import type { ClaudeStreamMessage } from '@/types/claude';
+import type { ClaudeStreamMessage } from "@/types/claude";
 import { useSession } from "@/contexts/SessionContext";
 import { useStreamingBuffer } from "@/hooks/useStreamingBuffer";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -38,26 +38,26 @@ interface AIMessageProps {
 const THINKING_TAG_REGEX = /<thinking>[\s\S]*?<\/thinking>/g;
 
 const extractAIText = (message: ClaudeStreamMessage): string => {
-  if (!message.message?.content) return '';
+  if (!message.message?.content) return "";
 
   const content = message.message.content as string | unknown[];
 
   // 如果是字符串，移除 thinking 标签后返回
-  if (typeof content === 'string') {
-    return content.replace(THINKING_TAG_REGEX, '').trim();
+  if (typeof content === "string") {
+    return content.replace(THINKING_TAG_REGEX, "").trim();
   }
 
   // 如果是数组，提取所有text类型的内容并移除 thinking 标签
   if (Array.isArray(content)) {
     const text = content
-      .filter((item: unknown) => (item as { type?: string }).type === 'text')
-      .map((item: unknown) => (item as { text?: string }).text || '')
-      .join('\n\n');
+      .filter((item: unknown) => (item as { type?: string }).type === "text")
+      .map((item: unknown) => (item as { text?: string }).text || "")
+      .join("\n\n");
 
-    return text.replace(THINKING_TAG_REGEX, '').trim();
+    return text.replace(THINKING_TAG_REGEX, "").trim();
   }
 
-  return '';
+  return "";
 };
 
 /**
@@ -74,7 +74,7 @@ const hasToolCalls = (message: ClaudeStreamMessage): boolean => {
   const content = message.message.content;
   if (!Array.isArray(content)) return false;
 
-  return content.some((item: any) => item.type === 'tool_use');
+  return content.some((item: any) => item.type === "tool_use");
 };
 
 /**
@@ -87,7 +87,7 @@ const hasToolCalls = (message: ClaudeStreamMessage): boolean => {
  */
 const hasThinkingBlock = (message: ClaudeStreamMessage): boolean => {
   // 检查顶层 thinking 消息
-  if (message.type === 'thinking') return true;
+  if (message.type === "thinking") return true;
 
   if (!message.message?.content) return false;
 
@@ -95,16 +95,16 @@ const hasThinkingBlock = (message: ClaudeStreamMessage): boolean => {
   if (!Array.isArray(content)) return false;
 
   // 检查是否有独立的 thinking 块
-  const hasThinkingType = content.some((item: any) => item.type === 'thinking');
+  const hasThinkingType = content.some((item: any) => item.type === "thinking");
   if (hasThinkingType) return true;
 
   // 检查文本中是否包含 <thinking> 标签
   const textContent = content
-    .filter((item: any) => item.type === 'text')
-    .map((item: any) => item.text || '')
-    .join('');
+    .filter((item: any) => item.type === "text")
+    .map((item: any) => item.text || "")
+    .join("");
 
-  return textContent.includes('<thinking>');
+  return textContent.includes("<thinking>");
 };
 
 /**
@@ -125,33 +125,36 @@ const THINKING_EXTRACT_REGEX = /<thinking>([\s\S]*?)<\/thinking>/g;
 
 const extractThinkingContent = (message: ClaudeStreamMessage): string => {
   // 检查顶层 thinking 消息
-  if (message.type === 'thinking') {
-    return (message as any).content || '';
+  if (message.type === "thinking") {
+    return (message as any).content || "";
   }
 
-  if (!message.message?.content) return '';
+  if (!message.message?.content) return "";
 
   const content = message.message.content;
-  if (!Array.isArray(content)) return '';
+  if (!Array.isArray(content)) return "";
 
   // 首先尝试提取独立的 thinking 块
-  const thinkingBlocks = content.filter((item: any) => item.type === 'thinking');
+  const thinkingBlocks = content.filter((item: any) => item.type === "thinking");
   if (thinkingBlocks.length > 0) {
     // 支持多种字段名（thinking, text, content）
-    return thinkingBlocks.map((item: any) => item.thinking || item.text || item.content || '').join('\n\n---divider---\n\n');
+    return thinkingBlocks
+      .map((item: any) => item.thinking || item.text || item.content || "")
+      .join("\n\n---divider---\n\n");
   }
 
   // 如果没有独立的 thinking 块，从文本中提取 <thinking> 标签内容
   const textContent = content
-    .filter((item: any) => item.type === 'text')
-    .map((item: any) => item.text || '')
-    .join('');
+    .filter((item: any) => item.type === "text")
+    .map((item: any) => item.text || "")
+    .join("");
 
   // 🔧 优化：使用 matchAll 替代 while + exec 循环
-  const matches = Array.from(textContent.matchAll(THINKING_EXTRACT_REGEX))
-    .map(match => match[1].trim());
+  const matches = Array.from(textContent.matchAll(THINKING_EXTRACT_REGEX)).map((match) =>
+    match[1].trim()
+  );
 
-  return matches.join('\n\n---divider---\n\n');
+  return matches.join("\n\n---divider---\n\n");
 };
 
 /**
@@ -167,7 +170,7 @@ const AIMessageComponent: React.FC<AIMessageProps> = ({
   message,
   isStreaming = false,
   className,
-  onLinkDetected
+  onLinkDetected,
 }) => {
   // 🔧 FIX: 提取 messageId 用于 ThinkingBlock
   const messageId = (message as any).uuid || (message as any).id;
@@ -177,23 +180,26 @@ const AIMessageComponent: React.FC<AIMessageProps> = ({
   const text = extractAIText(message);
   const hasTools = hasToolCalls(message);
   const hasThinking = hasThinkingBlock(message);
-  const rawThinkingContent = hasThinking ? extractThinkingContent(message) : '';
+  const rawThinkingContent = hasThinking ? extractThinkingContent(message) : "";
 
   // 🆕 从 SessionContext 获取 Thinking 状态管理函数
   const { getThinkingOpenState, onThinkingToggle } = useSession();
 
   // Detect engine type for avatar styling
-  const isCodexMessage = (message as any).engine === 'codex';
-  const isGeminiMessage = (message as any).geminiMetadata?.provider === 'gemini' || (message as any).engine === 'gemini';
+  const isCodexMessage = (message as any).engine === "codex";
+  const isGeminiMessage =
+    (message as any).geminiMetadata?.provider === "gemini" || (message as any).engine === "gemini";
 
   // 🆕 Placeholder for engines without visible thinking output
   const trimmedThinking = rawThinkingContent.trim();
-  const shouldShowThinkingPlaceholder = trimmedThinking.length === 0 && (isCodexMessage || isGeminiMessage);
-  const thinkingContent = trimmedThinking.length > 0
-    ? rawThinkingContent
-    : shouldShowThinkingPlaceholder
-      ? t('thinking.unavailable', 'thinking 不可用')
-      : '';
+  const shouldShowThinkingPlaceholder =
+    trimmedThinking.length === 0 && (isCodexMessage || isGeminiMessage);
+  const thinkingContent =
+    trimmedThinking.length > 0
+      ? rawThinkingContent
+      : shouldShowThinkingPlaceholder
+        ? t("thinking.unavailable", "thinking 不可用")
+        : "";
   const shouldRenderThinking = hasThinking || shouldShowThinkingPlaceholder;
 
   // 打字机效果只在流式输出时启用
@@ -210,30 +216,32 @@ const AIMessageComponent: React.FC<AIMessageProps> = ({
   const bufferedText = useStreamingBuffer(text, {
     enabled: isStreaming,
     isStreaming: isStreaming,
-    bufferSize: 5,   // 每 5 个字符更新一次
-    maxDelay: 30     // 最多延迟 30ms
+    bufferSize: 5, // 每 5 个字符更新一次
+    maxDelay: 30, // 最多延迟 30ms
   });
 
   // 使用缓冲后的文本进行渲染，而不是原始文本
   const displayText = isStreaming ? bufferedText : text;
 
   // 提取 tokens 统计
-  const tokenStats = message.message?.usage ? (() => {
-    const extractedTokens = tokenExtractor.extract({
-      type: 'assistant',
-      message: { usage: message.message.usage }
-    });
-    const parts = [`${extractedTokens.input_tokens}/${extractedTokens.output_tokens}`];
-    if (extractedTokens.cache_creation_tokens > 0) {
-      parts.push(`创建${extractedTokens.cache_creation_tokens}`);
-    }
-    if (extractedTokens.cache_read_tokens > 0) {
-      parts.push(`缓存${extractedTokens.cache_read_tokens}`);
-    }
-    return parts.join(' | ');
-  })() : null;
+  const tokenStats = message.message?.usage
+    ? (() => {
+        const extractedTokens = tokenExtractor.extract({
+          type: "assistant",
+          message: { usage: message.message.usage },
+        });
+        const parts = [`${extractedTokens.input_tokens}/${extractedTokens.output_tokens}`];
+        if (extractedTokens.cache_creation_tokens > 0) {
+          parts.push(`创建${extractedTokens.cache_creation_tokens}`);
+        }
+        if (extractedTokens.cache_read_tokens > 0) {
+          parts.push(`缓存${extractedTokens.cache_read_tokens}`);
+        }
+        return parts.join(" | ");
+      })()
+    : null;
 
-  const assistantName = isGeminiMessage ? 'Gemini' : isCodexMessage ? 'Codex' : 'Claude';
+  const assistantName = isGeminiMessage ? "Gemini" : isCodexMessage ? "Codex" : "Claude";
 
   // Select icon based on engine
   const Icon = isGeminiMessage ? GeminiIcon : isCodexMessage ? CodexIcon : ClaudeIcon;
@@ -249,13 +257,18 @@ const AIMessageComponent: React.FC<AIMessageProps> = ({
       <MessageBubble variant="assistant">
         {/* Header: Logo + Name + Time + Token Stats */}
         <div className="flex items-center gap-2 mb-1">
-          <Icon className={cn(isGeminiMessage || isCodexMessage ? "w-4 h-4" : "w-5 h-5", "flex-shrink-0")} />
+          <Icon
+            className={cn(
+              isGeminiMessage || isCodexMessage ? "w-4 h-4" : "w-5 h-5",
+              "flex-shrink-0"
+            )}
+          />
           <span className="font-semibold text-base">{assistantName}</span>
-          {formattedTime && (
-            <span className="text-xs text-muted-foreground">{formattedTime}</span>
-          )}
+          {formattedTime && <span className="text-xs text-muted-foreground">{formattedTime}</span>}
           {tokenStats && (
-            <span className="text-[10px] text-muted-foreground font-mono ml-auto">{tokenStats}</span>
+            <span className="text-[10px] text-muted-foreground font-mono ml-auto">
+              {tokenStats}
+            </span>
           )}
         </div>
 
@@ -290,12 +303,7 @@ const AIMessageComponent: React.FC<AIMessageProps> = ({
           )}
 
           {/* Tool Calls */}
-          {hasTools && (
-            <ToolCallsGroup
-              message={message}
-              onLinkDetected={onLinkDetected}
-            />
-          )}
+          {hasTools && <ToolCallsGroup message={message} onLinkDetected={onLinkDetected} />}
         </div>
       </MessageBubble>
     </div>

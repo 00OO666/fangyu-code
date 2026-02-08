@@ -13,17 +13,17 @@
  * - 平滑过渡动画
  */
 
-import React, { useCallback } from 'react';
-import { Clock, Trash2, MessageSquare } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { logger } from '@/lib/logger';
+import React, { useCallback } from "react";
+import { Clock, Trash2, MessageSquare } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { logger } from "@/lib/logger";
 import {
   useRecentSessions,
   useCurrentRecentSessionId,
   useRecentSessionsActions,
-} from '@/stores/useRecentSessionsStore';
-import type { SessionSnapshot } from '@/types/recentSessions';
+} from "@/stores/useRecentSessionsStore";
+import type { SessionSnapshot } from "@/types/recentSessions";
 
 interface RecentSessionsListProps {
   /**
@@ -48,11 +48,11 @@ const formatRelativeTime = (timestamp: number): string => {
   const hours = Math.floor(diff / 3600000);
   const days = Math.floor(diff / 86400000);
 
-  if (minutes < 1) return '刚刚';
+  if (minutes < 1) return "刚刚";
   if (minutes < 60) return `${minutes} 分钟前`;
   if (hours < 24) return `${hours} 小时前`;
   if (days < 7) return `${days} 天前`;
-  return new Date(timestamp).toLocaleDateString('zh-CN');
+  return new Date(timestamp).toLocaleDateString("zh-CN");
 };
 
 /**
@@ -60,9 +60,9 @@ const formatRelativeTime = (timestamp: number): string => {
  */
 const getEngineName = (engine: string): string => {
   const engineNames: Record<string, string> = {
-    claude: 'Claude',
-    codex: 'Codex',
-    gemini: 'Gemini',
+    claude: "Claude",
+    codex: "Codex",
+    gemini: "Gemini",
   };
   return engineNames[engine] || engine;
 };
@@ -72,11 +72,11 @@ const getEngineName = (engine: string): string => {
  */
 const getEngineColor = (engine: string): string => {
   const engineColors: Record<string, string> = {
-    claude: 'text-blue-400',
-    codex: 'text-green-400',
-    gemini: 'text-purple-400',
+    claude: "text-blue-400",
+    codex: "text-green-400",
+    gemini: "text-purple-400",
   };
-  return engineColors[engine] || 'text-gray-400';
+  return engineColors[engine] || "text-gray-400";
 };
 
 /**
@@ -98,7 +98,7 @@ export const RecentSessionsList: React.FC<RecentSessionsListProps> = ({
   // 🔧 处理会话点击
   const handleSessionClick = useCallback(
     (session: SessionSnapshot) => {
-      logger.debug('RecentSessionsList', '[RecentSessionsList] Switching to session:', session.id);
+      logger.debug("RecentSessionsList", "[RecentSessionsList] Switching to session:", session.id);
       switchSession(session.id);
       onSessionClick?.(session);
     },
@@ -109,7 +109,7 @@ export const RecentSessionsList: React.FC<RecentSessionsListProps> = ({
   const handleSessionDelete = useCallback(
     (sessionId: string, event: React.MouseEvent) => {
       event.stopPropagation(); // 阻止触发会话点击
-      logger.debug('RecentSessionsList', '[RecentSessionsList] Deleting session:', sessionId);
+      logger.debug("RecentSessionsList", "[RecentSessionsList] Deleting session:", sessionId);
       removeRecentSession(sessionId);
     },
     [removeRecentSession]
@@ -118,7 +118,7 @@ export const RecentSessionsList: React.FC<RecentSessionsListProps> = ({
   // 🔧 如果没有会话，显示空状态
   if (sessions.length === 0) {
     return (
-      <div className={cn('flex flex-col items-center justify-center p-8 text-gray-500', className)}>
+      <div className={cn("flex flex-col items-center justify-center p-8 text-gray-500", className)}>
         <MessageSquare className="w-12 h-12 mb-4 opacity-50" />
         <p className="text-sm">暂无最近会话</p>
       </div>
@@ -126,7 +126,7 @@ export const RecentSessionsList: React.FC<RecentSessionsListProps> = ({
   }
 
   return (
-    <div className={cn('flex flex-col gap-2 p-4', className)}>
+    <div className={cn("flex flex-col gap-2 p-4", className)}>
       {/* 标题 */}
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-sm font-medium text-gray-300">最近会话</h3>
@@ -143,21 +143,19 @@ export const RecentSessionsList: React.FC<RecentSessionsListProps> = ({
               key={session.id}
               onClick={() => handleSessionClick(session)}
               className={cn(
-                'flex flex-col gap-2 p-3 rounded-lg cursor-pointer transition-all',
-                'border border-gray-700 hover:border-gray-600',
-                isActive
-                  ? 'bg-gray-700 border-blue-500'
-                  : 'bg-gray-800 hover:bg-gray-750'
+                "flex flex-col gap-2 p-3 rounded-lg cursor-pointer transition-all",
+                "border border-gray-700 hover:border-gray-600",
+                isActive ? "bg-gray-700 border-blue-500" : "bg-gray-800 hover:bg-gray-750"
               )}
             >
               {/* 会话标题和引擎 */}
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
                   <h4 className="text-sm font-medium text-white truncate">
-                    {session.title || '未命名会话'}
+                    {session.title || "未命名会话"}
                   </h4>
                   <p className="text-xs text-gray-400 mt-1 line-clamp-2">
-                    {session.lastMessage || '暂无消息'}
+                    {session.lastMessage || "暂无消息"}
                   </p>
                 </div>
 
@@ -175,7 +173,7 @@ export const RecentSessionsList: React.FC<RecentSessionsListProps> = ({
               {/* 会话元信息 */}
               <div className="flex items-center gap-3 text-xs text-gray-500">
                 {/* 引擎 */}
-                <span className={cn('font-medium', getEngineColor(session.engine))}>
+                <span className={cn("font-medium", getEngineColor(session.engine))}>
                   {getEngineName(session.engine)}
                 </span>
 

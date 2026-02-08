@@ -1,4 +1,4 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 
 /**
  * 代码格式化历史服务
@@ -41,7 +41,7 @@ class CodeFormatService {
         this.history = JSON.parse(stored);
       }
     } catch (e) {
-      logger.error('codeFormatService', "[CodeFormatService] Failed to load history:", e);
+      logger.error("codeFormatService", "[CodeFormatService] Failed to load history:", e);
       this.history = [];
     }
   }
@@ -53,7 +53,7 @@ class CodeFormatService {
     try {
       localStorage.setItem(FORMAT_HISTORY_KEY, JSON.stringify(this.history));
     } catch (e) {
-      logger.error('codeFormatService', "[CodeFormatService] Failed to save history:", e);
+      logger.error("codeFormatService", "[CodeFormatService] Failed to save history:", e);
     }
   }
 
@@ -130,7 +130,7 @@ class CodeFormatService {
         acc[change.type] = (acc[change.type] || 0) + 1;
         return acc;
       },
-      {} as Record<string, number>,
+      {} as Record<string, number>
     );
 
     const summaryParts: string[] = [];

@@ -31,7 +31,7 @@ interface MessageBubbleProps {
 
 /**
  * 消息气泡容器组件
- * 
+ *
  * 用户消息：渐变背景，右对齐气泡样式
  * AI消息：Glassmorphism 效果，左对齐卡片样式
  */
@@ -48,9 +48,9 @@ const MessageBubbleComponent: React.FC<MessageBubbleProps> = ({
 
   // 计算消息间距
   const getMarginTop = () => {
-    if (followsToolCall) return 'mt-2'; // 8px - 工具调用后
-    if (isSameSender) return 'mt-1'; // 4px - 同发送者
-    return 'mt-3'; // 12px - 不同发送者
+    if (followsToolCall) return "mt-2"; // 8px - 工具调用后
+    if (isSameSender) return "mt-1"; // 4px - 同发送者
+    return "mt-3"; // 12px - 不同发送者
   };
 
   return (
@@ -59,7 +59,7 @@ const MessageBubbleComponent: React.FC<MessageBubbleProps> = ({
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{
         duration: 0.2,
-        ease: [0.16, 1, 0.3, 1] // spring easing
+        ease: [0.16, 1, 0.3, 1], // spring easing
       }}
       className={cn(
         "flex w-full motion-reduce:transition-none",
@@ -84,8 +84,8 @@ const MessageBubbleComponent: React.FC<MessageBubbleProps> = ({
                 bubbleClassName
               )}
               style={{
-                overflowWrap: 'anywhere',
-                wordBreak: 'break-word',
+                overflowWrap: "anywhere",
+                wordBreak: "break-word",
               }}
             >
               {children}
@@ -106,8 +106,8 @@ const MessageBubbleComponent: React.FC<MessageBubbleProps> = ({
               bubbleClassName
             )}
             style={{
-              overflowWrap: 'anywhere',
-              wordBreak: 'break-word',
+              overflowWrap: "anywhere",
+              wordBreak: "break-word",
             }}
           >
             {children}
@@ -127,11 +127,11 @@ export const MessageBubble = memo(MessageBubbleComponent);
  * 用于在消息列表中计算正确的间距
  */
 export const getMessageSpacing = (
-  currentSender: 'user' | 'assistant',
-  previousSender?: 'user' | 'assistant' | 'tool',
+  currentSender: "user" | "assistant",
+  previousSender?: "user" | "assistant" | "tool"
 ): string => {
-  if (!previousSender) return ''; // 第一条消息
-  if (previousSender === 'tool') return 'ds-message-gap-tool'; // 8px
-  if (previousSender === currentSender) return 'ds-message-gap-same'; // 4px
-  return 'ds-message-gap-different'; // 12px
+  if (!previousSender) return ""; // 第一条消息
+  if (previousSender === "tool") return "ds-message-gap-tool"; // 8px
+  if (previousSender === currentSender) return "ds-message-gap-same"; // 4px
+  return "ds-message-gap-different"; // 12px
 };

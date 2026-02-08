@@ -432,7 +432,7 @@ export interface AIAPI {
   streamPrompt(
     prompt: string,
     options?: AIPromptOptions,
-    onChunk?: (chunk: string) => void,
+    onChunk?: (chunk: string) => void
   ): Promise<AIResponse>;
   /** 注册工具 */
   registerTool(tool: AITool): Disposable;
@@ -484,7 +484,7 @@ export interface WindowAPI {
   /** 显示快速选择 */
   showQuickPick(
     items: string[] | QuickPickItem[],
-    options?: QuickPickOptions,
+    options?: QuickPickOptions
   ): Promise<string | QuickPickItem | undefined>;
   /** 创建输出通道 */
   createOutputChannel(name: string): OutputChannel;

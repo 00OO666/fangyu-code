@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { X, Maximize2 } from 'lucide-react';
+import { X, Maximize2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
@@ -27,15 +27,15 @@ interface ImagePreviewProps {
 
 /**
  * ImagePreview component - Shows thumbnail previews of embedded images
- * 
+ *
  * Features:
  * - Shows up to 10 image thumbnails in a row
  * - Click on thumbnail to see full-size preview
  * - Hover to show remove button
  * - Smooth animations
- * 
+ *
  * @example
- * <ImagePreview 
+ * <ImagePreview
  *   images={["/path/to/image1.png", "/path/to/image2.jpg"]}
  *   onRemove={(index) => logger.debug('ImagePreview', 'Remove image at', index);}
  * />
@@ -54,7 +54,7 @@ export const ImagePreview: React.FC<ImagePreviewProps> = ({
   const displayImages = images.slice(0, 10);
 
   const handleImageError = (index: number) => {
-    setImageErrors(prev => new Set(prev).add(index));
+    setImageErrors((prev) => new Set(prev).add(index));
   };
 
   const handleRemove = (e: React.MouseEvent, index: number) => {
@@ -65,7 +65,7 @@ export const ImagePreview: React.FC<ImagePreviewProps> = ({
   // Helper to get the image source - handles both file paths and data URLs
   const getImageSrc = (imagePath: string): string => {
     // If it's already a data URL, return as-is
-    if (imagePath.startsWith('data:')) {
+    if (imagePath.startsWith("data:")) {
       return imagePath;
     }
     // Otherwise, convert the file path
@@ -111,7 +111,7 @@ export const ImagePreview: React.FC<ImagePreviewProps> = ({
                     onError={() => handleImageError(index)}
                   />
                 )}
-                
+
                 {/* Hover overlay with maximize icon */}
                 <div className="absolute inset-0 bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                   <Maximize2 className="h-4 w-4 text-foreground" />
@@ -144,8 +144,8 @@ export const ImagePreview: React.FC<ImagePreviewProps> = ({
       </div>
 
       {/* Full-size preview dialog */}
-      <Dialog 
-        open={selectedImageIndex !== null} 
+      <Dialog
+        open={selectedImageIndex !== null}
         onOpenChange={(open) => !open && setSelectedImageIndex(null)}
       >
         <DialogContent className="max-w-4xl max-h-[90vh] p-0">
@@ -158,23 +158,27 @@ export const ImagePreview: React.FC<ImagePreviewProps> = ({
                 className="max-w-full max-h-full object-contain"
                 onError={() => handleImageError(selectedImageIndex)}
               />
-              
+
               {/* Navigation buttons if multiple images */}
               {displayImages.length > 1 && (
                 <>
                   <button
                     className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-background/80 text-foreground rounded-full flex items-center justify-center hover:bg-background/90 transition-colors border border-border"
-                    onClick={() => setSelectedImageIndex((prev) => 
-                      prev !== null ? (prev - 1 + displayImages.length) % displayImages.length : 0
-                    )}
+                    onClick={() =>
+                      setSelectedImageIndex((prev) =>
+                        prev !== null ? (prev - 1 + displayImages.length) % displayImages.length : 0
+                      )
+                    }
                   >
                     ←
                   </button>
                   <button
                     className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-background/80 text-foreground rounded-full flex items-center justify-center hover:bg-background/90 transition-colors border border-border"
-                    onClick={() => setSelectedImageIndex((prev) => 
-                      prev !== null ? (prev + 1) % displayImages.length : 0
-                    )}
+                    onClick={() =>
+                      setSelectedImageIndex((prev) =>
+                        prev !== null ? (prev + 1) % displayImages.length : 0
+                      )
+                    }
                   >
                     →
                   </button>
@@ -186,4 +190,4 @@ export const ImagePreview: React.FC<ImagePreviewProps> = ({
       </Dialog>
     </>
   );
-}; 
+};

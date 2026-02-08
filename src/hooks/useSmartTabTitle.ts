@@ -10,7 +10,7 @@
  * - 防抖机制避免频繁调用
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { useCallback, useEffect, useRef } from "react";
 import { claudeSDK } from "@/lib/claudeSDK";
 import type { ClaudeStreamMessage } from "@/types/claude";
@@ -119,7 +119,7 @@ function cleanText(text: string): string {
  */
 async function generateTitleWithAI(
   userMessage: string,
-  assistantMessage: string,
+  assistantMessage: string
 ): Promise<string | null> {
   try {
     // 构建用于生成标题的对话上下文
@@ -154,7 +154,7 @@ AI 回复摘要：${assistantMessage.slice(0, 200)}`;
 
     return null;
   } catch (error) {
-    logger.warn('useSmartTabTitle', "[useSmartTabTitle] AI title generation failed:", error);
+    logger.warn("useSmartTabTitle", "[useSmartTabTitle] AI title generation failed:", error);
     return null;
   }
 }
@@ -164,7 +164,7 @@ AI 回复摘要：${assistantMessage.slice(0, 200)}`;
  */
 function generateQuickTitle(
   messages: ClaudeStreamMessage[],
-  maxLength: number = 25,
+  maxLength: number = 25
 ): string | null {
   const userMessage = messages.find((m) => m.type === "user");
   if (!userMessage) return null;
@@ -329,17 +329,20 @@ export function useSmartTabTitle({
       // 尝试使用 AI 生成标题
       if (useAI && !aiAttemptedRef.current) {
         aiAttemptedRef.current = true;
-        logger.debug('useSmartTabTitle', "[useSmartTabTitle] Attempting AI title generation...");
+        logger.debug("useSmartTabTitle", "[useSmartTabTitle] Attempting AI title generation...");
         title = await generateTitleWithAI(userText, assistantText);
 
         if (title) {
-          logger.debug('useSmartTabTitle', "[useSmartTabTitle] AI generated title:", title);
+          logger.debug("useSmartTabTitle", "[useSmartTabTitle] AI generated title:", title);
         }
       }
 
       // 如果 AI 失败，使用回退方案
       if (!title) {
-        logger.debug('useSmartTabTitle', "[useSmartTabTitle] Falling back to regex-based title generation");
+        logger.debug(
+          "useSmartTabTitle",
+          "[useSmartTabTitle] Falling back to regex-based title generation"
+        );
         title = generateSmartTitle(messages);
       }
 
@@ -348,7 +351,7 @@ export function useSmartTabTitle({
         lastAppliedTitleRef.current = title;
       }
     } catch (error) {
-      logger.error('useSmartTabTitle', "[useSmartTabTitle] Title generation error:", error);
+      logger.error("useSmartTabTitle", "[useSmartTabTitle] Title generation error:", error);
     } finally {
       isGeneratingRef.current = false;
     }
@@ -376,7 +379,11 @@ export function useSmartTabTitle({
 
       const smartTitle = generateSmartTitle(messages);
       if (smartTitle && smartTitle !== lastAppliedTitleRef.current) {
-        logger.debug('useSmartTabTitle', "[useSmartTabTitle] Phase 2 - Keyword-based title:", smartTitle);
+        logger.debug(
+          "useSmartTabTitle",
+          "[useSmartTabTitle] Phase 2 - Keyword-based title:",
+          smartTitle
+        );
         // 🔧 FIX: 使用 setTimeout 避免在渲染期间调用 setState
         setTimeout(() => {
           onTitleUpdateRef.current(smartTitle);

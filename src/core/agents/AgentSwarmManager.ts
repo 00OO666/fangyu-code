@@ -14,9 +14,9 @@
  * - Swarms 框架的 DAG 编排
  */
 
-import { logger } from '@/lib/logger';
-import { BrowserEventEmitter } from '../../lib/BrowserEventEmitter';
-import { v4 as uuidv4 } from 'uuid';
+import { logger } from "@/lib/logger";
+import { BrowserEventEmitter } from "../../lib/BrowserEventEmitter";
+import { v4 as uuidv4 } from "uuid";
 import type {
   Agent,
   AgentType,
@@ -27,8 +27,8 @@ import type {
   WorkflowDAG,
   WorkflowConfig,
   WorkflowEvent,
-  WorkflowEventType
-} from '../types/workflow';
+  WorkflowEventType,
+} from "../types/workflow";
 
 // ============================================
 // 代理池接口
@@ -78,95 +78,100 @@ interface TaskQueueManager {
 
 const AGENT_TEMPLATES: Record<AgentType, Partial<Agent>> = {
   orchestrator: {
-    type: 'orchestrator',
+    type: "orchestrator",
     capabilities: {
-      languages: ['*'],
-      frameworks: ['*'],
-      tools: ['*'],
-      specializations: ['planning', 'coordination', 'delegation']
-    }
+      languages: ["*"],
+      frameworks: ["*"],
+      tools: ["*"],
+      specializations: ["planning", "coordination", "delegation"],
+    },
   },
   planner: {
-    type: 'planner',
+    type: "planner",
     capabilities: {
       languages: [],
       frameworks: [],
-      tools: ['analysis'],
-      specializations: ['task-decomposition', 'estimation', 'scheduling']
-    }
+      tools: ["analysis"],
+      specializations: ["task-decomposition", "estimation", "scheduling"],
+    },
   },
   frontend: {
-    type: 'frontend',
+    type: "frontend",
     capabilities: {
-      languages: ['typescript', 'javascript', 'html', 'css'],
-      frameworks: ['react', 'vue', 'angular', 'next.js', 'tailwind'],
-      tools: ['npm', 'vite', 'webpack', 'eslint'],
-      specializations: ['ui-ux', 'responsive-design', 'accessibility', 'animations']
-    }
+      languages: ["typescript", "javascript", "html", "css"],
+      frameworks: ["react", "vue", "angular", "next.js", "tailwind"],
+      tools: ["npm", "vite", "webpack", "eslint"],
+      specializations: ["ui-ux", "responsive-design", "accessibility", "animations"],
+    },
   },
   backend: {
-    type: 'backend',
+    type: "backend",
     capabilities: {
-      languages: ['typescript', 'javascript', 'python', 'rust', 'go'],
-      frameworks: ['express', 'fastify', 'django', 'fastapi'],
-      tools: ['docker', 'postgresql', 'redis', 'nginx'],
-      specializations: ['api-design', 'database', 'security', 'performance']
-    }
+      languages: ["typescript", "javascript", "python", "rust", "go"],
+      frameworks: ["express", "fastify", "django", "fastapi"],
+      tools: ["docker", "postgresql", "redis", "nginx"],
+      specializations: ["api-design", "database", "security", "performance"],
+    },
   },
   fullstack: {
-    type: 'fullstack',
+    type: "fullstack",
     capabilities: {
-      languages: ['typescript', 'javascript', 'python'],
-      frameworks: ['react', 'next.js', 'express', 'fastapi'],
-      tools: ['npm', 'docker', 'git'],
-      specializations: ['full-stack', 'integration', 'deployment']
-    }
+      languages: ["typescript", "javascript", "python"],
+      frameworks: ["react", "next.js", "express", "fastapi"],
+      tools: ["npm", "docker", "git"],
+      specializations: ["full-stack", "integration", "deployment"],
+    },
   },
   testing: {
-    type: 'testing',
+    type: "testing",
     capabilities: {
-      languages: ['typescript', 'javascript', 'python'],
-      frameworks: ['jest', 'vitest', 'playwright', 'cypress'],
-      tools: ['npm', 'coverage'],
-      specializations: ['unit-testing', 'e2e-testing', 'integration-testing', 'performance-testing']
-    }
+      languages: ["typescript", "javascript", "python"],
+      frameworks: ["jest", "vitest", "playwright", "cypress"],
+      tools: ["npm", "coverage"],
+      specializations: [
+        "unit-testing",
+        "e2e-testing",
+        "integration-testing",
+        "performance-testing",
+      ],
+    },
   },
   devops: {
-    type: 'devops',
+    type: "devops",
     capabilities: {
-      languages: ['bash', 'python', 'yaml'],
+      languages: ["bash", "python", "yaml"],
       frameworks: [],
-      tools: ['docker', 'kubernetes', 'terraform', 'github-actions', 'nginx'],
-      specializations: ['ci-cd', 'infrastructure', 'monitoring', 'security']
-    }
+      tools: ["docker", "kubernetes", "terraform", "github-actions", "nginx"],
+      specializations: ["ci-cd", "infrastructure", "monitoring", "security"],
+    },
   },
   review: {
-    type: 'review',
+    type: "review",
     capabilities: {
-      languages: ['*'],
-      frameworks: ['*'],
-      tools: ['eslint', 'prettier', 'sonarqube'],
-      specializations: ['code-review', 'security-audit', 'best-practices']
-    }
+      languages: ["*"],
+      frameworks: ["*"],
+      tools: ["eslint", "prettier", "sonarqube"],
+      specializations: ["code-review", "security-audit", "best-practices"],
+    },
   },
   docs: {
-    type: 'docs',
+    type: "docs",
     capabilities: {
-      languages: ['markdown', 'typescript'],
-      frameworks: ['docusaurus', 'vitepress'],
-      tools: ['typedoc', 'jsdoc'],
-      specializations: ['documentation', 'api-docs', 'tutorials']
-    }
+      languages: ["markdown", "typescript"],
+      frameworks: ["docusaurus", "vitepress"],
+      tools: ["typedoc", "jsdoc"],
+      specializations: ["documentation", "api-docs", "tutorials"],
+    },
   },
   general: {
-    type: 'general',
+    type: "general",
     capabilities: {
-      languages: ['typescript', 'javascript', 'python'],
-      frameworks: ['react', 'express'],
-      tools: ['npm', 'git'],
-      specializations: ['general-purpose']
-    }
-  }
+      languages: ["typescript", "javascript", "python"],
+      frameworks: ["react", "express"],
+      tools: ["npm", "git"],
+      specializations: ["general-purpose"],
+    },
+  },
 };
 
 // ============================================
@@ -190,7 +195,7 @@ export class AgentSwarmManager extends BrowserEventEmitter {
       agents: new Map(),
       idleAgents: new Set(),
       busyAgents: new Set(),
-      taskAssignments: new Map()
+      taskAssignments: new Map(),
     };
 
     this.scheduler = {
@@ -198,13 +203,13 @@ export class AgentSwarmManager extends BrowserEventEmitter {
       taskQueue: [],
       completedTasks: new Set(),
       failedTasks: new Set(),
-      inProgressTasks: new Set()
+      inProgressTasks: new Set(),
     };
 
     this.taskQueueManager = {
       queue: [],
       maxConcurrent: config.maxConcurrentTasks,
-      currentConcurrent: 0
+      currentConcurrent: 0,
     };
   }
 
@@ -227,12 +232,12 @@ export class AgentSwarmManager extends BrowserEventEmitter {
       id: agentId,
       name: name || `${type}-${agentId.slice(0, 8)}`,
       type,
-      status: 'idle',
+      status: "idle",
       capabilities: template.capabilities || {
         languages: [],
         frameworks: [],
         tools: [],
-        specializations: []
+        specializations: [],
       },
       performance: {
         tasksCompleted: 0,
@@ -240,12 +245,12 @@ export class AgentSwarmManager extends BrowserEventEmitter {
         avgCompletionTime: 0,
         avgTokenUsage: 0,
         successRate: 1,
-        lastActiveAt: Date.now()
+        lastActiveAt: Date.now(),
       },
       taskQueue: [],
       isClone: false,
       createdAt: Date.now(),
-      metadata: {}
+      metadata: {},
     };
 
     // 创建沙箱环境
@@ -257,8 +262,8 @@ export class AgentSwarmManager extends BrowserEventEmitter {
     this.pool.agents.set(agentId, agent);
     this.pool.idleAgents.add(agentId);
 
-    this.emitEvent('agent:created', { agent });
-    logger.debug('AgentSwarmManager', `[AgentSwarm] Created agent: ${agent.name} (${agent.type});`);
+    this.emitEvent("agent:created", { agent });
+    logger.debug("AgentSwarmManager", `[AgentSwarm] Created agent: ${agent.name} (${agent.type});`);
 
     return agent;
   }
@@ -276,14 +281,17 @@ export class AgentSwarmManager extends BrowserEventEmitter {
       throw new Error(`Cannot clone: Maximum agent limit reached`);
     }
 
-    logger.debug('AgentSwarmManager', `[AgentSwarm] Cloning agent ${sourceAgent.name}: ${request.reason}`);
+    logger.debug(
+      "AgentSwarmManager",
+      `[AgentSwarm] Cloning agent ${sourceAgent.name}: ${request.reason}`
+    );
 
     const cloneId = uuidv4();
     const clone: Agent = {
       ...sourceAgent,
       id: cloneId,
       name: `${sourceAgent.name}-clone-${cloneId.slice(0, 4)}`,
-      status: 'idle',
+      status: "idle",
       currentTask: undefined,
       taskQueue: request.inheritTasks ? [...sourceAgent.taskQueue] : [],
       sandboxId: undefined, // 新沙箱
@@ -293,15 +301,15 @@ export class AgentSwarmManager extends BrowserEventEmitter {
       performance: {
         ...sourceAgent.performance,
         tasksCompleted: 0,
-        tasksFailed: 0
-      }
+        tasksFailed: 0,
+      },
     };
 
     // 合并能力
     if (request.capabilities) {
       clone.capabilities = {
         ...clone.capabilities,
-        ...request.capabilities
+        ...request.capabilities,
       };
     }
 
@@ -314,10 +322,10 @@ export class AgentSwarmManager extends BrowserEventEmitter {
     this.pool.agents.set(cloneId, clone);
     this.pool.idleAgents.add(cloneId);
 
-    this.emitEvent('agent:cloned', {
+    this.emitEvent("agent:cloned", {
       source: sourceAgent,
       clone,
-      reason: request.reason
+      reason: request.reason,
     });
 
     return clone;
@@ -344,8 +352,8 @@ export class AgentSwarmManager extends BrowserEventEmitter {
     this.pool.idleAgents.delete(agentId);
     this.pool.busyAgents.delete(agentId);
 
-    this.emitEvent('agent:destroyed', { agent });
-    logger.debug('AgentSwarmManager', `[AgentSwarm] Destroyed agent: ${agent.name}`);
+    this.emitEvent("agent:destroyed", { agent });
+    logger.debug("AgentSwarmManager", `[AgentSwarm] Destroyed agent: ${agent.name}`);
   }
 
   // ============================================
@@ -356,11 +364,14 @@ export class AgentSwarmManager extends BrowserEventEmitter {
    * 🎯 部署代理群并执行工作流
    */
   async deployAndExecute(workflow: WorkflowDAG): Promise<void> {
-    logger.debug('AgentSwarmManager', `[AgentSwarm] Deploying swarm for workflow: ${workflow.metadata.name}`);
+    logger.debug(
+      "AgentSwarmManager",
+      `[AgentSwarm] Deploying swarm for workflow: ${workflow.metadata.name}`
+    );
 
     this.scheduler.currentWorkflow = workflow;
     this.scheduler.isRunning = true;
-    this.scheduler.taskQueue = [...workflow.tasks.filter(t => t.status === 'pending')];
+    this.scheduler.taskQueue = [...workflow.tasks.filter((t) => t.status === "pending")];
 
     // 分析工作流，确定需要的代理类型
     const requiredAgents = this.analyzeRequiredAgents(workflow);
@@ -381,13 +392,14 @@ export class AgentSwarmManager extends BrowserEventEmitter {
    * 🔄 调度循环（增强版 - 支持并发限制）
    */
   private async startSchedulingLoop(): Promise<void> {
-    this.emitEvent('workflow:started', {
-      workflow: this.scheduler.currentWorkflow
+    this.emitEvent("workflow:started", {
+      workflow: this.scheduler.currentWorkflow,
     });
 
     while (this.scheduler.isRunning) {
       // 检查并发限制
-      const availableSlots = this.taskQueueManager.maxConcurrent - this.taskQueueManager.currentConcurrent;
+      const availableSlots =
+        this.taskQueueManager.maxConcurrent - this.taskQueueManager.currentConcurrent;
 
       if (availableSlots <= 0) {
         // 达到并发上限，等待
@@ -407,14 +419,17 @@ export class AgentSwarmManager extends BrowserEventEmitter {
       const sortedTasks = this.sortTasksByPriority(readyTasks);
 
       // 并行分配任务（受并发限制）
-      const tasksToAssign = sortedTasks.slice(0, Math.min(availableSlots, this.config.maxConcurrentTasks));
+      const tasksToAssign = sortedTasks.slice(
+        0,
+        Math.min(availableSlots, this.config.maxConcurrentTasks)
+      );
 
       const _assignments = await Promise.all(
-        tasksToAssign.map(async task => {
+        tasksToAssign.map(async (task) => {
           try {
             await this.assignAndExecuteTask(task);
           } catch (error) {
-            logger.error('AgentSwarmManager', `[AgentSwarm] Task assignment failed:`, error);
+            logger.error("AgentSwarmManager", `[AgentSwarm] Task assignment failed:`, error);
           }
         })
       );
@@ -424,11 +439,11 @@ export class AgentSwarmManager extends BrowserEventEmitter {
     }
 
     // 完成或失败
-    const status = this.scheduler.failedTasks.size > 0 ? 'failed' : 'completed';
+    const status = this.scheduler.failedTasks.size > 0 ? "failed" : "completed";
     this.emitEvent(`workflow:${status}`, {
       workflow: this.scheduler.currentWorkflow,
       completedTasks: Array.from(this.scheduler.completedTasks),
-      failedTasks: Array.from(this.scheduler.failedTasks)
+      failedTasks: Array.from(this.scheduler.failedTasks),
     });
 
     this.scheduler.isRunning = false;
@@ -439,10 +454,10 @@ export class AgentSwarmManager extends BrowserEventEmitter {
    */
   private sortTasksByPriority(tasks: Task[]): Task[] {
     const priorityOrder: Record<string, number> = {
-      'critical': 4,
-      'high': 3,
-      'medium': 2,
-      'low': 1
+      critical: 4,
+      high: 3,
+      medium: 2,
+      low: 1,
     };
 
     return [...tasks].sort((a, b) => {
@@ -471,7 +486,10 @@ export class AgentSwarmManager extends BrowserEventEmitter {
    */
   setMaxConcurrency(max: number): void {
     this.taskQueueManager.maxConcurrent = Math.max(1, max);
-    logger.debug('AgentSwarmManager', `[AgentSwarm] Max concurrency set to ${this.taskQueueManager.maxConcurrent}`);
+    logger.debug(
+      "AgentSwarmManager",
+      `[AgentSwarm] Max concurrency set to ${this.taskQueueManager.maxConcurrent}`
+    );
   }
 
   /**
@@ -487,7 +505,7 @@ export class AgentSwarmManager extends BrowserEventEmitter {
       queueLength: this.scheduler.taskQueue.length,
       maxConcurrent: this.taskQueueManager.maxConcurrent,
       currentConcurrent: this.taskQueueManager.currentConcurrent,
-      availableSlots: this.taskQueueManager.maxConcurrent - this.taskQueueManager.currentConcurrent
+      availableSlots: this.taskQueueManager.maxConcurrent - this.taskQueueManager.currentConcurrent,
     };
   }
 
@@ -497,10 +515,10 @@ export class AgentSwarmManager extends BrowserEventEmitter {
   private getReadyTasks(): Task[] {
     if (!this.scheduler.currentWorkflow) return [];
 
-    return this.scheduler.taskQueue.filter(task => {
+    return this.scheduler.taskQueue.filter((task) => {
       // 检查依赖是否都已完成
-      const depsCompleted = task.dependencies.every(
-        depId => this.scheduler.completedTasks.has(depId)
+      const depsCompleted = task.dependencies.every((depId) =>
+        this.scheduler.completedTasks.has(depId)
       );
 
       // 检查是否已在执行
@@ -531,8 +549,8 @@ export class AgentSwarmManager extends BrowserEventEmitter {
     this.assignTask(task, agent);
 
     // 执行任务
-    this.executeTask(agent, task).catch(error => {
-      logger.error('AgentSwarmManager', `[AgentSwarm] Task execution error:`, error);
+    this.executeTask(agent, task).catch((error) => {
+      logger.error("AgentSwarmManager", `[AgentSwarm] Task execution error:`, error);
       this.handleTaskFailure(task, agent, error);
     });
   }
@@ -554,12 +572,21 @@ export class AgentSwarmManager extends BrowserEventEmitter {
     // 返回分数最高的代理（如果分数 > 0）
     if (matchResults.length > 0 && matchResults[0].score > 0) {
       const bestMatch = matchResults[0];
-      logger.debug('AgentSwarmManager', `[AgentSwarm] Best match for task "${task.description.slice(0, 50)}...": ${bestMatch.agent.name} (score: ${bestMatch.score})`);
+      logger.debug(
+        "AgentSwarmManager",
+        `[AgentSwarm] Best match for task "${task.description.slice(0, 50)}...": ${bestMatch.agent.name} (score: ${bestMatch.score})`
+      );
       if (bestMatch.matchedSkills.length > 0) {
-        logger.debug('AgentSwarmManager', `[AgentSwarm]   Matched skills: ${bestMatch.matchedSkills.join(', ')}`);
+        logger.debug(
+          "AgentSwarmManager",
+          `[AgentSwarm]   Matched skills: ${bestMatch.matchedSkills.join(", ")}`
+        );
       }
       if (bestMatch.matchedTools.length > 0) {
-        logger.debug('AgentSwarmManager', `[AgentSwarm]   Matched tools: ${bestMatch.matchedTools.join(', ')}`);
+        logger.debug(
+          "AgentSwarmManager",
+          `[AgentSwarm]   Matched tools: ${bestMatch.matchedTools.join(", ")}`
+        );
       }
       return bestMatch.agent;
     }
@@ -598,7 +625,7 @@ export class AgentSwarmManager extends BrowserEventEmitter {
     const suggestedType = task.metadata?.suggestedAgentType;
     if (suggestedType && agent.type === suggestedType) {
       score += 50;
-    } else if (agent.type === 'general' || agent.type === 'fullstack') {
+    } else if (agent.type === "general" || agent.type === "fullstack") {
       // 通用代理有基础分
       score += 20;
     }
@@ -606,9 +633,12 @@ export class AgentSwarmManager extends BrowserEventEmitter {
     // 2. 技能匹配（权重: 每个 15）
     for (const skill of task.requiredSkills) {
       const normalizedSkill = skill.toLowerCase();
-      if (agent.capabilities.specializations.some(s =>
-        s.toLowerCase().includes(normalizedSkill) || normalizedSkill.includes(s.toLowerCase())
-      )) {
+      if (
+        agent.capabilities.specializations.some(
+          (s) =>
+            s.toLowerCase().includes(normalizedSkill) || normalizedSkill.includes(s.toLowerCase())
+        )
+      ) {
         score += 15;
         matchedSkills.push(skill);
       }
@@ -617,9 +647,11 @@ export class AgentSwarmManager extends BrowserEventEmitter {
     // 3. 工具匹配（权重: 每个 10）
     for (const tool of task.requiredTools) {
       const normalizedTool = tool.toLowerCase();
-      if (agent.capabilities.tools.some(t =>
-        t.toLowerCase() === normalizedTool || t.toLowerCase().includes(normalizedTool)
-      )) {
+      if (
+        agent.capabilities.tools.some(
+          (t) => t.toLowerCase() === normalizedTool || t.toLowerCase().includes(normalizedTool)
+        )
+      ) {
         score += 10;
         matchedTools.push(tool);
       }
@@ -628,7 +660,7 @@ export class AgentSwarmManager extends BrowserEventEmitter {
     // 4. 语言匹配（从任务描述推断）
     const taskDesc = task.description.toLowerCase();
     for (const lang of agent.capabilities.languages) {
-      if (lang === '*' || taskDesc.includes(lang.toLowerCase())) {
+      if (lang === "*" || taskDesc.includes(lang.toLowerCase())) {
         score += 5;
         matchedLanguages.push(lang);
       }
@@ -636,7 +668,7 @@ export class AgentSwarmManager extends BrowserEventEmitter {
 
     // 5. 框架匹配（从任务描述推断）
     for (const framework of agent.capabilities.frameworks) {
-      if (framework === '*' || taskDesc.includes(framework.toLowerCase())) {
+      if (framework === "*" || taskDesc.includes(framework.toLowerCase())) {
         score += 5;
         matchedFrameworks.push(framework);
       }
@@ -657,9 +689,11 @@ export class AgentSwarmManager extends BrowserEventEmitter {
 
     // 8. 空闲时间惩罚（避免代理长时间空闲）
     const idleTime = Date.now() - agent.performance.lastActiveAt;
-    if (idleTime > 300000) { // 超过5分钟
+    if (idleTime > 300000) {
+      // 超过5分钟
       score -= 10;
-    } else if (idleTime > 60000) { // 超过1分钟
+    } else if (idleTime > 60000) {
+      // 超过1分钟
       score -= 5;
     }
 
@@ -674,7 +708,7 @@ export class AgentSwarmManager extends BrowserEventEmitter {
       matchedSkills,
       matchedTools,
       matchedLanguages,
-      matchedFrameworks
+      matchedFrameworks,
     };
   }
 
@@ -709,15 +743,15 @@ export class AgentSwarmManager extends BrowserEventEmitter {
 
     if (!bestSource || bestScore < 20) {
       // 如果没有合适的源，创建一个新的通用代理
-      return await this.createAgent('general');
+      return await this.createAgent("general");
     }
 
     // 克隆代理
     return await this.cloneAgent({
       sourceAgentId: bestSource.id,
-      reason: `High demand for ${task.metadata?.suggestedAgentType || 'general'} tasks`,
+      reason: `High demand for ${task.metadata?.suggestedAgentType || "general"} tasks`,
       taskId: task.id,
-      inheritTasks: false
+      inheritTasks: false,
     });
   }
 
@@ -726,9 +760,9 @@ export class AgentSwarmManager extends BrowserEventEmitter {
    */
   private assignTask(task: Task, agent: Agent): void {
     task.assignedAgentId = agent.id;
-    task.status = 'in_progress';
+    task.status = "in_progress";
     agent.currentTask = task;
-    agent.status = 'busy';
+    agent.status = "busy";
 
     this.pool.idleAgents.delete(agent.id);
     this.pool.busyAgents.add(agent.id);
@@ -739,15 +773,18 @@ export class AgentSwarmManager extends BrowserEventEmitter {
     this.taskQueueManager.currentConcurrent++;
 
     // 从队列移除
-    const queueIndex = this.scheduler.taskQueue.findIndex(t => t.id === task.id);
+    const queueIndex = this.scheduler.taskQueue.findIndex((t) => t.id === task.id);
     if (queueIndex >= 0) {
       this.scheduler.taskQueue.splice(queueIndex, 1);
     }
 
-    this.emitEvent('agent:assigned', { agent, task });
-    this.emitEvent('task:started', { task, agent });
+    this.emitEvent("agent:assigned", { agent, task });
+    this.emitEvent("task:started", { task, agent });
 
-    logger.debug('AgentSwarmManager', `[AgentSwarm] Assigned task "${task.description}" to ${agent.name}`);
+    logger.debug(
+      "AgentSwarmManager",
+      `[AgentSwarm] Assigned task "${task.description}" to ${agent.name}`
+    );
   }
 
   /**
@@ -762,7 +799,7 @@ export class AgentSwarmManager extends BrowserEventEmitter {
     const result = await this.runTaskInSandbox(agent, task);
 
     // 更新任务状态
-    task.status = 'completed';
+    task.status = "completed";
     task.progress = 100;
     task.result = result;
     task.metrics.endTime = Date.now();
@@ -792,14 +829,17 @@ export class AgentSwarmManager extends BrowserEventEmitter {
     // 发送进度更新
     for (let progress = 0; progress <= 100; progress += 10) {
       task.progress = progress;
-      this.emitEvent('task:progress', { task, agent, progress });
+      this.emitEvent("task:progress", { task, agent, progress });
       await this.sleep(executionTime / 10);
     }
 
     return {
       success: true,
       output: `Task "${task.description}" completed successfully`,
-      logs: [`[${new Date().toISOString()}] Task started`, `[${new Date().toISOString()}] Task completed`]
+      logs: [
+        `[${new Date().toISOString()}] Task started`,
+        `[${new Date().toISOString()}] Task completed`,
+      ],
     };
   }
 
@@ -811,7 +851,7 @@ export class AgentSwarmManager extends BrowserEventEmitter {
     this.scheduler.completedTasks.add(task.id);
 
     agent.currentTask = undefined;
-    agent.status = 'idle';
+    agent.status = "idle";
     agent.performance.lastActiveAt = Date.now();
 
     this.pool.busyAgents.delete(agent.id);
@@ -819,47 +859,60 @@ export class AgentSwarmManager extends BrowserEventEmitter {
     this.pool.taskAssignments.delete(task.id);
 
     // 更新并发计数
-    this.taskQueueManager.currentConcurrent = Math.max(0, this.taskQueueManager.currentConcurrent - 1);
+    this.taskQueueManager.currentConcurrent = Math.max(
+      0,
+      this.taskQueueManager.currentConcurrent - 1
+    );
 
-    this.emitEvent('task:completed', { task, agent });
-    this.emitEvent('agent:idle', { agent });
+    this.emitEvent("task:completed", { task, agent });
+    this.emitEvent("agent:idle", { agent });
 
-    logger.debug('AgentSwarmManager', `[AgentSwarm] Task completed: "${task.description}" by ${agent.name}`);
+    logger.debug(
+      "AgentSwarmManager",
+      `[AgentSwarm] Task completed: "${task.description}" by ${agent.name}`
+    );
   }
 
   /**
    * ❌ 处理任务失败
    */
   private handleTaskFailure(task: Task, agent: Agent, error: Error): void {
-    task.status = 'failed';
+    task.status = "failed";
     task.result = {
       success: false,
       error: error.message,
-      logs: [`[${new Date().toISOString()}] Task failed: ${error.message}`]
+      logs: [`[${new Date().toISOString()}] Task failed: ${error.message}`],
     };
     task.metrics.endTime = Date.now();
     task.metrics.retryCount++;
 
     agent.performance.tasksFailed++;
-    agent.performance.successRate = agent.performance.tasksCompleted /
+    agent.performance.successRate =
+      agent.performance.tasksCompleted /
       (agent.performance.tasksCompleted + agent.performance.tasksFailed);
 
     // 更新并发计数
-    this.taskQueueManager.currentConcurrent = Math.max(0, this.taskQueueManager.currentConcurrent - 1);
+    this.taskQueueManager.currentConcurrent = Math.max(
+      0,
+      this.taskQueueManager.currentConcurrent - 1
+    );
 
     // 检查是否应该重试
     if (task.metrics.retryCount < this.config.retryPolicy.maxRetries) {
-      logger.debug('AgentSwarmManager', `[AgentSwarm] Retrying task "${task.description}" (attempt ${task.metrics.retryCount + 1});`);
-      task.status = 'pending';
+      logger.debug(
+        "AgentSwarmManager",
+        `[AgentSwarm] Retrying task "${task.description}" (attempt ${task.metrics.retryCount + 1});`
+      );
+      task.status = "pending";
       this.scheduler.taskQueue.push(task);
     } else {
       this.scheduler.inProgressTasks.delete(task.id);
       this.scheduler.failedTasks.add(task.id);
-      this.emitEvent('task:failed', { task, agent, error });
+      this.emitEvent("task:failed", { task, agent, error });
     }
 
     agent.currentTask = undefined;
-    agent.status = 'idle';
+    agent.status = "idle";
     this.pool.busyAgents.delete(agent.id);
     this.pool.idleAgents.add(agent.id);
     this.pool.taskAssignments.delete(task.id);
@@ -873,9 +926,9 @@ export class AgentSwarmManager extends BrowserEventEmitter {
     if (agentId) {
       const agent = this.pool.agents.get(agentId);
       if (agent && agent.currentTask?.id === taskId) {
-        agent.currentTask.status = 'cancelled';
+        agent.currentTask.status = "cancelled";
         agent.currentTask = undefined;
-        agent.status = 'idle';
+        agent.status = "idle";
 
         this.pool.busyAgents.delete(agentId);
         this.pool.idleAgents.add(agentId);
@@ -886,9 +939,12 @@ export class AgentSwarmManager extends BrowserEventEmitter {
     this.pool.taskAssignments.delete(taskId);
 
     // 更新并发计数
-    this.taskQueueManager.currentConcurrent = Math.max(0, this.taskQueueManager.currentConcurrent - 1);
+    this.taskQueueManager.currentConcurrent = Math.max(
+      0,
+      this.taskQueueManager.currentConcurrent - 1
+    );
 
-    this.emitEvent('task:cancelled', { taskId });
+    this.emitEvent("task:cancelled", { taskId });
   }
 
   // ============================================
@@ -900,9 +956,9 @@ export class AgentSwarmManager extends BrowserEventEmitter {
    */
   sendMessage(message: AgentMessage): void {
     this.messageQueue.push(message);
-    this.emitEvent('message:sent', { message });
+    this.emitEvent("message:sent", { message });
 
-    if (message.to === 'broadcast') {
+    if (message.to === "broadcast") {
       // 广播给所有代理
       for (const [agentId, agent] of this.pool.agents) {
         if (agentId !== message.from) {
@@ -923,22 +979,22 @@ export class AgentSwarmManager extends BrowserEventEmitter {
   private deliverMessage(agent: Agent, message: AgentMessage): void {
     // 代理处理消息
     switch (message.type) {
-      case 'context-share':
+      case "context-share":
         // 合并上下文
         agent.metadata.sharedContext = {
           ...agent.metadata.sharedContext,
-          ...message.payload
+          ...message.payload,
         };
         break;
-      case 'task-result':
+      case "task-result":
         // 处理任务结果
         break;
-      case 'status-update':
+      case "status-update":
         // 更新状态
         break;
     }
 
-    this.emitEvent('message:received', { agent, message });
+    this.emitEvent("message:received", { agent, message });
   }
 
   // ============================================
@@ -955,25 +1011,27 @@ export class AgentSwarmManager extends BrowserEventEmitter {
     const requiredAgents: Map<AgentType, AgentCapabilities> = new Map();
 
     for (const task of workflow.tasks) {
-      const suggestedType = (task.metadata?.suggestedAgentType as AgentType) || 'general';
+      const suggestedType = (task.metadata?.suggestedAgentType as AgentType) || "general";
 
       if (!requiredAgents.has(suggestedType)) {
         requiredAgents.set(suggestedType, {
           languages: [],
           frameworks: [],
           tools: [...task.requiredTools],
-          specializations: [...task.requiredSkills]
+          specializations: [...task.requiredSkills],
         });
       } else {
         const existing = requiredAgents.get(suggestedType)!;
         existing.tools = [...new Set([...existing.tools, ...task.requiredTools])];
-        existing.specializations = [...new Set([...existing.specializations, ...task.requiredSkills])];
+        existing.specializations = [
+          ...new Set([...existing.specializations, ...task.requiredSkills]),
+        ];
       }
     }
 
     return Array.from(requiredAgents.entries()).map(([type, capabilities]) => ({
       type,
-      capabilities
+      capabilities,
     }));
   }
 
@@ -1000,7 +1058,7 @@ export class AgentSwarmManager extends BrowserEventEmitter {
    * 休眠
    */
   private sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   /**
@@ -1010,10 +1068,10 @@ export class AgentSwarmManager extends BrowserEventEmitter {
     const event: WorkflowEvent = {
       type,
       timestamp: Date.now(),
-      ...data
+      ...data,
     };
     this.emit(type, event);
-    this.emit('*', event); // 通配符事件
+    this.emit("*", event); // 通配符事件
   }
 
   // ============================================
@@ -1040,7 +1098,7 @@ export class AgentSwarmManager extends BrowserEventEmitter {
       total: this.pool.agents.size,
       idle: this.pool.idleAgents.size,
       busy: this.pool.busyAgents.size,
-      maxAgents: this.pool.maxAgents
+      maxAgents: this.pool.maxAgents,
     };
   }
 
@@ -1056,8 +1114,8 @@ export class AgentSwarmManager extends BrowserEventEmitter {
    */
   pauseWorkflow(): void {
     this.scheduler.isRunning = false;
-    this.emitEvent('workflow:paused', {
-      workflow: this.scheduler.currentWorkflow
+    this.emitEvent("workflow:paused", {
+      workflow: this.scheduler.currentWorkflow,
     });
   }
 
@@ -1067,8 +1125,8 @@ export class AgentSwarmManager extends BrowserEventEmitter {
   async resumeWorkflow(): Promise<void> {
     if (this.scheduler.currentWorkflow) {
       this.scheduler.isRunning = true;
-      this.emitEvent('workflow:resumed', {
-        workflow: this.scheduler.currentWorkflow
+      this.emitEvent("workflow:resumed", {
+        workflow: this.scheduler.currentWorkflow,
       });
       await this.startSchedulingLoop();
     }
@@ -1090,6 +1148,6 @@ export const DEFAULT_SWARM_CONFIG: Partial<WorkflowConfig> = {
   retryPolicy: {
     maxRetries: 3,
     backoffMultiplier: 2,
-    initialDelay: 1000
-  }
+    initialDelay: 1000,
+  },
 };

@@ -6,7 +6,7 @@
  */
 
 import React from "react";
-import { Info, AlertCircle } from 'lucide-react';
+import { Info, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface SystemReminderWidgetProps {

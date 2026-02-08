@@ -279,7 +279,9 @@ export const Popover: React.FC<PopoverProps> = ({
       }
 
       // Check if click is inside a Radix Portal (e.g., Select dropdown)
-      const radixPortal = target.closest('[data-radix-popper-content-wrapper], [data-radix-select-viewport], [role="listbox"], [data-radix-portal]');
+      const radixPortal = target.closest(
+        '[data-radix-popper-content-wrapper], [data-radix-select-viewport], [role="listbox"], [data-radix-portal]'
+      );
       if (radixPortal) {
         return;
       }
@@ -287,7 +289,10 @@ export const Popover: React.FC<PopoverProps> = ({
       // Check for radix-related attributes in parent chain
       let element: HTMLElement | null = target;
       while (element && element !== document.body) {
-        if (element.hasAttribute('data-radix-collection-item') || element.getAttribute('role') === 'option') {
+        if (
+          element.hasAttribute("data-radix-collection-item") ||
+          element.getAttribute("role") === "option"
+        ) {
           return;
         }
         element = element.parentElement;
@@ -364,24 +369,15 @@ export const Popover: React.FC<PopoverProps> = ({
   return (
     <>
       <div className={usePortal ? "inline-block" : "relative inline-block"}>
-        <div
-          ref={triggerRef}
-          onClick={() => setOpen(!open)}
-        >
+        <div ref={triggerRef} onClick={() => setOpen(!open)}>
           {trigger}
         </div>
 
-        {!usePortal && (
-          <div className="relative">
-            {renderContent()}
-          </div>
-        )}
+        {!usePortal && <div className="relative">{renderContent()}</div>}
       </div>
 
       {/* Portal rendering for better positioning */}
-      {usePortal &&
-        typeof document !== "undefined" &&
-        createPortal(renderContent(), document.body)}
+      {usePortal && typeof document !== "undefined" && createPortal(renderContent(), document.body)}
     </>
   );
-}; 
+};

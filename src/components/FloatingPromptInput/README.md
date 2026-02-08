@@ -8,7 +8,7 @@
    - ✅ 创建 `FloatingPromptInput/` 目录
    - ✅ 创建 `hooks/` 子目录
 
-2. **类型和常量** 
+2. **类型和常量**
    - ✅ `types.ts` - 所有TypeScript类型定义
    - ✅ `constants.tsx` - MODELS 和 THINKING_MODES 常量
 
@@ -35,11 +35,13 @@
 ## 📈 代码优化效果
 
 ### 原始版本
+
 - **文件大小**: 1387 行
 - **复杂度**: 39+ hooks/状态
 - **维护性**: 困难
 
 ### 重构后（实际）
+
 - **主文件**: ~530 行 (减少 62%)
 - **子组件**: 4个组件，每个 <100 行
 - **Hooks**: 4个自定义hooks，每个 100-250 行
@@ -47,6 +49,7 @@
 - **总体**: **代码更模块化、易维护、可测试、可重用**
 
 ### 架构改进
+
 - ✅ **关注点分离**: 每个hook专注单一职责
 - ✅ **类型安全**: 独立类型定义文件
 - ✅ **可复用性**: 子组件可独立使用
@@ -85,7 +88,7 @@ import { FloatingPromptInput } from "@/components/FloatingPromptInput";
   projectPath={path}
   isPlanMode={planMode}
   onTogglePlanMode={() => setPlanMode(!planMode)}
-/>
+/>;
 ```
 
 ## ⚠️ 备份

@@ -1,7 +1,15 @@
-import { logger } from '@/lib/logger';
-import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode, useRef } from 'react';
-import { api, Project, Session } from '@/lib/api';
-import { useTranslation } from 'react-i18next';
+import { logger } from "@/lib/logger";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+  ReactNode,
+  useRef,
+} from "react";
+import { api, Project, Session } from "@/lib/api";
+import { useTranslation } from "react-i18next";
 
 interface ProjectContextType {
   projects: Project[];
@@ -37,7 +45,7 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
       try {
         codexSessions = await api.listCodexSessions();
       } catch (e) {
-        logger.warn('ProjectContext', "Failed to load codex sessions for sorting:", e);
+        logger.warn("ProjectContext", "Failed to load codex sessions for sorting:", e);
       }
 
       // 2. 计算每个项目的"最后活跃时间"
@@ -45,16 +53,17 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
       const projectLastActive = new Map<string, number>();
 
       // 辅助函数：标准化路径（去除末尾斜杠，转小写，统一斜杠）
-      const normalize = (p: string) => p ? p.replace(/\\/g, '/').replace(/\/$/, '').toLowerCase() : '';
+      const normalize = (p: string) =>
+        p ? p.replace(/\\/g, "/").replace(/\/$/, "").toLowerCase() : "";
 
       // 初始化：使用项目创建时间
-      list.forEach(p => {
+      list.forEach((p) => {
         const normPath = normalize(p.path);
         projectLastActive.set(normPath, p.created_at);
       });
 
       // 更新：检查 Codex 会话
-      codexSessions.forEach(session => {
+      codexSessions.forEach((session) => {
         if (!session.projectPath) return;
         const normPath = normalize(session.projectPath);
 
@@ -65,9 +74,10 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
         if (session.lastMessageTimestamp) {
           sessionTime = new Date(session.lastMessageTimestamp).getTime() / 1000;
         } else if (session.createdAt) {
-          sessionTime = typeof session.createdAt === 'string'
-            ? new Date(session.createdAt).getTime() / 1000
-            : session.createdAt;
+          sessionTime =
+            typeof session.createdAt === "string"
+              ? new Date(session.createdAt).getTime() / 1000
+              : session.createdAt;
         }
 
         const current = projectLastActive.get(normPath) || 0;
@@ -85,64 +95,73 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
 
       setProjects(sortedList);
     } catch (err) {
-      logger.error('ProjectContext', "Failed to load projects:", err);
-      setError(t('common.loadingProjects'));
+      logger.error("ProjectContext", "Failed to load projects:", err);
+      setError(t("common.loadingProjects"));
     } finally {
       setLoading(false);
     }
   }, [t]);
 
-  const selectProject = useCallback(async (project: Project) => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Load Claude/Codex sessions
-      const claudeCodexSessions = await api.getProjectSessions(project.id, project.path);
-
-      // Load Gemini sessions
-      let geminiSessions: Session[] = [];
+  const selectProject = useCallback(
+    async (project: Project) => {
       try {
-        const geminiSessionInfos = await api.listGeminiSessions(project.path);
+        setLoading(true);
+        setError(null);
 
-        // Convert GeminiSessionInfo to Session format
-        geminiSessions = geminiSessionInfos.map(info => ({
-          id: info.sessionId,
-          project_id: project.id,
-          project_path: project.path,
-          created_at: new Date(info.startTime).getTime() / 1000, // Convert to Unix timestamp
-          first_message: info.firstMessage,
-          message_timestamp: info.startTime,
-          last_message_timestamp: info.startTime,
-          engine: 'gemini' as const,
-        }));
-      } catch (geminiErr) {
-        logger.warn('ProjectContext', '[ProjectContext] Failed to load Gemini sessions (may not exist);:', geminiErr);
-        // Continue without Gemini sessions if loading fails
+        // Load Claude/Codex sessions
+        const claudeCodexSessions = await api.getProjectSessions(project.id, project.path);
+
+        // Load Gemini sessions
+        let geminiSessions: Session[] = [];
+        try {
+          const geminiSessionInfos = await api.listGeminiSessions(project.path);
+
+          // Convert GeminiSessionInfo to Session format
+          geminiSessions = geminiSessionInfos.map((info) => ({
+            id: info.sessionId,
+            project_id: project.id,
+            project_path: project.path,
+            created_at: new Date(info.startTime).getTime() / 1000, // Convert to Unix timestamp
+            first_message: info.firstMessage,
+            message_timestamp: info.startTime,
+            last_message_timestamp: info.startTime,
+            engine: "gemini" as const,
+          }));
+        } catch (geminiErr) {
+          logger.warn(
+            "ProjectContext",
+            "[ProjectContext] Failed to load Gemini sessions (may not exist);:",
+            geminiErr
+          );
+          // Continue without Gemini sessions if loading fails
+        }
+
+        // Merge all sessions
+        const allSessions = [...claudeCodexSessions, ...geminiSessions];
+
+        setSessions(allSessions);
+        setSelectedProject(project);
+
+        // Background indexing
+        api.preindexProject(project.path).catch(console.error);
+      } catch (err) {
+        logger.error("ProjectContext", "Failed to load sessions:", err);
+        setError(t("common.loadingSessions"));
+      } finally {
+        setLoading(false);
       }
-
-      // Merge all sessions
-      const allSessions = [...claudeCodexSessions, ...geminiSessions];
-
-
-      setSessions(allSessions);
-      setSelectedProject(project);
-
-      // Background indexing
-      api.preindexProject(project.path).catch(console.error);
-    } catch (err) {
-      logger.error('ProjectContext', "Failed to load sessions:", err);
-      setError(t('common.loadingSessions'));
-    } finally {
-      setLoading(false);
-    }
-  }, [t]);
+    },
+    [t]
+  );
 
   const refreshSessions = useCallback(async () => {
     if (selectedProject) {
       try {
         // Load Claude/Codex sessions
-        const claudeCodexSessions = await api.getProjectSessions(selectedProject.id, selectedProject.path);
+        const claudeCodexSessions = await api.getProjectSessions(
+          selectedProject.id,
+          selectedProject.path
+        );
 
         // Load Gemini sessions
         let geminiSessions: Session[] = [];
@@ -150,7 +169,7 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
           const geminiSessionInfos = await api.listGeminiSessions(selectedProject.path);
 
           // Convert GeminiSessionInfo to Session format
-          geminiSessions = geminiSessionInfos.map(info => ({
+          geminiSessions = geminiSessionInfos.map((info) => ({
             id: info.sessionId,
             project_id: selectedProject.id,
             project_path: selectedProject.path,
@@ -158,37 +177,44 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
             first_message: info.firstMessage,
             message_timestamp: info.startTime,
             last_message_timestamp: info.startTime,
-            engine: 'gemini' as const,
+            engine: "gemini" as const,
           }));
         } catch (geminiErr) {
-          logger.warn('ProjectContext', '[ProjectContext] Failed to refresh Gemini sessions:', geminiErr);
+          logger.warn(
+            "ProjectContext",
+            "[ProjectContext] Failed to refresh Gemini sessions:",
+            geminiErr
+          );
         }
 
         // Merge all sessions
         const allSessions = [...claudeCodexSessions, ...geminiSessions];
         setSessions(allSessions);
       } catch (err) {
-        logger.error('ProjectContext', "Failed to refresh sessions:", err);
+        logger.error("ProjectContext", "Failed to refresh sessions:", err);
       }
     }
   }, [selectedProject]);
 
-  const deleteProject = useCallback(async (project: Project) => {
-    try {
-      setLoading(true);
-      await api.deleteProject(project.id);
-      await loadProjects();
-      if (selectedProject?.id === project.id) {
-        setSelectedProject(null);
-        setSessions([]);
+  const deleteProject = useCallback(
+    async (project: Project) => {
+      try {
+        setLoading(true);
+        await api.deleteProject(project.id);
+        await loadProjects();
+        if (selectedProject?.id === project.id) {
+          setSelectedProject(null);
+          setSessions([]);
+        }
+      } catch (err) {
+        logger.error("ProjectContext", "Failed to delete project:", err);
+        throw err;
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      logger.error('ProjectContext', "Failed to delete project:", err);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [loadProjects, selectedProject]);
+    },
+    [loadProjects, selectedProject]
+  );
 
   const clearSelection = useCallback(() => {
     setSelectedProject(null);
@@ -207,41 +233,40 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
 
   // ✅ 性能优化 (v2.7.6): 使用 useMemo 缓存 context value
   // 只有当依赖的值真正变化时才重新创建对象，减少不必要的重渲染
-  const contextValue = React.useMemo(() => ({
-    projects,
-    selectedProject,
-    sessions,
-    loading,
-    error,
-    loadProjects,
-    selectProject,
-    refreshSessions,
-    deleteProject,
-    clearSelection
-  }), [
-    projects,
-    selectedProject,
-    sessions,
-    loading,
-    error,
-    loadProjects,
-    selectProject,
-    refreshSessions,
-    deleteProject,
-    clearSelection
-  ]);
-
-  return (
-    <ProjectContext.Provider value={contextValue}>
-      {children}
-    </ProjectContext.Provider>
+  const contextValue = React.useMemo(
+    () => ({
+      projects,
+      selectedProject,
+      sessions,
+      loading,
+      error,
+      loadProjects,
+      selectProject,
+      refreshSessions,
+      deleteProject,
+      clearSelection,
+    }),
+    [
+      projects,
+      selectedProject,
+      sessions,
+      loading,
+      error,
+      loadProjects,
+      selectProject,
+      refreshSessions,
+      deleteProject,
+      clearSelection,
+    ]
   );
+
+  return <ProjectContext.Provider value={contextValue}>{children}</ProjectContext.Provider>;
 };
 
 export const useProject = () => {
   const context = useContext(ProjectContext);
   if (context === undefined) {
-    throw new Error('useProject must be used within a ProjectProvider');
+    throw new Error("useProject must be used within a ProjectProvider");
   }
   return context;
 };

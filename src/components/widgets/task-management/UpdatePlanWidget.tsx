@@ -14,7 +14,7 @@
  */
 
 import React, { useState } from "react";
-import { ClipboardList, CheckCircle2, Circle, ChevronDown, ChevronUp } from 'lucide-react';
+import { ClipboardList, CheckCircle2, Circle, ChevronDown, ChevronUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -60,10 +60,7 @@ const StatusIcon: React.FC<{ status: string }> = ({ status }) => {
  * - 显示计划步骤列表
  * - 显示每个步骤的状态（完成/进行中/待处理）
  */
-export const UpdatePlanWidget: React.FC<UpdatePlanWidgetProps> = ({
-  plan,
-  result,
-}) => {
+export const UpdatePlanWidget: React.FC<UpdatePlanWidgetProps> = ({ plan, result }) => {
   const [isExpanded, setIsExpanded] = useState(true);
 
   const isError = result?.is_error;
@@ -108,10 +105,7 @@ export const UpdatePlanWidget: React.FC<UpdatePlanWidgetProps> = ({
       >
         <div className="flex items-center gap-2">
           <ClipboardList
-            className={cn(
-              "h-4 w-4",
-              isError ? "text-destructive" : "text-emerald-500"
-            )}
+            className={cn("h-4 w-4", isError ? "text-destructive" : "text-emerald-500")}
           />
           <span
             className={cn(

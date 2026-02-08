@@ -21,8 +21,11 @@
    FONT CONFIGURATION - 中国用户喜爱的字体
    ======================================== */
 @theme {
-  --font-sans: "Poppins", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-mono: "Cascadia Code", "Fira Code", "Consolas", ui-monospace, "Source Code Pro", Menlo, monospace;
+  --font-sans:
+    "Poppins", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", ui-sans-serif, system-ui,
+    -apple-system, sans-serif;
+  --font-mono:
+    "Cascadia Code", "Fira Code", "Consolas", ui-monospace, "Source Code Pro", Menlo, monospace;
 
   /* Sci-Fi 主题字体 */
   --font-display: "Orbitron", "Poppins", ui-sans-serif, system-ui, sans-serif;

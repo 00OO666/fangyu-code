@@ -12,7 +12,14 @@
 
 import React, { useState, useMemo, useEffect, useRef, useContext } from "react";
 import { useTranslation } from "react-i18next";
-import { HelpCircle, CheckCircle, MessageCircle, ChevronDown, ChevronUp, Check } from 'lucide-react';
+import {
+  HelpCircle,
+  CheckCircle,
+  MessageCircle,
+  ChevronDown,
+  ChevronUp,
+  Check,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { getQuestionId } from "@/contexts/UserQuestionContext";
@@ -46,22 +53,22 @@ export interface AskUserQuestionWidgetProps {
 /**
  * 检查选项是否被选中
  */
-function isOptionSelected(
-  optionLabel: string,
-  answer: string | string[] | undefined
-): boolean {
+function isOptionSelected(optionLabel: string, answer: string | string[] | undefined): boolean {
   if (!answer) return false;
 
   if (Array.isArray(answer)) {
     // 多选：检查是否在数组中
-    return answer.some(a =>
-      optionLabel.toLowerCase().includes(a.toLowerCase()) ||
-      a.toLowerCase().includes(optionLabel.toLowerCase())
+    return answer.some(
+      (a) =>
+        optionLabel.toLowerCase().includes(a.toLowerCase()) ||
+        a.toLowerCase().includes(optionLabel.toLowerCase())
     );
   } else {
     // 单选：检查是否匹配
-    return optionLabel.toLowerCase().includes(answer.toLowerCase()) ||
-           answer.toLowerCase().includes(optionLabel.toLowerCase());
+    return (
+      optionLabel.toLowerCase().includes(answer.toLowerCase()) ||
+      answer.toLowerCase().includes(optionLabel.toLowerCase())
+    );
   }
 }
 
@@ -134,7 +141,7 @@ export const AskUserQuestionWidget: React.FC<AskUserQuestionWidgetProps> = ({
       const content = result.content;
 
       // 如果content是字符串，尝试解析 "问题？"="答案" 格式
-      if (typeof content === 'string') {
+      if (typeof content === "string") {
         const parsed: Record<string, string> = {};
 
         // 正则：匹配格式 "问题？"="答案"
@@ -144,7 +151,7 @@ export const AskUserQuestionWidget: React.FC<AskUserQuestionWidgetProps> = ({
 
         for (const match of matches) {
           const question = match[1].trim(); // 问题部分（包含问号）
-          const answer = match[2].trim();   // 答案部分
+          const answer = match[2].trim(); // 答案部分
           parsed[question] = answer;
         }
 
@@ -167,10 +174,10 @@ export const AskUserQuestionWidget: React.FC<AskUserQuestionWidgetProps> = ({
     questions.forEach((q) => {
       // 尝试多种方式匹配答案
       const possibleKeys = [
-        q.question,                    // 使用完整问题文本作为key（最常见）
-        q.question.replace(/\?$/, ''), // 去掉问号
-        q.question.replace(/\s+/g, ' ').trim(), // 标准化空格
-        q.header,                      // 使用header作为key
+        q.question, // 使用完整问题文本作为key（最常见）
+        q.question.replace(/\?$/, ""), // 去掉问号
+        q.question.replace(/\s+/g, " ").trim(), // 标准化空格
+        q.header, // 使用header作为key
       ].filter(Boolean);
 
       for (const key of possibleKeys) {
@@ -218,19 +225,12 @@ export const AskUserQuestionWidget: React.FC<AskUserQuestionWidgetProps> = ({
           <div
             className={cn(
               "h-8 w-8 rounded-full flex items-center justify-center",
-              isError
-                ? "bg-destructive/10"
-                : hasAnswers
-                  ? "bg-green-500/20"
-                  : "bg-blue-500/10"
+              isError ? "bg-destructive/10" : hasAnswers ? "bg-green-500/20" : "bg-blue-500/10"
             )}
           >
             {hasAnswers ? (
               <CheckCircle
-                className={cn(
-                  "h-4 w-4",
-                  isError ? "text-destructive" : "text-green-600"
-                )}
+                className={cn("h-4 w-4", isError ? "text-destructive" : "text-green-600")}
               />
             ) : (
               <HelpCircle className="h-4 w-4 text-blue-500" />
@@ -245,18 +245,14 @@ export const AskUserQuestionWidget: React.FC<AskUserQuestionWidgetProps> = ({
               <span
                 className={cn(
                   "text-xs font-medium",
-                  isError
-                    ? "text-destructive"
-                    : hasAnswers
-                      ? "text-green-600"
-                      : "text-blue-500"
+                  isError ? "text-destructive" : hasAnswers ? "text-green-600" : "text-blue-500"
                 )}
               >
-                {hasAnswers ? t('widget.userAnswered') : t('widget.claudeAsking')}
+                {hasAnswers ? t("widget.userAnswered") : t("widget.claudeAsking")}
               </span>
               {questions.length > 0 && (
                 <span className="text-xs text-muted-foreground">
-                  {t('widget.questionsCount', { count: questions.length })}
+                  {t("widget.questionsCount", { count: questions.length })}
                 </span>
               )}
             </div>
@@ -282,10 +278,13 @@ export const AskUserQuestionWidget: React.FC<AskUserQuestionWidgetProps> = ({
           {/* 折叠时显示的简要信息 */}
           {isCollapsed && hasAnswers && (
             <div className="mt-1 text-xs text-muted-foreground truncate">
-              {Object.entries(answers).slice(0, 2).map(([key, value]) => {
-                const displayValue = Array.isArray(value) ? value.join(", ") : value;
-                return `${key}: ${displayValue}`;
-              }).join(" | ")}
+              {Object.entries(answers)
+                .slice(0, 2)
+                .map(([key, value]) => {
+                  const displayValue = Array.isArray(value) ? value.join(", ") : value;
+                  return `${key}: ${displayValue}`;
+                })
+                .join(" | ")}
               {Object.keys(answers).length > 2 && ` +${Object.keys(answers).length - 2}...`}
             </div>
           )}
@@ -321,9 +320,7 @@ export const AskUserQuestionWidget: React.FC<AskUserQuestionWidgetProps> = ({
                         {q.header && (
                           <div className="text-xs font-medium text-primary mb-1 flex items-center gap-2">
                             <span>{q.header}</span>
-                            {hasAnswer && (
-                              <CheckCircle className="h-3 w-3 text-green-600" />
-                            )}
+                            {hasAnswer && <CheckCircle className="h-3 w-3 text-green-600" />}
                           </div>
                         )}
                         <div className="text-sm text-foreground">{q.question}</div>
@@ -350,7 +347,10 @@ export const AskUserQuestionWidget: React.FC<AskUserQuestionWidgetProps> = ({
                                 {/* 选中徽章 */}
                                 {isSelected ? (
                                   <div className="flex-shrink-0 h-5 w-5 rounded-full bg-green-500 flex items-center justify-center shadow-sm">
-                                    <Check className="h-3.5 w-3.5 text-white font-bold" strokeWidth={3} />
+                                    <Check
+                                      className="h-3.5 w-3.5 text-white font-bold"
+                                      strokeWidth={3}
+                                    />
                                   </div>
                                 ) : (
                                   <div className="flex-shrink-0 h-5 w-5 rounded-full border-2 border-muted-foreground/30 bg-background" />
@@ -370,7 +370,7 @@ export const AskUserQuestionWidget: React.FC<AskUserQuestionWidgetProps> = ({
                                     {/* 选中标签 */}
                                     {isSelected && (
                                       <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-green-500 text-white shadow-sm">
-                                        {t('widget.selected')}
+                                        {t("widget.selected")}
                                       </span>
                                     )}
                                   </div>
@@ -394,7 +394,7 @@ export const AskUserQuestionWidget: React.FC<AskUserQuestionWidgetProps> = ({
                         {q.multiSelect && (
                           <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
                             <span className="text-blue-500">ℹ️</span>
-                            <span>{t('widget.multipleChoice')}</span>
+                            <span>{t("widget.multipleChoice")}</span>
                           </div>
                         )}
                       </div>
@@ -408,9 +408,7 @@ export const AskUserQuestionWidget: React.FC<AskUserQuestionWidgetProps> = ({
           {/* 错误信息 */}
           {isError && result?.content && (
             <div className="p-2 rounded bg-destructive/10 text-xs text-destructive">
-              {typeof result.content === "string"
-                ? result.content
-                : JSON.stringify(result.content)}
+              {typeof result.content === "string" ? result.content : JSON.stringify(result.content)}
             </div>
           )}
 

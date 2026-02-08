@@ -1,19 +1,29 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { Loader2 } from 'lucide-react';
-import { listen, type UnlistenFn } from '@tauri-apps/api/event';
-import { useTranslation } from 'react-i18next';
+import { Loader2 } from "lucide-react";
+import { listen, type UnlistenFn } from "@tauri-apps/api/event";
+import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence, Transition } from "framer-motion"; // ✨ Added for transitions
 import { Button } from "@/components/ui/button";
 // import { ProjectList } from "@/components/ProjectList"; // Unused in new GlobalSessionCenter
 // import { SessionList } from "@/components/SessionList"; // Unused in new GlobalSessionCenter
 // import { RunningClaudeSessions } from "@/components/RunningClaudeSessions"; // Unused in new GlobalSessionCenter
 // 🔧 FIX: 动态导入重型 Markdown 编辑器组件 (~150KB)
-const MarkdownEditor = React.lazy(() => import("@/components/MarkdownEditor").then(m => ({ default: m.MarkdownEditor })));
-const CodexMarkdownEditor = React.lazy(() => import("@/components/CodexMarkdownEditor").then(m => ({ default: m.CodexMarkdownEditor })));
-const GeminiMarkdownEditor = React.lazy(() => import("@/components/GeminiMarkdownEditor").then(m => ({ default: m.GeminiMarkdownEditor })));
-const ClaudeFileEditor = React.lazy(() => import("@/components/ClaudeFileEditor").then(m => ({ default: m.ClaudeFileEditor })));
+const MarkdownEditor = React.lazy(() =>
+  import("@/components/MarkdownEditor").then((m) => ({ default: m.MarkdownEditor }))
+);
+const CodexMarkdownEditor = React.lazy(() =>
+  import("@/components/CodexMarkdownEditor").then((m) => ({ default: m.CodexMarkdownEditor }))
+);
+const GeminiMarkdownEditor = React.lazy(() =>
+  import("@/components/GeminiMarkdownEditor").then((m) => ({ default: m.GeminiMarkdownEditor }))
+);
+const ClaudeFileEditor = React.lazy(() =>
+  import("@/components/ClaudeFileEditor").then((m) => ({ default: m.ClaudeFileEditor }))
+);
 // 🔧 FIX: 动态导入 V3FeaturesCenter (包含 Monaco Editor ~1.7MB)
-const V3FeaturesCenter = React.lazy(() => import("@/components/V3FeaturesCenter").then(m => ({ default: m.V3FeaturesCenter })));
+const V3FeaturesCenter = React.lazy(() =>
+  import("@/components/V3FeaturesCenter").then((m) => ({ default: m.V3FeaturesCenter }))
+);
 import { Settings } from "@/components/Settings";
 import { ClaudeCodeSession } from "@/components/ClaudeCodeSession";
 import { TabManager } from "@/components/TabManager";
@@ -22,29 +32,36 @@ import { Diagnostics } from "@/components/Diagnostics";
 import { MCPManager } from "@/components/MCPManager";
 import { ClaudeBinaryDialog } from "@/components/dialogs/ClaudeBinaryDialog";
 import { Toast, ToastContainer } from "@/components/ui/toast";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ProjectSettings } from '@/components/ProjectSettings';
-import { EnhancedHooksManager } from '@/components/EnhancedHooksManager';
-import { ClaudeExtensionsManager } from '@/components/ClaudeExtensionsManager';
-import { PluginManager } from '@/components/PluginManager';
-import { HookToggleManager } from '@/components/HookToggleManager';
-import { SuperAgentCenter } from '@/components/SuperAgentCenter';
-import { DeveloperTools } from '@/components/DeveloperTools';
-import { SpecGenerationPanel } from '@/components/SpecGenerationPanel';
-import { WorkflowManagerPanel } from '@/components/WorkflowManagerPanel';
-import NewFeaturesDemo from '@/examples/NewFeaturesDemo';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ProjectSettings } from "@/components/ProjectSettings";
+import { EnhancedHooksManager } from "@/components/EnhancedHooksManager";
+import { ClaudeExtensionsManager } from "@/components/ClaudeExtensionsManager";
+import { PluginManager } from "@/components/PluginManager";
+import { HookToggleManager } from "@/components/HookToggleManager";
+import { SuperAgentCenter } from "@/components/SuperAgentCenter";
+import { DeveloperTools } from "@/components/DeveloperTools";
+import { SpecGenerationPanel } from "@/components/SpecGenerationPanel";
+import { WorkflowManagerPanel } from "@/components/WorkflowManagerPanel";
+import NewFeaturesDemo from "@/examples/NewFeaturesDemo";
 // import { ProjectCardSkeleton, SessionListItemSkeleton } from '@/components/ui/skeleton'; // Unused in new GlobalSessionCenter
-import { GlobalSessionCenter } from '@/components/GlobalSessionCenter';
-import { CliMonitorPanel } from '@/components/cli-monitor';
-import { useNavigation } from '@/contexts/NavigationContext';
-import { useProject } from '@/contexts/ProjectContext';
-import { useTabs } from '@/hooks/useTabs';
-import { useGlobalKeyboardShortcuts } from '@/hooks/useGlobalKeyboardShortcuts';
+import { GlobalSessionCenter } from "@/components/GlobalSessionCenter";
+import { CliMonitorPanel } from "@/components/cli-monitor";
+import { useNavigation } from "@/contexts/NavigationContext";
+import { useProject } from "@/contexts/ProjectContext";
+import { useTabs } from "@/hooks/useTabs";
+import { useGlobalKeyboardShortcuts } from "@/hooks/useGlobalKeyboardShortcuts";
 
 type ClaudeCompletePayload = { tab_id?: string | null; payload: boolean } | boolean;
 
 const isClaudeCompleteSuccess = (payload: ClaudeCompletePayload) => {
-  if (typeof payload === 'boolean') return payload;
+  if (typeof payload === "boolean") return payload;
   return payload?.payload === true;
 };
 
@@ -52,26 +69,37 @@ const isClaudeCompleteSuccess = (payload: ClaudeCompletePayload) => {
 const pageVariants = {
   initial: { opacity: 0, y: 10 },
   in: { opacity: 1, y: 0 },
-  out: { opacity: 0, y: -10 }
+  out: { opacity: 0, y: -10 },
 };
 
 const pageTransition: Transition = {
   type: "tween",
   ease: "anticipate",
-  duration: 0.3
+  duration: 0.3,
 };
 
 export const ViewRouter: React.FC = () => {
   const { t } = useTranslation();
   const { currentView, navigateTo, viewParams, setNavigationInterceptor, goBack } = useNavigation();
   const {
-    projects: _projects, selectedProject, sessions: _sessions, loading: _loading, error: _error,
-    loadProjects, selectProject: _selectProject, deleteProject: _deleteProject, clearSelection: _clearSelection, refreshSessions
+    projects: _projects,
+    selectedProject,
+    sessions: _sessions,
+    loading: _loading,
+    error: _error,
+    loadProjects,
+    selectProject: _selectProject,
+    deleteProject: _deleteProject,
+    clearSelection: _clearSelection,
+    refreshSessions,
   } = useProject();
   const { openSessionInBackground, switchToTab } = useTabs();
 
   const [showClaudeBinaryDialog, setShowClaudeBinaryDialog] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error" | "info";
+  } | null>(null);
   const [showNavigationConfirm, setShowNavigationConfirm] = useState(false);
   const [pendingView, setPendingView] = useState<any | null>(null); // Store pending view for confirmation
 
@@ -113,9 +141,9 @@ export const ViewRouter: React.FC = () => {
   // Global keyboard shortcuts
   useGlobalKeyboardShortcuts({
     onOpenSettings: () => {
-      navigateTo('settings');
+      navigateTo("settings");
     },
-    enabled: currentView !== 'claude-code-session',
+    enabled: currentView !== "claude-code-session",
   });
 
   // Listen for open-prompt-api-settings
@@ -123,8 +151,15 @@ export const ViewRouter: React.FC = () => {
     const handleOpenPromptAPISettings = () => {
       navigateTo("settings", { initialTab: "prompt-api" });
     };
-    window.addEventListener('open-prompt-api-settings', handleOpenPromptAPISettings as EventListener);
-    return () => window.removeEventListener('open-prompt-api-settings', handleOpenPromptAPISettings as EventListener);
+    window.addEventListener(
+      "open-prompt-api-settings",
+      handleOpenPromptAPISettings as EventListener
+    );
+    return () =>
+      window.removeEventListener(
+        "open-prompt-api-settings",
+        handleOpenPromptAPISettings as EventListener
+      );
   }, [currentView, navigateTo]);
 
   // Listen for claude-session-selected
@@ -146,11 +181,11 @@ export const ViewRouter: React.FC = () => {
       setShowClaudeBinaryDialog(true);
     };
 
-    window.addEventListener('claude-session-selected', handleSessionSelected as EventListener);
-    window.addEventListener('claude-not-found', handleClaudeNotFound as EventListener);
+    window.addEventListener("claude-session-selected", handleSessionSelected as EventListener);
+    window.addEventListener("claude-not-found", handleClaudeNotFound as EventListener);
     return () => {
-      window.removeEventListener('claude-session-selected', handleSessionSelected as EventListener);
-      window.removeEventListener('claude-not-found', handleClaudeNotFound as EventListener);
+      window.removeEventListener("claude-session-selected", handleSessionSelected as EventListener);
+      window.removeEventListener("claude-not-found", handleClaudeNotFound as EventListener);
     };
   }, [openSessionInBackground, switchToTab, navigateTo]);
 
@@ -158,7 +193,7 @@ export const ViewRouter: React.FC = () => {
   useEffect(() => {
     let unlistenComplete: UnlistenFn | null = null;
     const setupListener = async () => {
-      unlistenComplete = await listen<ClaudeCompletePayload>('claude-complete', async (event) => {
+      unlistenComplete = await listen<ClaudeCompletePayload>("claude-complete", async (event) => {
         if (isClaudeCompleteSuccess(event.payload)) {
           loadProjects(); // Refresh projects to update counts/timestamps
           if (selectedProject) {
@@ -178,12 +213,7 @@ export const ViewRouter: React.FC = () => {
   const renderContent = () => {
     switch (currentView) {
       case "enhanced-hooks-manager":
-        return (
-          <EnhancedHooksManager
-            onBack={goBack}
-            projectPath={viewParams.projectPath}
-          />
-        );
+        return <EnhancedHooksManager onBack={goBack} projectPath={viewParams.projectPath} />;
 
       case "hook-manager":
         return (
@@ -198,10 +228,7 @@ export const ViewRouter: React.FC = () => {
         return (
           <div className="flex-1 overflow-y-auto">
             <div className="container mx-auto p-6">
-              <ClaudeExtensionsManager
-                projectPath={viewParams.projectPath}
-                onBack={goBack}
-              />
+              <ClaudeExtensionsManager projectPath={viewParams.projectPath} onBack={goBack} />
             </div>
           </div>
         );
@@ -209,7 +236,13 @@ export const ViewRouter: React.FC = () => {
       case "editor":
         return (
           <div className="flex-1 overflow-hidden">
-            <React.Suspense fallback={<div className="flex items-center justify-center h-full"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
+            <React.Suspense
+              fallback={
+                <div className="flex items-center justify-center h-full">
+                  <Loader2 className="h-8 w-8 animate-spin" />
+                </div>
+              }
+            >
               <MarkdownEditor onBack={goBack} />
             </React.Suspense>
           </div>
@@ -218,7 +251,13 @@ export const ViewRouter: React.FC = () => {
       case "codex-editor":
         return (
           <div className="flex-1 overflow-hidden">
-            <React.Suspense fallback={<div className="flex items-center justify-center h-full"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
+            <React.Suspense
+              fallback={
+                <div className="flex items-center justify-center h-full">
+                  <Loader2 className="h-8 w-8 animate-spin" />
+                </div>
+              }
+            >
               <CodexMarkdownEditor onBack={goBack} />
             </React.Suspense>
           </div>
@@ -227,7 +266,13 @@ export const ViewRouter: React.FC = () => {
       case "gemini-editor":
         return (
           <div className="flex-1 overflow-hidden">
-            <React.Suspense fallback={<div className="flex items-center justify-center h-full"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
+            <React.Suspense
+              fallback={
+                <div className="flex items-center justify-center h-full">
+                  <Loader2 className="h-8 w-8 animate-spin" />
+                </div>
+              }
+            >
               <GeminiMarkdownEditor onBack={goBack} />
             </React.Suspense>
           </div>
@@ -236,10 +281,7 @@ export const ViewRouter: React.FC = () => {
       case "settings":
         return (
           <div className="flex-1 flex flex-col" style={{ minHeight: 0 }}>
-            <Settings 
-              onBack={goBack} 
-              initialTab={viewParams.initialTab}
-            />
+            <Settings onBack={goBack} initialTab={viewParams.initialTab} />
           </div>
         );
 
@@ -264,11 +306,14 @@ export const ViewRouter: React.FC = () => {
 
       case "claude-file-editor":
         return viewParams.file ? (
-          <React.Suspense fallback={<div className="flex items-center justify-center h-full"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
-            <ClaudeFileEditor
-              file={viewParams.file}
-              onBack={goBack}
-            />
+          <React.Suspense
+            fallback={
+              <div className="flex items-center justify-center h-full">
+                <Loader2 className="h-8 w-8 animate-spin" />
+              </div>
+            }
+          >
+            <ClaudeFileEditor file={viewParams.file} onBack={goBack} />
           </React.Suspense>
         ) : null;
 
@@ -314,9 +359,7 @@ export const ViewRouter: React.FC = () => {
         return (
           <div className="flex-1 overflow-y-auto">
             <div className="container mx-auto p-6">
-              <PluginManager
-                workspacePath={viewParams.projectPath}
-              />
+              <PluginManager workspacePath={viewParams.projectPath} />
             </div>
           </div>
         );
@@ -335,7 +378,13 @@ export const ViewRouter: React.FC = () => {
 
       case "v3-features":
         return (
-          <React.Suspense fallback={<div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin" /></div>}>
+          <React.Suspense
+            fallback={
+              <div className="flex items-center justify-center h-full">
+                <Loader2 className="w-8 h-8 animate-spin" />
+              </div>
+            }
+          >
             <V3FeaturesCenter onBack={goBack} />
           </React.Suspense>
         );
@@ -354,7 +403,7 @@ export const ViewRouter: React.FC = () => {
         return (
           <div className="flex-1 overflow-hidden">
             <WorkflowManagerPanel
-              workspaceRoot={viewParams.workspaceRoot || ''}
+              workspaceRoot={viewParams.workspaceRoot || ""}
               apiClient={viewParams.apiClient}
             />
           </div>
@@ -362,12 +411,7 @@ export const ViewRouter: React.FC = () => {
 
       case "project-settings":
         if (viewParams.project) {
-          return (
-            <ProjectSettings
-              project={viewParams.project}
-              onBack={goBack}
-            />
-          );
+          return <ProjectSettings project={viewParams.project} onBack={goBack} />;
         }
         break;
 
@@ -425,7 +469,7 @@ export const ViewRouter: React.FC = () => {
         open={showClaudeBinaryDialog}
         onOpenChange={setShowClaudeBinaryDialog}
         onSuccess={() => {
-          setToast({ message: t('messages.saved'), type: "success" });
+          setToast({ message: t("messages.saved"), type: "success" });
           window.location.reload();
         }}
         onError={(message) => setToast({ message, type: "error" })}
@@ -440,19 +484,24 @@ export const ViewRouter: React.FC = () => {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => {
-              setShowNavigationConfirm(false);
-              setPendingView(null);
-            }}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowNavigationConfirm(false);
+                setPendingView(null);
+              }}
+            >
               取消
             </Button>
-            <Button onClick={() => {
-              setNavigationInterceptor(null); // Clear interceptor to allow navigation
-              setShowNavigationConfirm(false);
-              if (pendingView) {
-                navigateTo(pendingView);
-              }
-            }}>
+            <Button
+              onClick={() => {
+                setNavigationInterceptor(null); // Clear interceptor to allow navigation
+                setShowNavigationConfirm(false);
+                if (pendingView) {
+                  navigateTo(pendingView);
+                }
+              }}
+            >
               确定离开
             </Button>
           </DialogFooter>
@@ -461,11 +510,7 @@ export const ViewRouter: React.FC = () => {
 
       <ToastContainer>
         {toast && (
-          <Toast
-            message={toast.message}
-            type={toast.type}
-            onDismiss={() => setToast(null)}
-          />
+          <Toast message={toast.message} type={toast.type} onDismiss={() => setToast(null)} />
         )}
       </ToastContainer>
     </>

@@ -250,7 +250,7 @@ function extractTimestamp(message: ClaudeStreamMessage): {
 function getModelName(
   message: ClaudeStreamMessage,
   engine?: string,
-  sessionDefaultModel?: string,
+  sessionDefaultModel?: string
 ): string {
   const candidates = [
     (message as any).model,

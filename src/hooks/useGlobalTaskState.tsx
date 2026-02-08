@@ -13,14 +13,8 @@
  * @module useGlobalTaskState
  */
 
-import { logger } from '@/lib/logger';
-import {
-  createContext,
-  type ReactNode,
-  useContext,
-  useEffect,
-  useSyncExternalStore,
-} from "react";
+import { logger } from "@/lib/logger";
+import { createContext, type ReactNode, useContext, useEffect, useSyncExternalStore } from "react";
 import { emitWindowSyncEvent, onWindowSyncEvent } from "@/lib/windowManager";
 
 // ============================================================================
@@ -118,7 +112,7 @@ class GlobalTaskStore {
   // 🆕 广播任务状态到其他窗口
   private broadcastTaskUpdate = async (
     task: TaskInfo,
-    action: "register" | "update" | "remove",
+    action: "register" | "update" | "remove"
   ) => {
     // 如果正在处理远程更新，不要再广播（防止循环）
     if (this.isProcessingRemoteUpdate) return;
@@ -137,9 +131,18 @@ class GlobalTaskStore {
           },
         },
       });
-      logger.debug('useGlobalTaskState', "[GlobalTaskState] Broadcasted task update:", action, task.taskId);
+      logger.debug(
+        "useGlobalTaskState",
+        "[GlobalTaskState] Broadcasted task update:",
+        action,
+        task.taskId
+      );
     } catch (error) {
-      logger.warn('useGlobalTaskState', "[GlobalTaskState] Failed to broadcast task update:", error);
+      logger.warn(
+        "useGlobalTaskState",
+        "[GlobalTaskState] Failed to broadcast task update:",
+        error
+      );
     }
   };
 
@@ -161,7 +164,12 @@ class GlobalTaskStore {
           this.updateActiveCount();
           this.notify();
           this.notifyTaskListeners(task.taskId, task);
-          logger.debug('useGlobalTaskState', "[GlobalTaskState] Applied remote task update:", action, task.taskId);
+          logger.debug(
+            "useGlobalTaskState",
+            "[GlobalTaskState] Applied remote task update:",
+            action,
+            task.taskId
+          );
           break;
 
         case "remove": {
@@ -172,7 +180,11 @@ class GlobalTaskStore {
             this.updateActiveCount();
             this.notify();
             this.notifyTaskListeners(task.taskId, undefined);
-            logger.debug('useGlobalTaskState', "[GlobalTaskState] Applied remote task removal:", task.taskId);
+            logger.debug(
+              "useGlobalTaskState",
+              "[GlobalTaskState] Applied remote task removal:",
+              task.taskId
+            );
           }
           break;
         }
@@ -217,13 +229,18 @@ class GlobalTaskStore {
     // 🆕 广播到其他窗口
     this.broadcastTaskUpdate(task, "register");
 
-    logger.debug('useGlobalTaskState', "[GlobalTaskState] Task registered:", info.taskId, info.status);
+    logger.debug(
+      "useGlobalTaskState",
+      "[GlobalTaskState] Task registered:",
+      info.taskId,
+      info.status
+    );
   };
 
   updateTaskStatus = (taskId: string, status: TaskStatus, error?: string) => {
     const existing = this.state.tasks.get(taskId);
     if (!existing) {
-      logger.warn('useGlobalTaskState', "[GlobalTaskState] Task not found:", taskId);
+      logger.warn("useGlobalTaskState", "[GlobalTaskState] Task not found:", taskId);
       return;
     }
 
@@ -251,7 +268,7 @@ class GlobalTaskStore {
     // 🆕 广播到其他窗口
     this.broadcastTaskUpdate(updated, "update");
 
-    logger.debug('useGlobalTaskState', "[GlobalTaskState] Task status updated:", taskId, status);
+    logger.debug("useGlobalTaskState", "[GlobalTaskState] Task status updated:", taskId, status);
   };
 
   updateTaskProgress = (taskId: string, progress: number) => {
@@ -292,7 +309,7 @@ class GlobalTaskStore {
       // 🆕 广播到其他窗口
       this.broadcastTaskUpdate(existing, "remove");
 
-      logger.debug('useGlobalTaskState', "[GlobalTaskState] Task removed:", taskId);
+      logger.debug("useGlobalTaskState", "[GlobalTaskState] Task removed:", taskId);
     }
   };
 
@@ -330,7 +347,7 @@ class GlobalTaskStore {
 
   subscribeToTask = (
     taskId: string,
-    callback: (task: TaskInfo | undefined) => void,
+    callback: (task: TaskInfo | undefined) => void
   ): (() => void) => {
     if (!this.taskListeners.has(taskId)) {
       this.taskListeners.set(taskId, new Set());
@@ -359,7 +376,7 @@ class GlobalTaskStore {
     this.notify();
     taskIds.forEach((id) => this.notifyTaskListeners(id, undefined));
 
-    logger.debug('useGlobalTaskState', "[GlobalTaskState] All tasks cleared");
+    logger.debug("useGlobalTaskState", "[GlobalTaskState] All tasks cleared");
   };
 
   /**
@@ -402,7 +419,11 @@ class GlobalTaskStore {
       this.updateActiveCount();
       this.notify();
 
-      logger.debug('useGlobalTaskState', "[GlobalTaskState] Cleaned up stale tasks:", tasksToRemove.length);
+      logger.debug(
+        "useGlobalTaskState",
+        "[GlobalTaskState] Cleaned up stale tasks:",
+        tasksToRemove.length
+      );
     }
   };
 }
@@ -440,7 +461,7 @@ export const GlobalTaskStateProvider: React.FC<GlobalTaskStateProviderProps> = (
   const state = useSyncExternalStore(
     globalTaskStore.subscribe,
     globalTaskStore.getSnapshot,
-    globalTaskStore.getSnapshot, // SSR fallback (same as client)
+    globalTaskStore.getSnapshot // SSR fallback (same as client)
   );
 
   // 🆕 监听其他窗口的任务状态更新
@@ -461,11 +482,18 @@ export const GlobalTaskStateProvider: React.FC<GlobalTaskStateProviderProps> = (
           }
         });
         if (isMounted) {
-          logger.debug('useGlobalTaskState', "[GlobalTaskState] Cross-window sync listener initialized");
+          logger.debug(
+            "useGlobalTaskState",
+            "[GlobalTaskState] Cross-window sync listener initialized"
+          );
         }
       } catch (error) {
         // 静默处理错误，避免影响应用启动
-        logger.warn('useGlobalTaskState', "[GlobalTaskState] Failed to setup cross-window listener:", error);
+        logger.warn(
+          "useGlobalTaskState",
+          "[GlobalTaskState] Failed to setup cross-window listener:",
+          error
+        );
       }
     };
 
@@ -480,9 +508,12 @@ export const GlobalTaskStateProvider: React.FC<GlobalTaskStateProviderProps> = (
   // 🆕 定时清理过期任务
   useEffect(() => {
     // 每 2 分钟清理一次
-    const cleanupInterval = setInterval(() => {
-      globalTaskStore.cleanupStaleTasks();
-    }, 2 * 60 * 1000);
+    const cleanupInterval = setInterval(
+      () => {
+        globalTaskStore.cleanupStaleTasks();
+      },
+      2 * 60 * 1000
+    );
 
     // 组件挂载时立即执行一次清理
     globalTaskStore.cleanupStaleTasks();

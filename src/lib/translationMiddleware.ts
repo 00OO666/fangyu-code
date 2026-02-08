@@ -1,4 +1,4 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { api, type TranslationConfig } from "./api";
 
 /**
@@ -258,7 +258,11 @@ export class TranslationMiddleware {
         this.translationQueue = this.translationQueue.filter((item) => !batchItems.includes(item));
       }
     } catch (error) {
-      logger.error('translationMiddleware', "[TranslationMiddleware] Queue processing error:", error);
+      logger.error(
+        "translationMiddleware",
+        "[TranslationMiddleware] Queue processing error:",
+        error
+      );
     } finally {
       this.isProcessingQueue = false;
     }
@@ -304,7 +308,7 @@ export class TranslationMiddleware {
                 firstItem.text,
                 firstItem.targetLanguage,
                 result,
-                firstItem.estimatedTokens,
+                firstItem.estimatedTokens
               );
             }
           }
@@ -334,7 +338,7 @@ export class TranslationMiddleware {
   private async queueTranslation(
     text: string,
     targetLanguage: string,
-    priority: number = 1,
+    priority: number = 1
   ): Promise<string> {
     // 检查缓存
     const cachedResult = this.getFromCache(text, targetLanguage);
@@ -418,7 +422,11 @@ export class TranslationMiddleware {
       this.initialized = true;
       this.cachedIsEnabled = this.config?.enabled ?? false; // 🚀 缓存状态
     } catch (error) {
-      logger.warn('translationMiddleware', "[TranslationMiddleware] ⚠️ Failed to load saved config, using default:", error);
+      logger.warn(
+        "translationMiddleware",
+        "[TranslationMiddleware] ⚠️ Failed to load saved config, using default:",
+        error
+      );
       this.config = {
         enabled: false, // 默认禁用翻译功能，需用户配置后启用
         api_base_url: "https://api.openai.com/v1",
@@ -478,7 +486,11 @@ export class TranslationMiddleware {
     try {
       return await api.detectTextLanguage(text);
     } catch (error) {
-      logger.error('translationMiddleware', "[TranslationMiddleware] Language detection failed:", error);
+      logger.error(
+        "translationMiddleware",
+        "[TranslationMiddleware] Language detection failed:",
+        error
+      );
       // 使用更强的中英文检测回退
       return this.detectChineseContent(text) ? "zh" : "en";
     }
@@ -494,7 +506,7 @@ export class TranslationMiddleware {
 
     // 扩展的中文字符范围匹配
     const chineseChars = text.match(
-      /[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff\u3000-\u303f\uff00-\uffef]/g,
+      /[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff\u3000-\u303f\uff00-\uffef]/g
     );
 
     if (!chineseChars) {
@@ -642,10 +654,17 @@ export class TranslationMiddleware {
               detectedLanguage,
             };
           } else {
-            logger.warn('translationMiddleware', '⚠️ Translation returned empty or unchanged result, using original text');
+            logger.warn(
+              "translationMiddleware",
+              "⚠️ Translation returned empty or unchanged result, using original text"
+            );
           }
         } catch (error) {
-          logger.error('translationMiddleware', "[TranslationMiddleware] ❌ Translation failed:", error);
+          logger.error(
+            "translationMiddleware",
+            "[TranslationMiddleware] ❌ Translation failed:",
+            error
+          );
         }
       }
 
@@ -657,7 +676,11 @@ export class TranslationMiddleware {
         detectedLanguage,
       };
     } catch (error) {
-      logger.error('translationMiddleware', "[TranslationMiddleware] Failed to translate user input:", error);
+      logger.error(
+        "translationMiddleware",
+        "[TranslationMiddleware] Failed to translate user input:",
+        error
+      );
       // 降级策略：翻译失败时返回原文
       const detectedLang = await this.detectLanguage(userInput);
       return {
@@ -682,7 +705,7 @@ export class TranslationMiddleware {
    */
   public async translateClaudeResponse(
     claudeResponse: string,
-    _userInputWasChinese: boolean = false, // 🔧 参数保留用于API兼容性，但当前未使用
+    _userInputWasChinese: boolean = false // 🔧 参数保留用于API兼容性，但当前未使用
   ): Promise<{
     translatedText: string;
     originalText: string;
@@ -738,7 +761,11 @@ export class TranslationMiddleware {
             detectedLanguage,
           };
         } catch (translationError) {
-          logger.error('translationMiddleware', "[TranslationMiddleware] ❌ Translation queue failed:", translationError);
+          logger.error(
+            "translationMiddleware",
+            "[TranslationMiddleware] ❌ Translation queue failed:",
+            translationError
+          );
           // 翻译失败时返回原文，不抛出错误
           return {
             translatedText: claudeResponse,
@@ -757,7 +784,11 @@ export class TranslationMiddleware {
         detectedLanguage,
       };
     } catch (error) {
-      logger.error('translationMiddleware', "[TranslationMiddleware] ❌ Failed to translate Claude response:", error);
+      logger.error(
+        "translationMiddleware",
+        "[TranslationMiddleware] ❌ Failed to translate Claude response:",
+        error
+      );
       // 降级策略：翻译失败时返回原文
       const detectedLang = await this.detectLanguage(claudeResponse);
       return {
@@ -789,7 +820,7 @@ export class TranslationMiddleware {
       }
       // 使用 Promise.all 并行处理，队列系统会自动管理速率限制
       const translationPromises = validTexts.map(
-        (text) => this.queueTranslation(text, targetLanguage, 1), // 标准优先级
+        (text) => this.queueTranslation(text, targetLanguage, 1) // 标准优先级
       );
 
       const translatedTexts = await Promise.all(translationPromises);
@@ -808,7 +839,11 @@ export class TranslationMiddleware {
 
       return results;
     } catch (error) {
-      logger.error('translationMiddleware', "[TranslationMiddleware] Batch translation failed:", error);
+      logger.error(
+        "translationMiddleware",
+        "[TranslationMiddleware] Batch translation failed:",
+        error
+      );
       return texts; // 降级策略：返回原文
     }
   }
@@ -821,7 +856,11 @@ export class TranslationMiddleware {
       await api.updateTranslationConfig(config);
       this.config = config;
     } catch (error) {
-      logger.error('translationMiddleware', "[TranslationMiddleware] Failed to update configuration:", error);
+      logger.error(
+        "translationMiddleware",
+        "[TranslationMiddleware] Failed to update configuration:",
+        error
+      );
       throw error;
     }
   }
@@ -852,7 +891,11 @@ export class TranslationMiddleware {
     try {
       await api.clearTranslationCache();
     } catch (error) {
-      logger.error('translationMiddleware', "[TranslationMiddleware] Failed to clear cache:", error);
+      logger.error(
+        "translationMiddleware",
+        "[TranslationMiddleware] Failed to clear cache:",
+        error
+      );
       throw error;
     }
   }
@@ -873,7 +916,11 @@ export class TranslationMiddleware {
         activeEntries: stats.active_entries,
       };
     } catch (error) {
-      logger.error('translationMiddleware', "[TranslationMiddleware] Failed to get cache stats:", error);
+      logger.error(
+        "translationMiddleware",
+        "[TranslationMiddleware] Failed to get cache stats:",
+        error
+      );
       throw error;
     }
   }
@@ -900,7 +947,11 @@ export class TranslationMiddleware {
 
       return message;
     } catch (error) {
-      logger.error('translationMiddleware', "[TranslationMiddleware] Failed to translate error message:", error);
+      logger.error(
+        "translationMiddleware",
+        "[TranslationMiddleware] Failed to translate error message:",
+        error
+      );
       return message; // 失败时返回原消息
     }
   }
@@ -920,7 +971,11 @@ export class TranslationMiddleware {
 
       return await Promise.all(translationPromises);
     } catch (error) {
-      logger.error('translationMiddleware', "[TranslationMiddleware] Failed to translate error messages:", error);
+      logger.error(
+        "translationMiddleware",
+        "[TranslationMiddleware] Failed to translate error messages:",
+        error
+      );
       return messages;
     }
   }

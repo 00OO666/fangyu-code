@@ -3,127 +3,112 @@
  * 覆盖依赖检测、自动安装、失败场景
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import { SetupWizard } from '@/components/EngineConfigPanel/OneClickSetup/SetupWizard';
-import { DependencyChecker } from '@/components/EngineConfigPanel/OneClickSetup/DependencyChecker';
-import {
-    executeCommand,
-    type CommandResult,
-} from '@/core/tauri/SuperAgentBridge';
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen, waitFor, fireEvent } from "@testing-library/react";
+import { SetupWizard } from "@/components/EngineConfigPanel/OneClickSetup/SetupWizard";
+import { DependencyChecker } from "@/components/EngineConfigPanel/OneClickSetup/DependencyChecker";
+import { executeCommand, type CommandResult } from "@/core/tauri/SuperAgentBridge";
 
-vi.mock('@/core/tauri/SuperAgentBridge', () => ({
-    executeCommand: vi.fn(),
+vi.mock("@/core/tauri/SuperAgentBridge", () => ({
+  executeCommand: vi.fn(),
 }));
 
 const successResult = (stdout: string): CommandResult => ({
-    success: true,
-    stdout,
-    stderr: '',
-    duration_ms: 5,
+  success: true,
+  stdout,
+  stderr: "",
+  duration_ms: 5,
 });
 
 const failureResult = (stderr: string): CommandResult => ({
-    success: false,
-    stdout: '',
-    stderr,
-    duration_ms: 5,
+  success: false,
+  stdout: "",
+  stderr,
+  duration_ms: 5,
 });
 
-describe('E2E: Engine Setup', () => {
-    const executeCommandMock = vi.mocked(executeCommand);
+describe("E2E: Engine Setup", () => {
+  const executeCommandMock = vi.mocked(executeCommand);
 
-    beforeEach(() => {
-        vi.clearAllMocks();
-        localStorage.clear();
+  beforeEach(() => {
+    vi.clearAllMocks();
+    localStorage.clear();
+  });
+
+  it("should complete setup flow when CLI is already installed", async () => {
+    executeCommandMock
+      .mockResolvedValueOnce(successResult("v18.0.0"))
+      .mockResolvedValueOnce(successResult("9.0.0"))
+      .mockResolvedValueOnce(successResult("1.0.0"));
+
+    const onComplete = vi.fn();
+    const onCancel = vi.fn();
+    const stepTitles = ["检查环境", "安装 CLI", "配置 API", "验证安装", "选择模型"];
+
+    render(<SetupWizard engine="claude" onComplete={onComplete} onCancel={onCancel} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("环境检测通过，可以继续配置")).toBeTruthy();
     });
 
-    it('should complete setup flow when CLI is already installed', async () => {
-        executeCommandMock
-            .mockResolvedValueOnce(successResult('v18.0.0'))
-            .mockResolvedValueOnce(successResult('9.0.0'))
-            .mockResolvedValueOnce(successResult('1.0.0'));
+    for (let i = 0; i < stepTitles.length - 1; i += 1) {
+      const nextButton = screen.getByRole("button", { name: "下一步" });
+      fireEvent.click(nextButton);
+      await waitFor(() => {
+        expect(screen.getByRole("heading", { name: stepTitles[i + 1] })).toBeTruthy();
+      });
+    }
 
-        const onComplete = vi.fn();
-        const onCancel = vi.fn();
-        const stepTitles = ['检查环境', '安装 CLI', '配置 API', '验证安装', '选择模型'];
+    fireEvent.click(screen.getByRole("button", { name: "完成" }));
 
-        render(
-            <SetupWizard engine="claude" onComplete={onComplete} onCancel={onCancel} />
-        );
+    await waitFor(() => {
+      expect(onComplete).toHaveBeenCalled();
+    });
+  });
 
-        await waitFor(() => {
-            expect(
-                screen.getByText('环境检测通过，可以继续配置')
-            ).toBeTruthy();
-        });
+  it("should auto install CLI with global fallback to local", async () => {
+    executeCommandMock
+      .mockResolvedValueOnce(successResult("v18.0.0"))
+      .mockResolvedValueOnce(successResult("9.0.0"))
+      .mockResolvedValueOnce(failureResult("not found"))
+      .mockResolvedValueOnce(failureResult("EACCES"))
+      .mockResolvedValueOnce(successResult("local install ok"))
+      .mockResolvedValueOnce(successResult("1.0.1"))
+      .mockResolvedValueOnce(successResult("1.0.1"));
 
-        for (let i = 0; i < stepTitles.length - 1; i += 1) {
-            const nextButton = screen.getByRole('button', { name: '下一步' });
-            fireEvent.click(nextButton);
-            await waitFor(() => {
-                expect(
-                    screen.getByRole('heading', { name: stepTitles[i + 1] })
-                ).toBeTruthy();
-            });
-        }
+    const onCheckComplete = vi.fn();
 
-        fireEvent.click(screen.getByRole('button', { name: '完成' }));
+    render(<DependencyChecker engine="claude" onCheckComplete={onCheckComplete} />);
 
-        await waitFor(() => {
-            expect(onComplete).toHaveBeenCalled();
-        });
+    await waitFor(() => {
+      const lastCall = onCheckComplete.mock.calls.at(-1)?.[0];
+      expect(lastCall?.cli.installed).toBe(true);
     });
 
-    it('should auto install CLI with global fallback to local', async () => {
-        executeCommandMock
-            .mockResolvedValueOnce(successResult('v18.0.0'))
-            .mockResolvedValueOnce(successResult('9.0.0'))
-            .mockResolvedValueOnce(failureResult('not found'))
-            .mockResolvedValueOnce(failureResult('EACCES'))
-            .mockResolvedValueOnce(successResult('local install ok'))
-            .mockResolvedValueOnce(successResult('1.0.1'))
-            .mockResolvedValueOnce(successResult('1.0.1'));
+    expect(screen.getByText("环境检测通过，可以继续配置")).toBeTruthy();
+  });
 
-        const onCheckComplete = vi.fn();
+  it("should surface installation failure after retries", async () => {
+    executeCommandMock
+      .mockResolvedValueOnce(successResult("v18.0.0"))
+      .mockResolvedValueOnce(successResult("9.0.0"))
+      .mockResolvedValueOnce(failureResult("not found"))
+      .mockResolvedValueOnce(failureResult("EACCES"))
+      .mockResolvedValueOnce(failureResult("ENOENT"))
+      .mockResolvedValueOnce(failureResult("EACCES"))
+      .mockResolvedValueOnce(failureResult("ENOENT"))
+      .mockResolvedValueOnce(failureResult("EACCES"))
+      .mockResolvedValueOnce(failureResult("ENOENT"));
 
-        render(
-            <DependencyChecker engine="claude" onCheckComplete={onCheckComplete} />
-        );
+    const onCheckComplete = vi.fn();
 
-        await waitFor(() => {
-            const lastCall = onCheckComplete.mock.calls.at(-1)?.[0];
-            expect(lastCall?.cli.installed).toBe(true);
-        });
+    render(<DependencyChecker engine="claude" onCheckComplete={onCheckComplete} />);
 
-        expect(
-            screen.getByText('环境检测通过，可以继续配置')
-        ).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.getByText("手动重试")).toBeTruthy();
     });
 
-    it('should surface installation failure after retries', async () => {
-        executeCommandMock
-            .mockResolvedValueOnce(successResult('v18.0.0'))
-            .mockResolvedValueOnce(successResult('9.0.0'))
-            .mockResolvedValueOnce(failureResult('not found'))
-            .mockResolvedValueOnce(failureResult('EACCES'))
-            .mockResolvedValueOnce(failureResult('ENOENT'))
-            .mockResolvedValueOnce(failureResult('EACCES'))
-            .mockResolvedValueOnce(failureResult('ENOENT'))
-            .mockResolvedValueOnce(failureResult('EACCES'))
-            .mockResolvedValueOnce(failureResult('ENOENT'));
-
-        const onCheckComplete = vi.fn();
-
-        render(
-            <DependencyChecker engine="claude" onCheckComplete={onCheckComplete} />
-        );
-
-        await waitFor(() => {
-            expect(screen.getByText('手动重试')).toBeTruthy();
-        });
-
-        expect(screen.getAllByText(/安装 Claude Code 失败/).length).toBeGreaterThan(0);
-        expect(screen.getByText('跳过')).toBeTruthy();
-    });
+    expect(screen.getAllByText(/安装 Claude Code 失败/).length).toBeGreaterThan(0);
+    expect(screen.getByText("跳过")).toBeTruthy();
+  });
 });

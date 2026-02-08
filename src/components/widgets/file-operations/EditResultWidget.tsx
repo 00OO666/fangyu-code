@@ -6,7 +6,7 @@
  */
 
 import React from "react";
-import { GitBranch, ChevronRight } from 'lucide-react';
+import { GitBranch, ChevronRight } from "lucide-react";
 import { Prism as SyntaxHighlighter } from "@/lib/lightSyntaxHighlighter";
 import { getClaudeSyntaxTheme } from "@/lib/claudeSyntaxTheme";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -27,16 +27,16 @@ export const EditResultWidget: React.FC<EditResultWidgetProps> = ({ content }) =
   const { theme } = useTheme();
 
   // 解析内容，提取文件路径和代码片段
-  const lines = content.split('\n');
-  let filePath = '';
+  const lines = content.split("\n");
+  let filePath = "";
   const codeLines: { lineNumber: string; code: string }[] = [];
   let inCodeBlock = false;
 
   for (const rawLine of lines) {
-    const line = rawLine.replace(/\r$/, '');
+    const line = rawLine.replace(/\r$/, "");
 
     // 提取文件路径
-    if (line.includes('The file') && line.includes('has been updated')) {
+    if (line.includes("The file") && line.includes("has been updated")) {
       const match = line.match(/The file (.+) has been updated/);
       if (match) {
         filePath = match[1];
@@ -56,12 +56,12 @@ export const EditResultWidget: React.FC<EditResultWidgetProps> = ({ content }) =
     }
     // 代码块内的非编号行（空行）
     else if (inCodeBlock) {
-      codeLines.push({ lineNumber: '', code: line });
+      codeLines.push({ lineNumber: "", code: line });
     }
   }
 
-  const codeContent = codeLines.map(l => l.code).join('\n');
-  const firstNumberedLine = codeLines.find(l => l.lineNumber !== '');
+  const codeContent = codeLines.map((l) => l.code).join("\n");
+  const firstNumberedLine = codeLines.find((l) => l.lineNumber !== "");
   const startLineNumber = firstNumberedLine ? parseInt(firstNumberedLine.lineNumber) : 1;
   const language = getLanguage(filePath);
 
@@ -70,7 +70,9 @@ export const EditResultWidget: React.FC<EditResultWidgetProps> = ({ content }) =
       {/* 头部 */}
       <div className="px-4 py-2 border-b flex items-center gap-2 bg-emerald-100/50 dark:bg-emerald-950/30 border-zinc-300 dark:border-zinc-800">
         <GitBranch className="h-3.5 w-3.5 text-emerald-500" />
-        <span className="text-xs font-mono text-emerald-600 dark:text-emerald-400">Edit Result</span>
+        <span className="text-xs font-mono text-emerald-600 dark:text-emerald-400">
+          Edit Result
+        </span>
         {filePath && (
           <>
             <ChevronRight className="h-3 w-3 text-muted-foreground" />
@@ -89,13 +91,13 @@ export const EditResultWidget: React.FC<EditResultWidgetProps> = ({ content }) =
           wrapLongLines={false}
           customStyle={{
             margin: 0,
-            background: 'transparent',
-            lineHeight: '1.6'
+            background: "transparent",
+            lineHeight: "1.6",
           }}
           codeTagProps={{
             style: {
-              fontSize: '0.75rem'
-            }
+              fontSize: "0.75rem",
+            },
           }}
           lineNumberStyle={{
             minWidth: "3.5rem",

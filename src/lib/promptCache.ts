@@ -8,7 +8,7 @@
  * - Performance analytics
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import type { ClaudeMessage, ClaudeResponse } from "./claudeSDK";
 
 export interface CacheEntry {
@@ -120,7 +120,7 @@ export class IntelligentPromptCache {
     messages: ClaudeMessage[],
     model: string,
     temperature: number,
-    systemPrompt?: string,
+    systemPrompt?: string
   ): string {
     const content = messages.map((m) => `${m.role}:${m.content}`).join("|");
     const context = `${model}:${temperature}:${systemPrompt || ""}`;
@@ -169,7 +169,7 @@ export class IntelligentPromptCache {
     messages: ClaudeMessage[],
     model: string,
     temperature: number,
-    systemPrompt?: string,
+    systemPrompt?: string
   ): CacheEntry | null {
     if (!this.config.enableFuzzyMatching) return null;
 
@@ -321,7 +321,7 @@ export class IntelligentPromptCache {
     messages: ClaudeMessage[],
     model: string,
     temperature: number,
-    systemPrompt?: string,
+    systemPrompt?: string
   ): Promise<CacheEntry | null> {
     this.cleanExpired();
 
@@ -356,7 +356,7 @@ export class IntelligentPromptCache {
     model: string,
     temperature: number,
     maxTokens: number,
-    systemPrompt?: string,
+    systemPrompt?: string
   ): Promise<void> {
     const key = this.generateCacheKey(messages, model, temperature, systemPrompt);
     const now = Date.now();
@@ -448,7 +448,7 @@ export class IntelligentPromptCache {
    * Get most popular cached patterns
    */
   getPopularPatterns(
-    limit: number = 10,
+    limit: number = 10
   ): Array<{ pattern: string; frequency: number; tokensSaved: number }> {
     const patterns = new Map<string, { frequency: number; tokensSaved: number }>();
 
@@ -487,7 +487,7 @@ export class IntelligentPromptCache {
 
       localStorage.setItem("claude-prompt-cache", JSON.stringify(cacheData));
     } catch (error) {
-      logger.warn('promptCache', "[PromptCache] Failed to save to storage:", error);
+      logger.warn("promptCache", "[PromptCache] Failed to save to storage:", error);
     }
   }
 
@@ -514,7 +514,7 @@ export class IntelligentPromptCache {
       // Clean expired entries
       this.cleanExpired();
     } catch (error) {
-      logger.warn('promptCache', "[PromptCache] Failed to load from storage:", error);
+      logger.warn("promptCache", "[PromptCache] Failed to load from storage:", error);
     }
   }
 }

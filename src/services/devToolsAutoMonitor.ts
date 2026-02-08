@@ -12,7 +12,7 @@
  * - 自动生成修复建议
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { invoke } from "@tauri-apps/api/core";
 
 export interface DevToolsAnomaly {
@@ -82,7 +82,7 @@ export class DevToolsAutoMonitor {
       isActive: true,
     };
 
-    logger.debug('devToolsAutoMonitor', `[DevToolsMonitor] 🚀 开始监控: ${url}`);
+    logger.debug("devToolsAutoMonitor", `[DevToolsMonitor] 🚀 开始监控: ${url}`);
 
     try {
       // 步骤 1: 连接到 Chrome DevTools
@@ -96,9 +96,9 @@ export class DevToolsAutoMonitor {
         await this.checkForAnomalies(severityThreshold, autoFix);
       }, interval * 1000);
 
-      logger.debug('devToolsAutoMonitor', `[DevToolsMonitor] ✅ 监控已启动 (间隔: ${interval}秒);`);
+      logger.debug("devToolsAutoMonitor", `[DevToolsMonitor] ✅ 监控已启动 (间隔: ${interval}秒);`);
     } catch (error) {
-      logger.error('devToolsAutoMonitor', "[DevToolsMonitor] ❌ 启动监控失败:", error);
+      logger.error("devToolsAutoMonitor", "[DevToolsMonitor] ❌ 启动监控失败:", error);
       this.stopMonitoring();
       throw error;
     }
@@ -115,9 +115,12 @@ export class DevToolsAutoMonitor {
 
     if (this.session) {
       this.session.isActive = false;
-      logger.debug('devToolsAutoMonitor', `[DevToolsMonitor] ⏹️ 监控已停止`);
-      logger.debug('devToolsAutoMonitor', `  - 运行时长: ${((Date.now() - this.session.startTime) / 1000).toFixed(0)}秒`);
-      logger.debug('devToolsAutoMonitor', `  - 检测到异常: ${this.session.anomalies.length} 个`);
+      logger.debug("devToolsAutoMonitor", `[DevToolsMonitor] ⏹️ 监控已停止`);
+      logger.debug(
+        "devToolsAutoMonitor",
+        `  - 运行时长: ${((Date.now() - this.session.startTime) / 1000).toFixed(0)}秒`
+      );
+      logger.debug("devToolsAutoMonitor", `  - 检测到异常: ${this.session.anomalies.length} 个`);
     }
 
     this.session = null;
@@ -139,9 +142,9 @@ export class DevToolsAutoMonitor {
         },
       });
 
-      logger.debug('devToolsAutoMonitor', "[DevToolsMonitor] ✅ 已连接到 Chrome DevTools");
+      logger.debug("devToolsAutoMonitor", "[DevToolsMonitor] ✅ 已连接到 Chrome DevTools");
     } catch (error) {
-      logger.error('devToolsAutoMonitor', "[DevToolsMonitor] ❌ 连接失败:", error);
+      logger.error("devToolsAutoMonitor", "[DevToolsMonitor] ❌ 连接失败:", error);
       throw new Error("无法连接到 Chrome DevTools。请确保 chrome-devtools MCP 已启用。");
     }
   }
@@ -160,19 +163,16 @@ export class DevToolsAutoMonitor {
         },
       });
 
-      logger.debug('devToolsAutoMonitor', "[DevToolsMonitor] 📊 实时监控已启动");
+      logger.debug("devToolsAutoMonitor", "[DevToolsMonitor] 📊 实时监控已启动");
     } catch (error) {
-      logger.warn('devToolsAutoMonitor', "[DevToolsMonitor] ⚠️ 实时监控启动失败:", error);
+      logger.warn("devToolsAutoMonitor", "[DevToolsMonitor] ⚠️ 实时监控启动失败:", error);
     }
   }
 
   /**
    * 检查异常
    */
-  private async checkForAnomalies(
-    severityThreshold: string,
-    autoFix: boolean
-  ): Promise<void> {
+  private async checkForAnomalies(severityThreshold: string, autoFix: boolean): Promise<void> {
     if (!this.session || !this.session.isActive) return;
 
     try {
@@ -206,12 +206,10 @@ export class DevToolsAutoMonitor {
       const criticalAnomalies = filteredAnomalies.filter((a) => a.severity === "critical");
       if (criticalAnomalies.length > 0) {
         this.emit("critical-anomaly", criticalAnomalies);
-        console.error(
-          `[DevToolsMonitor] 🚨 检测到 ${criticalAnomalies.length} 个严重异常！`
-        );
+        console.error(`[DevToolsMonitor] 🚨 检测到 ${criticalAnomalies.length} 个严重异常！`);
       }
     } catch (error) {
-      logger.error('devToolsAutoMonitor', "[DevToolsMonitor] ❌ 检查异常失败:", error);
+      logger.error("devToolsAutoMonitor", "[DevToolsMonitor] ❌ 检查异常失败:", error);
     }
   }
 
@@ -246,7 +244,7 @@ export class DevToolsAutoMonitor {
 
       return anomalies;
     } catch (error) {
-      logger.warn('devToolsAutoMonitor', "[DevToolsMonitor] ⚠️ 无法获取 console 错误:", error);
+      logger.warn("devToolsAutoMonitor", "[DevToolsMonitor] ⚠️ 无法获取 console 错误:", error);
       return [];
     }
   }
@@ -283,7 +281,7 @@ export class DevToolsAutoMonitor {
 
       return anomalies;
     } catch (error) {
-      logger.warn('devToolsAutoMonitor', "[DevToolsMonitor] ⚠️ 无法获取网络请求:", error);
+      logger.warn("devToolsAutoMonitor", "[DevToolsMonitor] ⚠️ 无法获取网络请求:", error);
       return [];
     }
   }
@@ -332,7 +330,7 @@ export class DevToolsAutoMonitor {
 
       return anomalies;
     } catch (error) {
-      logger.warn('devToolsAutoMonitor', "[DevToolsMonitor] ⚠️ 无法获取性能指标:", error);
+      logger.warn("devToolsAutoMonitor", "[DevToolsMonitor] ⚠️ 无法获取性能指标:", error);
       return [];
     }
   }
@@ -390,29 +388,26 @@ export class DevToolsAutoMonitor {
    * 尝试自动修复
    */
   private async attemptAutoFix(anomaly: DevToolsAnomaly): Promise<void> {
-    logger.debug('devToolsAutoMonitor', `[DevToolsMonitor] 🔧 尝试自动修复: ${anomaly.message}`);
+    logger.debug("devToolsAutoMonitor", `[DevToolsMonitor] 🔧 尝试自动修复: ${anomaly.message}`);
 
     try {
       if (anomaly.type === "console-error" && anomaly.message.includes("duplicate")) {
         // 自动应用消息去重
-        logger.debug('devToolsAutoMonitor', "[DevToolsMonitor] ✅ 已应用消息去重逻辑");
+        logger.debug("devToolsAutoMonitor", "[DevToolsMonitor] ✅ 已应用消息去重逻辑");
         this.emit("auto-fix-applied", {
           anomaly,
           fix: "message-deduplication",
         });
       }
     } catch (error) {
-      logger.error('devToolsAutoMonitor', "[DevToolsMonitor] ❌ 自动修复失败:", error);
+      logger.error("devToolsAutoMonitor", "[DevToolsMonitor] ❌ 自动修复失败:", error);
     }
   }
 
   /**
    * 按严重性过滤
    */
-  private filterBySeverity(
-    anomalies: DevToolsAnomaly[],
-    threshold: string
-  ): DevToolsAnomaly[] {
+  private filterBySeverity(anomalies: DevToolsAnomaly[], threshold: string): DevToolsAnomaly[] {
     const severityOrder = ["low", "medium", "high", "critical"];
     const thresholdIndex = severityOrder.indexOf(threshold);
 
@@ -450,7 +445,11 @@ export class DevToolsAutoMonitor {
         try {
           callback(data);
         } catch (error) {
-          logger.error('devToolsAutoMonitor', `[DevToolsMonitor] 事件处理器错误 (${event});:`, error);
+          logger.error(
+            "devToolsAutoMonitor",
+            `[DevToolsMonitor] 事件处理器错误 (${event});:`,
+            error
+          );
         }
       }
     }

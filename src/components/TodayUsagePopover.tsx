@@ -9,7 +9,7 @@
  */
 
 import React, { useMemo } from "react";
-import { Calendar, TrendingUp, Zap, Clock } from 'lucide-react';
+import { Calendar, TrendingUp, Zap, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
@@ -61,8 +61,8 @@ const formatTokens = (tokens: number): string => {
 const getTodayDateString = (): string => {
   const now = new Date();
   const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 };
 
@@ -94,9 +94,9 @@ export const TodayUsagePopover: React.FC<TodayUsagePopoverProps> = ({
     const totalCost = todayData.reduce((sum, d) => sum + d.cost, 0);
     const totalTokens = todayData.reduce((sum, d) => sum + d.tokens, 0);
     const totalCount = todayData.reduce((sum, d) => sum + d.count, 0);
-    const activeHours = todayData.filter(d => d.cost > 0).length;
+    const activeHours = todayData.filter((d) => d.cost > 0).length;
     const avgCostPerHour = activeHours > 0 ? totalCost / activeHours : 0;
-    const maxCost = Math.max(...todayData.map(d => d.cost));
+    const maxCost = Math.max(...todayData.map((d) => d.cost));
 
     return { totalCost, totalTokens, totalCount, activeHours, avgCostPerHour, maxCost };
   }, [todayData]);
@@ -138,9 +138,7 @@ export const TodayUsagePopover: React.FC<TodayUsagePopoverProps> = ({
           <Calendar className="h-4 w-4 text-emerald-500" />
           <span className="font-medium text-sm">今日消耗统计</span>
         </div>
-        <span className="text-xs text-muted-foreground">
-          {getTodayDateString()}
-        </span>
+        <span className="text-xs text-muted-foreground">{getTodayDateString()}</span>
       </div>
 
       {/* 统计卡片 */}
@@ -150,27 +148,21 @@ export const TodayUsagePopover: React.FC<TodayUsagePopoverProps> = ({
             <Zap className="h-3 w-3" />
             <span className="text-xs text-muted-foreground">费用</span>
           </div>
-          <div className="font-semibold text-sm mt-1">
-            {formatCost(stats.totalCost)}
-          </div>
+          <div className="font-semibold text-sm mt-1">{formatCost(stats.totalCost)}</div>
         </div>
         <div className="bg-muted/50 rounded-lg p-2 text-center">
           <div className="flex items-center justify-center gap-1 text-blue-600 dark:text-blue-400">
             <TrendingUp className="h-3 w-3" />
             <span className="text-xs text-muted-foreground">Token</span>
           </div>
-          <div className="font-semibold text-sm mt-1">
-            {formatTokens(stats.totalTokens)}
-          </div>
+          <div className="font-semibold text-sm mt-1">{formatTokens(stats.totalTokens)}</div>
         </div>
         <div className="bg-muted/50 rounded-lg p-2 text-center">
           <div className="flex items-center justify-center gap-1 text-purple-600 dark:text-purple-400">
             <Clock className="h-3 w-3" />
             <span className="text-xs text-muted-foreground">活跃</span>
           </div>
-          <div className="font-semibold text-sm mt-1">
-            {stats.activeHours}h
-          </div>
+          <div className="font-semibold text-sm mt-1">{stats.activeHours}h</div>
         </div>
       </div>
 
@@ -178,15 +170,11 @@ export const TodayUsagePopover: React.FC<TodayUsagePopoverProps> = ({
       <div className="space-y-2">
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <span>24小时分布</span>
-          {stats.avgCostPerHour > 0 && (
-            <span>平均: {formatCost(stats.avgCostPerHour)}/h</span>
-          )}
+          {stats.avgCostPerHour > 0 && <span>平均: {formatCost(stats.avgCostPerHour)}/h</span>}
         </div>
         <div className="flex items-end gap-0.5 h-16 bg-muted/30 rounded p-1">
           {todayData.map((hourData) => {
-            const heightPercent = stats.maxCost > 0
-              ? (hourData.cost / stats.maxCost) * 100
-              : 0;
+            const heightPercent = stats.maxCost > 0 ? (hourData.cost / stats.maxCost) * 100 : 0;
             const isCurrentHour = hourData.hour === currentHour;
             const hasData = hourData.cost > 0;
 
@@ -209,7 +197,7 @@ export const TodayUsagePopover: React.FC<TodayUsagePopoverProps> = ({
                     "min-h-[2px]"
                   )}
                   style={{
-                    height: hasData ? `${Math.max(heightPercent, 8)}%` : '2px'
+                    height: hasData ? `${Math.max(heightPercent, 8)}%` : "2px",
                   }}
                 />
 
@@ -241,9 +229,7 @@ export const TodayUsagePopover: React.FC<TodayUsagePopoverProps> = ({
 
       {/* 底部提示 */}
       {stats.totalCount === 0 && (
-        <div className="text-center text-xs text-muted-foreground py-2">
-          今日暂无使用记录
-        </div>
+        <div className="text-center text-xs text-muted-foreground py-2">今日暂无使用记录</div>
       )}
     </div>
   );

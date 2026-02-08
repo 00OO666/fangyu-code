@@ -195,7 +195,7 @@ export function useCodeFolding(initialContent?: string) {
         };
       });
     },
-    [analyzeCode],
+    [analyzeCode]
   );
 
   /**
@@ -305,7 +305,7 @@ export function useCodeFolding(initialContent?: string) {
       }
       return result;
     },
-    [state.regions],
+    [state.regions]
   );
 
   /**
@@ -320,7 +320,7 @@ export function useCodeFolding(initialContent?: string) {
       }
       return false;
     },
-    [state.regions],
+    [state.regions]
   );
 
   // 初始化

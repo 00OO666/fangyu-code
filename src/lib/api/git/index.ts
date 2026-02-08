@@ -3,7 +3,7 @@
  *
  * 提供 Git 仓库操作、diff 统计、文件变更查询等功能。
  */
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { invoke } from "@tauri-apps/api/core";
 import type { GitFileChange, ResetSafetyInfo } from "../types";
 
@@ -16,7 +16,7 @@ export async function checkAndInitGit(projectPath: string): Promise<boolean> {
   try {
     return await invoke<boolean>("check_and_init_git", { projectPath });
   } catch (error) {
-    logger.error('index', "Failed to check/init Git:", error);
+    logger.error("index", "Failed to check/init Git:", error);
     return false;
   }
 }
@@ -33,7 +33,7 @@ export async function checkAndInitGit(projectPath: string): Promise<boolean> {
 export async function checkResetSafety(
   projectPath: string,
   targetCommit: string,
-  currentEngine: string,
+  currentEngine: string
 ): Promise<ResetSafetyInfo> {
   try {
     return await invoke<ResetSafetyInfo>("check_reset_safety", {
@@ -42,7 +42,7 @@ export async function checkResetSafety(
       currentEngine,
     });
   } catch (error) {
-    logger.error('index', "Failed to check reset safety:", error);
+    logger.error("index", "Failed to check reset safety:", error);
     // Return a safe default that allows proceeding
     return {
       commitsToLose: 0,
@@ -65,12 +65,12 @@ export async function checkResetSafety(
 export async function getGitDiffStats(
   projectPath: string,
   fromCommit: string,
-  toCommit?: string,
+  toCommit?: string
 ): Promise<{ linesAdded: number; linesRemoved: number; filesChanged: number }> {
   try {
     return await invoke("get_git_diff_stats", { projectPath, fromCommit, toCommit });
   } catch (error) {
-    logger.error('index', "Failed to get git diff stats:", error);
+    logger.error("index", "Failed to get git diff stats:", error);
     throw error;
   }
 }
@@ -83,12 +83,12 @@ export async function getGitDiffStats(
  */
 export async function getSessionCodeChanges(
   projectPath: string,
-  sessionStartCommit: string,
+  sessionStartCommit: string
 ): Promise<{ linesAdded: number; linesRemoved: number; filesChanged: number }> {
   try {
     return await invoke("get_session_code_changes", { projectPath, sessionStartCommit });
   } catch (error) {
-    logger.error('index', "Failed to get session code changes:", error);
+    logger.error("index", "Failed to get session code changes:", error);
     throw error;
   }
 }
@@ -104,12 +104,12 @@ export async function getSessionCodeChanges(
 export async function getGitChangedFiles(
   projectPath: string,
   fromCommit: string,
-  toCommit?: string,
+  toCommit?: string
 ): Promise<GitFileChange[]> {
   try {
     return await invoke("get_git_changed_files", { projectPath, fromCommit, toCommit });
   } catch (error) {
-    logger.error('index', "Failed to get git changed files:", error);
+    logger.error("index", "Failed to get git changed files:", error);
     throw error;
   }
 }
@@ -127,12 +127,12 @@ export async function getGitFileDiff(
   projectPath: string,
   fromCommit: string,
   toCommit: string | undefined,
-  filePath: string,
+  filePath: string
 ): Promise<string> {
   try {
     return await invoke("get_git_file_diff", { projectPath, fromCommit, toCommit, filePath });
   } catch (error) {
-    logger.error('index', "Failed to get git file diff:", error);
+    logger.error("index", "Failed to get git file diff:", error);
     throw error;
   }
 }
@@ -148,12 +148,12 @@ export async function getGitFileDiff(
 export async function getGitFileAtCommit(
   projectPath: string,
   commit: string,
-  filePath: string,
+  filePath: string
 ): Promise<string> {
   try {
     return await invoke("get_git_file_at_commit", { projectPath, commit, filePath });
   } catch (error) {
-    logger.error('index', "Failed to get git file at commit:", error);
+    logger.error("index", "Failed to get git file at commit:", error);
     throw error;
   }
 }

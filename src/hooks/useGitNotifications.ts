@@ -5,7 +5,7 @@
  * 并显示全局通知，让用户知道后台发生了什么
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import { useEffect, useRef } from "react";
 import { notify } from "@/services/notificationService";
@@ -35,7 +35,7 @@ export function useGitNotifications() {
       const formatStartUnlisten = await listen("git-format-start", () => {
         const id = notify.info(
           NotificationTemplates.gitFormatting().message,
-          NotificationTemplates.gitFormatting(),
+          NotificationTemplates.gitFormatting()
         );
         activeNotificationIds.current.set("format", id);
       });
@@ -55,7 +55,7 @@ export function useGitNotifications() {
           // 显示完成通知
           const template = NotificationTemplates.gitFormatComplete(event.payload.filesCount);
           notify.success(template.message, template);
-        },
+        }
       );
       unlistenRefs.current.push(formatCompleteUnlisten);
 
@@ -63,7 +63,7 @@ export function useGitNotifications() {
       const commitStartUnlisten = await listen("git-commit-start", () => {
         const id = notify.info(
           NotificationTemplates.gitCommitStart().message,
-          NotificationTemplates.gitCommitStart(),
+          NotificationTemplates.gitCommitStart()
         );
         activeNotificationIds.current.set("commit", id);
       });
@@ -83,7 +83,7 @@ export function useGitNotifications() {
           // 显示完成通知
           const template = NotificationTemplates.gitCommitComplete(event.payload.commitHash);
           notify.success(template.message, template);
-        },
+        }
       );
       unlistenRefs.current.push(commitCompleteUnlisten);
 
@@ -91,7 +91,7 @@ export function useGitNotifications() {
       const pushStartUnlisten = await listen("git-push-start", () => {
         const id = notify.info(
           NotificationTemplates.gitPushStart().message,
-          NotificationTemplates.gitPushStart(),
+          NotificationTemplates.gitPushStart()
         );
         activeNotificationIds.current.set("push", id);
       });
@@ -112,7 +112,7 @@ export function useGitNotifications() {
       });
       unlistenRefs.current.push(pushCompleteUnlisten);
 
-      logger.debug('useGitNotifications', "[GitNotifications] ✅ Git event listeners registered");
+      logger.debug("useGitNotifications", "[GitNotifications] ✅ Git event listeners registered");
     };
 
     setupListeners();

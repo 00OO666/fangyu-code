@@ -2,18 +2,18 @@
  * ProjectSettings component for managing project-specific hooks configuration
  */
 
-import { logger } from '@/lib/logger';
-import React, { useState, useEffect } from 'react';
-import { HooksEditor } from '@/components/HooksEditor';
-import { api } from '@/lib/api';
-import { AlertTriangle, ArrowLeft, Settings, FolderOpen, GitBranch, Shield } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { cn } from '@/lib/utils';
-import { Toast, ToastContainer } from '@/components/ui/toast';
-import type { Project } from '@/lib/api';
-import { useTranslation } from '@/hooks/useTranslation';
+import { logger } from "@/lib/logger";
+import React, { useState, useEffect } from "react";
+import { HooksEditor } from "@/components/HooksEditor";
+import { api } from "@/lib/api";
+import { AlertTriangle, ArrowLeft, Settings, FolderOpen, GitBranch, Shield } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
+import { Toast, ToastContainer } from "@/components/ui/toast";
+import type { Project } from "@/lib/api";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface ProjectSettingsProps {
   project: Project;
@@ -21,15 +21,11 @@ interface ProjectSettingsProps {
   className?: string;
 }
 
-export const ProjectSettings: React.FC<ProjectSettingsProps> = ({
-  project,
-  onBack,
-  className
-}) => {
+export const ProjectSettings: React.FC<ProjectSettingsProps> = ({ project, onBack, className }) => {
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState('project');
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-  
+  const [activeTab, setActiveTab] = useState("project");
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+
   // Other hooks settings
   const [gitIgnoreLocal, setGitIgnoreLocal] = useState(true);
 
@@ -42,7 +38,7 @@ export const ProjectSettings: React.FC<ProjectSettingsProps> = ({
       // Check if .claude/settings.local.json is in .gitignore
       const gitignorePath = `${project.path}/.gitignore`;
       const gitignoreContent = await api.readClaudeMdFile(gitignorePath);
-      setGitIgnoreLocal(gitignoreContent.includes('.claude/settings.local.json'));
+      setGitIgnoreLocal(gitignoreContent.includes(".claude/settings.local.json"));
     } catch {
       // .gitignore might not exist
       setGitIgnoreLocal(false);
@@ -52,23 +48,23 @@ export const ProjectSettings: React.FC<ProjectSettingsProps> = ({
   const addToGitIgnore = async () => {
     try {
       const gitignorePath = `${project.path}/.gitignore`;
-      let content = '';
-      
+      let content = "";
+
       try {
         content = await api.readClaudeMdFile(gitignorePath);
       } catch {
         // File doesn't exist, create it
       }
-      
-      if (!content.includes('.claude/settings.local.json')) {
-        content += '\n# Claude local settings (machine-specific)\n.claude/settings.local.json\n';
+
+      if (!content.includes(".claude/settings.local.json")) {
+        content += "\n# Claude local settings (machine-specific)\n.claude/settings.local.json\n";
         await api.saveClaudeMdFile(gitignorePath, content);
         setGitIgnoreLocal(true);
-        setToast({ message: t('projectSettings.addedToGitignore'), type: 'success' });
+        setToast({ message: t("projectSettings.addedToGitignore"), type: "success" });
       }
     } catch (err) {
-      logger.error('ProjectSettings', 'Failed to update .gitignore:', err);
-      setToast({ message: t('projectSettings.updateGitignoreFailed'), type: 'error' });
+      logger.error("ProjectSettings", "Failed to update .gitignore:", err);
+      setToast({ message: t("projectSettings.updateGitignoreFailed"), type: "error" });
     }
   };
 
@@ -80,15 +76,15 @@ export const ProjectSettings: React.FC<ProjectSettingsProps> = ({
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="sm" onClick={onBack}>
               <ArrowLeft className="h-4 w-4 mr-2" />
-              {t('buttons.back')}
+              {t("buttons.back")}
             </Button>
             <div className="flex items-center gap-2">
               <Settings className="h-5 w-5 text-muted-foreground" />
-              <h2 className="text-xl font-semibold">{t('projectSettings.title')}</h2>
+              <h2 className="text-xl font-semibold">{t("projectSettings.title")}</h2>
             </div>
           </div>
         </div>
-        
+
         <div className="mt-4 flex items-center gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
             <FolderOpen className="h-4 w-4" />
@@ -104,11 +100,11 @@ export const ProjectSettings: React.FC<ProjectSettingsProps> = ({
             <TabsList className="mb-6">
               <TabsTrigger value="project" className="gap-2">
                 <GitBranch className="h-4 w-4" />
-                {t('projectSettings.projectHooks')}
+                {t("projectSettings.projectHooks")}
               </TabsTrigger>
               <TabsTrigger value="local" className="gap-2">
                 <Shield className="h-4 w-4" />
-                {t('projectSettings.localHooks')}
+                {t("projectSettings.localHooks")}
               </TabsTrigger>
             </TabsList>
 
@@ -116,18 +112,19 @@ export const ProjectSettings: React.FC<ProjectSettingsProps> = ({
               <Card className="p-6">
                 <div className="space-y-4">
                   <div>
-                    <h3 className="text-lg font-semibold mb-2">{t('projectSettings.projectHooks')}</h3>
+                    <h3 className="text-lg font-semibold mb-2">
+                      {t("projectSettings.projectHooks")}
+                    </h3>
                     <p className="text-sm text-muted-foreground mb-4">
-                      {t('projectSettings.projectHooksDescription')}
-                      <code className="mx-1 px-2 py-1 bg-muted rounded text-xs">.claude/settings.json</code>
-                      {t('projectSettings.shouldCommit')}
+                      {t("projectSettings.projectHooksDescription")}
+                      <code className="mx-1 px-2 py-1 bg-muted rounded text-xs">
+                        .claude/settings.json
+                      </code>
+                      {t("projectSettings.shouldCommit")}
                     </p>
                   </div>
-                  
-                  <HooksEditor
-                    projectPath={project.path}
-                    scope="project"
-                  />
+
+                  <HooksEditor projectPath={project.path} scope="project" />
                 </div>
               </Card>
             </TabsContent>
@@ -136,11 +133,15 @@ export const ProjectSettings: React.FC<ProjectSettingsProps> = ({
               <Card className="p-6">
                 <div className="space-y-4">
                   <div>
-                    <h3 className="text-lg font-semibold mb-2">{t('projectSettings.localHooks')}</h3>
+                    <h3 className="text-lg font-semibold mb-2">
+                      {t("projectSettings.localHooks")}
+                    </h3>
                     <p className="text-sm text-muted-foreground mb-4">
-                      {t('projectSettings.localHooksDescription')}
-                      <code className="mx-1 px-2 py-1 bg-muted rounded text-xs">.claude/settings.local.json</code>
-                      {t('projectSettings.shouldNotCommit')}
+                      {t("projectSettings.localHooksDescription")}
+                      <code className="mx-1 px-2 py-1 bg-muted rounded text-xs">
+                        .claude/settings.local.json
+                      </code>
+                      {t("projectSettings.shouldNotCommit")}
                     </p>
 
                     {!gitIgnoreLocal && (
@@ -148,24 +149,17 @@ export const ProjectSettings: React.FC<ProjectSettingsProps> = ({
                         <AlertTriangle className="h-5 w-5 text-yellow-600" />
                         <div className="flex-1">
                           <p className="text-sm text-yellow-600">
-                            {t('projectSettings.localFileNotInGitignore')}
+                            {t("projectSettings.localFileNotInGitignore")}
                           </p>
                         </div>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={addToGitIgnore}
-                        >
-                          {t('projectSettings.addToGitignore')}
+                        <Button size="sm" variant="outline" onClick={addToGitIgnore}>
+                          {t("projectSettings.addToGitignore")}
                         </Button>
                       </div>
                     )}
                   </div>
-                  
-                  <HooksEditor
-                    projectPath={project.path}
-                    scope="local"
-                  />
+
+                  <HooksEditor projectPath={project.path} scope="local" />
                 </div>
               </Card>
             </TabsContent>
@@ -176,13 +170,9 @@ export const ProjectSettings: React.FC<ProjectSettingsProps> = ({
       {/* Toast Container */}
       <ToastContainer>
         {toast && (
-          <Toast
-            message={toast.message}
-            type={toast.type}
-            onDismiss={() => setToast(null)}
-          />
+          <Toast message={toast.message} type={toast.type} onDismiss={() => setToast(null)} />
         )}
       </ToastContainer>
     </div>
   );
-}; 
+};

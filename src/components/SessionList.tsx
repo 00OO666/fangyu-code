@@ -1,6 +1,19 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import React, { useState, useEffect } from "react";
-import { ArrowLeft, Clock, Plus, Trash2, CheckSquare, Square, FilePenLine, Loader2, Zap, Bot, RefreshCw, Sparkles } from 'lucide-react';
+import {
+  ArrowLeft,
+  Clock,
+  Plus,
+  Trash2,
+  CheckSquare,
+  Square,
+  FilePenLine,
+  Loader2,
+  Zap,
+  Bot,
+  RefreshCw,
+  Sparkles,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Pagination } from "@/components/ui/pagination";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -14,10 +27,15 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { cn, filterValidSessions } from "@/lib/utils";
-import { formatUnixTimestamp, formatISOTimestamp, truncateText, getFirstLine } from "@/lib/date-utils";
+import {
+  formatUnixTimestamp,
+  formatISOTimestamp,
+  truncateText,
+  getFirstLine,
+} from "@/lib/date-utils";
 import type { Session, ClaudeMdFile } from "@/lib/api";
 import { api } from "@/lib/api";
-import { useTranslation } from '@/hooks/useTranslation';
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface SessionListProps {
   /**
@@ -55,7 +73,12 @@ interface SessionListProps {
   /**
    * Callback when a session should be converted
    */
-  onSessionConvert?: (sessionId: string, targetEngine: 'claude' | 'codex', projectId: string, projectPath: string) => Promise<void>;
+  onSessionConvert?: (
+    sessionId: string,
+    targetEngine: "claude" | "codex",
+    projectId: string,
+    projectPath: string
+  ) => Promise<void>;
   /**
    * Optional className for styling
    */
@@ -67,11 +90,11 @@ const ITEMS_PER_PAGE = 20;
 /**
  * Session filter type
  */
-type SessionFilter = 'all' | 'claude' | 'codex' | 'gemini';
+type SessionFilter = "all" | "claude" | "codex" | "gemini";
 
 /**
  * SessionList component - Displays paginated sessions for a specific project
- * 
+ *
  * @example
  * <SessionList
  *   sessions={sessions}
@@ -110,7 +133,7 @@ export const SessionList: React.FC<SessionListProps> = ({
   const [selectedSessions, setSelectedSessions] = useState<Set<string>>(new Set());
 
   // Session filter state
-  const [sessionFilter, setSessionFilter] = useState<SessionFilter>('all');
+  const [sessionFilter, setSessionFilter] = useState<SessionFilter>("all");
 
   // Load CLAUDE.md files on mount
   useEffect(() => {
@@ -131,7 +154,7 @@ export const SessionList: React.FC<SessionListProps> = ({
       const files = await api.findClaudeMdFiles(projectPath);
       setClaudeMdFiles(files);
     } catch (err) {
-      logger.error('SessionList', 'Failed to load CLAUDE.md files:', err);
+      logger.error("SessionList", "Failed to load CLAUDE.md files:", err);
       setClaudeMdFiles([]);
     } finally {
       setLoadingClaudeMd(false);
@@ -142,7 +165,7 @@ export const SessionList: React.FC<SessionListProps> = ({
     if (!onEditClaudeFile) return;
 
     // Find the main CLAUDE.md file (at project root)
-    const mainFile = claudeMdFiles.find(f => f.relative_path === 'CLAUDE.md');
+    const mainFile = claudeMdFiles.find((f) => f.relative_path === "CLAUDE.md");
 
     if (mainFile) {
       onEditClaudeFile(mainFile);
@@ -157,22 +180,22 @@ export const SessionList: React.FC<SessionListProps> = ({
   const validSessions = filterValidSessions(sessions);
 
   // 🆕 根据筛选器过滤会话类型
-  const filteredSessions = validSessions.filter(session => {
-    if (sessionFilter === 'all') return true;
+  const filteredSessions = validSessions.filter((session) => {
+    if (sessionFilter === "all") return true;
 
     // Claude: explicitly 'claude' or undefined (legacy sessions)
-    if (sessionFilter === 'claude') {
-      return !session.engine || session.engine === 'claude';
+    if (sessionFilter === "claude") {
+      return !session.engine || session.engine === "claude";
     }
 
     // Codex: only 'codex'
-    if (sessionFilter === 'codex') {
-      return session.engine === 'codex';
+    if (sessionFilter === "codex") {
+      return session.engine === "codex";
     }
 
     // Gemini: only 'gemini'
-    if (sessionFilter === 'gemini') {
-      return session.engine === 'gemini';
+    if (sessionFilter === "gemini") {
+      return session.engine === "gemini";
     }
 
     return true;
@@ -184,15 +207,15 @@ export const SessionList: React.FC<SessionListProps> = ({
     const timeA = a.last_message_timestamp
       ? new Date(a.last_message_timestamp).getTime()
       : a.message_timestamp
-      ? new Date(a.message_timestamp).getTime()
-      : a.created_at * 1000;
+        ? new Date(a.message_timestamp).getTime()
+        : a.created_at * 1000;
 
     // 获取会话 B 的最后活跃时间
     const timeB = b.last_message_timestamp
       ? new Date(b.last_message_timestamp).getTime()
       : b.message_timestamp
-      ? new Date(b.message_timestamp).getTime()
-      : b.created_at * 1000;
+        ? new Date(b.message_timestamp).getTime()
+        : b.created_at * 1000;
 
     return timeB - timeA; // 降序：最新的在前
   });
@@ -229,7 +252,7 @@ export const SessionList: React.FC<SessionListProps> = ({
       setDeleteDialogOpen(false);
       setSessionToDelete(null);
     } catch (error) {
-      logger.error('SessionList', "Failed to delete session:", error);
+      logger.error("SessionList", "Failed to delete session:", error);
     } finally {
       setIsDeleting(false);
     }
@@ -263,7 +286,7 @@ export const SessionList: React.FC<SessionListProps> = ({
     if (selectedSessions.size === currentSessions.length) {
       setSelectedSessions(new Set());
     } else {
-      const newSelected = new Set(currentSessions.map(s => s.id));
+      const newSelected = new Set(currentSessions.map((s) => s.id));
       setSelectedSessions(newSelected);
     }
   };
@@ -276,7 +299,7 @@ export const SessionList: React.FC<SessionListProps> = ({
       setIsDeleting(true);
       const sessionIds = Array.from(selectedSessions);
       // Get the project_id from the first session
-      const firstSession = sessions.find(s => s.id === sessionIds[0]);
+      const firstSession = sessions.find((s) => s.id === sessionIds[0]);
       if (firstSession) {
         // Parent handler will separate Claude/Codex sessions and delete accordingly
         await onSessionsBatchDelete(sessionIds, firstSession.project_id);
@@ -284,7 +307,7 @@ export const SessionList: React.FC<SessionListProps> = ({
         setIsSelectionMode(false);
       }
     } catch (error) {
-      logger.error('SessionList', "Failed to batch delete sessions:", error);
+      logger.error("SessionList", "Failed to batch delete sessions:", error);
     } finally {
       setIsDeleting(false);
     }
@@ -303,12 +326,17 @@ export const SessionList: React.FC<SessionListProps> = ({
 
     try {
       setIsConverting(true);
-      const targetEngine = sessionToConvert.engine === 'codex' ? 'claude' : 'codex';
-      await onSessionConvert(sessionToConvert.id, targetEngine, sessionToConvert.project_id, projectPath);
+      const targetEngine = sessionToConvert.engine === "codex" ? "claude" : "codex";
+      await onSessionConvert(
+        sessionToConvert.id,
+        targetEngine,
+        sessionToConvert.project_id,
+        projectPath
+      );
       setConvertDialogOpen(false);
       setSessionToConvert(null);
     } catch (error) {
-      logger.error('SessionList', "Failed to convert session:", error);
+      logger.error("SessionList", "Failed to convert session:", error);
     } finally {
       setIsConverting(false);
     }
@@ -333,14 +361,18 @@ export const SessionList: React.FC<SessionListProps> = ({
             className="h-10 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-sm transition-all duration-200 hover:shadow-md flex-shrink-0"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            <span>{t('sessionList.backToProjects')}</span>
+            <span>{t("sessionList.backToProjects")}</span>
           </Button>
           <div className="flex-1 min-w-0">
             <h2 className="text-base font-medium truncate">{projectPath}</h2>
             <p className="text-xs text-muted-foreground">
-              {filteredSessions.length} {sessionFilter === 'all' ? 'session' : sessionFilter} session{filteredSessions.length !== 1 ? 's' : ''}
-              {sessionFilter === 'all' && sessions.length !== validSessions.length && (
-                <span className="text-muted-foreground/70"> ({sessions.length - validSessions.length} hidden)</span>
+              {filteredSessions.length} {sessionFilter === "all" ? "session" : sessionFilter}{" "}
+              session{filteredSessions.length !== 1 ? "s" : ""}
+              {sessionFilter === "all" && sessions.length !== validSessions.length && (
+                <span className="text-muted-foreground/70">
+                  {" "}
+                  ({sessions.length - validSessions.length} hidden)
+                </span>
               )}
             </p>
           </div>
@@ -367,13 +399,16 @@ export const SessionList: React.FC<SessionListProps> = ({
       </div>
 
       {/* 🆕 会话类型筛选器 */}
-      <Tabs value={sessionFilter} onValueChange={(value) => {
-        setSessionFilter(value as SessionFilter);
-        setCurrentPage(1); // Reset to first page when filter changes
-      }}>
+      <Tabs
+        value={sessionFilter}
+        onValueChange={(value) => {
+          setSessionFilter(value as SessionFilter);
+          setCurrentPage(1); // Reset to first page when filter changes
+        }}
+      >
         <TabsList className="grid w-full grid-cols-4 max-w-2xl">
           <TabsTrigger value="all" className="flex items-center gap-2">
-            {t('sessionList.all')}
+            {t("sessionList.all")}
             {validSessions.length > 0 && (
               <span className="text-xs opacity-70">({validSessions.length})</span>
             )}
@@ -381,27 +416,27 @@ export const SessionList: React.FC<SessionListProps> = ({
           <TabsTrigger value="claude" className="flex items-center gap-2">
             <Zap className="h-3.5 w-3.5" />
             Claude
-            {validSessions.filter(s => !s.engine || s.engine === 'claude').length > 0 && (
+            {validSessions.filter((s) => !s.engine || s.engine === "claude").length > 0 && (
               <span className="text-xs opacity-70">
-                ({validSessions.filter(s => !s.engine || s.engine === 'claude').length})
+                ({validSessions.filter((s) => !s.engine || s.engine === "claude").length})
               </span>
             )}
           </TabsTrigger>
           <TabsTrigger value="codex" className="flex items-center gap-2">
             <Bot className="h-3.5 w-3.5" />
             Codex
-            {validSessions.filter(s => s.engine === 'codex').length > 0 && (
+            {validSessions.filter((s) => s.engine === "codex").length > 0 && (
               <span className="text-xs opacity-70">
-                ({validSessions.filter(s => s.engine === 'codex').length})
+                ({validSessions.filter((s) => s.engine === "codex").length})
               </span>
             )}
           </TabsTrigger>
           <TabsTrigger value="gemini" className="flex items-center gap-2">
             <Sparkles className="h-3.5 w-3.5" />
             Gemini
-            {validSessions.filter(s => s.engine === 'gemini').length > 0 && (
+            {validSessions.filter((s) => s.engine === "gemini").length > 0 && (
               <span className="text-xs opacity-70">
-                ({validSessions.filter(s => s.engine === 'gemini').length})
+                ({validSessions.filter((s) => s.engine === "gemini").length})
               </span>
             )}
           </TabsTrigger>
@@ -416,30 +451,26 @@ export const SessionList: React.FC<SessionListProps> = ({
             <>
               {isSelectionMode ? (
                 <>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={selectAllOnPage}
-                  >
+                  <Button variant="outline" size="sm" onClick={selectAllOnPage}>
                     {selectedSessions.size === currentSessions.length ? (
                       <>
                         <CheckSquare className="h-4 w-4 mr-2" />
-                        {t('sessionList.deselectAll')}
+                        {t("sessionList.deselectAll")}
                       </>
                     ) : (
                       <>
                         <Square className="h-4 w-4 mr-2" />
-                        {t('sessionList.selectAllOnPage')}
+                        {t("sessionList.selectAllOnPage")}
                       </>
                     )}
                   </Button>
                   <span className="text-sm text-muted-foreground">
-                    {t('sessionList.selectedCount', { count: selectedSessions.size })}
+                    {t("sessionList.selectedCount", { count: selectedSessions.size })}
                   </span>
                 </>
               ) : (
                 <span className="text-sm text-muted-foreground">
-                  {t('sessionList.batchManage')}
+                  {t("sessionList.batchManage")}
                 </span>
               )}
             </>
@@ -456,7 +487,9 @@ export const SessionList: React.FC<SessionListProps> = ({
               disabled={isDeleting}
             >
               <Trash2 className="h-4 w-4 mr-2" />
-              {isDeleting ? t('sessionList.deleting') : t('sessionList.deleteSelected', { count: selectedSessions.size })}
+              {isDeleting
+                ? t("sessionList.deleting")
+                : t("sessionList.deleteSelected", { count: selectedSessions.size })}
             </Button>
           )}
 
@@ -467,7 +500,7 @@ export const SessionList: React.FC<SessionListProps> = ({
               onClick={toggleSelectionMode}
               disabled={isDeleting}
             >
-              {isSelectionMode ? t('sessionList.cancelSelection') : t('sessionList.batchSelection')}
+              {isSelectionMode ? t("sessionList.cancelSelection") : t("sessionList.batchSelection")}
             </Button>
           )}
 
@@ -479,7 +512,7 @@ export const SessionList: React.FC<SessionListProps> = ({
               className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-sm transition-all duration-200"
             >
               <Plus className="mr-2 h-4 w-4" />
-              {t('claude.newSession')}
+              {t("claude.newSession")}
             </Button>
           )}
         </div>
@@ -489,21 +522,21 @@ export const SessionList: React.FC<SessionListProps> = ({
       <div
         className="border border-border rounded-lg overflow-hidden divide-y divide-border"
         role="list"
-        aria-label={t('sessionList.sessionListLabel')}
+        aria-label={t("sessionList.sessionListLabel")}
         aria-live="polite"
       >
         {currentSessions.map((session) => {
           // 优先显示 first_message 内容，如果没有则显示友好的占位符
           const firstMessagePreview = session.first_message
             ? truncateText(getFirstLine(session.first_message), 80)
-            : "未命名会话";  // ✅ 显示友好的占位符而不是 session ID
+            : "未命名会话"; // ✅ 显示友好的占位符而不是 session ID
           const timeDisplay = session.last_message_timestamp
             ? formatISOTimestamp(session.last_message_timestamp)
             : session.message_timestamp
-            ? formatISOTimestamp(session.message_timestamp)
-            : formatUnixTimestamp(session.created_at);
+              ? formatISOTimestamp(session.message_timestamp)
+              : formatUnixTimestamp(session.created_at);
           // Use engine + id as unique key to avoid conflicts between engines
-          const uniqueKey = `${session.engine || 'claude'}-${session.id}`;
+          const uniqueKey = `${session.engine || "claude"}-${session.id}`;
 
           return (
             <div
@@ -521,7 +554,7 @@ export const SessionList: React.FC<SessionListProps> = ({
                   <Checkbox
                     checked={selectedSessions.has(session.id)}
                     onCheckedChange={() => toggleSessionSelection(session.id)}
-                    aria-label={t('sessionList.selectSession', { name: firstMessagePreview })}
+                    aria-label={t("sessionList.selectSession", { name: firstMessagePreview })}
                   />
                 </div>
               )}
@@ -535,94 +568,104 @@ export const SessionList: React.FC<SessionListProps> = ({
                   }
                 }}
                 className="flex-1 text-left px-4 py-2.5 min-w-0"
-                aria-label={t('sessionList.sessionAriaLabel', { name: firstMessagePreview, time: timeDisplay })}
+                aria-label={t("sessionList.sessionAriaLabel", {
+                  name: firstMessagePreview,
+                  time: timeDisplay,
+                })}
               >
-              <div className="flex items-center justify-between gap-3">
-                {/* Session info */}
-                <div className="flex-1 min-w-0 space-y-0.5">
-                  {/* First message preview with engine badge */}
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-medium truncate text-foreground group-hover:text-primary transition-colors flex-1 min-w-0">
-                      {firstMessagePreview}
+                <div className="flex items-center justify-between gap-3">
+                  {/* Session info */}
+                  <div className="flex-1 min-w-0 space-y-0.5">
+                    {/* First message preview with engine badge */}
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-medium truncate text-foreground group-hover:text-primary transition-colors flex-1 min-w-0">
+                        {firstMessagePreview}
+                      </p>
+                      {/* 🆕 Engine type badge */}
+                      {session.engine === "codex" ? (
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 shrink-0">
+                          <Bot className="h-3 w-3" />
+                          Codex
+                        </span>
+                      ) : session.engine === "gemini" ? (
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 shrink-0">
+                          <Sparkles className="h-3 w-3" />
+                          Gemini
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 shrink-0">
+                          <Zap className="h-3 w-3" />
+                          Claude
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Session ID (small and subtle) */}
+                    <p
+                      className="text-xs font-mono text-muted-foreground truncate"
+                      aria-label={t("sessionList.sessionIdLabel", { id: session.id })}
+                    >
+                      {session.id}
                     </p>
-                    {/* 🆕 Engine type badge */}
-                    {session.engine === 'codex' ? (
-                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 shrink-0">
-                        <Bot className="h-3 w-3" />
-                        Codex
-                      </span>
-                    ) : session.engine === 'gemini' ? (
-                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 shrink-0">
-                        <Sparkles className="h-3 w-3" />
-                        Gemini
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 shrink-0">
-                        <Zap className="h-3 w-3" />
-                        Claude
-                      </span>
-                    )}
                   </div>
 
-                  {/* Session ID (small and subtle) */}
-                  <p className="text-xs font-mono text-muted-foreground truncate" aria-label={t('sessionList.sessionIdLabel', { id: session.id })}>
-                    {session.id}
-                  </p>
+                  {/* Timestamp - 优先显示最后一条消息时间 */}
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground shrink-0">
+                    <Clock className="h-3 w-3" aria-hidden="true" />
+                    <time
+                      dateTime={
+                        session.last_message_timestamp ||
+                        session.message_timestamp ||
+                        new Date(session.created_at * 1000).toISOString()
+                      }
+                    >
+                      {timeDisplay}
+                    </time>
+                  </div>
                 </div>
-
-                {/* Timestamp - 优先显示最后一条消息时间 */}
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground shrink-0">
-                  <Clock className="h-3 w-3" aria-hidden="true" />
-                  <time dateTime={session.last_message_timestamp || session.message_timestamp || new Date(session.created_at * 1000).toISOString()}>
-                    {timeDisplay}
-                  </time>
-                </div>
-              </div>
-            </button>
-
-            {/* Convert button - shown on hover (hidden in selection mode) */}
-            {!isSelectionMode && onSessionConvert && (
-              <button
-                onClick={(e) => handleConvertClick(e, session)}
-                className="px-3 py-2.5 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity hover:bg-primary/10 text-primary"
-                aria-label={t('sessionList.convertTo', { engine: session.engine === 'codex' ? 'Claude' : 'Codex' })}
-                title={t('sessionList.experimentalConvert', { engine: session.engine === 'codex' ? 'Claude' : 'Codex' })}
-              >
-                <RefreshCw className="h-4 w-4" aria-hidden="true" />
               </button>
-            )}
 
-            {/* Delete button - shown on hover (hidden in selection mode) */}
-            {!isSelectionMode && onSessionDelete && (
-              <button
-                onClick={(e) => handleDeleteClick(e, session)}
-                className="px-3 py-2.5 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity hover:bg-destructive/10 text-destructive"
-                aria-label={t('sessionList.deleteSession', { name: firstMessagePreview })}
-              >
-                <Trash2 className="h-4 w-4" aria-hidden="true" />
-              </button>
-            )}
-          </div>
+              {/* Convert button - shown on hover (hidden in selection mode) */}
+              {!isSelectionMode && onSessionConvert && (
+                <button
+                  onClick={(e) => handleConvertClick(e, session)}
+                  className="px-3 py-2.5 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity hover:bg-primary/10 text-primary"
+                  aria-label={t("sessionList.convertTo", {
+                    engine: session.engine === "codex" ? "Claude" : "Codex",
+                  })}
+                  title={t("sessionList.experimentalConvert", {
+                    engine: session.engine === "codex" ? "Claude" : "Codex",
+                  })}
+                >
+                  <RefreshCw className="h-4 w-4" aria-hidden="true" />
+                </button>
+              )}
+
+              {/* Delete button - shown on hover (hidden in selection mode) */}
+              {!isSelectionMode && onSessionDelete && (
+                <button
+                  onClick={(e) => handleDeleteClick(e, session)}
+                  className="px-3 py-2.5 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity hover:bg-destructive/10 text-destructive"
+                  aria-label={t("sessionList.deleteSession", { name: firstMessagePreview })}
+                >
+                  <Trash2 className="h-4 w-4" aria-hidden="true" />
+                </button>
+              )}
+            </div>
           );
         })}
       </div>
 
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={setCurrentPage}
-      />
+      <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
 
       {/* Delete confirmation dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{t('sessionList.confirmDelete')}</DialogTitle>
+            <DialogTitle>{t("sessionList.confirmDelete")}</DialogTitle>
           </DialogHeader>
           <div className="py-4">
-            <p className="text-sm text-muted-foreground mb-4">
-              {t('sessionList.deleteWarning')}
-            </p>
+            <p className="text-sm text-muted-foreground mb-4">{t("sessionList.deleteWarning")}</p>
             {sessionToDelete && (
               <div className="mt-3 p-3 bg-muted rounded-md">
                 <p className="text-sm font-medium text-foreground">
@@ -630,26 +673,16 @@ export const SessionList: React.FC<SessionListProps> = ({
                     ? truncateText(getFirstLine(sessionToDelete.first_message), 60)
                     : sessionToDelete.id}
                 </p>
-                <p className="text-xs text-muted-foreground mt-1 font-mono">
-                  {sessionToDelete.id}
-                </p>
+                <p className="text-xs text-muted-foreground mt-1 font-mono">{sessionToDelete.id}</p>
               </div>
             )}
           </div>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={cancelDelete}
-              disabled={isDeleting}
-            >
-              {t('sessionList.cancel')}
+            <Button variant="outline" onClick={cancelDelete} disabled={isDeleting}>
+              {t("sessionList.cancel")}
             </Button>
-            <Button
-              variant="destructive"
-              onClick={confirmDelete}
-              disabled={isDeleting}
-            >
-              {isDeleting ? t('sessionList.deleting') : t('sessionList.confirmDelete')}
+            <Button variant="destructive" onClick={confirmDelete} disabled={isDeleting}>
+              {isDeleting ? t("sessionList.deleting") : t("sessionList.confirmDelete")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -659,10 +692,8 @@ export const SessionList: React.FC<SessionListProps> = ({
       <Dialog open={convertDialogOpen} onOpenChange={setConvertDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{t('sessionList.convertTitle')}</DialogTitle>
-            <DialogDescription>
-              {t('sessionList.convertDescription')}
-            </DialogDescription>
+            <DialogTitle>{t("sessionList.convertTitle")}</DialogTitle>
+            <DialogDescription>{t("sessionList.convertDescription")}</DialogDescription>
           </DialogHeader>
           <div className="py-4">
             {/* 实验性功能警告 */}
@@ -671,23 +702,25 @@ export const SessionList: React.FC<SessionListProps> = ({
                 <span className="text-yellow-600 dark:text-yellow-400 text-lg shrink-0">⚠️</span>
                 <div>
                   <p className="text-sm font-semibold text-yellow-700 dark:text-yellow-300">
-                    {t('sessionList.experimentalFeature')}
+                    {t("sessionList.experimentalFeature")}
                   </p>
                   <p className="text-xs text-yellow-600/90 dark:text-yellow-400/90 mt-1">
-                    {t('sessionList.experimentalWarning')}
+                    {t("sessionList.experimentalWarning")}
                   </p>
                 </div>
               </div>
             </div>
 
             <p className="text-sm text-muted-foreground mb-4">
-              {t('sessionList.confirmConvertTo', { engine: sessionToConvert?.engine === 'codex' ? 'Claude' : 'Codex' })}
+              {t("sessionList.confirmConvertTo", {
+                engine: sessionToConvert?.engine === "codex" ? "Claude" : "Codex",
+              })}
             </p>
             <div className="space-y-3">
               {sessionToConvert && (
                 <div className="p-3 bg-muted rounded-md">
                   <div className="flex items-center gap-2 mb-2">
-                    {sessionToConvert.engine === 'codex' ? (
+                    {sessionToConvert.engine === "codex" ? (
                       <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
                         <Bot className="h-3 w-3" />
                         Codex
@@ -699,7 +732,7 @@ export const SessionList: React.FC<SessionListProps> = ({
                       </span>
                     )}
                     <RefreshCw className="h-4 w-4 text-muted-foreground" />
-                    {sessionToConvert.engine === 'codex' ? (
+                    {sessionToConvert.engine === "codex" ? (
                       <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20">
                         <Zap className="h-3 w-3" />
                         Claude
@@ -723,39 +756,31 @@ export const SessionList: React.FC<SessionListProps> = ({
               )}
               <div className="p-3 bg-blue-500/5 border border-blue-500/20 rounded-md">
                 <p className="text-sm text-blue-600 dark:text-blue-400">
-                  ℹ️ {t('sessionList.convertNotes')}
+                  ℹ️ {t("sessionList.convertNotes")}
                 </p>
                 <ul className="text-xs text-muted-foreground mt-2 space-y-1 list-disc list-inside">
-                  <li>{t('sessionList.convertNote1')}</li>
-                  <li>{t('sessionList.convertNote2')}</li>
-                  <li>{t('sessionList.convertNote3')}</li>
-                  <li>{t('sessionList.convertNote4')}</li>
+                  <li>{t("sessionList.convertNote1")}</li>
+                  <li>{t("sessionList.convertNote2")}</li>
+                  <li>{t("sessionList.convertNote3")}</li>
+                  <li>{t("sessionList.convertNote4")}</li>
                 </ul>
               </div>
             </div>
           </div>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={cancelConvert}
-              disabled={isConverting}
-            >
-              {t('sessionList.cancel')}
+            <Button variant="outline" onClick={cancelConvert} disabled={isConverting}>
+              {t("sessionList.cancel")}
             </Button>
-            <Button
-              onClick={confirmConvert}
-              disabled={isConverting}
-              className="bg-primary"
-            >
+            <Button onClick={confirmConvert} disabled={isConverting} className="bg-primary">
               {isConverting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {t('sessionList.converting')}
+                  {t("sessionList.converting")}
                 </>
               ) : (
                 <>
                   <RefreshCw className="mr-2 h-4 w-4" />
-                  {t('sessionList.confirmConvert')}
+                  {t("sessionList.confirmConvert")}
                 </>
               )}
             </Button>
@@ -764,4 +789,4 @@ export const SessionList: React.FC<SessionListProps> = ({
       </Dialog>
     </div>
   );
-}; 
+};

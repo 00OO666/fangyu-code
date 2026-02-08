@@ -11,14 +11,11 @@
  * - 实时消息通知
  */
 
-import { logger } from '@/lib/logger';
-import React, { useEffect, useCallback, useRef } from 'react';
-import { useWebSocket } from '@/hooks/useWebSocket';
-import type { ClaudeStreamMessage } from '@/types/claude';
-import type {
-  SessionMessagePayload,
-  SessionStatusPayload,
-} from '@/types/websocket';
+import { logger } from "@/lib/logger";
+import React, { useEffect, useCallback, useRef } from "react";
+import { useWebSocket } from "@/hooks/useWebSocket";
+import type { ClaudeStreamMessage } from "@/types/claude";
+import type { SessionMessagePayload, SessionStatusPayload } from "@/types/websocket";
 
 export interface RealtimeSyncProps {
   /** 会话 ID */
@@ -69,7 +66,10 @@ export const RealtimeSync: React.FC<RealtimeSyncProps> = ({
         onMessagesUpdate &&
         payload.messages.length > 0
       ) {
-        logger.debug('RealtimeSync', `Received ${payload.messages.length} new messages from remote window`);
+        logger.debug(
+          "RealtimeSync",
+          `Received ${payload.messages.length} new messages from remote window`
+        );
         onMessagesUpdate(payload.messages);
       }
     },
@@ -81,7 +81,7 @@ export const RealtimeSync: React.FC<RealtimeSyncProps> = ({
     (payload: SessionStatusPayload) => {
       // 只处理当前会话的状态
       if (sessionId && payload.sessionId === sessionId) {
-        logger.debug('RealtimeSync', `Session status changed to: ${payload.status}`, payload.error);
+        logger.debug("RealtimeSync", `Session status changed to: ${payload.status}`, payload.error);
         // TODO: 根据状态更新 UI
       }
     },
@@ -93,10 +93,10 @@ export const RealtimeSync: React.FC<RealtimeSyncProps> = ({
     if (!enabled) return;
 
     const unsubscribes = [
-      on('onSessionMessage', handleSessionMessage),
-      on('onSessionStatus', handleSessionStatus),
-      on('onStateChange', (newState) => {
-        logger.debug('RealtimeSync', '[RealtimeSync] Connection state changed:', newState);
+      on("onSessionMessage", handleSessionMessage),
+      on("onSessionStatus", handleSessionStatus),
+      on("onStateChange", (newState) => {
+        logger.debug("RealtimeSync", "[RealtimeSync] Connection state changed:", newState);
       }),
     ];
 
@@ -108,10 +108,10 @@ export const RealtimeSync: React.FC<RealtimeSyncProps> = ({
   // 启用时自动连接
   useEffect(() => {
     if (enabled) {
-      logger.debug('RealtimeSync', '[RealtimeSync] Enabling real-time sync, connecting...');
+      logger.debug("RealtimeSync", "[RealtimeSync] Enabling real-time sync, connecting...");
       connect();
     } else if (!enabled) {
-      logger.debug('RealtimeSync', '[RealtimeSync] Disabling real-time sync, disconnecting...');
+      logger.debug("RealtimeSync", "[RealtimeSync] Disabling real-time sync, disconnecting...");
       close();
     }
 
@@ -124,7 +124,7 @@ export const RealtimeSync: React.FC<RealtimeSyncProps> = ({
 
   // 发送消息更新（当消息列表变化时）
   useEffect(() => {
-    if (!enabled || !sessionId || !projectId || state !== 'connected') return;
+    if (!enabled || !sessionId || !projectId || state !== "connected") return;
 
     // 只发送新增消息（避免重复发送整个列表）
     const newMessageCount = messages.length - lastSentCountRef.current;
@@ -139,21 +139,12 @@ export const RealtimeSync: React.FC<RealtimeSyncProps> = ({
         isStreaming,
       };
 
-      send('session:message', payload);
+      send("session:message", payload);
       lastSentCountRef.current = messages.length;
 
-      logger.debug('RealtimeSync', `Sent ${newMessages.length} new messages to remote windows`);
+      logger.debug("RealtimeSync", `Sent ${newMessages.length} new messages to remote windows`);
     }
-  }, [
-    enabled,
-    sessionId,
-    projectId,
-    projectPath,
-    messages,
-    isStreaming,
-    state,
-    send,
-  ]);
+  }, [enabled, sessionId, projectId, projectPath, messages, isStreaming, state, send]);
 
   // 组件卸载时关闭连接
   useEffect(() => {

@@ -10,22 +10,40 @@
  * 来源: Claude Code CLI 2.0
  */
 
-import { logger } from '@/lib/logger';
-import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Clock, Filter, Edit, Send, Copy, Check, Terminal, Code2, Sparkles, Folder } from 'lucide-react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { logger } from "@/lib/logger";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Search,
+  Clock,
+  Filter,
+  Edit,
+  Send,
+  Copy,
+  Check,
+  Terminal,
+  Code2,
+  Sparkles,
+  Folder,
+} from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { cn } from '@/lib/utils';
+} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 // 提示词历史项
 interface PromptHistoryItem {
@@ -35,7 +53,7 @@ interface PromptHistoryItem {
   sessionId: string;
   projectPath: string;
   projectName: string;
-  engine: 'claude' | 'codex' | 'gemini';
+  engine: "claude" | "codex" | "gemini";
   model?: string;
 }
 
@@ -54,12 +72,12 @@ export function PromptSearchModal({
   onSendPrompt,
   currentProjectPath: _currentProjectPath,
 }: PromptSearchModalProps) {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [prompts, setPrompts] = useState<PromptHistoryItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [filterEngine, setFilterEngine] = useState<string>('all');
-  const [filterDate, setFilterDate] = useState<string>('all');
+  const [filterEngine, setFilterEngine] = useState<string>("all");
+  const [filterDate, setFilterDate] = useState<string>("all");
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -79,38 +97,38 @@ export function PromptSearchModal({
       // 目前使用模拟数据
       const mockPrompts: PromptHistoryItem[] = [
         {
-          id: '1',
-          content: '帮我创建一个 React 组件',
+          id: "1",
+          content: "帮我创建一个 React 组件",
           timestamp: new Date(Date.now() - 3600000).toISOString(),
-          sessionId: 'session-1',
-          projectPath: '/path/to/project1',
-          projectName: 'My Project',
-          engine: 'claude',
-          model: 'claude-opus-4-5',
+          sessionId: "session-1",
+          projectPath: "/path/to/project1",
+          projectName: "My Project",
+          engine: "claude",
+          model: "claude-opus-4-5",
         },
         {
-          id: '2',
-          content: '修复这个 TypeScript 类型错误',
+          id: "2",
+          content: "修复这个 TypeScript 类型错误",
           timestamp: new Date(Date.now() - 7200000).toISOString(),
-          sessionId: 'session-2',
-          projectPath: '/path/to/project2',
-          projectName: 'Another Project',
-          engine: 'codex',
+          sessionId: "session-2",
+          projectPath: "/path/to/project2",
+          projectName: "Another Project",
+          engine: "codex",
         },
         {
-          id: '3',
-          content: '重构代码使用 async/await',
+          id: "3",
+          content: "重构代码使用 async/await",
           timestamp: new Date(Date.now() - 86400000).toISOString(),
-          sessionId: 'session-1',
-          projectPath: '/path/to/project1',
-          projectName: 'My Project',
-          engine: 'gemini',
+          sessionId: "session-1",
+          projectPath: "/path/to/project1",
+          projectName: "My Project",
+          engine: "gemini",
         },
       ];
 
       setPrompts(mockPrompts);
     } catch (error) {
-      logger.error('PromptSearchModal', 'Failed to load prompt history:', error);
+      logger.error("PromptSearchModal", "Failed to load prompt history:", error);
     } finally {
       setLoading(false);
     }
@@ -132,19 +150,19 @@ export function PromptSearchModal({
     let results = prompts;
 
     // 引擎过滤
-    if (filterEngine !== 'all') {
+    if (filterEngine !== "all") {
       results = results.filter((p) => p.engine === filterEngine);
     }
 
     // 日期过滤
-    if (filterDate !== 'all') {
+    if (filterDate !== "all") {
       const now = Date.now();
       const cutoff =
-        filterDate === 'today'
+        filterDate === "today"
           ? now - 86400000
-          : filterDate === 'week'
+          : filterDate === "week"
             ? now - 604800000
-            : filterDate === 'month'
+            : filterDate === "month"
               ? now - 2592000000
               : 0;
 
@@ -166,23 +184,23 @@ export function PromptSearchModal({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!open) return;
 
-      if (e.key === 'ArrowDown') {
+      if (e.key === "ArrowDown") {
         e.preventDefault();
         setSelectedIndex((prev) => Math.min(prev + 1, filteredPrompts.length - 1));
-      } else if (e.key === 'ArrowUp') {
+      } else if (e.key === "ArrowUp") {
         e.preventDefault();
         setSelectedIndex((prev) => Math.max(prev - 1, 0));
-      } else if (e.key === 'Enter' && filteredPrompts[selectedIndex]) {
+      } else if (e.key === "Enter" && filteredPrompts[selectedIndex]) {
         e.preventDefault();
         handleSelectPrompt(filteredPrompts[selectedIndex]);
-      } else if (e.key === 'Escape') {
+      } else if (e.key === "Escape") {
         e.preventDefault();
         onOpenChange(false);
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [open, selectedIndex, filteredPrompts, onOpenChange]);
 
   // 重置选中索引
@@ -215,18 +233,18 @@ export function PromptSearchModal({
       setCopiedId(prompt.id);
       setTimeout(() => setCopiedId(null), 2000);
     } catch (error) {
-      logger.error('PromptSearchModal', 'Failed to copy:', error);
+      logger.error("PromptSearchModal", "Failed to copy:", error);
     }
   }, []);
 
   // 获取引擎图标
   const getEngineIcon = (engine: string) => {
     switch (engine) {
-      case 'claude':
+      case "claude":
         return <Terminal className="h-3.5 w-3.5 text-blue-500" />;
-      case 'codex':
+      case "codex":
         return <Code2 className="h-3.5 w-3.5 text-green-500" />;
-      case 'gemini':
+      case "gemini":
         return <Sparkles className="h-3.5 w-3.5 text-purple-500" />;
       default:
         return null;
@@ -242,11 +260,11 @@ export function PromptSearchModal({
     const diffHours = Math.floor(diffMins / 60);
     const diffDays = Math.floor(diffHours / 24);
 
-    if (diffMins < 1) return '刚刚';
+    if (diffMins < 1) return "刚刚";
     if (diffMins < 60) return `${diffMins}分钟前`;
     if (diffHours < 24) return `${diffHours}小时前`;
     if (diffDays < 7) return `${diffDays}天前`;
-    return date.toLocaleDateString('zh-CN');
+    return date.toLocaleDateString("zh-CN");
   };
 
   return (
@@ -302,9 +320,7 @@ export function PromptSearchModal({
             </Select>
 
             <div className="flex-1" />
-            <span className="text-xs text-muted-foreground">
-              {filteredPrompts.length} 条结果
-            </span>
+            <span className="text-xs text-muted-foreground">{filteredPrompts.length} 条结果</span>
           </div>
         </div>
 
@@ -329,9 +345,9 @@ export function PromptSearchModal({
                   exit={{ opacity: 0, y: 10 }}
                   transition={{ delay: index * 0.02 }}
                   className={cn(
-                    'group rounded-lg p-3 mb-2 cursor-pointer transition-colors',
-                    'hover:bg-accent',
-                    index === selectedIndex && 'bg-accent ring-2 ring-primary'
+                    "group rounded-lg p-3 mb-2 cursor-pointer transition-colors",
+                    "hover:bg-accent",
+                    index === selectedIndex && "bg-accent ring-2 ring-primary"
                   )}
                   onClick={() => handleSelectPrompt(prompt)}
                 >
@@ -412,9 +428,7 @@ export function PromptSearchModal({
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>↑↓ 导航 • Enter 选择 • Esc 关闭</span>
             <span className="flex items-center gap-2">
-              <kbd className="px-1.5 py-0.5 bg-background border rounded text-[10px]">
-                Ctrl+R
-              </kbd>
+              <kbd className="px-1.5 py-0.5 bg-background border rounded text-[10px]">Ctrl+R</kbd>
               快捷打开
             </span>
           </div>

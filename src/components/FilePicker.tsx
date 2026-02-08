@@ -1,9 +1,19 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
-import { X, Folder, File, ArrowLeft, FileCode, FileText, FileImage, Search, ChevronRight } from 'lucide-react';
+import {
+  X,
+  Folder,
+  File,
+  ArrowLeft,
+  FileCode,
+  FileText,
+  FileImage,
+  Search,
+  ChevronRight,
+} from "lucide-react";
 import type { FileEntry } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
@@ -44,33 +54,33 @@ interface FilePickerProps {
 // File icon mapping based on extension
 const getFileIcon = (entry: FileEntry) => {
   if (entry.is_directory) return Folder;
-  
+
   const ext = entry.extension?.toLowerCase();
   if (!ext) return File;
-  
+
   // Code files
-  if (['ts', 'tsx', 'js', 'jsx', 'py', 'rs', 'go', 'java', 'cpp', 'c', 'h'].includes(ext)) {
+  if (["ts", "tsx", "js", "jsx", "py", "rs", "go", "java", "cpp", "c", "h"].includes(ext)) {
     return FileCode;
   }
-  
+
   // Text/Markdown files
-  if (['md', 'txt', 'json', 'yaml', 'yml', 'toml', 'xml', 'html', 'css'].includes(ext)) {
+  if (["md", "txt", "json", "yaml", "yml", "toml", "xml", "html", "css"].includes(ext)) {
     return FileText;
   }
-  
+
   // Image files
-  if (['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'ico'].includes(ext)) {
+  if (["png", "jpg", "jpeg", "gif", "svg", "webp", "ico"].includes(ext)) {
     return FileImage;
   }
-  
+
   return File;
 };
 
 // Format file size to human readable
 const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '';
+  if (bytes === 0) return "";
   const k = 1024;
-  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const sizes = ["B", "KB", "MB", "GB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
 };
@@ -93,9 +103,9 @@ export const FilePicker: React.FC<FilePickerProps> = ({
   className,
 }) => {
   const searchQuery = initialQuery;
-  
+
   const [currentPath, setCurrentPath] = useState(basePath);
-  const [entries, setEntries] = useState<FileEntry[]>(() => 
+  const [entries, setEntries] = useState<FileEntry[]>(() =>
     searchQuery.trim() ? [] : globalDirectoryCache.get(basePath) || []
   );
   const [searchResults, setSearchResults] = useState<FileEntry[]>(() => {
@@ -117,17 +127,17 @@ export const FilePicker: React.FC<FilePickerProps> = ({
     }
     return globalDirectoryCache.has(basePath);
   });
-  
+
   const searchDebounceRef = useRef<NodeJS.Timeout | null>(null);
   const fileListRef = useRef<HTMLDivElement>(null);
-  
+
   // Computed values
   const displayEntries = searchQuery.trim() ? searchResults : entries;
   const canGoBack = pathHistory.length > 1;
-  
+
   // Get relative path for display
-  const relativePath = currentPath.startsWith(basePath) 
-    ? currentPath.slice(basePath.length) || '/'
+  const relativePath = currentPath.startsWith(basePath)
+    ? currentPath.slice(basePath.length) || "/"
     : currentPath;
 
   // Load directory contents
@@ -143,14 +153,14 @@ export const FilePicker: React.FC<FilePickerProps> = ({
 
     if (searchQuery.trim()) {
       const cacheKey = `${basePath}:${searchQuery}`;
-      
+
       // Immediately show cached results if available
       if (globalSearchCache.has(cacheKey)) {
         setSearchResults(globalSearchCache.get(cacheKey) || []);
         setIsShowingCached(true);
         setError(null);
       }
-      
+
       // Schedule fresh search after debounce
       searchDebounceRef.current = setTimeout(() => {
         performSearch(searchQuery);
@@ -176,16 +186,16 @@ export const FilePicker: React.FC<FilePickerProps> = ({
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const displayEntries = searchQuery.trim() ? searchResults : entries;
-      
+
       // ⚡ 修复：只处理文件选择器相关的按键，使用 capture 阶段确保优先执行
       switch (e.key) {
-        case 'Escape':
+        case "Escape":
           e.preventDefault();
           e.stopPropagation();
           onClose();
           break;
-          
-        case 'Enter':
+
+        case "Enter":
           e.preventDefault();
           e.stopPropagation();
           // Enter always selects the current item (file or directory)
@@ -193,20 +203,20 @@ export const FilePicker: React.FC<FilePickerProps> = ({
             onSelect(displayEntries[selectedIndex]);
           }
           break;
-          
-        case 'ArrowUp':
+
+        case "ArrowUp":
           e.preventDefault();
           e.stopPropagation();
-          setSelectedIndex(prev => Math.max(0, prev - 1));
+          setSelectedIndex((prev) => Math.max(0, prev - 1));
           break;
-          
-        case 'ArrowDown':
+
+        case "ArrowDown":
           e.preventDefault();
           e.stopPropagation();
-          setSelectedIndex(prev => Math.min(displayEntries.length - 1, prev + 1));
+          setSelectedIndex((prev) => Math.min(displayEntries.length - 1, prev + 1));
           break;
-          
-        case 'ArrowRight':
+
+        case "ArrowRight":
           e.preventDefault();
           e.stopPropagation();
           // Right arrow enters directories
@@ -217,8 +227,8 @@ export const FilePicker: React.FC<FilePickerProps> = ({
             }
           }
           break;
-          
-        case 'ArrowLeft':
+
+        case "ArrowLeft":
           e.preventDefault();
           e.stopPropagation();
           // Left arrow goes back to parent directory
@@ -230,8 +240,8 @@ export const FilePicker: React.FC<FilePickerProps> = ({
     };
 
     // ⚡ 使用 capture 阶段，确保优先于其他组件处理
-    window.addEventListener('keydown', handleKeyDown, { capture: true });
-    return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
+    window.addEventListener("keydown", handleKeyDown, { capture: true });
+    return () => window.removeEventListener("keydown", handleKeyDown, { capture: true });
   }, [entries, searchResults, selectedIndex, searchQuery, canGoBack, onClose, onSelect]);
 
   // Scroll selected item into view
@@ -239,7 +249,7 @@ export const FilePicker: React.FC<FilePickerProps> = ({
     if (fileListRef.current) {
       const selectedElement = fileListRef.current.querySelector(`[data-index="${selectedIndex}"]`);
       if (selectedElement) {
-        selectedElement.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        selectedElement.scrollIntoView({ block: "nearest", behavior: "smooth" });
       }
     }
   }, [selectedIndex]);
@@ -258,20 +268,20 @@ export const FilePicker: React.FC<FilePickerProps> = ({
 
       // Always fetch fresh data in background
       const contents = await api.listDirectoryContents(path);
-      
+
       // Cache the results
       globalDirectoryCache.set(path, contents);
-      
+
       // Update with fresh data
       setEntries(contents);
       setIsShowingCached(false);
       setError(null);
     } catch (err) {
-      logger.error('FilePicker', '[FilePicker] Failed to load directory:', path, err);
-      logger.error('FilePicker', '[FilePicker] Error details:', err);
+      logger.error("FilePicker", "[FilePicker] Failed to load directory:", path, err);
+      logger.error("FilePicker", "[FilePicker] Error details:", err);
       // Only set error if we don't have cached data to show
       if (!globalDirectoryCache.has(path)) {
-        setError(err instanceof Error ? err.message : '加载目录失败');
+        setError(err instanceof Error ? err.message : "加载目录失败");
       }
     } finally {
       setIsLoading(false);
@@ -295,20 +305,20 @@ export const FilePicker: React.FC<FilePickerProps> = ({
 
       // Always fetch fresh results in background
       const results = await api.searchFiles(basePath, query);
-      
+
       // Cache the results
       globalSearchCache.set(cacheKey, results);
-      
+
       // Update with fresh results
       setSearchResults(results);
       setIsShowingCached(false);
       setError(null);
     } catch (err) {
-      logger.error('FilePicker', '[FilePicker] Search failed:', query, err);
+      logger.error("FilePicker", "[FilePicker] Search failed:", query, err);
       // Only set error if we don't have cached data to show
       const cacheKey = `${basePath}:${query}`;
       if (!globalSearchCache.has(cacheKey)) {
-        setError(err instanceof Error ? err.message : '搜索失败');
+        setError(err instanceof Error ? err.message : "搜索失败");
       }
     } finally {
       setIsLoading(false);
@@ -317,7 +327,7 @@ export const FilePicker: React.FC<FilePickerProps> = ({
 
   const navigateToDirectory = (path: string) => {
     setCurrentPath(path);
-    setPathHistory(prev => [...prev, path]);
+    setPathHistory((prev) => [...prev, path]);
   };
 
   const navigateBack = () => {
@@ -325,7 +335,7 @@ export const FilePicker: React.FC<FilePickerProps> = ({
       const newHistory = [...pathHistory];
       newHistory.pop(); // Remove current
       const previousPath = newHistory[newHistory.length - 1];
-      
+
       // Don't go beyond the base path
       if (previousPath.startsWith(basePath) || previousPath === basePath) {
         setCurrentPath(previousPath);
@@ -343,12 +353,12 @@ export const FilePicker: React.FC<FilePickerProps> = ({
 
   const handleEntryClick = (entry: FileEntry) => {
     clickCountRef.current += 1;
-    
+
     // 清除之前的定时器
     if (clickTimerRef.current) {
       clearTimeout(clickTimerRef.current);
     }
-    
+
     // 等待判断是单击还是双击
     clickTimerRef.current = setTimeout(() => {
       if (clickCountRef.current === 1) {
@@ -360,7 +370,7 @@ export const FilePicker: React.FC<FilePickerProps> = ({
       clickCountRef.current = 0;
     }, 250);
   };
-  
+
   const handleEntryDoubleClick = (entry: FileEntry) => {
     // 清除单击定时器
     if (clickTimerRef.current) {
@@ -368,7 +378,7 @@ export const FilePicker: React.FC<FilePickerProps> = ({
       clickTimerRef.current = null;
     }
     clickCountRef.current = 0;
-    
+
     // 双击：选中文件或目录
     onSelect(entry);
   };
@@ -403,12 +413,7 @@ export const FilePicker: React.FC<FilePickerProps> = ({
               {relativePath}
             </span>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onClose}
-            className="h-8 w-8"
-          >
+          <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8">
             <X className="h-4 w-4" />
           </Button>
         </div>
@@ -440,7 +445,7 @@ export const FilePicker: React.FC<FilePickerProps> = ({
           <div className="flex flex-col items-center justify-center h-full">
             <Search className="h-8 w-8 text-muted-foreground mb-2" />
             <span className="text-sm text-muted-foreground">
-              {searchQuery.trim() ? '未找到文件' : '空目录'}
+              {searchQuery.trim() ? "未找到文件" : "空目录"}
             </span>
           </div>
         )}
@@ -449,9 +454,9 @@ export const FilePicker: React.FC<FilePickerProps> = ({
           <div className="p-2 space-y-0.5" ref={fileListRef}>
             {displayEntries.map((entry, index) => {
               const Icon = getFileIcon(entry);
-              const isSearching = searchQuery.trim() !== '';
+              const isSearching = searchQuery.trim() !== "";
               const isSelected = index === selectedIndex;
-              
+
               return (
                 <button
                   key={entry.path}
@@ -468,33 +473,32 @@ export const FilePicker: React.FC<FilePickerProps> = ({
                     "hover:bg-accent/80 hover:border hover:border-primary/30 transition-all",
                     "text-left text-sm",
                     // ⚡ 增强选中状态的视觉反馈
-                    isSelected && "bg-primary/10 border-2 border-primary ring-2 ring-primary/20 font-medium",
+                    isSelected &&
+                      "bg-primary/10 border-2 border-primary ring-2 ring-primary/20 font-medium",
                     hoveredEntry?.path === entry.path && !isSelected && "ring-1 ring-primary/20"
                   )}
                   title={entry.is_directory ? "单击进入 • 双击选中" : "双击选中"}
                 >
-                  <Icon className={cn(
-                    "h-4 w-4 flex-shrink-0",
-                    entry.is_directory ? "text-blue-500" : "text-muted-foreground"
-                  )} />
-                  
-                  <span className="flex-1 truncate">
-                    {entry.name}
-                  </span>
-                  
+                  <Icon
+                    className={cn(
+                      "h-4 w-4 flex-shrink-0",
+                      entry.is_directory ? "text-blue-500" : "text-muted-foreground"
+                    )}
+                  />
+
+                  <span className="flex-1 truncate">{entry.name}</span>
+
                   {!entry.is_directory && entry.size > 0 && (
                     <span className="text-xs text-muted-foreground">
                       {formatFileSize(entry.size)}
                     </span>
                   )}
-                  
-                  {entry.is_directory && (
-                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                  )}
-                  
+
+                  {entry.is_directory && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+
                   {isSearching && (
                     <span className="text-xs text-muted-foreground font-mono truncate max-w-[150px]">
-                      {entry.path.replace(basePath, '').replace(/^\//, '')}
+                      {entry.path.replace(basePath, "").replace(/^\//, "")}
                     </span>
                   )}
                 </button>
@@ -518,13 +522,11 @@ export const FilePicker: React.FC<FilePickerProps> = ({
         )}
         {/* 操作提示 */}
         <p className="text-xs text-muted-foreground text-center">
-          {hoveredEntry ? (
-            "目录:单击进入 双击选中 • 文件:双击选中"
-          ) : (
-            "↑↓ 导航 • Enter 选择 • → 进入目录 • ← 返回 • Esc 关闭"
-          )}
+          {hoveredEntry
+            ? "目录:单击进入 双击选中 • 文件:双击选中"
+            : "↑↓ 导航 • Enter 选择 • → 进入目录 • ← 返回 • Esc 关闭"}
         </p>
       </div>
     </motion.div>
   );
-}; 
+};

@@ -1,18 +1,12 @@
 /**
  * LSPTools - LSP 工具封装
- * 
+ *
  * 封装 Language Server Protocol 功能：hover、rename、references、definition、diagnostics、completion
- * 
+ *
  * Requirements: 3.1
  */
 
-import {
-  Position,
-  Location,
-  Range,
-  HoverInfo,
-  Diagnostic,
-} from '../types/unified-agent';
+import { Position, Location, Range, HoverInfo, Diagnostic } from "../types/unified-agent";
 
 // 补全项
 export interface CompletionItem {
@@ -25,31 +19,31 @@ export interface CompletionItem {
 }
 
 export type CompletionItemKind =
-  | 'text'
-  | 'method'
-  | 'function'
-  | 'constructor'
-  | 'field'
-  | 'variable'
-  | 'class'
-  | 'interface'
-  | 'module'
-  | 'property'
-  | 'unit'
-  | 'value'
-  | 'enum'
-  | 'keyword'
-  | 'snippet'
-  | 'color'
-  | 'file'
-  | 'reference'
-  | 'folder'
-  | 'enumMember'
-  | 'constant'
-  | 'struct'
-  | 'event'
-  | 'operator'
-  | 'typeParameter';
+  | "text"
+  | "method"
+  | "function"
+  | "constructor"
+  | "field"
+  | "variable"
+  | "class"
+  | "interface"
+  | "module"
+  | "property"
+  | "unit"
+  | "value"
+  | "enum"
+  | "keyword"
+  | "snippet"
+  | "color"
+  | "file"
+  | "reference"
+  | "folder"
+  | "enumMember"
+  | "constant"
+  | "struct"
+  | "event"
+  | "operator"
+  | "typeParameter";
 
 // 工作区编辑
 export interface WorkspaceEdit {
@@ -69,7 +63,11 @@ export interface LSPClient {
   textDocumentHover(file: string, position: Position): Promise<HoverInfo | null>;
   textDocumentDefinition(file: string, position: Position): Promise<Location | null>;
   textDocumentReferences(file: string, position: Position): Promise<Location[]>;
-  textDocumentRename(file: string, position: Position, newName: string): Promise<WorkspaceEdit | null>;
+  textDocumentRename(
+    file: string,
+    position: Position,
+    newName: string
+  ): Promise<WorkspaceEdit | null>;
   textDocumentCompletion(file: string, position: Position): Promise<CompletionItem[]>;
   textDocumentDiagnostics(file: string): Promise<Diagnostic[]>;
 }
@@ -140,7 +138,11 @@ export class MockLSPClient implements LSPClient {
     return this.referencesResults.get(`${file}:${position.line}:${position.character}`) ?? [];
   }
 
-  async textDocumentRename(file: string, position: Position, newName: string): Promise<WorkspaceEdit | null> {
+  async textDocumentRename(
+    file: string,
+    position: Position,
+    newName: string
+  ): Promise<WorkspaceEdit | null> {
     const refs = await this.textDocumentReferences(file, position);
     if (refs.length === 0) return null;
 
@@ -151,7 +153,7 @@ export class MockLSPClient implements LSPClient {
       }
       changes[ref.file].push({
         range: ref.range,
-        newText: newName
+        newText: newName,
       });
     }
 
@@ -203,10 +205,7 @@ export class LSPTools {
    */
   async hover(file: string, line: number, character: number): Promise<HoverInfo | null> {
     await this.ensureInitialized();
-    return this.client.textDocumentHover(
-      this.resolvePath(file),
-      { line, character }
-    );
+    return this.client.textDocumentHover(this.resolvePath(file), { line, character });
   }
 
   /**
@@ -219,11 +218,7 @@ export class LSPTools {
     newName: string
   ): Promise<WorkspaceEdit | null> {
     await this.ensureInitialized();
-    return this.client.textDocumentRename(
-      this.resolvePath(file),
-      { line, character },
-      newName
-    );
+    return this.client.textDocumentRename(this.resolvePath(file), { line, character }, newName);
   }
 
   /**
@@ -231,10 +226,7 @@ export class LSPTools {
    */
   async references(file: string, line: number, character: number): Promise<Location[]> {
     await this.ensureInitialized();
-    return this.client.textDocumentReferences(
-      this.resolvePath(file),
-      { line, character }
-    );
+    return this.client.textDocumentReferences(this.resolvePath(file), { line, character });
   }
 
   /**
@@ -242,10 +234,7 @@ export class LSPTools {
    */
   async definition(file: string, line: number, character: number): Promise<Location | null> {
     await this.ensureInitialized();
-    return this.client.textDocumentDefinition(
-      this.resolvePath(file),
-      { line, character }
-    );
+    return this.client.textDocumentDefinition(this.resolvePath(file), { line, character });
   }
 
   /**
@@ -275,10 +264,7 @@ export class LSPTools {
    */
   async completion(file: string, line: number, character: number): Promise<CompletionItem[]> {
     await this.ensureInitialized();
-    return this.client.textDocumentCompletion(
-      this.resolvePath(file),
-      { line, character }
-    );
+    return this.client.textDocumentCompletion(this.resolvePath(file), { line, character });
   }
 
   /**
@@ -294,7 +280,7 @@ export class LSPTools {
    * 解析路径
    */
   private resolvePath(path: string): string {
-    if (path.startsWith('/') || path.match(/^[A-Za-z]:/)) {
+    if (path.startsWith("/") || path.match(/^[A-Za-z]:/)) {
       return path;
     }
     return `${this.workspaceRoot}/${path}`;

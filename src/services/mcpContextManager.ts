@@ -10,7 +10,7 @@
  * - On-demand: Load only on explicit @mention
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { isFeatureEnabled } from "@/config/featureFlags";
 
 export interface MCPContextConfig {
@@ -38,7 +38,7 @@ export const getMCPContextConfig = (): MCPContextConfig => {
     try {
       return JSON.parse(stored);
     } catch (e) {
-      logger.warn('mcpContextManager', "[MCPContextManager] Invalid stored config, using default");
+      logger.warn("mcpContextManager", "[MCPContextManager] Invalid stored config, using default");
     }
   }
   return DEFAULT_CONFIG;
@@ -51,7 +51,7 @@ export const setMCPContextConfig = (config: Partial<MCPContextConfig>): void => 
   const current = getMCPContextConfig();
   const updated = { ...current, ...config };
   localStorage.setItem("mcp_context_config", JSON.stringify(updated));
-  logger.debug('mcpContextManager', "[MCPContextManager] Config updated:", updated);
+  logger.debug("mcpContextManager", "[MCPContextManager] Config updated:", updated);
 };
 
 /**
@@ -65,7 +65,7 @@ export const setMCPContextConfig = (config: Partial<MCPContextConfig>): void => 
 export const shouldLoadMCPContext = (
   serverName: string,
   recentMessages: string[],
-  currentMessage: string,
+  currentMessage: string
 ): boolean => {
   // Feature flag check
   if (!isFeatureEnabled("SELECTIVE_MCP_CONTEXT")) {
@@ -90,7 +90,7 @@ export const shouldLoadMCPContext = (
       (msg) =>
         msg.includes(serverName) ||
         msg.includes(`@${serverName}`) ||
-        msg.toLowerCase().includes(serverName.toLowerCase()),
+        msg.toLowerCase().includes(serverName.toLowerCase())
     );
     if (mentioned) {
       return true;
@@ -117,20 +117,26 @@ export const shouldLoadMCPContext = (
 export const filterMCPServers = (
   availableServers: string[],
   recentMessages: string[],
-  currentMessage: string,
+  currentMessage: string
 ): string[] => {
   if (!isFeatureEnabled("SELECTIVE_MCP_CONTEXT")) {
     return availableServers; // Return all if feature disabled
   }
 
   const filtered = availableServers.filter((server) =>
-    shouldLoadMCPContext(server, recentMessages, currentMessage),
+    shouldLoadMCPContext(server, recentMessages, currentMessage)
   );
 
   const excluded = availableServers.filter((s) => !filtered.includes(s));
   if (excluded.length > 0) {
-    logger.debug('mcpContextManager', `Excluded ${excluded.length} servers: ${excluded.join(", ")}`);
-    logger.debug('mcpContextManager', `Included ${filtered.length} servers: ${filtered.join(", ")}`);
+    logger.debug(
+      "mcpContextManager",
+      `Excluded ${excluded.length} servers: ${excluded.join(", ")}`
+    );
+    logger.debug(
+      "mcpContextManager",
+      `Included ${filtered.length} servers: ${filtered.join(", ")}`
+    );
   }
 
   return filtered;
@@ -142,7 +148,7 @@ export const filterMCPServers = (
  */
 export const getRecentMessagesForContext = (
   messages: Array<{ role: string; content: string }>,
-  count: number = 3,
+  count: number = 3
 ): string[] => {
   return messages
     .filter((msg) => msg.role === "user")
@@ -156,7 +162,7 @@ export const getRecentMessagesForContext = (
  */
 export const estimateTokenSavings = (
   totalServers: number,
-  loadedServers: number,
+  loadedServers: number
 ): { savedServers: number; estimatedTokensSaved: number; savingsPercent: number } => {
   const savedServers = totalServers - loadedServers;
   const avgTokensPerServer = 200; // Conservative estimate

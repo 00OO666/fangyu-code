@@ -1,17 +1,12 @@
-import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, Clock, Eye, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { useTabs } from '@/hooks/useTabs';
-import { useActiveTaskCount } from '@/hooks/useGlobalTaskState';
-import { cn } from '@/lib/utils';
+import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { MessageSquare, Clock, Eye, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useTabs } from "@/hooks/useTabs";
+import { useActiveTaskCount } from "@/hooks/useGlobalTaskState";
+import { cn } from "@/lib/utils";
 
 interface TabIndicatorProps {
   onViewTabs: () => void;
@@ -22,10 +17,7 @@ interface TabIndicatorProps {
  * TabIndicator - 标签页状态指示器
  * 显示当前打开的标签页数量和状态，提供快速跳转功能
  */
-export const TabIndicator: React.FC<TabIndicatorProps> = ({
-  onViewTabs,
-  className,
-}) => {
+export const TabIndicator: React.FC<TabIndicatorProps> = ({ onViewTabs, className }) => {
   const { getTabStats } = useTabs();
   const stats = getTabStats();
   // 🆕 获取全局任务状态
@@ -125,12 +117,7 @@ export const TabIndicator: React.FC<TabIndicatorProps> = ({
           {/* 查看标签页按钮 */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-7 px-2 text-xs"
-                onClick={onViewTabs}
-              >
+              <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={onViewTabs}>
                 <Eye className="h-3.5 w-3.5 mr-1" />
                 查看会话
               </Button>

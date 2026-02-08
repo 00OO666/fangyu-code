@@ -5,9 +5,9 @@
  * 提供视觉分隔和折叠/展开功能
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import React, { useState } from "react";
-import { Bot, ChevronDown, ChevronUp } from 'lucide-react';
+import { Bot, ChevronDown, ChevronUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { AIMessage } from "./AIMessage";
@@ -20,15 +20,15 @@ import { useTranslation } from "@/hooks/useTranslation";
  * 获取子代理类型的显示名称
  */
 function getSubagentTypeLabel(type?: string, t?: (key: string) => string): string {
-  if (!type || !t) return t ? t('subagent.subagent') : '子代理';
+  if (!type || !t) return t ? t("subagent.subagent") : "子代理";
   const labelMap: Record<string, string> = {
-    'general-purpose': t('subagent.generalPurpose'),
-    'Explore': t('subagent.explore'),
-    'Plan': t('subagent.plan'),
-    'statusline-setup': t('subagent.statuslineSetup'),
-    'code-reviewer': t('subagent.codeReviewer'),
-    'analyst': t('subagent.analyst'),
-    'executor': t('subagent.executor'),
+    "general-purpose": t("subagent.generalPurpose"),
+    Explore: t("subagent.explore"),
+    Plan: t("subagent.plan"),
+    "statusline-setup": t("subagent.statuslineSetup"),
+    "code-reviewer": t("subagent.codeReviewer"),
+    analyst: t("subagent.analyst"),
+    executor: t("subagent.executor"),
   };
   return labelMap[type] || type;
 }
@@ -65,8 +65,12 @@ export const SubagentMessageGroup: React.FC<SubagentMessageGroupProps> = ({
 
   // 🛡️ 如果没有 taskMessage，返回 null 防止崩溃
   if (!group.taskMessage) {
-    if (process.env.NODE_ENV !== 'production') {
-      logger.error('SubagentMessageGroup', '[SubagentMessageGroup] Missing taskMessage in group:', group);
+    if (process.env.NODE_ENV !== "production") {
+      logger.error(
+        "SubagentMessageGroup",
+        "[SubagentMessageGroup] Missing taskMessage in group:",
+        group
+      );
     }
     return null;
   }
@@ -75,7 +79,6 @@ export const SubagentMessageGroup: React.FC<SubagentMessageGroupProps> = ({
     <div className={cn("relative my-2", className)}>
       {/* 子代理组容器 - Modern Clean Style */}
       <div className="rounded-lg border border-border/50 bg-muted/10 overflow-hidden">
-
         {/* Task 工具调用（固定显示） */}
         <div className="border-b border-border/30">
           <AIMessage
@@ -87,7 +90,7 @@ export const SubagentMessageGroup: React.FC<SubagentMessageGroupProps> = ({
         </div>
 
         {/* 折叠控制按钮 - Compact Header */}
-        <div 
+        <div
           className="px-3 py-2 bg-muted/30 hover:bg-muted/50 border-b border-border/30 cursor-pointer transition-colors select-none flex items-center justify-between group/header"
           onClick={() => setIsExpanded(!isExpanded)}
         >
@@ -96,17 +99,19 @@ export const SubagentMessageGroup: React.FC<SubagentMessageGroupProps> = ({
               <Bot className="h-3.5 w-3.5" />
             </div>
             <span className="text-sm font-medium text-foreground/80 truncate">
-              {group.subagentType ? getSubagentTypeLabel(group.subagentType, t) : t('subagent.subagent')}
+              {group.subagentType
+                ? getSubagentTypeLabel(group.subagentType, t)
+                : t("subagent.subagent")}
             </span>
             <div className="h-3 w-px bg-border/50 mx-1" />
             <span className="text-xs text-muted-foreground truncate">
-              {t('subagent.executionProcess')}
+              {t("subagent.executionProcess")}
             </span>
           </div>
 
           <div className="flex items-center gap-3">
             <span className="text-xs text-muted-foreground/60">
-              {t('subagent.messageCount', { count: messageCount })}
+              {t("subagent.messageCount", { count: messageCount })}
             </span>
             <div className="text-muted-foreground group-hover/header:text-foreground transition-colors">
               {isExpanded ? (
@@ -138,9 +143,12 @@ export const SubagentMessageGroup: React.FC<SubagentMessageGroupProps> = ({
                     const role = getSubagentMessageRole(message);
 
                     // 根据修正后的角色渲染消息
-                    if (role === 'assistant' || message.type === 'assistant') {
+                    if (role === "assistant" || message.type === "assistant") {
                       return (
-                        <div key={`msg-${index}-${message.timestamp || index}`} className="pl-2 pr-1">
+                        <div
+                          key={`msg-${index}-${message.timestamp || index}`}
+                          className="pl-2 pr-1"
+                        >
                           <AIMessage
                             message={message}
                             isStreaming={false}
@@ -149,23 +157,26 @@ export const SubagentMessageGroup: React.FC<SubagentMessageGroupProps> = ({
                           />
                         </div>
                       );
-                    } else if (role === 'user' || message.type === 'user') {
+                    } else if (role === "user" || message.type === "user") {
                       // 如果是主代理发给子代理的提示词，添加特殊标识
-                      const isPromptToSubagent = message.type === 'user' &&
+                      const isPromptToSubagent =
+                        message.type === "user" &&
                         Array.isArray(message.message?.content) &&
-                        message.message.content.some((item: any) => item?.type === 'text');
+                        message.message.content.some((item: any) => item?.type === "text");
 
                       return (
-                        <div key={`msg-${index}-${message.timestamp || index}`} className="pl-2 pr-1">
+                        <div
+                          key={`msg-${index}-${message.timestamp || index}`}
+                          className="pl-2 pr-1"
+                        >
                           {isPromptToSubagent && (
                             <div className="text-[10px] text-muted-foreground mb-1 px-2 flex items-center gap-1 opacity-60">
-                              <span className="uppercase tracking-wider font-medium">Task Input</span>
+                              <span className="uppercase tracking-wider font-medium">
+                                Task Input
+                              </span>
                             </div>
                           )}
-                          <UserMessage
-                            message={message}
-                            className="shadow-none"
-                          />
+                          <UserMessage message={message} className="shadow-none" />
                         </div>
                       );
                     }
@@ -174,7 +185,7 @@ export const SubagentMessageGroup: React.FC<SubagentMessageGroupProps> = ({
                   })
                 ) : (
                   <div className="text-xs text-muted-foreground px-2 py-4 text-center italic">
-                    {t('subagent.noSubagentMessages')}
+                    {t("subagent.noSubagentMessages")}
                   </div>
                 )}
               </div>

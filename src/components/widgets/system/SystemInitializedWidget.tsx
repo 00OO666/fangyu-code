@@ -6,7 +6,7 @@
  */
 
 import React, { useState } from "react";
-import { Settings, Fingerprint, Cpu, FolderOpen } from 'lucide-react';
+import { Settings, Fingerprint, Cpu, FolderOpen } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { ToolsList } from "./components/ToolsList";
 
@@ -41,20 +41,20 @@ export const SystemInitializedWidget: React.FC<SystemInitializedWidgetProps> = (
    * 格式化时间戳
    */
   const formatTimestamp = (timestamp: string | undefined): string => {
-    if (!timestamp) return '';
+    if (!timestamp) return "";
 
     try {
       const date = new Date(timestamp);
-      if (isNaN(date.getTime())) return '';
+      if (isNaN(date.getTime())) return "";
 
-      return date.toLocaleTimeString('en-US', {
+      return date.toLocaleTimeString("en-US", {
         hour12: false,
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
       });
     } catch {
-      return '';
+      return "";
     }
   };
 
@@ -90,9 +90,7 @@ export const SystemInitializedWidget: React.FC<SystemInitializedWidgetProps> = (
                 <div className="flex items-center gap-2 text-xs">
                   <Cpu className="h-3.5 w-3.5 text-muted-foreground" />
                   <span className="text-muted-foreground">Model:</span>
-                  <code className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">
-                    {model}
-                  </code>
+                  <code className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">{model}</code>
                 </div>
               )}
 

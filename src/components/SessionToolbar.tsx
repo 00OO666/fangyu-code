@@ -3,13 +3,25 @@
  * 提供导出、复制、检查点、摘要生成等会话操作功能
  */
 
-import { logger } from '@/lib/logger';
-import React, { useState, useCallback } from 'react';
-import { FileDown, Check, FileText, FileJson, FileCode2, Copy, History, Save, Loader2, Sparkles, Zap } from 'lucide-react';
-import { SummaryButton } from '@/components/session/SummaryButton';
-import { SummaryModal } from '@/components/dialogs/SummaryModal';
-import { useSummaryGenerator } from '@/hooks/useSummaryGenerator';
-import { Button } from '@/components/ui/button';
+import { logger } from "@/lib/logger";
+import React, { useState, useCallback } from "react";
+import {
+  FileDown,
+  Check,
+  FileText,
+  FileJson,
+  FileCode2,
+  Copy,
+  History,
+  Save,
+  Loader2,
+  Sparkles,
+  Zap,
+} from "lucide-react";
+import { SummaryButton } from "@/components/session/SummaryButton";
+import { SummaryModal } from "@/components/dialogs/SummaryModal";
+import { useSummaryGenerator } from "@/hooks/useSummaryGenerator";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,20 +29,26 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
   DropdownMenuLabel,
-} from '@/components/ui/dropdown-menu';
-import { Popover } from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
-import { exportSession, copyToClipboard, exportAsJsonl, exportAsMarkdown, exportAsJson } from '@/lib/sessionExport';
-import { api, Checkpoint } from '@/lib/api';
-import { CheckpointTimeline } from './CheckpointTimeline';
-import { TabContext } from '@/hooks/useTabs';
-import { useSetPrefillMessage } from '@/stores/sessionStore';
-import { toast } from 'sonner';
-import { useContext } from 'react';
-import type { ClaudeStreamMessage } from '@/types/claude';
-import type { Session } from '@/lib/api';
-import { useTheme } from '@/contexts/ThemeContext';
-import { setSessionThemePreference } from '@/lib/themePreferences';
+} from "@/components/ui/dropdown-menu";
+import { Popover } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import {
+  exportSession,
+  copyToClipboard,
+  exportAsJsonl,
+  exportAsMarkdown,
+  exportAsJson,
+} from "@/lib/sessionExport";
+import { api, Checkpoint } from "@/lib/api";
+import { CheckpointTimeline } from "./CheckpointTimeline";
+import { TabContext } from "@/hooks/useTabs";
+import { useSetPrefillMessage } from "@/stores/sessionStore";
+import { toast } from "sonner";
+import { useContext } from "react";
+import type { ClaudeStreamMessage } from "@/types/claude";
+import type { Session } from "@/lib/api";
+import { useTheme } from "@/contexts/ThemeContext";
+import { setSessionThemePreference } from "@/lib/themePreferences";
 
 interface SessionToolbarProps {
   /** 当前会话的消息列表 */
@@ -63,8 +81,8 @@ export const SessionToolbar: React.FC<SessionToolbarProps> = ({
   isStreaming = false,
   className,
 }) => {
-  const [actionStatus, setActionStatus] = useState<'idle' | 'success' | 'error'>('idle');
-  const [statusMessage, setStatusMessage] = useState<string>('');
+  const [actionStatus, setActionStatus] = useState<"idle" | "success" | "error">("idle");
+  const [statusMessage, setStatusMessage] = useState<string>("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [checkpointPopoverOpen, setCheckpointPopoverOpen] = useState(false);
   const [isCreatingCheckpoint, setIsCreatingCheckpoint] = useState(false);
@@ -77,10 +95,7 @@ export const SessionToolbar: React.FC<SessionToolbarProps> = ({
   const setPrefillMessage = useSetPrefillMessage();
 
   // 摘要生成 Hook
-  const {
-    sessionStats,
-    isGenerating: isSummaryGenerating,
-  } = useSummaryGenerator({ messages });
+  const { sessionStats, isGenerating: isSummaryGenerating } = useSummaryGenerator({ messages });
 
   // 没有消息或正在流式输出时禁用
   const hasMessages = messages.length > 0;
@@ -89,62 +104,62 @@ export const SessionToolbar: React.FC<SessionToolbarProps> = ({
   /**
    * 显示状态提示
    */
-  const showStatus = (status: 'success' | 'error', message: string) => {
+  const showStatus = (status: "success" | "error", message: string) => {
     setActionStatus(status);
     setStatusMessage(message);
     setTimeout(() => {
-      setActionStatus('idle');
-      setStatusMessage('');
+      setActionStatus("idle");
+      setStatusMessage("");
     }, 2000);
   };
 
   /**
    * 处理复制操作
    */
-  const handleCopy = async (format: 'jsonl' | 'markdown' | 'json') => {
+  const handleCopy = async (format: "jsonl" | "markdown" | "json") => {
     try {
       let content: string;
       let label: string;
 
       switch (format) {
-        case 'jsonl':
+        case "jsonl":
           content = exportAsJsonl(messages);
-          label = 'JSONL';
+          label = "JSONL";
           break;
-        case 'markdown':
+        case "markdown":
           content = exportAsMarkdown(messages, session);
-          label = 'Markdown';
+          label = "Markdown";
           break;
-        case 'json':
+        case "json":
           content = exportAsJson(messages, session);
-          label = 'JSON';
+          label = "JSON";
           break;
       }
 
       await copyToClipboard(content);
-      showStatus('success', `已复制为 ${label}`);
+      showStatus("success", `已复制为 ${label}`);
       setIsMenuOpen(false);
     } catch (error) {
-      logger.error('SessionToolbar', '复制失败:', error);
-      showStatus('error', '复制失败');
+      logger.error("SessionToolbar", "复制失败:", error);
+      showStatus("error", "复制失败");
     }
   };
 
   /**
    * 处理保存文件操作
    */
-  const handleSave = async (format: 'json' | 'jsonl' | 'markdown') => {
+  const handleSave = async (format: "json" | "jsonl" | "markdown") => {
     try {
       const filePath = await exportSession(messages, format, session);
 
       if (filePath) {
-        showStatus('success', '文件已保存');
+        showStatus("success", "文件已保存");
       }
 
       setIsMenuOpen(false);
     } catch (error) {
-      logger.error('SessionToolbar', '保存文件失败:', error);
-      showStatus('error', '保存失败');
+      logger.error("SessionToolbar", "保存文件失败:", error);
+      showStatus("error", "保存失败");
     }
   };
 
@@ -153,7 +168,7 @@ export const SessionToolbar: React.FC<SessionToolbarProps> = ({
    */
   const handleCreateCheckpoint = useCallback(async () => {
     if (!session?.id || !projectPath) {
-      showStatus('error', '无法创建检查点');
+      showStatus("error", "无法创建检查点");
       return;
     }
 
@@ -162,18 +177,18 @@ export const SessionToolbar: React.FC<SessionToolbarProps> = ({
       await api.createCheckpoint(
         session.id,
         projectPath,
-        'manual',
-        `手动检查点 - ${new Date().toLocaleString('zh-CN', {
-          month: 'short',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
+        "manual",
+        `手动检查点 - ${new Date().toLocaleString("zh-CN", {
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
         })}`
       );
-      showStatus('success', '检查点已创建');
+      showStatus("success", "检查点已创建");
     } catch (error) {
-      logger.error('SessionToolbar', '创建检查点失败:', error);
-      showStatus('error', '创建失败');
+      logger.error("SessionToolbar", "创建检查点失败:", error);
+      showStatus("error", "创建失败");
     } finally {
       setIsCreatingCheckpoint(false);
     }
@@ -183,7 +198,7 @@ export const SessionToolbar: React.FC<SessionToolbarProps> = ({
    * 检查点恢复回调
    */
   const handleCheckpointRestore = useCallback((_checkpoint: Checkpoint) => {
-    showStatus('success', '已恢复检查点');
+    showStatus("success", "已恢复检查点");
     setCheckpointPopoverOpen(false);
   }, []);
 
@@ -191,58 +206,56 @@ export const SessionToolbar: React.FC<SessionToolbarProps> = ({
    * 处理摘要复制成功
    */
   const handleSummaryCopySuccess = useCallback(() => {
-    showStatus('success', '摘要已复制');
+    showStatus("success", "摘要已复制");
   }, []);
 
   /**
    * 处理在新会话中打开摘要
    */
-  const handleOpenInNewSession = useCallback(async (summary: string) => {
-    try {
-      // 1. 复制摘要到剪贴板
-      await navigator.clipboard.writeText(summary);
+  const handleOpenInNewSession = useCallback(
+    async (summary: string) => {
+      try {
+        // 1. 复制摘要到剪贴板
+        await navigator.clipboard.writeText(summary);
 
-      // 2. 检查 TabContext 是否可用
-      if (!tabContext) {
-        // TabProvider 不可用时，只复制到剪贴板
-        toast.success('摘要已复制到剪贴板', {
-          description: '请手动创建新会话并粘贴',
+        // 2. 检查 TabContext 是否可用
+        if (!tabContext) {
+          // TabProvider 不可用时，只复制到剪贴板
+          toast.success("摘要已复制到剪贴板", {
+            description: "请手动创建新会话并粘贴",
+          });
+          showStatus("success", "摘要已复制");
+          return;
+        }
+
+        // 3. 设置预填充消息（供新标签页使用）
+        setPrefillMessage(summary);
+
+        // 4. 创建新的智能标签页
+        tabContext.createSmartTab(true);
+
+        // 5. 显示成功提示
+        toast.success("已创建新会话", {
+          description: "摘要已复制到剪贴板，可直接粘贴使用",
         });
-        showStatus('success', '摘要已复制');
-        return;
+
+        showStatus("success", "已在新会话中打开");
+      } catch (error) {
+        logger.error("SessionToolbar", "[SessionToolbar] Failed to open in new session:", error);
+        toast.error("创建新会话失败");
+        showStatus("error", "操作失败");
       }
-
-      // 3. 设置预填充消息（供新标签页使用）
-      setPrefillMessage(summary);
-
-      // 4. 创建新的智能标签页
-      tabContext.createSmartTab(true);
-
-      // 5. 显示成功提示
-      toast.success('已创建新会话', {
-        description: '摘要已复制到剪贴板，可直接粘贴使用',
-      });
-
-      showStatus('success', '已在新会话中打开');
-    } catch (error) {
-      logger.error('SessionToolbar', '[SessionToolbar] Failed to open in new session:', error);
-      toast.error('创建新会话失败');
-      showStatus('error', '操作失败');
-    }
-  }, [tabContext, setPrefillMessage]);
+    },
+    [tabContext, setPrefillMessage]
+  );
 
   const handleToggleTheme = useCallback(() => {
-    const nextTheme = themeName === 'deep-glass-pro'
-      ? 'deep-glass-scifi'
-      : 'deep-glass-pro';
+    const nextTheme = themeName === "deep-glass-pro" ? "deep-glass-scifi" : "deep-glass-pro";
 
     setTheme(nextTheme);
 
     if (session?.id || projectPath) {
-      setSessionThemePreference(
-        { sessionId: session?.id, projectPath },
-        nextTheme
-      );
+      setSessionThemePreference({ sessionId: session?.id, projectPath }, nextTheme);
     }
 
     if (tabContext?.activeTabId) {
@@ -254,16 +267,16 @@ export const SessionToolbar: React.FC<SessionToolbarProps> = ({
   const checkpointEnabled = !!session?.id && !!projectPath;
 
   return (
-    <div className={cn('session-toolbar flex items-center gap-2', className)}>
+    <div className={cn("session-toolbar flex items-center gap-2", className)}>
       {/* 主题切换（仅会话级） */}
       <Button
         variant="ghost"
         size="sm"
         onClick={handleToggleTheme}
         className="h-8 px-2 gap-1.5"
-        title={themeName === 'deep-glass-scifi' ? '切换到 Pro 主题' : '切换到 Sci-Fi 主题'}
+        title={themeName === "deep-glass-scifi" ? "切换到 Pro 主题" : "切换到 Sci-Fi 主题"}
       >
-        {themeName === 'deep-glass-scifi' ? (
+        {themeName === "deep-glass-scifi" ? (
           <Sparkles className="h-4 w-4 text-amber-500" />
         ) : (
           <Zap className="h-4 w-4 text-blue-500" />
@@ -319,12 +332,7 @@ export const SessionToolbar: React.FC<SessionToolbarProps> = ({
             usePortal={true}
             viewportPadding={16}
             trigger={
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 px-2 gap-1.5"
-                title="查看检查点历史"
-              >
+              <Button variant="ghost" size="sm" className="h-8 px-2 gap-1.5" title="查看检查点历史">
                 <History className="h-4 w-4" />
                 <span className="text-xs">历史</span>
               </Button>
@@ -351,21 +359,18 @@ export const SessionToolbar: React.FC<SessionToolbarProps> = ({
       {/* 导出菜单 */}
       <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
         <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="sm"
-            disabled={isDisabled}
-            className="h-8 px-2 gap-1.5"
-          >
-            {actionStatus === 'success' ? (
+          <Button variant="ghost" size="sm" disabled={isDisabled} className="h-8 px-2 gap-1.5">
+            {actionStatus === "success" ? (
               <Check className="h-4 w-4 text-green-500" />
             ) : (
               <FileDown className="h-4 w-4" />
             )}
             <span className="text-xs">
-              {actionStatus === 'success' ? statusMessage :
-                actionStatus === 'error' ? statusMessage :
-                  '导出'}
+              {actionStatus === "success"
+                ? statusMessage
+                : actionStatus === "error"
+                  ? statusMessage
+                  : "导出"}
             </span>
           </Button>
         </DropdownMenuTrigger>
@@ -374,21 +379,21 @@ export const SessionToolbar: React.FC<SessionToolbarProps> = ({
           <DropdownMenuLabel className="text-xs text-muted-foreground">
             复制到剪贴板
           </DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => handleCopy('jsonl')}>
+          <DropdownMenuItem onClick={() => handleCopy("jsonl")}>
             <Copy className="h-4 w-4 mr-2" />
             <div className="flex flex-col">
               <span className="text-sm">复制为 JSONL</span>
               <span className="text-xs text-muted-foreground">原始消息数据</span>
             </div>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => handleCopy('json')}>
+          <DropdownMenuItem onClick={() => handleCopy("json")}>
             <Copy className="h-4 w-4 mr-2" />
             <div className="flex flex-col">
               <span className="text-sm">复制为 JSON</span>
               <span className="text-xs text-muted-foreground">结构化数据</span>
             </div>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => handleCopy('markdown')}>
+          <DropdownMenuItem onClick={() => handleCopy("markdown")}>
             <Copy className="h-4 w-4 mr-2" />
             <div className="flex flex-col">
               <span className="text-sm">复制为 Markdown</span>
@@ -402,21 +407,21 @@ export const SessionToolbar: React.FC<SessionToolbarProps> = ({
           <DropdownMenuLabel className="text-xs text-muted-foreground">
             保存到文件
           </DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => handleSave('json')}>
+          <DropdownMenuItem onClick={() => handleSave("json")}>
             <FileJson className="h-4 w-4 mr-2" />
             <div className="flex flex-col">
               <span className="text-sm">保存为 JSON</span>
               <span className="text-xs text-muted-foreground">完整会话数据</span>
             </div>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => handleSave('jsonl')}>
+          <DropdownMenuItem onClick={() => handleSave("jsonl")}>
             <FileCode2 className="h-4 w-4 mr-2" />
             <div className="flex flex-col">
               <span className="text-sm">保存为 JSONL</span>
               <span className="text-xs text-muted-foreground">流式数据格式</span>
             </div>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => handleSave('markdown')}>
+          <DropdownMenuItem onClick={() => handleSave("markdown")}>
             <FileText className="h-4 w-4 mr-2" />
             <div className="flex flex-col">
               <span className="text-sm">保存为 Markdown</span>

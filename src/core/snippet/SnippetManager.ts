@@ -17,7 +17,7 @@ export interface Snippet {
 export class SnippetManager {
   private snippets: Map<string, Snippet> = new Map();
 
-  addSnippet(snippet: Omit<Snippet, 'id' | 'createdAt' | 'updatedAt'>): Snippet {
+  addSnippet(snippet: Omit<Snippet, "id" | "createdAt" | "updatedAt">): Snippet {
     const id = `snippet-${Date.now()}-${Math.random()}`;
     const now = new Date();
     const newSnippet: Snippet = {
@@ -38,7 +38,7 @@ export class SnippetManager {
     return Array.from(this.snippets.values());
   }
 
-  updateSnippet(id: string, updates: Partial<Omit<Snippet, 'id' | 'createdAt'>>): Snippet | null {
+  updateSnippet(id: string, updates: Partial<Omit<Snippet, "id" | "createdAt">>): Snippet | null {
     const snippet = this.snippets.get(id);
     if (!snippet) return null;
 

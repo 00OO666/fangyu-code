@@ -4,13 +4,13 @@
  */
 
 export type FontConfigId =
-  | 'inter-noto'
-  | 'geist-noto'
-  | 'cascadia-noto'
-  | 'dmsans-alibaba'
-  | 'lxgw-wenkai'
-  | 'noto-sans'
-  | 'alibaba-puhuiti';
+  | "inter-noto"
+  | "geist-noto"
+  | "cascadia-noto"
+  | "dmsans-alibaba"
+  | "lxgw-wenkai"
+  | "noto-sans"
+  | "alibaba-puhuiti";
 
 /**
  * 字体配置对象

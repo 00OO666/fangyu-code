@@ -16,7 +16,7 @@
  * ```
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { listen, type UnlistenFn, type Event } from "@tauri-apps/api/event";
 import { useCallback, useEffect, useRef } from "react";
@@ -28,10 +28,7 @@ export interface EventCleanupResult {
    * @param handler - Event handler function
    * @returns Promise that resolves when listener is registered
    */
-  registerWindowListener: <T>(
-    event: string,
-    handler: (event: Event<T>) => void
-  ) => Promise<void>;
+  registerWindowListener: <T>(event: string, handler: (event: Event<T>) => void) => Promise<void>;
 
   /**
    * Register a global Tauri event listener
@@ -39,10 +36,7 @@ export interface EventCleanupResult {
    * @param handler - Event handler function
    * @returns Promise that resolves when listener is registered
    */
-  registerGlobalListener: <T>(
-    event: string,
-    handler: (event: Event<T>) => void
-  ) => Promise<void>;
+  registerGlobalListener: <T>(event: string, handler: (event: Event<T>) => void) => Promise<void>;
 
   /**
    * Manually cleanup all registered listeners
@@ -98,7 +92,11 @@ export function useEventCleanup(): EventCleanupResult {
           unlisten();
         }
       } catch (error) {
-        logger.error('useEventCleanup', `[useEventCleanup] Failed to register window listener for "${event}":`, error);
+        logger.error(
+          "useEventCleanup",
+          `[useEventCleanup] Failed to register window listener for "${event}":`,
+          error
+        );
       }
     },
     []
@@ -125,7 +123,11 @@ export function useEventCleanup(): EventCleanupResult {
           unlisten();
         }
       } catch (error) {
-        logger.error('useEventCleanup', `[useEventCleanup] Failed to register global listener for "${event}":`, error);
+        logger.error(
+          "useEventCleanup",
+          `[useEventCleanup] Failed to register global listener for "${event}":`,
+          error
+        );
       }
     },
     []
@@ -137,14 +139,21 @@ export function useEventCleanup(): EventCleanupResult {
   const cleanup = useCallback(() => {
     const listenerCount = unlistenFunctionsRef.current.size;
     if (listenerCount > 0) {
-      logger.debug('useEventCleanup', `[useEventCleanup] Cleaning up ${listenerCount} listener(s);`);
+      logger.debug(
+        "useEventCleanup",
+        `[useEventCleanup] Cleaning up ${listenerCount} listener(s);`
+      );
     }
 
     for (const [eventKey, unlisten] of unlistenFunctionsRef.current) {
       try {
         unlisten();
       } catch (error) {
-        logger.error('useEventCleanup', `[useEventCleanup] Failed to cleanup listener "${eventKey}":`, error);
+        logger.error(
+          "useEventCleanup",
+          `[useEventCleanup] Failed to cleanup listener "${eventKey}":`,
+          error
+        );
       }
     }
 

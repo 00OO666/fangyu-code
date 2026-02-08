@@ -8,7 +8,7 @@
  * - 数据持久化到 localStorage
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { useCallback, useEffect, useState } from "react";
 
 export interface ToolUsageStats {
@@ -36,7 +36,7 @@ function loadStats(): ToolUsageStatsMap {
     const stored = localStorage.getItem(STORAGE_KEY);
     return stored ? JSON.parse(stored) : {};
   } catch (error) {
-    logger.error('useToolUsageStats', "[useToolUsageStats] Failed to load stats:", error);
+    logger.error("useToolUsageStats", "[useToolUsageStats] Failed to load stats:", error);
     return {};
   }
 }
@@ -48,7 +48,7 @@ function saveStats(stats: ToolUsageStatsMap): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(stats));
   } catch (error) {
-    logger.error('useToolUsageStats', "[useToolUsageStats] Failed to save stats:", error);
+    logger.error("useToolUsageStats", "[useToolUsageStats] Failed to save stats:", error);
   }
 }
 
@@ -114,7 +114,7 @@ export function useToolUsageStats() {
     (toolId: string): ToolUsageStats | null => {
       return stats[toolId] || null;
     },
-    [stats],
+    [stats]
   );
 
   /**
@@ -147,7 +147,7 @@ export function useToolUsageStats() {
         return scoreB - scoreA; // 降序
       });
     },
-    [stats],
+    [stats]
   );
 
   /**

@@ -91,7 +91,7 @@ export function useMultiCursor() {
 
       return id;
     },
-    [state.cursors.length],
+    [state.cursors.length]
   );
 
   /**
@@ -254,7 +254,7 @@ export function useMultiCursor() {
   // 计算属性
   const primaryCursor = useMemo(
     () => state.cursors.find((c) => c.isPrimary) || null,
-    [state.cursors],
+    [state.cursors]
   );
 
   const cursorCount = state.cursors.length;

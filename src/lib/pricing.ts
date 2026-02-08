@@ -1,4 +1,4 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 
 /**
  * 统一的 AI 模型定价模块
@@ -374,7 +374,7 @@ export function getPricingForModel(model?: string, engine?: string): ModelPricin
   // 每个未知模型只警告一次，避免控制台被刷屏
   if (!warnedModels.has(model)) {
     warnedModels.add(model);
-    logger.debug('pricing', `[pricing] Unknown model: '${model}'. Using default pricing.`);
+    logger.debug("pricing", `[pricing] Unknown model: '${model}'. Using default pricing.`);
   }
   return MODEL_PRICING["default"];
 }
@@ -422,7 +422,7 @@ export function calculateMessageCost(
     cache_read_tokens: number;
   },
   model?: string,
-  engine?: string,
+  engine?: string
 ): number {
   const resolvedModel = model || (engine === "gemini" ? "gemini-2.5-pro" : undefined);
 
@@ -430,9 +430,9 @@ export function calculateMessageCost(
   const pricing =
     engine === "gemini" && resolvedModel
       ? getGeminiTieredPricing(
-        resolvedModel,
-        tokens.input_tokens + tokens.cache_creation_tokens + tokens.cache_read_tokens,
-      )
+          resolvedModel,
+          tokens.input_tokens + tokens.cache_creation_tokens + tokens.cache_read_tokens
+        )
       : getPricingForModel(resolvedModel, engine);
 
   const inputCost = (tokens.input_tokens / 1_000_000) * pricing.input;

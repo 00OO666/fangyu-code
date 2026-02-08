@@ -1,7 +1,7 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { AlertCircle, Loader2, RotateCcw, Download, Save } from 'lucide-react';
+import { AlertCircle, Loader2, RotateCcw, Download, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,7 +20,12 @@ import { LanguageSelector } from "../LanguageSelector";
 import { useTranslation } from "@/hooks/useTranslation";
 import { api, type ClaudeSettings } from "@/lib/api";
 import type { HooksConfiguration } from "@/types/hooks";
-import { getDefaultTheme, getDefaultThemeMode, setDefaultTheme, setDefaultThemeMode } from "@/lib/themePreferences";
+import {
+  getDefaultTheme,
+  getDefaultThemeMode,
+  setDefaultTheme,
+  setDefaultThemeMode,
+} from "@/lib/themePreferences";
 import type { ThemeDefaultMode } from "@/lib/themePreferences";
 import type { ThemeName } from "@/types/theme";
 
@@ -29,7 +34,7 @@ interface GeneralSettingsProps {
   updateSetting: (key: string, value: any) => void;
   disableRewindGitOps: boolean;
   handleRewindGitOpsToggle: (checked: boolean) => void;
-  setToast: (toast: { message: string; type: 'success' | 'error' } | null) => void;
+  setToast: (toast: { message: string; type: "success" | "error" } | null) => void;
 }
 
 export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
@@ -37,26 +42,28 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
   updateSetting,
   disableRewindGitOps,
   handleRewindGitOpsToggle,
-  setToast
+  setToast,
 }) => {
   const { t } = useTranslation();
-  const [defaultThemeMode, setDefaultThemeModeState] = useState<ThemeDefaultMode>(() => getDefaultThemeMode());
+  const [defaultThemeMode, setDefaultThemeModeState] = useState<ThemeDefaultMode>(() =>
+    getDefaultThemeMode()
+  );
   const [fixedTheme, setFixedTheme] = useState<ThemeName>(() => getDefaultTheme());
 
   useEffect(() => {
     try {
       setDefaultThemeMode(defaultThemeMode);
     } catch (error) {
-      logger.warn('GeneralSettings', 'Failed to persist default theme mode:', error);
+      logger.warn("GeneralSettings", "Failed to persist default theme mode:", error);
     }
   }, [defaultThemeMode]);
 
   useEffect(() => {
-    if (defaultThemeMode !== 'fixed') return;
+    if (defaultThemeMode !== "fixed") return;
     try {
       setDefaultTheme(fixedTheme);
     } catch (error) {
-      logger.warn('GeneralSettings', 'Failed to persist fixed theme:', error);
+      logger.warn("GeneralSettings", "Failed to persist fixed theme:", error);
     }
   }, [defaultThemeMode, fixedTheme]);
 
@@ -83,8 +90,8 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
   // Prompt Suggestions state
   const [enablePromptSuggestion, setEnablePromptSuggestion] = useState(() => {
     try {
-      const stored = localStorage.getItem('enable_prompt_suggestion');
-      return stored !== null ? stored === 'true' : true;
+      const stored = localStorage.getItem("enable_prompt_suggestion");
+      return stored !== null ? stored === "true" : true;
     } catch {
       return true;
     }
@@ -100,7 +107,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
           setIsSessionPathCustom(true);
         }
       } catch (error) {
-        logger.warn('GeneralSettings', "Failed to load session storage path:", error);
+        logger.warn("GeneralSettings", "Failed to load session storage path:", error);
       }
     };
     loadSessionPath();
@@ -113,7 +120,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
       setToast({ message: "会话存储路径已更新", type: "success" });
       setIsSessionPathCustom(true);
     } catch (error) {
-      logger.error('GeneralSettings', "Failed to set session storage path:", error);
+      logger.error("GeneralSettings", "Failed to set session storage path:", error);
       setToast({ message: "设置失败: " + String(error), type: "error" });
     }
   };
@@ -126,7 +133,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
       setIsSessionPathCustom(false);
       setToast({ message: "已恢复默认存储路径", type: "success" });
     } catch (error) {
-      logger.error('GeneralSettings', "Failed to reset session storage path:", error);
+      logger.error("GeneralSettings", "Failed to reset session storage path:", error);
       setToast({ message: "重置失败: " + String(error), type: "error" });
     }
   };
@@ -151,7 +158,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
         }
       } catch (error) {
         if (cancelled) return;
-        logger.warn('GeneralSettings', "Failed to load Codex path:", error);
+        logger.warn("GeneralSettings", "Failed to load Codex path:", error);
       }
     };
 
@@ -161,10 +168,10 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
       loadCodexPath();
     };
 
-    window.addEventListener('refresh-codex-status', handleRefresh);
+    window.addEventListener("refresh-codex-status", handleRefresh);
     return () => {
       cancelled = true;
-      window.removeEventListener('refresh-codex-status', handleRefresh);
+      window.removeEventListener("refresh-codex-status", handleRefresh);
     };
   }, []);
 
@@ -173,7 +180,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
    */
   const handleSetCustomPath = async () => {
     if (!customClaudePath.trim()) {
-      setCustomPathError(t('generalSettings.enterValidPath'));
+      setCustomPathError(t("generalSettings.enterValidPath"));
       return;
     }
 
@@ -186,12 +193,13 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
       setIsCustomPathMode(false);
 
       // Show success message
-      setToast({ message: t('generalSettings.customPathSuccess'), type: "success" });
+      setToast({ message: t("generalSettings.customPathSuccess"), type: "success" });
 
       // Trigger status refresh
-      window.dispatchEvent(new CustomEvent('validate-claude-installation'));
+      window.dispatchEvent(new CustomEvent("validate-claude-installation"));
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : t('generalSettings.setCustomPathFailed');
+      const errorMessage =
+        error instanceof Error ? error.message : t("generalSettings.setCustomPathFailed");
       setCustomPathError(errorMessage);
     }
   };
@@ -209,12 +217,13 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
       setCustomPathError(null);
 
       // Show success message
-      setToast({ message: t('generalSettings.restoredAutoDetect'), type: "success" });
+      setToast({ message: t("generalSettings.restoredAutoDetect"), type: "success" });
 
       // Trigger status refresh
-      window.dispatchEvent(new CustomEvent('validate-claude-installation'));
+      window.dispatchEvent(new CustomEvent("validate-claude-installation"));
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : t('generalSettings.clearCustomPathFailed');
+      const errorMessage =
+        error instanceof Error ? error.message : t("generalSettings.clearCustomPathFailed");
       setToast({ message: errorMessage, type: "error" });
     }
   };
@@ -233,13 +242,13 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
       const isValid = await api.validateCodexPath(path.trim());
       setCodexPathValid(isValid);
       if (!isValid) {
-        setCodexPathError(t('generalSettings.codexPathInvalid'));
+        setCodexPathError(t("generalSettings.codexPathInvalid"));
       } else {
         setCodexPathError(null);
       }
     } catch (error) {
       setCodexPathValid(false);
-      setCodexPathError(t('generalSettings.codexPathValidationError'));
+      setCodexPathError(t("generalSettings.codexPathValidationError"));
     } finally {
       setValidatingCodexPath(false);
     }
@@ -250,7 +259,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
    */
   const handleSetCodexCustomPath = async () => {
     if (!customCodexPath.trim()) {
-      setCodexPathError(t('generalSettings.enterValidPath'));
+      setCodexPathError(t("generalSettings.enterValidPath"));
       return;
     }
 
@@ -259,7 +268,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
     try {
       const isValid = await api.validateCodexPath(customCodexPath.trim());
       if (!isValid) {
-        setCodexPathError(t('generalSettings.codexPathInvalid'));
+        setCodexPathError(t("generalSettings.codexPathInvalid"));
         setCodexPathValid(false);
         return;
       }
@@ -274,12 +283,13 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
       setCustomCodexPath("");
 
       // Show success message
-      setToast({ message: t('generalSettings.codexPathSuccess'), type: "success" });
+      setToast({ message: t("generalSettings.codexPathSuccess"), type: "success" });
 
       // Trigger Codex status refresh
-      window.dispatchEvent(new CustomEvent('refresh-codex-status'));
+      window.dispatchEvent(new CustomEvent("refresh-codex-status"));
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : t('generalSettings.setCustomPathFailed');
+      const errorMessage =
+        error instanceof Error ? error.message : t("generalSettings.setCustomPathFailed");
       setCodexPathError(errorMessage);
     } finally {
       setValidatingCodexPath(false);
@@ -300,12 +310,13 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
       setCodexPathValid(null);
 
       // Show success message
-      setToast({ message: t('generalSettings.codexRestoredAutoDetect'), type: "success" });
+      setToast({ message: t("generalSettings.codexRestoredAutoDetect"), type: "success" });
 
       // Trigger Codex status refresh
-      window.dispatchEvent(new CustomEvent('refresh-codex-status'));
+      window.dispatchEvent(new CustomEvent("refresh-codex-status"));
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : t('generalSettings.clearCustomPathFailed');
+      const errorMessage =
+        error instanceof Error ? error.message : t("generalSettings.clearCustomPathFailed");
       setToast({ message: errorMessage, type: "error" });
     }
   };
@@ -316,9 +327,11 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
   const handlePromptSuggestionToggle = (checked: boolean) => {
     setEnablePromptSuggestion(checked);
     try {
-      localStorage.setItem('enable_prompt_suggestion', checked.toString());
+      localStorage.setItem("enable_prompt_suggestion", checked.toString());
       // Dispatch custom event to sync with FloatingPromptInput
-      window.dispatchEvent(new CustomEvent('prompt-suggestion-toggle', { detail: { enabled: checked } }));
+      window.dispatchEvent(
+        new CustomEvent("prompt-suggestion-toggle", { detail: { enabled: checked } })
+      );
     } catch {
       // Ignore localStorage errors
     }
@@ -336,11 +349,12 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
 
       // 2. 过滤掉所有 ANTHROPIC_MODEL、ANTHROPIC_PLAN_MODEL、ANTHROPIC_SUBAGENT_MODEL 等模型相关变量
       const filteredEnv = Object.fromEntries(
-        Object.entries(currentSettings?.env || {}).filter(([key]) =>
-          !key.includes('MODEL') &&
-          !key.startsWith('ANTHROPIC_MODEL') &&
-          !key.startsWith('ANTHROPIC_PLAN_MODEL') &&
-          !key.startsWith('ANTHROPIC_SUBAGENT_MODEL')
+        Object.entries(currentSettings?.env || {}).filter(
+          ([key]) =>
+            !key.includes("MODEL") &&
+            !key.startsWith("ANTHROPIC_MODEL") &&
+            !key.startsWith("ANTHROPIC_PLAN_MODEL") &&
+            !key.startsWith("ANTHROPIC_SUBAGENT_MODEL")
         )
       );
 
@@ -352,9 +366,9 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
 
       // 4. 禁用所有用户 Hook
       try {
-        await api.updateHooksConfig('user', {} as HooksConfiguration);
+        await api.updateHooksConfig("user", {} as HooksConfiguration);
       } catch (err) {
-        logger.warn('GeneralSettings', 'Failed to disable hooks:', err);
+        logger.warn("GeneralSettings", "Failed to disable hooks:", err);
       }
 
       // 5. 禁用所有 MCP 服务器 (暂时跳过 - API 未实现)
@@ -371,15 +385,15 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
       // }
 
       setShowResetDialog(false);
-      setToast({ message: '所有设置已重置成功！', type: 'success' });
+      setToast({ message: "所有设置已重置成功！", type: "success" });
 
       // 刷新页面以应用更改
       setTimeout(() => {
         window.location.reload();
       }, 1500);
     } catch (error) {
-      logger.error('GeneralSettings', 'Failed to reset settings:', error);
-      setToast({ message: `重置设置失败: ${error}`, type: 'error' });
+      logger.error("GeneralSettings", "Failed to reset settings:", error);
+      setToast({ message: `重置设置失败: ${error}`, type: "error" });
     } finally {
       setIsResetting(false);
     }
@@ -388,8 +402,8 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
   return (
     <Card className="p-6 space-y-6">
       <div>
-        <h3 className="text-base font-semibold mb-4">{t('settings.general')}</h3>
-        
+        <h3 className="text-base font-semibold mb-4">{t("settings.general")}</h3>
+
         <div className="space-y-4">
           {/* Language Selector */}
           <LanguageSelector />
@@ -397,66 +411,64 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
           {/* Theme Preferences */}
           <div className="flex items-center justify-between">
             <div className="space-y-0.5 flex-1">
-              <Label>{t('settings.themeDefaultMode')}</Label>
+              <Label>{t("settings.themeDefaultMode")}</Label>
               <p className="text-xs text-muted-foreground">
-                {t('settings.themeDefaultModeDescription')}
+                {t("settings.themeDefaultModeDescription")}
               </p>
             </div>
             <div className="flex items-center gap-2">
               <Button
-                variant={defaultThemeMode === 'last' ? 'default' : 'outline'}
+                variant={defaultThemeMode === "last" ? "default" : "outline"}
                 size="sm"
-                onClick={() => setDefaultThemeModeState('last')}
+                onClick={() => setDefaultThemeModeState("last")}
               >
-                {t('settings.themeRememberLast')}
+                {t("settings.themeRememberLast")}
               </Button>
               <Button
-                variant={defaultThemeMode === 'fixed' ? 'default' : 'outline'}
+                variant={defaultThemeMode === "fixed" ? "default" : "outline"}
                 size="sm"
-                onClick={() => setDefaultThemeModeState('fixed')}
+                onClick={() => setDefaultThemeModeState("fixed")}
               >
-                {t('settings.themeFixed')}
+                {t("settings.themeFixed")}
               </Button>
             </div>
           </div>
 
-          {defaultThemeMode === 'fixed' && (
+          {defaultThemeMode === "fixed" && (
             <div className="flex items-center justify-between">
               <div className="space-y-0.5 flex-1">
-                <Label>{t('settings.themeDefault')}</Label>
+                <Label>{t("settings.themeDefault")}</Label>
                 <p className="text-xs text-muted-foreground">
-                  {t('settings.themeDefaultDescription')}
+                  {t("settings.themeDefaultDescription")}
                 </p>
               </div>
               <div className="flex items-center gap-2">
                 <Button
-                  variant={fixedTheme === 'deep-glass-pro' ? 'default' : 'outline'}
+                  variant={fixedTheme === "deep-glass-pro" ? "default" : "outline"}
                   size="sm"
-                  onClick={() => setFixedTheme('deep-glass-pro')}
+                  onClick={() => setFixedTheme("deep-glass-pro")}
                 >
-                  {t('settings.themePro')}
+                  {t("settings.themePro")}
                 </Button>
                 <Button
-                  variant={fixedTheme === 'deep-glass-scifi' ? 'default' : 'outline'}
+                  variant={fixedTheme === "deep-glass-scifi" ? "default" : "outline"}
                   size="sm"
-                  onClick={() => setFixedTheme('deep-glass-scifi')}
+                  onClick={() => setFixedTheme("deep-glass-scifi")}
                 >
-                  {t('settings.themeSciFi')}
+                  {t("settings.themeSciFi")}
                 </Button>
               </div>
             </div>
           )}
 
-          <p className="text-xs text-muted-foreground">
-            {t('settings.themeSessionHint')}
-          </p>
+          <p className="text-xs text-muted-foreground">{t("settings.themeSessionHint")}</p>
 
           {/* Show System Initialization Info */}
           <div className="flex items-center justify-between">
             <div className="space-y-0.5 flex-1">
-              <Label htmlFor="showSystemInit">{t('generalSettings.showSystemInit')}</Label>
+              <Label htmlFor="showSystemInit">{t("generalSettings.showSystemInit")}</Label>
               <p className="text-xs text-muted-foreground">
-                {t('generalSettings.showSystemInitDescription')}
+                {t("generalSettings.showSystemInitDescription")}
               </p>
             </div>
             <Switch
@@ -469,9 +481,9 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
           {/* Hide Warmup Messages */}
           <div className="flex items-center justify-between">
             <div className="space-y-0.5 flex-1">
-              <Label htmlFor="hideWarmup">{t('generalSettings.hideWarmup')}</Label>
+              <Label htmlFor="hideWarmup">{t("generalSettings.hideWarmup")}</Label>
               <p className="text-xs text-muted-foreground">
-                {t('generalSettings.hideWarmupDescription')}
+                {t("generalSettings.hideWarmupDescription")}
               </p>
             </div>
             <Switch
@@ -529,9 +541,9 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
           {/* Include Co-authored By */}
           <div className="flex items-center justify-between">
             <div className="space-y-0.5 flex-1">
-              <Label htmlFor="coauthored">{t('generalSettings.includeCoauthored')}</Label>
+              <Label htmlFor="coauthored">{t("generalSettings.includeCoauthored")}</Label>
               <p className="text-xs text-muted-foreground">
-                {t('generalSettings.includeCoauthoredDescription')}
+                {t("generalSettings.includeCoauthoredDescription")}
               </p>
             </div>
             <Switch
@@ -544,9 +556,9 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
           {/* Verbose Output */}
           <div className="flex items-center justify-between">
             <div className="space-y-0.5 flex-1">
-              <Label htmlFor="verbose">{t('generalSettings.verboseOutput')}</Label>
+              <Label htmlFor="verbose">{t("generalSettings.verboseOutput")}</Label>
               <p className="text-xs text-muted-foreground">
-                {t('generalSettings.verboseOutputDescription')}
+                {t("generalSettings.verboseOutputDescription")}
               </p>
             </div>
             <Switch
@@ -559,9 +571,9 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
           {/* Prompt Suggestions */}
           <div className="flex items-center justify-between">
             <div className="space-y-0.5 flex-1">
-              <Label htmlFor="promptSuggestion">{t('generalSettings.promptSuggestion')}</Label>
+              <Label htmlFor="promptSuggestion">{t("generalSettings.promptSuggestion")}</Label>
               <p className="text-xs text-muted-foreground">
-                {t('generalSettings.promptSuggestionDescription')}
+                {t("generalSettings.promptSuggestionDescription")}
               </p>
             </div>
             <Switch
@@ -574,9 +586,11 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
           {/* Disable Rewind Git Operations */}
           <div className="flex items-center justify-between">
             <div className="space-y-0.5 flex-1">
-              <Label htmlFor="disableRewindGitOps">{t('generalSettings.disableRewindGitOps')}</Label>
+              <Label htmlFor="disableRewindGitOps">
+                {t("generalSettings.disableRewindGitOps")}
+              </Label>
               <p className="text-xs text-muted-foreground">
-                {t('generalSettings.disableRewindGitOpsDescription')}
+                {t("generalSettings.disableRewindGitOpsDescription")}
               </p>
             </div>
             <Switch
@@ -588,7 +602,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
 
           {/* Cleanup Period */}
           <div className="space-y-2">
-            <Label htmlFor="cleanup">{t('generalSettings.chatRetentionDays')}</Label>
+            <Label htmlFor="cleanup">{t("generalSettings.chatRetentionDays")}</Label>
             <Input
               id="cleanup"
               type="number"
@@ -601,19 +615,20 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
               }}
             />
             <p className="text-xs text-muted-foreground">
-              {t('generalSettings.chatRetentionDaysDescription')}
+              {t("generalSettings.chatRetentionDaysDescription")}
             </p>
           </div>
-          
 
           {/* Custom Claude Path Configuration */}
           <div className="space-y-4">
             <div className="border-t pt-4">
               <div className="flex items-center justify-between mb-3">
                 <div>
-                  <Label className="text-sm font-medium">{t('generalSettings.customClaudePath')}</Label>
+                  <Label className="text-sm font-medium">
+                    {t("generalSettings.customClaudePath")}
+                  </Label>
                   <p className="text-xs text-muted-foreground">
-                    {t('generalSettings.customClaudePathDescription')}
+                    {t("generalSettings.customClaudePathDescription")}
                   </p>
                 </div>
                 <Button
@@ -625,7 +640,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
                     setCustomClaudePath("");
                   }}
                 >
-                  {isCustomPathMode ? t('buttons.cancel') : t('generalSettings.setCustomPath')}
+                  {isCustomPathMode ? t("buttons.cancel") : t("generalSettings.setCustomPath")}
                 </Button>
               </div>
 
@@ -633,13 +648,13 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
                 {isCustomPathMode && (
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
+                    animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
                     className="space-y-3"
                   >
                     <div className="space-y-2">
                       <Input
-                        placeholder={t('common.pathToClaudeCli')}
+                        placeholder={t("common.pathToClaudeCli")}
                         value={customClaudePath}
                         onChange={(e) => {
                           setCustomClaudePath(e.target.value);
@@ -647,25 +662,19 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
                         }}
                         className={cn(customPathError && "border-red-500")}
                       />
-                      {customPathError && (
-                        <p className="text-xs text-red-500">{customPathError}</p>
-                      )}
+                      {customPathError && <p className="text-xs text-red-500">{customPathError}</p>}
                     </div>
-                    
+
                     <div className="flex gap-2">
                       <Button
                         size="sm"
                         onClick={handleSetCustomPath}
                         disabled={!customClaudePath.trim()}
                       >
-                        {t('generalSettings.setPath')}
+                        {t("generalSettings.setPath")}
                       </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleClearCustomPath}
-                      >
-                        {t('generalSettings.restoreAutoDetect')}
+                      <Button variant="outline" size="sm" onClick={handleClearCustomPath}>
+                        {t("generalSettings.restoreAutoDetect")}
                       </Button>
                     </div>
 
@@ -674,10 +683,11 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
                         <AlertCircle className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                         <div className="flex-1">
                           <p className="text-xs text-muted-foreground">
-                            <strong>{t('generalSettings.currentPath')}:</strong> {t('generalSettings.notSet')}
+                            <strong>{t("generalSettings.currentPath")}:</strong>{" "}
+                            {t("generalSettings.notSet")}
                           </p>
                           <p className="text-xs text-muted-foreground mt-1">
-                            {t('generalSettings.pathValidationHint')}
+                            {t("generalSettings.pathValidationHint")}
                           </p>
                         </div>
                       </div>
@@ -693,9 +703,11 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
             <div className="border-t pt-4">
               <div className="flex items-center justify-between mb-3">
                 <div>
-                  <Label className="text-sm font-medium">{t('generalSettings.customCodexPath')}</Label>
+                  <Label className="text-sm font-medium">
+                    {t("generalSettings.customCodexPath")}
+                  </Label>
                   <p className="text-xs text-muted-foreground">
-                    {t('generalSettings.customCodexPathDescription')}
+                    {t("generalSettings.customCodexPathDescription")}
                   </p>
                 </div>
                 <Button
@@ -708,7 +720,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
                     setCodexPathValid(null);
                   }}
                 >
-                  {isCodexCustomPathMode ? t('buttons.cancel') : t('generalSettings.setCustomPath')}
+                  {isCodexCustomPathMode ? t("buttons.cancel") : t("generalSettings.setCustomPath")}
                 </Button>
               </div>
 
@@ -716,14 +728,14 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
                 {isCodexCustomPathMode && (
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
+                    animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
                     className="space-y-3"
                   >
                     <div className="space-y-2">
                       <div className="flex gap-2">
                         <Input
-                          placeholder={t('generalSettings.codexPathPlaceholder')}
+                          placeholder={t("generalSettings.codexPathPlaceholder")}
                           value={customCodexPath}
                           onChange={(e) => {
                             setCustomCodexPath(e.target.value);
@@ -745,15 +757,17 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
                           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                         )}
                         {!validatingCodexPath && codexPathValid === true && (
-                          <span className="text-green-500 text-sm flex items-center">✓ {t('common.valid')}</span>
+                          <span className="text-green-500 text-sm flex items-center">
+                            ✓ {t("common.valid")}
+                          </span>
                         )}
                         {!validatingCodexPath && codexPathValid === false && (
-                          <span className="text-red-500 text-sm flex items-center">✗ {t('common.invalid')}</span>
+                          <span className="text-red-500 text-sm flex items-center">
+                            ✗ {t("common.invalid")}
+                          </span>
                         )}
                       </div>
-                      {codexPathError && (
-                        <p className="text-xs text-red-500">{codexPathError}</p>
-                      )}
+                      {codexPathError && <p className="text-xs text-red-500">{codexPathError}</p>}
                     </div>
 
                     <div className="flex gap-2">
@@ -765,18 +779,14 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
                         {validatingCodexPath ? (
                           <>
                             <Loader2 className="h-4 w-4 animate-spin mr-1" />
-                            {t('messages.validating')}
+                            {t("messages.validating")}
                           </>
                         ) : (
-                          t('generalSettings.setPath')
+                          t("generalSettings.setPath")
                         )}
                       </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleClearCodexCustomPath}
-                      >
-                        {t('generalSettings.restoreAutoDetect')}
+                      <Button variant="outline" size="sm" onClick={handleClearCodexCustomPath}>
+                        {t("generalSettings.restoreAutoDetect")}
                       </Button>
                     </div>
 
@@ -785,10 +795,10 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
                         <AlertCircle className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                         <div className="flex-1">
                           <p className="text-xs text-muted-foreground">
-                            <strong>{t('generalSettings.codexPathHint')}</strong>
+                            <strong>{t("generalSettings.codexPathHint")}</strong>
                           </p>
                           <p className="text-xs text-muted-foreground mt-1">
-                            {t('generalSettings.codexCommonPaths')}
+                            {t("generalSettings.codexCommonPaths")}
                           </p>
                           <ul className="text-xs text-muted-foreground mt-1 ml-3 list-disc">
                             <li>C:\Users\username\AppData\Roaming\npm\codex.ps1</li>
@@ -873,9 +883,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
             <div className="flex items-center justify-between">
               <div className="space-y-1">
                 <Label className="text-sm font-medium">检查更新</Label>
-                <p className="text-xs text-muted-foreground">
-                  手动检查 Fangyu Code 的最新版本
-                </p>
+                <p className="text-xs text-muted-foreground">手动检查 Fangyu Code 的最新版本</p>
               </div>
               <Button
                 variant="outline"

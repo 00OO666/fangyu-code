@@ -11,13 +11,13 @@
  * 来源: Claude Code Skills + Cursor Custom Instructions
  */
 
-import { logger } from '@/lib/logger';
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { api } from '@/lib/api';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Switch } from '@/components/ui/switch';
+import { logger } from "@/lib/logger";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { api } from "@/lib/api";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Switch } from "@/components/ui/switch";
 import {
   Dialog,
   DialogContent,
@@ -25,9 +25,26 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
-import { Search, Plus, FolderOpen, Zap, Edit2, Trash2, Download, Tag, Play, Copy, Check, RefreshCw, Globe, User, ChevronRight, ChevronDown } from 'lucide-react';
+import {
+  Search,
+  Plus,
+  FolderOpen,
+  Zap,
+  Edit2,
+  Trash2,
+  Download,
+  Tag,
+  Play,
+  Copy,
+  Check,
+  RefreshCw,
+  Globe,
+  User,
+  ChevronRight,
+  ChevronDown,
+} from "lucide-react";
 
 // ============================================================
 // 类型定义
@@ -36,14 +53,14 @@ import { Search, Plus, FolderOpen, Zap, Edit2, Trash2, Download, Tag, Play, Copy
 export interface Skill {
   name: string;
   path: string;
-  scope: 'user' | 'project';
+  scope: "user" | "project";
   description?: string;
   content?: string;
-  triggers?: string[];       // 触发词列表
-  isEnabled?: boolean;       // 是否启用
-  lastUsed?: string;         // 最后使用时间
-  usageCount?: number;       // 使用次数
-  tags?: string[];           // 标签
+  triggers?: string[]; // 触发词列表
+  isEnabled?: boolean; // 是否启用
+  lastUsed?: string; // 最后使用时间
+  usageCount?: number; // 使用次数
+  tags?: string[]; // 标签
 }
 
 export interface SkillTemplate {
@@ -64,12 +81,12 @@ export interface SkillTemplate {
 
 const PRESET_TEMPLATES: SkillTemplate[] = [
   {
-    id: 'code-review',
-    name: 'Code Review',
-    description: '代码审查技能，自动检查代码质量、安全性和最佳实践',
-    category: '代码质量',
-    triggers: ['/review', '/code-review'],
-    tags: ['代码审查', '质量'],
+    id: "code-review",
+    name: "Code Review",
+    description: "代码审查技能，自动检查代码质量、安全性和最佳实践",
+    category: "代码质量",
+    triggers: ["/review", "/code-review"],
+    tags: ["代码审查", "质量"],
     content: `# Code Review Skill
 
 当用户请求代码审查时，执行以下检查：
@@ -95,16 +112,16 @@ const PRESET_TEMPLATES: SkillTemplate[] = [
 - 问题严重程度：🔴 严重 | 🟡 警告 | 🔵 建议
 - 具体位置和修改建议
 - 示例代码`,
-    author: 'Fangyu',
+    author: "Fangyu",
     downloads: 1250,
   },
   {
-    id: 'git-commit',
-    name: 'Git Commit',
-    description: '智能生成 Git 提交消息，遵循 Conventional Commits 规范',
-    category: 'Git',
-    triggers: ['/commit', '/git-commit'],
-    tags: ['Git', '提交'],
+    id: "git-commit",
+    name: "Git Commit",
+    description: "智能生成 Git 提交消息，遵循 Conventional Commits 规范",
+    category: "Git",
+    triggers: ["/commit", "/git-commit"],
+    tags: ["Git", "提交"],
     content: `# Git Commit Skill
 
 生成符合 Conventional Commits 规范的提交消息。
@@ -133,16 +150,16 @@ const PRESET_TEMPLATES: SkillTemplate[] = [
 2. 分析更改的性质和范围
 3. 生成简洁但描述性的提交消息
 4. 如果更改复杂，添加详细的 body`,
-    author: 'Fangyu',
+    author: "Fangyu",
     downloads: 2100,
   },
   {
-    id: 'test-generator',
-    name: 'Test Generator',
-    description: '自动生成单元测试，支持多种测试框架',
-    category: '测试',
-    triggers: ['/test', '/generate-test'],
-    tags: ['测试', '单元测试'],
+    id: "test-generator",
+    name: "Test Generator",
+    description: "自动生成单元测试，支持多种测试框架",
+    category: "测试",
+    triggers: ["/test", "/generate-test"],
+    tags: ["测试", "单元测试"],
     content: `# Test Generator Skill
 
 为指定代码生成单元测试。
@@ -165,16 +182,16 @@ const PRESET_TEMPLATES: SkillTemplate[] = [
 - it/test: 单个测试用例
 - beforeEach/afterEach: 设置和清理
 - expect: 断言`,
-    author: 'Fangyu',
+    author: "Fangyu",
     downloads: 980,
   },
   {
-    id: 'doc-generator',
-    name: 'Documentation Generator',
-    description: '自动生成代码文档，支持 JSDoc、TSDoc、Docstring 等格式',
-    category: '文档',
-    triggers: ['/doc', '/document'],
-    tags: ['文档', 'JSDoc'],
+    id: "doc-generator",
+    name: "Documentation Generator",
+    description: "自动生成代码文档，支持 JSDoc、TSDoc、Docstring 等格式",
+    category: "文档",
+    triggers: ["/doc", "/document"],
+    tags: ["文档", "JSDoc"],
     content: `# Documentation Generator Skill
 
 为代码生成文档注释。
@@ -197,16 +214,16 @@ const PRESET_TEMPLATES: SkillTemplate[] = [
 - 函数签名分析
 - 类型推断
 - 复杂度评估`,
-    author: 'Fangyu',
+    author: "Fangyu",
     downloads: 750,
   },
   {
-    id: 'refactor-assistant',
-    name: 'Refactor Assistant',
-    description: '代码重构助手，提供重构建议和自动重构',
-    category: '重构',
-    triggers: ['/refactor', '/improve'],
-    tags: ['重构', '优化'],
+    id: "refactor-assistant",
+    name: "Refactor Assistant",
+    description: "代码重构助手，提供重构建议和自动重构",
+    category: "重构",
+    triggers: ["/refactor", "/improve"],
+    tags: ["重构", "优化"],
     content: `# Refactor Assistant Skill
 
 分析代码并提供重构建议。
@@ -230,7 +247,7 @@ const PRESET_TEMPLATES: SkillTemplate[] = [
 - 问题描述
 - 重构建议
 - 重构后的代码`,
-    author: 'Fangyu',
+    author: "Fangyu",
     downloads: 620,
   },
 ];
@@ -248,8 +265,8 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
   // 状态
   const [skills, setSkills] = useState<Skill[]>([]);
   const [loading, setLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterScope, setFilterScope] = useState<'all' | 'user' | 'project'>('all');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterScope, setFilterScope] = useState<"all" | "user" | "project">("all");
   const [filterTag, setFilterTag] = useState<string | null>(null);
   const [expandedSkill, setExpandedSkill] = useState<string | null>(null);
 
@@ -260,11 +277,11 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   // 编辑器状态
-  const [editorName, setEditorName] = useState('');
-  const [editorDescription, setEditorDescription] = useState('');
-  const [editorContent, setEditorContent] = useState('');
-  const [editorScope, setEditorScope] = useState<'user' | 'project'>('user');
-  const [editorTriggers, setEditorTriggers] = useState('');
+  const [editorName, setEditorName] = useState("");
+  const [editorDescription, setEditorDescription] = useState("");
+  const [editorContent, setEditorContent] = useState("");
+  const [editorScope, setEditorScope] = useState<"user" | "project">("user");
+  const [editorTriggers, setEditorTriggers] = useState("");
 
   // 加载技能列表
   const loadSkills = useCallback(async () => {
@@ -275,7 +292,7 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
       // 转换为 Skill 类型并加载内容
       const skillsWithContent: Skill[] = await Promise.all(
         result.map(async (s: any) => {
-          let content = '';
+          let content = "";
           try {
             content = await api.readSkill(s.path);
           } catch {
@@ -285,7 +302,7 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
           return {
             name: s.name,
             path: s.path,
-            scope: s.scope || 'user',
+            scope: s.scope || "user",
             description: s.description || extractDescription(content),
             content,
             triggers: extractTriggers(content),
@@ -297,7 +314,7 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
 
       setSkills(skillsWithContent);
     } catch (error) {
-      logger.error('SkillsManager', '加载技能失败:', error);
+      logger.error("SkillsManager", "加载技能失败:", error);
     } finally {
       setLoading(false);
     }
@@ -310,7 +327,7 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
   // 从内容中提取描述
   const extractDescription = (content: string): string => {
     const match = content.match(/^#\s+(.+?)(?:\n|$)/m);
-    return match ? match[1].trim() : '';
+    return match ? match[1].trim() : "";
   };
 
   // 从内容中提取触发词
@@ -318,7 +335,7 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
     const triggers: string[] = [];
     const match = content.match(/triggers?:\s*\[([^\]]+)\]/i);
     if (match) {
-      triggers.push(...match[1].split(',').map(t => t.trim().replace(/['"]/g, '')));
+      triggers.push(...match[1].split(",").map((t) => t.trim().replace(/['"]/g, "")));
     }
     // 也匹配 /command 格式
     const commands = content.match(/\/[a-z-]+/gi);
@@ -333,7 +350,7 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
     const tags: string[] = [];
     const match = content.match(/tags?:\s*\[([^\]]+)\]/i);
     if (match) {
-      tags.push(...match[1].split(',').map(t => t.trim().replace(/['"]/g, '')));
+      tags.push(...match[1].split(",").map((t) => t.trim().replace(/['"]/g, "")));
     }
     return tags;
   };
@@ -346,21 +363,21 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       result = result.filter(
-        s =>
+        (s) =>
           s.name.toLowerCase().includes(query) ||
           s.description?.toLowerCase().includes(query) ||
-          s.triggers?.some(t => t.toLowerCase().includes(query))
+          s.triggers?.some((t) => t.toLowerCase().includes(query))
       );
     }
 
     // 按范围过滤
-    if (filterScope !== 'all') {
-      result = result.filter(s => s.scope === filterScope);
+    if (filterScope !== "all") {
+      result = result.filter((s) => s.scope === filterScope);
     }
 
     // 按标签过滤
     if (filterTag) {
-      result = result.filter(s => s.tags?.includes(filterTag));
+      result = result.filter((s) => s.tags?.includes(filterTag));
     }
 
     return result;
@@ -369,7 +386,7 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
   // 获取所有标签
   const allTags = useMemo(() => {
     const tags = new Set<string>();
-    skills.forEach(s => s.tags?.forEach(t => tags.add(t)));
+    skills.forEach((s) => s.tags?.forEach((t) => tags.add(t)));
     return Array.from(tags);
   }, [skills]);
 
@@ -381,7 +398,7 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
       const content = editorContent.trim();
 
       if (!name || !content) {
-        alert('请填写技能名称和内容');
+        alert("请填写技能名称和内容");
         return;
       }
 
@@ -391,8 +408,8 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
       setShowCreateDialog(false);
       setEditingSkill(null);
     } catch (error) {
-      logger.error('SkillsManager', '保存技能失败:', error);
-      alert('保存技能失败');
+      logger.error("SkillsManager", "保存技能失败:", error);
+      alert("保存技能失败");
     }
   };
 
@@ -406,7 +423,7 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
       await api.openSkillsDirectory(projectPath);
       loadSkills();
     } catch (error) {
-      logger.error('SkillsManager', '删除技能失败:', error);
+      logger.error("SkillsManager", "删除技能失败:", error);
     }
   };
 
@@ -414,36 +431,36 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
   const handleEdit = (skill: Skill) => {
     setEditingSkill(skill);
     setEditorName(skill.name);
-    setEditorDescription(skill.description || '');
-    setEditorContent(skill.content || '');
+    setEditorDescription(skill.description || "");
+    setEditorContent(skill.content || "");
     setEditorScope(skill.scope);
-    setEditorTriggers(skill.triggers?.join(', ') || '');
+    setEditorTriggers(skill.triggers?.join(", ") || "");
     setShowCreateDialog(true);
   };
 
   // 重置编辑器
   const resetEditor = () => {
-    setEditorName('');
-    setEditorDescription('');
-    setEditorContent('');
-    setEditorScope('user');
-    setEditorTriggers('');
+    setEditorName("");
+    setEditorDescription("");
+    setEditorContent("");
+    setEditorScope("user");
+    setEditorTriggers("");
   };
 
   // 从模板创建
   const handleImportTemplate = async (template: SkillTemplate) => {
     try {
       await api.createSkill(
-        template.name.toLowerCase().replace(/\s+/g, '-'),
+        template.name.toLowerCase().replace(/\s+/g, "-"),
         template.description,
         template.content,
-        'user',
+        "user",
         projectPath
       );
       loadSkills();
       setShowMarketDialog(false);
     } catch (error) {
-      logger.error('SkillsManager', '导入模板失败:', error);
+      logger.error("SkillsManager", "导入模板失败:", error);
     }
   };
 
@@ -467,7 +484,7 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
       await api.toggleSkill(skill.name, skill.scope, enabled, projectPath);
       await loadSkills(); // 重新加载技能列表
     } catch (error) {
-      logger.error('SkillsManager', '切换技能状态失败:', error);
+      logger.error("SkillsManager", "切换技能状态失败:", error);
       alert(`切换技能状态失败: ${error}`);
     }
   };
@@ -477,7 +494,7 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
     try {
       await api.openSkillsDirectory(projectPath);
     } catch (error) {
-      logger.error('SkillsManager', '打开目录失败:', error);
+      logger.error("SkillsManager", "打开目录失败:", error);
     }
   };
 
@@ -508,13 +525,8 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
         </select>
 
         {/* 刷新 */}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={loadSkills}
-          disabled={loading}
-        >
-          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+        <Button variant="ghost" size="sm" onClick={loadSkills} disabled={loading}>
+          <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
         </Button>
 
         {/* 打开目录 */}
@@ -546,10 +558,11 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
           <Tag className="w-3 h-3 text-[var(--text-tertiary)] mr-1" />
           <button
             onClick={() => setFilterTag(null)}
-            className={`px-2 py-0.5 text-xs rounded-full transition-colors ${filterTag === null
-              ? 'bg-[var(--accent-primary)] text-white'
-              : 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'
-              }`}
+            className={`px-2 py-0.5 text-xs rounded-full transition-colors ${
+              filterTag === null
+                ? "bg-[var(--accent-primary)] text-white"
+                : "bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]"
+            }`}
           >
             全部
           </button>
@@ -557,10 +570,11 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
             <button
               key={tag}
               onClick={() => setFilterTag(tag === filterTag ? null : tag)}
-              className={`px-2 py-0.5 text-xs rounded-full transition-colors ${filterTag === tag
-                ? 'bg-[var(--accent-primary)] text-white'
-                : 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'
-                }`}
+              className={`px-2 py-0.5 text-xs rounded-full transition-colors ${
+                filterTag === tag
+                  ? "bg-[var(--accent-primary)] text-white"
+                  : "bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]"
+              }`}
             >
               {tag}
             </button>
@@ -607,14 +621,18 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
                   )}
 
                   <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <Zap className={`w-4 h-4 ${skill.isEnabled ? 'text-yellow-500' : 'text-gray-400'}`} />
-                    <span className={`font-medium truncate ${!skill.isEnabled ? 'text-[var(--text-tertiary)]' : ''}`}>
+                    <Zap
+                      className={`w-4 h-4 ${skill.isEnabled ? "text-yellow-500" : "text-gray-400"}`}
+                    />
+                    <span
+                      className={`font-medium truncate ${!skill.isEnabled ? "text-[var(--text-tertiary)]" : ""}`}
+                    >
                       {/* 移除 _disabled_ 前缀显示 */}
-                      {skill.name.replace(/^_disabled_/, '')}
+                      {skill.name.replace(/^_disabled_/, "")}
                     </span>
 
                     {/* 范围标识 */}
-                    {skill.scope === 'user' ? (
+                    {skill.scope === "user" ? (
                       <span title="用户级">
                         <User className="w-3 h-3 text-blue-400" />
                       </span>
@@ -645,7 +663,10 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
                   )}
 
                   {/* 操作按钮 - TEST123 */}
-                  <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
+                  <div
+                    className="flex items-center gap-2 shrink-0"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     {/* 启用/禁用开关 */}
                     <div className="flex items-center gap-1.5">
                       <Switch
@@ -741,7 +762,7 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
                         <span className="text-xs text-[var(--text-tertiary)]">内容预览：</span>
                         <pre className="mt-1 p-2 text-xs rounded bg-[var(--bg-primary)] overflow-x-auto max-h-32">
                           {skill.content.slice(0, 500)}
-                          {skill.content.length > 500 && '...'}
+                          {skill.content.length > 500 && "..."}
                         </pre>
                       </div>
                     )}
@@ -762,9 +783,7 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
       <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>
-              {editingSkill ? '编辑技能' : '创建新技能'}
-            </DialogTitle>
+            <DialogTitle>{editingSkill ? "编辑技能" : "创建新技能"}</DialogTitle>
             <VisuallyHidden.Root>
               <DialogDescription>配置技能的名称、描述、触发词等信息</DialogDescription>
             </VisuallyHidden.Root>
@@ -801,21 +820,23 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
               <label className="text-sm font-medium">范围</label>
               <div className="flex gap-2 mt-1">
                 <button
-                  onClick={() => setEditorScope('user')}
-                  className={`flex items-center gap-2 px-3 py-2 rounded border transition-colors ${editorScope === 'user'
-                    ? 'border-[var(--accent-primary)] bg-[var(--accent-primary)]/10'
-                    : 'border-[var(--border-primary)] hover:bg-[var(--bg-hover)]'
-                    }`}
+                  onClick={() => setEditorScope("user")}
+                  className={`flex items-center gap-2 px-3 py-2 rounded border transition-colors ${
+                    editorScope === "user"
+                      ? "border-[var(--accent-primary)] bg-[var(--accent-primary)]/10"
+                      : "border-[var(--border-primary)] hover:bg-[var(--bg-hover)]"
+                  }`}
                 >
                   <User className="w-4 h-4" />
                   <span>用户级</span>
                 </button>
                 <button
-                  onClick={() => setEditorScope('project')}
-                  className={`flex items-center gap-2 px-3 py-2 rounded border transition-colors ${editorScope === 'project'
-                    ? 'border-[var(--accent-primary)] bg-[var(--accent-primary)]/10'
-                    : 'border-[var(--border-primary)] hover:bg-[var(--bg-hover)]'
-                    }`}
+                  onClick={() => setEditorScope("project")}
+                  className={`flex items-center gap-2 px-3 py-2 rounded border transition-colors ${
+                    editorScope === "project"
+                      ? "border-[var(--accent-primary)] bg-[var(--accent-primary)]/10"
+                      : "border-[var(--border-primary)] hover:bg-[var(--bg-hover)]"
+                  }`}
                 >
                   <Globe className="w-4 h-4" />
                   <span>项目级</span>
@@ -832,9 +853,7 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
                 placeholder="/my-skill, /ms"
                 className="mt-1"
               />
-              <p className="text-xs text-[var(--text-tertiary)] mt-1">
-                多个触发词用逗号分隔
-              </p>
+              <p className="text-xs text-[var(--text-tertiary)] mt-1">多个触发词用逗号分隔</p>
             </div>
 
             {/* 内容 */}
@@ -853,9 +872,7 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
             <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
               取消
             </Button>
-            <Button onClick={handleSaveSkill}>
-              {editingSkill ? '保存' : '创建'}
-            </Button>
+            <Button onClick={handleSaveSkill}>{editingSkill ? "保存" : "创建"}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -881,14 +898,10 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
                     <Zap className="w-5 h-5 text-yellow-500" />
                     <h3 className="font-medium">{template.name}</h3>
                   </div>
-                  <span className="text-xs text-[var(--text-tertiary)]">
-                    {template.category}
-                  </span>
+                  <span className="text-xs text-[var(--text-tertiary)]">{template.category}</span>
                 </div>
 
-                <p className="text-sm text-[var(--text-secondary)] mt-2">
-                  {template.description}
-                </p>
+                <p className="text-sm text-[var(--text-secondary)] mt-2">{template.description}</p>
 
                 {/* 触发词 */}
                 {template.triggers && (
@@ -911,10 +924,7 @@ export function SkillsManager({ projectPath, onSkillExecute }: SkillsManagerProp
                     <span>•</span>
                     <span>{template.downloads} 次下载</span>
                   </div>
-                  <Button
-                    size="sm"
-                    onClick={() => handleImportTemplate(template)}
-                  >
+                  <Button size="sm" onClick={() => handleImportTemplate(template)}>
                     <Download className="w-4 h-4 mr-1" />
                     导入
                   </Button>

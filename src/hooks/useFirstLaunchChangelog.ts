@@ -13,7 +13,7 @@
  * - 调试功能：window.__forceShowChangelog = true
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { getVersion } from "@tauri-apps/api/app";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -39,9 +39,7 @@ export const CHANGELOGS = {
       "修复 'Rendered fewer hooks than expected' 错误",
       "恢复 useTransition 调用以保持 hooks 顺序一致性",
     ],
-    technical: [
-      "ClaudeCodeSession.tsx - 恢复 useTransition() 调用",
-    ],
+    technical: ["ClaudeCodeSession.tsx - 恢复 useTransition() 调用"],
   },
   "2.9.2": {
     title: "v2.9.2 - 🔧 会话上下文与日志系统修复",
@@ -82,7 +80,7 @@ export const CHANGELOGS = {
     ],
     bugfixes: [
       "修复 DiffPreview 接口不匹配 - V3FeaturesCenter 传递 diff 字符串但组件期望 changes 数组",
-      "修复虚假功能误导 - 6个功能添加\"开发中\"占位视图",
+      '修复虚假功能误导 - 6个功能添加"开发中"占位视图',
       "修复使用说明不准确 - 更新为准确反映实现状态",
     ],
     technical: [
@@ -185,10 +183,7 @@ export const CHANGELOGS = {
       "🔧 智能消息合并，保留文本和工具调用",
       "🔧 改进消息 ID 生成，确保唯一性",
     ],
-    bugfixes: [
-      "修复工具调用前后的文字消息被错误覆盖",
-      "修复相同 ID 消息简单替换导致内容丢失",
-    ],
+    bugfixes: ["修复工具调用前后的文字消息被错误覆盖", "修复相同 ID 消息简单替换导致内容丢失"],
     technical: [
       "subagentGrouping.ts - 改进 getTechnicalMessageType() 文本检测",
       "useMessageTranslation.ts - 新增 mergeMessageContent() 智能合并",
@@ -252,12 +247,8 @@ export const CHANGELOGS = {
       "✅ 自动更新状态显示优化 - 修复下载失败时同时显示错误和成功信息的问题",
       "✅ 更新对话框逻辑改进 - 只有在下载完全成功后才显示「更新已安装」",
     ],
-    bugfixes: [
-      "🐛 修复更新对话框状态冲突 - 不再同时显示「下载安装失败」和「更新已安装」",
-    ],
-    technical: [
-      "UpdateDialog.tsx - 重构下载状态管理，确保状态互斥",
-    ],
+    bugfixes: ["🐛 修复更新对话框状态冲突 - 不再同时显示「下载安装失败」和「更新已安装」"],
+    technical: ["UpdateDialog.tsx - 重构下载状态管理，确保状态互斥"],
   },
   "2.7.3": {
     title: "v2.7.3 - 🔄 统一工作流系统",
@@ -318,10 +309,7 @@ export const CHANGELOGS = {
       "✅ 文件预览 - 上传文件显示缩略图和解析状态",
       "✅ 剪贴板粘贴 - Ctrl+V 直接粘贴截图到输入框",
     ],
-    bugfixes: [
-      "🐛 修复 APIConfigManager 配置持久化测试",
-      "🐛 修复 agent-flow 批量任务处理测试",
-    ],
+    bugfixes: ["🐛 修复 APIConfigManager 配置持久化测试", "🐛 修复 agent-flow 批量任务处理测试"],
     technical: [
       "新增 geminiImageService.ts - Gemini 图像生成服务",
       "新增 fileParserService.ts - 多格式文件解析服务",
@@ -364,14 +352,10 @@ export const CHANGELOGS = {
   "2.5.3": {
     title: "v2.5.3 - 🔧 修复 Windows 构建问题",
     date: "2026-01-10",
-    features: [
-      "🔧 修复 GitHub Actions 构建失败 - 启用 keyring 的 windows-native feature",
-    ],
-    improvements: [
-      "✅ Windows Credential Manager 支持 - keyring 现在正确使用 Windows 凭据管理器",
-    ],
+    features: ["🔧 修复 GitHub Actions 构建失败 - 启用 keyring 的 windows-native feature"],
+    improvements: ["✅ Windows Credential Manager 支持 - keyring 现在正确使用 Windows 凭据管理器"],
     technical: [
-      "keyring 依赖从 \"3.6\" 改为 { version = \"3.6\", features = [\"windows-native\"] }",
+      'keyring 依赖从 "3.6" 改为 { version = "3.6", features = ["windows-native"] }',
       "修复 v2.5.2 构建失败的根本原因：keyring 默认不启用任何平台后端",
     ],
   },
@@ -388,7 +372,7 @@ export const CHANGELOGS = {
       "✅ 优化发布流程 - 修复 Release workflow 配置",
     ],
     technical: [
-      "添加 keyring = \"3.6\" 依赖到 Cargo.toml",
+      '添加 keyring = "3.6" 依赖到 Cargo.toml',
       "更新 tauri.conf.json 中的 updater pubkey",
       "修复 error[E0432]: unresolved import `keyring` 编译错误",
     ],
@@ -1277,30 +1261,36 @@ export const useFirstLaunchChangelog = () => {
   // 使用 ref 确保只检查一次
   const hasCheckedRef = useRef(false);
 
-  const showChangelogForVersion = useCallback((version: string) => {
-    // 查找该版本的更新日志
-    const changelogData = CHANGELOGS[version as keyof typeof CHANGELOGS];
+  const showChangelogForVersion = useCallback(
+    (version: string) => {
+      // 查找该版本的更新日志
+      const changelogData = CHANGELOGS[version as keyof typeof CHANGELOGS];
 
-    if (changelogData) {
-      setChangelog({
-        version,
-        ...changelogData,
-      });
-      setShowChangelog(true);
-    } else {
-      // 🆕 如果没有对应版本的日志，显示最新版本的日志
-      const latestVersion = Object.keys(CHANGELOGS)[0];
-      const latestChangelog = CHANGELOGS[latestVersion as keyof typeof CHANGELOGS];
-      if (latestChangelog) {
+      if (changelogData) {
         setChangelog({
-          version: latestVersion,
-          ...latestChangelog,
+          version,
+          ...changelogData,
         });
         setShowChangelog(true);
-        logger.debug('useFirstLaunchChangelog', `[Changelog] No changelog for ${version}, showing ${latestVersion}`);
+      } else {
+        // 🆕 如果没有对应版本的日志，显示最新版本的日志
+        const latestVersion = Object.keys(CHANGELOGS)[0];
+        const latestChangelog = CHANGELOGS[latestVersion as keyof typeof CHANGELOGS];
+        if (latestChangelog) {
+          setChangelog({
+            version: latestVersion,
+            ...latestChangelog,
+          });
+          setShowChangelog(true);
+          logger.debug(
+            "useFirstLaunchChangelog",
+            `[Changelog] No changelog for ${version}, showing ${latestVersion}`
+          );
+        }
       }
-    }
-  }, [setChangelog, setShowChangelog]);
+    },
+    [setChangelog, setShowChangelog]
+  );
 
   const checkFirstLaunch = useCallback(async () => {
     try {
@@ -1312,7 +1302,7 @@ export const useFirstLaunchChangelog = () => {
       } catch (err) {
         console.warn(
           "[useFirstLaunchChangelog] Failed to get version from Tauri API, using fallback:",
-          err,
+          err
         );
       }
 
@@ -1320,7 +1310,7 @@ export const useFirstLaunchChangelog = () => {
 
       // 🔧 DEBUG: 强制显示（调试用）
       if (window.__forceShowChangelog) {
-        logger.debug('useFirstLaunchChangelog', "[Changelog] Force show enabled");
+        logger.debug("useFirstLaunchChangelog", "[Changelog] Force show enabled");
         showChangelogForVersion(version);
         return;
       }
@@ -1334,7 +1324,11 @@ export const useFirstLaunchChangelog = () => {
       // 更新 lastSeenVersion（无论是否显示，都记录当前版本）
       localStorage.setItem(STORAGE_KEY, version);
     } catch (error) {
-      logger.error('useFirstLaunchChangelog', "[useFirstLaunchChangelog] Error checking first launch:", error);
+      logger.error(
+        "useFirstLaunchChangelog",
+        "[useFirstLaunchChangelog] Error checking first launch:",
+        error
+      );
     }
   }, [setCurrentVersion, showChangelogForVersion]);
 
@@ -1349,7 +1343,7 @@ export const useFirstLaunchChangelog = () => {
     window.__resetChangelogVersion = () => {
       localStorage.removeItem(STORAGE_KEY);
       hasCheckedRef.current = false;
-      logger.debug('useFirstLaunchChangelog', "[Changelog] Reset complete. Reload page to test.");
+      logger.debug("useFirstLaunchChangelog", "[Changelog] Reset complete. Reload page to test.");
     };
   }, [checkFirstLaunch]);
 

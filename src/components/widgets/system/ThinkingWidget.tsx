@@ -6,7 +6,7 @@
  */
 
 import React from "react";
-import { Brain, Bot, Sparkles } from 'lucide-react';
+import { Brain, Bot, Sparkles } from "lucide-react";
 import { useToolTranslation } from "../common/useToolTranslation";
 
 export interface ThinkingWidgetProps {
@@ -28,12 +28,9 @@ export interface ThinkingWidgetProps {
  *
  * 展示 AI 的思考内容和 Token 使用，支持翻译
  */
-export const ThinkingWidget: React.FC<ThinkingWidgetProps> = ({
-  thinking,
-  usage,
-}) => {
+export const ThinkingWidget: React.FC<ThinkingWidgetProps> = ({ thinking, usage }) => {
   const { translateContent } = useToolTranslation();
-  const [translatedThinking, setTranslatedThinking] = React.useState<string>('');
+  const [translatedThinking, setTranslatedThinking] = React.useState<string>("");
 
   // 去除空白
   const trimmedThinking = thinking.trim();
@@ -58,7 +55,12 @@ export const ThinkingWidget: React.FC<ThinkingWidgetProps> = ({
   const formatThinkingTokens = (usage: any) => {
     if (!usage) return null;
 
-    const { input_tokens = 0, output_tokens = 0, cache_creation_tokens = 0, cache_read_tokens = 0 } = usage;
+    const {
+      input_tokens = 0,
+      output_tokens = 0,
+      cache_creation_tokens = 0,
+      cache_read_tokens = 0,
+    } = usage;
     const parts = [
       { label: "in", value: input_tokens },
       { label: "out", value: output_tokens },
@@ -66,9 +68,7 @@ export const ThinkingWidget: React.FC<ThinkingWidgetProps> = ({
       { label: "read", value: cache_read_tokens },
     ];
 
-    const breakdown = parts
-      .map(({ label, value }) => `${value} ${label}`)
-      .join(", ");
+    const breakdown = parts.map(({ label, value }) => `${value} ${label}`).join(", ");
 
     return `Tokens: ${breakdown}`;
   };
@@ -82,9 +82,7 @@ export const ThinkingWidget: React.FC<ThinkingWidgetProps> = ({
             <Bot className="h-4 w-4 text-muted-foreground" />
             <Sparkles className="h-2.5 w-2.5 text-muted-foreground/70 absolute -top-1 -right-1 animate-pulse" />
           </div>
-          <span className="text-sm font-medium italic text-muted-foreground">
-            思考中...
-          </span>
+          <span className="text-sm font-medium italic text-muted-foreground">思考中...</span>
         </div>
       </div>
     );

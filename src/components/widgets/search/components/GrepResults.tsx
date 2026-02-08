@@ -6,7 +6,7 @@
 
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { FileText, AlertCircle, Info, ChevronDown, ChevronRight } from 'lucide-react';
+import { FileText, AlertCircle, Info, ChevronDown, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface GrepMatch {
@@ -32,31 +32,31 @@ export interface GrepResultsProps {
 const parseGrepResults = (resultContent: string, isError: boolean): GrepMatch[] => {
   if (!resultContent || isError) return [];
 
-  const lines = resultContent.split('\n').filter(line => line.trim());
+  const lines = resultContent.split("\n").filter((line) => line.trim());
   const results: GrepMatch[] = [];
 
   // 检查是否为 "files_with_matches" 模式（只有文件路径）
-  const isFilesOnlyMode = lines.length > 0 &&
-    lines.every(line => {
-      return !line.includes(':') ||
-             (line.split(':').length === 2 && line.match(/\.[a-zA-Z]+$/));
+  const isFilesOnlyMode =
+    lines.length > 0 &&
+    lines.every((line) => {
+      return !line.includes(":") || (line.split(":").length === 2 && line.match(/\.[a-zA-Z]+$/));
     });
 
   if (isFilesOnlyMode) {
     // 仅文件模式 - 每行是一个文件路径
-    lines.forEach(line => {
+    lines.forEach((line) => {
       const trimmedLine = line.trim();
       if (trimmedLine) {
         results.push({
           file: trimmedLine,
           lineNumber: 0,
-          content: '__FILE_CONTAINS_MATCH__' // Will be replaced with t() in render
+          content: "__FILE_CONTAINS_MATCH__", // Will be replaced with t() in render
         });
       }
     });
   } else {
     // 详细模式 - 解析不同格式
-    lines.forEach(line => {
+    lines.forEach((line) => {
       const trimmedLine = line.trim();
       if (!trimmedLine) return;
 
@@ -67,15 +67,15 @@ const parseGrepResults = (resultContent: string, isError: boolean): GrepMatch[] 
         results.push({
           file: match[1],
           lineNumber: parseInt(match[2], 10),
-          content: match[3] || '__MATCHED_LINE__' // Will be replaced with t() in render
+          content: match[3] || "__MATCHED_LINE__", // Will be replaced with t() in render
         });
       } else {
         // 格式 2: 仅文件路径
-        if (trimmedLine.includes('/') || trimmedLine.includes('\\') || trimmedLine.includes('.')) {
+        if (trimmedLine.includes("/") || trimmedLine.includes("\\") || trimmedLine.includes(".")) {
           results.push({
             file: trimmedLine,
             lineNumber: 0,
-            content: '__FILE_CONTAINS_MATCH__' // Will be replaced with t() in render
+            content: "__FILE_CONTAINS_MATCH__", // Will be replaced with t() in render
           });
         }
       }
@@ -95,7 +95,7 @@ export const GrepResults: React.FC<GrepResultsProps> = ({
   onToggle,
 }) => {
   const { t } = useTranslation();
-  
+
   // 解析结果（使用 useMemo 避免重复解析）
   const grepResults = useMemo(() => {
     return parseGrepResults(resultContent, isError);
@@ -114,13 +114,13 @@ export const GrepResults: React.FC<GrepResultsProps> = ({
           ) : (
             <ChevronRight className="h-3.5 w-3.5" />
           )}
-          <span>{t('widget.searchFailed')}</span>
+          <span>{t("widget.searchFailed")}</span>
         </button>
         {isExpanded && (
           <div className="flex items-center gap-3 p-4 rounded-lg bg-red-500/10 border border-red-500/20">
             <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
             <div className="text-sm text-red-600 dark:text-red-400">
-              {resultContent || t('widget.searchFailed')}
+              {resultContent || t("widget.searchFailed")}
             </div>
           </div>
         )}
@@ -141,15 +141,17 @@ export const GrepResults: React.FC<GrepResultsProps> = ({
           ) : (
             <ChevronRight className="h-3.5 w-3.5" />
           )}
-          <span>{grepResults.length} {t('widget.matches')}</span>
+          <span>
+            {grepResults.length} {t("widget.matches")}
+          </span>
         </button>
 
         {isExpanded && (
           <div className="rounded-lg border overflow-hidden bg-zinc-100 dark:bg-zinc-950 border-zinc-300 dark:border-zinc-800">
             <div className="max-h-[400px] overflow-y-auto">
               {grepResults.map((match, idx) => {
-                const fileName = match.file.split('/').pop() || match.file;
-                const dirPath = match.file.substring(0, match.file.lastIndexOf('/'));
+                const fileName = match.file.split("/").pop() || match.file;
+                const dirPath = match.file.substring(0, match.file.lastIndexOf("/"));
 
                 return (
                   <div
@@ -167,7 +169,7 @@ export const GrepResults: React.FC<GrepResultsProps> = ({
                         </span>
                       ) : (
                         <span className="text-xs font-mono text-muted-foreground">
-                          {t('widget.files')}
+                          {t("widget.files")}
                         </span>
                       )}
                     </div>
@@ -178,16 +180,16 @@ export const GrepResults: React.FC<GrepResultsProps> = ({
                           {fileName}
                         </span>
                         {dirPath && (
-                          <span className="text-xs text-muted-foreground truncate">
-                            {dirPath}
-                          </span>
+                          <span className="text-xs text-muted-foreground truncate">{dirPath}</span>
                         )}
                       </div>
                       {match.content && (
                         <code className="text-xs font-mono block whitespace-pre-wrap break-all text-zinc-700 dark:text-zinc-300">
-                          {match.content === '__FILE_CONTAINS_MATCH__' ? t('widget.fileContainsMatch') :
-                           match.content === '__MATCHED_LINE__' ? t('widget.matchedLine') :
-                           match.content.trim()}
+                          {match.content === "__FILE_CONTAINS_MATCH__"
+                            ? t("widget.fileContainsMatch")
+                            : match.content === "__MATCHED_LINE__"
+                              ? t("widget.matchedLine")
+                              : match.content.trim()}
                         </code>
                       )}
                     </div>
@@ -213,13 +215,13 @@ export const GrepResults: React.FC<GrepResultsProps> = ({
         ) : (
           <ChevronRight className="h-3.5 w-3.5" />
         )}
-        <span>{t('widget.noResults')}</span>
+        <span>{t("widget.noResults")}</span>
       </button>
       {isExpanded && (
         <div className="flex items-center gap-3 p-4 rounded-lg bg-amber-500/10 border border-amber-500/20">
           <Info className="h-5 w-5 text-amber-500 flex-shrink-0" />
           <div className="text-sm text-amber-600 dark:text-amber-400">
-            {t('widget.noMatchesFound')}
+            {t("widget.noMatchesFound")}
           </div>
         </div>
       )}

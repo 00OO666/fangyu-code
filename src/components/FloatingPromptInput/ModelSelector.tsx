@@ -1,6 +1,6 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import React from "react";
-import { ChevronUp, Check, Star } from 'lucide-react';
+import { ChevronUp, Check, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
@@ -22,11 +22,14 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
   selectedModel,
   onModelChange,
   disabled = false,
-  availableModels = MODELS
+  availableModels = MODELS,
 }) => {
   const [open, setOpen] = React.useState(false);
-  const [currentDefaultModel, setCurrentDefaultModel] = React.useState<ModelType | null>(() => getDefaultModel());
-  const selectedModelData = availableModels.find(m => m.id === selectedModel) || availableModels[0];
+  const [currentDefaultModel, setCurrentDefaultModel] = React.useState<ModelType | null>(() =>
+    getDefaultModel()
+  );
+  const selectedModelData =
+    availableModels.find((m) => m.id === selectedModel) || availableModels[0];
 
   // Handle setting default model
   const handleSetDefault = (e: React.MouseEvent, modelId: ModelType) => {
@@ -35,7 +38,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
     setCurrentDefaultModel(modelId);
     // 🆕 同时切换当前会话的模型（更直观的用户体验）
     onModelChange(modelId);
-    logger.debug('ModelSelector', '[ModelSelector] 默认模型已设置:', modelId, '| 当前会话已切换');
+    logger.debug("ModelSelector", "[ModelSelector] 默认模型已设置:", modelId, "| 当前会话已切换");
   };
 
   return (
@@ -77,13 +80,9 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
               <div className="flex-1 space-y-1">
                 <div className="font-medium text-sm flex items-center gap-2">
                   {model.name}
-                  {selectedModel === model.id && (
-                    <Check className="h-3.5 w-3.5 text-primary" />
-                  )}
+                  {selectedModel === model.id && <Check className="h-3.5 w-3.5 text-primary" />}
                 </div>
-                <div className="text-xs text-muted-foreground">
-                  {model.description}
-                </div>
+                <div className="text-xs text-muted-foreground">{model.description}</div>
               </div>
               <button
                 onClick={(e) => handleSetDefault(e, model.id)}
@@ -95,10 +94,9 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
                 )}
                 title={currentDefaultModel === model.id ? "当前默认模型" : "设为默认模型"}
               >
-                <Star className={cn(
-                  "h-4 w-4",
-                  currentDefaultModel === model.id && "fill-yellow-500"
-                )} />
+                <Star
+                  className={cn("h-4 w-4", currentDefaultModel === model.id && "fill-yellow-500")}
+                />
               </button>
             </button>
           ))}

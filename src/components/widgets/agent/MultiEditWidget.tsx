@@ -6,9 +6,9 @@
  */
 
 import React, { useState } from "react";
-import { FileEdit, FileText, ChevronRight } from 'lucide-react';
+import { FileEdit, FileText, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import * as Diff from 'diff';
+import * as Diff from "diff";
 import { Prism as SyntaxHighlighter } from "@/lib/lightSyntaxHighlighter";
 import { getClaudeSyntaxTheme } from "@/lib/claudeSyntaxTheme";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -59,46 +59,59 @@ export const MultiEditWidget: React.FC<MultiEditWidgetProps> = ({
             onClick={() => setIsExpanded(!isExpanded)}
             className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
           >
-            <ChevronRight className={cn("h-3 w-3 transition-transform", isExpanded && "rotate-90")} />
-            {edits.length} 个编辑{edits.length !== 1 ? '项' : ''}
+            <ChevronRight
+              className={cn("h-3 w-3 transition-transform", isExpanded && "rotate-90")}
+            />
+            {edits.length} 个编辑{edits.length !== 1 ? "项" : ""}
           </button>
 
           {/* 展开后显示所有编辑的 Diff */}
           {isExpanded && (
             <div className="space-y-3 mt-3">
               {edits.map((edit, index) => {
-                const diffResult = Diff.diffLines(edit.old_string || '', edit.new_string || '', {
+                const diffResult = Diff.diffLines(edit.old_string || "", edit.new_string || "", {
                   newlineIsToken: true,
-                  ignoreWhitespace: false
+                  ignoreWhitespace: false,
                 });
 
                 return (
                   <div key={index} className="space-y-1">
-                    <div className="text-xs font-medium text-muted-foreground">编辑 {index + 1}</div>
+                    <div className="text-xs font-medium text-muted-foreground">
+                      编辑 {index + 1}
+                    </div>
                     <div className="rounded-lg border bg-zinc-100 dark:bg-zinc-950 border-zinc-300 dark:border-zinc-800 overflow-hidden text-xs font-mono">
                       <div className="max-h-[300px] overflow-y-auto overflow-x-auto">
                         {diffResult.map((part, partIndex) => {
                           const partClass = part.added
-                            ? 'bg-green-100 dark:bg-green-950/20'
+                            ? "bg-green-100 dark:bg-green-950/20"
                             : part.removed
-                            ? 'bg-red-100 dark:bg-red-950/20'
-                            : '';
+                              ? "bg-red-100 dark:bg-red-950/20"
+                              : "";
 
                           // 折叠大量未更改的行
                           if (!part.added && !part.removed && part.count && part.count > 8) {
                             return (
-                              <div key={partIndex} className="px-4 py-1 bg-zinc-200 dark:bg-zinc-900 border-y border-zinc-300 dark:border-zinc-800 text-center text-zinc-500 text-xs">
+                              <div
+                                key={partIndex}
+                                className="px-4 py-1 bg-zinc-200 dark:bg-zinc-900 border-y border-zinc-300 dark:border-zinc-800 text-center text-zinc-500 text-xs"
+                              >
                                 ... {part.count} 未更改的行 ...
                               </div>
                             );
                           }
 
-                          const value = part.value.endsWith('\n') ? part.value.slice(0, -1) : part.value;
+                          const value = part.value.endsWith("\n")
+                            ? part.value.slice(0, -1)
+                            : part.value;
 
                           return (
                             <div key={partIndex} className={cn(partClass, "flex")}>
                               <div className="w-8 select-none text-center flex-shrink-0">
-                                {part.added ? <span className="text-green-600 dark:text-green-400">+</span> : part.removed ? <span className="text-red-600 dark:text-red-400">-</span> : null}
+                                {part.added ? (
+                                  <span className="text-green-600 dark:text-green-400">+</span>
+                                ) : part.removed ? (
+                                  <span className="text-red-600 dark:text-red-400">-</span>
+                                ) : null}
                               </div>
                               <div className="flex-1">
                                 <SyntaxHighlighter
@@ -109,13 +122,13 @@ export const MultiEditWidget: React.FC<MultiEditWidgetProps> = ({
                                   customStyle={{
                                     margin: 0,
                                     padding: 0,
-                                    background: 'transparent',
+                                    background: "transparent",
                                   }}
                                   codeTagProps={{
                                     style: {
-                                      fontSize: '0.75rem',
-                                      lineHeight: '1.6',
-                                    }
+                                      fontSize: "0.75rem",
+                                      lineHeight: "1.6",
+                                    },
                                   }}
                                 >
                                   {value}

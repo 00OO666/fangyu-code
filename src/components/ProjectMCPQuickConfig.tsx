@@ -5,29 +5,50 @@
  * 支持从全局配置复制到项目配置，或在项目级别禁用某些服务器
  */
 
-import { logger } from '@/lib/logger';
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { motion } from 'framer-motion';
-import { cn } from '@/lib/utils';
-import { Network, RefreshCw, Globe, Folder, Copy, Power, Terminal, Loader2, Check, AlertCircle } from 'lucide-react';
+import { logger } from "@/lib/logger";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
+import {
+  Network,
+  RefreshCw,
+  Globe,
+  Folder,
+  Copy,
+  Power,
+  Terminal,
+  Loader2,
+  Check,
+  AlertCircle,
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { api, type MCPServerSpec, type McpServerWithStatus, type MCPProjectConfig } from '@/lib/api';
-import { getMCPDescription, getCategoryLabel, getCategoryColor } from '@/lib/mcpDescriptions';
-import { useProjectMCPConfig } from '@/hooks/useProjectMCPConfig';
-import { getMCPRecommendations, type ProjectType, type MCPRecommendation, getOfficialMCPDefault } from '@/config/mcpRecommendations';
-import { ClaudeIcon } from './icons/ClaudeIcon';
-import { Sparkles, Wand2 } from 'lucide-react';
-import { useNavigation } from '@/contexts/NavigationContext';
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import {
+  api,
+  type MCPServerSpec,
+  type McpServerWithStatus,
+  type MCPProjectConfig,
+} from "@/lib/api";
+import { getMCPDescription, getCategoryLabel, getCategoryColor } from "@/lib/mcpDescriptions";
+import { useProjectMCPConfig } from "@/hooks/useProjectMCPConfig";
+import {
+  getMCPRecommendations,
+  type ProjectType,
+  type MCPRecommendation,
+  getOfficialMCPDefault,
+} from "@/config/mcpRecommendations";
+import { ClaudeIcon } from "./icons/ClaudeIcon";
+import { Sparkles, Wand2 } from "lucide-react";
+import { useNavigation } from "@/contexts/NavigationContext";
 
 interface ProjectMCPQuickConfigProps {
   /**
@@ -45,7 +66,7 @@ interface ProjectMCPQuickConfigProps {
   /**
    * 引擎类型（默认 claude）
    */
-  engine?: 'claude' | 'codex' | 'gemini';
+  engine?: "claude" | "codex" | "gemini";
 }
 
 /**
@@ -55,10 +76,10 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
   open,
   onClose,
   projectPath,
-  engine = 'claude',
+  engine = "claude",
 }) => {
   const { navigateTo } = useNavigation();
-  const [activeTab, setActiveTab] = useState<'recommend' | 'project' | 'global'>('recommend');
+  const [activeTab, setActiveTab] = useState<"recommend" | "project" | "global">("recommend");
   const [globalServers, setGlobalServers] = useState<McpServerWithStatus[]>([]);
   const [loadingGlobal, setLoadingGlobal] = useState(false);
   const [savingId, setSavingId] = useState<string | null>(null);
@@ -69,32 +90,43 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
   // 智能检测项目类型（简化版：根据项目路径名推断）
   const detectedProjectType = useMemo((): ProjectType => {
     const pathLower = projectPath.toLowerCase();
-    if (pathLower.includes('tauri') || pathLower.includes('any-code') || pathLower.includes('fangyu')) {
-      return 'desktop-tauri';
+    if (
+      pathLower.includes("tauri") ||
+      pathLower.includes("any-code") ||
+      pathLower.includes("fangyu")
+    ) {
+      return "desktop-tauri";
     }
-    if (pathLower.includes('pboot') || pathLower.includes('cms')) {
-      return 'backend-php';
+    if (pathLower.includes("pboot") || pathLower.includes("cms")) {
+      return "backend-php";
     }
-    if (pathLower.includes('next')) {
-      return 'frontend-nextjs';
+    if (pathLower.includes("next")) {
+      return "frontend-nextjs";
     }
-    if (pathLower.includes('react') || pathLower.includes('vite')) {
-      return 'frontend-react';
+    if (pathLower.includes("react") || pathLower.includes("vite")) {
+      return "frontend-react";
     }
-    if (pathLower.includes('vue')) {
-      return 'frontend-vue';
+    if (pathLower.includes("vue")) {
+      return "frontend-vue";
     }
-    if (pathLower.includes('python') || pathLower.includes('django') || pathLower.includes('flask')) {
-      return 'backend-python';
+    if (
+      pathLower.includes("python") ||
+      pathLower.includes("django") ||
+      pathLower.includes("flask")
+    ) {
+      return "backend-python";
     }
-    if (pathLower.includes('node') || pathLower.includes('express')) {
-      return 'backend-node';
+    if (pathLower.includes("node") || pathLower.includes("express")) {
+      return "backend-node";
     }
-    return 'general';
+    return "general";
   }, [projectPath]);
 
   // 获取推荐的 MCP 列表
-  const recommendations = useMemo(() => getMCPRecommendations(detectedProjectType), [detectedProjectType]);
+  const recommendations = useMemo(
+    () => getMCPRecommendations(detectedProjectType),
+    [detectedProjectType]
+  );
 
   // 项目级配置 Hook
   const {
@@ -107,7 +139,7 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
   } = useProjectMCPConfig({
     projectPath,
     engine,
-    scope: 'project',
+    scope: "project",
   });
 
   // 加载全局服务器列表
@@ -115,10 +147,18 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
     try {
       setLoadingGlobal(true);
       const servers = await api.mcpGetEngineServersWithStatus(engine);
-      logger.debug('ProjectMCPQuickConfig', `[ProjectMCPQuickConfig] 加载了 ${servers.length} 个全局服务器:`, servers.map(s => ({ id: s.id, enabled: s.enabled })));
+      logger.debug(
+        "ProjectMCPQuickConfig",
+        `[ProjectMCPQuickConfig] 加载了 ${servers.length} 个全局服务器:`,
+        servers.map((s) => ({ id: s.id, enabled: s.enabled }))
+      );
       setGlobalServers(servers);
     } catch (error) {
-      logger.error('ProjectMCPQuickConfig', '[ProjectMCPQuickConfig] Failed to load global servers:', error);
+      logger.error(
+        "ProjectMCPQuickConfig",
+        "[ProjectMCPQuickConfig] Failed to load global servers:",
+        error
+      );
     } finally {
       setLoadingGlobal(false);
     }
@@ -142,12 +182,16 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
     : [];
 
   // 切换服务器在项目配置中的启用状态
-  const handleToggleServer = async (serverId: string, spec: MCPServerSpec, currentEnabled: boolean) => {
+  const handleToggleServer = async (
+    serverId: string,
+    spec: MCPServerSpec,
+    currentEnabled: boolean
+  ) => {
     try {
       setSavingId(serverId);
       await toggleProjectServer(serverId, spec, !currentEnabled);
     } catch (error) {
-      logger.error('ProjectMCPQuickConfig', '[ProjectMCPQuickConfig] Toggle failed:', error);
+      logger.error("ProjectMCPQuickConfig", "[ProjectMCPQuickConfig] Toggle failed:", error);
     } finally {
       setSavingId(null);
     }
@@ -157,7 +201,7 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
   const handleCopyAllToProject = async () => {
     try {
       setCopyingToProject(true);
-      const enabledServers = globalServers.filter(s => s.enabled);
+      const enabledServers = globalServers.filter((s) => s.enabled);
       const newConfig: MCPProjectConfig = {
         mcpServers: {},
       };
@@ -167,21 +211,22 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
       await api.mcpSaveProjectConfig(projectPath, newConfig);
       await reloadProjectConfig();
     } catch (error) {
-      logger.error('ProjectMCPQuickConfig', '[ProjectMCPQuickConfig] Copy all failed:', error);
+      logger.error("ProjectMCPQuickConfig", "[ProjectMCPQuickConfig] Copy all failed:", error);
     } finally {
       setCopyingToProject(false);
     }
   };
 
   // 一键添加推荐的 MCP 服务器到项目
-  const handleAddRecommendations = async (strength: 'required' | 'recommended' | 'all') => {
+  const handleAddRecommendations = async (strength: "required" | "recommended" | "all") => {
     try {
       setAddingRecommended(true);
 
-      const toAdd = recommendations.filter(rec => {
-        if (strength === 'all') return true;
-        if (strength === 'required') return rec.strength === 'required';
-        if (strength === 'recommended') return rec.strength === 'required' || rec.strength === 'recommended';
+      const toAdd = recommendations.filter((rec) => {
+        if (strength === "all") return true;
+        if (strength === "required") return rec.strength === "required";
+        if (strength === "recommended")
+          return rec.strength === "required" || rec.strength === "recommended";
         return false;
       });
 
@@ -192,21 +237,25 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
       let addedCount = 0;
       for (const rec of toAdd) {
         // 找到全局服务器中匹配的 spec（模糊匹配 ID，支持 @anthropic/filesystem 匹配 filesystem）
-        const globalServer = globalServers.find(s =>
-          s.id === rec.serverId ||
-          s.id.endsWith(`/${rec.serverId}`) ||
-          s.id.toLowerCase().includes(rec.serverId.toLowerCase())
+        const globalServer = globalServers.find(
+          (s) =>
+            s.id === rec.serverId ||
+            s.id.endsWith(`/${rec.serverId}`) ||
+            s.id.toLowerCase().includes(rec.serverId.toLowerCase())
         );
 
         if (globalServer && globalServer.enabled) {
           // 使用全局服务器的真实 ID，而不是推荐的 serverId
           newConfig.mcpServers[globalServer.id] = globalServer.spec;
           addedCount++;
-          logger.debug('ProjectMCPQuickConfig', `[ProjectMCPQuickConfig] Added ${rec.name} (${globalServer.id});`);
+          logger.debug(
+            "ProjectMCPQuickConfig",
+            `[ProjectMCPQuickConfig] Added ${rec.name} (${globalServer.id});`
+          );
         } else {
           console.warn(`[ProjectMCPQuickConfig] 未找到全局服务器: ${rec.serverId}`, {
-            available: globalServers.map(s => s.id),
-            enabled: globalServers.filter(s => s.enabled).map(s => s.id),
+            available: globalServers.map((s) => s.id),
+            enabled: globalServers.filter((s) => s.enabled).map((s) => s.id),
           });
         }
       }
@@ -214,9 +263,16 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
       await api.mcpSaveProjectConfig(projectPath, newConfig);
       await reloadProjectConfig();
 
-      logger.debug('ProjectMCPQuickConfig', `[ProjectMCPQuickConfig] 成功添加 ${addedCount}/${toAdd.length} 个推荐服务器`);
+      logger.debug(
+        "ProjectMCPQuickConfig",
+        `[ProjectMCPQuickConfig] 成功添加 ${addedCount}/${toAdd.length} 个推荐服务器`
+      );
     } catch (error) {
-      logger.error('ProjectMCPQuickConfig', '[ProjectMCPQuickConfig] Add recommendations failed:', error);
+      logger.error(
+        "ProjectMCPQuickConfig",
+        "[ProjectMCPQuickConfig] Add recommendations failed:",
+        error
+      );
     } finally {
       setAddingRecommended(false);
     }
@@ -224,11 +280,11 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
 
   // 获取传输类型图标
   const getTransportIcon = (spec: MCPServerSpec) => {
-    const transport = spec.type || 'stdio';
+    const transport = spec.type || "stdio";
     switch (transport) {
-      case 'stdio':
+      case "stdio":
         return <Terminal className="h-4 w-4 text-amber-500" />;
-      case 'sse':
+      case "sse":
         return <Globe className="h-4 w-4 text-emerald-500" />;
       default:
         return <Network className="h-4 w-4 text-blue-500" />;
@@ -237,9 +293,9 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
 
   // 渲染智能推荐列表
   const renderRecommendations = () => {
-    const requiredList = recommendations.filter(r => r.strength === 'required');
-    const recommendedList = recommendations.filter(r => r.strength === 'recommended');
-    const optionalList = recommendations.filter(r => r.strength === 'optional');
+    const requiredList = recommendations.filter((r) => r.strength === "required");
+    const recommendedList = recommendations.filter((r) => r.strength === "recommended");
+    const optionalList = recommendations.filter((r) => r.strength === "optional");
 
     return (
       <div className="space-y-4">
@@ -248,10 +304,14 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
           <div className="flex items-center gap-2 mb-1">
             <Sparkles className="h-4 w-4 text-blue-600" />
             <span className="font-medium text-sm text-blue-900 dark:text-blue-100">
-              检测到项目类型：{detectedProjectType === 'desktop-tauri' ? 'Tauri 桌面应用' :
-                          detectedProjectType === 'backend-php' ? 'PHP 后端' :
-                          detectedProjectType === 'frontend-react' ? 'React 前端' :
-                          detectedProjectType}
+              检测到项目类型：
+              {detectedProjectType === "desktop-tauri"
+                ? "Tauri 桌面应用"
+                : detectedProjectType === "backend-php"
+                  ? "PHP 后端"
+                  : detectedProjectType === "frontend-react"
+                    ? "React 前端"
+                    : detectedProjectType}
             </span>
           </div>
           <p className="text-xs text-blue-700 dark:text-blue-300">
@@ -264,31 +324,43 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => handleAddRecommendations('required')}
+            onClick={() => handleAddRecommendations("required")}
             disabled={addingRecommended || requiredList.length === 0}
             className="gap-1 flex-1 bg-red-50 dark:bg-red-950 border-red-300 hover:bg-red-100 dark:hover:bg-red-900"
           >
-            {addingRecommended ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
+            {addingRecommended ? (
+              <Loader2 className="h-3 w-3 animate-spin" />
+            ) : (
+              <Check className="h-3 w-3" />
+            )}
             添加必须项
           </Button>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => handleAddRecommendations('recommended')}
+            onClick={() => handleAddRecommendations("recommended")}
             disabled={addingRecommended || recommendedList.length === 0}
             className="gap-1 flex-1 bg-green-50 dark:bg-green-950 border-green-300 hover:bg-green-100 dark:hover:bg-green-900"
           >
-            {addingRecommended ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
+            {addingRecommended ? (
+              <Loader2 className="h-3 w-3 animate-spin" />
+            ) : (
+              <Check className="h-3 w-3" />
+            )}
             添加推荐项
           </Button>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => handleAddRecommendations('all')}
+            onClick={() => handleAddRecommendations("all")}
             disabled={addingRecommended}
             className="gap-1 flex-1"
           >
-            {addingRecommended ? <Loader2 className="h-3 w-3 animate-spin" /> : <Copy className="h-3 w-3" />}
+            {addingRecommended ? (
+              <Loader2 className="h-3 w-3 animate-spin" />
+            ) : (
+              <Copy className="h-3 w-3" />
+            )}
             添加全部
           </Button>
         </div>
@@ -302,7 +374,7 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
                 <span className="w-1.5 h-1.5 bg-red-600 rounded-full"></span>
                 必须启用
               </h4>
-              {requiredList.map(rec => renderRecommendationItem(rec))}
+              {requiredList.map((rec) => renderRecommendationItem(rec))}
             </div>
           )}
 
@@ -313,7 +385,7 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
                 <span className="w-1.5 h-1.5 bg-green-600 rounded-full"></span>
                 推荐启用
               </h4>
-              {recommendedList.map(rec => renderRecommendationItem(rec))}
+              {recommendedList.map((rec) => renderRecommendationItem(rec))}
             </div>
           )}
 
@@ -324,7 +396,7 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
                 <span className="w-1.5 h-1.5 bg-gray-600 rounded-full"></span>
                 可选
               </h4>
-              {optionalList.map(rec => renderRecommendationItem(rec))}
+              {optionalList.map((rec) => renderRecommendationItem(rec))}
             </div>
           )}
         </div>
@@ -333,69 +405,93 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
   };
 
   // 查找匹配的全局服务器（模糊匹配）
-  const findMatchingGlobalServer = useCallback((serverId: string) => {
-    return globalServers.find(s =>
-      s.id === serverId ||
-      s.id.endsWith(`/${serverId}`) ||
-      s.id.toLowerCase().includes(serverId.toLowerCase())
-    );
-  }, [globalServers]);
+  const findMatchingGlobalServer = useCallback(
+    (serverId: string) => {
+      return globalServers.find(
+        (s) =>
+          s.id === serverId ||
+          s.id.endsWith(`/${serverId}`) ||
+          s.id.toLowerCase().includes(serverId.toLowerCase())
+      );
+    },
+    [globalServers]
+  );
 
   // 检查服务器是否在项目配置中（模糊匹配）
-  const isServerInProject = useCallback((serverId: string) => {
-    if (!projectConfig?.mcpServers) return false;
-    const keys = Object.keys(projectConfig.mcpServers);
-    return keys.some(key =>
-      key === serverId ||
-      key.endsWith(`/${serverId}`) ||
-      key.toLowerCase().includes(serverId.toLowerCase())
-    );
-  }, [projectConfig]);
+  const isServerInProject = useCallback(
+    (serverId: string) => {
+      if (!projectConfig?.mcpServers) return false;
+      const keys = Object.keys(projectConfig.mcpServers);
+      return keys.some(
+        (key) =>
+          key === serverId ||
+          key.endsWith(`/${serverId}`) ||
+          key.toLowerCase().includes(serverId.toLowerCase())
+      );
+    },
+    [projectConfig]
+  );
 
   // 一键自动配置官方 MCP
-  const handleAutoConfigureMCP = useCallback(async (serverId: string, spec: MCPServerSpec) => {
-    try {
-      setAutoConfiguringId(serverId);
-      logger.debug('ProjectMCPQuickConfig', `[ProjectMCPQuickConfig] 开始自动配置: ${serverId}`);
+  const handleAutoConfigureMCP = useCallback(
+    async (serverId: string, spec: MCPServerSpec) => {
+      try {
+        setAutoConfiguringId(serverId);
+        logger.debug("ProjectMCPQuickConfig", `[ProjectMCPQuickConfig] 开始自动配置: ${serverId}`);
 
-      // 1. 添加到全局 Claude 配置
-      await api.mcpUpsertEngineServer(engine, serverId, spec);
-      logger.debug('ProjectMCPQuickConfig', `[ProjectMCPQuickConfig] 已添加到全局 ${engine} 配置`);
+        // 1. 添加到全局 Claude 配置
+        await api.mcpUpsertEngineServer(engine, serverId, spec);
+        logger.debug(
+          "ProjectMCPQuickConfig",
+          `[ProjectMCPQuickConfig] 已添加到全局 ${engine} 配置`
+        );
 
-      // 2. 重新加载全局服务器列表
-      await loadGlobalServers();
+        // 2. 重新加载全局服务器列表
+        await loadGlobalServers();
 
-      // 3. 自动添加到当前项目配置
-      const newConfig: MCPProjectConfig = {
-        mcpServers: {
-          ...(projectConfig?.mcpServers || {}),
-          [serverId]: spec,
-        },
-      };
-      await api.mcpSaveProjectConfig(projectPath, newConfig);
-      await reloadProjectConfig();
+        // 3. 自动添加到当前项目配置
+        const newConfig: MCPProjectConfig = {
+          mcpServers: {
+            ...(projectConfig?.mcpServers || {}),
+            [serverId]: spec,
+          },
+        };
+        await api.mcpSaveProjectConfig(projectPath, newConfig);
+        await reloadProjectConfig();
 
-      logger.debug('ProjectMCPQuickConfig', `[ProjectMCPQuickConfig] ✅ ${serverId} 配置成功！`);
-    } catch (error) {
-      logger.error('ProjectMCPQuickConfig', `[ProjectMCPQuickConfig] 自动配置失败:`, error);
-      // 如果失败，跳转到设置页面让用户手动配置
-      onClose();
-      navigateTo('settings');
-    } finally {
-      setAutoConfiguringId(null);
-    }
-  }, [engine, loadGlobalServers, projectConfig, projectPath, reloadProjectConfig, onClose, navigateTo]);
+        logger.debug("ProjectMCPQuickConfig", `[ProjectMCPQuickConfig] ✅ ${serverId} 配置成功！`);
+      } catch (error) {
+        logger.error("ProjectMCPQuickConfig", `[ProjectMCPQuickConfig] 自动配置失败:`, error);
+        // 如果失败，跳转到设置页面让用户手动配置
+        onClose();
+        navigateTo("settings");
+      } finally {
+        setAutoConfiguringId(null);
+      }
+    },
+    [
+      engine,
+      loadGlobalServers,
+      projectConfig,
+      projectPath,
+      reloadProjectConfig,
+      onClose,
+      navigateTo,
+    ]
+  );
 
   // 跳转到设置页面配置 MCP（非官方 MCP 或自动配置失败时使用）
   const handleGoToSettings = useCallback(() => {
     onClose(); // 先关闭对话框
-    navigateTo('settings'); // 导航到设置页面
+    navigateTo("settings"); // 导航到设置页面
   }, [navigateTo, onClose]);
 
   // 渲染单个推荐项
   const renderRecommendationItem = (rec: MCPRecommendation) => {
     const globalServer = findMatchingGlobalServer(rec.serverId);
-    const isInProject = isServerInProject(rec.serverId) || (globalServer && isServerEnabledInProject(globalServer.id));
+    const isInProject =
+      isServerInProject(rec.serverId) ||
+      (globalServer && isServerEnabledInProject(globalServer.id));
     const isAvailable = globalServer && globalServer.enabled;
     const officialDefault = getOfficialMCPDefault(rec.serverId);
     const isConfiguring = autoConfiguringId === rec.serverId;
@@ -407,14 +503,14 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
         animate={{ opacity: 1, y: 0 }}
         className={cn(
           "flex items-center justify-between p-3 rounded-lg border transition-colors",
-          isInProject ? "border-green-500 bg-green-50 dark:bg-green-950" : "border-border hover:bg-accent/5"
+          isInProject
+            ? "border-green-500 bg-green-50 dark:bg-green-950"
+            : "border-border hover:bg-accent/5"
         )}
       >
         <div className="flex items-center gap-3 flex-1 min-w-0">
           {globalServer ? (
-            <div className="p-1.5 bg-primary/10 rounded">
-              {getTransportIcon(globalServer.spec)}
-            </div>
+            <div className="p-1.5 bg-primary/10 rounded">{getTransportIcon(globalServer.spec)}</div>
           ) : (
             <div className="p-1.5 bg-gray-100 dark:bg-gray-800 rounded">
               <Terminal className="h-4 w-4 text-gray-400" />
@@ -424,7 +520,10 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
             <div className="flex items-center gap-2">
               <span className="font-medium text-sm">{rec.name}</span>
               {isInProject && (
-                <Badge variant="outline" className="text-[10px] h-5 text-green-600 border-green-600">
+                <Badge
+                  variant="outline"
+                  className="text-[10px] h-5 text-green-600 border-green-600"
+                >
                   <Check className="h-3 w-3 mr-1" />
                   已添加
                 </Badge>
@@ -448,7 +547,10 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
             <Switch
               checked={!!isInProject}
               disabled={savingId === rec.serverId || savingId === globalServer?.id}
-              onCheckedChange={() => globalServer && handleToggleServer(globalServer.id, globalServer.spec, !!isInProject)}
+              onCheckedChange={() =>
+                globalServer &&
+                handleToggleServer(globalServer.id, globalServer.spec, !!isInProject)
+              }
             />
           ) : officialDefault ? (
             // 官方 MCP - 显示一键配置按钮
@@ -464,7 +566,7 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
               ) : (
                 <Wand2 className="h-3 w-3" />
               )}
-              {isConfiguring ? '配置中...' : '一键配置'}
+              {isConfiguring ? "配置中..." : "一键配置"}
             </Button>
           ) : (
             // 非官方 MCP - 跳转设置页面
@@ -486,14 +588,12 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
   const renderGlobalServerList = () => (
     <div className="space-y-2">
       <div className="flex items-center justify-between mb-3">
-        <p className="text-sm text-muted-foreground">
-          选择要在此项目中使用的 MCP 服务器
-        </p>
+        <p className="text-sm text-muted-foreground">选择要在此项目中使用的 MCP 服务器</p>
         <Button
           variant="outline"
           size="sm"
           onClick={handleCopyAllToProject}
-          disabled={copyingToProject || globalServers.filter(s => s.enabled).length === 0}
+          disabled={copyingToProject || globalServers.filter((s) => s.enabled).length === 0}
           className="gap-1"
         >
           {copyingToProject ? (
@@ -517,7 +617,7 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
         </div>
       ) : (
         <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
-          {globalServers.map(server => {
+          {globalServers.map((server) => {
             const mcpDesc = getMCPDescription(server.id);
             const categoryColor = getCategoryColor(mcpDesc.category);
             const isInProject = isServerEnabledInProject(server.id);
@@ -530,9 +630,7 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
                 className="flex items-center justify-between p-3 rounded-lg border border-border hover:bg-accent/5 transition-colors"
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className="p-1.5 bg-primary/10 rounded">
-                    {getTransportIcon(server.spec)}
-                  </div>
+                  <div className="p-1.5 bg-primary/10 rounded">{getTransportIcon(server.spec)}</div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="font-medium text-sm truncate">
@@ -554,14 +652,15 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
                         </Badge>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {mcpDesc.description}
-                    </p>
+                    <p className="text-xs text-muted-foreground truncate">{mcpDesc.description}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 ml-2">
                   {isInProject && (
-                    <Badge variant="outline" className="text-[10px] h-5 text-green-600 border-green-600">
+                    <Badge
+                      variant="outline"
+                      className="text-[10px] h-5 text-green-600 border-green-600"
+                    >
                       <Check className="h-3 w-3 mr-1" />
                       已添加
                     </Badge>
@@ -604,7 +703,7 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
         </div>
       ) : (
         <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
-          {projectServers.map(server => {
+          {projectServers.map((server) => {
             const mcpDesc = getMCPDescription(server.id);
             const categoryColor = getCategoryColor(mcpDesc.category);
 
@@ -616,9 +715,7 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
                 className="flex items-center justify-between p-3 rounded-lg border border-border hover:bg-accent/5 transition-colors"
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className="p-1.5 bg-primary/10 rounded">
-                    {getTransportIcon(server.spec)}
-                  </div>
+                  <div className="p-1.5 bg-primary/10 rounded">{getTransportIcon(server.spec)}</div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="font-medium text-sm truncate">
@@ -634,14 +731,15 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
                       >
                         {getCategoryLabel(mcpDesc.category)}
                       </Badge>
-                      <Badge variant="outline" className="text-[10px] h-5 text-green-600 border-green-600">
+                      <Badge
+                        variant="outline"
+                        className="text-[10px] h-5 text-green-600 border-green-600"
+                      >
                         <Power className="h-3 w-3 mr-1" />
                         项目启用
                       </Badge>
                     </div>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {mcpDesc.description}
-                    </p>
+                    <p className="text-xs text-muted-foreground truncate">{mcpDesc.description}</p>
                   </div>
                 </div>
                 <Button
@@ -651,11 +749,7 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
                   disabled={savingId === server.id}
                   className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
                 >
-                  {savingId === server.id ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    '移除'
-                  )}
+                  {savingId === server.id ? <Loader2 className="h-4 w-4 animate-spin" /> : "移除"}
                 </Button>
               </motion.div>
             );
@@ -682,7 +776,11 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
         </DialogHeader>
 
         <div className="flex-1 overflow-hidden">
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'recommend' | 'project' | 'global')} className="h-full flex flex-col">
+          <Tabs
+            value={activeTab}
+            onValueChange={(v) => setActiveTab(v as "recommend" | "project" | "global")}
+            className="h-full flex flex-col"
+          >
             <TabsList className="grid w-full max-w-md grid-cols-3 mb-4">
               <TabsTrigger value="recommend" className="gap-2">
                 <Sparkles className="h-4 w-4" />
@@ -717,12 +815,7 @@ export const ProjectMCPQuickConfig: React.FC<ProjectMCPQuickConfigProps> = ({
             配置保存到项目根目录的 <code className="bg-muted px-1 rounded">.mcp.json</code>
           </div>
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={reloadProjectConfig}
-              className="gap-1"
-            >
+            <Button variant="outline" size="sm" onClick={reloadProjectConfig} className="gap-1">
               <RefreshCw className="h-3 w-3" />
               刷新
             </Button>

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Network } from 'lucide-react';
+import { ArrowLeft, Network } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -26,10 +26,7 @@ interface MCPManagerProps {
  * 为 Claude、Codex、Gemini 三个引擎提供完全独立的 MCP 工具管理界面
  * 每个引擎有自己的工具列表，互不干扰
  */
-export const MCPManager: React.FC<MCPManagerProps> = ({
-  onBack,
-  className,
-}) => {
+export const MCPManager: React.FC<MCPManagerProps> = ({ onBack, className }) => {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<"claude" | "codex" | "gemini">("claude");
 
@@ -49,18 +46,16 @@ export const MCPManager: React.FC<MCPManagerProps> = ({
               size="icon"
               onClick={onBack}
               className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-              aria-label={t('buttons.back')}
+              aria-label={t("buttons.back")}
             >
               <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             </Button>
             <div>
               <h2 className="text-lg font-semibold flex items-center gap-2">
                 <Network className="h-5 w-5 text-blue-500" />
-                {t('mcp.servers')} - 多引擎独立管理
+                {t("mcp.servers")} - 多引擎独立管理
               </h2>
-              <p className="text-xs text-muted-foreground">
-                为每个引擎独立配置 MCP 工具
-              </p>
+              <p className="text-xs text-muted-foreground">为每个引擎独立配置 MCP 工具</p>
             </div>
           </div>
         </motion.div>
@@ -121,4 +116,4 @@ export const MCPManager: React.FC<MCPManagerProps> = ({
       </div>
     </div>
   );
-}; 
+};

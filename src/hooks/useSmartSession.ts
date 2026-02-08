@@ -5,7 +5,7 @@
  * 支持在首次对话时自动创建项目文件夹并命名会话
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { useCallback, useRef } from "react";
 import { useTabs } from "./useTabs";
 
@@ -62,13 +62,16 @@ export function useSmartSession(tabId: string): UseSmartSessionReturn {
 
       // 如果不是智能模式，返回 null（需要用户手动选择）
       if (!isSmartMode) {
-        logger.warn('useSmartSession', "[useSmartSession] No projectPath and not in smart mode");
+        logger.warn("useSmartSession", "[useSmartSession] No projectPath and not in smart mode");
         return null;
       }
 
       // 防止重复升级
       if (upgradeInProgressRef.current) {
-        logger.debug('useSmartSession', "[useSmartSession] Upgrade already in progress, waiting...");
+        logger.debug(
+          "useSmartSession",
+          "[useSmartSession] Upgrade already in progress, waiting..."
+        );
         // 等待升级完成
         await new Promise<void>((resolve) => {
           const checkInterval = setInterval(() => {
@@ -83,26 +86,30 @@ export function useSmartSession(tabId: string): UseSmartSessionReturn {
 
       try {
         upgradeInProgressRef.current = true;
-        logger.debug('useSmartSession', 'Upgrading smart session with message:', firstMessage.substring(0, 50));
+        logger.debug(
+          "useSmartSession",
+          "Upgrading smart session with message:",
+          firstMessage.substring(0, 50)
+        );
 
         const result = await upgradeSmartSession(tabId, firstMessage);
 
         if (result) {
-          logger.debug('useSmartSession', "[useSmartSession] Smart session upgraded:", result);
+          logger.debug("useSmartSession", "[useSmartSession] Smart session upgraded:", result);
           upgradedPathRef.current = result.projectPath;
           return result.projectPath;
         } else {
-          logger.error('useSmartSession', "[useSmartSession] Failed to upgrade smart session");
+          logger.error("useSmartSession", "[useSmartSession] Failed to upgrade smart session");
           return null;
         }
       } catch (error) {
-        logger.error('useSmartSession', "[useSmartSession] Error upgrading smart session:", error);
+        logger.error("useSmartSession", "[useSmartSession] Error upgrading smart session:", error);
         return null;
       } finally {
         upgradeInProgressRef.current = false;
       }
     },
-    [tabId, projectPath, isSmartMode, upgradeSmartSession],
+    [tabId, projectPath, isSmartMode, upgradeSmartSession]
   );
 
   return {

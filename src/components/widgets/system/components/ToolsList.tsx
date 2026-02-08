@@ -5,8 +5,28 @@
  */
 
 import React from "react";
-import { Wrench, CheckSquare, Terminal, FolderSearch, Search, List, LogOut, FileText, Edit3, FilePlus, Book, BookOpen, Globe, ListChecks, ListPlus, Globe2, Package, Package2, ChevronDown } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+import {
+  Wrench,
+  CheckSquare,
+  Terminal,
+  FolderSearch,
+  Search,
+  List,
+  LogOut,
+  FileText,
+  Edit3,
+  FilePlus,
+  Book,
+  BookOpen,
+  Globe,
+  ListChecks,
+  ListPlus,
+  Globe2,
+  Package,
+  Package2,
+  ChevronDown,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -21,25 +41,25 @@ export interface ToolsListProps {
 
 // 工具图标映射
 const toolIcons: Record<string, LucideIcon> = {
-  'task': CheckSquare,
-  'bash': Terminal,
-  'glob': FolderSearch,
-  'grep': Search,
-  'ls': List,
-  'exit_plan_mode': LogOut,
-  'exitplanmode': LogOut,
-  'enter_plan_mode': Search,
-  'enterplanmode': Search,
-  'read': FileText,
-  'edit': Edit3,
-  'multiedit': Edit3,
-  'write': FilePlus,
-  'notebookread': Book,
-  'notebookedit': BookOpen,
-  'webfetch': Globe,
-  'todoread': ListChecks,
-  'todowrite': ListPlus,
-  'websearch': Globe2,
+  task: CheckSquare,
+  bash: Terminal,
+  glob: FolderSearch,
+  grep: Search,
+  ls: List,
+  exit_plan_mode: LogOut,
+  exitplanmode: LogOut,
+  enter_plan_mode: Search,
+  enterplanmode: Search,
+  read: FileText,
+  edit: Edit3,
+  multiedit: Edit3,
+  write: FilePlus,
+  notebookread: Book,
+  notebookedit: BookOpen,
+  webfetch: Globe,
+  todoread: ListChecks,
+  todowrite: ListPlus,
+  websearch: Globe2,
 };
 
 /**
@@ -54,58 +74,59 @@ const getToolIcon = (toolName: string): LucideIcon => {
  * 格式化 MCP 工具名称
  */
 const formatMcpToolName = (toolName: string) => {
-  const withoutPrefix = toolName.replace(/^mcp__/, '');
-  const parts = withoutPrefix.split('__');
+  const withoutPrefix = toolName.replace(/^mcp__/, "");
+  const parts = withoutPrefix.split("__");
 
   if (parts.length >= 2) {
-    const provider = parts[0].replace(/_/g, ' ').replace(/-/g, ' ')
-      .split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-    const method = parts.slice(1).join('__').replace(/_/g, ' ')
-      .split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
+    const provider = parts[0]
+      .replace(/_/g, " ")
+      .replace(/-/g, " ")
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+    const method = parts
+      .slice(1)
+      .join("__")
+      .replace(/_/g, " ")
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
     return { provider, method };
   }
 
   return {
-    provider: 'MCP',
-    method: withoutPrefix.replace(/_/g, ' ')
-      .split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ')
+    provider: "MCP",
+    method: withoutPrefix
+      .replace(/_/g, " ")
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" "),
   };
 };
 
 /**
  * 工具列表展示组件
  */
-export const ToolsList: React.FC<ToolsListProps> = ({
-  tools,
-  mcpExpanded,
-  onMcpToggle,
-}) => {
+export const ToolsList: React.FC<ToolsListProps> = ({ tools, mcpExpanded, onMcpToggle }) => {
   // 分离常规工具和 MCP 工具
-  const regularTools = tools.filter(tool => !tool.startsWith('mcp__'));
-  const mcpTools = tools.filter(tool => tool.startsWith('mcp__'));
+  const regularTools = tools.filter((tool) => !tool.startsWith("mcp__"));
+  const mcpTools = tools.filter((tool) => tool.startsWith("mcp__"));
 
   // 按提供商分组 MCP 工具
-  const mcpToolsByProvider = mcpTools.reduce((acc, tool) => {
-    const { provider } = formatMcpToolName(tool);
-    if (!acc[provider]) {
-      acc[provider] = [];
-    }
-    acc[provider].push(tool);
-    return acc;
-  }, {} as Record<string, string[]>);
+  const mcpToolsByProvider = mcpTools.reduce(
+    (acc, tool) => {
+      const { provider } = formatMcpToolName(tool);
+      if (!acc[provider]) {
+        acc[provider] = [];
+      }
+      acc[provider].push(tool);
+      return acc;
+    },
+    {} as Record<string, string[]>
+  );
 
   if (tools.length === 0) {
-    return (
-      <div className="text-xs text-muted-foreground italic">
-        无工具可用
-      </div>
-    );
+    return <div className="text-xs text-muted-foreground italic">无工具可用</div>;
   }
 
   return (
@@ -146,10 +167,9 @@ export const ToolsList: React.FC<ToolsListProps> = ({
           >
             <Package className="h-3.5 w-3.5" />
             <span>MCP Services ({mcpTools.length})</span>
-            <ChevronDown className={cn(
-              "h-3 w-3 transition-transform",
-              mcpExpanded && "rotate-180"
-            )} />
+            <ChevronDown
+              className={cn("h-3 w-3 transition-transform", mcpExpanded && "rotate-180")}
+            />
           </button>
 
           {mcpExpanded && (

@@ -6,7 +6,7 @@
  */
 
 import React from "react";
-import { Terminal } from 'lucide-react';
+import { Terminal } from "lucide-react";
 
 export interface CommandWidgetProps {
   /** 命令名称 */
@@ -39,9 +39,13 @@ export const CommandWidget: React.FC<CommandWidgetProps> = ({
       <div className="p-3 space-y-1">
         <div className="flex items-center gap-2">
           <span className="text-xs text-green-600 dark:text-green-400">$</span>
-          <code className="text-sm font-mono text-green-600 dark:text-green-300">{commandName}</code>
+          <code className="text-sm font-mono text-green-600 dark:text-green-300">
+            {commandName}
+          </code>
           {commandArgs && (
-            <code className="text-sm font-mono text-zinc-600 dark:text-zinc-300">{commandArgs}</code>
+            <code className="text-sm font-mono text-zinc-600 dark:text-zinc-300">
+              {commandArgs}
+            </code>
           )}
         </div>
 

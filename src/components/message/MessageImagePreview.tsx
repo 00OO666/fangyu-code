@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { X, ZoomIn, ZoomOut, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, ZoomIn, ZoomOut, ChevronLeft, ChevronRight } from "lucide-react";
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -171,7 +171,7 @@ const ImageLightbox: React.FC<ImageLightboxProps> = ({
             setScale((s) => Math.max(s - 0.25, 0.5));
           }}
           className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/20 text-white transition-colors"
-          title={t('imagePreview.zoomOut')}
+          title={t("imagePreview.zoomOut")}
         >
           <ZoomOut className="h-4 w-4" />
         </button>
@@ -184,7 +184,7 @@ const ImageLightbox: React.FC<ImageLightboxProps> = ({
             setScale((s) => Math.min(s + 0.25, 5));
           }}
           className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/20 text-white transition-colors"
-          title={t('imagePreview.zoomIn')}
+          title={t("imagePreview.zoomIn")}
         >
           <ZoomIn className="h-4 w-4" />
         </button>
@@ -199,7 +199,7 @@ const ImageLightbox: React.FC<ImageLightboxProps> = ({
       <button
         onClick={onClose}
         className="absolute top-4 right-4 w-10 h-10 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center transition-colors"
-        title={t('imagePreview.close')}
+        title={t("imagePreview.close")}
       >
         <X className="h-5 w-5" />
       </button>
@@ -220,7 +220,7 @@ const ImageLightbox: React.FC<ImageLightboxProps> = ({
       >
         <img
           src={getImageSrc(currentImage)}
-          alt={t('imagePreview.image', { index: currentIndex + 1 })}
+          alt={t("imagePreview.image", { index: currentIndex + 1 })}
           className="max-w-[90vw] max-h-[85vh] object-contain rounded-lg shadow-2xl select-none"
           style={{
             transform: `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px)`,
@@ -239,7 +239,7 @@ const ImageLightbox: React.FC<ImageLightboxProps> = ({
               onNavigate((currentIndex - 1 + images.length) % images.length);
             }}
             className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center transition-colors"
-            title={t('imagePreview.prevImage')}
+            title={t("imagePreview.prevImage")}
           >
             <ChevronLeft className="h-6 w-6" />
           </button>
@@ -249,7 +249,7 @@ const ImageLightbox: React.FC<ImageLightboxProps> = ({
               onNavigate((currentIndex + 1) % images.length);
             }}
             className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center transition-colors"
-            title={t('imagePreview.nextImage')}
+            title={t("imagePreview.nextImage")}
           >
             <ChevronRight className="h-6 w-6" />
           </button>
@@ -275,7 +275,7 @@ const ImageLightbox: React.FC<ImageLightboxProps> = ({
             >
               <img
                 src={getImageSrc(image)}
-                alt={t('imagePreview.thumbnail', { index: index + 1 })}
+                alt={t("imagePreview.thumbnail", { index: index + 1 })}
                 className="w-full h-full object-cover"
               />
             </button>
@@ -326,12 +326,14 @@ export const MessageImagePreview: React.FC<MessageImagePreviewProps> = ({
     <>
       {/* 紧凑模式：独立子气泡样式 */}
       {compact ? (
-        <div className={cn(
-          "inline-flex items-center gap-1.5 px-2 py-1.5 rounded-lg",
-          "bg-gradient-to-br from-slate-100/90 to-slate-200/90 dark:from-slate-700/90 dark:to-slate-800/90",
-          "border border-slate-200/50 dark:border-slate-600/50 shadow-sm",
-          className
-        )}>
+        <div
+          className={cn(
+            "inline-flex items-center gap-1.5 px-2 py-1.5 rounded-lg",
+            "bg-gradient-to-br from-slate-100/90 to-slate-200/90 dark:from-slate-700/90 dark:to-slate-800/90",
+            "border border-slate-200/50 dark:border-slate-600/50 shadow-sm",
+            className
+          )}
+        >
           {images.map((image, index) => (
             <motion.div
               key={index}
@@ -347,12 +349,14 @@ export const MessageImagePreview: React.FC<MessageImagePreviewProps> = ({
               >
                 {imageErrors.has(index) ? (
                   <div className="w-full h-full bg-slate-300 dark:bg-slate-600 flex items-center justify-center">
-                    <span className="text-[10px] text-slate-500 dark:text-slate-400">{t('imagePreview.error')}</span>
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400">
+                      {t("imagePreview.error")}
+                    </span>
                   </div>
                 ) : (
                   <img
                     src={getImageSrc(image)}
-                    alt={t('imagePreview.image', { index: index + 1 })}
+                    alt={t("imagePreview.image", { index: index + 1 })}
                     className="w-full h-full object-cover"
                     onError={() => handleImageError(index)}
                     loading="lazy"
@@ -368,7 +372,7 @@ export const MessageImagePreview: React.FC<MessageImagePreviewProps> = ({
           {/* 图片数量提示 */}
           {images.length > 1 && (
             <span className="text-[10px] text-slate-500 dark:text-slate-400 ml-0.5">
-              {t('imagePreview.imageCount', { count: images.length })}
+              {t("imagePreview.imageCount", { count: images.length })}
             </span>
           )}
         </div>
@@ -381,7 +385,10 @@ export const MessageImagePreview: React.FC<MessageImagePreviewProps> = ({
             images.length === 2 && "grid-cols-2",
             images.length >= 3 && "grid-cols-3"
           )}
-          style={{ maxWidth: actualSize * Math.min(images.length, 3) + (Math.min(images.length, 3) - 1) * 8 }}
+          style={{
+            maxWidth:
+              actualSize * Math.min(images.length, 3) + (Math.min(images.length, 3) - 1) * 8,
+          }}
         >
           <AnimatePresence>
             {images.map((image, index) => (
@@ -407,12 +414,14 @@ export const MessageImagePreview: React.FC<MessageImagePreviewProps> = ({
                 >
                   {imageErrors.has(index) ? (
                     <div className="w-full h-full bg-muted flex items-center justify-center">
-                      <span className="text-xs text-muted-foreground">{t('imagePreview.loadFailed')}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {t("imagePreview.loadFailed")}
+                      </span>
                     </div>
                   ) : (
                     <img
                       src={getImageSrc(image)}
-                      alt={t('imagePreview.image', { index: index + 1 })}
+                      alt={t("imagePreview.image", { index: index + 1 })}
                       className="w-full h-full object-cover"
                       onError={() => handleImageError(index)}
                       loading="lazy"
@@ -487,14 +496,14 @@ export const extractImagesFromContent = (content: any[]): MessageImage[] => {
 /**
  * 图片文件扩展名列表
  */
-const IMAGE_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.svg'];
+const IMAGE_EXTENSIONS = [".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".svg"];
 
 /**
  * 检查路径是否是图片文件
  */
 const isImagePath = (path: string): boolean => {
   const lowerPath = path.toLowerCase();
-  return IMAGE_EXTENSIONS.some(ext => lowerPath.endsWith(ext));
+  return IMAGE_EXTENSIONS.some((ext) => lowerPath.endsWith(ext));
 };
 
 /**
@@ -508,7 +517,9 @@ const isImagePath = (path: string): boolean => {
  * @param text 消息文本
  * @returns { images: 图片数组, cleanText: 移除图片路径后的文本 }
  */
-export const extractImagePathsFromText = (text: string): { images: MessageImage[]; cleanText: string } => {
+export const extractImagePathsFromText = (
+  text: string
+): { images: MessageImage[]; cleanText: string } => {
   if (!text) return { images: [], cleanText: text };
 
   const images: MessageImage[] = [];
@@ -530,7 +541,7 @@ export const extractImagePathsFromText = (text: string): { images: MessageImage[
         sourceType: "file",
         data: path,
       });
-      cleanText = cleanText.replace(match[0], '');
+      cleanText = cleanText.replace(match[0], "");
     }
   }
 
@@ -548,7 +559,7 @@ export const extractImagePathsFromText = (text: string): { images: MessageImage[
           sourceType: "file",
           data: path,
         });
-        cleanText = cleanText.replace(fullMatch, '');
+        cleanText = cleanText.replace(fullMatch, "");
       }
     }
   }
@@ -567,7 +578,7 @@ export const extractImagePathsFromText = (text: string): { images: MessageImage[
           sourceType: "file",
           data: path,
         });
-        cleanText = cleanText.replace(fullMatch, '');
+        cleanText = cleanText.replace(fullMatch, "");
       }
     }
   }
@@ -586,15 +597,15 @@ export const extractImagePathsFromText = (text: string): { images: MessageImage[
           sourceType: "file",
           data: path,
         });
-        cleanText = cleanText.replace(path, '');
+        cleanText = cleanText.replace(path, "");
       }
     }
   }
 
   // 清理多余的空格（保留换行符）
   cleanText = cleanText
-    .replace(/[^\S\n]+/g, ' ')  // 只替换非换行的空白字符为单个空格
-    .replace(/ *\n */g, '\n')   // 清理换行符两边的空格
+    .replace(/[^\S\n]+/g, " ") // 只替换非换行的空白字符为单个空格
+    .replace(/ *\n */g, "\n") // 清理换行符两边的空格
     .trim();
 
   return { images, cleanText };

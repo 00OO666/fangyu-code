@@ -1,4 +1,4 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import { useCallback, useEffect, useState } from "react";
 import { api } from "@/lib/api";
@@ -68,7 +68,7 @@ interface UseAutoCompactStatusOptions {
  * and provides API methods for manual status queries.
  */
 export const useAutoCompactStatus = (
-  options: UseAutoCompactStatusOptions = {},
+  options: UseAutoCompactStatusOptions = {}
 ): AutoCompactStatus & {
   refresh: () => Promise<void>;
 } => {
@@ -122,11 +122,15 @@ export const useAutoCompactStatus = (
           }
         } catch (e) {
           // Session might not be registered yet
-          logger.debug('useAutoCompactStatus', "Session not found in auto-compact monitoring:", sessionId);
+          logger.debug(
+            "useAutoCompactStatus",
+            "Session not found in auto-compact monitoring:",
+            sessionId
+          );
         }
       }
     } catch (error) {
-      logger.warn('useAutoCompactStatus', "Failed to fetch auto-compact status:", error);
+      logger.warn("useAutoCompactStatus", "Failed to fetch auto-compact status:", error);
     }
   }, [sessionId]);
 
@@ -178,7 +182,7 @@ export const useAutoCompactStatus = (
           }
         });
       } catch (error) {
-        logger.warn('useAutoCompactStatus', "Failed to setup auto-compact event listener:", error);
+        logger.warn("useAutoCompactStatus", "Failed to setup auto-compact event listener:", error);
       }
     };
 

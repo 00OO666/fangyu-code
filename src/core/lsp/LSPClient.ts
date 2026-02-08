@@ -8,15 +8,10 @@
  * 4. 提供类型安全的接口
  */
 
-import { RealLSPClient } from '../tools/LSPAutoLoader';
-import {
-  Position,
-  Location,
-  HoverInfo,
-  Diagnostic,
-} from '../types/unified-agent';
-import { CompletionItem, WorkspaceEdit } from '../tools/LSPTools';
-import { logger } from '@/lib/logger';
+import { RealLSPClient } from "../tools/LSPAutoLoader";
+import { Position, Location, HoverInfo, Diagnostic } from "../types/unified-agent";
+import { CompletionItem, WorkspaceEdit } from "../tools/LSPTools";
+import { logger } from "@/lib/logger";
 
 // 缓存配置
 const CACHE_TTL = 5000; // 5秒缓存过期时间
@@ -61,7 +56,7 @@ export class LSPClient {
     if (!entry) return false;
 
     const now = Date.now();
-    return (now - entry.timestamp) < CACHE_TTL;
+    return now - entry.timestamp < CACHE_TTL;
   }
 
   /**
@@ -101,7 +96,7 @@ export class LSPClient {
     this.referencesCache.clear();
     this.diagnosticsCache.clear();
     this.completionCache.clear();
-    logger.debug('LSPClient', 'All caches cleared');
+    logger.debug("LSPClient", "All caches cleared");
   }
 
   /**
@@ -130,7 +125,7 @@ export class LSPClient {
         this.completionCache.delete(key);
       }
     }
-    logger.debug('LSPClient', `Cache cleared for file: ${file}`);
+    logger.debug("LSPClient", `Cache cleared for file: ${file}`);
   }
 
   /**
@@ -142,7 +137,7 @@ export class LSPClient {
     // 检查缓存
     const cached = this.getCachedData(this.hoverCache, cacheKey);
     if (cached !== null) {
-      logger.debug('LSPClient', `Hover cache hit: ${cacheKey}`);
+      logger.debug("LSPClient", `Hover cache hit: ${cacheKey}`);
       return cached;
     }
 
@@ -152,7 +147,7 @@ export class LSPClient {
       this.setCachedData(this.hoverCache, cacheKey, result);
       return result;
     } catch (error) {
-      logger.error('LSPClient', 'Hover failed:', error);
+      logger.error("LSPClient", "Hover failed:", error);
       return null;
     }
   }
@@ -166,7 +161,7 @@ export class LSPClient {
     // 检查缓存
     const cached = this.getCachedData(this.definitionCache, cacheKey);
     if (cached !== null) {
-      logger.debug('LSPClient', `Definition cache hit: ${cacheKey}`);
+      logger.debug("LSPClient", `Definition cache hit: ${cacheKey}`);
       return cached;
     }
 
@@ -176,7 +171,7 @@ export class LSPClient {
       this.setCachedData(this.definitionCache, cacheKey, result);
       return result;
     } catch (error) {
-      logger.error('LSPClient', 'Go to definition failed:', error);
+      logger.error("LSPClient", "Go to definition failed:", error);
       return null;
     }
   }
@@ -190,7 +185,7 @@ export class LSPClient {
     // 检查缓存
     const cached = this.getCachedData(this.referencesCache, cacheKey);
     if (cached !== null) {
-      logger.debug('LSPClient', `References cache hit: ${cacheKey}`);
+      logger.debug("LSPClient", `References cache hit: ${cacheKey}`);
       return cached;
     }
 
@@ -200,7 +195,7 @@ export class LSPClient {
       this.setCachedData(this.referencesCache, cacheKey, result);
       return result;
     } catch (error) {
-      logger.error('LSPClient', 'Find references failed:', error);
+      logger.error("LSPClient", "Find references failed:", error);
       return [];
     }
   }
@@ -216,7 +211,7 @@ export class LSPClient {
       this.clearCache();
       return result;
     } catch (error) {
-      logger.error('LSPClient', 'Rename failed:', error);
+      logger.error("LSPClient", "Rename failed:", error);
       return null;
     }
   }
@@ -230,7 +225,7 @@ export class LSPClient {
     // 检查缓存
     const cached = this.getCachedData(this.diagnosticsCache, cacheKey);
     if (cached !== null) {
-      logger.debug('LSPClient', `Diagnostics cache hit: ${cacheKey}`);
+      logger.debug("LSPClient", `Diagnostics cache hit: ${cacheKey}`);
       return cached;
     }
 
@@ -240,7 +235,7 @@ export class LSPClient {
       this.setCachedData(this.diagnosticsCache, cacheKey, result);
       return result;
     } catch (error) {
-      logger.error('LSPClient', 'Get diagnostics failed:', error);
+      logger.error("LSPClient", "Get diagnostics failed:", error);
       return [];
     }
   }
@@ -254,7 +249,7 @@ export class LSPClient {
     // 检查缓存
     const cached = this.getCachedData(this.completionCache, cacheKey);
     if (cached !== null) {
-      logger.debug('LSPClient', `Completion cache hit: ${cacheKey}`);
+      logger.debug("LSPClient", `Completion cache hit: ${cacheKey}`);
       return cached;
     }
 
@@ -264,7 +259,7 @@ export class LSPClient {
       this.setCachedData(this.completionCache, cacheKey, result);
       return result;
     } catch (error) {
-      logger.error('LSPClient', 'Completion failed:', error);
+      logger.error("LSPClient", "Completion failed:", error);
       return [];
     }
   }
@@ -279,9 +274,12 @@ export class LSPClient {
       references: this.referencesCache.size,
       diagnostics: this.diagnosticsCache.size,
       completion: this.completionCache.size,
-      total: this.hoverCache.size + this.definitionCache.size +
-             this.referencesCache.size + this.diagnosticsCache.size +
-             this.completionCache.size,
+      total:
+        this.hoverCache.size +
+        this.definitionCache.size +
+        this.referencesCache.size +
+        this.diagnosticsCache.size +
+        this.completionCache.size,
     };
   }
 }

@@ -8,7 +8,7 @@
  * - 双击重置位置
  */
 
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef } from "react";
 
 // ============================================================
 // 类型定义
@@ -68,7 +68,7 @@ function loadPosition(key: string): Position | null {
     const saved = localStorage.getItem(key);
     if (saved) {
       const parsed = JSON.parse(saved);
-      if (typeof parsed.x === 'number' && typeof parsed.y === 'number') {
+      if (typeof parsed.x === "number" && typeof parsed.y === "number") {
         return parsed;
       }
     }
@@ -126,7 +126,7 @@ function getDefaultPosition(
 export function useDraggable(options: DraggableOptions = {}): DraggableResult {
   const {
     defaultPosition,
-    storageKey = 'fangyu-draggable-position',
+    storageKey = "fangyu-draggable-position",
     constrainToViewport = true,
     panelSize = DEFAULT_PANEL_SIZE,
     margin = DEFAULT_MARGIN,
@@ -138,9 +138,7 @@ export function useDraggable(options: DraggableOptions = {}): DraggableResult {
     const saved = loadPosition(storageKey);
     if (saved) {
       // 确保保存的位置仍在视口内
-      return constrainToViewport
-        ? constrainPosition(saved, panelSize, margin)
-        : saved;
+      return constrainToViewport ? constrainPosition(saved, panelSize, margin) : saved;
     }
 
     // 2. 使用提供的默认位置
@@ -253,12 +251,12 @@ export function useDraggable(options: DraggableOptions = {}): DraggableResult {
   // 监听全局鼠标事件
   useEffect(() => {
     if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
+      window.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("mouseup", handleMouseUp);
 
       return () => {
-        window.removeEventListener('mousemove', handleMouseMove);
-        window.removeEventListener('mouseup', handleMouseUp);
+        window.removeEventListener("mousemove", handleMouseMove);
+        window.removeEventListener("mouseup", handleMouseUp);
       };
     }
   }, [isDragging, handleMouseMove, handleMouseUp]);
@@ -271,8 +269,8 @@ export function useDraggable(options: DraggableOptions = {}): DraggableResult {
       }
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, [constrainToViewport, panelSize, margin]);
 
   // 🆕 监听 panelSize 变化，重新约束位置（用于最小化/展开切换）
@@ -289,8 +287,8 @@ export function useDraggable(options: DraggableOptions = {}): DraggableResult {
       onMouseDown: handleMouseDown,
       onDoubleClick: handleDoubleClick,
       style: {
-        cursor: isDragging ? 'move' : 'move',
-        userSelect: 'none' as const,
+        cursor: isDragging ? "move" : "move",
+        userSelect: "none" as const,
       },
     },
     resetPosition,

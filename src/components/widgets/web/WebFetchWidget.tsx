@@ -5,9 +5,9 @@
  * 用于展示网页获取操作和内容预览
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import React, { useState } from "react";
-import { Globe, FileText, ChevronRight, Info, AlertCircle } from 'lucide-react';
+import { Globe, FileText, ChevronRight, Info, AlertCircle } from "lucide-react";
 import { open } from "@tauri-apps/plugin-shell";
 import { cn } from "@/lib/utils";
 
@@ -29,46 +29,44 @@ export interface WebFetchWidgetProps {
  * - 内容预览和展开
  * - 错误处理
  */
-export const WebFetchWidget: React.FC<WebFetchWidgetProps> = ({
-  url,
-  prompt,
-  result,
-}) => {
+export const WebFetchWidget: React.FC<WebFetchWidgetProps> = ({ url, prompt, result }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isContentExpanded, setIsContentExpanded] = useState(false);
 
   // 提取结果内容
-  let fetchedContent = '';
+  let fetchedContent = "";
   let isLoading = !result;
   let hasError = false;
 
   if (result) {
-    if (typeof result.content === 'string') {
+    if (typeof result.content === "string") {
       fetchedContent = result.content;
-    } else if (result.content && typeof result.content === 'object') {
+    } else if (result.content && typeof result.content === "object") {
       if (result.content.text) {
         fetchedContent = result.content.text;
       } else if (Array.isArray(result.content)) {
         fetchedContent = result.content
-          .map((c: any) => (typeof c === 'string' ? c : c.text || JSON.stringify(c)))
-          .join('\n');
+          .map((c: any) => (typeof c === "string" ? c : c.text || JSON.stringify(c)))
+          .join("\n");
       } else {
         fetchedContent = JSON.stringify(result.content, null, 2);
       }
     }
 
     // 检查是否有错误
-    hasError = result.is_error ||
-               fetchedContent.toLowerCase().includes('error') ||
-               fetchedContent.toLowerCase().includes('failed');
+    hasError =
+      result.is_error ||
+      fetchedContent.toLowerCase().includes("error") ||
+      fetchedContent.toLowerCase().includes("failed");
   }
 
   // 内容截断（预览模式）
   const maxPreviewLength = 500;
   const isTruncated = fetchedContent.length > maxPreviewLength;
-  const previewContent = isTruncated && !isContentExpanded
-    ? fetchedContent.substring(0, maxPreviewLength) + '...'
-    : fetchedContent;
+  const previewContent =
+    isTruncated && !isContentExpanded
+      ? fetchedContent.substring(0, maxPreviewLength) + "..."
+      : fetchedContent;
 
   // 从 URL 提取域名
   const getDomain = (urlString: string) => {
@@ -85,7 +83,7 @@ export const WebFetchWidget: React.FC<WebFetchWidgetProps> = ({
     try {
       await open(url);
     } catch (error) {
-      logger.error('WebFetchWidget', 'Failed to open URL:', error);
+      logger.error("WebFetchWidget", "Failed to open URL:", error);
     }
   };
 
@@ -96,7 +94,9 @@ export const WebFetchWidget: React.FC<WebFetchWidgetProps> = ({
         {/* URL 显示 */}
         <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-purple-500/5 border border-purple-500/10">
           <Globe className="h-4 w-4 text-purple-500/70" />
-          <span className="text-xs font-medium uppercase tracking-wider text-purple-600/70 dark:text-purple-400/70">获取中</span>
+          <span className="text-xs font-medium uppercase tracking-wider text-purple-600/70 dark:text-purple-400/70">
+            获取中
+          </span>
           <button
             onClick={handleUrlClick}
             className="text-sm text-foreground/80 hover:text-foreground flex-1 truncate text-left hover:underline decoration-purple-500/50"
@@ -112,16 +112,16 @@ export const WebFetchWidget: React.FC<WebFetchWidgetProps> = ({
               onClick={() => setIsExpanded(!isExpanded)}
               className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
-              <ChevronRight className={cn("h-3 w-3 transition-transform", isExpanded && "rotate-90")} />
+              <ChevronRight
+                className={cn("h-3 w-3 transition-transform", isExpanded && "rotate-90")}
+              />
               <Info className="h-3 w-3" />
               <span>分析提示</span>
             </button>
 
             {isExpanded && (
               <div className="rounded-lg border bg-muted/30 p-3 ml-4">
-                <p className="text-sm text-foreground/90">
-                  {prompt}
-                </p>
+                <p className="text-sm text-foreground/90">{prompt}</p>
               </div>
             )}
           </div>
@@ -169,8 +169,13 @@ export const WebFetchWidget: React.FC<WebFetchWidgetProps> = ({
                     onClick={() => setIsContentExpanded(!isContentExpanded)}
                     className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    <ChevronRight className={cn("h-3 w-3 transition-transform", isContentExpanded && "rotate-90")} />
-                    <span>{isContentExpanded ? '收起' : '展开'}</span>
+                    <ChevronRight
+                      className={cn(
+                        "h-3 w-3 transition-transform",
+                        isContentExpanded && "rotate-90"
+                      )}
+                    />
+                    <span>{isContentExpanded ? "收起" : "展开"}</span>
                   </button>
                 )}
               </div>

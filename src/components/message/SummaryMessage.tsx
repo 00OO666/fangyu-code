@@ -33,12 +33,15 @@ export const SummaryMessage: React.FC<SummaryMessageProps> = ({ message, classNa
   }
 
   return (
-    <div className={cn("my-4 rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-primary", className)}>
+    <div
+      className={cn(
+        "my-4 rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-primary",
+        className
+      )}
+    >
       {summary}
     </div>
   );
 };
 
 SummaryMessage.displayName = "SummaryMessage";
-
-

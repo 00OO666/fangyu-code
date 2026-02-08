@@ -103,12 +103,7 @@ export const SessionGridView: React.FC<SessionGridViewProps> = ({ className }) =
       <div className="flex-1 overflow-auto p-4 bg-gray-50">
         {sessions.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-gray-400">
-            <svg
-              className="w-16 h-16 mb-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg className="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"

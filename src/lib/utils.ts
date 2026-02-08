@@ -118,9 +118,8 @@ export interface ValidatableSession {
 export function isValidSession(session: ValidatableSession): boolean {
   return Boolean(
     session.id &&
-      session.id.trim() !== "" &&
-      ((session.first_message && session.first_message.trim() !== "") ||
-        session.engine === "codex"), // Codex 会话始终显示
+    session.id.trim() !== "" &&
+    ((session.first_message && session.first_message.trim() !== "") || session.engine === "codex") // Codex 会话始终显示
   );
 }
 
@@ -157,9 +156,9 @@ export interface ValidatableGeminiSession {
 export function isValidGeminiSession(session: ValidatableGeminiSession): boolean {
   return Boolean(
     session.sessionId &&
-      session.sessionId.trim() !== "" &&
-      session.firstMessage &&
-      session.firstMessage.trim() !== "",
+    session.sessionId.trim() !== "" &&
+    session.firstMessage &&
+    session.firstMessage.trim() !== ""
   );
 }
 

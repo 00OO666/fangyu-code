@@ -7,7 +7,7 @@
  * Gemini CLI 从 v0.1.59 (PR #8305) 开始支持非交互式模式下的斜杠命令
  */
 
-import type { SlashCommand } from './slashCommands';
+import type { SlashCommand } from "./slashCommands";
 
 /**
  * Gemini CLI 内置斜杠命令
@@ -23,51 +23,51 @@ export const GEMINI_BUILT_IN_SLASH_COMMANDS: SlashCommand[] = [
   // 会话管理 - Session Management
   // ============================================================================
   {
-    name: 'clear',
-    description: '清除当前会话历史',
-    source: 'built-in',
-    category: 'session',
+    name: "clear",
+    description: "清除当前会话历史",
+    source: "built-in",
+    category: "session",
     supportsNonInteractive: false,
   },
   {
-    name: 'compact',
-    description: '压缩会话上下文以释放 token',
-    source: 'built-in',
-    category: 'session',
+    name: "compact",
+    description: "压缩会话上下文以释放 token",
+    source: "built-in",
+    category: "session",
     supportsNonInteractive: true,
   },
   {
-    name: 'save',
-    description: '保存当前会话到文件',
-    source: 'built-in',
-    category: 'session',
+    name: "save",
+    description: "保存当前会话到文件",
+    source: "built-in",
+    category: "session",
     supportsNonInteractive: false,
-    argHint: '[filename]',
+    argHint: "[filename]",
   },
   {
-    name: 'load',
-    description: '加载已保存的会话',
-    source: 'built-in',
-    category: 'session',
+    name: "load",
+    description: "加载已保存的会话",
+    source: "built-in",
+    category: "session",
     supportsNonInteractive: false,
-    argHint: '<filename>',
+    argHint: "<filename>",
   },
 
   // ============================================================================
   // 统计和信息 - Stats & Info (支持非交互式)
   // ============================================================================
   {
-    name: 'stats',
-    description: '显示 Token 使用统计和配额信息',
-    source: 'built-in',
-    category: 'context',
+    name: "stats",
+    description: "显示 Token 使用统计和配额信息",
+    source: "built-in",
+    category: "context",
     supportsNonInteractive: true,
   },
   {
-    name: 'context',
-    description: '查看当前上下文使用情况',
-    source: 'built-in',
-    category: 'context',
+    name: "context",
+    description: "查看当前上下文使用情况",
+    source: "built-in",
+    category: "context",
     supportsNonInteractive: true,
   },
 
@@ -75,31 +75,31 @@ export const GEMINI_BUILT_IN_SLASH_COMMANDS: SlashCommand[] = [
   // 配置和设置 - Configuration
   // ============================================================================
   {
-    name: 'help',
-    description: '显示帮助信息',
-    source: 'built-in',
-    category: 'system',
+    name: "help",
+    description: "显示帮助信息",
+    source: "built-in",
+    category: "system",
     supportsNonInteractive: false,
   },
   {
-    name: 'settings',
-    description: '打开设置界面',
-    source: 'built-in',
-    category: 'config',
+    name: "settings",
+    description: "打开设置界面",
+    source: "built-in",
+    category: "config",
     supportsNonInteractive: false,
   },
   {
-    name: 'model',
-    description: '选择或更换 AI 模型',
-    source: 'built-in',
-    category: 'config',
+    name: "model",
+    description: "选择或更换 AI 模型",
+    source: "built-in",
+    category: "config",
     supportsNonInteractive: false,
   },
   {
-    name: 'tools',
-    description: '管理可用工具列表',
-    source: 'built-in',
-    category: 'config',
+    name: "tools",
+    description: "管理可用工具列表",
+    source: "built-in",
+    category: "config",
     supportsNonInteractive: false,
   },
 
@@ -107,17 +107,17 @@ export const GEMINI_BUILT_IN_SLASH_COMMANDS: SlashCommand[] = [
   // 扩展管理 - Extensions
   // ============================================================================
   {
-    name: 'extensions',
-    description: '管理 Gemini CLI 扩展',
-    source: 'built-in',
-    category: 'system',
+    name: "extensions",
+    description: "管理 Gemini CLI 扩展",
+    source: "built-in",
+    category: "system",
     supportsNonInteractive: false,
   },
   {
-    name: 'mcp',
-    description: '管理 MCP 服务器连接',
-    source: 'built-in',
-    category: 'system',
+    name: "mcp",
+    description: "管理 MCP 服务器连接",
+    source: "built-in",
+    category: "system",
     supportsNonInteractive: false,
   },
 
@@ -125,17 +125,17 @@ export const GEMINI_BUILT_IN_SLASH_COMMANDS: SlashCommand[] = [
   // 项目和代码 - Project & Code
   // ============================================================================
   {
-    name: 'init',
-    description: '初始化项目 GEMINI.md 配置',
-    source: 'built-in',
-    category: 'system',
+    name: "init",
+    description: "初始化项目 GEMINI.md 配置",
+    source: "built-in",
+    category: "system",
     supportsNonInteractive: true,
   },
   {
-    name: 'memory',
-    description: '编辑 GEMINI.md 记忆文件',
-    source: 'built-in',
-    category: 'system',
+    name: "memory",
+    description: "编辑 GEMINI.md 记忆文件",
+    source: "built-in",
+    category: "system",
     supportsNonInteractive: false,
   },
 
@@ -143,17 +143,17 @@ export const GEMINI_BUILT_IN_SLASH_COMMANDS: SlashCommand[] = [
   // 其他 - Misc
   // ============================================================================
   {
-    name: 'quit',
-    description: '退出 Gemini CLI',
-    source: 'built-in',
-    category: 'session',
+    name: "quit",
+    description: "退出 Gemini CLI",
+    source: "built-in",
+    category: "session",
     supportsNonInteractive: false,
   },
   {
-    name: 'version',
-    description: '显示版本信息',
-    source: 'built-in',
-    category: 'system',
+    name: "version",
+    description: "显示版本信息",
+    source: "built-in",
+    category: "system",
     supportsNonInteractive: true,
   },
 ];
@@ -162,7 +162,7 @@ export const GEMINI_BUILT_IN_SLASH_COMMANDS: SlashCommand[] = [
  * 获取支持非交互式模式的 Gemini 命令
  */
 export function getGeminiNonInteractiveCommands(): SlashCommand[] {
-  return GEMINI_BUILT_IN_SLASH_COMMANDS.filter(cmd => cmd.supportsNonInteractive);
+  return GEMINI_BUILT_IN_SLASH_COMMANDS.filter((cmd) => cmd.supportsNonInteractive);
 }
 
 /**

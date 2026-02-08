@@ -10,15 +10,29 @@
  * 来源: Claude Code Task Tool Visualization
  */
 
-import { logger } from '@/lib/logger';
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Users, GitBranch, Play, Pause, CheckCircle2, AlertCircle, Clock, Loader2, ChevronRight, Zap, Lock, RefreshCw, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { cn } from '@/lib/utils';
-import { api } from '@/lib/api';
+import { logger } from "@/lib/logger";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Users,
+  GitBranch,
+  Play,
+  Pause,
+  CheckCircle2,
+  AlertCircle,
+  Clock,
+  Loader2,
+  ChevronRight,
+  Zap,
+  Lock,
+  RefreshCw,
+  X,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { cn } from "@/lib/utils";
+import { api } from "@/lib/api";
 
 // ============================================================
 // 类型定义
@@ -35,7 +49,7 @@ interface AgentType {
   Custom?: string;
 }
 
-type AgentStatus = 'idle' | 'working' | 'waiting' | 'paused' | 'completed' | 'failed';
+type AgentStatus = "idle" | "working" | "waiting" | "paused" | "completed" | "failed";
 
 interface ParallelTask {
   id: string;
@@ -113,7 +127,7 @@ export function ParallelTasksView({ groupId, onClose, className }: ParallelTasks
       setGroup(groupData);
       setStats(statsData);
     } catch (error) {
-      logger.error('ParallelTasksView', '加载任务组失败:', error);
+      logger.error("ParallelTasksView", "加载任务组失败:", error);
     } finally {
       setLoading(false);
     }
@@ -132,46 +146,60 @@ export function ParallelTasksView({ groupId, onClose, className }: ParallelTasks
       await api.startParallelGroup(groupId);
       loadGroup();
     } catch (error) {
-      logger.error('ParallelTasksView', '启动任务组失败:', error);
+      logger.error("ParallelTasksView", "启动任务组失败:", error);
     }
   };
 
   // 获取代理类型显示名称
   const getAgentTypeName = (type: AgentType): string => {
-    if (type.General !== undefined) return '通用';
-    if (type.Coder !== undefined) return '编码';
-    if (type.Reviewer !== undefined) return '审查';
-    if (type.Tester !== undefined) return '测试';
-    if (type.Documenter !== undefined) return '文档';
-    if (type.Researcher !== undefined) return '研究';
-    if (type.Debugger !== undefined) return '调试';
+    if (type.General !== undefined) return "通用";
+    if (type.Coder !== undefined) return "编码";
+    if (type.Reviewer !== undefined) return "审查";
+    if (type.Tester !== undefined) return "测试";
+    if (type.Documenter !== undefined) return "文档";
+    if (type.Researcher !== undefined) return "研究";
+    if (type.Debugger !== undefined) return "调试";
     if (type.Custom) return type.Custom;
-    return '未知';
+    return "未知";
   };
 
   // 获取状态颜色
   const getStatusColor = (status: AgentStatus): string => {
     switch (status) {
-      case 'idle': return 'text-gray-500';
-      case 'working': return 'text-blue-500';
-      case 'waiting': return 'text-yellow-500';
-      case 'completed': return 'text-green-500';
-      case 'failed': return 'text-red-500';
-      case 'paused': return 'text-orange-500';
-      default: return 'text-gray-500';
+      case "idle":
+        return "text-gray-500";
+      case "working":
+        return "text-blue-500";
+      case "waiting":
+        return "text-yellow-500";
+      case "completed":
+        return "text-green-500";
+      case "failed":
+        return "text-red-500";
+      case "paused":
+        return "text-orange-500";
+      default:
+        return "text-gray-500";
     }
   };
 
   // 获取状态图标
   const getStatusIcon = (status: AgentStatus) => {
     switch (status) {
-      case 'idle': return Clock;
-      case 'working': return Loader2;
-      case 'waiting': return Pause;
-      case 'completed': return CheckCircle2;
-      case 'failed': return AlertCircle;
-      case 'paused': return Pause;
-      default: return Clock;
+      case "idle":
+        return Clock;
+      case "working":
+        return Loader2;
+      case "waiting":
+        return Pause;
+      case "completed":
+        return CheckCircle2;
+      case "failed":
+        return AlertCircle;
+      case "paused":
+        return Pause;
+      default:
+        return Clock;
     }
   };
 
@@ -202,7 +230,7 @@ export function ParallelTasksView({ groupId, onClose, className }: ParallelTasks
 
   if (loading) {
     return (
-      <div className={cn('flex items-center justify-center h-64', className)}>
+      <div className={cn("flex items-center justify-center h-64", className)}>
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
@@ -210,14 +238,14 @@ export function ParallelTasksView({ groupId, onClose, className }: ParallelTasks
 
   if (!group) {
     return (
-      <div className={cn('flex items-center justify-center h-64 text-muted-foreground', className)}>
+      <div className={cn("flex items-center justify-center h-64 text-muted-foreground", className)}>
         <p>任务组不存在或已删除</p>
       </div>
     );
   }
 
   return (
-    <div className={cn('flex flex-col h-full bg-background', className)}>
+    <div className={cn("flex flex-col h-full bg-background", className)}>
       {/* 头部 */}
       <div className="flex items-center justify-between p-4 border-b">
         <div className="flex items-center gap-3">
@@ -228,13 +256,13 @@ export function ParallelTasksView({ groupId, onClose, className }: ParallelTasks
               <p className="text-xs text-muted-foreground">{group.description}</p>
             )}
           </div>
-          <Badge variant={group.status === 'completed' ? 'default' : 'outline'}>
+          <Badge variant={group.status === "completed" ? "default" : "outline"}>
             {group.status}
           </Badge>
         </div>
 
         <div className="flex items-center gap-2">
-          {group.status === 'pending' && (
+          {group.status === "pending" && (
             <Button onClick={handleStart} size="sm" className="gap-2">
               <Play className="h-4 w-4" />
               开始
@@ -404,16 +432,14 @@ function TaskNode({
       <div
         onClick={onClick}
         className={cn(
-          'flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all',
-          isSelected ? 'ring-2 ring-primary bg-primary/5' : 'hover:bg-muted/50',
-          task.status === 'completed' && 'opacity-70'
+          "flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all",
+          isSelected ? "ring-2 ring-primary bg-primary/5" : "hover:bg-muted/50",
+          task.status === "completed" && "opacity-70"
         )}
       >
         {/* 状态指示器 */}
-        <div className={cn('flex-shrink-0', getStatusColor(task.status))}>
-          <StatusIcon
-            className={cn('h-5 w-5', task.status === 'working' && 'animate-spin')}
-          />
+        <div className={cn("flex-shrink-0", getStatusColor(task.status))}>
+          <StatusIcon className={cn("h-5 w-5", task.status === "working" && "animate-spin")} />
         </div>
 
         {/* 任务信息 */}
@@ -439,7 +465,7 @@ function TaskNode({
           </Badge>
         )}
 
-        <ChevronRight className={cn('h-4 w-4 transition-transform', isSelected && 'rotate-90')} />
+        <ChevronRight className={cn("h-4 w-4 transition-transform", isSelected && "rotate-90")} />
       </div>
     </motion.div>
   );
@@ -458,10 +484,8 @@ function AgentCard({ agent, getStatusColor, getStatusIcon, getAgentTypeName }: A
   return (
     <div className="p-2 rounded-lg border bg-background">
       <div className="flex items-center gap-2 mb-1">
-        <div className={cn('flex-shrink-0', getStatusColor(agent.status))}>
-          <StatusIcon
-            className={cn('h-4 w-4', agent.status === 'working' && 'animate-spin')}
-          />
+        <div className={cn("flex-shrink-0", getStatusColor(agent.status))}>
+          <StatusIcon className={cn("h-4 w-4", agent.status === "working" && "animate-spin")} />
         </div>
         <span className="text-sm font-medium truncate">{agent.name}</span>
       </div>
@@ -492,7 +516,7 @@ function TaskDetailPanel({ task, onClose, getAgentTypeName }: TaskDetailPanelPro
   return (
     <motion.div
       initial={{ height: 0, opacity: 0 }}
-      animate={{ height: 'auto', opacity: 1 }}
+      animate={{ height: "auto", opacity: 1 }}
       exit={{ height: 0, opacity: 0 }}
       className="border-t bg-muted/30 overflow-hidden"
     >
@@ -529,13 +553,13 @@ function TaskDetailPanel({ task, onClose, getAgentTypeName }: TaskDetailPanelPro
             {task.started_at && (
               <div>
                 <span className="text-muted-foreground">开始: </span>
-                <span>{new Date(task.started_at).toLocaleTimeString('zh-CN')}</span>
+                <span>{new Date(task.started_at).toLocaleTimeString("zh-CN")}</span>
               </div>
             )}
             {task.completed_at && (
               <div>
                 <span className="text-muted-foreground">完成: </span>
-                <span>{new Date(task.completed_at).toLocaleTimeString('zh-CN')}</span>
+                <span>{new Date(task.completed_at).toLocaleTimeString("zh-CN")}</span>
               </div>
             )}
           </div>

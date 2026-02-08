@@ -1,7 +1,22 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Network, Globe, Terminal, Trash2, Loader2, RefreshCw, ChevronDown, ChevronUp, Copy, Plus, Edit, Power, Clock, Search } from 'lucide-react';
+import {
+  Network,
+  Globe,
+  Terminal,
+  Trash2,
+  Loader2,
+  RefreshCw,
+  ChevronDown,
+  ChevronUp,
+  Copy,
+  Plus,
+  Edit,
+  Power,
+  Clock,
+  Search,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -63,7 +78,8 @@ export const MCPEnginePanel: React.FC<MCPEnginePanelProps> = ({
   const [searchQuery, setSearchQuery] = useState("");
 
   // 使用 MCP 调用时间追踪 hook
-  const { callTimes, updateCallTime, getCallTime, formatCallTime, formatCallTimeFull } = useMCPCallTimes(engine);
+  const { callTimes, updateCallTime, getCallTime, formatCallTime, formatCallTimeFull } =
+    useMCPCallTimes(engine);
 
   // 按最近调用时间排序的服务器列表（最近调用的在前）
   const sortedServers = useMemo(() => {
@@ -75,13 +91,14 @@ export const MCPEnginePanel: React.FC<MCPEnginePanelProps> = ({
     });
   }, [servers, callTimes]);
 
-    const filteredServers = useMemo(() => {
+  const filteredServers = useMemo(() => {
     if (!searchQuery) return sortedServers;
 
     const query = searchQuery.toLowerCase();
-    return sortedServers.filter(server => {
+    return sortedServers.filter((server) => {
       const description = getMCPDescription(server.id);
-      const descText = typeof description === 'string' ? description : description.description || '';
+      const descText =
+        typeof description === "string" ? description : description.description || "";
       return (
         server.id.toLowerCase().includes(query) ||
         server.spec.command?.toLowerCase().includes(query) ||
@@ -103,7 +120,7 @@ export const MCPEnginePanel: React.FC<MCPEnginePanelProps> = ({
       const serversList = await api.mcpGetEngineServersWithStatus(engine);
       setServers(serversList);
     } catch (error) {
-      logger.error('MCPEnginePanel', `Failed to load ${engine} MCP servers:`, error);
+      logger.error("MCPEnginePanel", `Failed to load ${engine} MCP servers:`, error);
     } finally {
       setLoading(false);
     }
@@ -133,7 +150,7 @@ export const MCPEnginePanel: React.FC<MCPEnginePanelProps> = ({
       setCopiedServer(serverId);
       setTimeout(() => setCopiedServer(null), 2000);
     } catch (error) {
-      logger.error('MCPEnginePanel', "Failed to copy command:", error);
+      logger.error("MCPEnginePanel", "Failed to copy command:", error);
     }
   };
 
@@ -156,12 +173,10 @@ export const MCPEnginePanel: React.FC<MCPEnginePanelProps> = ({
 
       // 更新本地状态
       setServers((prev) =>
-        prev.map((s) =>
-          s.id === server.id ? { ...s, enabled: newEnabled } : s
-        )
+        prev.map((s) => (s.id === server.id ? { ...s, enabled: newEnabled } : s))
       );
     } catch (error) {
-      logger.error('MCPEnginePanel', `Failed to toggle ${engine} MCP server:`, error);
+      logger.error("MCPEnginePanel", `Failed to toggle ${engine} MCP server:`, error);
     }
   };
 
@@ -208,7 +223,7 @@ export const MCPEnginePanel: React.FC<MCPEnginePanelProps> = ({
       await api.mcpDeleteEngineServer(engine, id);
       setServers((prev) => prev.filter((s) => s.id !== id));
     } catch (error) {
-      logger.error('MCPEnginePanel', `Failed to remove server from ${engine}:`, error);
+      logger.error("MCPEnginePanel", `Failed to remove server from ${engine}:`, error);
     } finally {
       setRemovingServer(null);
     }
@@ -263,9 +278,7 @@ export const MCPEnginePanel: React.FC<MCPEnginePanelProps> = ({
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1 flex-wrap">
-              <div className="p-1.5 bg-primary/10 rounded">
-                {getTransportIcon(transport)}
-              </div>
+              <div className="p-1.5 bg-primary/10 rounded">{getTransportIcon(transport)}</div>
               <h4 className="font-medium truncate">{mcpDesc.name || server.id}</h4>
               {/* 分类标签 */}
               <Badge
@@ -274,7 +287,7 @@ export const MCPEnginePanel: React.FC<MCPEnginePanelProps> = ({
                 style={{
                   color: categoryColor,
                   borderColor: categoryColor,
-                  backgroundColor: `${categoryColor}10`
+                  backgroundColor: `${categoryColor}10`,
                 }}
               >
                 {categoryLabel}
@@ -294,9 +307,7 @@ export const MCPEnginePanel: React.FC<MCPEnginePanelProps> = ({
               )}
             </div>
             {/* MCP 描述 */}
-            <p className="text-xs text-muted-foreground pl-9 mb-1">
-              {mcpDesc.description}
-            </p>
+            <p className="text-xs text-muted-foreground pl-9 mb-1">{mcpDesc.description}</p>
             {/* 服务器 ID（帮助区分同名服务器） */}
             <p className="text-[10px] text-muted-foreground/50 font-mono pl-9 mb-1">
               ID: {server.id}
@@ -305,20 +316,20 @@ export const MCPEnginePanel: React.FC<MCPEnginePanelProps> = ({
             <div
               className="flex items-center gap-1 text-[11px] text-muted-foreground/70 pl-9 mb-1 cursor-pointer hover:text-muted-foreground"
               onClick={() => handleMarkAsCalled(server.id)}
-              title={lastCalledFullText ? `点击更新调用时间\n上次调用: ${lastCalledFullText}` : '点击标记为已调用'}
+              title={
+                lastCalledFullText
+                  ? `点击更新调用时间\n上次调用: ${lastCalledFullText}`
+                  : "点击标记为已调用"
+              }
             >
               <Clock className="h-3 w-3" />
               <span>上次调用: {lastCalledText}</span>
             </div>
             {command && !isExpanded && (
-              <p className="text-xs text-muted-foreground/60 font-mono truncate pl-9">
-                {command}
-              </p>
+              <p className="text-xs text-muted-foreground/60 font-mono truncate pl-9">{command}</p>
             )}
             {transport === "sse" && url && !isExpanded && (
-              <p className="text-xs text-muted-foreground/60 font-mono truncate pl-9">
-                {url}
-              </p>
+              <p className="text-xs text-muted-foreground/60 font-mono truncate pl-9">{url}</p>
             )}
           </div>
 
@@ -417,9 +428,7 @@ export const MCPEnginePanel: React.FC<MCPEnginePanelProps> = ({
                     {isCopied ? "Copied!" : "Copy"}
                   </Button>
                 </div>
-                <p className="text-xs font-mono bg-muted/50 p-2 rounded break-all">
-                  {command}
-                </p>
+                <p className="text-xs font-mono bg-muted/50 p-2 rounded break-all">{command}</p>
               </div>
             )}
 
@@ -440,17 +449,13 @@ export const MCPEnginePanel: React.FC<MCPEnginePanelProps> = ({
             {url && (
               <div className="space-y-1">
                 <p className="text-xs font-medium text-muted-foreground">URL</p>
-                <p className="text-xs font-mono bg-muted/50 p-2 rounded break-all">
-                  {url}
-                </p>
+                <p className="text-xs font-mono bg-muted/50 p-2 rounded break-all">{url}</p>
               </div>
             )}
 
             {server.spec.env && Object.keys(server.spec.env).length > 0 && (
               <div className="space-y-1">
-                <p className="text-xs font-medium text-muted-foreground">
-                  Environment Variables
-                </p>
+                <p className="text-xs font-medium text-muted-foreground">Environment Variables</p>
                 <div className="text-xs font-mono bg-muted/50 p-2 rounded space-y-1">
                   {Object.entries(server.spec.env).map(([key, value]) => (
                     <div key={key} className="break-all">
@@ -473,16 +478,13 @@ export const MCPEnginePanel: React.FC<MCPEnginePanelProps> = ({
       {/* 头部 */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div
-            className="p-2 rounded-lg"
-            style={{ backgroundColor: `${engineColor}20` }}
-          >
+          <div className="p-2 rounded-lg" style={{ backgroundColor: `${engineColor}20` }}>
             <EngineIcon className="h-5 w-5" />
           </div>
           <div>
             <h3 className="text-base font-semibold">{engineLabel}</h3>
             <p className="text-xs text-muted-foreground">
-              {servers.filter(s => s.enabled).length} / {servers.length} 个工具已启用
+              {servers.filter((s) => s.enabled).length} / {servers.length} 个工具已启用
             </p>
           </div>
         </div>
@@ -529,12 +531,8 @@ export const MCPEnginePanel: React.FC<MCPEnginePanelProps> = ({
           {searchQuery ? (
             <>
               <Search className="h-12 w-12 text-muted-foreground mb-4" />
-              <p className="text-muted-foreground mb-2 font-medium">
-                未找到匹配的 MCP 工具
-              </p>
-              <p className="text-sm text-muted-foreground">
-                尝试使用不同的关键词搜索
-              </p>
+              <p className="text-muted-foreground mb-2 font-medium">未找到匹配的 MCP 工具</p>
+              <p className="text-sm text-muted-foreground">尝试使用不同的关键词搜索</p>
             </>
           ) : (
             <>
@@ -544,14 +542,10 @@ export const MCPEnginePanel: React.FC<MCPEnginePanelProps> = ({
               >
                 <EngineIcon className="h-12 w-12" />
               </div>
-              <p className="text-muted-foreground mb-2 font-medium">
-                暂无 MCP 工具
-              </p>
+              <p className="text-muted-foreground mb-2 font-medium">暂无 MCP 工具</p>
             </>
           )}
-          <p className="text-sm text-muted-foreground">
-            为 {engineLabel} 添加 MCP 工具以扩展功能
-          </p>
+          <p className="text-sm text-muted-foreground">为 {engineLabel} 添加 MCP 工具以扩展功能</p>
         </div>
       ) : (
         <div className="space-y-3">

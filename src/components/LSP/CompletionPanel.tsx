@@ -3,18 +3,15 @@
  * 显示代码补全建议
  */
 
-import React from 'react';
-import type { CompletionItem } from '@/core/tools/LSPTools';
+import React from "react";
+import type { CompletionItem } from "@/core/tools/LSPTools";
 
 interface CompletionPanelProps {
   items: CompletionItem[];
   onSelect: (item: CompletionItem) => void;
 }
 
-export const CompletionPanel: React.FC<CompletionPanelProps> = ({
-  items,
-  onSelect,
-}) => {
+export const CompletionPanel: React.FC<CompletionPanelProps> = ({ items, onSelect }) => {
   if (items.length === 0) {
     return null;
   }
@@ -28,11 +25,7 @@ export const CompletionPanel: React.FC<CompletionPanelProps> = ({
           className="block text-left px-3 py-2 hover:bg-accent w-full"
         >
           <span className="font-mono">{item.label}</span>
-          {item.detail && (
-            <span className="text-xs text-muted-foreground ml-2">
-              {item.detail}
-            </span>
-          )}
+          {item.detail && <span className="text-xs text-muted-foreground ml-2">{item.detail}</span>}
         </button>
       ))}
     </div>

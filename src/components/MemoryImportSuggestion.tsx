@@ -1,9 +1,9 @@
-import { logger } from '@/lib/logger';
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, X, ChevronDown, ChevronUp } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import type { MemoryMatch } from '@/hooks/useMemoryDetection';
+import { logger } from "@/lib/logger";
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Sparkles, X, ChevronDown, ChevronUp } from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { MemoryMatch } from "@/hooks/useMemoryDetection";
 
 interface MemoryImportSuggestionProps {
   matches: MemoryMatch[];
@@ -31,7 +31,7 @@ export const MemoryImportSuggestion: React.FC<MemoryImportSuggestionProps> = ({
   const [importError, setImportError] = useState<string | null>(null);
 
   const handleToggleSelection = (file: string) => {
-    setSelectedFiles(prev => {
+    setSelectedFiles((prev) => {
       const next = new Set(prev);
       if (next.has(file)) {
         next.delete(file);
@@ -46,7 +46,7 @@ export const MemoryImportSuggestion: React.FC<MemoryImportSuggestionProps> = ({
     if (selectedFiles.size === matches.length) {
       setSelectedFiles(new Set());
     } else {
-      setSelectedFiles(new Set(matches.map(m => m.file)));
+      setSelectedFiles(new Set(matches.map((m) => m.file)));
     }
   };
 
@@ -58,22 +58,24 @@ export const MemoryImportSuggestion: React.FC<MemoryImportSuggestionProps> = ({
 
     try {
       // 动态导入 Tauri API
-      const tauriModule = await import('@tauri-apps/api/core').catch(() => null);
+      const tauriModule = await import("@tauri-apps/api/core").catch(() => null);
       if (!tauriModule) {
-        throw new Error('Tauri API not available');
+        throw new Error("Tauri API not available");
       }
 
-      const result = await (tauriModule as { invoke: <T>(cmd: string, args: Record<string, unknown>) => Promise<T> }).invoke<string>('import_memories', {
+      const result = await (
+        tauriModule as { invoke: <T>(cmd: string, args: Record<string, unknown>) => Promise<T> }
+      ).invoke<string>("import_memories", {
         project_path: projectPath,
         memory_files: Array.from(selectedFiles),
       });
 
-      logger.debug('MemoryImportSuggestion', '[MemoryImportSuggestion] Import result:', result);
+      logger.debug("MemoryImportSuggestion", "[MemoryImportSuggestion] Import result:", result);
       onImportComplete?.();
       onClose?.();
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
-      logger.error('MemoryImportSuggestion', '[MemoryImportSuggestion] Import failed:', errorMsg);
+      logger.error("MemoryImportSuggestion", "[MemoryImportSuggestion] Import failed:", errorMsg);
       setImportError(errorMsg);
     } finally {
       setIsImporting(false);
@@ -93,10 +95,10 @@ export const MemoryImportSuggestion: React.FC<MemoryImportSuggestionProps> = ({
         exit={{ opacity: 0, y: -10, scale: 0.95 }}
         transition={{ duration: 0.2 }}
         className={cn(
-          'fixed top-20 right-6 z-50 w-96 max-w-[calc(100vw-2rem)]',
-          'bg-background/95 backdrop-blur-lg',
-          'border border-border rounded-lg shadow-2xl',
-          'overflow-hidden',
+          "fixed top-20 right-6 z-50 w-96 max-w-[calc(100vw-2rem)]",
+          "bg-background/95 backdrop-blur-lg",
+          "border border-border rounded-lg shadow-2xl",
+          "overflow-hidden",
           className
         )}
       >
@@ -104,22 +106,16 @@ export const MemoryImportSuggestion: React.FC<MemoryImportSuggestionProps> = ({
         <div className="flex items-center justify-between p-4 border-b bg-background/50">
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-blue-500 animate-pulse" />
-            <span className="font-semibold text-sm">
-              检测到 {matches.length} 个相关记忆
-            </span>
+            <span className="font-semibold text-sm">检测到 {matches.length} 个相关记忆</span>
           </div>
           <div className="flex items-center gap-1">
             <button
               type="button"
               onClick={() => setExpanded(!expanded)}
               className="p-1.5 hover:bg-accent rounded-md transition-colors"
-              aria-label={expanded ? '折叠' : '展开'}
+              aria-label={expanded ? "折叠" : "展开"}
             >
-              {expanded ? (
-                <ChevronUp className="h-3 w-3" />
-              ) : (
-                <ChevronDown className="h-3 w-3" />
-              )}
+              {expanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
             </button>
             <button
               type="button"
@@ -137,7 +133,7 @@ export const MemoryImportSuggestion: React.FC<MemoryImportSuggestionProps> = ({
           {expanded && (
             <motion.div
               initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
+              animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.2 }}
               className="overflow-hidden"
@@ -149,28 +145,30 @@ export const MemoryImportSuggestion: React.FC<MemoryImportSuggestionProps> = ({
                     type="checkbox"
                     id="select-all"
                     checked={allSelected}
-                    ref={el => {
+                    ref={(el) => {
                       if (el) el.indeterminate = someSelected;
                     }}
                     onChange={handleSelectAll}
                     className="w-4 h-4 rounded cursor-pointer"
                     aria-label="全选"
                   />
-                  <label htmlFor="select-all" className="text-xs text-muted-foreground cursor-pointer">
-                    {allSelected ? '取消全选' : someSelected ? '部分选中' : '全选'}
+                  <label
+                    htmlFor="select-all"
+                    className="text-xs text-muted-foreground cursor-pointer"
+                  >
+                    {allSelected ? "取消全选" : someSelected ? "部分选中" : "全选"}
                   </label>
                 </div>
 
                 {/* Memory Items */}
-                {matches.map(match => (
+                {matches.map((match) => (
                   <div
                     key={match.file}
                     className={cn(
-                      'flex items-start gap-3 p-3 rounded-md border cursor-pointer',
-                      'transition-all duration-200',
-                      'hover:bg-accent/50 hover:border-primary/50',
-                      selectedFiles.has(match.file) &&
-                        'bg-primary/10 border-primary shadow-sm'
+                      "flex items-start gap-3 p-3 rounded-md border cursor-pointer",
+                      "transition-all duration-200",
+                      "hover:bg-accent/50 hover:border-primary/50",
+                      selectedFiles.has(match.file) && "bg-primary/10 border-primary shadow-sm"
                     )}
                     onClick={() => handleToggleSelection(match.file)}
                   >
@@ -178,25 +176,23 @@ export const MemoryImportSuggestion: React.FC<MemoryImportSuggestionProps> = ({
                       type="checkbox"
                       checked={selectedFiles.has(match.file)}
                       onChange={() => handleToggleSelection(match.file)}
-                      onClick={e => e.stopPropagation()}
+                      onClick={(e) => e.stopPropagation()}
                       className="w-4 h-4 rounded cursor-pointer mt-0.5"
                       aria-label={`选择 ${match.title}`}
                     />
                     <div className="flex-1 min-w-0">
                       {/* Title and Priority */}
                       <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <span className="font-medium text-sm truncate">
-                          {match.title}
-                        </span>
+                        <span className="font-medium text-sm truncate">{match.title}</span>
                         <span
                           className={cn(
-                            'text-xs px-2 py-0.5 rounded font-semibold whitespace-nowrap',
-                            match.priority === 'high' &&
-                              'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200',
-                            match.priority === 'medium' &&
-                              'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-200',
-                            match.priority === 'low' &&
-                              'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
+                            "text-xs px-2 py-0.5 rounded font-semibold whitespace-nowrap",
+                            match.priority === "high" &&
+                              "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200",
+                            match.priority === "medium" &&
+                              "bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-200",
+                            match.priority === "low" &&
+                              "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300"
                           )}
                         >
                           {match.priority}
@@ -204,19 +200,17 @@ export const MemoryImportSuggestion: React.FC<MemoryImportSuggestionProps> = ({
                       </div>
 
                       {/* Category */}
-                      <p className="text-xs text-muted-foreground mb-1.5">
-                        {match.category}
-                      </p>
+                      <p className="text-xs text-muted-foreground mb-1.5">{match.category}</p>
 
                       {/* Matched Keywords */}
                       <div className="flex flex-wrap gap-1">
-                        {match.matched_keywords.slice(0, 3).map(kw => (
+                        {match.matched_keywords.slice(0, 3).map((kw) => (
                           <span
                             key={kw}
                             className={cn(
-                              'text-xs px-2 py-0.5 rounded-full',
-                              'bg-primary/20 text-primary dark:bg-primary/30 dark:text-primary/90',
-                              'border border-primary/30'
+                              "text-xs px-2 py-0.5 rounded-full",
+                              "bg-primary/20 text-primary dark:bg-primary/30 dark:text-primary/90",
+                              "border border-primary/30"
                             )}
                           >
                             {kw}
@@ -255,11 +249,11 @@ export const MemoryImportSuggestion: React.FC<MemoryImportSuggestionProps> = ({
                   onClick={handleImport}
                   disabled={selectedFiles.size === 0 || isImporting}
                   className={cn(
-                    'px-3 py-1.5 rounded-md text-sm font-medium',
-                    'transition-all duration-200',
+                    "px-3 py-1.5 rounded-md text-sm font-medium",
+                    "transition-all duration-200",
                     selectedFiles.size === 0 || isImporting
-                      ? 'bg-muted text-muted-foreground cursor-not-allowed'
-                      : 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm hover:shadow-md'
+                      ? "bg-muted text-muted-foreground cursor-not-allowed"
+                      : "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm hover:shadow-md"
                   )}
                 >
                   {isImporting ? (
@@ -287,7 +281,7 @@ export const MemoryImportSuggestion: React.FC<MemoryImportSuggestionProps> = ({
                       导入中
                     </span>
                   ) : (
-                    '导入到 CLAUDE.md'
+                    "导入到 CLAUDE.md"
                   )}
                 </button>
               </div>

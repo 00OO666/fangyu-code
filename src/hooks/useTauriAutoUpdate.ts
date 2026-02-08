@@ -10,7 +10,7 @@
  * 6. 支持暂时关闭更新提示
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { check, type Update } from "@tauri-apps/plugin-updater";
 import { useCallback, useEffect, useState } from "react";
 
@@ -49,7 +49,7 @@ export function useTauriAutoUpdate(
   options: {
     checkOnMount?: boolean;
     autoCheckInterval?: number; // 分钟
-  } = {},
+  } = {}
 ): UseAutoUpdateReturn {
   const { checkOnMount = true, autoCheckInterval = 0 } = options; // 默认关闭自动检查
 
@@ -83,91 +83,115 @@ export function useTauriAutoUpdate(
   }, []);
 
   // 检查更新（带重试逻辑）
-  const checkForUpdates = useCallback(async (force: boolean = false) => {
-    // 开发模式下跳过更新检查
-    if (import.meta.env.DEV) {
-      logger.debug('useTauriAutoUpdate', "[Auto Update] Skipping update check in development mode");
-      return;
-    }
+  const checkForUpdates = useCallback(
+    async (force: boolean = false) => {
+      // 开发模式下跳过更新检查
+      if (import.meta.env.DEV) {
+        logger.debug(
+          "useTauriAutoUpdate",
+          "[Auto Update] Skipping update check in development mode"
+        );
+        return;
+      }
 
-    if (checking) return;
+      if (checking) return;
 
-    setChecking(true);
-    setError(null);
+      setChecking(true);
+      setError(null);
 
-    let lastError: Error | null = null;
+      let lastError: Error | null = null;
 
-    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-      try {
-        if (attempt > 0) {
-          logger.debug('useTauriAutoUpdate', `[Auto Update] Retry attempt ${attempt + 1}/${MAX_RETRIES}...`);
-        } else {
-          logger.debug('useTauriAutoUpdate', "[Auto Update] Checking for updates...");
-        }
-
-        const update = await check();
-
-        if (update) {
-          logger.debug('useTauriAutoUpdate', "[Auto Update] Update available:", update);
-
-          // 检查是否被跳过或暂时关闭
-          const skipped = !force && isVersionSkipped(update.version);
-          const dismissed = !force && isUpdateDismissed(update.version);
-
-          if (skipped) {
-            logger.debug('useTauriAutoUpdate', "[Auto Update] Version skipped by user:", update.version);
-            setUpdateInfo(null);
-            setChecking(false);
-            return;
+      for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+        try {
+          if (attempt > 0) {
+            logger.debug(
+              "useTauriAutoUpdate",
+              `[Auto Update] Retry attempt ${attempt + 1}/${MAX_RETRIES}...`
+            );
+          } else {
+            logger.debug("useTauriAutoUpdate", "[Auto Update] Checking for updates...");
           }
 
-          setUpdateInfo({
-            available: true,
-            currentVersion: update.currentVersion,
-            latestVersion: update.version,
-            body: update.body,
-            date: update.date,
-          });
-          setPendingUpdate(update);
-          setIsDismissed(dismissed);
-        } else {
-          logger.debug('useTauriAutoUpdate', "[Auto Update] No update available");
-          setUpdateInfo({
-            available: false,
-            currentVersion: "",
-            latestVersion: "",
-          });
-        }
+          const update = await check();
 
-        // 成功，退出重试循环
-        setChecking(false);
-        return;
-      } catch (err) {
-        lastError = err instanceof Error ? err : new Error(String(err));
-        logger.warn('useTauriAutoUpdate', `[Auto Update] Check failed (attempt ${attempt + 1});:`, lastError.message);
+          if (update) {
+            logger.debug("useTauriAutoUpdate", "[Auto Update] Update available:", update);
 
-        // 如果不是最后一次尝试，等待后重试
-        if (attempt < MAX_RETRIES - 1) {
-          const delay = INITIAL_RETRY_DELAY * Math.pow(2, attempt);
-          logger.debug('useTauriAutoUpdate', `[Auto Update] Retrying in ${delay}ms...`);
-          await new Promise(resolve => setTimeout(resolve, delay));
+            // 检查是否被跳过或暂时关闭
+            const skipped = !force && isVersionSkipped(update.version);
+            const dismissed = !force && isUpdateDismissed(update.version);
+
+            if (skipped) {
+              logger.debug(
+                "useTauriAutoUpdate",
+                "[Auto Update] Version skipped by user:",
+                update.version
+              );
+              setUpdateInfo(null);
+              setChecking(false);
+              return;
+            }
+
+            setUpdateInfo({
+              available: true,
+              currentVersion: update.currentVersion,
+              latestVersion: update.version,
+              body: update.body,
+              date: update.date,
+            });
+            setPendingUpdate(update);
+            setIsDismissed(dismissed);
+          } else {
+            logger.debug("useTauriAutoUpdate", "[Auto Update] No update available");
+            setUpdateInfo({
+              available: false,
+              currentVersion: "",
+              latestVersion: "",
+            });
+          }
+
+          // 成功，退出重试循环
+          setChecking(false);
+          return;
+        } catch (err) {
+          lastError = err instanceof Error ? err : new Error(String(err));
+          logger.warn(
+            "useTauriAutoUpdate",
+            `[Auto Update] Check failed (attempt ${attempt + 1});:`,
+            lastError.message
+          );
+
+          // 如果不是最后一次尝试，等待后重试
+          if (attempt < MAX_RETRIES - 1) {
+            const delay = INITIAL_RETRY_DELAY * Math.pow(2, attempt);
+            logger.debug("useTauriAutoUpdate", `[Auto Update] Retrying in ${delay}ms...`);
+            await new Promise((resolve) => setTimeout(resolve, delay));
+          }
         }
       }
-    }
 
-    // 所有重试都失败
-    const errorMsg = lastError?.message || "检查更新失败";
-    logger.error('useTauriAutoUpdate', "[Auto Update] All retries failed:", errorMsg);
+      // 所有重试都失败
+      const errorMsg = lastError?.message || "检查更新失败";
+      logger.error("useTauriAutoUpdate", "[Auto Update] All retries failed:", errorMsg);
 
-    // 网络错误时静默处理，不显示错误给用户
-    if (errorMsg.includes('network') || errorMsg.includes('fetch') || errorMsg.includes('timeout')) {
-      logger.debug('useTauriAutoUpdate', "[Auto Update] Network unavailable, skipping update check silently");
-    } else {
-      setError(errorMsg);
-    }
+      // 网络错误时静默处理，不显示错误给用户
+      if (
+        errorMsg.includes("network") ||
+        errorMsg.includes("fetch") ||
+        errorMsg.includes("timeout")
+      ) {
+        logger.debug(
+          "useTauriAutoUpdate",
+          "[Auto Update] Network unavailable, skipping update check silently"
+        );
+      } else {
+        setError(errorMsg);
+      }
 
-    setChecking(false);
-  }, [checking, isVersionSkipped, isUpdateDismissed]);
+      setChecking(false);
+    },
+    [checking, isVersionSkipped, isUpdateDismissed]
+  );
 
   // 下载并安装更新
   const installUpdate = useCallback(async () => {
@@ -181,17 +205,25 @@ export function useTauriAutoUpdate(
     setDownloadProgress(0);
 
     try {
-      logger.debug('useTauriAutoUpdate', "[Auto Update] Downloading update...");
+      logger.debug("useTauriAutoUpdate", "[Auto Update] Downloading update...");
 
       // 下载更新包
       await pendingUpdate.downloadAndInstall((event) => {
         switch (event.event) {
           case "Started":
-            logger.debug('useTauriAutoUpdate', "[Auto Update] Download started, contentLength:", (event.data as any).contentLength);
+            logger.debug(
+              "useTauriAutoUpdate",
+              "[Auto Update] Download started, contentLength:",
+              (event.data as any).contentLength
+            );
             setDownloadProgress(0);
             break;
           case "Progress": {
-            const eventData = event.data as { downloaded?: number; contentLength?: number; chunkLength?: number };
+            const eventData = event.data as {
+              downloaded?: number;
+              contentLength?: number;
+              chunkLength?: number;
+            };
             const downloaded = eventData.downloaded ?? 0;
             const total = eventData.contentLength ?? 0;
             let progress = 0;
@@ -205,27 +237,36 @@ export function useTauriAutoUpdate(
 
             if (isNaN(progress)) {
               progress = 0;
-              logger.warn('useTauriAutoUpdate', "[Auto Update] Progress calculation resulted in NaN");
+              logger.warn(
+                "useTauriAutoUpdate",
+                "[Auto Update] Progress calculation resulted in NaN"
+              );
             }
 
-            logger.debug('useTauriAutoUpdate', `Download progress: ${progress}% (${downloaded}/${total} bytes)`);
+            logger.debug(
+              "useTauriAutoUpdate",
+              `Download progress: ${progress}% (${downloaded}/${total} bytes)`
+            );
             setDownloadProgress(progress);
             break;
           }
           case "Finished":
-            logger.debug('useTauriAutoUpdate', "[Auto Update] Download finished");
+            logger.debug("useTauriAutoUpdate", "[Auto Update] Download finished");
             setDownloadProgress(100);
             break;
         }
       });
 
       // downloadAndInstall 会自动安装并重启应用，无需手动调用 relaunch
-      logger.debug('useTauriAutoUpdate', "[Auto Update] Update installed successfully, app will restart automatically");
+      logger.debug(
+        "useTauriAutoUpdate",
+        "[Auto Update] Update installed successfully, app will restart automatically"
+      );
       setDownloading(false);
       setInstalling(true);
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : "更新失败";
-      logger.error('useTauriAutoUpdate', "[Auto Update] Install failed:", errorMsg);
+      logger.error("useTauriAutoUpdate", "[Auto Update] Install failed:", errorMsg);
       setError(errorMsg);
       setDownloading(false);
       setInstalling(false);
@@ -237,11 +278,15 @@ export function useTauriAutoUpdate(
     if (updateInfo?.latestVersion) {
       try {
         localStorage.setItem(STORAGE_KEY_SKIPPED, updateInfo.latestVersion);
-        logger.debug('useTauriAutoUpdate', "[Auto Update] Version skipped:", updateInfo.latestVersion);
+        logger.debug(
+          "useTauriAutoUpdate",
+          "[Auto Update] Version skipped:",
+          updateInfo.latestVersion
+        );
         setUpdateInfo(null);
         setPendingUpdate(null);
       } catch (err) {
-        logger.error('useTauriAutoUpdate', "[Auto Update] Failed to skip version:", err);
+        logger.error("useTauriAutoUpdate", "[Auto Update] Failed to skip version:", err);
       }
     }
   }, [updateInfo]);
@@ -251,10 +296,14 @@ export function useTauriAutoUpdate(
     if (updateInfo?.latestVersion) {
       try {
         localStorage.setItem(STORAGE_KEY_DISMISSED, updateInfo.latestVersion);
-        logger.debug('useTauriAutoUpdate', "[Auto Update] Update dismissed:", updateInfo.latestVersion);
+        logger.debug(
+          "useTauriAutoUpdate",
+          "[Auto Update] Update dismissed:",
+          updateInfo.latestVersion
+        );
         setIsDismissed(true);
       } catch (err) {
-        logger.error('useTauriAutoUpdate', "[Auto Update] Failed to dismiss update:", err);
+        logger.error("useTauriAutoUpdate", "[Auto Update] Failed to dismiss update:", err);
       }
     }
   }, [updateInfo]);
@@ -264,9 +313,9 @@ export function useTauriAutoUpdate(
     try {
       localStorage.removeItem(STORAGE_KEY_DISMISSED);
       setIsDismissed(false);
-      logger.debug('useTauriAutoUpdate', "[Auto Update] Update shown again");
+      logger.debug("useTauriAutoUpdate", "[Auto Update] Update shown again");
     } catch (err) {
-      logger.error('useTauriAutoUpdate', "[Auto Update] Failed to show update:", err);
+      logger.error("useTauriAutoUpdate", "[Auto Update] Failed to show update:", err);
     }
   }, []);
 
@@ -295,7 +344,7 @@ export function useTauriAutoUpdate(
       () => {
         checkForUpdates();
       },
-      autoCheckInterval * 60 * 1000,
+      autoCheckInterval * 60 * 1000
     );
 
     return () => clearInterval(interval);

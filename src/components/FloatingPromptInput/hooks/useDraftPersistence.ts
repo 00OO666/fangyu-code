@@ -1,7 +1,7 @@
-import { logger } from '@/lib/logger';
-import { useEffect, useCallback, useRef } from 'react';
+import { logger } from "@/lib/logger";
+import { useEffect, useCallback, useRef } from "react";
 
-const DRAFT_KEY_PREFIX = 'prompt_draft_';
+const DRAFT_KEY_PREFIX = "prompt_draft_";
 const DRAFT_DEBOUNCE_MS = 300;
 
 interface UseDraftPersistenceOptions {
@@ -13,10 +13,7 @@ interface UseDraftPersistenceOptions {
  * 草稿持久化 Hook
  * 使用 localStorage 保存和恢复输入框草稿，支持按会话隔离
  */
-export function useDraftPersistence({
-  sessionId,
-  onRestore,
-}: UseDraftPersistenceOptions) {
+export function useDraftPersistence({ sessionId, onRestore }: UseDraftPersistenceOptions) {
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const hasRestoredRef = useRef(false);
   // 🔧 FIX: 使用 ref 存储 sessionId，避免 useEffect 依赖变化导致重复恢复
@@ -33,25 +30,28 @@ export function useDraftPersistence({
   }, []);
 
   // 保存草稿到 localStorage（带防抖）
-  const saveDraft = useCallback((content: string) => {
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
-    }
-
-    debounceTimerRef.current = setTimeout(() => {
-      try {
-        const key = getStorageKey();
-        if (content.trim()) {
-          localStorage.setItem(key, content);
-        } else {
-          // 如果内容为空，删除草稿
-          localStorage.removeItem(key);
-        }
-      } catch (error) {
-        logger.warn('useDraftPersistence', '[DraftPersistence] Failed to save draft:', error);
+  const saveDraft = useCallback(
+    (content: string) => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
       }
-    }, DRAFT_DEBOUNCE_MS);
-  }, [getStorageKey]);
+
+      debounceTimerRef.current = setTimeout(() => {
+        try {
+          const key = getStorageKey();
+          if (content.trim()) {
+            localStorage.setItem(key, content);
+          } else {
+            // 如果内容为空，删除草稿
+            localStorage.removeItem(key);
+          }
+        } catch (error) {
+          logger.warn("useDraftPersistence", "[DraftPersistence] Failed to save draft:", error);
+        }
+      }, DRAFT_DEBOUNCE_MS);
+    },
+    [getStorageKey]
+  );
 
   // 清除草稿
   const clearDraft = useCallback(() => {
@@ -63,20 +63,23 @@ export function useDraftPersistence({
       const key = getStorageKey();
       localStorage.removeItem(key);
     } catch (error) {
-      logger.warn('useDraftPersistence', '[DraftPersistence] Failed to clear draft:', error);
+      logger.warn("useDraftPersistence", "[DraftPersistence] Failed to clear draft:", error);
     }
   }, [getStorageKey]);
 
   // 恢复草稿
-  const restoreDraft = useCallback((sid?: string): string | null => {
-    try {
-      const key = getStorageKey(sid);
-      return localStorage.getItem(key);
-    } catch (error) {
-      logger.warn('useDraftPersistence', '[DraftPersistence] Failed to restore draft:', error);
-      return null;
-    }
-  }, [getStorageKey]);
+  const restoreDraft = useCallback(
+    (sid?: string): string | null => {
+      try {
+        const key = getStorageKey(sid);
+        return localStorage.getItem(key);
+      } catch (error) {
+        logger.warn("useDraftPersistence", "[DraftPersistence] Failed to restore draft:", error);
+        return null;
+      }
+    },
+    [getStorageKey]
+  );
 
   // 🔧 FIX: 合并两个 useEffect，只在 sessionId 变化时恢复草稿
   useEffect(() => {

@@ -2,35 +2,35 @@
  * SnippetManager 测试
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
-import { SnippetManager } from './SnippetManager';
+import { describe, it, expect, beforeEach } from "vitest";
+import { SnippetManager } from "./SnippetManager";
 
-describe('SnippetManager', () => {
+describe("SnippetManager", () => {
   let manager: SnippetManager;
 
   beforeEach(() => {
     manager = new SnippetManager();
   });
 
-  it('应该能够添加代码片段', () => {
+  it("应该能够添加代码片段", () => {
     const snippet = manager.addSnippet({
-      name: 'Test Snippet',
-      description: 'A test snippet',
-      language: 'typescript',
+      name: "Test Snippet",
+      description: "A test snippet",
+      language: "typescript",
       code: 'console.log("test");',
-      tags: ['test'],
+      tags: ["test"],
     });
 
     expect(snippet.id).toBeDefined();
-    expect(snippet.name).toBe('Test Snippet');
+    expect(snippet.name).toBe("Test Snippet");
   });
 
-  it('应该能够获取代码片段', () => {
+  it("应该能够获取代码片段", () => {
     const snippet = manager.addSnippet({
-      name: 'Test',
-      description: 'Test',
-      language: 'typescript',
-      code: 'test',
+      name: "Test",
+      description: "Test",
+      language: "typescript",
+      code: "test",
       tags: [],
     });
 
@@ -38,29 +38,29 @@ describe('SnippetManager', () => {
     expect(retrieved).toEqual(snippet);
   });
 
-  it('应该能够搜索代码片段', () => {
+  it("应该能够搜索代码片段", () => {
     manager.addSnippet({
-      name: 'React Component',
-      description: 'A React component',
-      language: 'typescript',
-      code: 'export const Component = () => {};',
-      tags: ['react'],
+      name: "React Component",
+      description: "A React component",
+      language: "typescript",
+      code: "export const Component = () => {};",
+      tags: ["react"],
     });
 
-    const results = manager.searchSnippets('react');
+    const results = manager.searchSnippets("react");
     expect(results.length).toBeGreaterThan(0);
   });
 
-  it('应该能够按语言过滤', () => {
+  it("应该能够按语言过滤", () => {
     manager.addSnippet({
-      name: 'TS Snippet',
-      description: 'TypeScript',
-      language: 'typescript',
-      code: 'const x = 1;',
+      name: "TS Snippet",
+      description: "TypeScript",
+      language: "typescript",
+      code: "const x = 1;",
       tags: [],
     });
 
-    const results = manager.getSnippetsByLanguage('typescript');
+    const results = manager.getSnippetsByLanguage("typescript");
     expect(results.length).toBe(1);
   });
 });

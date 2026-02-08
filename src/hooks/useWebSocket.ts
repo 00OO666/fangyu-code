@@ -10,7 +10,7 @@
  * 主要用于跨窗口会话消息同步
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type {
   WebSocketConfig,
@@ -93,18 +93,18 @@ export function useWebSocket(config: WebSocketConfig = {}) {
           try {
             (handler as Function)(...args);
           } catch (error) {
-            logger.error('useWebSocket', `[WebSocket] Error in ${event} handler:`, error);
+            logger.error("useWebSocket", `[WebSocket] Error in ${event} handler:`, error);
           }
         });
       }
     },
-    [],
+    []
   );
 
   // 发送消息
   const send = useCallback(<T = any>(type: WebSocketMessageType, payload: T) => {
     if (wsRef.current?.readyState !== WebSocket.OPEN) {
-      logger.warn('useWebSocket', "[WebSocket] Cannot send message: not connected");
+      logger.warn("useWebSocket", "[WebSocket] Cannot send message: not connected");
       return;
     }
 
@@ -176,10 +176,10 @@ export function useWebSocket(config: WebSocketConfig = {}) {
             break;
         }
       } catch (error) {
-        logger.error('useWebSocket', "[WebSocket] Failed to parse message:", error);
+        logger.error("useWebSocket", "[WebSocket] Failed to parse message:", error);
       }
     },
-    [emit],
+    [emit]
   );
 
   // 连接 WebSocket
@@ -196,7 +196,7 @@ export function useWebSocket(config: WebSocketConfig = {}) {
       const ws = new WebSocket(configRef.current.url);
 
       ws.onopen = () => {
-        logger.debug('useWebSocket', "[WebSocket] Connected to", configRef.current.url);
+        logger.debug("useWebSocket", "[WebSocket] Connected to", configRef.current.url);
         setState("connected");
         reconnectCountRef.current = 0;
         startHeartbeat();
@@ -204,7 +204,7 @@ export function useWebSocket(config: WebSocketConfig = {}) {
       };
 
       ws.onclose = (event) => {
-        logger.debug('useWebSocket', "[WebSocket] Connection closed:", event.code, event.reason);
+        logger.debug("useWebSocket", "[WebSocket] Connection closed:", event.code, event.reason);
         cleanup();
 
         // 如果不是正常关闭且允许自动重连
@@ -218,7 +218,10 @@ export function useWebSocket(config: WebSocketConfig = {}) {
 
           reconnectTimerRef.current = setTimeout(() => {
             reconnectCountRef.current++;
-            logger.debug('useWebSocket', `Reconnecting... (${reconnectCountRef.current}/${configRef.current.maxReconnectAttempts})`);
+            logger.debug(
+              "useWebSocket",
+              `Reconnecting... (${reconnectCountRef.current}/${configRef.current.maxReconnectAttempts})`
+            );
             connect();
           }, configRef.current.reconnectInterval);
         } else {
@@ -228,7 +231,7 @@ export function useWebSocket(config: WebSocketConfig = {}) {
       };
 
       ws.onerror = (error) => {
-        logger.error('useWebSocket', "[WebSocket] Error:", error);
+        logger.error("useWebSocket", "[WebSocket] Error:", error);
         const err = new Error("WebSocket connection error");
         setLastError(err);
         setState("error");
@@ -240,7 +243,7 @@ export function useWebSocket(config: WebSocketConfig = {}) {
 
       wsRef.current = ws;
     } catch (error) {
-      logger.error('useWebSocket', "[WebSocket] Failed to create connection:", error);
+      logger.error("useWebSocket", "[WebSocket] Failed to create connection:", error);
       const err = error instanceof Error ? error : new Error(String(error));
       setLastError(err);
       setState("error");
@@ -269,7 +272,7 @@ export function useWebSocket(config: WebSocketConfig = {}) {
   const on = useCallback(
     <K extends keyof WebSocketEventHandlers>(
       event: K,
-      handler: NonNullable<WebSocketEventHandlers[K]>,
+      handler: NonNullable<WebSocketEventHandlers[K]>
     ): (() => void) => {
       if (!handlersRef.current.has(event)) {
         handlersRef.current.set(event, new Set());
@@ -281,7 +284,7 @@ export function useWebSocket(config: WebSocketConfig = {}) {
         handlersRef.current.get(event)?.delete(handler);
       };
     },
-    [],
+    []
   );
 
   // 注册初始处理器

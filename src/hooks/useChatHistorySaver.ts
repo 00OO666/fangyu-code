@@ -7,7 +7,7 @@
  * - 包含 token 使用统计
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { invoke } from "@tauri-apps/api/core";
 import { useCallback } from "react";
 
@@ -39,7 +39,7 @@ export function useChatHistorySaver() {
 
       return messageId;
     } catch (error) {
-      logger.error('useChatHistorySaver', "Failed to save chat message:", error);
+      logger.error("useChatHistorySaver", "Failed to save chat message:", error);
       throw error;
     }
   }, []);
@@ -52,11 +52,11 @@ export function useChatHistorySaver() {
       try {
         await Promise.all(messages.map((msg) => saveMessage(msg)));
       } catch (error) {
-        logger.error('useChatHistorySaver', "Failed to save multiple messages:", error);
+        logger.error("useChatHistorySaver", "Failed to save multiple messages:", error);
         throw error;
       }
     },
-    [saveMessage],
+    [saveMessage]
   );
 
   /**
@@ -70,11 +70,11 @@ export function useChatHistorySaver() {
           title,
         });
       } catch (error) {
-        logger.error('useChatHistorySaver', "Failed to update session title:", error);
+        logger.error("useChatHistorySaver", "Failed to update session title:", error);
         throw error;
       }
     },
-    [],
+    []
   );
 
   return {

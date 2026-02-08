@@ -1,4 +1,4 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { useEffect, useRef } from "react";
 
 /**
@@ -22,7 +22,7 @@ function getAllCallTimes(): MCPCallTimeRecord {
     const stored = localStorage.getItem(STORAGE_KEY);
     return stored ? JSON.parse(stored) : {};
   } catch (error) {
-    logger.error('useAutoMCPCallTracker', "Failed to load MCP call times:", error);
+    logger.error("useAutoMCPCallTracker", "Failed to load MCP call times:", error);
     return {};
   }
 }
@@ -34,7 +34,7 @@ function saveAllCallTimes(times: MCPCallTimeRecord): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(times));
   } catch (error) {
-    logger.error('useAutoMCPCallTracker', "Failed to save MCP call times:", error);
+    logger.error("useAutoMCPCallTracker", "Failed to save MCP call times:", error);
   }
 }
 
@@ -61,7 +61,10 @@ function updateMCPCallTime(engine: "claude" | "codex" | "gemini", serverId: stri
   allTimes[engine][serverId] = now;
   saveAllCallTimes(allTimes);
 
-  logger.debug('useAutoMCPCallTracker', `[MCP Call Tracker] Updated call time for ${engine}/${serverId}`);
+  logger.debug(
+    "useAutoMCPCallTracker",
+    `[MCP Call Tracker] Updated call time for ${engine}/${serverId}`
+  );
 }
 
 /**
@@ -99,7 +102,7 @@ function checkMCPToolCallsInMessage(message: any): Set<string> {
  */
 export function useAutoMCPCallTracker(
   messages: any[] | undefined,
-  engine: "claude" | "codex" | "gemini",
+  engine: "claude" | "codex" | "gemini"
 ) {
   const processedMessageIds = useRef<Set<string>>(new Set());
 

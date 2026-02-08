@@ -1,15 +1,26 @@
 /**
  * GlobalSessionCenter - 会话中心组件
- * 
+ *
  * 功能：
  * - 显示所有项目的会话记录
  * - 搜索会话
  * - 编辑模式：多选、批量删除
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import React, { useState, useCallback, useMemo } from "react";
-import { Clock, Plus, Search, Loader2, FileText, Trash2, CheckSquare, Square, X, AlertTriangle } from 'lucide-react';
+import {
+  Clock,
+  Plus,
+  Search,
+  Loader2,
+  FileText,
+  Trash2,
+  CheckSquare,
+  Square,
+  X,
+  AlertTriangle,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -44,7 +55,8 @@ export const GlobalSessionCenter: React.FC<GlobalSessionCenterProps> = ({
   onNewSession,
   className,
 }) => {
-  const { sessions, loading, loadingMore, totalProjectCount, loadedProjectCount, error, refresh } = useSessionCache();
+  const { sessions, loading, loadingMore, totalProjectCount, loadedProjectCount, error, refresh } =
+    useSessionCache();
   const [searchQuery, setSearchQuery] = useState("");
   const [displayCount, setDisplayCount] = useState(INITIAL_DISPLAY_COUNT);
 
@@ -55,24 +67,34 @@ export const GlobalSessionCenter: React.FC<GlobalSessionCenterProps> = ({
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleLoadMore = useCallback(() => {
-    setDisplayCount(prev => prev + LOAD_MORE_COUNT);
+    setDisplayCount((prev) => prev + LOAD_MORE_COUNT);
   }, []);
 
   const { filteredSessions, displayedSessions, hasMore, totalCount } = useMemo(() => {
     const filtered = searchQuery
-      ? sessions.filter(session => {
-        const firstMessage = session.first_message || "";
-        const projectPath = session.project_path || "";
-        const query = searchQuery.toLowerCase();
-        return firstMessage.toLowerCase().includes(query) || projectPath.toLowerCase().includes(query) || session.id.toLowerCase().includes(query);
-      })
+      ? sessions.filter((session) => {
+          const firstMessage = session.first_message || "";
+          const projectPath = session.project_path || "";
+          const query = searchQuery.toLowerCase();
+          return (
+            firstMessage.toLowerCase().includes(query) ||
+            projectPath.toLowerCase().includes(query) ||
+            session.id.toLowerCase().includes(query)
+          );
+        })
       : sessions;
     const displayed = filtered.slice(0, displayCount);
-    return { filteredSessions: filtered, displayedSessions: displayed, hasMore: filtered.length > displayCount, totalCount: sessions.length };
+    return {
+      filteredSessions: filtered,
+      displayedSessions: displayed,
+      hasMore: filtered.length > displayCount,
+      totalCount: sessions.length,
+    };
   }, [sessions, searchQuery, displayCount]);
 
   // 生成唯一键（使用 JSON 序列化避免分隔符冲突）
-  const getSessionKey = (session: Session) => JSON.stringify({ p: session.project_id, s: session.id });
+  const getSessionKey = (session: Session) =>
+    JSON.stringify({ p: session.project_id, s: session.id });
 
   // 从 key 解析 project_id 和 session_id
   const parseSessionKey = (key: string): { projectId: string; sessionId: string } => {
@@ -80,27 +102,27 @@ export const GlobalSessionCenter: React.FC<GlobalSessionCenterProps> = ({
       const { p, s } = JSON.parse(key);
       return { projectId: p, sessionId: s };
     } catch {
-      logger.error('GlobalSessionCenter', '[parseSessionKey] Failed to parse:', key);
-      return { projectId: '', sessionId: '' };
+      logger.error("GlobalSessionCenter", "[parseSessionKey] Failed to parse:", key);
+      return { projectId: "", sessionId: "" };
     }
   };
 
   // 切换编辑模式
   const toggleEditMode = useCallback(() => {
-    setEditMode(prev => !prev);
+    setEditMode((prev) => !prev);
     setSelectedIds(new Set());
   }, []);
 
   // 切换单个选择
   const toggleSelect = useCallback((session: Session) => {
     const key = getSessionKey(session);
-    logger.debug('GlobalSessionCenter', '[Select] Session:', {
+    logger.debug("GlobalSessionCenter", "[Select] Session:", {
       id: session.id,
       project_id: session.project_id,
       project_path: session.project_path,
-      key
+      key,
     });
-    setSelectedIds(prev => {
+    setSelectedIds((prev) => {
       const next = new Set(prev);
       if (next.has(key)) {
         next.delete(key);
@@ -130,14 +152,21 @@ export const GlobalSessionCenter: React.FC<GlobalSessionCenterProps> = ({
       const sessionsByProject = new Map<string, string[]>();
       for (const key of selectedIds) {
         const { projectId, sessionId } = parseSessionKey(key);
-        logger.debug('GlobalSessionCenter', '[Delete] Parsed key:', key, '→', { projectId, sessionId });
+        logger.debug("GlobalSessionCenter", "[Delete] Parsed key:", key, "→", {
+          projectId,
+          sessionId,
+        });
         if (!sessionsByProject.has(projectId)) {
           sessionsByProject.set(projectId, []);
         }
         sessionsByProject.get(projectId)!.push(sessionId);
       }
 
-      logger.debug('GlobalSessionCenter', '[Delete] Sessions by project:', Object.fromEntries(sessionsByProject));
+      logger.debug(
+        "GlobalSessionCenter",
+        "[Delete] Sessions by project:",
+        Object.fromEntries(sessionsByProject)
+      );
 
       let totalDeleted = 0;
       let totalFailed = 0;
@@ -145,19 +174,22 @@ export const GlobalSessionCenter: React.FC<GlobalSessionCenterProps> = ({
       // 逐项目删除
       for (const [projectId, sessionIds] of sessionsByProject) {
         try {
-          logger.debug('GlobalSessionCenter', '[Delete] Calling delete_sessions_batch:', { projectId, sessionIds });
-          const result = await invoke<string>('delete_sessions_batch', {
+          logger.debug("GlobalSessionCenter", "[Delete] Calling delete_sessions_batch:", {
+            projectId,
+            sessionIds,
+          });
+          const result = await invoke<string>("delete_sessions_batch", {
             sessionIds,
             projectId,
           });
-          logger.debug('GlobalSessionCenter', '[Delete] Result:', result);
+          logger.debug("GlobalSessionCenter", "[Delete] Result:", result);
           // 解析结果
           const match = result.match(/Deleted (\d+) sessions/);
           if (match) {
             totalDeleted += parseInt(match[1], 10);
           }
         } catch (e) {
-          logger.error('GlobalSessionCenter', `[Delete] Failed for project ${projectId}:`, e);
+          logger.error("GlobalSessionCenter", `[Delete] Failed for project ${projectId}:`, e);
           totalFailed += sessionIds.length;
         }
       }
@@ -170,12 +202,12 @@ export const GlobalSessionCenter: React.FC<GlobalSessionCenterProps> = ({
       }
 
       // 刷新列表（先清除缓存）
-      localStorage.removeItem('fangyu_session_center_cache');
+      localStorage.removeItem("fangyu_session_center_cache");
       setSelectedIds(new Set());
       setEditMode(false);
       await refresh();
     } catch (e) {
-      logger.error('GlobalSessionCenter', '[Delete] Error:', e);
+      logger.error("GlobalSessionCenter", "[Delete] Error:", e);
       toast.error(`删除失败: ${e}`);
     } finally {
       setIsDeleting(false);
@@ -184,13 +216,16 @@ export const GlobalSessionCenter: React.FC<GlobalSessionCenterProps> = ({
   }, [selectedIds, refresh]);
 
   // 点击会话
-  const handleSessionClick = useCallback((session: Session) => {
-    if (editMode) {
-      toggleSelect(session);
-    } else {
-      onSessionClick?.(session);
-    }
-  }, [editMode, toggleSelect, onSessionClick]);
+  const handleSessionClick = useCallback(
+    (session: Session) => {
+      if (editMode) {
+        toggleSelect(session);
+      } else {
+        onSessionClick?.(session);
+      }
+    },
+    [editMode, toggleSelect, onSessionClick]
+  );
 
   return (
     <div className={cn("flex-1 flex flex-col overflow-hidden", className)}>
@@ -198,7 +233,9 @@ export const GlobalSessionCenter: React.FC<GlobalSessionCenterProps> = ({
         <div className="flex items-start justify-between gap-4 mb-4">
           <div className="flex-1 min-w-0">
             <h1 className="text-3xl font-bold tracking-tight">会话中心</h1>
-            <p className="text-sm text-muted-foreground mt-1">所有项目的会话记录，按最近打开时间排序</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              所有项目的会话记录，按最近打开时间排序
+            </p>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             {/* 编辑模式按钮 */}
@@ -227,7 +264,8 @@ export const GlobalSessionCenter: React.FC<GlobalSessionCenterProps> = ({
                 size="default"
                 className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-sm transition-all duration-200 hover:shadow-md"
               >
-                <Plus className="mr-2 h-4 w-4" />新建会话
+                <Plus className="mr-2 h-4 w-4" />
+                新建会话
               </Button>
             )}
           </div>
@@ -236,12 +274,7 @@ export const GlobalSessionCenter: React.FC<GlobalSessionCenterProps> = ({
         {/* 编辑模式工具栏 */}
         {editMode && (
           <div className="flex items-center gap-3 mb-4 p-3 rounded-lg bg-muted/50 border border-border">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={toggleSelectAll}
-              className="text-sm"
-            >
+            <Button variant="ghost" size="sm" onClick={toggleSelectAll} className="text-sm">
               {selectedIds.size === displayedSessions.length && displayedSessions.length > 0 ? (
                 <>
                   <CheckSquare className="mr-2 h-4 w-4" />
@@ -254,9 +287,7 @@ export const GlobalSessionCenter: React.FC<GlobalSessionCenterProps> = ({
                 </>
               )}
             </Button>
-            <span className="text-sm text-muted-foreground">
-              已选择 {selectedIds.size} 个会话
-            </span>
+            <span className="text-sm text-muted-foreground">已选择 {selectedIds.size} 个会话</span>
             <div className="flex-1" />
             <Button
               variant="destructive"
@@ -281,7 +312,12 @@ export const GlobalSessionCenter: React.FC<GlobalSessionCenterProps> = ({
 
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="搜索会话内容、项目路径或会话ID..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10" />
+          <Input
+            placeholder="搜索会话内容、项目路径或会话ID..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
         </div>
       </div>
 
@@ -289,23 +325,41 @@ export const GlobalSessionCenter: React.FC<GlobalSessionCenterProps> = ({
         {loading ? (
           <div className="flex flex-col items-center justify-center h-64 gap-3">
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">正在加载会话...{totalProjectCount > 0 && ` (${loadedProjectCount}/${totalProjectCount} 项目)`}</p>
+            <p className="text-sm text-muted-foreground">
+              正在加载会话...
+              {totalProjectCount > 0 && ` (${loadedProjectCount}/${totalProjectCount} 项目)`}
+            </p>
           </div>
         ) : error ? (
-          <div className="flex items-center justify-center h-64"><p className="text-sm text-destructive">{error}</p></div>
+          <div className="flex items-center justify-center h-64">
+            <p className="text-sm text-destructive">{error}</p>
+          </div>
         ) : filteredSessions.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-64 text-center px-4">
             <FileText className="h-12 w-12 text-muted-foreground mb-4" />
-            <p className="text-sm text-muted-foreground">{searchQuery ? "未找到匹配的会话" : "暂无会话记录"}</p>
-            {!searchQuery && <Button onClick={onNewSession} variant="outline" className="mt-4"><Plus className="mr-2 h-4 w-4" />创建第一个会话</Button>}
+            <p className="text-sm text-muted-foreground">
+              {searchQuery ? "未找到匹配的会话" : "暂无会话记录"}
+            </p>
+            {!searchQuery && (
+              <Button onClick={onNewSession} variant="outline" className="mt-4">
+                <Plus className="mr-2 h-4 w-4" />
+                创建第一个会话
+              </Button>
+            )}
           </div>
         ) : (
           <div className="divide-y divide-border">
             {displayedSessions.map((session) => {
               const key = getSessionKey(session);
               const isSelected = selectedIds.has(key);
-              const firstMessagePreview = session.first_message ? truncateText(getFirstLine(session.first_message), 100) : session.id;
-              const timeDisplay = session.last_message_timestamp ? formatISOTimestamp(session.last_message_timestamp) : session.message_timestamp ? formatISOTimestamp(session.message_timestamp) : new Date(session.created_at * 1000).toLocaleString();
+              const firstMessagePreview = session.first_message
+                ? truncateText(getFirstLine(session.first_message), 100)
+                : session.id;
+              const timeDisplay = session.last_message_timestamp
+                ? formatISOTimestamp(session.last_message_timestamp)
+                : session.message_timestamp
+                  ? formatISOTimestamp(session.message_timestamp)
+                  : new Date(session.created_at * 1000).toLocaleString();
 
               return (
                 <button
@@ -333,14 +387,19 @@ export const GlobalSessionCenter: React.FC<GlobalSessionCenterProps> = ({
                     )}
 
                     <div className="flex-1 min-w-0 space-y-1.5">
-                      <p className={cn(
-                        "text-sm font-medium truncate transition-colors",
-                        isSelected ? "text-primary" : "text-foreground group-hover:text-primary"
-                      )}>
+                      <p
+                        className={cn(
+                          "text-sm font-medium truncate transition-colors",
+                          isSelected ? "text-primary" : "text-foreground group-hover:text-primary"
+                        )}
+                      >
                         {firstMessagePreview}
                       </p>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span className="px-2 py-0.5 rounded bg-primary/10 text-primary font-mono truncate max-w-lg" title={session.project_path || "未知项目"}>
+                        <span
+                          className="px-2 py-0.5 rounded bg-primary/10 text-primary font-mono truncate max-w-lg"
+                          title={session.project_path || "未知项目"}
+                        >
                           {session.project_path || "未知项目"}
                         </span>
                         <span className="text-muted-foreground/50">•</span>
@@ -367,7 +426,8 @@ export const GlobalSessionCenter: React.FC<GlobalSessionCenterProps> = ({
         )}
         {loadingMore && displayedSessions.length > 0 && (
           <div className="p-4 flex items-center justify-center gap-2 text-sm text-muted-foreground border-t">
-            <Loader2 className="h-4 w-4 animate-spin" />正在加载更多会话... ({loadedProjectCount}/{totalProjectCount} 项目)
+            <Loader2 className="h-4 w-4 animate-spin" />
+            正在加载更多会话... ({loadedProjectCount}/{totalProjectCount} 项目)
           </div>
         )}
       </div>

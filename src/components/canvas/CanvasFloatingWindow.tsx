@@ -8,10 +8,10 @@
  * - 实时预览
  */
 
-import React, { useState, useEffect } from 'react';
-import { X, Maximize2, Minimize2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { CanvasPanel } from './CanvasPanel';
+import React, { useState, useEffect } from "react";
+import { X, Maximize2, Minimize2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { CanvasPanel } from "./CanvasPanel";
 
 interface CanvasFloatingWindowProps {
   isOpen: boolean;
@@ -23,8 +23,8 @@ interface CanvasFloatingWindowProps {
 export const CanvasFloatingWindow: React.FC<CanvasFloatingWindowProps> = ({
   isOpen,
   onClose,
-  extractedCode = '',
-  language = 'tsx',
+  extractedCode = "",
+  language = "tsx",
 }) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -37,19 +37,19 @@ export const CanvasFloatingWindow: React.FC<CanvasFloatingWindowProps> = ({
   // 监听快捷键 Ctrl+Shift+C
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.shiftKey && e.key === 'C') {
+      if (e.ctrlKey && e.shiftKey && e.key === "C") {
         e.preventDefault();
         setIsMinimized(false);
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   // 拖拽处理
   const handleMouseDown = (e: React.MouseEvent) => {
-    if ((e.target as HTMLElement).closest('.drag-handle')) {
+    if ((e.target as HTMLElement).closest(".drag-handle")) {
       setIsDragging(true);
       setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
     }
@@ -92,10 +92,7 @@ export const CanvasFloatingWindow: React.FC<CanvasFloatingWindowProps> = ({
   if (isMinimized) {
     return (
       <div className="fixed bottom-4 right-4 z-50">
-        <Button
-          onClick={() => setIsMinimized(false)}
-          className="gap-2 shadow-lg"
-        >
+        <Button onClick={() => setIsMinimized(false)} className="gap-2 shadow-lg">
           <Maximize2 size={16} />
           Canvas
         </Button>
@@ -115,8 +112,8 @@ export const CanvasFloatingWindow: React.FC<CanvasFloatingWindowProps> = ({
           width: `${size.width}px`,
           height: `${size.height}px`,
           transform: `translate(${position.x}px, ${position.y}px)`,
-          maxWidth: '95vw',
-          maxHeight: '95vh',
+          maxWidth: "95vw",
+          maxHeight: "95vh",
         }}
         onMouseDown={handleMouseDown}
       >
@@ -171,7 +168,7 @@ export const CanvasFloatingWindow: React.FC<CanvasFloatingWindowProps> = ({
           className="absolute bottom-0 right-0 w-4 h-4 cursor-nwse-resize"
           onMouseDown={handleResizeStart}
           style={{
-            background: 'linear-gradient(135deg, transparent 50%, #666 50%)',
+            background: "linear-gradient(135deg, transparent 50%, #666 50%)",
           }}
           title="拖拽缩放"
         />

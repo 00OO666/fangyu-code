@@ -54,7 +54,7 @@ export function useUpdateCheck(): UseUpdateCheckResult {
         isCheckingRef.current = false;
       }
     },
-    [lastChecked],
+    [lastChecked]
   );
 
   return {

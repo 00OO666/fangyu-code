@@ -52,7 +52,8 @@ export interface ImageAttachment {
 /**
  * Execution engine configuration (re-export from ExecutionEngineSelector)
  */
-export type ExecutionEngineConfig = import('@/components/ExecutionEngineSelector').ExecutionEngineConfig;
+export type ExecutionEngineConfig =
+  import("@/components/ExecutionEngineSelector").ExecutionEngineConfig;
 
 /**
  * Floating prompt input props
@@ -63,7 +64,12 @@ export interface FloatingPromptInputProps {
    * 🔧 FIX: 支持异步回调，等待完成后再清空输入框，防止消息丢失
    * 🆕 forceImmediate: 强制立即发送（插队模式），绕过队列检查
    */
-  onSend: (prompt: string, model: ModelType, maxThinkingTokens?: number, forceImmediate?: boolean) => void | Promise<void>;
+  onSend: (
+    prompt: string,
+    model: ModelType,
+    maxThinkingTokens?: number,
+    forceImmediate?: boolean
+  ) => void | Promise<void>;
   /**
    * Whether the input is loading
    */
@@ -163,7 +169,7 @@ export interface FloatingPromptInputProps {
   /**
    * 🆕 代码来源
    */
-  codeSource?: 'markdown' | 'tool_use';
+  codeSource?: "markdown" | "tool_use";
   /**
    * 🆕 Callback when Usage Dashboard is toggled
    */
@@ -179,7 +185,7 @@ export interface FloatingPromptInputProps {
   /**
    * 🆕 后台压缩状态（Invisible UX）
    */
-  compactStatus?: import('@/hooks/useBackgroundCompact').CompactStatus;
+  compactStatus?: import("@/hooks/useBackgroundCompact").CompactStatus;
   /**
    * 🆕 是否正在后台压缩
    */

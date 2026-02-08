@@ -1,14 +1,19 @@
 /**
  * ModelRouter - 多模型路由器
- * 
+ *
  * 支持多个 AI 提供商，实现智能路由、回退和健康监控
- * 
+ *
  * Requirements: 7.1, 7.3, 7.4, 7.7
  */
 
-import { ModelProvider, ModelConfig } from '../types/unified-agent';
-import { RealAPIClient, createHiAPIClient, createOpenAIClient, APIClientConfig } from '../api/RealAPIClient';
-import { TokenTracker } from '../api/TokenTracker';
+import { ModelProvider, ModelConfig } from "../types/unified-agent";
+import {
+  RealAPIClient,
+  createHiAPIClient,
+  createOpenAIClient,
+  APIClientConfig,
+} from "../api/RealAPIClient";
+import { TokenTracker } from "../api/TokenTracker";
 
 // 模型健康状态
 export interface ModelHealth {
@@ -26,10 +31,10 @@ export interface ModelHealth {
 
 // 健康监控配置
 export interface HealthMonitorConfig {
-  checkInterval: number;        // 健康检查间隔（毫秒）
-  unhealthyThreshold: number;   // 标记为不健康的连续失败次数
-  recoveryThreshold: number;    // 恢复健康的连续成功次数
-  maxRecoveryAttempts: number;  // 最大恢复尝试次数
+  checkInterval: number; // 健康检查间隔（毫秒）
+  unhealthyThreshold: number; // 标记为不健康的连续失败次数
+  recoveryThreshold: number; // 恢复健康的连续成功次数
+  maxRecoveryAttempts: number; // 最大恢复尝试次数
   circuitBreakerTimeout: number; // 熔断器超时（毫秒）
 }
 
@@ -70,30 +75,30 @@ export interface ModelResponse {
 // 模型定价（每 1M tokens）
 const MODEL_PRICING: Record<string, { input: number; output: number }> = {
   // Anthropic
-  'claude-3-opus': { input: 15, output: 75 },
-  'claude-3-sonnet': { input: 3, output: 15 },
-  'claude-3-haiku': { input: 0.25, output: 1.25 },
-  'claude-3.5-sonnet': { input: 3, output: 15 },
+  "claude-3-opus": { input: 15, output: 75 },
+  "claude-3-sonnet": { input: 3, output: 15 },
+  "claude-3-haiku": { input: 0.25, output: 1.25 },
+  "claude-3.5-sonnet": { input: 3, output: 15 },
   // OpenAI
-  'gpt-4-turbo': { input: 10, output: 30 },
-  'gpt-4o': { input: 5, output: 15 },
-  'gpt-4o-mini': { input: 0.15, output: 0.6 },
-  'gpt-3.5-turbo': { input: 0.5, output: 1.5 },
+  "gpt-4-turbo": { input: 10, output: 30 },
+  "gpt-4o": { input: 5, output: 15 },
+  "gpt-4o-mini": { input: 0.15, output: 0.6 },
+  "gpt-3.5-turbo": { input: 0.5, output: 1.5 },
   // Google
-  'gemini-pro': { input: 0.5, output: 1.5 },
-  'gemini-1.5-pro': { input: 3.5, output: 10.5 },
-  'gemini-1.5-flash': { input: 0.075, output: 0.3 },
+  "gemini-pro": { input: 0.5, output: 1.5 },
+  "gemini-1.5-pro": { input: 3.5, output: 10.5 },
+  "gemini-1.5-flash": { input: 0.075, output: 0.3 },
   // xAI
-  'grok-1': { input: 5, output: 15 },
-  'grok-2': { input: 2, output: 10 },
+  "grok-1": { input: 5, output: 15 },
+  "grok-2": { input: 2, output: 10 },
 };
 
 // 默认回退链
 const DEFAULT_FALLBACK_CHAIN: Record<ModelProvider, ModelProvider[]> = {
-  anthropic: ['openai', 'google', 'xai'],
-  openai: ['anthropic', 'google', 'xai'],
-  google: ['anthropic', 'openai', 'xai'],
-  xai: ['anthropic', 'openai', 'google'],
+  anthropic: ["openai", "google", "xai"],
+  openai: ["anthropic", "google", "xai"],
+  google: ["anthropic", "openai", "xai"],
+  xai: ["anthropic", "openai", "google"],
 };
 
 // API 客户端接口
@@ -146,13 +151,10 @@ export class ModelRouter {
   /**
    * 注册 RealAPIClient 作为默认客户端
    */
-  registerRealClient(
-    provider: ModelProvider,
-    config: APIClientConfig
-  ): void {
+  registerRealClient(provider: ModelProvider, config: APIClientConfig): void {
     const client = new RealAPIClient(config);
     this.realClients.set(provider, client);
-    
+
     // 同时注册为 ModelAPIClient
     this.clients.set(provider, client);
   }
@@ -162,12 +164,12 @@ export class ModelRouter {
    */
   useHiAPI(apiKey: string, options?: Partial<APIClientConfig>): void {
     const client = createHiAPIClient(apiKey, options);
-    
+
     // HiAPI 支持多个提供商，注册为默认
-    this.realClients.set('hiapi' as ModelProvider, client);
-    
+    this.realClients.set("hiapi" as ModelProvider, client);
+
     // 为所有提供商注册同一个客户端（HiAPI 中转）
-    const providers: ModelProvider[] = ['anthropic', 'openai', 'google', 'xai'];
+    const providers: ModelProvider[] = ["anthropic", "openai", "google", "xai"];
     for (const provider of providers) {
       if (!this.clients.has(provider)) {
         this.clients.set(provider, client);
@@ -180,8 +182,8 @@ export class ModelRouter {
    */
   useOpenAI(apiKey: string, options?: Partial<APIClientConfig>): void {
     const client = createOpenAIClient(apiKey, options);
-    this.realClients.set('openai', client);
-    this.clients.set('openai', client);
+    this.realClients.set("openai", client);
+    this.clients.set("openai", client);
   }
 
   /**
@@ -208,7 +210,7 @@ export class ModelRouter {
    */
   registerModel(id: string, config: ModelConfig): void {
     this.configs.set(id, config);
-    
+
     // 初始化健康状态
     const healthKey = `${config.provider}:${config.model}`;
     if (!this.health.has(healthKey)) {
@@ -317,13 +319,23 @@ export class ModelRouter {
 
       const latency = Date.now() - startTime;
       const totalTokens = result.usage.inputTokens + result.usage.outputTokens;
-      const cost = this.calculateCost(config.model, result.usage.inputTokens, result.usage.outputTokens);
+      const cost = this.calculateCost(
+        config.model,
+        result.usage.inputTokens,
+        result.usage.outputTokens
+      );
 
       // 更新健康状态
       this.updateHealth(healthKey, true, latency);
 
       // 更新使用统计
-      this.updateUsage(healthKey, result.usage.inputTokens, result.usage.outputTokens, cost, latency);
+      this.updateUsage(
+        healthKey,
+        result.usage.inputTokens,
+        result.usage.outputTokens,
+        cost,
+        latency
+      );
 
       // 记录到 TokenTracker
       this.tokenTracker.recordUsage({
@@ -382,7 +394,7 @@ export class ModelRouter {
 
     // 尝试回退链中的其他提供商
     const fallbackProviders = this.fallbackChain[originalConfig.provider] ?? [];
-    
+
     for (const provider of fallbackProviders) {
       // 找到该提供商的健康模型
       const healthyModel = this.findHealthyModel(provider);
@@ -453,7 +465,7 @@ export class ModelRouter {
       health.successCount++;
       health.latency = latency;
       health.consecutiveFailures = 0;
-      
+
       // 检查是否达到恢复阈值
       if (!health.healthy) {
         health.recoveryAttempts = 0;
@@ -464,7 +476,7 @@ export class ModelRouter {
       health.errorCount++;
       health.consecutiveFailures++;
       health.lastError = error;
-      
+
       // 检查是否达到不健康阈值
       if (health.consecutiveFailures >= this.healthMonitorConfig.unhealthyThreshold) {
         health.healthy = false;
@@ -480,9 +492,9 @@ export class ModelRouter {
    */
   async performHealthCheck(provider: ModelProvider, model: string): Promise<boolean> {
     const config = Array.from(this.configs.values()).find(
-      c => c.provider === provider && c.model === model
+      (c) => c.provider === provider && c.model === model
     );
-    
+
     if (!config) return false;
 
     const client = this.clients.get(provider);
@@ -493,10 +505,10 @@ export class ModelRouter {
 
     try {
       await client.chat({
-        messages: [{ role: 'user', content: 'ping' }],
+        messages: [{ role: "user", content: "ping" }],
         maxTokens: 1,
       });
-      
+
       this.updateHealth(healthKey, true, Date.now() - startTime);
       return true;
     } catch (error) {
@@ -518,7 +530,7 @@ export class ModelRouter {
       health.recoveryAttempts = 0;
       health.lastError = undefined;
     }
-    
+
     // 重置熔断器
     const breaker = this.circuitBreakers.get(key);
     if (breaker) {
@@ -534,11 +546,11 @@ export class ModelRouter {
   startHealthMonitoring(): void {
     for (const [key, health] of this.health) {
       if (this.healthCheckTimers.has(key)) continue;
-      
+
       const timer = setInterval(async () => {
         await this.performHealthCheck(health.provider, health.model);
       }, this.healthMonitorConfig.checkInterval);
-      
+
       this.healthCheckTimers.set(key, timer);
     }
   }
@@ -561,7 +573,7 @@ export class ModelRouter {
     const key = `${provider}:${model}`;
     const breaker = this.circuitBreakers.get(key);
     if (!breaker) return false;
-    
+
     if (breaker.open) {
       // 检查是否超过熔断超时时间
       if (Date.now() - breaker.openedAt > this.healthMonitorConfig.circuitBreakerTimeout) {
@@ -603,19 +615,19 @@ export class ModelRouter {
     const key = `${provider}:${model}`;
     const health = this.health.get(key);
     if (!health) return false;
-    
+
     if (health.recoveryAttempts >= this.healthMonitorConfig.maxRecoveryAttempts) {
       return false;
     }
-    
+
     health.recoveryAttempts++;
     const success = await this.performHealthCheck(provider, model);
-    
+
     if (success) {
       this.resetHealth(provider, model);
       return true;
     }
-    
+
     return false;
   }
 
@@ -623,7 +635,7 @@ export class ModelRouter {
    * 获取所有不健康的模型
    */
   getUnhealthyModels(): ModelHealth[] {
-    return Array.from(this.health.values()).filter(h => !h.healthy);
+    return Array.from(this.health.values()).filter((h) => !h.healthy);
   }
 
   /**
@@ -653,16 +665,16 @@ export class ModelRouter {
       latency: number;
       errorRate: number;
     }> = [];
-    
+
     let totalLatency = 0;
     let healthyCount = 0;
     let circuitOpenCount = 0;
-    
+
     for (const [, health] of this.health) {
       const circuitOpen = this.isCircuitOpen(health.provider, health.model);
       const totalRequests = health.successCount + health.errorCount;
       const errorRate = totalRequests > 0 ? health.errorCount / totalRequests : 0;
-      
+
       models.push({
         provider: health.provider,
         model: health.model,
@@ -671,12 +683,12 @@ export class ModelRouter {
         latency: health.latency,
         errorRate,
       });
-      
+
       if (health.healthy) healthyCount++;
       if (circuitOpen) circuitOpenCount++;
       totalLatency += health.latency;
     }
-    
+
     return {
       totalModels: this.health.size,
       healthyModels: healthyCount,
@@ -746,9 +758,10 @@ export class ModelRouter {
     stats.outputTokens += outputTokens;
     stats.totalTokens += inputTokens + outputTokens;
     stats.totalCost += cost;
-    
+
     // 计算移动平均延迟
-    stats.averageLatency = (stats.averageLatency * (stats.totalRequests - 1) + latency) / stats.totalRequests;
+    stats.averageLatency =
+      (stats.averageLatency * (stats.totalRequests - 1) + latency) / stats.totalRequests;
   }
 
   /**
@@ -761,7 +774,7 @@ export class ModelRouter {
       // 默认定价
       return (inputTokens * 0.001 + outputTokens * 0.002) / 1000;
     }
-    
+
     return (inputTokens * pricing.input + outputTokens * pricing.output) / 1000000;
   }
 
@@ -783,20 +796,26 @@ export class ModelRouter {
    * 获取按提供商分组的使用统计
    * Requirements: 7.4
    */
-  getUsageByProvider(): Map<ModelProvider, {
-    totalRequests: number;
-    totalTokens: number;
-    inputTokens: number;
-    outputTokens: number;
-    totalCost: number;
-  }> {
-    const byProvider = new Map<ModelProvider, {
+  getUsageByProvider(): Map<
+    ModelProvider,
+    {
       totalRequests: number;
       totalTokens: number;
       inputTokens: number;
       outputTokens: number;
       totalCost: number;
-    }>();
+    }
+  > {
+    const byProvider = new Map<
+      ModelProvider,
+      {
+        totalRequests: number;
+        totalTokens: number;
+        inputTokens: number;
+        outputTokens: number;
+        totalCost: number;
+      }
+    >();
 
     for (const stats of this.usage.values()) {
       const existing = byProvider.get(stats.provider) ?? {
@@ -883,7 +902,11 @@ export class ModelRouter {
    * 估算请求成本
    * Requirements: 7.4
    */
-  estimateCost(modelId: string, estimatedInputTokens: number, estimatedOutputTokens: number): number {
+  estimateCost(
+    modelId: string,
+    estimatedInputTokens: number,
+    estimatedOutputTokens: number
+  ): number {
     const config = this.configs.get(modelId);
     if (!config) return 0;
     return this.calculateCost(config.model, estimatedInputTokens, estimatedOutputTokens);
@@ -908,7 +931,7 @@ export class ModelRouter {
   // ==========================================================================
 
   private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }
 

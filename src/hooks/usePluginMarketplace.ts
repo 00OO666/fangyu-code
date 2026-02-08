@@ -11,7 +11,7 @@
  * 来源: VSCode Marketplace + npm Registry
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { useCallback, useMemo, useState } from "react";
 import type {
   PluginCategory,
@@ -244,7 +244,7 @@ export function usePluginMarketplace(options: UsePluginMarketplaceOptions = {}) 
 
       return cached.data;
     },
-    [cache, config.enableCache, config.cacheExpiry],
+    [cache, config.enableCache, config.cacheExpiry]
   );
 
   /**
@@ -255,7 +255,7 @@ export function usePluginMarketplace(options: UsePluginMarketplaceOptions = {}) 
       if (!config.enableCache) return;
       cache.set(key, { data, timestamp: Date.now() });
     },
-    [cache, config.enableCache],
+    [cache, config.enableCache]
   );
 
   /**
@@ -282,7 +282,7 @@ export function usePluginMarketplace(options: UsePluginMarketplaceOptions = {}) 
             (p) =>
               p.name.toLowerCase().includes(query) ||
               p.description.toLowerCase().includes(query) ||
-              p.tags?.some((t) => t.toLowerCase().includes(query)),
+              p.tags?.some((t) => t.toLowerCase().includes(query))
           );
         }
 
@@ -302,7 +302,7 @@ export function usePluginMarketplace(options: UsePluginMarketplaceOptions = {}) 
               break;
             case "date":
               results.sort(
-                (a, b) => new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime(),
+                (a, b) => new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime()
               );
               break;
             case "relevance":
@@ -333,7 +333,7 @@ export function usePluginMarketplace(options: UsePluginMarketplaceOptions = {}) 
         setIsLoading(false);
       }
     },
-    [getFromCache, setToCache],
+    [getFromCache, setToCache]
   );
 
   /**
@@ -362,7 +362,7 @@ export function usePluginMarketplace(options: UsePluginMarketplaceOptions = {}) 
         setIsLoading(false);
       }
     },
-    [getFromCache, setToCache],
+    [getFromCache, setToCache]
   );
 
   /**
@@ -433,7 +433,7 @@ export function usePluginMarketplace(options: UsePluginMarketplaceOptions = {}) 
       const result = await searchPlugins({ category, pageSize: 50 });
       return result.plugins;
     },
-    [searchPlugins],
+    [searchPlugins]
   );
 
   /**
@@ -443,7 +443,7 @@ export function usePluginMarketplace(options: UsePluginMarketplaceOptions = {}) 
     async (pluginId: string, _installOptions?: Partial<PluginInstallOptions>): Promise<boolean> => {
       const plugin = await getPluginDetails(pluginId);
       if (!plugin) {
-        logger.error('usePluginMarketplace', `[Marketplace] Plugin not found: ${pluginId}`);
+        logger.error("usePluginMarketplace", `[Marketplace] Plugin not found: ${pluginId}`);
         return false;
       }
 
@@ -451,7 +451,7 @@ export function usePluginMarketplace(options: UsePluginMarketplaceOptions = {}) 
       const updateProgress = (
         status: InstallProgress["status"],
         progress: number,
-        error?: string,
+        error?: string
       ) => {
         setInstallProgress((prev) => {
           const next = new Map(prev);
@@ -487,7 +487,7 @@ export function usePluginMarketplace(options: UsePluginMarketplaceOptions = {}) 
 
         updateProgress("completed", 100);
 
-        logger.debug('usePluginMarketplace', `[Marketplace] Plugin installed: ${pluginId}`);
+        logger.debug("usePluginMarketplace", `[Marketplace] Plugin installed: ${pluginId}`);
         onInstallComplete?.(pluginId);
 
         // 延迟清除进度
@@ -507,7 +507,7 @@ export function usePluginMarketplace(options: UsePluginMarketplaceOptions = {}) 
         return false;
       }
     },
-    [getPluginDetails, onInstallComplete, onInstallError],
+    [getPluginDetails, onInstallComplete, onInstallError]
   );
 
   /**
@@ -516,7 +516,7 @@ export function usePluginMarketplace(options: UsePluginMarketplaceOptions = {}) 
   const uninstallPlugin = useCallback(async (pluginId: string): Promise<boolean> => {
     // 模拟卸载
     await new Promise((resolve) => setTimeout(resolve, 500));
-    logger.debug('usePluginMarketplace', `[Marketplace] Plugin uninstalled: ${pluginId}`);
+    logger.debug("usePluginMarketplace", `[Marketplace] Plugin uninstalled: ${pluginId}`);
     return true;
   }, []);
 
@@ -560,7 +560,7 @@ export function usePluginMarketplace(options: UsePluginMarketplaceOptions = {}) 
     async (pluginId: string): Promise<boolean> => {
       const updateInfo = availableUpdates.find((u) => u.pluginId === pluginId);
       if (!updateInfo) {
-        logger.error('usePluginMarketplace', `[Marketplace] No update available for: ${pluginId}`);
+        logger.error("usePluginMarketplace", `[Marketplace] No update available for: ${pluginId}`);
         return false;
       }
 
@@ -574,7 +574,7 @@ export function usePluginMarketplace(options: UsePluginMarketplaceOptions = {}) 
 
       return result;
     },
-    [availableUpdates, installPlugin],
+    [availableUpdates, installPlugin]
   );
 
   /**
@@ -598,7 +598,7 @@ export function usePluginMarketplace(options: UsePluginMarketplaceOptions = {}) 
     (pluginId: string): InstallProgress | undefined => {
       return installProgress.get(pluginId);
     },
-    [installProgress],
+    [installProgress]
   );
 
   /**
@@ -608,7 +608,7 @@ export function usePluginMarketplace(options: UsePluginMarketplaceOptions = {}) 
     (pluginId: string): boolean => {
       return installedPlugins.includes(pluginId);
     },
-    [installedPlugins],
+    [installedPlugins]
   );
 
   /**
@@ -629,7 +629,7 @@ export function usePluginMarketplace(options: UsePluginMarketplaceOptions = {}) 
       pendingUpdates: availableUpdates.length,
       installing: installProgress.size,
     }),
-    [installedPlugins.length, availableUpdates.length, installProgress.size],
+    [installedPlugins.length, availableUpdates.length, installProgress.size]
   );
 
   return {

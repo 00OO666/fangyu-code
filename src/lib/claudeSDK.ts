@@ -8,7 +8,7 @@
  * 绕过 SDK 内部的 fetch，避免 CORS 问题。
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import Anthropic from "@anthropic-ai/sdk";
 import { fetch as tauriFetch } from "@tauri-apps/plugin-http";
 import { api } from "./api";
@@ -77,7 +77,7 @@ export class ClaudeSDKService {
   constructor(config: ClaudeSDKConfig = {}) {
     this.config = {
       defaultModel: "claude-3-5-sonnet-20241022",
-      maxTokens: 8192,  // ✅ 提高到 Claude 的最大输出限制
+      maxTokens: 8192, // ✅ 提高到 Claude 的最大输出限制
       temperature: 0.7,
       topP: 1,
       ...config,
@@ -113,9 +113,9 @@ export class ClaudeSDKService {
 
       this.isInitialized = true;
     } catch (error) {
-      logger.error('claudeSDK', "[ClaudeSDK] Initialization failed:", error);
+      logger.error("claudeSDK", "[ClaudeSDK] Initialization failed:", error);
       throw new Error(
-        `Failed to initialize Claude SDK: ${error instanceof Error ? error.message : "Unknown error"}`,
+        `Failed to initialize Claude SDK: ${error instanceof Error ? error.message : "Unknown error"}`
       );
     }
   }
@@ -140,7 +140,7 @@ export class ClaudeSDKService {
       maxTokens?: number;
       temperature?: number;
       systemPrompt?: string;
-    } = {},
+    } = {}
   ): Promise<ClaudeResponse> {
     // 优先使用直接调用方式，绕过 SDK 的 CORS 问题
     return this.sendMessageDirect(messages, options);
@@ -157,7 +157,7 @@ export class ClaudeSDKService {
       maxTokens?: number;
       temperature?: number;
       systemPrompt?: string;
-    } = {},
+    } = {}
   ): Promise<ClaudeResponse> {
     // 获取配置
     const providerConfig = await api.getCurrentProviderConfig();
@@ -213,9 +213,9 @@ export class ClaudeSDKService {
 
       if (!response.ok) {
         const errorText = await response.text();
-        logger.error('claudeSDK', "[ClaudeSDK] API error:", response.status, errorText);
+        logger.error("claudeSDK", "[ClaudeSDK] API error:", response.status, errorText);
         throw new Error(
-          `API request failed: ${response.status} ${response.statusText}\n${errorText}`,
+          `API request failed: ${response.status} ${response.statusText}\n${errorText}`
         );
       }
 
@@ -238,9 +238,9 @@ export class ClaudeSDKService {
         stop_reason: data.stop_reason || null,
       };
     } catch (error) {
-      logger.error('claudeSDK', "[ClaudeSDK] sendMessageDirect failed:", error);
+      logger.error("claudeSDK", "[ClaudeSDK] sendMessageDirect failed:", error);
       throw new Error(
-        `Failed to send message: ${error instanceof Error ? error.message : "Unknown error"}`,
+        `Failed to send message: ${error instanceof Error ? error.message : "Unknown error"}`
       );
     }
   }
@@ -260,7 +260,7 @@ export class ClaudeSDKService {
         output_tokens: number;
         cache_read_tokens?: number;
       }) => void;
-    } = {},
+    } = {}
   ): AsyncGenerator<
     {
       type: "content" | "usage" | "done";
@@ -363,9 +363,9 @@ export class ClaudeSDKService {
         }
       }
     } catch (error) {
-      logger.error('claudeSDK', "[ClaudeSDK] Streaming failed:", error);
+      logger.error("claudeSDK", "[ClaudeSDK] Streaming failed:", error);
       throw new Error(
-        `Failed to stream message: ${error instanceof Error ? error.message : "Unknown error"}`,
+        `Failed to stream message: ${error instanceof Error ? error.message : "Unknown error"}`
       );
     }
   }
@@ -381,7 +381,7 @@ export class ClaudeSDKService {
         [{ role: "user", content: 'Hello, please respond with "Connection successful"' }],
         {
           maxTokens: 50,
-        },
+        }
       );
 
       return {
@@ -434,5 +434,5 @@ export const claudeSDK = new ClaudeSDKService();
 
 // Auto-initialize on import
 claudeSDK.initialize().catch((error) => {
-  logger.warn('claudeSDK', "[ClaudeSDK] Auto-initialization failed:", error);
+  logger.warn("claudeSDK", "[ClaudeSDK] Auto-initialization failed:", error);
 });

@@ -3,15 +3,15 @@
  */
 
 // 类型
-export * from './types';
+export * from "./types";
 
 // 解析器
-export { parseSkillFile } from './SkillParser';
+export { parseSkillFile } from "./SkillParser";
 
 // 管理器
-export { 
-  SkillManager, 
+export {
+  SkillManager,
   skillManager,
   DEFAULT_SKILL_MANAGER_CONFIG,
-  type SkillManagerConfig 
-} from './SkillManager';
+  type SkillManagerConfig,
+} from "./SkillManager";

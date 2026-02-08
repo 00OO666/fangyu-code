@@ -1,16 +1,16 @@
-import { logger } from '@/lib/logger';
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { Button } from './ui/button';
-import { Switch } from './ui/switch';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Badge } from './ui/badge';
-import { Alert, AlertDescription } from './ui/alert';
-import { api, type TranslationConfig, type TranslationCacheStats } from '@/lib/api';
-import { translationMiddleware } from '@/lib/translationMiddleware';
-import { Loader2, RefreshCw, Settings, Languages, Database, AlertTriangle } from 'lucide-react';
-import { useTranslation } from '@/hooks/useTranslation';
+import { logger } from "@/lib/logger";
+import React, { useState, useEffect } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import { Button } from "./ui/button";
+import { Switch } from "./ui/switch";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Badge } from "./ui/badge";
+import { Alert, AlertDescription } from "./ui/alert";
+import { api, type TranslationConfig, type TranslationCacheStats } from "@/lib/api";
+import { translationMiddleware } from "@/lib/translationMiddleware";
+import { Loader2, RefreshCw, Settings, Languages, Database, AlertTriangle } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface TranslationSettingsProps {
   onClose?: () => void;
@@ -39,14 +39,14 @@ export const TranslationSettings: React.FC<TranslationSettingsProps> = ({ onClos
 
       const [configData, statsData] = await Promise.all([
         api.getTranslationConfig(),
-        api.getTranslationCacheStats().catch(() => null)
+        api.getTranslationCacheStats().catch(() => null),
       ]);
 
       setConfig(configData);
       setCacheStats(statsData);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('translation.loadFailed'));
-      logger.error('TranslationSettings', 'Failed to load translation settings:', err);
+      setError(err instanceof Error ? err.message : t("translation.loadFailed"));
+      logger.error("TranslationSettings", "Failed to load translation settings:", err);
     } finally {
       setLoading(false);
     }
@@ -63,11 +63,11 @@ export const TranslationSettings: React.FC<TranslationSettingsProps> = ({ onClos
       await api.updateTranslationConfig(config);
       await translationMiddleware.updateConfig(config);
 
-      setSuccess(t('translation.configSaved'));
+      setSuccess(t("translation.configSaved"));
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('errors.saveFailed'));
-      logger.error('TranslationSettings', 'Failed to save translation config:', err);
+      setError(err instanceof Error ? err.message : t("errors.saveFailed"));
+      logger.error("TranslationSettings", "Failed to save translation config:", err);
     } finally {
       setSaving(false);
     }
@@ -77,7 +77,7 @@ export const TranslationSettings: React.FC<TranslationSettingsProps> = ({ onClos
     if (!config) return;
 
     if (!config.api_key.trim()) {
-      setError(t('translation.pleaseEnterApiKey'));
+      setError(t("translation.pleaseEnterApiKey"));
       return;
     }
 
@@ -85,14 +85,14 @@ export const TranslationSettings: React.FC<TranslationSettingsProps> = ({ onClos
       setTestingConnection(true);
       setError(null);
 
-      await api.translateText('Hello', 'zh');
+      await api.translateText("Hello", "zh");
 
-      setSuccess(t('translation.connectionSuccess'));
+      setSuccess(t("translation.connectionSuccess"));
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : t('errors.connectionFailed');
-      setError(`${t('errors.connectionFailed')}: ${errorMessage}`);
-      logger.error('TranslationSettings', 'Translation connection test failed:', err);
+      const errorMessage = err instanceof Error ? err.message : t("errors.connectionFailed");
+      setError(`${t("errors.connectionFailed")}: ${errorMessage}`);
+      logger.error("TranslationSettings", "Translation connection test failed:", err);
     } finally {
       setTestingConnection(false);
     }
@@ -106,11 +106,11 @@ export const TranslationSettings: React.FC<TranslationSettingsProps> = ({ onClos
       await api.clearTranslationCache();
       await loadData();
 
-      setSuccess(t('translation.cacheCleared'));
+      setSuccess(t("translation.cacheCleared"));
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('errors.generic'));
-      logger.error('TranslationSettings', 'Failed to clear translation cache:', err);
+      setError(err instanceof Error ? err.message : t("errors.generic"));
+      logger.error("TranslationSettings", "Failed to clear translation cache:", err);
     } finally {
       setClearingCache(false);
     }
@@ -125,7 +125,7 @@ export const TranslationSettings: React.FC<TranslationSettingsProps> = ({ onClos
     return (
       <div className="flex items-center justify-center p-8">
         <Loader2 className="h-6 w-6 animate-spin mr-2" />
-        <span>{t('translation.loadingSettings')}</span>
+        <span>{t("translation.loadingSettings")}</span>
       </div>
     );
   }
@@ -134,7 +134,7 @@ export const TranslationSettings: React.FC<TranslationSettingsProps> = ({ onClos
     return (
       <Alert>
         <AlertTriangle className="h-4 w-4" />
-        <AlertDescription>{t('translation.configLoadFailed')}</AlertDescription>
+        <AlertDescription>{t("translation.configLoadFailed")}</AlertDescription>
       </Alert>
     );
   }
@@ -144,11 +144,11 @@ export const TranslationSettings: React.FC<TranslationSettingsProps> = ({ onClos
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <Languages className="h-6 w-6" />
-          <h2 className="text-2xl font-bold">{t('translation.title')}</h2>
+          <h2 className="text-2xl font-bold">{t("translation.title")}</h2>
         </div>
         {onClose && (
           <Button variant="outline" onClick={onClose}>
-            {t('buttons.close')}
+            {t("buttons.close")}
           </Button>
         )}
       </div>
@@ -171,64 +171,66 @@ export const TranslationSettings: React.FC<TranslationSettingsProps> = ({ onClos
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Settings className="h-5 w-5" />
-            <span>{t('translation.basicSettings')}</span>
+            <span>{t("translation.basicSettings")}</span>
           </CardTitle>
-          <CardDescription>
-            {t('translation.basicSettingsDescription')}
-          </CardDescription>
+          <CardDescription>{t("translation.basicSettingsDescription")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <Label htmlFor="translation-enabled" className="text-sm font-medium">
-              {t('translation.enableTranslation')}
+              {t("translation.enableTranslation")}
             </Label>
             <Switch
               id="translation-enabled"
               checked={config.enabled}
-              onCheckedChange={(enabled) => handleConfigChange('enabled', enabled)}
+              onCheckedChange={(enabled) => handleConfigChange("enabled", enabled)}
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="api-base-url">{t('translation.apiBaseUrl')}</Label>
+              <Label htmlFor="api-base-url">{t("translation.apiBaseUrl")}</Label>
               <Input
                 id="api-base-url"
                 value={config.api_base_url}
-                onChange={(e) => handleConfigChange('api_base_url', e.target.value)}
+                onChange={(e) => handleConfigChange("api_base_url", e.target.value)}
                 placeholder="https://api.openai.com/v1"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="model">{t('translation.translationModel')}</Label>
+              <Label htmlFor="model">{t("translation.translationModel")}</Label>
               <Input
                 id="model"
                 value={config.model}
-                onChange={(e) => handleConfigChange('model', e.target.value)}
+                onChange={(e) => handleConfigChange("model", e.target.value)}
                 placeholder="gpt-4o-mini"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="timeout">{t('translation.requestTimeout')}</Label>
+              <Label htmlFor="timeout">{t("translation.requestTimeout")}</Label>
               <Input
                 id="timeout"
                 type="number"
                 value={config.timeout_seconds}
-                onChange={(e) => handleConfigChange('timeout_seconds', parseInt(e.target.value) || 30)}
+                onChange={(e) =>
+                  handleConfigChange("timeout_seconds", parseInt(e.target.value) || 30)
+                }
                 min="5"
                 max="300"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="cache-ttl">{t('translation.cacheTtl')}</Label>
+              <Label htmlFor="cache-ttl">{t("translation.cacheTtl")}</Label>
               <Input
                 id="cache-ttl"
                 type="number"
                 value={config.cache_ttl_seconds}
-                onChange={(e) => handleConfigChange('cache_ttl_seconds', parseInt(e.target.value) || 3600)}
+                onChange={(e) =>
+                  handleConfigChange("cache_ttl_seconds", parseInt(e.target.value) || 3600)
+                }
                 min="300"
                 max="86400"
               />
@@ -237,41 +239,34 @@ export const TranslationSettings: React.FC<TranslationSettingsProps> = ({ onClos
 
           <div className="space-y-2">
             <Label htmlFor="api-key" className="flex items-center space-x-2">
-              <span>{t('translation.apiKey')}</span>
+              <span>{t("translation.apiKey")}</span>
               {!config.api_key && (
-                <Badge variant="destructive" className="text-xs">{t('translation.apiKeyRequired')}</Badge>
+                <Badge variant="destructive" className="text-xs">
+                  {t("translation.apiKeyRequired")}
+                </Badge>
               )}
             </Label>
             <Input
               id="api-key"
               type="password"
               value={config.api_key}
-              onChange={(e) => handleConfigChange('api_key', e.target.value)}
-              placeholder={t('translation.apiKeyPlaceholder')}
+              onChange={(e) => handleConfigChange("api_key", e.target.value)}
+              placeholder={t("translation.apiKeyPlaceholder")}
               className={!config.api_key ? "border-red-300" : ""}
             />
             <div className="space-y-1">
-              <p className="text-xs text-muted-foreground">
-                {t('translation.apiKeyDescription')}
-              </p>
-              <p className="text-xs text-blue-600">
-                {t('translation.apiKeyHint')}
-              </p>
+              <p className="text-xs text-muted-foreground">{t("translation.apiKeyDescription")}</p>
+              <p className="text-xs text-blue-600">{t("translation.apiKeyHint")}</p>
               {!config.api_key && (
-                <p className="text-xs text-red-600">
-                  {t('translation.apiKeyWarning')}
-                </p>
+                <p className="text-xs text-red-600">{t("translation.apiKeyWarning")}</p>
               )}
             </div>
           </div>
 
           <div className="flex space-x-2 pt-4">
-            <Button
-              onClick={handleSave}
-              disabled={saving}
-            >
+            <Button onClick={handleSave} disabled={saving}>
               {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {t('translation.saveConfig')}
+              {t("translation.saveConfig")}
             </Button>
 
             <Button
@@ -280,7 +275,7 @@ export const TranslationSettings: React.FC<TranslationSettingsProps> = ({ onClos
               disabled={testingConnection || !config.enabled || !config.api_key.trim()}
             >
               {testingConnection && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {t('translation.testConnection')}
+              {t("translation.testConnection")}
             </Button>
           </div>
 
@@ -288,15 +283,15 @@ export const TranslationSettings: React.FC<TranslationSettingsProps> = ({ onClos
             <Alert className="mt-4">
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
-                <strong>{t('translation.apiKeyNeeded')}</strong>
+                <strong>{t("translation.apiKeyNeeded")}</strong>
                 <br />
-                1. {t('translation.apiKeyStep1')}
+                1. {t("translation.apiKeyStep1")}
                 <br />
-                2. {t('translation.apiKeyStep2')}
+                2. {t("translation.apiKeyStep2")}
                 <br />
-                3. {t('translation.apiKeyStep3')}
+                3. {t("translation.apiKeyStep3")}
                 <br />
-                4. {t('translation.apiKeyStep4')}
+                4. {t("translation.apiKeyStep4")}
               </AlertDescription>
             </Alert>
           )}
@@ -308,64 +303,58 @@ export const TranslationSettings: React.FC<TranslationSettingsProps> = ({ onClos
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Database className="h-5 w-5" />
-            <span>{t('translation.cacheManagement')}</span>
+            <span>{t("translation.cacheManagement")}</span>
           </CardTitle>
-          <CardDescription>
-            {t('translation.cacheManagementDescription')}
-          </CardDescription>
+          <CardDescription>{t("translation.cacheManagementDescription")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {cacheStats ? (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="text-center p-4 border rounded-lg">
-                  <div className="text-2xl font-bold text-blue-600">
-                    {cacheStats.total_entries}
+                  <div className="text-2xl font-bold text-blue-600">{cacheStats.total_entries}</div>
+                  <div className="text-sm text-muted-foreground">
+                    {t("translation.totalCacheEntries")}
                   </div>
-                  <div className="text-sm text-muted-foreground">{t('translation.totalCacheEntries')}</div>
                 </div>
 
                 <div className="text-center p-4 border rounded-lg">
                   <div className="text-2xl font-bold text-green-600">
                     {cacheStats.active_entries}
                   </div>
-                  <div className="text-sm text-muted-foreground">{t('translation.activeCacheEntries')}</div>
+                  <div className="text-sm text-muted-foreground">
+                    {t("translation.activeCacheEntries")}
+                  </div>
                 </div>
 
                 <div className="text-center p-4 border rounded-lg">
                   <div className="text-2xl font-bold text-yellow-600">
                     {cacheStats.expired_entries}
                   </div>
-                  <div className="text-sm text-muted-foreground">{t('translation.expiredCacheEntries')}</div>
+                  <div className="text-sm text-muted-foreground">
+                    {t("translation.expiredCacheEntries")}
+                  </div>
                 </div>
               </div>
             ) : (
               <div className="text-center text-muted-foreground">
-                {t('translation.cacheStatsFailed')}
+                {t("translation.cacheStatsFailed")}
               </div>
             )}
 
             <div className="flex space-x-2">
-              <Button
-                variant="outline"
-                onClick={loadData}
-                disabled={loading}
-              >
+              <Button variant="outline" onClick={loadData} disabled={loading}>
                 {loading ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
                   <RefreshCw className="mr-2 h-4 w-4" />
                 )}
-                {t('translation.refreshStats')}
+                {t("translation.refreshStats")}
               </Button>
 
-              <Button
-                variant="destructive"
-                onClick={handleClearCache}
-                disabled={clearingCache}
-              >
+              <Button variant="destructive" onClick={handleClearCache} disabled={clearingCache}>
                 {clearingCache && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {t('translation.clearCache')}
+                {t("translation.clearCache")}
               </Button>
             </div>
           </div>
@@ -375,41 +364,50 @@ export const TranslationSettings: React.FC<TranslationSettingsProps> = ({ onClos
       {/* Usage Guide */}
       <Card>
         <CardHeader>
-          <CardTitle>{t('translation.usageGuide')}</CardTitle>
-          <CardDescription>
-            {t('translation.usageGuideDescription')}
-          </CardDescription>
+          <CardTitle>{t("translation.usageGuide")}</CardTitle>
+          <CardDescription>{t("translation.usageGuideDescription")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <div>
-              <h4 className="font-medium text-sm mb-2">{t('translation.features')}</h4>
+              <h4 className="font-medium text-sm mb-2">{t("translation.features")}</h4>
               <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-                <li><strong>{t('translation.featureTransparent')}</strong></li>
-                <li><strong>{t('translation.featureSmartDetection')}</strong></li>
-                <li><strong>{t('translation.featureBidirectional')}</strong></li>
-                <li><strong>{t('translation.featureCacheOptimization')}</strong></li>
-                <li><strong>{t('translation.featureFallback')}</strong></li>
+                <li>
+                  <strong>{t("translation.featureTransparent")}</strong>
+                </li>
+                <li>
+                  <strong>{t("translation.featureSmartDetection")}</strong>
+                </li>
+                <li>
+                  <strong>{t("translation.featureBidirectional")}</strong>
+                </li>
+                <li>
+                  <strong>{t("translation.featureCacheOptimization")}</strong>
+                </li>
+                <li>
+                  <strong>{t("translation.featureFallback")}</strong>
+                </li>
               </ul>
             </div>
 
             <div>
-              <h4 className="font-medium text-sm mb-2">{t('translation.workflow')}</h4>
+              <h4 className="font-medium text-sm mb-2">{t("translation.workflow")}</h4>
               <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
-                <li>{t('translation.workflowStep1')}</li>
-                <li>{t('translation.workflowStep2')}</li>
-                <li>{t('translation.workflowStep3')}</li>
-                <li>{t('translation.workflowStep4')}</li>
-                <li>{t('translation.workflowStep5')}</li>
-                <li>{t('translation.workflowStep6')}</li>
+                <li>{t("translation.workflowStep1")}</li>
+                <li>{t("translation.workflowStep2")}</li>
+                <li>{t("translation.workflowStep3")}</li>
+                <li>{t("translation.workflowStep4")}</li>
+                <li>{t("translation.workflowStep5")}</li>
+                <li>{t("translation.workflowStep6")}</li>
               </ol>
             </div>
 
             <div className="flex items-center space-x-2 pt-2">
-              <Badge variant="secondary">{t('translation.version')}: 1.0.0</Badge>
+              <Badge variant="secondary">{t("translation.version")}: 1.0.0</Badge>
               <Badge variant="outline">gpt-4o-mini</Badge>
               <Badge variant={config.enabled ? "default" : "secondary"}>
-                {t('translation.statusLabel')}: {config.enabled ? t('autoCompact.statusEnabled') : t('autoCompact.statusDisabled')}
+                {t("translation.statusLabel")}:{" "}
+                {config.enabled ? t("autoCompact.statusEnabled") : t("autoCompact.statusDisabled")}
               </Badge>
             </div>
           </div>

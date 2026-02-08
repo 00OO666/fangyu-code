@@ -10,23 +10,36 @@
  * 来源: Claude Extended Thinking UI
  */
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from "react";
 import {
   useExtendedThinking,
   type ThinkingDepth,
   type ThinkingSession,
-} from '@/hooks/useExtendedThinking';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
+} from "@/hooks/useExtendedThinking";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
-import { Brain, Zap, Sparkles, Loader2, Clock, BarChart2, ChevronDown, X, Check, Info, Settings, History } from 'lucide-react';
+import {
+  Brain,
+  Zap,
+  Sparkles,
+  Loader2,
+  Clock,
+  BarChart2,
+  ChevronDown,
+  X,
+  Check,
+  Info,
+  Settings,
+  History,
+} from "lucide-react";
 
 // ============================================================
 // 组件
@@ -100,28 +113,28 @@ export function ThinkingDepthSelector({
     color: string;
     bgColor: string;
   }> = [
-      {
-        value: 'normal',
-        label: '正常',
-        icon: Zap,
-        color: 'text-blue-500',
-        bgColor: 'bg-blue-500/10',
-      },
-      {
-        value: 'deep',
-        label: '深度',
-        icon: Brain,
-        color: 'text-purple-500',
-        bgColor: 'bg-purple-500/10',
-      },
-      {
-        value: 'ultra',
-        label: '超深度',
-        icon: Sparkles,
-        color: 'text-amber-500',
-        bgColor: 'bg-amber-500/10',
-      },
-    ];
+    {
+      value: "normal",
+      label: "正常",
+      icon: Zap,
+      color: "text-blue-500",
+      bgColor: "bg-blue-500/10",
+    },
+    {
+      value: "deep",
+      label: "深度",
+      icon: Brain,
+      color: "text-purple-500",
+      bgColor: "bg-purple-500/10",
+    },
+    {
+      value: "ultra",
+      label: "超深度",
+      icon: Sparkles,
+      color: "text-amber-500",
+      bgColor: "bg-amber-500/10",
+    },
+  ];
 
   const currentOption = depthOptions.find((opt) => opt.value === config.depth);
 
@@ -140,11 +153,11 @@ export function ThinkingDepthSelector({
       {/* 深度选择器 */}
       <div className="relative">
         <Button
-          variant={isThinking ? 'default' : 'outline'}
-          size={compact ? 'sm' : 'default'}
+          variant={isThinking ? "default" : "outline"}
+          size={compact ? "sm" : "default"}
           onClick={() => !isThinking && setShowMenu(!showMenu)}
           disabled={isThinking}
-          className={`flex items-center gap-2 ${isThinking ? 'animate-pulse' : ''}`}
+          className={`flex items-center gap-2 ${isThinking ? "animate-pulse" : ""}`}
         >
           {isThinking ? (
             <>
@@ -153,9 +166,7 @@ export function ThinkingDepthSelector({
             </>
           ) : (
             <>
-              {currentOption && (
-                <currentOption.icon className={`w-4 h-4 ${currentOption.color}`} />
-              )}
+              {currentOption && <currentOption.icon className={`w-4 h-4 ${currentOption.color}`} />}
               {!compact && <span className="text-sm">{currentOption?.label}</span>}
               <ChevronDown className="w-3 h-3" />
             </>
@@ -183,9 +194,7 @@ export function ThinkingDepthSelector({
                     {getDepthDescription(option.value)}
                   </div>
                 </div>
-                {config.depth === option.value && (
-                  <Check className="w-4 h-4 text-green-500" />
-                )}
+                {config.depth === option.value && <Check className="w-4 h-4 text-green-500" />}
               </button>
             ))}
 
@@ -220,9 +229,7 @@ export function ThinkingDepthSelector({
           <div className="flex items-center gap-1 text-xs text-[var(--text-tertiary)]">
             <Clock className="w-3 h-3" />
             <span>
-              {currentSession
-                ? formatDuration(Date.now() - currentSession.startTime)
-                : '0s'}
+              {currentSession ? formatDuration(Date.now() - currentSession.startTime) : "0s"}
             </span>
           </div>
 
@@ -269,12 +276,14 @@ export function ThinkingDepthSelector({
               </div>
               <button
                 onClick={() => updateConfig({ autoDetect: !config.autoDetect })}
-                className={`w-10 h-6 rounded-full transition-colors ${config.autoDetect ? 'bg-green-500' : 'bg-[var(--bg-tertiary)]'
-                  }`}
+                className={`w-10 h-6 rounded-full transition-colors ${
+                  config.autoDetect ? "bg-green-500" : "bg-[var(--bg-tertiary)]"
+                }`}
               >
                 <div
-                  className={`w-5 h-5 rounded-full bg-white transition-transform ${config.autoDetect ? 'translate-x-4' : 'translate-x-0.5'
-                    }`}
+                  className={`w-5 h-5 rounded-full bg-white transition-transform ${
+                    config.autoDetect ? "translate-x-4" : "translate-x-0.5"
+                  }`}
                 />
               </button>
             </div>
@@ -283,18 +292,18 @@ export function ThinkingDepthSelector({
             <div className="flex items-center justify-between">
               <div>
                 <div className="font-medium text-sm">显示思考过程</div>
-                <div className="text-xs text-[var(--text-tertiary)]">
-                  展示 AI 的推理步骤
-                </div>
+                <div className="text-xs text-[var(--text-tertiary)]">展示 AI 的推理步骤</div>
               </div>
               <button
                 onClick={() => updateConfig({ showProcess: !config.showProcess })}
-                className={`w-10 h-6 rounded-full transition-colors ${config.showProcess ? 'bg-green-500' : 'bg-[var(--bg-tertiary)]'
-                  }`}
+                className={`w-10 h-6 rounded-full transition-colors ${
+                  config.showProcess ? "bg-green-500" : "bg-[var(--bg-tertiary)]"
+                }`}
               >
                 <div
-                  className={`w-5 h-5 rounded-full bg-white transition-transform ${config.showProcess ? 'translate-x-4' : 'translate-x-0.5'
-                    }`}
+                  className={`w-5 h-5 rounded-full bg-white transition-transform ${
+                    config.showProcess ? "translate-x-4" : "translate-x-0.5"
+                  }`}
                 />
               </button>
             </div>
@@ -308,9 +317,7 @@ export function ThinkingDepthSelector({
                   min="30"
                   max="300"
                   value={config.maxThinkingTime}
-                  onChange={(e) =>
-                    updateConfig({ maxThinkingTime: Number(e.target.value) })
-                  }
+                  onChange={(e) => updateConfig({ maxThinkingTime: Number(e.target.value) })}
                   className="flex-1"
                 />
                 <span className="text-sm text-[var(--text-secondary)] w-12">
@@ -337,9 +344,7 @@ export function ThinkingDepthSelector({
             {/* 提示信息 */}
             <div className="flex items-start gap-2 p-3 rounded bg-blue-500/10 text-sm text-blue-400">
               <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
-              <span>
-                输入包含触发关键词（如 "ultrathink"）时将自动启用对应深度的思考模式
-              </span>
+              <span>输入包含触发关键词（如 "ultrathink"）时将自动启用对应深度的思考模式</span>
             </div>
           </div>
         </DialogContent>
@@ -366,15 +371,11 @@ export function ThinkingDepthSelector({
                 <div className="text-xs text-[var(--text-tertiary)]">总次数</div>
               </div>
               <div className="p-3 rounded-lg bg-[var(--bg-secondary)] text-center">
-                <div className="text-2xl font-bold">
-                  {formatDuration(stats.avgTime)}
-                </div>
+                <div className="text-2xl font-bold">{formatDuration(stats.avgTime)}</div>
                 <div className="text-xs text-[var(--text-tertiary)]">平均时间</div>
               </div>
               <div className="p-3 rounded-lg bg-[var(--bg-secondary)] text-center">
-                <div className="text-2xl font-bold">
-                  {formatDuration(stats.totalTime)}
-                </div>
+                <div className="text-2xl font-bold">{formatDuration(stats.totalTime)}</div>
                 <div className="text-xs text-[var(--text-tertiary)]">总时间</div>
               </div>
               <div className="p-3 rounded-lg bg-[var(--bg-secondary)] text-center">
@@ -390,9 +391,7 @@ export function ThinkingDepthSelector({
                 {depthOptions.map((option) => {
                   const count = stats.depthUsage[option.value];
                   const percentage =
-                    stats.totalCount > 0
-                      ? Math.round((count / stats.totalCount) * 100)
-                      : 0;
+                    stats.totalCount > 0 ? Math.round((count / stats.totalCount) * 100) : 0;
 
                   return (
                     <div key={option.value} className="flex items-center gap-2">
@@ -400,7 +399,7 @@ export function ThinkingDepthSelector({
                       <span className="w-16 text-sm">{option.label}</span>
                       <div className="flex-1 h-2 rounded-full bg-[var(--bg-tertiary)] overflow-hidden">
                         <div
-                          className={`h-full ${option.bgColor.replace('/10', '')} transition-all`}
+                          className={`h-full ${option.bgColor.replace("/10", "")} transition-all`}
                           style={{ width: `${percentage}%` }}
                         />
                       </div>
@@ -419,42 +418,29 @@ export function ThinkingDepthSelector({
               <ScrollArea className="h-48 border border-[var(--border-primary)] rounded-lg">
                 <div className="p-2 space-y-2">
                   {sessionHistory.length === 0 ? (
-                    <div className="text-center py-4 text-[var(--text-tertiary)]">
-                      暂无思考记录
-                    </div>
+                    <div className="text-center py-4 text-[var(--text-tertiary)]">暂无思考记录</div>
                   ) : (
                     sessionHistory
                       .slice()
                       .reverse()
                       .map((session) => {
-                        const option = depthOptions.find(
-                          (o) => o.value === session.depth
-                        );
+                        const option = depthOptions.find((o) => o.value === session.depth);
                         return (
-                          <div
-                            key={session.id}
-                            className="p-2 rounded bg-[var(--bg-primary)]"
-                          >
+                          <div key={session.id} className="p-2 rounded bg-[var(--bg-primary)]">
                             <div className="flex items-center justify-between mb-1">
                               <div className="flex items-center gap-2">
-                                {option && (
-                                  <option.icon
-                                    className={`w-3 h-3 ${option.color}`}
-                                  />
-                                )}
+                                {option && <option.icon className={`w-3 h-3 ${option.color}`} />}
                                 <span className="text-xs text-[var(--text-tertiary)]">
                                   {new Date(session.startTime).toLocaleString()}
                                 </span>
                               </div>
                               <span className="text-xs text-[var(--text-secondary)]">
-                                {session.duration
-                                  ? formatDuration(session.duration)
-                                  : '-'}
+                                {session.duration ? formatDuration(session.duration) : "-"}
                               </span>
                             </div>
                             <div className="text-sm truncate">
                               {session.prompt.slice(0, 100)}
-                              {session.prompt.length > 100 && '...'}
+                              {session.prompt.length > 100 && "..."}
                             </div>
                           </div>
                         );

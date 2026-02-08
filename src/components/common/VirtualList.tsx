@@ -15,7 +15,7 @@ import React, {
   useMemo,
   forwardRef,
   useImperativeHandle,
-} from 'react';
+} from "react";
 
 // =============================================================================
 // 类型定义
@@ -52,7 +52,7 @@ export interface VirtualListProps<T> {
 
 export interface VirtualListRef {
   /** 滚动到指定索引 */
-  scrollToIndex: (index: number, align?: 'start' | 'center' | 'end') => void;
+  scrollToIndex: (index: number, align?: "start" | "center" | "end") => void;
   /** 滚动到顶部 */
   scrollToTop: () => void;
   /** 滚动到底部 */
@@ -76,10 +76,7 @@ interface ItemMeasurement {
 /**
  * 二分查找找到第一个 offset >= scrollTop 的项目索引
  */
-function findStartIndex(
-  measurements: ItemMeasurement[],
-  scrollTop: number
-): number {
+function findStartIndex(measurements: ItemMeasurement[], scrollTop: number): number {
   let low = 0;
   let high = measurements.length - 1;
 
@@ -103,22 +100,19 @@ function findStartIndex(
 // VirtualList 组件
 // =============================================================================
 
-function VirtualListInner<T>(
-  props: VirtualListProps<T>,
-  ref: React.ForwardedRef<VirtualListRef>
-) {
+function VirtualListInner<T>(props: VirtualListProps<T>, ref: React.ForwardedRef<VirtualListRef>) {
   const {
     items,
     renderItem,
     getItemKey,
     estimatedItemHeight,
     height,
-    width = '100%',
+    width = "100%",
     overscan = 3,
     onEndReached,
     endReachedThreshold = 100,
-    className = '',
-    contentClassName = '',
+    className = "",
+    contentClassName = "",
     emptyContent,
     autoScrollToBottom = false,
   } = props;
@@ -174,10 +168,7 @@ function VirtualListInner<T>(
     const endScrollTop = scrollTop + height;
 
     let endIndex = startIndex;
-    while (
-      endIndex < measurements.length &&
-      measurements[endIndex].offset < endScrollTop
-    ) {
+    while (endIndex < measurements.length && measurements[endIndex].offset < endScrollTop) {
       endIndex++;
     }
     endIndex = Math.min(measurements.length - 1, endIndex + overscan);
@@ -226,7 +217,7 @@ function VirtualListInner<T>(
       if (isAtBottom.current || lastItemCount.current === 0) {
         containerRef.current?.scrollTo({
           top: totalHeight,
-          behavior: 'smooth',
+          behavior: "smooth",
         });
       }
     }
@@ -235,17 +226,17 @@ function VirtualListInner<T>(
 
   // 暴露方法给父组件
   useImperativeHandle(ref, () => ({
-    scrollToIndex: (index: number, align: 'start' | 'center' | 'end' = 'start') => {
+    scrollToIndex: (index: number, align: "start" | "center" | "end" = "start") => {
       if (index < 0 || index >= measurements.length) return;
 
       const measurement = measurements[index];
       let targetScrollTop: number;
 
       switch (align) {
-        case 'center':
+        case "center":
           targetScrollTop = measurement.offset - height / 2 + measurement.height / 2;
           break;
-        case 'end':
+        case "end":
           targetScrollTop = measurement.offset - height + measurement.height;
           break;
         default:
@@ -254,14 +245,14 @@ function VirtualListInner<T>(
 
       containerRef.current?.scrollTo({
         top: Math.max(0, targetScrollTop),
-        behavior: 'smooth',
+        behavior: "smooth",
       });
     },
     scrollToTop: () => {
-      containerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+      containerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
     },
     scrollToBottom: () => {
-      containerRef.current?.scrollTo({ top: totalHeight, behavior: 'smooth' });
+      containerRef.current?.scrollTo({ top: totalHeight, behavior: "smooth" });
     },
     getScrollTop: () => scrollTop,
     setScrollTop: (newScrollTop: number) => {
@@ -274,7 +265,7 @@ function VirtualListInner<T>(
     return (
       <div
         className={`virtual-list-empty ${className}`}
-        style={{ height, width, overflow: 'auto' }}
+        style={{ height, width, overflow: "auto" }}
       >
         {emptyContent || <div className="text-center text-gray-500 py-8">暂无数据</div>}
       </div>
@@ -293,7 +284,7 @@ function VirtualListInner<T>(
         key={getItemKey(item, i)}
         ref={(el) => measureItem(i, el)}
         style={{
-          position: 'absolute',
+          position: "absolute",
           top: measurement.offset,
           left: 0,
           right: 0,
@@ -311,8 +302,8 @@ function VirtualListInner<T>(
       style={{
         height,
         width,
-        overflow: 'auto',
-        position: 'relative',
+        overflow: "auto",
+        position: "relative",
       }}
       onScroll={handleScroll}
     >
@@ -320,7 +311,7 @@ function VirtualListInner<T>(
         className={`virtual-list-content ${contentClassName}`}
         style={{
           height: totalHeight,
-          position: 'relative',
+          position: "relative",
         }}
       >
         {visibleItems}

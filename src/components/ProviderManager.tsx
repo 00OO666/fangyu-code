@@ -1,16 +1,39 @@
-import { logger } from '@/lib/logger';
-import { useState, useEffect } from 'react';
+import { logger } from "@/lib/logger";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { Badge } from "@/components/ui/badge";
-import { Settings2, Globe, Check, AlertCircle, RefreshCw, Trash2, TestTube, Eye, EyeOff, Plus, Edit, Trash, DollarSign, InfinityIcon, Calendar, Search } from 'lucide-react';
-import { api, type ProviderConfig, type CurrentProviderConfig, type ApiKeyUsage } from '@/lib/api';
-import { Toast } from '@/components/ui/toast';
-import ProviderForm from './ProviderForm';
+import {
+  Settings2,
+  Globe,
+  Check,
+  AlertCircle,
+  RefreshCw,
+  Trash2,
+  TestTube,
+  Eye,
+  EyeOff,
+  Plus,
+  Edit,
+  Trash,
+  DollarSign,
+  InfinityIcon,
+  Calendar,
+  Search,
+} from "lucide-react";
+import { api, type ProviderConfig, type CurrentProviderConfig, type ApiKeyUsage } from "@/lib/api";
+import { Toast } from "@/components/ui/toast";
+import ProviderForm from "./ProviderForm";
 import { useTranslation } from "@/hooks/useTranslation";
-import { InlineAPITester } from './settings/InlineAPITester';
+import { InlineAPITester } from "./settings/InlineAPITester";
 
 interface ProviderManagerProps {
   onBack: () => void;
@@ -28,7 +51,10 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
   const [showTokens, setShowTokens] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingProvider, setEditingProvider] = useState<ProviderConfig | null>(null);
-  const [toastMessage, setToastMessage] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [toastMessage, setToastMessage] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
 
   // Delete confirmation dialog state
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -54,13 +80,13 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
       setLoading(true);
       const [presetsData, configData] = await Promise.all([
         api.getProviderPresets(),
-        api.getCurrentProviderConfig()
+        api.getCurrentProviderConfig(),
       ]);
       setPresets(presetsData);
       setCurrentConfig(configData);
     } catch (error) {
-      logger.error('ProviderManager', 'Failed to load provider data:', error);
-      setToastMessage({ message: t('provider.loadConfigFailed'), type: 'error' });
+      logger.error("ProviderManager", "Failed to load provider data:", error);
+      setToastMessage({ message: t("provider.loadConfigFailed"), type: "error" });
     } finally {
       setLoading(false);
     }
@@ -70,11 +96,11 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
     try {
       setSwitching(config.id);
       const message = await api.switchProviderConfig(config);
-      setToastMessage({ message, type: 'success' });
+      setToastMessage({ message, type: "success" });
       await loadData(); // Refresh current config
     } catch (error) {
-      logger.error('ProviderManager', 'Failed to switch provider:', error);
-      setToastMessage({ message: t('provider.switchFailed'), type: 'error' });
+      logger.error("ProviderManager", "Failed to switch provider:", error);
+      setToastMessage({ message: t("provider.switchFailed"), type: "error" });
     } finally {
       setSwitching(null);
     }
@@ -82,13 +108,13 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
 
   const clearProvider = async () => {
     try {
-      setSwitching('clear');
+      setSwitching("clear");
       const message = await api.clearProviderConfig();
-      setToastMessage({ message, type: 'success' });
+      setToastMessage({ message, type: "success" });
       await loadData(); // Refresh current config
     } catch (error) {
-      logger.error('ProviderManager', 'Failed to clear provider:', error);
-      setToastMessage({ message: t('provider.clearConfigFailed'), type: 'error' });
+      logger.error("ProviderManager", "Failed to clear provider:", error);
+      setToastMessage({ message: t("provider.clearConfigFailed"), type: "error" });
     } finally {
       setSwitching(null);
     }
@@ -98,10 +124,10 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
     try {
       setTesting(config.id);
       const message = await api.testProviderConnection(config.base_url);
-      setToastMessage({ message, type: 'success' });
+      setToastMessage({ message, type: "success" });
     } catch (error) {
-      logger.error('ProviderManager', 'Failed to test connection:', error);
-      setToastMessage({ message: t('provider.connectionTestFailed'), type: 'error' });
+      logger.error("ProviderManager", "Failed to test connection:", error);
+      setToastMessage({ message: t("provider.connectionTestFailed"), type: "error" });
     } finally {
       setTesting(null);
     }
@@ -111,7 +137,7 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
     // 需要 API Key 才能查询用量
     const apiKey = config.api_key || config.auth_token;
     if (!apiKey) {
-      setToastMessage({ message: t('provider.noApiKeyForUsage'), type: 'error' });
+      setToastMessage({ message: t("provider.noApiKeyForUsage"), type: "error" });
       return;
     }
 
@@ -119,15 +145,18 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
       setQueryingUsage(config.id);
       const usage = await api.queryProviderUsage(config.base_url, apiKey);
       // 缓存用量数据
-      setUsageCache(prev => ({ ...prev, [config.id]: usage }));
+      setUsageCache((prev) => ({ ...prev, [config.id]: usage }));
       if (showDialog) {
         setUsageData(usage);
         setUsageProvider(config);
         setUsageDialogOpen(true);
       }
     } catch (error) {
-      logger.error('ProviderManager', 'Failed to query usage:', error);
-      setToastMessage({ message: t('provider.queryUsageFailed', { error: String(error) }), type: 'error' });
+      logger.error("ProviderManager", "Failed to query usage:", error);
+      setToastMessage({
+        message: t("provider.queryUsageFailed", { error: String(error) }),
+        type: "error",
+      });
     } finally {
       setQueryingUsage(null);
     }
@@ -138,8 +167,8 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
   };
 
   const formatDate = (timestamp: number): string => {
-    if (timestamp === 0) return t('provider.neverExpires');
-    return new Date(timestamp * 1000).toLocaleString('zh-CN');
+    if (timestamp === 0) return t("provider.neverExpires");
+    return new Date(timestamp * 1000).toLocaleString("zh-CN");
   };
 
   const handleAddProvider = () => {
@@ -163,13 +192,13 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
     try {
       setDeleting(providerToDelete.id);
       await api.deleteProviderConfig(providerToDelete.id);
-      setToastMessage({ message: t('provider.deleteSuccess'), type: 'success' });
+      setToastMessage({ message: t("provider.deleteSuccess"), type: "success" });
       await loadData();
       setDeleteDialogOpen(false);
       setProviderToDelete(null);
     } catch (error) {
-      logger.error('ProviderManager', 'Failed to delete provider:', error);
-      setToastMessage({ message: t('provider.deleteFailed'), type: 'error' });
+      logger.error("ProviderManager", "Failed to delete provider:", error);
+      setToastMessage({ message: t("provider.deleteFailed"), type: "error" });
     } finally {
       setDeleting(null);
     }
@@ -180,7 +209,7 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
     setProviderToDelete(null);
   };
 
-  const handleFormSubmit = async (formData: Omit<ProviderConfig, 'id'>) => {
+  const handleFormSubmit = async (formData: Omit<ProviderConfig, "id">) => {
     try {
       if (editingProvider) {
         const updatedConfig = { ...formData, id: editingProvider.id };
@@ -190,24 +219,27 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
         if (isCurrentProvider(editingProvider)) {
           try {
             await api.switchProviderConfig(updatedConfig);
-            setToastMessage({ message: t('provider.updateSyncSuccess'), type: 'success' });
+            setToastMessage({ message: t("provider.updateSyncSuccess"), type: "success" });
           } catch (switchError) {
-            logger.error('ProviderManager', 'Failed to sync provider config:', switchError);
-            setToastMessage({ message: t('provider.updateSyncFailed'), type: 'error' });
+            logger.error("ProviderManager", "Failed to sync provider config:", switchError);
+            setToastMessage({ message: t("provider.updateSyncFailed"), type: "error" });
           }
         } else {
-          setToastMessage({ message: t('provider.updateSuccess'), type: 'success' });
+          setToastMessage({ message: t("provider.updateSuccess"), type: "success" });
         }
       } else {
         await api.addProviderConfig(formData);
-        setToastMessage({ message: t('provider.addSuccess'), type: 'success' });
+        setToastMessage({ message: t("provider.addSuccess"), type: "success" });
       }
       setShowForm(false);
       setEditingProvider(null);
       await loadData();
     } catch (error) {
-      logger.error('ProviderManager', 'Failed to save provider:', error);
-      setToastMessage({ message: editingProvider ? t('provider.updateFailed') : t('provider.addFailed'), type: 'error' });
+      logger.error("ProviderManager", "Failed to save provider:", error);
+      setToastMessage({
+        message: editingProvider ? t("provider.updateFailed") : t("provider.addFailed"),
+        type: "error",
+      });
     }
   };
 
@@ -222,14 +254,14 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
   };
 
   const toggleApiTester = (configId: string) => {
-    setExpandedTesterId(prev => prev === configId ? null : configId);
+    setExpandedTesterId((prev) => (prev === configId ? null : configId));
   };
 
   const maskToken = (token: string): string => {
     if (!token || token.length <= 10) return token;
     const start = token.substring(0, 8);
     const end = token.substring(token.length - 4);
-    return `${start}${'*'.repeat(token.length - 12)}${end}`;
+    return `${start}${"*".repeat(token.length - 12)}${end}`;
   };
 
   if (loading) {
@@ -237,7 +269,7 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
           <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground mx-auto mb-4" />
-          <p className="text-sm text-muted-foreground">{t('provider.loadingConfig')}</p>
+          <p className="text-sm text-muted-foreground">{t("provider.loadingConfig")}</p>
         </div>
       </div>
     );
@@ -248,26 +280,25 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
       {/* Header */}
       <div className="flex items-center justify-between p-6 border-b">
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={onBack} className="h-8 w-8" aria-label={t('provider.backToSettings')}>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onBack}
+            className="h-8 w-8"
+            aria-label={t("provider.backToSettings")}
+          >
             <Settings2 className="h-4 w-4" aria-hidden="true" />
           </Button>
           <div>
-            <h1 className="text-lg font-semibold">{t('provider.providerManager')}</h1>
-            <p className="text-xs text-muted-foreground">
-              {t('provider.switchProvider')}
-            </p>
+            <h1 className="text-lg font-semibold">{t("provider.providerManager")}</h1>
+            <p className="text-xs text-muted-foreground">{t("provider.switchProvider")}</p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <Button
-            variant="default"
-            size="sm"
-            onClick={handleAddProvider}
-            className="text-xs"
-          >
+          <Button variant="default" size="sm" onClick={handleAddProvider} className="text-xs">
             <Plus className="h-3 w-3 mr-1" aria-hidden="true" />
-            {t('provider.addProvider')}
+            {t("provider.addProvider")}
           </Button>
           <Button
             variant="outline"
@@ -276,21 +307,21 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
             className="text-xs"
           >
             <Eye className="h-3 w-3 mr-1" aria-hidden="true" />
-            {t('provider.viewCurrentConfig')}
+            {t("provider.viewCurrentConfig")}
           </Button>
           <Button
             variant="destructive"
             size="sm"
             onClick={clearProvider}
-            disabled={switching === 'clear'}
+            disabled={switching === "clear"}
             className="text-xs"
           >
-            {switching === 'clear' ? (
+            {switching === "clear" ? (
               <RefreshCw className="h-3 w-3 mr-1 animate-spin" aria-hidden="true" />
             ) : (
               <Trash2 className="h-3 w-3 mr-1" aria-hidden="true" />
             )}
-            {t('provider.clearConfig')}
+            {t("provider.clearConfig")}
           </Button>
         </div>
       </div>
@@ -302,16 +333,21 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
             <div className="flex items-center justify-center py-12">
               <div className="text-center">
                 <Globe className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-sm text-muted-foreground mb-4">{t('provider.noProvidersConfigured')}</p>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {t("provider.noProvidersConfigured")}
+                </p>
                 <Button onClick={handleAddProvider} size="sm">
                   <Plus className="h-4 w-4 mr-2" />
-                  {t('provider.addFirstProvider')}
+                  {t("provider.addFirstProvider")}
                 </Button>
               </div>
             </div>
           ) : (
             presets.map((config) => (
-              <Card key={config.id} className={`overflow-hidden ${isCurrentProvider(config) ? 'ring-2 ring-primary' : ''}`}>
+              <Card
+                key={config.id}
+                className={`overflow-hidden ${isCurrentProvider(config) ? "ring-2 ring-primary" : ""}`}
+              >
                 <div className="p-4">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0 overflow-hidden">
@@ -323,33 +359,45 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
                         {isCurrentProvider(config) && (
                           <Badge variant="secondary" className="text-xs">
                             <Check className="h-3 w-3 mr-1" />
-                            {t('provider.currentUsing')}
+                            {t("provider.currentUsing")}
                           </Badge>
                         )}
                       </div>
 
                       <div className="space-y-1 text-sm text-muted-foreground">
-                        <p className="truncate"><span className="font-medium">{t('provider.description')}</span>{config.description}</p>
-                        <p className="truncate"><span className="font-medium">{t('provider.apiUrl')}</span>{config.base_url}</p>
+                        <p className="truncate">
+                          <span className="font-medium">{t("provider.description")}</span>
+                          {config.description}
+                        </p>
+                        <p className="truncate">
+                          <span className="font-medium">{t("provider.apiUrl")}</span>
+                          {config.base_url}
+                        </p>
                         {config.auth_token && (
-                          <p className="truncate"><span className="font-medium">{t('provider.authToken')}</span>
+                          <p className="truncate">
+                            <span className="font-medium">{t("provider.authToken")}</span>
                             {showTokens ? config.auth_token : maskToken(config.auth_token)}
                           </p>
                         )}
                         {config.api_key && (
-                          <p className="truncate"><span className="font-medium">{t('provider.apiKey')}</span>
+                          <p className="truncate">
+                            <span className="font-medium">{t("provider.apiKey")}</span>
                             {showTokens ? config.api_key : maskToken(config.api_key)}
                           </p>
                         )}
                         {config.model && (
-                          <p className="truncate"><span className="font-medium">{t('provider.model')}</span>{config.model}</p>
+                          <p className="truncate">
+                            <span className="font-medium">{t("provider.model")}</span>
+                            {config.model}
+                          </p>
                         )}
                         {config.api_key_helper && (
-                          <p className="truncate"><span className="font-medium">{t('provider.keyHelper')}</span>
+                          <p className="truncate">
+                            <span className="font-medium">{t("provider.keyHelper")}</span>
                             <code className="text-xs bg-muted px-1 py-0.5 rounded ml-1">
-                              {config.api_key_helper.length > 50 ?
-                                config.api_key_helper.substring(0, 47) + '...' :
-                                config.api_key_helper}
+                              {config.api_key_helper.length > 50
+                                ? config.api_key_helper.substring(0, 47) + "..."
+                                : config.api_key_helper}
                             </code>
                           </p>
                         )}
@@ -361,16 +409,23 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
                       {usageCache[config.id] && (
                         <div className="text-right text-xs space-y-0.5 border-r pr-3 mr-1">
                           <div className="text-muted-foreground">
-                            {t('provider.used')} <span className="font-medium text-foreground">{formatCurrency(usageCache[config.id].used_balance)}</span>
+                            {t("provider.used")}{" "}
+                            <span className="font-medium text-foreground">
+                              {formatCurrency(usageCache[config.id].used_balance)}
+                            </span>
                           </div>
                           <div className="text-muted-foreground">
                             {usageCache[config.id].is_unlimited ? (
                               <span className="text-green-600 font-medium flex items-center justify-end gap-1">
-                                {t('provider.remaining')} <InfinityIcon className="h-3 w-3" /> {t('provider.unlimited')}
+                                {t("provider.remaining")} <InfinityIcon className="h-3 w-3" />{" "}
+                                {t("provider.unlimited")}
                               </span>
                             ) : (
                               <>
-                                {t('provider.remaining')} <span className={`font-medium ${usageCache[config.id].remaining_balance > 10 ? 'text-green-600' : 'text-red-600'}`}>
+                                {t("provider.remaining")}{" "}
+                                <span
+                                  className={`font-medium ${usageCache[config.id].remaining_balance > 10 ? "text-green-600" : "text-red-600"}`}
+                                >
                                   {formatCurrency(usageCache[config.id].remaining_balance)}
                                 </span>
                               </>
@@ -386,8 +441,8 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
                           onClick={() => queryUsage(config)}
                           disabled={queryingUsage === config.id}
                           className="text-xs"
-                          aria-label={t('provider.usageQuery')}
-                          title={t('provider.usageQuery')}
+                          aria-label={t("provider.usageQuery")}
+                          title={t("provider.usageQuery")}
                         >
                           {queryingUsage === config.id ? (
                             <RefreshCw className="h-3 w-3 animate-spin" aria-hidden="true" />
@@ -402,7 +457,7 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
                           onClick={() => testConnection(config)}
                           disabled={testing === config.id}
                           className="text-xs"
-                          aria-label={t('tooltips.testConnection')}
+                          aria-label={t("tooltips.testConnection")}
                         >
                           {testing === config.id ? (
                             <RefreshCw className="h-3 w-3 animate-spin" aria-hidden="true" />
@@ -416,7 +471,7 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
                           variant="outline"
                           size="sm"
                           onClick={() => toggleApiTester(config.id)}
-                          className={`text-xs ${expandedTesterId === config.id ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600' : 'text-blue-600 hover:text-blue-700'}`}
+                          className={`text-xs ${expandedTesterId === config.id ? "bg-blue-100 dark:bg-blue-900/30 text-blue-600" : "text-blue-600 hover:text-blue-700"}`}
                           aria-label="测试所有模型"
                           title="测试代理商支持的所有模型"
                         >
@@ -428,7 +483,7 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
                           size="sm"
                           onClick={() => handleEditProvider(config)}
                           className="text-xs"
-                          aria-label={t('provider.editProvider')}
+                          aria-label={t("provider.editProvider")}
                         >
                           <Edit className="h-3 w-3" aria-hidden="true" />
                         </Button>
@@ -439,7 +494,7 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
                           onClick={() => handleDeleteProvider(config)}
                           disabled={deleting === config.id}
                           className="text-xs text-red-600 hover:text-red-700"
-                          aria-label={t('dialogs.confirmDelete')}
+                          aria-label={t("dialogs.confirmDelete")}
                         >
                           {deleting === config.id ? (
                             <RefreshCw className="h-3 w-3 animate-spin" aria-hidden="true" />
@@ -459,7 +514,9 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
                           ) : (
                             <Check className="h-3 w-3 mr-1" aria-hidden="true" />
                           )}
-                          {isCurrentProvider(config) ? t('provider.alreadySelected') : t('provider.switchToConfig')}
+                          {isCurrentProvider(config)
+                            ? t("provider.alreadySelected")
+                            : t("provider.switchToConfig")}
                         </Button>
                       </div>
                     </div>
@@ -469,7 +526,7 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
                 {/* 内嵌 API 测试器 */}
                 <InlineAPITester
                   provider="claude"
-                  apiKey={config.api_key || config.auth_token || ''}
+                  apiKey={config.api_key || config.auth_token || ""}
                   baseUrl={config.base_url}
                   isOpen={expandedTesterId === config.id}
                   onClose={() => setExpandedTesterId(null)}
@@ -492,7 +549,7 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
                 ) : (
                   <Eye className="h-3 w-3 mr-1" aria-hidden="true" />
                 )}
-                {showTokens ? t('provider.hideToken') : t('provider.showToken')}Token
+                {showTokens ? t("provider.hideToken") : t("provider.showToken")}Token
               </Button>
             </div>
           )}
@@ -503,7 +560,7 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
       <Dialog open={showCurrentConfig} onOpenChange={setShowCurrentConfig}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>{t('provider.currentEnvConfig')}</DialogTitle>
+            <DialogTitle>{t("provider.currentEnvConfig")}</DialogTitle>
             <VisuallyHidden.Root>
               <DialogDescription>查看当前环境变量配置</DialogDescription>
             </VisuallyHidden.Root>
@@ -523,7 +580,9 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
                   <div>
                     <p className="font-medium text-sm">ANTHROPIC_AUTH_TOKEN</p>
                     <p className="text-sm text-muted-foreground font-mono bg-muted p-2 rounded">
-                      {showTokens ? currentConfig.anthropic_auth_token : maskToken(currentConfig.anthropic_auth_token)}
+                      {showTokens
+                        ? currentConfig.anthropic_auth_token
+                        : maskToken(currentConfig.anthropic_auth_token)}
                     </p>
                   </div>
                 )}
@@ -531,7 +590,9 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
                   <div>
                     <p className="font-medium text-sm">ANTHROPIC_API_KEY</p>
                     <p className="text-sm text-muted-foreground font-mono bg-muted p-2 rounded">
-                      {showTokens ? currentConfig.anthropic_api_key : maskToken(currentConfig.anthropic_api_key)}
+                      {showTokens
+                        ? currentConfig.anthropic_api_key
+                        : maskToken(currentConfig.anthropic_api_key)}
                     </p>
                   </div>
                 )}
@@ -551,7 +612,7 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
                       {currentConfig.anthropic_api_key_helper}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      {t('provider.tokenHelper')}
+                      {t("provider.tokenHelper")}
                     </p>
                   </div>
                 )}
@@ -569,7 +630,7 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
                     ) : (
                       <Eye className="h-3 w-3 mr-1" aria-hidden="true" />
                     )}
-                    {showTokens ? t('provider.hideToken') : t('provider.showToken')}Token
+                    {showTokens ? t("provider.hideToken") : t("provider.showToken")}Token
                   </Button>
                 </div>
               </div>
@@ -577,7 +638,7 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
               <div className="flex items-center justify-center py-8">
                 <div className="text-center">
                   <AlertCircle className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                  <p className="text-sm text-muted-foreground">{t('provider.noEnvVars')}</p>
+                  <p className="text-sm text-muted-foreground">{t("provider.noEnvVars")}</p>
                 </div>
               </div>
             )}
@@ -589,7 +650,9 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
       <Dialog open={showForm} onOpenChange={handleFormCancel}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editingProvider ? t('provider.editProvider') : t('provider.addProvider')}</DialogTitle>
+            <DialogTitle>
+              {editingProvider ? t("provider.editProvider") : t("provider.addProvider")}
+            </DialogTitle>
             <VisuallyHidden.Root>
               <DialogDescription>配置 API 提供商信息</DialogDescription>
             </VisuallyHidden.Root>
@@ -608,7 +671,7 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <DollarSign className="h-5 w-5" />
-              {t('provider.usageQuery')}
+              {t("provider.usageQuery")}
             </DialogTitle>
             <VisuallyHidden.Root>
               <DialogDescription>查看 API 使用量和余额信息</DialogDescription>
@@ -617,18 +680,23 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
           <div className="space-y-4 py-4">
             {usageProvider && (
               <div className="text-sm text-muted-foreground mb-4">
-                {t('provider.providerLabel')} <span className="font-medium text-foreground">{usageProvider.name}</span>
+                {t("provider.providerLabel")}{" "}
+                <span className="font-medium text-foreground">{usageProvider.name}</span>
               </div>
             )}
             {usageData && (
               <div className="space-y-3">
                 <div className="flex justify-between items-center p-3 bg-muted rounded-lg">
-                  <span className="text-sm text-muted-foreground">{t('provider.totalBalance')}</span>
-                  <span className={`font-semibold ${usageData.is_unlimited ? 'text-green-600' : ''}`}>
+                  <span className="text-sm text-muted-foreground">
+                    {t("provider.totalBalance")}
+                  </span>
+                  <span
+                    className={`font-semibold ${usageData.is_unlimited ? "text-green-600" : ""}`}
+                  >
                     {usageData.is_unlimited ? (
                       <span className="flex items-center gap-1">
                         <InfinityIcon className="h-4 w-4" />
-                        {t('provider.unlimited')}
+                        {t("provider.unlimited")}
                       </span>
                     ) : (
                       formatCurrency(usageData.total_balance)
@@ -637,24 +705,27 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
                 </div>
 
                 <div className="flex justify-between items-center p-3 bg-muted rounded-lg">
-                  <span className="text-sm text-muted-foreground">{t('provider.usedBalance')}</span>
-                  <span className="font-semibold">
-                    {formatCurrency(usageData.used_balance)}
-                  </span>
+                  <span className="text-sm text-muted-foreground">{t("provider.usedBalance")}</span>
+                  <span className="font-semibold">{formatCurrency(usageData.used_balance)}</span>
                 </div>
 
                 <div className="flex justify-between items-center p-3 bg-muted rounded-lg">
-                  <span className="text-sm text-muted-foreground">{t('provider.remainingBalance')}</span>
-                  <span className={`font-semibold ${usageData.is_unlimited
-                    ? 'text-green-600'
-                    : usageData.remaining_balance > 10
-                      ? 'text-green-600'
-                      : 'text-red-600'
-                    }`}>
+                  <span className="text-sm text-muted-foreground">
+                    {t("provider.remainingBalance")}
+                  </span>
+                  <span
+                    className={`font-semibold ${
+                      usageData.is_unlimited
+                        ? "text-green-600"
+                        : usageData.remaining_balance > 10
+                          ? "text-green-600"
+                          : "text-red-600"
+                    }`}
+                  >
                     {usageData.is_unlimited ? (
                       <span className="flex items-center gap-1">
                         <InfinityIcon className="h-4 w-4" />
-                        {t('provider.noLimit')}
+                        {t("provider.noLimit")}
                       </span>
                     ) : (
                       formatCurrency(usageData.remaining_balance)
@@ -665,22 +736,23 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
                 <div className="flex justify-between items-center p-3 bg-muted rounded-lg">
                   <span className="text-sm text-muted-foreground flex items-center gap-1">
                     <Calendar className="h-3 w-3" />
-                    {t('provider.validUntil')}
+                    {t("provider.validUntil")}
                   </span>
-                  <span className="font-semibold">
-                    {formatDate(usageData.access_until)}
-                  </span>
+                  <span className="font-semibold">{formatDate(usageData.access_until)}</span>
                 </div>
 
                 <div className="text-xs text-muted-foreground text-center pt-2 border-t">
-                  {t('provider.queryPeriod', { start: usageData.query_start_date, end: usageData.query_end_date })}
+                  {t("provider.queryPeriod", {
+                    start: usageData.query_start_date,
+                    end: usageData.query_end_date,
+                  })}
                 </div>
               </div>
             )}
           </div>
           <div className="flex justify-end">
             <Button variant="outline" onClick={() => setUsageDialogOpen(false)}>
-              {t('buttons.close')}
+              {t("buttons.close")}
             </Button>
           </div>
         </DialogContent>
@@ -690,23 +762,30 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{t('provider.confirmDeleteProvider')}</DialogTitle>
+            <DialogTitle>{t("provider.confirmDeleteProvider")}</DialogTitle>
             <VisuallyHidden.Root>
               <DialogDescription>确认删除此 API 提供商配置</DialogDescription>
             </VisuallyHidden.Root>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <p>{t('provider.confirmDeleteMessage', { name: providerToDelete?.name })}</p>
+            <p>{t("provider.confirmDeleteMessage", { name: providerToDelete?.name })}</p>
             {providerToDelete && (
               <div className="p-3 bg-muted rounded-md">
-                <p className="text-sm"><span className="font-medium">{t('provider.name')}</span>{providerToDelete.name}</p>
-                <p className="text-sm"><span className="font-medium">{t('provider.description')}</span>{providerToDelete.description}</p>
-                <p className="text-sm"><span className="font-medium">{t('provider.apiUrl')}</span>{providerToDelete.base_url}</p>
+                <p className="text-sm">
+                  <span className="font-medium">{t("provider.name")}</span>
+                  {providerToDelete.name}
+                </p>
+                <p className="text-sm">
+                  <span className="font-medium">{t("provider.description")}</span>
+                  {providerToDelete.description}
+                </p>
+                <p className="text-sm">
+                  <span className="font-medium">{t("provider.apiUrl")}</span>
+                  {providerToDelete.base_url}
+                </p>
               </div>
             )}
-            <p className="text-sm text-muted-foreground">
-              {t('provider.deleteCannotUndo')}
-            </p>
+            <p className="text-sm text-muted-foreground">{t("provider.deleteCannotUndo")}</p>
           </div>
           <div className="flex justify-end gap-2">
             <Button
@@ -714,14 +793,14 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
               onClick={cancelDeleteProvider}
               disabled={deleting === providerToDelete?.id}
             >
-              {t('buttons.cancel')}
+              {t("buttons.cancel")}
             </Button>
             <Button
               variant="destructive"
               onClick={confirmDeleteProvider}
               disabled={deleting === providerToDelete?.id}
             >
-              {deleting === providerToDelete?.id ? t('provider.deleting') : t('buttons.confirm')}
+              {deleting === providerToDelete?.id ? t("provider.deleting") : t("buttons.confirm")}
             </Button>
           </div>
         </DialogContent>

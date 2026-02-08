@@ -1,4 +1,4 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { useState } from "react";
 import { api } from "@/lib/api";
 import { callEnhancementAPI, getProvider } from "@/lib/promptEnhancementService";
@@ -17,12 +17,12 @@ export interface UsePromptEnhancementOptions {
   isExpanded: boolean;
   onPromptChange: (newPrompt: string) => void;
   getConversationContext?: () => string[];
-  messages?: ClaudeStreamMessage[];  // 🆕 完整的消息列表（用于双 API）
+  messages?: ClaudeStreamMessage[]; // 🆕 完整的消息列表（用于双 API）
   textareaRef: React.RefObject<HTMLTextAreaElement>;
   expandedTextareaRef: React.RefObject<HTMLTextAreaElement>;
   projectPath?: string;
-  sessionId?: string;      // 🆕 会话 ID（用于历史上下文）
-  projectId?: string;      // 🆕 项目 ID（用于历史上下文）
+  sessionId?: string; // 🆕 会话 ID（用于历史上下文）
+  projectId?: string; // 🆕 项目 ID（用于历史上下文）
   enableProjectContext: boolean;
   enableMultiRound?: boolean; // 🆕 启用多轮搜索
 }
@@ -46,20 +46,20 @@ function updateTextareaWithUndo(textarea: HTMLTextAreaElement, newText: string) 
 
   // 使用 execCommand 插入新文本（这会创建一个可撤销的历史记录）
   // 注意：execCommand 已被标记为废弃，但目前仍是唯一支持 undo 的方法
-  const success = document.execCommand('insertText', false, newText);
+  const success = document.execCommand("insertText", false, newText);
 
   if (!success) {
     // 如果 execCommand 失败（某些浏览器可能不支持），使用备用方案
     // 虽然这不会创建 undo 历史，但至少能正常工作
     textarea.value = newText;
-    textarea.dispatchEvent(new Event('input', { bubbles: true }));
+    textarea.dispatchEvent(new Event("input", { bubbles: true }));
   }
 
   // 将光标移到末尾
   textarea.setSelectionRange(newText.length, newText.length);
 
   // 触发 input 事件以更新 React 状态
-  textarea.dispatchEvent(new Event('input', { bubbles: true }));
+  textarea.dispatchEvent(new Event("input", { bubbles: true }));
 
   // 恢复焦点状态
   if (hadFocus) {
@@ -72,12 +72,12 @@ export function usePromptEnhancement({
   isExpanded,
   onPromptChange,
   getConversationContext,
-  messages,       // 🆕 完整消息列表
+  messages, // 🆕 完整消息列表
   textareaRef,
   expandedTextareaRef,
   projectPath,
-  sessionId,      // 🆕
-  projectId,      // 🆕
+  sessionId, // 🆕
+  projectId, // 🆕
   enableProjectContext,
   enableMultiRound = true, // 🆕 默认启用多轮搜索
 }: UsePromptEnhancementOptions) {
@@ -85,8 +85,8 @@ export function usePromptEnhancement({
 
   // 🆕 智能上下文提取开关（默认启用）
   const [enableDualAPI, setEnableDualAPI] = useState(() => {
-    const saved = localStorage.getItem('enable_dual_api_enhancement');
-    return saved !== null ? saved === 'true' : true;  // 默认启用
+    const saved = localStorage.getItem("enable_dual_api_enhancement");
+    return saved !== null ? saved === "true" : true; // 默认启用
   });
 
   /**
@@ -103,10 +103,10 @@ export function usePromptEnhancement({
       const result = await api.enhancePromptWithContext(
         prompt.trim(),
         projectPath,
-        sessionId,        // 🆕 传递会话 ID
-        projectId,        // 🆕 传递项目 ID
+        sessionId, // 🆕 传递会话 ID
+        projectId, // 🆕 传递项目 ID
         3000,
-        enableMultiRound  // 🆕 启用多轮搜索
+        enableMultiRound // 🆕 启用多轮搜索
       );
 
       if (result.acemcpUsed && result.contextCount > 0) {
@@ -117,14 +117,17 @@ export function usePromptEnhancement({
           const extractedContext = contextMatch[0];
           return extractedContext;
         } else {
-          logger.warn('usePromptEnhancement', '[getProjectContext] Failed to extract context with regex');
+          logger.warn(
+            "usePromptEnhancement",
+            "[getProjectContext] Failed to extract context with regex"
+          );
           return null;
         }
       }
 
       return null;
     } catch (error) {
-      logger.error('usePromptEnhancement', '[getProjectContext] Failed:', error);
+      logger.error("usePromptEnhancement", "[getProjectContext] Failed:", error);
       return null;
     }
   };
@@ -140,12 +143,12 @@ export function usePromptEnhancement({
     // 获取提供商配置
     const provider = getProvider(providerId);
     if (!provider) {
-      onPromptChange(trimmedPrompt + '\n\n❌ 提供商配置未找到');
+      onPromptChange(trimmedPrompt + "\n\n❌ 提供商配置未找到");
       return;
     }
 
     if (!provider.enabled) {
-      onPromptChange(trimmedPrompt + '\n\n❌ 提供商已禁用，请在设置中启用');
+      onPromptChange(trimmedPrompt + "\n\n❌ 提供商已禁用，请在设置中启用");
       return;
     }
 
@@ -161,10 +164,11 @@ export function usePromptEnhancement({
       const config = loadContextConfig();
 
       // 🆕 判断是否需要使用双 API 方案（混合策略）
-      const needsAcemcpRefinement = projectContext && (
-        (projectContext.match(/Path:|### 文件:/g) || []).length > ACEMCP_REFINEMENT_THRESHOLDS.minSnippetCount ||
-        projectContext.length > ACEMCP_REFINEMENT_THRESHOLDS.minContentLength
-      );
+      const needsAcemcpRefinement =
+        projectContext &&
+        ((projectContext.match(/Path:|### 文件:/g) || []).length >
+          ACEMCP_REFINEMENT_THRESHOLDS.minSnippetCount ||
+          projectContext.length > ACEMCP_REFINEMENT_THRESHOLDS.minContentLength);
       const needsHistoryFiltering = messages && messages.length > config.maxMessages;
       const shouldUseDualAPI = enableDualAPI && (needsAcemcpRefinement || needsHistoryFiltering);
 
@@ -188,7 +192,7 @@ export function usePromptEnhancement({
 
         result = await callEnhancementAPI(provider, trimmedPrompt, context);
       }
-      
+
       if (result && result.trim()) {
         // 使用可撤销的方式更新文本
         const target = isExpanded ? expandedTextareaRef.current : textareaRef.current;
@@ -198,19 +202,19 @@ export function usePromptEnhancement({
       } else {
         const target = isExpanded ? expandedTextareaRef.current : textareaRef.current;
         if (target) {
-          updateTextareaWithUndo(target, trimmedPrompt + '\n\n⚠️ API返回空结果，请重试');
+          updateTextareaWithUndo(target, trimmedPrompt + "\n\n⚠️ API返回空结果，请重试");
         }
       }
     } catch (error) {
-      logger.error('usePromptEnhancement', '[handleEnhancePromptWithAPI] Failed:', error);
-      let errorMessage = '未知错误';
-      
+      logger.error("usePromptEnhancement", "[handleEnhancePromptWithAPI] Failed:", error);
+      let errorMessage = "未知错误";
+
       if (error instanceof Error) {
         errorMessage = error.message;
-      } else if (typeof error === 'string') {
+      } else if (typeof error === "string") {
         errorMessage = error;
       }
-      
+
       const target = isExpanded ? expandedTextareaRef.current : textareaRef.current;
       if (target) {
         updateTextareaWithUndo(target, trimmedPrompt + `\n\n❌ ${provider.name}: ${errorMessage}`);
@@ -223,7 +227,7 @@ export function usePromptEnhancement({
   return {
     isEnhancing,
     handleEnhancePromptWithAPI,
-    enableDualAPI,       // 🆕 暴露智能上下文开关状态
-    setEnableDualAPI,    // 🆕 暴露开关控制函数
+    enableDualAPI, // 🆕 暴露智能上下文开关状态
+    setEnableDualAPI, // 🆕 暴露开关控制函数
   };
 }

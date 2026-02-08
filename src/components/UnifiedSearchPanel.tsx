@@ -9,9 +9,9 @@
  * - 支持模糊搜索和过滤
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { AnimatePresence, motion } from "framer-motion";
-import { FileCode, Filter, Loader2, Network, Puzzle, Search, Webhook, X, Zap } from 'lucide-react';
+import { FileCode, Filter, Loader2, Network, Puzzle, Search, Webhook, X, Zap, History } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { notify } from "@/components/notifications";
@@ -22,6 +22,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToolUsageStats } from "@/hooks/useToolUsageStats";
+import { useSearchHistory } from "@/hooks/useSearchHistory";
+import { SearchSuggestions } from "@/components/SearchSuggestions";
+import { SearchHistoryPanel } from "@/components/SearchHistoryPanel";
+import { SearchResultCard } from "@/components/SearchResultCard";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
@@ -179,11 +183,24 @@ export function UnifiedSearchPanel({
   const [loading, setLoading] = useState(false);
   const [filterType, setFilterType] = useState<SearchItemType | "all">("all");
   const [toggling, setToggling] = useState<Set<string>>(new Set());
+  const [showHistory, setShowHistory] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
   // 🆕 使用统计 Hook
   const { recordUsage, sortByUsage } = useToolUsageStats();
+
+  // 🆕 搜索历史 Hook
+  const {
+    history,
+    addSearch,
+    removeSearch,
+    clearHistory,
+    togglePin,
+    getSuggestions,
+    getPinnedSearches,
+  } = useSearchHistory();
 
   // 🆕 响应式定位状态
   const [panelPosition, setPanelPosition] = useState<{
@@ -345,7 +362,7 @@ export function UnifiedSearchPanel({
         });
         allItems.push(...skillItems);
       } catch (err) {
-        logger.warn('UnifiedSearchPanel', "[UnifiedSearchPanel] Failed to load skills:", err);
+        logger.warn("UnifiedSearchPanel", "[UnifiedSearchPanel] Failed to load skills:", err);
       }
 
       // 加载 MCP Servers
@@ -391,7 +408,11 @@ export function UnifiedSearchPanel({
               }
             }
           } catch (err) {
-            logger.warn('UnifiedSearchPanel', `[UnifiedSearchPanel] Failed to load ${engine} MCP servers:`, err);
+            logger.warn(
+              "UnifiedSearchPanel",
+              `[UnifiedSearchPanel] Failed to load ${engine} MCP servers:`,
+              err
+            );
           }
         }
 
@@ -420,7 +441,7 @@ export function UnifiedSearchPanel({
         });
         allItems.push(...mcpItems);
       } catch (err) {
-        logger.warn('UnifiedSearchPanel', "[UnifiedSearchPanel] Failed to load MCP servers:", err);
+        logger.warn("UnifiedSearchPanel", "[UnifiedSearchPanel] Failed to load MCP servers:", err);
       }
 
       // 加载 Hooks
@@ -454,7 +475,7 @@ export function UnifiedSearchPanel({
         });
         allItems.push(...hookItems);
       } catch (err) {
-        logger.warn('UnifiedSearchPanel', "[UnifiedSearchPanel] Failed to load hooks:", err);
+        logger.warn("UnifiedSearchPanel", "[UnifiedSearchPanel] Failed to load hooks:", err);
       }
 
       // 加载 Plugins (待实现)
@@ -462,7 +483,7 @@ export function UnifiedSearchPanel({
 
       setItems(allItems);
     } catch (error) {
-      logger.error('UnifiedSearchPanel', "[UnifiedSearchPanel] Failed to load items:", error);
+      logger.error("UnifiedSearchPanel", "[UnifiedSearchPanel] Failed to load items:", error);
     } finally {
       setLoading(false);
     }
@@ -501,15 +522,56 @@ export function UnifiedSearchPanel({
     return [...sortedEnabled, ...sortedDisabled];
   }, [items, searchQuery, filterType, sortByUsage]);
 
+  // 🆕 保存搜索历史
+  useEffect(() => {
+    if (searchQuery.trim() && filteredItems.length > 0) {
+      // 防抖保存（用户停止输入 1 秒后保存）
+      const timer = setTimeout(() => {
+        addSearch(searchQuery, filteredItems.length, filterType);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [searchQuery, filteredItems.length, filterType, addSearch]);
+
+  // 🆕 获取搜索建议
+  const suggestions = useMemo(() => {
+    const recentItems = items
+      .filter((item) => item.enabled)
+      .slice(0, 10)
+      .map((item) => ({
+        id: item.id,
+        name: item.name,
+        type: item.type,
+      }));
+    return getSuggestions(searchQuery, recentItems);
+  }, [searchQuery, items, getSuggestions]);
+
+  // 🆕 处理建议选择
+  const handleSuggestionSelect = useCallback((suggestion: any) => {
+    setSearchQuery(suggestion.text);
+    setShowSuggestions(false);
+    searchInputRef.current?.focus();
+  }, []);
+
+  // 🆕 处理历史选择
+  const handleHistorySelect = useCallback((item: any) => {
+    setSearchQuery(item.query);
+    if (item.filterType && item.filterType !== "all") {
+      setFilterType(item.filterType as SearchItemType | "all");
+    }
+    setShowHistory(false);
+    searchInputRef.current?.focus();
+  }, []);
+
   // 切换启用/禁用
   const handleToggle = async (item: SearchItem, enabled: boolean) => {
     // 防止重复点击
     if (toggling.has(item.id)) {
-      logger.debug('UnifiedSearchPanel', "[UnifiedSearchPanel] Already toggling:", item.id);
+      logger.debug("UnifiedSearchPanel", "[UnifiedSearchPanel] Already toggling:", item.id);
       return;
     }
 
-    logger.debug('UnifiedSearchPanel', "[UnifiedSearchPanel] Toggle start:", item.id, enabled);
+    logger.debug("UnifiedSearchPanel", "[UnifiedSearchPanel] Toggle start:", item.id, enabled);
     setToggling((prev) => new Set(prev).add(item.id));
 
     try {
@@ -522,7 +584,7 @@ export function UnifiedSearchPanel({
 
           // 🔧 修复：必须传递 serverSpec 参数
           if (!item.serverSpec) {
-            logger.warn('UnifiedSearchPanel', "[UnifiedSearchPanel] MCP missing serverSpec:", item);
+            logger.warn("UnifiedSearchPanel", "[UnifiedSearchPanel] MCP missing serverSpec:", item);
             notify.error(`无法切换 MCP 工具：缺少配置信息`);
             break;
           }
@@ -534,13 +596,13 @@ export function UnifiedSearchPanel({
           // 全局通知
           notify.success(
             enabled ? `已启用 MCP 工具：${item.name}` : `已禁用 MCP 工具：${item.name}`,
-            { duration: 2000, position: "global" },
+            { duration: 2000, position: "global" }
           );
           break;
         }
         case "hook": {
           if (!item.filePath) {
-            logger.warn('UnifiedSearchPanel', "[UnifiedSearchPanel] Hook missing filePath:", item);
+            logger.warn("UnifiedSearchPanel", "[UnifiedSearchPanel] Hook missing filePath:", item);
             break;
           }
           // 使用保存的 eventType，如果没有则使用文件名推断
@@ -556,7 +618,11 @@ export function UnifiedSearchPanel({
         }
         case "skill": {
           if (!item.originalName || !item.scope) {
-            logger.warn('UnifiedSearchPanel', "[UnifiedSearchPanel] Skill missing originalName or scope:", item);
+            logger.warn(
+              "UnifiedSearchPanel",
+              "[UnifiedSearchPanel] Skill missing originalName or scope:",
+              item
+            );
             break;
           }
           await api.toggleSkill(item.originalName, item.scope, enabled, projectPath);
@@ -570,7 +636,10 @@ export function UnifiedSearchPanel({
         }
         case "plugin": {
           // TODO: 实现 Plugin 的启用/禁用
-          logger.warn('UnifiedSearchPanel', "[UnifiedSearchPanel] Plugin toggle not implemented yet");
+          logger.warn(
+            "UnifiedSearchPanel",
+            "[UnifiedSearchPanel] Plugin toggle not implemented yet"
+          );
           break;
         }
       }
@@ -597,10 +666,10 @@ export function UnifiedSearchPanel({
             enabled,
             originalName: newOriginalName,
           };
-        }),
+        })
       );
     } catch (error) {
-      logger.error('UnifiedSearchPanel', "[UnifiedSearchPanel] Failed to toggle item:", error);
+      logger.error("UnifiedSearchPanel", "[UnifiedSearchPanel] Failed to toggle item:", error);
       // 恢复状态
       setItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, enabled: !enabled } : i)));
 
@@ -611,7 +680,7 @@ export function UnifiedSearchPanel({
         position: "global",
       });
     } finally {
-      logger.debug('UnifiedSearchPanel', "[UnifiedSearchPanel] Toggle end:", item.id);
+      logger.debug("UnifiedSearchPanel", "[UnifiedSearchPanel] Toggle end:", item.id);
       setToggling((prev) => {
         const next = new Set(prev);
         next.delete(item.id);
@@ -623,7 +692,7 @@ export function UnifiedSearchPanel({
   // 打开本体文件
   const handleOpenFile = async (item: SearchItem) => {
     if (!item.filePath) {
-      logger.warn('UnifiedSearchPanel', "[UnifiedSearchPanel] Item missing filePath:", item);
+      logger.warn("UnifiedSearchPanel", "[UnifiedSearchPanel] Item missing filePath:", item);
       return;
     }
 
@@ -631,11 +700,11 @@ export function UnifiedSearchPanel({
       // 展开波浪号路径
       const expandedPath = item.filePath.replace(
         /^~/,
-        process.env.HOME || process.env.USERPROFILE || "",
+        process.env.HOME || process.env.USERPROFILE || ""
       );
       await api.openFileWithDefaultApp(expandedPath);
     } catch (error) {
-      logger.error('UnifiedSearchPanel', "[UnifiedSearchPanel] Failed to open file:", error);
+      logger.error("UnifiedSearchPanel", "[UnifiedSearchPanel] Failed to open file:", error);
     }
   };
 
@@ -656,36 +725,70 @@ export function UnifiedSearchPanel({
               "fixed rounded-xl overflow-hidden",
               "bg-background/95 backdrop-blur-xl backdrop-saturate-150",
               "border border-white/20 dark:border-white/10",
-              "shadow-[0_8px_32px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)]",
+              "shadow-[0_8px_32px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
             )}
             style={{
               top: `${panelPosition.top}px`,
               left: `${panelPosition.left}px`,
               width: `${panelPosition.width}px`,
               maxWidth: `${panelPosition.maxWidth}px`,
-              zIndex: 'var(--z-popover)',
+              zIndex: "var(--z-popover)",
             }}
           >
             {/* 搜索框 */}
-            <div className="flex items-center gap-2 p-3 border-b">
+            <div className="relative flex items-center gap-2 p-3 border-b">
               <Search className="h-4 w-4 text-muted-foreground flex-shrink-0" />
               <Input
                 ref={searchInputRef}
                 type="text"
                 placeholder="搜索 MCP、SKILL、插件、Hooks..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setShowSuggestions(true);
+                }}
+                onFocus={() => setShowSuggestions(true)}
                 className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-sm h-8"
               />
               {searchQuery && (
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setSearchQuery("")}
+                  onClick={() => {
+                    setSearchQuery("");
+                    setShowSuggestions(false);
+                  }}
                   className="h-6 w-6 p-0"
                 >
                   <X className="h-3 w-3" />
                 </Button>
+              )}
+              {/* 历史按钮 */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowHistory(!showHistory)}
+                    className={cn(
+                      "h-7 w-7 p-0",
+                      showHistory && "bg-accent"
+                    )}
+                  >
+                    <History className="h-3.5 w-3.5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>搜索历史</TooltipContent>
+              </Tooltip>
+
+              {/* 搜索建议下拉 */}
+              {showSuggestions && suggestions.length > 0 && (
+                <SearchSuggestions
+                  suggestions={suggestions}
+                  query={searchQuery}
+                  onSelect={handleSuggestionSelect}
+                  onClose={() => setShowSuggestions(false)}
+                />
               )}
             </div>
 
@@ -711,129 +814,62 @@ export function UnifiedSearchPanel({
               </span>
             </div>
 
-            {/* 结果列表 */}
+            {/* 结果列表或历史面板 */}
             <ScrollArea style={{ height: `${panelPosition.maxHeight}px` }}>
-              <div className="p-2">
-                {loading ? (
-                  <div className="flex items-center justify-center py-8 text-muted-foreground">
-                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                    <span className="text-sm">加载中...</span>
-                  </div>
-                ) : filteredItems.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground text-sm">
-                    {searchQuery ? "未找到匹配项" : "暂无数据"}
-                  </div>
-                ) : (
-                  <div className="space-y-1">
-                    {filteredItems.map((item) => {
-                      const Icon = TYPE_ICONS[item.type];
-                      const isToggling = toggling.has(item.id);
+              {showHistory ? (
+                /* 搜索历史面板 */
+                <SearchHistoryPanel
+                  history={history}
+                  pinnedSearches={getPinnedSearches()}
+                  onSelect={handleHistorySelect}
+                  onRemove={removeSearch}
+                  onClear={clearHistory}
+                  onTogglePin={togglePin}
+                />
+              ) : (
+                /* 搜索结果列表 */
+                <div className="p-2">
+                  {loading ? (
+                    <div className="flex items-center justify-center py-8 text-muted-foreground">
+                      <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                      <span className="text-sm">加载中...</span>
+                    </div>
+                  ) : filteredItems.length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground text-sm">
+                      {searchQuery ? "未找到匹配项" : "暂无数据"}
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {filteredItems.map((item) => {
+                        const Icon = TYPE_ICONS[item.type];
+                        const isToggling = toggling.has(item.id);
 
-                      return (
-                        <div
-                          key={item.id}
-                          className="group flex items-center gap-3 p-2.5 rounded-lg hover:bg-accent/50 transition-colors"
-                        >
-                          {/* 图标 */}
-                          <div
-                            className={cn(
-                              "flex items-center justify-center w-8 h-8 rounded-md flex-shrink-0",
-                              TYPE_BG[item.type],
-                            )}
-                          >
-                            <Icon className={cn("h-4 w-4", TYPE_COLORS[item.type])} />
-                          </div>
-
-                          {/* 内容 */}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium text-sm truncate">{item.name}</span>
-                              <Badge variant="outline" className="text-[10px] h-4 px-1.5">
-                                {item.type.toUpperCase()}
-                              </Badge>
-                              {item.scope && (
-                                <Badge
-                                  variant={item.scope === "user" ? "default" : "secondary"}
-                                  className={cn(
-                                    "text-[10px] h-4 px-1.5",
-                                    item.scope === "user"
-                                      ? "bg-orange-500/90 text-white border-orange-600 dark:bg-orange-600/90 dark:border-orange-700"
-                                      : "bg-muted text-muted-foreground",
-                                  )}
-                                >
-                                  {item.scope === "user" ? "全局" : "当前会话"}
-                                </Badge>
-                              )}
-                            </div>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <div className="text-xs text-muted-foreground truncate cursor-help hover:text-foreground transition-colors">
-                                  {item.description || "无描述"}
-                                </div>
-                              </TooltipTrigger>
-                              <TooltipContent
-                                side="bottom"
-                                align="start"
-                                className="max-w-[500px] text-sm whitespace-pre-wrap break-words"
-                                style={{ zIndex: 'var(--z-tooltip)' }}
-                                sideOffset={5}
-                              >
-                                <div className="space-y-2">
-                                  <div className="font-semibold text-foreground">{item.name}</div>
-                                  <div className="text-muted-foreground leading-relaxed">
-                                    {item.description || "无描述"}
-                                  </div>
-                                </div>
-                              </TooltipContent>
-                            </Tooltip>
-                          </div>
-
-                          {/* 操作按钮 */}
-                          <div className="flex items-center gap-2 flex-shrink-0">
-                            {/* 打开文件按钮 */}
-                            {item.filePath && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleOpenFile(item)}
-                                className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                                title="打开本体文件"
-                              >
-                                <FileCode className="h-3.5 w-3.5" />
-                              </Button>
-                            )}
-
-                            {/* 启用/禁用开关 */}
-                            <div
-                              onClick={(e) => e.stopPropagation()}
-                              className="flex items-center relative"
-                            >
-                              <Switch
-                                checked={item.enabled ?? false}
-                                onCheckedChange={(checked) => {
-                                  console.log(
-                                    "[UnifiedSearchPanel] Switch clicked:",
-                                    item.id,
-                                    checked,
-                                  );
-                                  handleToggle(item, checked);
-                                }}
-                                className="scale-75"
-                                disabled={isToggling}
-                              />
-                              {isToggling && (
-                                <div className="absolute inset-0 flex items-center justify-center bg-background/50 rounded-full">
-                                  <Loader2 className="h-3 w-3 animate-spin text-primary" />
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
+                        return (
+                          <SearchResultCard
+                            key={item.id}
+                            item={{
+                              id: item.id,
+                              type: item.type,
+                              name: item.name,
+                              description: item.description,
+                              enabled: item.enabled,
+                              scope: item.scope,
+                              engine: item.engine,
+                              filePath: item.filePath,
+                              details: {
+                                triggers: item.triggers,
+                                category: item.category,
+                              },
+                            }}
+                            onToggle={(id, enabled) => handleToggle(item, enabled)}
+                            onOpenFile={(filePath) => handleOpenFile(item)}
+                          />
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
             </ScrollArea>
 
             {/* 底部提示 */}

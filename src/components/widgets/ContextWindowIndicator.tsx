@@ -5,16 +5,16 @@
  * 参考 Claude Code v2.0.64 的 current_usage 功能
  */
 
-import React from 'react';
-import { useTranslation } from 'react-i18next';
-import { motion } from 'framer-motion';
-import { Layers, Info, Archive } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Popover } from '@/components/ui/popover';
-import { useContextWindowUsage } from '@/hooks/useContextWindowUsage';
-import { USAGE_LEVEL_COLORS } from '@/types/contextWindow';
-import { cn } from '@/lib/utils';
-import type { ClaudeStreamMessage } from '@/types/claude';
+import React from "react";
+import { useTranslation } from "react-i18next";
+import { motion } from "framer-motion";
+import { Layers, Info, Archive } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Popover } from "@/components/ui/popover";
+import { useContextWindowUsage } from "@/hooks/useContextWindowUsage";
+import { USAGE_LEVEL_COLORS } from "@/types/contextWindow";
+import { cn } from "@/lib/utils";
+import type { ClaudeStreamMessage } from "@/types/claude";
 
 // Claude 的 Auto-compact buffer 预留量 (45k tokens)
 const AUTO_COMPACT_BUFFER = 45000;
@@ -67,7 +67,7 @@ export const ContextWindowIndicator: React.FC<ContextWindowIndicatorProps> = ({
   }
 
   // 计算 Auto-compact 相关数据（仅 Claude 引擎）
-  const isClaudeEngine = engine === 'claude';
+  const isClaudeEngine = engine === "claude";
   const autoCompactThreshold = usage.contextWindowSize - AUTO_COMPACT_BUFFER;
   const autoCompactThresholdPercentage = (autoCompactThreshold / usage.contextWindowSize) * 100;
   const tokensUntilCompact = Math.max(0, autoCompactThreshold - usage.currentTokens);
@@ -90,12 +90,12 @@ export const ContextWindowIndicator: React.FC<ContextWindowIndicatorProps> = ({
           <Badge
             variant="outline"
             className={cn(
-              'flex items-center gap-1.5 px-2 py-1 h-8 cursor-default hover:bg-accent transition-colors border-border/50',
+              "flex items-center gap-1.5 px-2 py-1 h-8 cursor-default hover:bg-accent transition-colors border-border/50",
               colors.border,
-              willTriggerCompact && 'border-amber-400 dark:border-amber-600'
+              willTriggerCompact && "border-amber-400 dark:border-amber-600"
             )}
           >
-            <Layers className={cn('h-3 w-3', colors.text)} />
+            <Layers className={cn("h-3 w-3", colors.text)} />
             {/* 迷你进度条 - 带 auto-compact 阈值线 */}
             <div className="progress-glass w-12 h-1.5 relative">
               <div
@@ -110,14 +110,14 @@ export const ContextWindowIndicator: React.FC<ContextWindowIndicatorProps> = ({
                 />
               )}
             </div>
-            <span className={cn('font-mono text-xs', colors.text)}>
+            <span className={cn("font-mono text-xs", colors.text)}>
               {usage.formattedPercentage}
             </span>
             {/* 显示剩余空间（绝对值） */}
             {isClaudeEngine && (
               <>
                 <span className="text-xs text-muted-foreground">|</span>
-                <span className={cn('font-mono text-xs', colors.text)}>
+                <span className={cn("font-mono text-xs", colors.text)}>
                   {formatK(tokensUntilCompact)}
                 </span>
               </>
@@ -135,16 +135,14 @@ export const ContextWindowIndicator: React.FC<ContextWindowIndicatorProps> = ({
             {/* 标题 */}
             <div className="font-medium text-sm border-b pb-2 flex items-center gap-2">
               <Layers className="h-4 w-4" />
-              {t('contextWindow.title', '上下文窗口使用情况')}
+              {t("contextWindow.title", "上下文窗口使用情况")}
             </div>
 
             {/* 进度条 - 带 auto-compact 阈值线 */}
             <div className="space-y-1.5">
               <div className="flex justify-between text-xs">
-                <span className="text-muted-foreground">
-                  {t('contextWindow.usage', '使用率')}
-                </span>
-                <span className={cn('font-mono font-medium', colors.text)}>
+                <span className="text-muted-foreground">{t("contextWindow.usage", "使用率")}</span>
+                <span className={cn("font-mono font-medium", colors.text)}>
                   {usage.formattedPercentage}
                 </span>
               </div>
@@ -170,27 +168,31 @@ export const ContextWindowIndicator: React.FC<ContextWindowIndicatorProps> = ({
 
             {/* Auto-compact Buffer 信息（仅 Claude 引擎） */}
             {isClaudeEngine && (
-              <div className={cn(
-                "p-2 rounded-md border text-xs",
-                willTriggerCompact
-                  ? "bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800"
-                  : isNearCompact
-                    ? "bg-yellow-50 border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-800"
-                    : "bg-muted/50 border-border"
-              )}>
+              <div
+                className={cn(
+                  "p-2 rounded-md border text-xs",
+                  willTriggerCompact
+                    ? "bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800"
+                    : isNearCompact
+                      ? "bg-yellow-50 border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-800"
+                      : "bg-muted/50 border-border"
+                )}
+              >
                 <div className="flex items-center gap-1.5 mb-1.5">
-                  <Archive className={cn(
-                    "h-3.5 w-3.5",
-                    willTriggerCompact
-                      ? "text-amber-600 dark:text-amber-400"
-                      : "text-muted-foreground"
-                  )} />
-                  <span className={cn(
-                    "font-medium",
-                    willTriggerCompact
-                      ? "text-amber-700 dark:text-amber-300"
-                      : "text-foreground"
-                  )}>
+                  <Archive
+                    className={cn(
+                      "h-3.5 w-3.5",
+                      willTriggerCompact
+                        ? "text-amber-600 dark:text-amber-400"
+                        : "text-muted-foreground"
+                    )}
+                  />
+                  <span
+                    className={cn(
+                      "font-medium",
+                      willTriggerCompact ? "text-amber-700 dark:text-amber-300" : "text-foreground"
+                    )}
+                  >
                     Auto-compact Buffer
                   </span>
                 </div>
@@ -205,15 +207,17 @@ export const ContextWindowIndicator: React.FC<ContextWindowIndicatorProps> = ({
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">距离压缩:</span>
-                    <span className={cn(
-                      "font-mono",
-                      willTriggerCompact
-                        ? "text-amber-600 dark:text-amber-400 font-medium"
-                        : isNearCompact
-                          ? "text-yellow-600 dark:text-yellow-400"
-                          : ""
-                    )}>
-                      {willTriggerCompact ? '即将触发' : formatK(tokensUntilCompact)}
+                    <span
+                      className={cn(
+                        "font-mono",
+                        willTriggerCompact
+                          ? "text-amber-600 dark:text-amber-400 font-medium"
+                          : isNearCompact
+                            ? "text-yellow-600 dark:text-yellow-400"
+                            : ""
+                      )}
+                    >
+                      {willTriggerCompact ? "即将触发" : formatK(tokensUntilCompact)}
                     </span>
                   </div>
                 </div>
@@ -229,16 +233,14 @@ export const ContextWindowIndicator: React.FC<ContextWindowIndicatorProps> = ({
             <div className="space-y-1 text-xs border-t pt-2">
               <div className="flex justify-between gap-4">
                 <span className="text-muted-foreground">
-                  {t('contextWindow.inputTokens', '输入 Tokens')}:
+                  {t("contextWindow.inputTokens", "输入 Tokens")}:
                 </span>
-                <span className="font-mono">
-                  {usage.breakdown.inputTokens.toLocaleString()}
-                </span>
+                <span className="font-mono">{usage.breakdown.inputTokens.toLocaleString()}</span>
               </div>
               {usage.breakdown.cacheCreationTokens > 0 && (
                 <div className="flex justify-between gap-4">
                   <span className="text-muted-foreground">
-                    {t('contextWindow.cacheCreation', '缓存创建')}:
+                    {t("contextWindow.cacheCreation", "缓存创建")}:
                   </span>
                   <span className="font-mono">
                     {usage.breakdown.cacheCreationTokens.toLocaleString()}
@@ -248,7 +250,7 @@ export const ContextWindowIndicator: React.FC<ContextWindowIndicatorProps> = ({
               {usage.breakdown.cacheReadTokens > 0 && (
                 <div className="flex justify-between gap-4">
                   <span className="text-muted-foreground">
-                    {t('contextWindow.cacheRead', '缓存读取')}:
+                    {t("contextWindow.cacheRead", "缓存读取")}:
                   </span>
                   <span className="font-mono">
                     {usage.breakdown.cacheReadTokens.toLocaleString()}
@@ -257,7 +259,7 @@ export const ContextWindowIndicator: React.FC<ContextWindowIndicatorProps> = ({
               )}
               <div className="flex justify-between gap-4 border-t pt-1 mt-1">
                 <span className="text-muted-foreground">
-                  {t('contextWindow.outputTokens', '输出 Tokens')}:
+                  {t("contextWindow.outputTokens", "输出 Tokens")}:
                 </span>
                 <span className="font-mono text-muted-foreground">
                   {usage.breakdown.outputTokens.toLocaleString()}
@@ -266,14 +268,14 @@ export const ContextWindowIndicator: React.FC<ContextWindowIndicatorProps> = ({
             </div>
 
             {/* 提示信息 */}
-            {usage.level === 'critical' && !isClaudeEngine && (
+            {usage.level === "critical" && !isClaudeEngine && (
               <div className="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-2 rounded">
-                {t('contextWindow.criticalWarning', '上下文窗口接近上限，建议开始新会话')}
+                {t("contextWindow.criticalWarning", "上下文窗口接近上限，建议开始新会话")}
               </div>
             )}
-            {usage.level === 'high' && !isClaudeEngine && (
+            {usage.level === "high" && !isClaudeEngine && (
               <div className="text-xs text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 p-2 rounded">
-                {t('contextWindow.highWarning', '上下文使用率较高')}
+                {t("contextWindow.highWarning", "上下文使用率较高")}
               </div>
             )}
           </div>

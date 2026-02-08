@@ -28,7 +28,9 @@ src/
 ## 核心目录说明
 
 ### 📦 components/ - 组件库
+
 **85+ 个 React 组件**，包含：
+
 - **FloatingPromptInput/** - 用户输入核心 (15 个文件)
 - **message/** - 消息渲染组件 (13 个文件)
 - **layout/** - 布局组件 (4 个文件)
@@ -48,7 +50,9 @@ src/
 ---
 
 ### 🔧 hooks/ - 自定义 Hook 库
+
 **35 个自定义 Hook**，核心包括：
+
 - `useSessionStream.ts` - 流式处理核心
 - `useSmartSession.ts` - 智能会话管理
 - `usePromptExecution.ts` - 提示执行
@@ -62,7 +66,9 @@ src/
 ---
 
 ### 📚 lib/ - 工具库和服务
+
 **40+ 个工具模块**，核心包括：
+
 - `api.ts` - API 调用层
 - `pricing.ts` - 定价逻辑
 - `tokenCounter.ts` - Token 计数
@@ -75,7 +81,9 @@ src/
 ---
 
 ### 🌐 contexts/ - React Context
+
 **8 个 Context Provider**：
+
 1. `MessagesContext.tsx` - 消息状态管理
 2. `NavigationContext.tsx` - 导航状态
 3. `PlanModeContext.tsx` - 计划模式
@@ -88,7 +96,9 @@ src/
 ---
 
 ### 📝 types/ - TypeScript 类型定义
+
 **11+ 个类型文件**：
+
 - `claude.ts` - Claude API 类型
 - `codex.ts` - Codex API 类型
 - `completion.ts` - 自动补全类型
@@ -99,7 +109,9 @@ src/
 ---
 
 ### 🌍 i18n/ - 国际化
+
 **3 种语言支持**：
+
 - `locales/zh-CN/` - 简体中文
 - `locales/zh-TW/` - 繁体中文
 - `locales/en/` - 英文
@@ -109,12 +121,14 @@ src/
 ---
 
 ### ⚙️ config/ - 配置文件
+
 - `codexProviderPresets.ts` - Codex Provider 预设
 - `geminiProviderPresets.ts` - Gemini Provider 预设
 
 ---
 
 ### 📄 pages/ - 页面组件
+
 - `SessionWindow.tsx` - 会话窗口页面
 - `PluginDemo.tsx` - 插件演示页面
 
@@ -122,12 +136,12 @@ src/
 
 ## 核心文件
 
-| 文件 | 作用 | 修改频率 |
-|------|------|---------|
-| `App.tsx` | 应用主组件，Context 嵌套 | 低 |
-| `main.tsx` | React 入口，挂载根组件 | 低 |
-| `index.css` | 全局样式和 Tailwind 配置 | 中 |
-| `vite-env.d.ts` | Vite 环境类型定义 | 低 |
+| 文件            | 作用                     | 修改频率 |
+| --------------- | ------------------------ | -------- |
+| `App.tsx`       | 应用主组件，Context 嵌套 | 低       |
+| `main.tsx`      | React 入口，挂载根组件   | 低       |
+| `index.css`     | 全局样式和 Tailwind 配置 | 中       |
+| `vite-env.d.ts` | Vite 环境类型定义        | 低       |
 
 ---
 
@@ -136,12 +150,24 @@ src/
 ```tsx
 function App() {
   return (
-    <UpdateProvider>           {/* 更新检测 */}
-      <OutputCacheProvider>    {/* 输出缓存 */}
-        <NavigationProvider>   {/* 导航状态 */}
-          <ProjectProvider>    {/* 项目状态 */}
-            <TabProvider>      {/* 标签页管理 */}
-              <AppLayout>      {/* 主布局 */}
+    <UpdateProvider>
+      {" "}
+      {/* 更新检测 */}
+      <OutputCacheProvider>
+        {" "}
+        {/* 输出缓存 */}
+        <NavigationProvider>
+          {" "}
+          {/* 导航状态 */}
+          <ProjectProvider>
+            {" "}
+            {/* 项目状态 */}
+            <TabProvider>
+              {" "}
+              {/* 标签页管理 */}
+              <AppLayout>
+                {" "}
+                {/* 主布局 */}
                 <ViewRouter /> {/* 视图路由 */}
               </AppLayout>
             </TabProvider>
@@ -160,22 +186,26 @@ function App() {
 ## 技术栈
 
 ### 核心框架
+
 - **React**: 18.3.1
 - **TypeScript**: 5.9.3
 - **Vite**: 6.0.3
 
 ### UI 组件库
+
 - **Radix UI**: 无头组件库
   - Dialog, Dropdown, Checkbox, RadioGroup, Select, Slider, Switch, Tabs, Toast, Tooltip 等
 - **Lucide React**: 图标库
 
 ### 样式方案
+
 - **Tailwind CSS**: 4.1.8
 - **Framer Motion**: 12.23.24 (动画)
 - **class-variance-authority**: CSS 变体管理
 - **clsx / tailwind-merge**: 类名合并
 
 ### Markdown 和代码高亮
+
 - **react-markdown**: 9.0.3
 - **react-md-editor**: 4.0.8
 - **react-syntax-highlighter**: 15.6.1
@@ -183,36 +213,43 @@ function App() {
 - **diff**: 8.0.2 (差异对比)
 
 ### 虚拟化
+
 - **TanStack React Virtual**: 3.13.12
 
 ### 国际化
+
 - **i18next**: 25.6.0
 - **react-i18next**: 15.6.0
 - **i18next-browser-languagedetector**: 8.2.0
 
 ### AI SDK
+
 - **@anthropic-ai/sdk**: ^0.68.0
 - **@anthropic-ai/claude-agent-sdk**: ^0.1.30
 
 ### Tauri 集成
+
 - **@tauri-apps/api**: 2.9.0
-- **@tauri-apps/plugin-***: 多个插件
+- **@tauri-apps/plugin-\***: 多个插件
 
 ---
 
 ## 代码组织原则
 
 ### 组件组织
+
 - **目录组件**: 复杂组件放在独立目录（如 `FloatingPromptInput/`）
 - **单文件组件**: 简单组件直接在 `components/` 根目录
 - **UI 基础组件**: 放在 `components/ui/`
 
 ### Hook 组织
+
 - **功能 Hook**: 按功能命名（如 `useSessionStream`）
 - **UI Hook**: UI 相关 Hook（如 `useSmartAutoScroll`）
 - **工具 Hook**: 工具类 Hook（如 `useGlobalEvents`）
 
 ### 样式组织
+
 - **全局样式**: `index.css`
 - **组件样式**: Tailwind 实用类
 - **动画**: Framer Motion
@@ -222,25 +259,30 @@ function App() {
 ## 常见修改场景
 
 ### 添加新组件
+
 1. 在 `components/` 下创建 `MyComponent.tsx`
 2. 如果组件复杂，创建 `MyComponent/` 目录
 3. 使用 TypeScript + React.FC
 4. 使用 Tailwind CSS 样式
 
 ### 添加新 Hook
+
 1. 在 `hooks/` 下创建 `useMyHook.ts`
 2. 遵循 React Hooks 规则
 3. 添加 TypeScript 类型定义
 
 ### 添加新页面
+
 1. 在 `pages/` 下创建页面组件
 2. 在 `ViewRouter.tsx` 中添加路由
 
 ### 添加新的 Context
+
 1. 在 `contexts/` 下创建 Context
 2. 在 `App.tsx` 中添加 Provider
 
 ### 修改全局样式
+
 1. 编辑 `index.css`
 2. 或在 `tailwind.config.js` 中配置主题
 
@@ -249,14 +291,17 @@ function App() {
 ## 性能优化
 
 ### 虚拟化
+
 - 使用 TanStack React Virtual 处理长列表
 - `message/` 中的消息列表使用虚拟化
 
 ### Memo 和 Callback
+
 - 使用 `React.memo` 避免不必要的重新渲染
 - 使用 `useMemo` 和 `useCallback` 缓存计算结果
 
 ### 代码分割
+
 - 使用动态 import 延迟加载
 - Vite 自动进行代码分割
 
@@ -265,21 +310,25 @@ function App() {
 ## 开发规范
 
 ### TypeScript
+
 - 严格模式启用
 - 所有组件和 Hook 都有类型定义
 - 避免使用 `any`
 
 ### 组件规范
+
 - 函数式组件 + Hooks
 - Props 使用 interface 定义
 - 导出使用 named export（避免 default export）
 
 ### 样式规范
+
 - 优先使用 Tailwind 实用类
 - 复杂样式使用 CSS Modules
 - 避免内联样式
 
 ### 命名规范
+
 - 组件: PascalCase
 - Hook: camelCase with `use` prefix
 - 文件: 与导出的主要内容同名

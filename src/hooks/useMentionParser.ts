@@ -14,7 +14,7 @@
  * 来源: Claude Code @mention + Cursor @ References
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { useCallback, useEffect, useState } from "react";
 import { api } from "@/lib/api";
 
@@ -97,7 +97,7 @@ export function useMentionParser(options: UseMentionParserOptions = {}) {
             type: "subagent" as MentionType,
             name: s.name,
             description: s.description,
-          })),
+          }))
         );
 
         setSkills(
@@ -105,10 +105,10 @@ export function useMentionParser(options: UseMentionParserOptions = {}) {
             type: "skill" as MentionType,
             name: s.name,
             description: s.description,
-          })),
+          }))
         );
       } catch (error) {
-        logger.error('useMentionParser', "加载mention建议失败:", error);
+        logger.error("useMentionParser", "加载mention建议失败:", error);
       } finally {
         setLoading(false);
       }
@@ -171,7 +171,7 @@ export function useMentionParser(options: UseMentionParserOptions = {}) {
         errors,
       };
     },
-    [enableValidation, subagents, skills],
+    [enableValidation, subagents, skills]
   );
 
   /**
@@ -204,7 +204,7 @@ export function useMentionParser(options: UseMentionParserOptions = {}) {
           subagents.map((s) => ({
             ...s,
             name: namePrefix ? s.name : `subagent:${s.name}`,
-          })),
+          }))
         );
       }
 
@@ -213,7 +213,7 @@ export function useMentionParser(options: UseMentionParserOptions = {}) {
           skills.map((s) => ({
             ...s,
             name: namePrefix ? s.name : `skill:${s.name}`,
-          })),
+          }))
         );
       }
 
@@ -225,7 +225,7 @@ export function useMentionParser(options: UseMentionParserOptions = {}) {
 
       return suggestions.slice(0, 10); // 最多10个建议
     },
-    [subagents, skills],
+    [subagents, skills]
   );
 
   /**
@@ -235,7 +235,7 @@ export function useMentionParser(options: UseMentionParserOptions = {}) {
     (
       prompt: string,
       cursorPosition: number,
-      suggestion: MentionSuggestion,
+      suggestion: MentionSuggestion
     ): { newPrompt: string; newCursorPosition: number } => {
       const textBeforeCursor = prompt.slice(0, cursorPosition);
       const textAfterCursor = prompt.slice(cursorPosition);
@@ -255,7 +255,7 @@ export function useMentionParser(options: UseMentionParserOptions = {}) {
 
       return { newPrompt, newCursorPosition };
     },
-    [],
+    []
   );
 
   /**
@@ -273,7 +273,7 @@ export function useMentionParser(options: UseMentionParserOptions = {}) {
       const parsed = parsePrompt(prompt);
       return parsed.mentions.filter((m) => m.type === "subagent").map((m) => m.name);
     },
-    [parsePrompt],
+    [parsePrompt]
   );
 
   /**
@@ -284,7 +284,7 @@ export function useMentionParser(options: UseMentionParserOptions = {}) {
       const parsed = parsePrompt(prompt);
       return parsed.mentions.filter((m) => m.type === "skill").map((m) => m.name);
     },
-    [parsePrompt],
+    [parsePrompt]
   );
 
   return {

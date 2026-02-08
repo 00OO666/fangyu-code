@@ -13,7 +13,7 @@
  * - 成本可控（条件触发，非始终双调用）
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { LLMApiService, type LLMProvider } from "@/lib/services/llmApiService";
 import type { ClaudeStreamMessage } from "@/types/claude";
 import { loadContextConfig } from "./promptContextConfig";
@@ -134,7 +134,7 @@ export async function enhancePromptWithDualAPI(
   messages: ClaudeStreamMessage[],
   currentPrompt: string,
   provider: PromptEnhancementProvider,
-  projectContext?: string,
+  projectContext?: string
 ): Promise<string> {
   const config = loadContextConfig();
 
@@ -165,10 +165,14 @@ export async function enhancePromptWithDualAPI(
       refinedProjectContext = await refineAcemcpContextWithAPI(
         projectContext!,
         currentPrompt,
-        provider,
+        provider
       );
     } catch (error) {
-      logger.error('dualAPIEnhancement', "[Dual API] Acemcp refinement failed, using original:", error);
+      logger.error(
+        "dualAPIEnhancement",
+        "[Dual API] Acemcp refinement failed, using original:",
+        error
+      );
       // 降级：使用原始上下文
       refinedProjectContext = projectContext;
     }
@@ -187,10 +191,14 @@ export async function enhancePromptWithDualAPI(
         meaningful,
         currentPrompt,
         config.maxMessages,
-        provider,
+        provider
       );
     } catch (error) {
-      logger.error('dualAPIEnhancement', "[Dual API] Step 1 failed, falling back to recent messages:", error);
+      logger.error(
+        "dualAPIEnhancement",
+        "[Dual API] Step 1 failed, falling back to recent messages:",
+        error
+      );
       selectedContext = meaningful.slice(-config.maxMessages).map((msg) => {
         const text = extractTextFromContent(msg.message?.content || []);
         return `${msg.type === "user" ? "用户" : "助手"}: ${text}`;
@@ -216,7 +224,7 @@ export async function enhancePromptWithDualAPI(
   const enhancedPrompt = await callEnhancementAPI(
     provider, // 🔑 使用同一个提供商
     currentPrompt,
-    selectedContext,
+    selectedContext
   );
   return enhancedPrompt;
 }
@@ -228,7 +236,7 @@ async function extractContextWithAPI(
   messages: ClaudeStreamMessage[],
   currentPrompt: string,
   maxCount: number,
-  provider: PromptEnhancementProvider,
+  provider: PromptEnhancementProvider
 ): Promise<string[]> {
   // 1️⃣ 构建消息列表（精简版，节省 token）
   const messageList = messages
@@ -255,7 +263,7 @@ ${messageList}
   const response = await callContextExtractionAPI(
     provider,
     CONTEXT_EXTRACTION_SYSTEM_PROMPT,
-    userPrompt,
+    userPrompt
   );
 
   // 4️⃣ 解析返回的索引
@@ -285,7 +293,7 @@ ${messageList}
 async function callContextExtractionAPI(
   provider: PromptEnhancementProvider,
   systemPrompt: string,
-  userPrompt: string,
+  userPrompt: string
 ): Promise<string> {
   // 🆕 使用统一的 LLM API 服务（带超时和重试）
   const response = await LLMApiService.call(
@@ -298,7 +306,7 @@ async function callContextExtractionAPI(
       timeout: 30000, // 30秒超时（上下文提取通常较快）
       maxRetries: 2, // 最多重试2次
       retryDelay: 1000, // 1秒基础重试延迟
-    },
+    }
   );
 
   return response.content;
@@ -334,15 +342,19 @@ function parseIndicesFromResponse(response: string, maxIndex: number, maxCount: 
 
     return validIndices;
   } catch (error) {
-    logger.error('dualAPIEnhancement', "[parseIndices] Parse failed:", error);
-    logger.error('dualAPIEnhancement', "[parseIndices] Response was:", response);
+    logger.error("dualAPIEnhancement", "[parseIndices] Parse failed:", error);
+    logger.error("dualAPIEnhancement", "[parseIndices] Response was:", response);
 
     // 降级方案：使用最后 N 条消息的索引
     const fallbackIndices = Array.from({ length: Math.min(maxCount, maxIndex) }, (_, i) =>
-      Math.max(0, maxIndex - maxCount + i),
+      Math.max(0, maxIndex - maxCount + i)
     ).filter((idx) => idx >= 0 && idx < maxIndex);
 
-    logger.warn('dualAPIEnhancement', "[parseIndices] Using fallback (last N messages);:", fallbackIndices);
+    logger.warn(
+      "dualAPIEnhancement",
+      "[parseIndices] Using fallback (last N messages);:",
+      fallbackIndices
+    );
     return fallbackIndices;
   }
 }
@@ -408,7 +420,7 @@ function shouldRefineAcemcpResult(projectContext?: string): boolean {
 async function refineAcemcpContextWithAPI(
   acemcpResult: string,
   currentPrompt: string,
-  provider: PromptEnhancementProvider,
+  provider: PromptEnhancementProvider
 ): Promise<string> {
   const userPrompt = `用户提示词：
 ${currentPrompt}
@@ -421,7 +433,7 @@ ${acemcpResult}
   const response = await callContextExtractionAPI(
     provider,
     ACEMCP_REFINEMENT_SYSTEM_PROMPT,
-    userPrompt,
+    userPrompt
   );
 
   // 验证返回结果
@@ -431,7 +443,10 @@ ${acemcpResult}
 
   // 如果整理后反而更长，使用智能截断
   if (response.length > ACEMCP_REFINEMENT_THRESHOLDS.maxRefinedLength) {
-    logger.warn('dualAPIEnhancement', `[Acemcp Refinement] Result too long (${response.length});, truncating...`);
+    logger.warn(
+      "dualAPIEnhancement",
+      `[Acemcp Refinement] Result too long (${response.length});, truncating...`
+    );
     return smartTruncate(response, ACEMCP_REFINEMENT_THRESHOLDS.maxRefinedLength);
   }
 

@@ -10,9 +10,17 @@
  * 来源: Claude Extended Thinking Visualization
  */
 
-import { useState, useEffect, useRef } from 'react';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Brain, ChevronDown, ChevronRight, Lightbulb, Link2, Target, CheckCircle } from 'lucide-react';
+import { useState, useEffect, useRef } from "react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Brain,
+  ChevronDown,
+  ChevronRight,
+  Lightbulb,
+  Link2,
+  Target,
+  CheckCircle,
+} from "lucide-react";
 
 // ============================================================
 // 类型定义
@@ -20,7 +28,7 @@ import { Brain, ChevronDown, ChevronRight, Lightbulb, Link2, Target, CheckCircle
 
 export interface ThinkingStep {
   id: string;
-  type: 'analysis' | 'reasoning' | 'conclusion' | 'verification';
+  type: "analysis" | "reasoning" | "conclusion" | "verification";
   content: string;
   timestamp: number;
   confidence?: number;
@@ -29,7 +37,7 @@ export interface ThinkingStep {
 export interface ThinkingNode {
   id: string;
   label: string;
-  type: 'question' | 'observation' | 'hypothesis' | 'conclusion';
+  type: "question" | "observation" | "hypothesis" | "conclusion";
   children?: ThinkingNode[];
   confidence?: number;
 }
@@ -57,18 +65,18 @@ export function ThinkingVisualizer({
 }: ThinkingVisualizerProps) {
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
   const [steps, setSteps] = useState<ThinkingStep[]>([]);
-  const [currentContent, setCurrentContent] = useState('');
+  const [currentContent, setCurrentContent] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // 解析思考内容为步骤
   useEffect(() => {
     if (!content) return;
 
-    const lines = content.split('\n');
+    const lines = content.split("\n");
     const parsedSteps: ThinkingStep[] = [];
 
-    let currentType: ThinkingStep['type'] = 'analysis';
-    let stepContent = '';
+    let currentType: ThinkingStep["type"] = "analysis";
+    let stepContent = "";
 
     lines.forEach((line) => {
       // 检测步骤类型标记
@@ -81,8 +89,8 @@ export function ThinkingVisualizer({
             timestamp: Date.now(),
           });
         }
-        currentType = 'analysis';
-        stepContent = '';
+        currentType = "analysis";
+        stepContent = "";
       } else if (line.match(/^##?\s*(推理|Reasoning)/i)) {
         if (stepContent) {
           parsedSteps.push({
@@ -92,8 +100,8 @@ export function ThinkingVisualizer({
             timestamp: Date.now(),
           });
         }
-        currentType = 'reasoning';
-        stepContent = '';
+        currentType = "reasoning";
+        stepContent = "";
       } else if (line.match(/^##?\s*(结论|Conclusion)/i)) {
         if (stepContent) {
           parsedSteps.push({
@@ -103,8 +111,8 @@ export function ThinkingVisualizer({
             timestamp: Date.now(),
           });
         }
-        currentType = 'conclusion';
-        stepContent = '';
+        currentType = "conclusion";
+        stepContent = "";
       } else if (line.match(/^##?\s*(验证|Verification)/i)) {
         if (stepContent) {
           parsedSteps.push({
@@ -114,10 +122,10 @@ export function ThinkingVisualizer({
             timestamp: Date.now(),
           });
         }
-        currentType = 'verification';
-        stepContent = '';
+        currentType = "verification";
+        stepContent = "";
       } else {
-        stepContent += line + '\n';
+        stepContent += line + "\n";
       }
     });
 
@@ -160,30 +168,30 @@ export function ThinkingVisualizer({
   }, [content, streaming]);
 
   // 获取步骤图标和颜色
-  const getStepIcon = (type: ThinkingStep['type']) => {
+  const getStepIcon = (type: ThinkingStep["type"]) => {
     switch (type) {
-      case 'analysis':
-        return { Icon: Brain, color: 'text-blue-500', bg: 'bg-blue-500/10' };
-      case 'reasoning':
-        return { Icon: Link2, color: 'text-purple-500', bg: 'bg-purple-500/10' };
-      case 'conclusion':
-        return { Icon: Target, color: 'text-green-500', bg: 'bg-green-500/10' };
-      case 'verification':
-        return { Icon: CheckCircle, color: 'text-amber-500', bg: 'bg-amber-500/10' };
+      case "analysis":
+        return { Icon: Brain, color: "text-blue-500", bg: "bg-blue-500/10" };
+      case "reasoning":
+        return { Icon: Link2, color: "text-purple-500", bg: "bg-purple-500/10" };
+      case "conclusion":
+        return { Icon: Target, color: "text-green-500", bg: "bg-green-500/10" };
+      case "verification":
+        return { Icon: CheckCircle, color: "text-amber-500", bg: "bg-amber-500/10" };
     }
   };
 
   // 获取步骤标签
-  const getStepLabel = (type: ThinkingStep['type']): string => {
+  const getStepLabel = (type: ThinkingStep["type"]): string => {
     switch (type) {
-      case 'analysis':
-        return '分析';
-      case 'reasoning':
-        return '推理';
-      case 'conclusion':
-        return '结论';
-      case 'verification':
-        return '验证';
+      case "analysis":
+        return "分析";
+      case "reasoning":
+        return "推理";
+      case "conclusion":
+        return "结论";
+      case "verification":
+        return "验证";
     }
   };
 
@@ -193,19 +201,19 @@ export function ThinkingVisualizer({
 
     // 高亮推理关键词
     const reasoningKeywords = [
-      '因为',
-      '所以',
-      '因此',
-      '由于',
-      '根据',
-      '基于',
-      '考虑到',
-      '综上',
-      '总结',
+      "因为",
+      "所以",
+      "因此",
+      "由于",
+      "根据",
+      "基于",
+      "考虑到",
+      "综上",
+      "总结",
     ];
     reasoningKeywords.forEach((keyword) => {
       highlighted = highlighted.replace(
-        new RegExp(keyword, 'g'),
+        new RegExp(keyword, "g"),
         `<mark class="reasoning">${keyword}</mark>`
       );
     });
@@ -303,18 +311,14 @@ export function ThinkingVisualizer({
           )}
 
           {/* 关键洞察提示 */}
-          {steps.some((s) => s.type === 'conclusion') && (
+          {steps.some((s) => s.type === "conclusion") && (
             <div className="mt-4 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
               <div className="flex items-start gap-2">
                 <Lightbulb className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
                 <div>
-                  <div className="text-sm font-medium text-green-500 mb-1">
-                    关键洞察
-                  </div>
+                  <div className="text-sm font-medium text-green-500 mb-1">关键洞察</div>
                   <div className="text-sm text-[var(--text-secondary)]">
-                    {
-                      steps.find((s) => s.type === 'conclusion')?.content.split('\n')[0]
-                    }
+                    {steps.find((s) => s.type === "conclusion")?.content.split("\n")[0]}
                   </div>
                 </div>
               </div>

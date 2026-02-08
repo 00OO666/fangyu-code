@@ -1,5 +1,5 @@
 import React from "react";
-import { Clock, AlertTriangle, Calendar, Info } from 'lucide-react';
+import { Clock, AlertTriangle, Calendar, Info } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Popover } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
@@ -30,10 +30,10 @@ function formatResetTime(resetsAt?: number, resetsInSeconds?: number): string {
   const now = new Date();
   const isToday = resetDate.toDateString() === now.toDateString();
 
-  const timeStr = resetDate.toLocaleTimeString('zh-CN', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false
+  const timeStr = resetDate.toLocaleTimeString("zh-CN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
   });
 
   if (isToday) {
@@ -95,12 +95,14 @@ const RateLimitProgress: React.FC<{
           {icon}
           <span>{label}</span>
         </div>
-        <span className={cn(
-          "font-mono font-medium",
-          variant === "destructive" && "text-red-500",
-          variant === "warning" && "text-amber-500",
-          variant === "success" && "text-emerald-500"
-        )}>
+        <span
+          className={cn(
+            "font-mono font-medium",
+            variant === "destructive" && "text-red-500",
+            variant === "warning" && "text-amber-500",
+            variant === "success" && "text-emerald-500"
+          )}
+        >
           {limit.usedPercent.toFixed(1)}%
         </span>
       </div>
@@ -121,7 +123,7 @@ const RateLimitProgress: React.FC<{
  */
 export const CodexRateLimitBadge: React.FC<CodexRateLimitBadgeProps> = ({
   rateLimits,
-  className
+  className,
 }) => {
   const [open, setOpen] = React.useState(false);
 
@@ -138,9 +140,8 @@ export const CodexRateLimitBadge: React.FC<CodexRateLimitBadgeProps> = ({
   if (!displayLimit) return null;
 
   const variant = getVariant(displayLimit.usedPercent);
-  const badgeVariant = variant === "destructive" ? "destructive"
-    : variant === "warning" ? "warning"
-    : "outline";
+  const badgeVariant =
+    variant === "destructive" ? "destructive" : variant === "warning" ? "warning" : "outline";
 
   return (
     <Popover
@@ -161,17 +162,13 @@ export const CodexRateLimitBadge: React.FC<CodexRateLimitBadgeProps> = ({
           ) : (
             <Clock className="h-3 w-3" />
           )}
-          <span className="font-mono text-xs">
-            {displayLimit.usedPercent.toFixed(0)}%
-          </span>
+          <span className="font-mono text-xs">{displayLimit.usedPercent.toFixed(0)}%</span>
           <Info className="h-3 w-3 opacity-50" />
         </Badge>
       }
       content={
         <div className="space-y-4 p-1">
-          <div className="font-medium text-sm border-b pb-2">
-            Codex 用量限制
-          </div>
+          <div className="font-medium text-sm border-b pb-2">Codex 用量限制</div>
 
           {primaryLimit && (
             <RateLimitProgress

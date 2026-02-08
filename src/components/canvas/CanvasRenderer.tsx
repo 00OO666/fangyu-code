@@ -9,35 +9,49 @@
  * 5. 错误捕获和展示
  */
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Code, Eye, SplitSquareHorizontal, Maximize2, Minimize2, Play, Download, Copy, Check, AlertCircle, Settings } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { ScrollArea } from '@/components/ui/scroll-area';
+  Code,
+  Eye,
+  SplitSquareHorizontal,
+  Maximize2,
+  Minimize2,
+  Play,
+  Download,
+  Copy,
+  Check,
+  AlertCircle,
+  Settings,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 // Monaco Editor (动态导入)
-import Editor from '@monaco-editor/react';
-import type { editor } from 'monaco-editor';
+import Editor from "@monaco-editor/react";
+import type { editor } from "monaco-editor";
 
 // Markdown 渲染
-import ReactMarkdown from 'react-markdown';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import ReactMarkdown from "react-markdown";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 // ============================================
 // 类型定义
 // ============================================
 
-export type CanvasMode = 'code' | 'preview' | 'split';
-export type CanvasLanguage = 'html' | 'jsx' | 'tsx' | 'markdown' | 'svg' | 'javascript' | 'typescript';
+export type CanvasMode = "code" | "preview" | "split";
+export type CanvasLanguage =
+  | "html"
+  | "jsx"
+  | "tsx"
+  | "markdown"
+  | "svg"
+  | "javascript"
+  | "typescript";
 
 export interface CanvasRendererProps {
   /** 初始代码 */
@@ -64,7 +78,7 @@ export interface CanvasRendererProps {
  * 检测语言是否支持实时预览
  */
 const supportsLivePreview = (lang: CanvasLanguage): boolean => {
-  return ['html', 'jsx', 'tsx', 'markdown', 'svg'].includes(lang);
+  return ["html", "jsx", "tsx", "markdown", "svg"].includes(lang);
 };
 
 /**
@@ -72,13 +86,13 @@ const supportsLivePreview = (lang: CanvasLanguage): boolean => {
  */
 const getMonacoLanguage = (lang: CanvasLanguage): string => {
   const mapping: Record<CanvasLanguage, string> = {
-    html: 'html',
-    jsx: 'javascript',
-    tsx: 'typescript',
-    markdown: 'markdown',
-    svg: 'xml',
-    javascript: 'javascript',
-    typescript: 'typescript'
+    html: "html",
+    jsx: "javascript",
+    tsx: "typescript",
+    markdown: "markdown",
+    svg: "xml",
+    javascript: "javascript",
+    typescript: "typescript",
   };
   return mapping[lang];
 };
@@ -108,7 +122,9 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({ code, language, onError }) 
 
     try {
       // 完整的 HTML 文档
-      const fullHTML = code.includes('<!DOCTYPE') ? code : `
+      const fullHTML = code.includes("<!DOCTYPE")
+        ? code
+        : `
 <!DOCTYPE html>
 <html>
 <head>
@@ -210,22 +226,18 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({ code, language, onError }) 
           <ReactMarkdown
             components={{
               code({ className, children, ...props }) {
-                const match = /language-(\w+)/.exec(className || '');
+                const match = /language-(\w+)/.exec(className || "");
                 const isInline = !match;
                 return !isInline && match ? (
-                  <SyntaxHighlighter
-                    style={vscDarkPlus as any}
-                    language={match[1]}
-                    PreTag="div"
-                  >
-                    {String(children).replace(/\n$/, '')}
+                  <SyntaxHighlighter style={vscDarkPlus as any} language={match[1]} PreTag="div">
+                    {String(children).replace(/\n$/, "")}
                   </SyntaxHighlighter>
                 ) : (
                   <code className={className} {...props}>
                     {children}
                   </code>
                 );
-              }
+              },
             }}
           >
             {code}
@@ -237,9 +249,9 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({ code, language, onError }) 
 
   // 根据语言类型渲染
   useEffect(() => {
-    if (language === 'html') {
+    if (language === "html") {
       renderHTML();
-    } else if (language === 'jsx' || language === 'tsx') {
+    } else if (language === "jsx" || language === "tsx") {
       renderReact();
     }
   }, [code, language, renderHTML, renderReact]);
@@ -258,11 +270,11 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({ code, language, onError }) 
   }
 
   // 根据语言选择渲染方式
-  if (language === 'markdown') {
+  if (language === "markdown") {
     return renderMarkdown();
   }
 
-  if (language === 'svg') {
+  if (language === "svg") {
     return renderSVG();
   }
 
@@ -282,13 +294,13 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({ code, language, onError }) 
 // ============================================
 
 export const CanvasRenderer: React.FC<CanvasRendererProps> = ({
-  initialCode = '',
+  initialCode = "",
   language,
-  initialMode = 'split',
+  initialMode = "split",
   livePreview = true,
   onCodeChange,
   readOnly = false,
-  className
+  className,
 }) => {
   const [code, setCode] = useState(initialCode);
   const [mode, setMode] = useState<CanvasMode>(initialMode);
@@ -304,21 +316,24 @@ export const CanvasRenderer: React.FC<CanvasRendererProps> = ({
   const canPreview = supportsLivePreview(language);
 
   // 代码变更处理
-  const handleCodeChange = useCallback((value: string | undefined) => {
-    const newCode = value || '';
-    setCode(newCode);
-    onCodeChange?.(newCode);
+  const handleCodeChange = useCallback(
+    (value: string | undefined) => {
+      const newCode = value || "";
+      setCode(newCode);
+      onCodeChange?.(newCode);
 
-    // 自动运行模式：防抖更新预览
-    if (autoRun && canPreview) {
-      if (debounceTimer.current) {
-        clearTimeout(debounceTimer.current);
+      // 自动运行模式：防抖更新预览
+      if (autoRun && canPreview) {
+        if (debounceTimer.current) {
+          clearTimeout(debounceTimer.current);
+        }
+        debounceTimer.current = setTimeout(() => {
+          setPreviewCode(newCode);
+        }, 500); // 500ms 防抖
       }
-      debounceTimer.current = setTimeout(() => {
-        setPreviewCode(newCode);
-      }, 500); // 500ms 防抖
-    }
-  }, [autoRun, canPreview, onCodeChange]);
+    },
+    [autoRun, canPreview, onCodeChange]
+  );
 
   // 手动运行
   const handleRun = useCallback(() => {
@@ -335,18 +350,18 @@ export const CanvasRenderer: React.FC<CanvasRendererProps> = ({
   // 下载代码
   const handleDownload = useCallback(() => {
     const extensions: Record<CanvasLanguage, string> = {
-      html: 'html',
-      jsx: 'jsx',
-      tsx: 'tsx',
-      markdown: 'md',
-      svg: 'svg',
-      javascript: 'js',
-      typescript: 'ts'
+      html: "html",
+      jsx: "jsx",
+      tsx: "tsx",
+      markdown: "md",
+      svg: "svg",
+      javascript: "js",
+      typescript: "ts",
     };
 
-    const blob = new Blob([code], { type: 'text/plain' });
+    const blob = new Blob([code], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = `code.${extensions[language]}`;
     a.click();
@@ -354,21 +369,24 @@ export const CanvasRenderer: React.FC<CanvasRendererProps> = ({
   }, [code, language]);
 
   // 编辑器挂载
-  const handleEditorMount = useCallback((editor: editor.IStandaloneCodeEditor) => {
-    editorRef.current = editor;
+  const handleEditorMount = useCallback(
+    (editor: editor.IStandaloneCodeEditor) => {
+      editorRef.current = editor;
 
-    // 设置编辑器选项
-    editor.updateOptions({
-      fontSize: 14,
-      lineHeight: 22,
-      minimap: { enabled: mode !== 'split' },
-      scrollBeyondLastLine: false,
-      smoothScrolling: true,
-      cursorBlinking: 'smooth',
-      formatOnPaste: true,
-      formatOnType: true
-    });
-  }, [mode]);
+      // 设置编辑器选项
+      editor.updateOptions({
+        fontSize: 14,
+        lineHeight: 22,
+        minimap: { enabled: mode !== "split" },
+        scrollBeyondLastLine: false,
+        smoothScrolling: true,
+        cursorBlinking: "smooth",
+        formatOnPaste: true,
+        formatOnType: true,
+      });
+    },
+    [mode]
+  );
 
   // 清理
   useEffect(() => {
@@ -382,8 +400,8 @@ export const CanvasRenderer: React.FC<CanvasRendererProps> = ({
   return (
     <div
       className={cn(
-        'flex flex-col h-full bg-background border rounded-lg overflow-hidden',
-        isFullscreen && 'fixed inset-0 z-50 rounded-none',
+        "flex flex-col h-full bg-background border rounded-lg overflow-hidden",
+        isFullscreen && "fixed inset-0 z-50 rounded-none",
         className
       )}
     >
@@ -391,9 +409,7 @@ export const CanvasRenderer: React.FC<CanvasRendererProps> = ({
       <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/30">
         <div className="flex items-center gap-2">
           <Code className="w-4 h-4 text-muted-foreground" />
-          <span className="text-sm font-medium">
-            {language.toUpperCase()} Canvas
-          </span>
+          <span className="text-sm font-medium">{language.toUpperCase()} Canvas</span>
 
           {canPreview && (
             <Tabs value={mode} onValueChange={(v) => setMode(v as CanvasMode)}>
@@ -422,7 +438,7 @@ export const CanvasRenderer: React.FC<CanvasRendererProps> = ({
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
-                      variant={autoRun ? 'default' : 'outline'}
+                      variant={autoRun ? "default" : "outline"}
                       size="sm"
                       className="h-7 px-2"
                       onClick={() => setAutoRun(!autoRun)}
@@ -431,9 +447,7 @@ export const CanvasRenderer: React.FC<CanvasRendererProps> = ({
                       自动运行
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>
-                    {autoRun ? '已启用自动预览' : '点击启用自动预览'}
-                  </TooltipContent>
+                  <TooltipContent>{autoRun ? "已启用自动预览" : "点击启用自动预览"}</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
 
@@ -469,15 +483,12 @@ export const CanvasRenderer: React.FC<CanvasRendererProps> = ({
       <div className="flex-1 flex overflow-hidden">
         {/* 代码编辑器 */}
         <AnimatePresence mode="wait">
-          {(mode === 'code' || mode === 'split') && (
+          {(mode === "code" || mode === "split") && (
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className={cn(
-                'flex flex-col',
-                mode === 'split' ? 'w-1/2 border-r' : 'w-full'
-              )}
+              className={cn("flex flex-col", mode === "split" ? "w-1/2 border-r" : "w-full")}
             >
               <Editor
                 height="100%"
@@ -489,18 +500,18 @@ export const CanvasRenderer: React.FC<CanvasRendererProps> = ({
                 options={{
                   readOnly,
                   automaticLayout: true,
-                  wordWrap: 'on',
-                  lineNumbers: 'on',
+                  wordWrap: "on",
+                  lineNumbers: "on",
                   glyphMargin: false,
                   folding: true,
                   lineDecorationsWidth: 10,
                   lineNumbersMinChars: 3,
-                  renderLineHighlight: 'all',
+                  renderLineHighlight: "all",
                   scrollbar: {
-                    vertical: 'auto',
-                    horizontal: 'auto',
-                    useShadows: false
-                  }
+                    vertical: "auto",
+                    horizontal: "auto",
+                    useShadows: false,
+                  },
                 }}
               />
             </motion.div>
@@ -509,14 +520,14 @@ export const CanvasRenderer: React.FC<CanvasRendererProps> = ({
 
         {/* 预览面板 */}
         <AnimatePresence mode="wait">
-          {canPreview && (mode === 'preview' || mode === 'split') && (
+          {canPreview && (mode === "preview" || mode === "split") && (
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
               className={cn(
-                'flex flex-col bg-white dark:bg-slate-950',
-                mode === 'split' ? 'w-1/2' : 'w-full'
+                "flex flex-col bg-white dark:bg-slate-950",
+                mode === "split" ? "w-1/2" : "w-full"
               )}
             >
               <PreviewPanel code={previewCode} language={language} />
@@ -525,7 +536,7 @@ export const CanvasRenderer: React.FC<CanvasRendererProps> = ({
         </AnimatePresence>
 
         {/* 不支持预览的提示 */}
-        {!canPreview && mode === 'preview' && (
+        {!canPreview && mode === "preview" && (
           <div className="flex items-center justify-center w-full h-full text-muted-foreground">
             <div className="text-center">
               <Eye className="w-12 h-12 mx-auto mb-4 opacity-20" />

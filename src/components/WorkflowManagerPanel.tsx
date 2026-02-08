@@ -11,17 +11,32 @@
  * 5. 执行日志面板
  */
 
-import { logger } from '@/lib/logger';
-import React, { useState, useCallback, useMemo } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Play, Pause, RotateCcw, Square, CheckCircle, XCircle, Clock, Loader2, AlertCircle, ChevronRight, GitBranch, Users, Zap, Settings } from 'lucide-react';
-import { useUnifiedWorkflow } from '@/hooks/useUnifiedWorkflow';
-import type { Task, WorkflowLog } from '@/core/types/workflow';
+import { logger } from "@/lib/logger";
+import React, { useState, useCallback, useMemo } from "react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Play,
+  Pause,
+  RotateCcw,
+  Square,
+  CheckCircle,
+  XCircle,
+  Clock,
+  Loader2,
+  AlertCircle,
+  ChevronRight,
+  GitBranch,
+  Users,
+  Zap,
+  Settings,
+} from "lucide-react";
+import { useUnifiedWorkflow } from "@/hooks/useUnifiedWorkflow";
+import type { Task, WorkflowLog } from "@/core/types/workflow";
 
 // ============================================
 // 类型定义
@@ -33,7 +48,7 @@ interface WorkflowManagerPanelProps {
   /** API Base URL（可选） */
   apiBaseUrl?: string;
   /** 工作流模式 */
-  mode?: 'simple' | 'advanced';
+  mode?: "simple" | "advanced";
   /** 最大并发任务数 */
   maxConcurrentTasks?: number;
 }
@@ -46,17 +61,20 @@ interface WorkflowManagerPanelProps {
  * 状态徽章
  */
 const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
-  const variants: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; label: string }> = {
-    idle: { variant: 'secondary', label: '空闲' },
-    planning: { variant: 'default', label: '规划中' },
-    executing: { variant: 'default', label: '执行中' },
-    paused: { variant: 'outline', label: '已暂停' },
-    completed: { variant: 'secondary', label: '已完成' },
-    failed: { variant: 'destructive', label: '失败' },
-    cancelled: { variant: 'outline', label: '已取消' },
+  const variants: Record<
+    string,
+    { variant: "default" | "secondary" | "destructive" | "outline"; label: string }
+  > = {
+    idle: { variant: "secondary", label: "空闲" },
+    planning: { variant: "default", label: "规划中" },
+    executing: { variant: "default", label: "执行中" },
+    paused: { variant: "outline", label: "已暂停" },
+    completed: { variant: "secondary", label: "已完成" },
+    failed: { variant: "destructive", label: "失败" },
+    cancelled: { variant: "outline", label: "已取消" },
   };
 
-  const config = variants[status] || { variant: 'secondary' as const, label: status };
+  const config = variants[status] || { variant: "secondary" as const, label: status };
 
   return <Badge variant={config.variant}>{config.label}</Badge>;
 };
@@ -64,15 +82,15 @@ const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
 /**
  * 任务状态图标
  */
-const TaskStatusIcon: React.FC<{ status: Task['status'] }> = ({ status }) => {
+const TaskStatusIcon: React.FC<{ status: Task["status"] }> = ({ status }) => {
   switch (status) {
-    case 'completed':
+    case "completed":
       return <CheckCircle className="h-4 w-4 text-green-500" />;
-    case 'failed':
+    case "failed":
       return <XCircle className="h-4 w-4 text-red-500" />;
-    case 'in_progress':
+    case "in_progress":
       return <Loader2 className="h-4 w-4 animate-spin text-blue-500" />;
-    case 'cancelled':
+    case "cancelled":
       return <Square className="h-4 w-4 text-gray-400" />;
     default:
       return <Clock className="h-4 w-4 text-gray-400" />;
@@ -82,13 +100,13 @@ const TaskStatusIcon: React.FC<{ status: Task['status'] }> = ({ status }) => {
 /**
  * 日志级别图标
  */
-const LogLevelIcon: React.FC<{ level: WorkflowLog['level'] }> = ({ level }) => {
+const LogLevelIcon: React.FC<{ level: WorkflowLog["level"] }> = ({ level }) => {
   switch (level) {
-    case 'error':
+    case "error":
       return <XCircle className="h-3 w-3 text-red-500" />;
-    case 'warn':
+    case "warn":
       return <AlertCircle className="h-3 w-3 text-yellow-500" />;
-    case 'debug':
+    case "debug":
       return <Settings className="h-3 w-3 text-gray-400" />;
     default:
       return <ChevronRight className="h-3 w-3 text-blue-500" />;
@@ -102,12 +120,12 @@ const LogLevelIcon: React.FC<{ level: WorkflowLog['level'] }> = ({ level }) => {
 export const WorkflowManagerPanel: React.FC<WorkflowManagerPanelProps> = ({
   apiKey,
   apiBaseUrl,
-  mode = 'advanced',
+  mode = "advanced",
   maxConcurrentTasks = 5,
 }) => {
   // 本地状态
-  const [requirements, setRequirements] = useState('');
-  const [activeTab, setActiveTab] = useState('tasks');
+  const [requirements, setRequirements] = useState("");
+  const [activeTab, setActiveTab] = useState("tasks");
 
   // 使用统一工作流 Hook
   const {
@@ -139,7 +157,7 @@ export const WorkflowManagerPanel: React.FC<WorkflowManagerPanelProps> = ({
     try {
       await generateWorkflow(requirements, { mode });
     } catch (err) {
-      logger.error('WorkflowManagerPanel', '生成工作流失败:', err);
+      logger.error("WorkflowManagerPanel", "生成工作流失败:", err);
     }
   }, [requirements, mode, generateWorkflow]);
 
@@ -148,7 +166,7 @@ export const WorkflowManagerPanel: React.FC<WorkflowManagerPanelProps> = ({
     try {
       await startExecution();
     } catch (err) {
-      logger.error('WorkflowManagerPanel', '开始执行失败:', err);
+      logger.error("WorkflowManagerPanel", "开始执行失败:", err);
     }
   }, [startExecution]);
 
@@ -162,7 +180,7 @@ export const WorkflowManagerPanel: React.FC<WorkflowManagerPanelProps> = ({
     try {
       await resumeExecution();
     } catch (err) {
-      logger.error('WorkflowManagerPanel', '恢复执行失败:', err);
+      logger.error("WorkflowManagerPanel", "恢复执行失败:", err);
     }
   }, [resumeExecution]);
 
@@ -171,34 +189,42 @@ export const WorkflowManagerPanel: React.FC<WorkflowManagerPanelProps> = ({
     try {
       await cancelExecution();
     } catch (err) {
-      logger.error('WorkflowManagerPanel', '取消执行失败:', err);
+      logger.error("WorkflowManagerPanel", "取消执行失败:", err);
     }
   }, [cancelExecution]);
 
   // 处理重试任务
-  const handleRetry = useCallback(async (taskId: string) => {
-    try {
-      await retryTask(taskId);
-    } catch (err) {
-      logger.error('WorkflowManagerPanel', '重试任务失败:', err);
-    }
-  }, [retryTask]);
+  const handleRetry = useCallback(
+    async (taskId: string) => {
+      try {
+        await retryTask(taskId);
+      } catch (err) {
+        logger.error("WorkflowManagerPanel", "重试任务失败:", err);
+      }
+    },
+    [retryTask]
+  );
 
   // 计算统计信息
-  const stats = useMemo(() => ({
-    totalTasks: workflow?.tasks.length || 0,
-    parallelGroups: workflow?.parallelGroups.length || 0,
-    criticalPathLength: workflow?.metadata.criticalPath.length || 0,
-    activeAgents: agents.filter(a => a.status === 'busy').length,
-    totalAgents: agents.length,
-  }), [workflow, agents]);
+  const stats = useMemo(
+    () => ({
+      totalTasks: workflow?.tasks.length || 0,
+      parallelGroups: workflow?.parallelGroups.length || 0,
+      criticalPathLength: workflow?.metadata.criticalPath.length || 0,
+      activeAgents: agents.filter((a) => a.status === "busy").length,
+      totalAgents: agents.length,
+    }),
+    [workflow, agents]
+  );
 
   // 是否可以执行操作
-  const canGenerate = requirements.trim().length > 0 && state === 'idle';
-  const canStart = workflow && (state === 'idle' || state === 'completed' || state === 'failed' || state === 'cancelled');
-  const canPause = state === 'executing';
-  const canResume = state === 'paused';
-  const canCancel = state === 'executing' || state === 'paused';
+  const canGenerate = requirements.trim().length > 0 && state === "idle";
+  const canStart =
+    workflow &&
+    (state === "idle" || state === "completed" || state === "failed" || state === "cancelled");
+  const canPause = state === "executing";
+  const canResume = state === "paused";
+  const canCancel = state === "executing" || state === "paused";
 
   return (
     <div className="flex flex-col h-full">
@@ -229,18 +255,14 @@ export const WorkflowManagerPanel: React.FC<WorkflowManagerPanelProps> = ({
               onChange={(e) => setRequirements(e.target.value)}
               placeholder="描述你的开发需求，系统将自动分解为可执行的任务..."
               className="w-full h-24 p-3 border rounded-md resize-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-              disabled={isLoading || state === 'executing'}
+              disabled={isLoading || state === "executing"}
             />
           </div>
 
           {/* 操作按钮 */}
           <div className="flex gap-2 flex-wrap">
-            <Button
-              onClick={handleGenerate}
-              disabled={!canGenerate || isLoading}
-              variant="outline"
-            >
-              {isLoading && state === 'planning' ? (
+            <Button onClick={handleGenerate} disabled={!canGenerate || isLoading} variant="outline">
+              {isLoading && state === "planning" ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                   分析中...
@@ -253,10 +275,7 @@ export const WorkflowManagerPanel: React.FC<WorkflowManagerPanelProps> = ({
               )}
             </Button>
 
-            <Button
-              onClick={handleStart}
-              disabled={!canStart || isLoading}
-            >
+            <Button onClick={handleStart} disabled={!canStart || isLoading}>
               <Play className="h-4 w-4 mr-2" />
               开始执行
             </Button>
@@ -388,12 +407,8 @@ export const WorkflowManagerPanel: React.FC<WorkflowManagerPanelProps> = ({
                               {task.assignedAgentId}
                             </Badge>
                           )}
-                          {task.status === 'failed' && (
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => handleRetry(task.id)}
-                            >
+                          {task.status === "failed" && (
+                            <Button size="sm" variant="ghost" onClick={() => handleRetry(task.id)}>
                               <RotateCcw className="h-3 w-3" />
                             </Button>
                           )}
@@ -411,11 +426,11 @@ export const WorkflowManagerPanel: React.FC<WorkflowManagerPanelProps> = ({
                     <GitBranch className="h-8 w-8 mx-auto mb-2" />
                     <div className="text-sm">DAG 可视化</div>
                     <div className="text-xs mt-1">
-                      入口: {workflow.entryPoints.join(', ')} →
-                      出口: {workflow.exitPoints.join(', ')}
+                      入口: {workflow.entryPoints.join(", ")} → 出口:{" "}
+                      {workflow.exitPoints.join(", ")}
                     </div>
                     <div className="text-xs mt-1">
-                      关键路径: {workflow.metadata.criticalPath.join(' → ')}
+                      关键路径: {workflow.metadata.criticalPath.join(" → ")}
                     </div>
                   </div>
                 </div>
@@ -437,9 +452,15 @@ export const WorkflowManagerPanel: React.FC<WorkflowManagerPanelProps> = ({
                           className="flex items-center justify-between p-3 border rounded-lg"
                         >
                           <div className="flex items-center gap-3">
-                            <div className={`w-2 h-2 rounded-full ${agent.status === 'busy' ? 'bg-green-500' :
-                              agent.status === 'error' ? 'bg-red-500' : 'bg-gray-400'
-                              }`} />
+                            <div
+                              className={`w-2 h-2 rounded-full ${
+                                agent.status === "busy"
+                                  ? "bg-green-500"
+                                  : agent.status === "error"
+                                    ? "bg-red-500"
+                                    : "bg-gray-400"
+                              }`}
+                            />
                             <div>
                               <div className="text-sm font-medium">{agent.name}</div>
                               <div className="text-xs text-muted-foreground">
@@ -447,7 +468,7 @@ export const WorkflowManagerPanel: React.FC<WorkflowManagerPanelProps> = ({
                               </div>
                             </div>
                           </div>
-                          <Badge variant={agent.status === 'busy' ? 'default' : 'secondary'}>
+                          <Badge variant={agent.status === "busy" ? "default" : "secondary"}>
                             {agent.status}
                           </Badge>
                         </div>
@@ -462,16 +483,18 @@ export const WorkflowManagerPanel: React.FC<WorkflowManagerPanelProps> = ({
                 <ScrollArea className="h-64">
                   <div className="space-y-1 font-mono text-xs">
                     {logs.length === 0 ? (
-                      <div className="text-center text-muted-foreground py-8">
-                        暂无日志
-                      </div>
+                      <div className="text-center text-muted-foreground py-8">暂无日志</div>
                     ) : (
                       logs.slice(-100).map((log, index) => (
                         <div
                           key={index}
-                          className={`flex items-start gap-2 p-1 rounded ${log.level === 'error' ? 'bg-red-50 dark:bg-red-950/20' :
-                            log.level === 'warn' ? 'bg-yellow-50 dark:bg-yellow-950/20' : ''
-                            }`}
+                          className={`flex items-start gap-2 p-1 rounded ${
+                            log.level === "error"
+                              ? "bg-red-50 dark:bg-red-950/20"
+                              : log.level === "warn"
+                                ? "bg-yellow-50 dark:bg-yellow-950/20"
+                                : ""
+                          }`}
                         >
                           <LogLevelIcon level={log.level} />
                           <span className="text-muted-foreground">

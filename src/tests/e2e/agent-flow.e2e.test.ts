@@ -3,9 +3,9 @@
  * 测试 Agent 任务分配和执行流程
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
-import { TaskQueue } from '../../core/agents/TaskQueue';
-import { mockServer } from './MockAPIServer';
+import { describe, it, expect, beforeEach } from "vitest";
+import { TaskQueue } from "../../core/agents/TaskQueue";
+import { mockServer } from "./MockAPIServer";
 
 // 简化的 Agent Registry 用于测试
 class TestAgentRegistry {
@@ -20,9 +20,7 @@ class TestAgentRegistry {
   }
 
   findByCapability(capability: string): TestAgent[] {
-    return Array.from(this.agents.values()).filter(a =>
-      a.capabilities.includes(capability)
-    );
+    return Array.from(this.agents.values()).filter((a) => a.capabilities.includes(capability));
   }
 
   getAll(): TestAgent[] {
@@ -64,7 +62,7 @@ interface TestTask {
   type: string;
   priority: number;
   payload: Record<string, unknown>;
-  status: 'pending' | 'running' | 'completed' | 'failed';
+  status: "pending" | "running" | "completed" | "failed";
 }
 
 // 简化的 Orchestrator 用于测试
@@ -73,12 +71,14 @@ class TestOrchestrator {
     private registry: TestAgentRegistry,
     _taskQueue: TaskQueue,
     _contextManager: TestContextManager
-  ) { }
+  ) {}
 
-  async assignTask(task: TestTask): Promise<{ success: boolean; result?: unknown; error?: string }> {
+  async assignTask(
+    task: TestTask
+  ): Promise<{ success: boolean; result?: unknown; error?: string }> {
     const agents = this.registry.findByCapability(task.type);
     if (agents.length === 0) {
-      return { success: false, error: 'No agent found for task type' };
+      return { success: false, error: "No agent found for task type" };
     }
 
     const agent = agents[0];
@@ -90,7 +90,7 @@ class TestOrchestrator {
   }
 }
 
-describe('E2E: Agent Flow', () => {
+describe("E2E: Agent Flow", () => {
   let orchestrator: TestOrchestrator;
   let registry: TestAgentRegistry;
   let taskQueue: TaskQueue;
@@ -104,251 +104,251 @@ describe('E2E: Agent Flow', () => {
     orchestrator = new TestOrchestrator(registry, taskQueue, contextManager);
   });
 
-  describe('Agent 注册和发现', () => {
-    it('应该能够注册和获取 Agent', () => {
+  describe("Agent 注册和发现", () => {
+    it("应该能够注册和获取 Agent", () => {
       const agent = {
-        id: 'test-agent',
-        name: 'Test Agent',
-        capabilities: ['code-review', 'testing'],
+        id: "test-agent",
+        name: "Test Agent",
+        capabilities: ["code-review", "testing"],
         priority: 1,
-        execute: async () => ({ success: true, result: 'done' })
+        execute: async () => ({ success: true, result: "done" }),
       };
 
       registry.register(agent);
-      const found = registry.get('test-agent');
+      const found = registry.get("test-agent");
 
       expect(found).toBeDefined();
-      expect(found?.name).toBe('Test Agent');
+      expect(found?.name).toBe("Test Agent");
     });
 
-    it('应该能够按能力查找 Agent', () => {
+    it("应该能够按能力查找 Agent", () => {
       registry.register({
-        id: 'code-agent',
-        name: 'Code Agent',
-        capabilities: ['code-review', 'refactoring'],
+        id: "code-agent",
+        name: "Code Agent",
+        capabilities: ["code-review", "refactoring"],
         priority: 1,
-        execute: async () => ({ success: true, result: 'done' })
+        execute: async () => ({ success: true, result: "done" }),
       });
 
       registry.register({
-        id: 'test-agent',
-        name: 'Test Agent',
-        capabilities: ['testing', 'debugging'],
+        id: "test-agent",
+        name: "Test Agent",
+        capabilities: ["testing", "debugging"],
         priority: 2,
-        execute: async () => ({ success: true, result: 'done' })
+        execute: async () => ({ success: true, result: "done" }),
       });
 
-      const codeAgents = registry.findByCapability('code-review');
-      const testAgents = registry.findByCapability('testing');
+      const codeAgents = registry.findByCapability("code-review");
+      const testAgents = registry.findByCapability("testing");
 
       expect(codeAgents).toHaveLength(1);
-      expect(codeAgents[0].id).toBe('code-agent');
+      expect(codeAgents[0].id).toBe("code-agent");
       expect(testAgents).toHaveLength(1);
-      expect(testAgents[0].id).toBe('test-agent');
+      expect(testAgents[0].id).toBe("test-agent");
     });
   });
 
-  describe('任务队列管理', () => {
-    it('应该能够添加和获取任务', () => {
+  describe("任务队列管理", () => {
+    it("应该能够添加和获取任务", () => {
       const task = {
-        id: 'task-1',
-        description: 'Code review task',
-        type: 'review' as const,
+        id: "task-1",
+        description: "Code review task",
+        type: "review" as const,
         priority: 1,
-        status: 'pending' as const,
+        status: "pending" as const,
         dependencies: [],
         createdAt: Date.now(),
         isBackground: false,
-        metadata: { file: 'test.ts' }
+        metadata: { file: "test.ts" },
       };
 
       taskQueue.enqueue(task);
       const next = taskQueue.peek();
 
       expect(next).toBeDefined();
-      expect(next?.id).toBe('task-1');
+      expect(next?.id).toBe("task-1");
     });
 
-    it('应该按优先级排序任务', () => {
+    it("应该按优先级排序任务", () => {
       // TaskQueue 默认使用 fifoComparator，高优先级数字 = 高优先级
       taskQueue.enqueue({
-        id: 'low-priority',
-        description: 'Low priority task',
-        type: 'review' as const,
-        priority: 1,  // 低优先级
-        status: 'pending' as const,
+        id: "low-priority",
+        description: "Low priority task",
+        type: "review" as const,
+        priority: 1, // 低优先级
+        status: "pending" as const,
         dependencies: [],
         createdAt: Date.now(),
-        isBackground: false
+        isBackground: false,
       });
 
       taskQueue.enqueue({
-        id: 'high-priority',
-        description: 'High priority task',
-        type: 'review' as const,
-        priority: 10,  // 高优先级
-        status: 'pending' as const,
+        id: "high-priority",
+        description: "High priority task",
+        type: "review" as const,
+        priority: 10, // 高优先级
+        status: "pending" as const,
         dependencies: [],
         createdAt: Date.now(),
-        isBackground: false
+        isBackground: false,
       });
 
       taskQueue.enqueue({
-        id: 'medium-priority',
-        description: 'Medium priority task',
-        type: 'review' as const,
-        priority: 5,  // 中优先级
-        status: 'pending' as const,
+        id: "medium-priority",
+        description: "Medium priority task",
+        type: "review" as const,
+        priority: 5, // 中优先级
+        status: "pending" as const,
         dependencies: [],
         createdAt: Date.now(),
-        isBackground: false
+        isBackground: false,
       });
 
       const first = taskQueue.dequeue();
       const second = taskQueue.dequeue();
       const third = taskQueue.dequeue();
 
-      expect(first?.id).toBe('high-priority');
-      expect(second?.id).toBe('medium-priority');
-      expect(third?.id).toBe('low-priority');
+      expect(first?.id).toBe("high-priority");
+      expect(second?.id).toBe("medium-priority");
+      expect(third?.id).toBe("low-priority");
     });
   });
 
-  describe('任务执行流程', () => {
-    it('应该能够分配任务给合适的 Agent', async () => {
+  describe("任务执行流程", () => {
+    it("应该能够分配任务给合适的 Agent", async () => {
       const executionLog: string[] = [];
 
       registry.register({
-        id: 'code-agent',
-        name: 'Code Agent',
-        capabilities: ['code-review'],
+        id: "code-agent",
+        name: "Code Agent",
+        capabilities: ["code-review"],
         priority: 1,
         execute: async (task) => {
           executionLog.push(`code-agent executed ${task.id}`);
-          return { success: true, result: 'reviewed' };
-        }
+          return { success: true, result: "reviewed" };
+        },
       });
 
       const task = {
-        id: 'review-task',
-        type: 'code-review' as const,
+        id: "review-task",
+        type: "code-review" as const,
         priority: 1,
-        payload: { file: 'test.ts' },
-        status: 'pending' as const
+        payload: { file: "test.ts" },
+        status: "pending" as const,
       };
 
       const result = await orchestrator.assignTask(task);
 
       expect(result.success).toBe(true);
-      expect(executionLog).toContain('code-agent executed review-task');
+      expect(executionLog).toContain("code-agent executed review-task");
     });
 
-    it('应该处理任务执行失败', async () => {
+    it("应该处理任务执行失败", async () => {
       registry.register({
-        id: 'failing-agent',
-        name: 'Failing Agent',
-        capabilities: ['failing-task'],
+        id: "failing-agent",
+        name: "Failing Agent",
+        capabilities: ["failing-task"],
         priority: 1,
         execute: async () => {
-          throw new Error('Task execution failed');
-        }
+          throw new Error("Task execution failed");
+        },
       });
 
       const task = {
-        id: 'fail-task',
-        type: 'failing-task' as const,
+        id: "fail-task",
+        type: "failing-task" as const,
         priority: 1,
         payload: {},
-        status: 'pending' as const
+        status: "pending" as const,
       };
 
       const result = await orchestrator.assignTask(task);
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain('failed');
+      expect(result.error).toContain("failed");
     });
   });
 
-  describe('上下文管理', () => {
-    it('应该能够设置和获取上下文', () => {
-      contextManager.set('currentFile', 'src/test.ts');
-      contextManager.set('projectRoot', '/workspace');
+  describe("上下文管理", () => {
+    it("应该能够设置和获取上下文", () => {
+      contextManager.set("currentFile", "src/test.ts");
+      contextManager.set("projectRoot", "/workspace");
 
-      expect(contextManager.get('currentFile')).toBe('src/test.ts');
-      expect(contextManager.get('projectRoot')).toBe('/workspace');
+      expect(contextManager.get("currentFile")).toBe("src/test.ts");
+      expect(contextManager.get("projectRoot")).toBe("/workspace");
     });
 
-    it('应该能够清除上下文', () => {
-      contextManager.set('temp', 'value');
-      contextManager.clear('temp');
+    it("应该能够清除上下文", () => {
+      contextManager.set("temp", "value");
+      contextManager.clear("temp");
 
-      expect(contextManager.get('temp')).toBeUndefined();
+      expect(contextManager.get("temp")).toBeUndefined();
     });
 
-    it('应该支持上下文快照', () => {
-      contextManager.set('key1', 'value1');
-      contextManager.set('key2', 'value2');
+    it("应该支持上下文快照", () => {
+      contextManager.set("key1", "value1");
+      contextManager.set("key2", "value2");
 
       const snapshot = contextManager.snapshot();
 
       expect(snapshot).toEqual({
-        key1: 'value1',
-        key2: 'value2'
+        key1: "value1",
+        key2: "value2",
       });
     });
   });
 
-  describe('完整工作流程', () => {
-    it('应该完成从任务创建到执行的完整流程', async () => {
+  describe("完整工作流程", () => {
+    it("应该完成从任务创建到执行的完整流程", async () => {
       const results: string[] = [];
 
       // 注册 Agent
       registry.register({
-        id: 'workflow-agent',
-        name: 'Workflow Agent',
-        capabilities: ['workflow'],
+        id: "workflow-agent",
+        name: "Workflow Agent",
+        capabilities: ["workflow"],
         priority: 1,
         execute: async (task) => {
           results.push(`Started: ${task.id}`);
           // 模拟工作
-          await new Promise(resolve => setTimeout(resolve, 10));
+          await new Promise((resolve) => setTimeout(resolve, 10));
           results.push(`Completed: ${task.id}`);
           return { success: true, result: task.payload };
-        }
+        },
       });
 
       // 设置上下文
-      contextManager.set('workflowId', 'wf-123');
+      contextManager.set("workflowId", "wf-123");
 
       // 创建任务
       const task = {
-        id: 'workflow-task',
-        type: 'workflow' as const,
+        id: "workflow-task",
+        type: "workflow" as const,
         priority: 1,
-        payload: { action: 'process' },
-        status: 'pending' as const
+        payload: { action: "process" },
+        status: "pending" as const,
       };
 
       // 执行任务
       const result = await orchestrator.assignTask(task);
 
       expect(result.success).toBe(true);
-      expect(results).toContain('Started: workflow-task');
-      expect(results).toContain('Completed: workflow-task');
+      expect(results).toContain("Started: workflow-task");
+      expect(results).toContain("Completed: workflow-task");
     });
 
-    it('应该支持批量任务处理', async () => {
+    it("应该支持批量任务处理", async () => {
       const completedTasks: string[] = [];
 
       registry.register({
-        id: 'batch-agent',
-        name: 'Batch Agent',
-        capabilities: ['batch'],  // agent 能力是 'batch'
+        id: "batch-agent",
+        name: "Batch Agent",
+        capabilities: ["batch"], // agent 能力是 'batch'
         priority: 1,
         execute: async (task) => {
           completedTasks.push(task.id);
-          return { success: true, result: 'done' };
-        }
+          return { success: true, result: "done" };
+        },
       });
 
       // 添加多个任务（类型必须与 agent 能力匹配）
@@ -356,12 +356,12 @@ describe('E2E: Agent Flow', () => {
         taskQueue.enqueue({
           id: `batch-task-${i}`,
           description: `Batch task ${i}`,
-          type: 'batch' as const,  // 修复：类型改为 'batch' 以匹配 agent 能力
+          type: "batch" as const, // 修复：类型改为 'batch' 以匹配 agent 能力
           priority: i,
-          status: 'pending' as const,
+          status: "pending" as const,
           dependencies: [],
           createdAt: Date.now(),
-          isBackground: false
+          isBackground: false,
         });
       }
 

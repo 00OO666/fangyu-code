@@ -1,4 +1,4 @@
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import React from "react";
 import { UserMessage } from "./UserMessage";
 import { AIMessage } from "./AIMessage";
@@ -6,9 +6,9 @@ import { SystemMessage } from "./SystemMessage";
 import { ResultMessage } from "./ResultMessage";
 import { SummaryMessage } from "./SummaryMessage";
 import { SubagentMessageGroup } from "./SubagentMessageGroup";
-import type { ClaudeStreamMessage } from '@/types/claude';
-import type { RewindMode } from '@/lib/api';
-import type { MessageGroup } from '@/lib/subagentGrouping';
+import type { ClaudeStreamMessage } from "@/types/claude";
+import type { RewindMode } from "@/lib/api";
+import type { MessageGroup } from "@/lib/subagentGrouping";
 
 interface StreamMessageV2Props {
   message?: ClaudeStreamMessage;
@@ -62,37 +62,31 @@ const StreamMessageV2Component: React.FC<StreamMessageV2Props> = ({
   sessionId,
   projectId,
   projectPath,
-  onRevert
+  onRevert,
 }) => {
   // 如果提供了 messageGroup，优先使用分组渲染
   if (messageGroup) {
-    if (messageGroup.type === 'subagent') {
+    if (messageGroup.type === "subagent") {
       // 🛡️ 数据完整性验证：防止崩溃
       const group = messageGroup.group;
 
       // 验证必要的数据结构
-      if (!group ||
-        !group.taskMessage ||
-        !Array.isArray(group.subagentMessages)) {
-        if (process.env.NODE_ENV !== 'production') {
-          logger.error('StreamMessageV2', 'Invalid subagent group structure:', {
+      if (!group || !group.taskMessage || !Array.isArray(group.subagentMessages)) {
+        if (process.env.NODE_ENV !== "production") {
+          logger.error("StreamMessageV2", "Invalid subagent group structure:", {
             hasGroup: !!group,
             hasTaskMessage: !!group?.taskMessage,
             hasSubagentMessages: Array.isArray(group?.subagentMessages),
-            group
+            group,
           });
         }
         return null; // 安全降级：不渲染无效数据
       }
 
       return (
-        <SubagentMessageGroup
-          group={group}
-          className={className}
-          onLinkDetected={onLinkDetected}
-        />
+        <SubagentMessageGroup group={group} className={className} onLinkDetected={onLinkDetected} />
       );
-    } else if (messageGroup.type === 'aggregated') {
+    } else if (messageGroup.type === "aggregated") {
       // 处理聚合消息组：将多个连续的技术性消息合并为一个 AI 消息
       const messages = messageGroup.messages;
       if (!messages || messages.length === 0) return null;
@@ -100,16 +94,16 @@ const StreamMessageV2Component: React.FC<StreamMessageV2Props> = ({
       const baseMessage = messages[0];
       const aggregatedContent: any[] = [];
 
-      messages.forEach(msg => {
+      messages.forEach((msg) => {
         // 提取 assistant 消息的内容
         if (msg.message?.content && Array.isArray(msg.message.content)) {
           aggregatedContent.push(...msg.message.content);
         }
         // 提取 thinking 消息的内容
-        else if (msg.type === 'thinking') {
+        else if (msg.type === "thinking") {
           aggregatedContent.push({
-            type: 'thinking',
-            thinking: (msg as any).content || ''
+            type: "thinking",
+            thinking: (msg as any).content || "",
           });
         }
       });
@@ -117,10 +111,10 @@ const StreamMessageV2Component: React.FC<StreamMessageV2Props> = ({
       // 构建合成消息
       const mergedMessage: ClaudeStreamMessage = {
         ...baseMessage,
-        type: 'assistant', // 强制设为 assistant 以便 AIMessage 渲染
+        type: "assistant", // 强制设为 assistant 以便 AIMessage 渲染
         message: {
-          role: 'assistant',
-          content: aggregatedContent
+          role: "assistant",
+          content: aggregatedContent,
         },
         // 使用最后一条消息的时间戳
         timestamp: messages[messages.length - 1].timestamp,
@@ -148,14 +142,13 @@ const StreamMessageV2Component: React.FC<StreamMessageV2Props> = ({
   const contentItems = (message as any)?.message?.content;
   if ((message as any)._toolResultOnly) {
     const isToolResults =
-      Array.isArray(contentItems) &&
-      contentItems.every((c: any) => c?.type === 'tool_result');
+      Array.isArray(contentItems) && contentItems.every((c: any) => c?.type === "tool_result");
 
     if (isToolResults) {
       const hasNonEmpty = contentItems.some((c: any) => {
         const val = c?.content;
         if (val == null) return false;
-        if (typeof val === 'string') return val.trim().length > 0;
+        if (typeof val === "string") return val.trim().length > 0;
         try {
           return JSON.stringify(val).trim().length > 2; // "{}" / "[]" 视作空
         } catch {
@@ -169,23 +162,24 @@ const StreamMessageV2Component: React.FC<StreamMessageV2Props> = ({
     }
   }
 
-  const messageType = (message as ClaudeStreamMessage & { type?: string }).type ?? (message as any).type;
+  const messageType =
+    (message as ClaudeStreamMessage & { type?: string }).type ?? (message as any).type;
 
   // Handle special cases
-  if (messageType === 'thinking') {
+  if (messageType === "thinking") {
     return (
       <AIMessage
         message={{
           ...message,
-          type: 'assistant',
+          type: "assistant",
           message: {
             content: [
               {
-                type: 'thinking',
-                thinking: (message as any).content || ''
-              }
-            ]
-          }
+                type: "thinking",
+                thinking: (message as any).content || "",
+              },
+            ],
+          },
         }}
         isStreaming={isStreaming}
         onLinkDetected={onLinkDetected}
@@ -194,15 +188,20 @@ const StreamMessageV2Component: React.FC<StreamMessageV2Props> = ({
     );
   }
 
-  if (messageType === 'tool_use' || messageType === 'queue-operation') {
+  if (messageType === "tool_use" || messageType === "queue-operation") {
     return null;
   }
 
   const Renderer = MESSAGE_RENDERERS[messageType];
 
   if (!Renderer) {
-    if (process.env.NODE_ENV !== 'production') {
-      logger.warn('StreamMessageV2', '[StreamMessageV2] Unhandled message type:', messageType, message);
+    if (process.env.NODE_ENV !== "production") {
+      logger.warn(
+        "StreamMessageV2",
+        "[StreamMessageV2] Unhandled message type:",
+        messageType,
+        message
+      );
     }
     return null;
   }
@@ -214,18 +213,25 @@ const StreamMessageV2Component: React.FC<StreamMessageV2Props> = ({
   };
 
   // Specific props based on type
-  const specificProps = messageType === 'user' ? {
-    promptIndex,
-    sessionId,
-    projectId,
-    projectPath,
-    onRevert
-  } : messageType === 'assistant' ? {
-    isStreaming,
-    onLinkDetected
-  } : messageType === 'system' ? {
-    claudeSettings
-  } : {};
+  const specificProps =
+    messageType === "user"
+      ? {
+          promptIndex,
+          sessionId,
+          projectId,
+          projectPath,
+          onRevert,
+        }
+      : messageType === "assistant"
+        ? {
+            isStreaming,
+            onLinkDetected,
+          }
+        : messageType === "system"
+          ? {
+              claudeSettings,
+            }
+          : {};
 
   return <Renderer {...commonProps} {...specificProps} />;
 };
@@ -242,7 +248,10 @@ const StreamMessageV2Component: React.FC<StreamMessageV2Props> = ({
  * - 添加 thinking 类型内容的比较
  * - 添加 tool_result 的 content 比较
  */
-const isMessageEqual = (prev: ClaudeStreamMessage | undefined, next: ClaudeStreamMessage | undefined): boolean => {
+const isMessageEqual = (
+  prev: ClaudeStreamMessage | undefined,
+  next: ClaudeStreamMessage | undefined
+): boolean => {
   // 引用相同，直接返回
   if (prev === next) return true;
 
@@ -277,25 +286,25 @@ const isMessageEqual = (prev: ClaudeStreamMessage | undefined, next: ClaudeStrea
       if (prevItem?.type !== nextItem?.type) return false;
 
       // 对于文本内容，比较文本
-      if (prevItem?.type === 'text' && prevItem?.text !== nextItem?.text) return false;
+      if (prevItem?.type === "text" && prevItem?.text !== nextItem?.text) return false;
 
       // 🔧 FIX: 对于 thinking 内容，比较 thinking 字段
-      if (prevItem?.type === 'thinking') {
+      if (prevItem?.type === "thinking") {
         if (prevItem?.thinking !== nextItem?.thinking) return false;
       }
 
       // 对于工具调用，比较 ID 和名称
-      if (prevItem?.type === 'tool_use') {
+      if (prevItem?.type === "tool_use") {
         if (prevItem?.id !== nextItem?.id || prevItem?.name !== nextItem?.name) return false;
       }
 
       // 🔧 FIX: 对于工具结果，比较 tool_use_id 和 content
-      if (prevItem?.type === 'tool_result') {
+      if (prevItem?.type === "tool_result") {
         if (prevItem?.tool_use_id !== nextItem?.tool_use_id) return false;
         // 比较 content（可能是字符串或对象）
         const prevResultContent = prevItem?.content;
         const nextResultContent = nextItem?.content;
-        if (typeof prevResultContent === 'string' && typeof nextResultContent === 'string') {
+        if (typeof prevResultContent === "string" && typeof nextResultContent === "string") {
           if (prevResultContent !== nextResultContent) return false;
         } else if (prevResultContent !== nextResultContent) {
           // 对于非字符串内容，使用引用比较（避免深度比较开销）
@@ -312,8 +321,10 @@ const isMessageEqual = (prev: ClaudeStreamMessage | undefined, next: ClaudeStrea
   // 比较 usage 信息
   const prevUsage = prev.usage || prev.message?.usage;
   const nextUsage = next.usage || next.message?.usage;
-  if (prevUsage?.input_tokens !== nextUsage?.input_tokens ||
-    prevUsage?.output_tokens !== nextUsage?.output_tokens) {
+  if (
+    prevUsage?.input_tokens !== nextUsage?.input_tokens ||
+    prevUsage?.output_tokens !== nextUsage?.output_tokens
+  ) {
     return false;
   }
 
@@ -323,7 +334,10 @@ const isMessageEqual = (prev: ClaudeStreamMessage | undefined, next: ClaudeStrea
 /**
  * ✅ OPTIMIZED: 智能分组比较 - 避免昂贵的 JSON.stringify
  */
-const isMessageGroupEqual = (prev: MessageGroup | undefined, next: MessageGroup | undefined): boolean => {
+const isMessageGroupEqual = (
+  prev: MessageGroup | undefined,
+  next: MessageGroup | undefined
+): boolean => {
   // 引用相同
   if (prev === next) return true;
 
@@ -334,12 +348,12 @@ const isMessageGroupEqual = (prev: MessageGroup | undefined, next: MessageGroup 
   if (prev.type !== next.type) return false;
 
   // 对于普通消息，比较 message
-  if (prev.type === 'normal' && next.type === 'normal') {
+  if (prev.type === "normal" && next.type === "normal") {
     return isMessageEqual(prev.message, next.message);
   }
 
   // 对于子代理组，比较子消息数量
-  if (prev.type === 'subagent' && next.type === 'subagent') {
+  if (prev.type === "subagent" && next.type === "subagent") {
     const prevGroup = prev.group;
     const nextGroup = next.group;
 
@@ -363,7 +377,7 @@ const isMessageGroupEqual = (prev: MessageGroup | undefined, next: MessageGroup 
   }
 
   // 对于聚合消息组
-  if (prev.type === 'aggregated' && next.type === 'aggregated') {
+  if (prev.type === "aggregated" && next.type === "aggregated") {
     if (prev.messages.length !== next.messages.length) return false;
     // 比较每条消息
     for (let i = 0; i < prev.messages.length; i++) {
@@ -392,41 +406,40 @@ const isMessageGroupEqual = (prev: MessageGroup | undefined, next: MessageGroup 
  * - 添加 projectPath 比较到 messageGroup 分支
  * - 显式比较回调函数引用（不再假设稳定）
  */
-export const StreamMessageV2 = React.memo(
-  StreamMessageV2Component,
-  (prevProps, nextProps) => {
-    // 🔧 FIX: 先比较回调函数引用，如果不稳定则需要重渲染
-    // 这比假设稳定更安全，虽然可能导致额外重渲染
-    if (prevProps.onLinkDetected !== nextProps.onLinkDetected) return false;
-    if (prevProps.onRevert !== nextProps.onRevert) return false;
+export const StreamMessageV2 = React.memo(StreamMessageV2Component, (prevProps, nextProps) => {
+  // 🔧 FIX: 先比较回调函数引用，如果不稳定则需要重渲染
+  // 这比假设稳定更安全，虽然可能导致额外重渲染
+  if (prevProps.onLinkDetected !== nextProps.onLinkDetected) return false;
+  if (prevProps.onRevert !== nextProps.onRevert) return false;
 
-    // 如果使用 messageGroup，使用智能分组比较
-    if (prevProps.messageGroup || nextProps.messageGroup) {
-      return (
-        isMessageGroupEqual(prevProps.messageGroup, nextProps.messageGroup) &&
-        prevProps.isStreaming === nextProps.isStreaming &&
-        prevProps.promptIndex === nextProps.promptIndex &&
-        prevProps.sessionId === nextProps.sessionId &&
-        prevProps.projectId === nextProps.projectId &&
-        prevProps.projectPath === nextProps.projectPath && // 🔧 FIX: 添加 projectPath 比较
-        prevProps.claudeSettings?.showSystemInitialization === nextProps.claudeSettings?.showSystemInitialization
-      );
-    }
-
-    // 如果没有 message，使用引用比较
-    if (!prevProps.message || !nextProps.message) {
-      return prevProps.message === nextProps.message;
-    }
-
-    // 使用智能消息比较
+  // 如果使用 messageGroup，使用智能分组比较
+  if (prevProps.messageGroup || nextProps.messageGroup) {
     return (
-      isMessageEqual(prevProps.message, nextProps.message) &&
+      isMessageGroupEqual(prevProps.messageGroup, nextProps.messageGroup) &&
       prevProps.isStreaming === nextProps.isStreaming &&
       prevProps.promptIndex === nextProps.promptIndex &&
       prevProps.sessionId === nextProps.sessionId &&
       prevProps.projectId === nextProps.projectId &&
-      prevProps.projectPath === nextProps.projectPath &&
-      prevProps.claudeSettings?.showSystemInitialization === nextProps.claudeSettings?.showSystemInitialization
+      prevProps.projectPath === nextProps.projectPath && // 🔧 FIX: 添加 projectPath 比较
+      prevProps.claudeSettings?.showSystemInitialization ===
+        nextProps.claudeSettings?.showSystemInitialization
     );
   }
-);
+
+  // 如果没有 message，使用引用比较
+  if (!prevProps.message || !nextProps.message) {
+    return prevProps.message === nextProps.message;
+  }
+
+  // 使用智能消息比较
+  return (
+    isMessageEqual(prevProps.message, nextProps.message) &&
+    prevProps.isStreaming === nextProps.isStreaming &&
+    prevProps.promptIndex === nextProps.promptIndex &&
+    prevProps.sessionId === nextProps.sessionId &&
+    prevProps.projectId === nextProps.projectId &&
+    prevProps.projectPath === nextProps.projectPath &&
+    prevProps.claudeSettings?.showSystemInitialization ===
+      nextProps.claudeSettings?.showSystemInitialization
+  );
+});

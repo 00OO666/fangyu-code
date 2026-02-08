@@ -3,7 +3,7 @@
  * 提供会话记录导出功能，支持多种格式
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { save } from "@tauri-apps/plugin-dialog";
 import { writeTextFile } from "@tauri-apps/plugin-fs";
 import type { Session } from "@/lib/api";
@@ -214,7 +214,7 @@ function extractMessageContent(msg: ClaudeStreamMessage): string {
 export async function saveFileWithDialog(
   content: string,
   defaultFilename: string,
-  filters?: { name: string; extensions: string[] }[],
+  filters?: { name: string; extensions: string[] }[]
 ): Promise<string | null> {
   try {
     const filePath = await save({
@@ -234,7 +234,7 @@ export async function saveFileWithDialog(
 
     return null;
   } catch (error) {
-    logger.error('sessionExport', "保存文件失败:", error);
+    logger.error("sessionExport", "保存文件失败:", error);
     throw error;
   }
 }
@@ -257,7 +257,7 @@ export function generateExportFilename(session: Session | undefined, format: Exp
 export async function exportSession(
   messages: ClaudeStreamMessage[],
   format: ExportFormat,
-  session?: Session,
+  session?: Session
 ): Promise<string | null> {
   let content: string;
   let filters: { name: string; extensions: string[] }[];

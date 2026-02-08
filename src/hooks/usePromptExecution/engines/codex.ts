@@ -5,7 +5,7 @@
  * 从 usePromptExecution.ts 提取（行 501-895）
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import { api } from "@/lib/api";
 import { CodexEventConverter } from "@/lib/codexConverter";
@@ -28,9 +28,7 @@ export interface CodexEngineContext {
 /**
  * 设置 Codex 引擎的事件监听器
  */
-export async function setupCodexEventListeners(
-  context: CodexEngineContext
-): Promise<UnlistenFn[]> {
+export async function setupCodexEventListeners(context: CodexEngineContext): Promise<UnlistenFn[]> {
   const {
     config,
     tabIdRef,
@@ -90,7 +88,7 @@ export async function setupCodexEventListeners(
 
     // 检查 tabId 是否变化（HMR 导致）
     if (tabIdRef.current !== codexRequestTabId) {
-      logger.debug('codex', "[Codex Engine] ⚠️ tabId 已变化，忽略旧请求的消息");
+      logger.debug("codex", "[Codex Engine] ⚠️ tabId 已变化，忽略旧请求的消息");
       return;
     }
 
@@ -119,11 +117,7 @@ export async function setupCodexEventListeners(
       setRawJsonlOutput((prev) => [...prev, payload]);
 
       // Extract and save Codex thread_id
-      if (
-        message.type === "system" &&
-        message.subtype === "init" &&
-        (message as any).session_id
-      ) {
+      if (message.type === "system" && message.subtype === "init" && (message as any).session_id) {
         const codexThreadId = (message as any).session_id;
         codexThreadIdRef.current = codexThreadId;
 
@@ -133,17 +127,9 @@ export async function setupCodexEventListeners(
         setIsFirstPrompt(false);
 
         // Record prompt if needed
-        if (
-          isUserInitiated &&
-          codexPendingInfo &&
-          codexPendingInfo.promptIndex === undefined
-        ) {
+        if (isUserInitiated && codexPendingInfo && codexPendingInfo.promptIndex === undefined) {
           pendingPromptRecordingPromise = api
-            .recordCodexPromptSent(
-              codexThreadId,
-              projectPath,
-              codexPendingInfo.promptText,
-            )
+            .recordCodexPromptSent(codexThreadId, projectPath, codexPendingInfo.promptText)
             .then((idx) => {
               codexPendingInfo.promptIndex = idx;
               codexPendingInfo.sessionId = codexThreadId;
@@ -155,7 +141,7 @@ export async function setupCodexEventListeners(
               };
             })
             .catch((err) => {
-              logger.warn('codex', "[Codex Engine] Failed to record prompt:", err);
+              logger.warn("codex", "[Codex Engine] Failed to record prompt:", err);
             });
         } else if (codexPendingInfo && codexPendingInfo.promptIndex !== undefined) {
           window.__codexPendingPrompt = {
@@ -208,10 +194,10 @@ export async function setupCodexEventListeners(
           pendingPrompt.sessionId,
           pendingPrompt.projectPath,
           pendingPrompt.promptIndex,
-          pendingPrompt.promptText,
+          pendingPrompt.promptText
         );
       } catch (err) {
-        logger.warn('codex', "[Codex Engine] Failed to record completion:", err);
+        logger.warn("codex", "[Codex Engine] Failed to record completion:", err);
       }
       delete window.__codexPendingPrompt;
     }
@@ -243,7 +229,7 @@ export async function setupCodexEventListeners(
 
   const unlistenError = await listen("codex-error", (event: any) => {
     const payload = event.payload as string;
-    logger.error('codex', "[Codex Engine] Error:", payload);
+    logger.error("codex", "[Codex Engine] Error:", payload);
     setIsLoading(false);
     hasActiveSessionRef.current = false;
     config.setError(payload);

@@ -3,8 +3,8 @@
  * 显示代码差异预览
  */
 
-import React, { useState } from 'react';
-import type { DiffChange } from '@/core/diff/DiffManager';
+import React, { useState } from "react";
+import type { DiffChange } from "@/core/diff/DiffManager";
 
 interface DiffPreviewProps {
   diff?: string;
@@ -21,7 +21,7 @@ export const DiffPreview: React.FC<DiffPreviewProps> = ({
   onReject,
   onApply,
 }) => {
-  const [viewMode, setViewMode] = useState<'side-by-side' | 'inline'>('side-by-side');
+  const [viewMode, setViewMode] = useState<"side-by-side" | "inline">("side-by-side");
 
   // 如果传入的是 diff 字符串，显示简单的 diff 视图
   if (diff) {
@@ -56,14 +56,14 @@ export const DiffPreview: React.FC<DiffPreviewProps> = ({
         <h3 className="font-semibold">Code Changes ({changes.length})</h3>
         <div className="flex gap-2">
           <button
-            onClick={() => setViewMode('side-by-side')}
-            className={`px-3 py-1 rounded ${viewMode === 'side-by-side' ? 'bg-primary text-primary-foreground' : 'bg-secondary'}`}
+            onClick={() => setViewMode("side-by-side")}
+            className={`px-3 py-1 rounded ${viewMode === "side-by-side" ? "bg-primary text-primary-foreground" : "bg-secondary"}`}
           >
             Side by Side
           </button>
           <button
-            onClick={() => setViewMode('inline')}
-            className={`px-3 py-1 rounded ${viewMode === 'inline' ? 'bg-primary text-primary-foreground' : 'bg-secondary'}`}
+            onClick={() => setViewMode("inline")}
+            className={`px-3 py-1 rounded ${viewMode === "inline" ? "bg-primary text-primary-foreground" : "bg-secondary"}`}
           >
             Inline
           </button>
@@ -84,21 +84,21 @@ export const DiffPreview: React.FC<DiffPreviewProps> = ({
                 <button
                   onClick={() => onAccept?.(change.id)}
                   className="px-3 py-1 bg-green-600 text-white rounded text-sm"
-                  disabled={change.status === 'accepted'}
+                  disabled={change.status === "accepted"}
                 >
                   Accept
                 </button>
                 <button
                   onClick={() => onReject?.(change.id)}
                   className="px-3 py-1 bg-red-600 text-white rounded text-sm"
-                  disabled={change.status === 'rejected'}
+                  disabled={change.status === "rejected"}
                 >
                   Reject
                 </button>
               </div>
             </div>
             <div className="bg-muted p-2 rounded font-mono text-xs">
-              {viewMode === 'side-by-side' ? (
+              {viewMode === "side-by-side" ? (
                 <div className="grid grid-cols-2 gap-2">
                   <div className="bg-red-50 p-1">
                     <pre>{change.oldContent}</pre>

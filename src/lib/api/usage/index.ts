@@ -9,7 +9,7 @@
  * - Cache Tokens 统计
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 import { invoke } from "@tauri-apps/api/core";
 import type { ProjectUsage, SessionCacheTokens, UsageStats } from "../types";
 
@@ -24,7 +24,7 @@ export async function getUsageStats(): Promise<UsageStats> {
   try {
     return await invoke<UsageStats>("get_usage_stats");
   } catch (error) {
-    logger.error('index', "Failed to get usage stats:", error);
+    logger.error("index", "Failed to get usage stats:", error);
     throw error;
   }
 }
@@ -36,7 +36,7 @@ export async function getUsageByDateRange(startDate: string, endDate: string): P
   try {
     return await invoke<UsageStats>("get_usage_by_date_range", { startDate, endDate });
   } catch (error) {
-    logger.error('index', "Failed to get usage by date range:", error);
+    logger.error("index", "Failed to get usage by date range:", error);
     throw error;
   }
 }
@@ -47,7 +47,7 @@ export async function getUsageByDateRange(startDate: string, endDate: string): P
 export async function getSessionStats(
   since?: string,
   until?: string,
-  order?: "asc" | "desc",
+  order?: "asc" | "desc"
 ): Promise<ProjectUsage[]> {
   try {
     return await invoke<ProjectUsage[]>("get_session_stats", {
@@ -56,7 +56,7 @@ export async function getSessionStats(
       order,
     });
   } catch (error) {
-    logger.error('index', "Failed to get session stats:", error);
+    logger.error("index", "Failed to get session stats:", error);
     throw error;
   }
 }
@@ -68,7 +68,7 @@ export async function getSessionCacheTokens(sessionId: string): Promise<SessionC
   try {
     return await invoke<SessionCacheTokens>("get_session_cache_tokens", { sessionId });
   } catch (error) {
-    logger.error('index', "Failed to get session cache tokens:", error);
+    logger.error("index", "Failed to get session cache tokens:", error);
     throw error;
   }
 }
@@ -82,7 +82,7 @@ export async function getSessionCacheTokens(sessionId: string): Promise<SessionC
  */
 export async function getCodexUsageStats(
   startDate?: string,
-  endDate?: string,
+  endDate?: string
 ): Promise<import("@/types/usage").CodexUsageStats> {
   try {
     return await invoke<import("@/types/usage").CodexUsageStats>("get_codex_usage_stats", {
@@ -90,7 +90,7 @@ export async function getCodexUsageStats(
       endDate,
     });
   } catch (error) {
-    logger.error('index', "Failed to get Codex usage stats:", error);
+    logger.error("index", "Failed to get Codex usage stats:", error);
     throw error;
   }
 }
@@ -104,7 +104,7 @@ export async function getCodexUsageStats(
  */
 export async function getGeminiUsageStats(
   startDate?: string,
-  endDate?: string,
+  endDate?: string
 ): Promise<import("@/types/usage").GeminiUsageStats> {
   try {
     return await invoke<import("@/types/usage").GeminiUsageStats>("get_gemini_usage_stats", {
@@ -112,7 +112,7 @@ export async function getGeminiUsageStats(
       endDate,
     });
   } catch (error) {
-    logger.error('index', "Failed to get Gemini usage stats:", error);
+    logger.error("index", "Failed to get Gemini usage stats:", error);
     throw error;
   }
 }

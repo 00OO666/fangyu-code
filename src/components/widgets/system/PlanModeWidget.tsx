@@ -14,10 +14,20 @@
 
 import { useEffect, useRef, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Search, LogOut, CheckCircle, AlertCircle, Play, RefreshCw, Info, Lightbulb, Shield } from 'lucide-react';
+import {
+  Search,
+  LogOut,
+  CheckCircle,
+  AlertCircle,
+  Play,
+  RefreshCw,
+  Info,
+  Lightbulb,
+  Shield,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePlanMode, getPlanId, type PlanStatus } from "@/contexts/PlanModeContext";
-import ReactMarkdown from 'react-markdown';
+import ReactMarkdown from "react-markdown";
 
 export interface PlanModeWidgetProps {
   /** 操作类型：进入或退出 Plan 模式 */
@@ -36,11 +46,7 @@ export interface PlanModeWidgetProps {
  *
  * 展示 AI 进入或退出 Plan 模式的操作
  */
-export const PlanModeWidget: React.FC<PlanModeWidgetProps> = ({
-  action,
-  plan,
-  result,
-}) => {
+export const PlanModeWidget: React.FC<PlanModeWidgetProps> = ({ action, plan, result }) => {
   const { t } = useTranslation();
   const isEnter = action === "enter";
   const isExit = action === "exit";
@@ -55,7 +61,7 @@ export const PlanModeWidget: React.FC<PlanModeWidgetProps> = ({
   // 尝试获取 PlanMode Context
   let triggerPlanApproval: ((plan: string) => void) | undefined;
   let getPlanStatus: ((planId: string) => PlanStatus) | undefined;
-  let planStatus: PlanStatus = 'pending';
+  let planStatus: PlanStatus = "pending";
 
   try {
     const planModeContext = usePlanMode();
@@ -70,8 +76,8 @@ export const PlanModeWidget: React.FC<PlanModeWidgetProps> = ({
     // Context 不可用时忽略（组件可能在 Provider 外部渲染）
   }
 
-  const isApproved = planStatus === 'approved';
-  const isRejected = planStatus === 'rejected';
+  const isApproved = planStatus === "approved";
+  const isRejected = planStatus === "rejected";
   const hasDecision = isApproved || isRejected;
 
   // 自动触发审批对话框（仅在 ExitPlanMode 且有计划内容且未决策时）
@@ -93,9 +99,9 @@ export const PlanModeWidget: React.FC<PlanModeWidgetProps> = ({
   const colorClass = isError
     ? "border-destructive/20 bg-destructive/5"
     : isApproved
-      ? "border-green-500/30 bg-green-500/10"  // 已审批：绿色
+      ? "border-green-500/30 bg-green-500/10" // 已审批：绿色
       : isRejected
-        ? "border-amber-500/30 bg-amber-500/10"  // 已拒绝：琥珀色
+        ? "border-amber-500/30 bg-amber-500/10" // 已拒绝：琥珀色
         : isEnter
           ? "border-blue-500/20 bg-blue-500/5"
           : "border-green-500/20 bg-green-500/5";
@@ -122,20 +128,20 @@ export const PlanModeWidget: React.FC<PlanModeWidgetProps> = ({
 
   // 根据状态显示不同标题
   const title = isEnter
-    ? t('promptInput.enterPlanMode')
+    ? t("promptInput.enterPlanMode")
     : isApproved
-      ? t('promptInput.planApproved')
+      ? t("promptInput.planApproved")
       : isRejected
-        ? t('promptInput.planRejected')
-        : t('promptInput.exitPlanMode');
+        ? t("promptInput.planRejected")
+        : t("promptInput.exitPlanMode");
 
   const description = isEnter
-    ? t('promptInput.enterPlanModeDesc')
+    ? t("promptInput.enterPlanModeDesc")
     : isApproved
-      ? t('promptInput.planApprovedDesc')
+      ? t("promptInput.planApprovedDesc")
       : isRejected
-        ? t('promptInput.planRejectedDesc')
-        : t('promptInput.exitPlanModeDesc');
+        ? t("promptInput.planRejectedDesc")
+        : t("promptInput.exitPlanModeDesc");
 
   // 手动触发审批
   const handleTriggerApproval = () => {
@@ -145,11 +151,7 @@ export const PlanModeWidget: React.FC<PlanModeWidgetProps> = ({
   };
 
   // 选择图标
-  const StatusIcon = isApproved
-    ? CheckCircle
-    : isRejected
-      ? RefreshCw
-      : Icon;
+  const StatusIcon = isApproved ? CheckCircle : isRejected ? RefreshCw : Icon;
 
   return (
     <div className={`rounded-lg border ${colorClass} overflow-hidden`}>
@@ -161,29 +163,23 @@ export const PlanModeWidget: React.FC<PlanModeWidgetProps> = ({
         </div>
         <div className="flex-1 space-y-2">
           <div className="flex items-center gap-2">
-            <span className={`text-xs font-medium ${iconColorClass}`}>
-              {title}
-            </span>
+            <span className={`text-xs font-medium ${iconColorClass}`}>{title}</span>
             {isApproved && (
               <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-green-500/20 text-green-600 font-medium">
-                {t('widget.executed')}
+                {t("widget.executed")}
               </span>
             )}
             {isRejected && (
               <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-600 font-medium">
-                {t('widget.rejected')}
+                {t("widget.rejected")}
               </span>
             )}
             {result && !isError && !isExit && !hasDecision && (
               <CheckCircle className="h-3.5 w-3.5 text-green-500" />
             )}
-            {isError && (
-              <AlertCircle className="h-3.5 w-3.5 text-destructive" />
-            )}
+            {isError && <AlertCircle className="h-3.5 w-3.5 text-destructive" />}
           </div>
-          <p className="text-sm text-muted-foreground">
-            {description}
-          </p>
+          <p className="text-sm text-muted-foreground">{description}</p>
 
           {/* EnterPlanMode: 显示工具限制和最佳实践 */}
           {isEnter && !isError && (
@@ -193,14 +189,14 @@ export const PlanModeWidget: React.FC<PlanModeWidgetProps> = ({
                 <Shield className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
                 <div className="flex-1 text-xs space-y-1">
                   <div className="font-medium text-blue-700 dark:text-blue-300">
-                    {t('widget.readOnlyMode')}
+                    {t("widget.readOnlyMode")}
                   </div>
                   <div className="text-muted-foreground space-y-0.5">
                     <div className="text-green-600 dark:text-green-400">
-                      ✓ {t('widget.allowedTools')}
+                      ✓ {t("widget.allowedTools")}
                     </div>
                     <div className="text-red-600 dark:text-red-400">
-                      ✗ {t('widget.forbiddenTools')}
+                      ✗ {t("widget.forbiddenTools")}
                     </div>
                   </div>
                 </div>
@@ -211,12 +207,12 @@ export const PlanModeWidget: React.FC<PlanModeWidgetProps> = ({
                 <Lightbulb className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
                 <div className="flex-1 text-xs space-y-1">
                   <div className="font-medium text-amber-700 dark:text-amber-300">
-                    {t('widget.planModeBestPractices')}
+                    {t("widget.planModeBestPractices")}
                   </div>
                   <ul className="text-muted-foreground space-y-0.5 list-disc list-inside">
-                    <li>{t('widget.keepPlanSmall')}</li>
-                    <li>{t('widget.exploreCodebase')}</li>
-                    <li>{t('widget.specificSteps')}</li>
+                    <li>{t("widget.keepPlanSmall")}</li>
+                    <li>{t("widget.exploreCodebase")}</li>
+                    <li>{t("widget.specificSteps")}</li>
                   </ul>
                 </div>
               </div>
@@ -229,7 +225,7 @@ export const PlanModeWidget: React.FC<PlanModeWidgetProps> = ({
               <div className="p-3 rounded-md bg-background/50 border border-border/50">
                 <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground mb-2">
                   <Info className="h-3.5 w-3.5" />
-                  <span>{t('widget.planContent')}</span>
+                  <span>{t("widget.planContent")}</span>
                 </div>
                 <div className="text-xs text-foreground prose prose-sm dark:prose-invert max-w-none max-h-32 overflow-y-auto">
                   <ReactMarkdown>
@@ -243,13 +239,13 @@ export const PlanModeWidget: React.FC<PlanModeWidgetProps> = ({
                 // 已审批：显示状态标签
                 <div className="flex items-center gap-2 text-xs text-green-600">
                   <CheckCircle className="h-3.5 w-3.5" />
-                  <span>{t('widget.planApprovedExecuting')}</span>
+                  <span>{t("widget.planApprovedExecuting")}</span>
                 </div>
               ) : isRejected ? (
                 // 已拒绝：显示状态标签
                 <div className="flex items-center gap-2 text-xs text-amber-600">
                   <RefreshCw className="h-3.5 w-3.5" />
-                  <span>{t('widget.planRejectedReplanning')}</span>
+                  <span>{t("widget.planRejectedReplanning")}</span>
                 </div>
               ) : triggerPlanApproval ? (
                 // 未决策：显示审批按钮
@@ -259,7 +255,7 @@ export const PlanModeWidget: React.FC<PlanModeWidgetProps> = ({
                   className="gap-2 bg-green-600 hover:bg-green-700"
                 >
                   <Play className="h-3.5 w-3.5" />
-                  {t('widget.viewFullPlanAndApprove')}
+                  {t("widget.viewFullPlanAndApprove")}
                 </Button>
               ) : null}
             </div>
@@ -268,17 +264,13 @@ export const PlanModeWidget: React.FC<PlanModeWidgetProps> = ({
           {/* 显示错误信息 */}
           {isError && result?.content && (
             <div className="mt-2 p-2 rounded bg-destructive/10 text-xs text-destructive">
-              {typeof result.content === 'string'
-                ? result.content
-                : JSON.stringify(result.content)}
+              {typeof result.content === "string" ? result.content : JSON.stringify(result.content)}
             </div>
           )}
 
           {/* 显示成功消息（非 ExitPlanMode） */}
-          {!isError && !isExit && result?.content && typeof result.content === 'string' && (
-            <div className="mt-2 text-xs text-muted-foreground">
-              {result.content}
-            </div>
+          {!isError && !isExit && result?.content && typeof result.content === "string" && (
+            <div className="mt-2 text-xs text-muted-foreground">{result.content}</div>
           )}
         </div>
       </div>

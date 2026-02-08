@@ -23,18 +23,18 @@
  * />
  */
 
-import React, { useState } from 'react';
-import { GeminiSessionHistoryPanel } from './GeminiSessionHistoryPanel';
-import { GeminiSessionDetailViewer } from './GeminiSessionDetailViewer';
-import { Button } from '@/components/ui/button';
-import { History } from 'lucide-react';
+import React, { useState } from "react";
+import { GeminiSessionHistoryPanel } from "./GeminiSessionHistoryPanel";
+import { GeminiSessionDetailViewer } from "./GeminiSessionDetailViewer";
+import { Button } from "@/components/ui/button";
+import { History } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 
 interface GeminiSessionManagerProps {
@@ -46,7 +46,7 @@ interface GeminiSessionManagerProps {
 export const GeminiSessionManager: React.FC<GeminiSessionManagerProps> = ({
   projectPath,
   onResumeSession,
-  className = '',
+  className = "",
 }) => {
   const [showHistory, setShowHistory] = useState(false);
   const [viewingSessionId, setViewingSessionId] = useState<string | null>(null);
@@ -92,10 +92,7 @@ export const GeminiSessionManager: React.FC<GeminiSessionManagerProps> = ({
       </Dialog>
 
       {/* Session Detail Viewer Dialog */}
-      <Dialog
-        open={!!viewingSessionId}
-        onOpenChange={(open) => !open && setViewingSessionId(null)}
-      >
+      <Dialog open={!!viewingSessionId} onOpenChange={(open) => !open && setViewingSessionId(null)}>
         <DialogContent className="max-w-4xl h-[80vh]">
           <DialogHeader>
             <DialogTitle>会话详情</DialogTitle>

@@ -9,52 +9,52 @@
    ======================================== */
 
 [data-theme="deep-glass-scifi"] {
-    /* === 背景与层级（更深更暗） === */
-    --bg-main: #0a0c10;
-    --bg-glass: rgba(15, 18, 24, 0.7);  /* 增加不透明度 */
-    --bg-panel: rgba(20, 25, 30, 0.8);  /* 增加不透明度 */
-    --bg-glass-light: rgba(15, 18, 24, 0.5);
-    --bg-glass-strong: rgba(20, 25, 30, 0.9);
+  /* === 背景与层级（更深更暗） === */
+  --bg-main: #0a0c10;
+  --bg-glass: rgba(15, 18, 24, 0.7); /* 增加不透明度 */
+  --bg-panel: rgba(20, 25, 30, 0.8); /* 增加不透明度 */
+  --bg-glass-light: rgba(15, 18, 24, 0.5);
+  --bg-glass-strong: rgba(20, 25, 30, 0.9);
 
-    /* === 文本颜色（增强对比度） === */
-    --text-primary: #f1f5f9;  /* 更亮的主文本 */
-    --text-secondary: #cbd5e1;  /* 更亮的次要文本 */
-    --text-muted: #94a3b8;
-    --text-disabled: #64748b;
+  /* === 文本颜色（增强对比度） === */
+  --text-primary: #f1f5f9; /* 更亮的主文本 */
+  --text-secondary: #cbd5e1; /* 更亮的次要文本 */
+  --text-muted: #94a3b8;
+  --text-disabled: #64748b;
 
-    /* === 强调色 - Sci-Fi 风格（增强饱和度） === */
-    --accent-primary: #f59e0b;        /* Amber 霓虹橙 */
-    --accent-secondary: #00f2ff;      /* Sci-Fi Blue 霓虹蓝 */
-    --accent-blue: #00f2ff;
-    --accent-blue-dim: rgba(0, 242, 255, 0.6);
-    --accent-green: #22c55e;
-    --accent-green-dim: rgba(34, 197, 94, 0.6);
-    --accent-yellow: #facc15;
-    --accent-yellow-dim: rgba(250, 204, 21, 0.6);
-    --accent-orange: #f59e0b;
-    --accent-orange-dim: rgba(245, 158, 11, 0.6);
-    --accent-red: #ff4d4d;
-    --accent-red-dim: rgba(255, 77, 77, 0.6);
+  /* === 强调色 - Sci-Fi 风格（增强饱和度） === */
+  --accent-primary: #f59e0b; /* Amber 霓虹橙 */
+  --accent-secondary: #00f2ff; /* Sci-Fi Blue 霓虹蓝 */
+  --accent-blue: #00f2ff;
+  --accent-blue-dim: rgba(0, 242, 255, 0.6);
+  --accent-green: #22c55e;
+  --accent-green-dim: rgba(34, 197, 94, 0.6);
+  --accent-yellow: #facc15;
+  --accent-yellow-dim: rgba(250, 204, 21, 0.6);
+  --accent-orange: #f59e0b;
+  --accent-orange-dim: rgba(245, 158, 11, 0.6);
+  --accent-red: #ff4d4d;
+  --accent-red-dim: rgba(255, 77, 77, 0.6);
 
-    /* === 边框（增强发光） === */
-    --border-glass: rgba(255, 255, 255, 0.12);  /* 增加可见度 */
-    --border-glass-strong: rgba(245, 158, 11, 0.6);  /* 增强 Amber 边框 */
-    --border-glass-subtle: rgba(255, 255, 255, 0.06);
+  /* === 边框（增强发光） === */
+  --border-glass: rgba(255, 255, 255, 0.12); /* 增加可见度 */
+  --border-glass-strong: rgba(245, 158, 11, 0.6); /* 增强 Amber 边框 */
+  --border-glass-subtle: rgba(255, 255, 255, 0.06);
 
-    /* === 模糊效果 === */
-    --blur-glass: blur(24px);
-    --blur-glass-light: blur(16px);
-    --blur-glass-strong: blur(40px);
+  /* === 模糊效果 === */
+  --blur-glass: blur(24px);
+  --blur-glass-light: blur(16px);
+  --blur-glass-strong: blur(40px);
 
-    /* === 霓虹灯发光（增强版） === */
-    --glow-amber: 0 0 10px rgba(245, 158, 11, 0.8), 0 0 20px rgba(245, 158, 11, 0.4);
-    --glow-amber-strong: 0 0 20px rgba(245, 158, 11, 0.6), 0 0 40px rgba(245, 158, 11, 0.3);
-    --glow-scifi-blue: 0 0 10px rgba(0, 242, 255, 0.8), 0 0 20px rgba(0, 242, 255, 0.4);
-    --glow-scifi-blue-strong: 0 0 20px rgba(0, 242, 255, 0.6), 0 0 40px rgba(0, 242, 255, 0.3);
+  /* === 霓虹灯发光（增强版） === */
+  --glow-amber: 0 0 10px rgba(245, 158, 11, 0.8), 0 0 20px rgba(245, 158, 11, 0.4);
+  --glow-amber-strong: 0 0 20px rgba(245, 158, 11, 0.6), 0 0 40px rgba(245, 158, 11, 0.3);
+  --glow-scifi-blue: 0 0 10px rgba(0, 242, 255, 0.8), 0 0 20px rgba(0, 242, 255, 0.4);
+  --glow-scifi-blue-strong: 0 0 20px rgba(0, 242, 255, 0.6), 0 0 40px rgba(0, 242, 255, 0.3);
 
-    /* === 字体 === */
-    --font-display: 'Orbitron', sans-serif;
-    --font-mono: 'JetBrains Mono', 'Consolas', monospace;
+  /* === 字体 === */
+  --font-display: "Orbitron", sans-serif;
+  --font-mono: "JetBrains Mono", "Consolas", monospace;
 }
 
 /* ========================================
@@ -62,31 +62,31 @@
    ======================================== */
 
 .enable-scanline::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-        to bottom,
-        rgba(18, 16, 16, 0) 50%,
-        rgba(0, 0, 0, 0.25) 50%  /* 增强扫描线强度 */
-    );
-    background-size: 100% 4px;
-    pointer-events: none;
-    z-index: 9999;
-    opacity: 0.15;  /* 增加可见度 */
-    animation: scanline-move 8s linear infinite;
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    rgba(18, 16, 16, 0) 50%,
+    rgba(0, 0, 0, 0.25) 50% /* 增强扫描线强度 */
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.15; /* 增加可见度 */
+  animation: scanline-move 8s linear infinite;
 }
 
 @keyframes scanline-move {
-    0% {
-        transform: translateY(0);
-    }
-    100% {
-        transform: translateY(4px);
-    }
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(4px);
+  }
 }
 
 /* ========================================
@@ -95,54 +95,56 @@
 
 /* Amber 光晕（右上角） - 增强版 */
 [data-theme="deep-glass-scifi"] body::before {
-    content: '';
-    position: fixed;
-    top: -200px;
-    right: -200px;
-    width: 600px;
-    height: 600px;
-    background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%);
-    filter: blur(120px);
-    pointer-events: none;
-    z-index: -1;
-    animation: glow-pulse-amber 4s ease-in-out infinite;
+  content: "";
+  position: fixed;
+  top: -200px;
+  right: -200px;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%);
+  filter: blur(120px);
+  pointer-events: none;
+  z-index: -1;
+  animation: glow-pulse-amber 4s ease-in-out infinite;
 }
 
 /* Sci-Fi Blue 光晕（左下角） - 增强版 */
 [data-theme="deep-glass-scifi"] body::after {
-    content: '';
-    position: fixed;
-    bottom: -200px;
-    left: -200px;
-    width: 500px;
-    height: 500px;
-    background: radial-gradient(circle, rgba(0, 242, 255, 0.12) 0%, transparent 70%);
-    filter: blur(100px);
-    pointer-events: none;
-    z-index: -1;
-    animation: glow-pulse-blue 5s ease-in-out infinite;
+  content: "";
+  position: fixed;
+  bottom: -200px;
+  left: -200px;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(0, 242, 255, 0.12) 0%, transparent 70%);
+  filter: blur(100px);
+  pointer-events: none;
+  z-index: -1;
+  animation: glow-pulse-blue 5s ease-in-out infinite;
 }
 
 @keyframes glow-pulse-amber {
-    0%, 100% {
-        opacity: 0.6;
-        transform: scale(1);
-    }
-    50% {
-        opacity: 1;
-        transform: scale(1.1);
-    }
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
 }
 
 @keyframes glow-pulse-blue {
-    0%, 100% {
-        opacity: 0.5;
-        transform: scale(1);
-    }
-    50% {
-        opacity: 0.9;
-        transform: scale(1.15);
-    }
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.15);
+  }
 }
 
 /* ========================================
@@ -151,30 +153,30 @@
 
 .enable-neon-glow .neon-text,
 [data-theme="deep-glass-scifi"] .neon-text {
-    text-shadow:
-        0 0 10px rgba(245, 158, 11, 0.8),
-        0 0 20px rgba(245, 158, 11, 0.6),
-        0 0 30px rgba(245, 158, 11, 0.4);
+  text-shadow:
+    0 0 10px rgba(245, 158, 11, 0.8),
+    0 0 20px rgba(245, 158, 11, 0.6),
+    0 0 30px rgba(245, 158, 11, 0.4);
 }
 
 .enable-neon-glow .neon-text-amber,
 [data-theme="deep-glass-scifi"] .neon-text-amber {
-    color: var(--accent-orange);
-    text-shadow:
-        0 0 10px rgba(245, 158, 11, 1),
-        0 0 20px rgba(245, 158, 11, 0.8),
-        0 0 30px rgba(245, 158, 11, 0.6),
-        0 0 40px rgba(245, 158, 11, 0.4);
+  color: var(--accent-orange);
+  text-shadow:
+    0 0 10px rgba(245, 158, 11, 1),
+    0 0 20px rgba(245, 158, 11, 0.8),
+    0 0 30px rgba(245, 158, 11, 0.6),
+    0 0 40px rgba(245, 158, 11, 0.4);
 }
 
 .enable-neon-glow .neon-text-blue,
 [data-theme="deep-glass-scifi"] .neon-text-blue {
-    color: var(--accent-secondary);
-    text-shadow:
-        0 0 10px rgba(0, 242, 255, 1),
-        0 0 20px rgba(0, 242, 255, 0.8),
-        0 0 30px rgba(0, 242, 255, 0.6),
-        0 0 40px rgba(0, 242, 255, 0.4);
+  color: var(--accent-secondary);
+  text-shadow:
+    0 0 10px rgba(0, 242, 255, 1),
+    0 0 20px rgba(0, 242, 255, 0.8),
+    0 0 30px rgba(0, 242, 255, 0.6),
+    0 0 40px rgba(0, 242, 255, 0.4);
 }
 
 /* ========================================
@@ -183,20 +185,20 @@
 
 .enable-neon-glow .glowing-border,
 [data-theme="deep-glass-scifi"] .glowing-border {
-    border: 1px solid rgba(245, 158, 11, 0.6);
-    box-shadow:
-        0 0 10px rgba(245, 158, 11, 0.4),
-        0 0 20px rgba(245, 158, 11, 0.2),
-        inset 0 0 10px rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.6);
+  box-shadow:
+    0 0 10px rgba(245, 158, 11, 0.4),
+    0 0 20px rgba(245, 158, 11, 0.2),
+    inset 0 0 10px rgba(245, 158, 11, 0.1);
 }
 
 .enable-neon-glow .glowing-border-blue,
 [data-theme="deep-glass-scifi"] .glowing-border-blue {
-    border: 1px solid rgba(0, 242, 255, 0.6);
-    box-shadow:
-        0 0 10px rgba(0, 242, 255, 0.4),
-        0 0 20px rgba(0, 242, 255, 0.2),
-        inset 0 0 10px rgba(0, 242, 255, 0.1);
+  border: 1px solid rgba(0, 242, 255, 0.6);
+  box-shadow:
+    0 0 10px rgba(0, 242, 255, 0.4),
+    0 0 20px rgba(0, 242, 255, 0.2),
+    inset 0 0 10px rgba(0, 242, 255, 0.1);
 }
 
 /* ========================================
@@ -205,50 +207,50 @@
 
 [data-theme="deep-glass-scifi"] .btn-primary,
 [data-theme="deep-glass-scifi"] button.primary {
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.3) 0%, rgba(245, 158, 11, 0.15) 100%);
-    border: 1px solid rgba(245, 158, 11, 0.6);
-    color: var(--accent-orange);
-    font-family: var(--font-display);
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    text-shadow: 0 0 10px rgba(245, 158, 11, 0.6);
-    box-shadow:
-        0 0 10px rgba(245, 158, 11, 0.3),
-        0 0 20px rgba(245, 158, 11, 0.15);
-    transition: all 0.3s ease;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.3) 0%, rgba(245, 158, 11, 0.15) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.6);
+  color: var(--accent-orange);
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-shadow: 0 0 10px rgba(245, 158, 11, 0.6);
+  box-shadow:
+    0 0 10px rgba(245, 158, 11, 0.3),
+    0 0 20px rgba(245, 158, 11, 0.15);
+  transition: all 0.3s ease;
 }
 
 [data-theme="deep-glass-scifi"] .btn-primary:hover,
 [data-theme="deep-glass-scifi"] button.primary:hover {
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.4) 0%, rgba(245, 158, 11, 0.2) 100%);
-    border-color: rgba(245, 158, 11, 0.8);
-    box-shadow:
-        0 0 20px rgba(245, 158, 11, 0.5),
-        0 0 40px rgba(245, 158, 11, 0.3);
-    transform: translateY(-2px);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.4) 0%, rgba(245, 158, 11, 0.2) 100%);
+  border-color: rgba(245, 158, 11, 0.8);
+  box-shadow:
+    0 0 20px rgba(245, 158, 11, 0.5),
+    0 0 40px rgba(245, 158, 11, 0.3);
+  transform: translateY(-2px);
 }
 
 [data-theme="deep-glass-scifi"] .btn-secondary {
-    background: linear-gradient(135deg, rgba(0, 242, 255, 0.3) 0%, rgba(0, 242, 255, 0.15) 100%);
-    border: 1px solid rgba(0, 242, 255, 0.6);
-    color: var(--accent-secondary);
-    font-family: var(--font-display);
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    text-shadow: 0 0 10px rgba(0, 242, 255, 0.6);
-    box-shadow:
-        0 0 10px rgba(0, 242, 255, 0.3),
-        0 0 20px rgba(0, 242, 255, 0.15);
+  background: linear-gradient(135deg, rgba(0, 242, 255, 0.3) 0%, rgba(0, 242, 255, 0.15) 100%);
+  border: 1px solid rgba(0, 242, 255, 0.6);
+  color: var(--accent-secondary);
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-shadow: 0 0 10px rgba(0, 242, 255, 0.6);
+  box-shadow:
+    0 0 10px rgba(0, 242, 255, 0.3),
+    0 0 20px rgba(0, 242, 255, 0.15);
 }
 
 [data-theme="deep-glass-scifi"] .btn-secondary:hover {
-    background: linear-gradient(135deg, rgba(0, 242, 255, 0.4) 0%, rgba(0, 242, 255, 0.2) 100%);
-    border-color: rgba(0, 242, 255, 0.8);
-    box-shadow:
-        0 0 20px rgba(0, 242, 255, 0.5),
-        0 0 40px rgba(0, 242, 255, 0.3);
+  background: linear-gradient(135deg, rgba(0, 242, 255, 0.4) 0%, rgba(0, 242, 255, 0.2) 100%);
+  border-color: rgba(0, 242, 255, 0.8);
+  box-shadow:
+    0 0 20px rgba(0, 242, 255, 0.5),
+    0 0 40px rgba(0, 242, 255, 0.3);
 }
 
 /* ========================================
@@ -257,17 +259,17 @@
 
 [data-theme="deep-glass-scifi"] .sidebar-item-active,
 [data-theme="deep-glass-scifi"] .sidebar-item.active {
-    background: linear-gradient(90deg, rgba(245, 158, 11, 0.25) 0%, rgba(245, 158, 11, 0) 100%);
-    border-left: 3px solid var(--accent-orange);
-    color: var(--accent-orange);
-    text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
-    box-shadow: inset 0 0 20px rgba(245, 158, 11, 0.1);
+  background: linear-gradient(90deg, rgba(245, 158, 11, 0.25) 0%, rgba(245, 158, 11, 0) 100%);
+  border-left: 3px solid var(--accent-orange);
+  color: var(--accent-orange);
+  text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+  box-shadow: inset 0 0 20px rgba(245, 158, 11, 0.1);
 }
 
 [data-theme="deep-glass-scifi"] .sidebar-item:hover {
-    background: rgba(245, 158, 11, 0.1);
-    color: var(--text-primary);
-    border-left: 2px solid rgba(245, 158, 11, 0.4);
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--text-primary);
+  border-left: 2px solid rgba(245, 158, 11, 0.4);
 }
 
 /* ========================================
@@ -277,28 +279,28 @@
 [data-theme="deep-glass-scifi"] .input-glass,
 [data-theme="deep-glass-scifi"] input,
 [data-theme="deep-glass-scifi"] textarea {
-    background: rgba(15, 18, 24, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    transition: all 0.3s ease;
+  background: rgba(15, 18, 24, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
 }
 
 [data-theme="deep-glass-scifi"] .input-glass:focus,
 [data-theme="deep-glass-scifi"] input:focus,
 [data-theme="deep-glass-scifi"] textarea:focus {
-    border-color: var(--accent-orange);
-    box-shadow:
-        0 0 10px rgba(245, 158, 11, 0.3),
-        0 0 20px rgba(245, 158, 11, 0.15);
-    background: rgba(15, 18, 24, 0.8);
+  border-color: var(--accent-orange);
+  box-shadow:
+    0 0 10px rgba(245, 158, 11, 0.3),
+    0 0 20px rgba(245, 158, 11, 0.15);
+  background: rgba(15, 18, 24, 0.8);
 }
 
 [data-theme="deep-glass-scifi"] .input-glass::placeholder,
 [data-theme="deep-glass-scifi"] input::placeholder,
 [data-theme="deep-glass-scifi"] textarea::placeholder {
-    color: var(--text-muted);
-    font-family: var(--font-mono);
-    font-size: 0.9em;
-    letter-spacing: 0.05em;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  letter-spacing: 0.05em;
 }
 
 /* ========================================
@@ -307,11 +309,11 @@
 
 [data-theme="deep-glass-scifi"] .ds-message-user,
 [data-theme="deep-glass-scifi"] .message-user {
-    background: rgba(245, 158, 11, 0.2);
-    border: 1px solid rgba(245, 158, 11, 0.5);
-    box-shadow:
-        0 0 10px rgba(245, 158, 11, 0.3),
-        0 0 20px rgba(245, 158, 11, 0.15);
+  background: rgba(245, 158, 11, 0.2);
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  box-shadow:
+    0 0 10px rgba(245, 158, 11, 0.3),
+    0 0 20px rgba(245, 158, 11, 0.15);
 }
 
 /* ========================================
@@ -319,24 +321,24 @@
    ======================================== */
 
 [data-theme="deep-glass-scifi"] .status-indicator {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    animation: pulse-glow 2s ease-in-out infinite;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: pulse-glow 2s ease-in-out infinite;
 }
 
 [data-theme="deep-glass-scifi"] .status-indicator.active {
-    background: var(--accent-green);
-    box-shadow:
-        0 0 10px rgba(34, 197, 94, 0.8),
-        0 0 20px rgba(34, 197, 94, 0.4);
+  background: var(--accent-green);
+  box-shadow:
+    0 0 10px rgba(34, 197, 94, 0.8),
+    0 0 20px rgba(34, 197, 94, 0.4);
 }
 
 [data-theme="deep-glass-scifi"] .status-indicator.warning {
-    background: var(--accent-orange);
-    box-shadow:
-        0 0 10px rgba(245, 158, 11, 0.8),
-        0 0 20px rgba(245, 158, 11, 0.4);
+  background: var(--accent-orange);
+  box-shadow:
+    0 0 10px rgba(245, 158, 11, 0.8),
+    0 0 20px rgba(245, 158, 11, 0.4);
 }
 
 /* ========================================
@@ -344,10 +346,10 @@
    ======================================== */
 
 [data-theme="deep-glass-scifi"] .progress-glass-fill {
-    background: linear-gradient(90deg, var(--accent-orange) 0%, var(--accent-secondary) 100%);
-    box-shadow:
-        0 0 10px rgba(245, 158, 11, 0.5),
-        0 0 20px rgba(245, 158, 11, 0.3);
+  background: linear-gradient(90deg, var(--accent-orange) 0%, var(--accent-secondary) 100%);
+  box-shadow:
+    0 0 10px rgba(245, 158, 11, 0.5),
+    0 0 20px rgba(245, 158, 11, 0.3);
 }
 
 /* ========================================
@@ -358,33 +360,33 @@
 [data-theme="deep-glass-scifi"] h2,
 [data-theme="deep-glass-scifi"] h3,
 [data-theme="deep-glass-scifi"] .font-display {
-    font-family: var(--font-display);
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 /* 标题霓虹灯效果 */
 [data-theme="deep-glass-scifi"] h1 {
-    color: var(--accent-orange);
-    text-shadow:
-        0 0 10px rgba(245, 158, 11, 0.8),
-        0 0 20px rgba(245, 158, 11, 0.6),
-        0 0 30px rgba(245, 158, 11, 0.4);
+  color: var(--accent-orange);
+  text-shadow:
+    0 0 10px rgba(245, 158, 11, 0.8),
+    0 0 20px rgba(245, 158, 11, 0.6),
+    0 0 30px rgba(245, 158, 11, 0.4);
 }
 
 [data-theme="deep-glass-scifi"] h2 {
-    color: var(--accent-secondary);
-    text-shadow:
-        0 0 10px rgba(0, 242, 255, 0.8),
-        0 0 20px rgba(0, 242, 255, 0.6);
+  color: var(--accent-secondary);
+  text-shadow:
+    0 0 10px rgba(0, 242, 255, 0.8),
+    0 0 20px rgba(0, 242, 255, 0.6);
 }
 
 [data-theme="deep-glass-scifi"] .text-xs,
 [data-theme="deep-glass-scifi"] .text-sm {
-    font-family: var(--font-mono);
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
+  font-family: var(--font-mono);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 /* ========================================
@@ -392,42 +394,39 @@
    ======================================== */
 
 [data-theme="deep-glass-scifi"] .timeline-line {
-    background: linear-gradient(
-        to bottom,
-        rgba(245, 158, 11, 0.6) 0%,
-        rgba(0, 242, 255, 0.6) 100%
-    );
-    box-shadow:
-        0 0 10px rgba(245, 158, 11, 0.3),
-        0 0 20px rgba(0, 242, 255, 0.3);
+  background: linear-gradient(to bottom, rgba(245, 158, 11, 0.6) 0%, rgba(0, 242, 255, 0.6) 100%);
+  box-shadow:
+    0 0 10px rgba(245, 158, 11, 0.3),
+    0 0 20px rgba(0, 242, 255, 0.3);
 }
 
 [data-theme="deep-glass-scifi"] .timeline-dot {
-    background: linear-gradient(135deg, var(--accent-orange) 0%, var(--accent-secondary) 100%);
-    border: 2px solid rgba(245, 158, 11, 0.8);
-    box-shadow:
-        0 0 0 4px rgba(245, 158, 11, 0.3),
-        0 0 20px rgba(245, 158, 11, 0.8),
-        0 0 40px rgba(245, 158, 11, 0.6),
-        inset 0 0 10px rgba(255, 255, 255, 0.6);
-    animation: dot-glow 3s ease-in-out infinite;
+  background: linear-gradient(135deg, var(--accent-orange) 0%, var(--accent-secondary) 100%);
+  border: 2px solid rgba(245, 158, 11, 0.8);
+  box-shadow:
+    0 0 0 4px rgba(245, 158, 11, 0.3),
+    0 0 20px rgba(245, 158, 11, 0.8),
+    0 0 40px rgba(245, 158, 11, 0.6),
+    inset 0 0 10px rgba(255, 255, 255, 0.6);
+  animation: dot-glow 3s ease-in-out infinite;
 }
 
 @keyframes dot-glow {
-    0%, 100% {
-        box-shadow:
-            0 0 0 4px rgba(245, 158, 11, 0.3),
-            0 0 20px rgba(245, 158, 11, 0.8),
-            0 0 40px rgba(245, 158, 11, 0.6),
-            inset 0 0 10px rgba(255, 255, 255, 0.6);
-    }
-    50% {
-        box-shadow:
-            0 0 0 6px rgba(245, 158, 11, 0.4),
-            0 0 30px rgba(245, 158, 11, 1),
-            0 0 60px rgba(245, 158, 11, 0.8),
-            inset 0 0 15px rgba(255, 255, 255, 0.8);
-    }
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 4px rgba(245, 158, 11, 0.3),
+      0 0 20px rgba(245, 158, 11, 0.8),
+      0 0 40px rgba(245, 158, 11, 0.6),
+      inset 0 0 10px rgba(255, 255, 255, 0.6);
+  }
+  50% {
+    box-shadow:
+      0 0 0 6px rgba(245, 158, 11, 0.4),
+      0 0 30px rgba(245, 158, 11, 1),
+      0 0 60px rgba(245, 158, 11, 0.8),
+      inset 0 0 15px rgba(255, 255, 255, 0.8);
+  }
 }
 
 /* ========================================
@@ -436,22 +435,22 @@
 
 [data-theme="deep-glass-scifi"] .card-glass,
 [data-theme="deep-glass-scifi"] .glass-panel {
-    background: var(--bg-glass);
-    backdrop-filter: var(--blur-glass);
-    -webkit-backdrop-filter: var(--blur-glass);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 12px;
-    padding: 16px;
-    transition: all 0.3s ease;
+  background: var(--bg-glass);
+  backdrop-filter: var(--blur-glass);
+  -webkit-backdrop-filter: var(--blur-glass);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.3s ease;
 }
 
 [data-theme="deep-glass-scifi"] .card-glass:hover,
 [data-theme="deep-glass-scifi"] .glass-panel:hover {
-    border-color: rgba(245, 158, 11, 0.4);
-    box-shadow:
-        0 0 20px rgba(245, 158, 11, 0.2),
-        0 0 40px rgba(245, 158, 11, 0.1);
-    transform: translateY(-2px);
+  border-color: rgba(245, 158, 11, 0.4);
+  box-shadow:
+    0 0 20px rgba(245, 158, 11, 0.2),
+    0 0 40px rgba(245, 158, 11, 0.1);
+  transform: translateY(-2px);
 }
 
 /* ========================================
@@ -459,22 +458,23 @@
    ======================================== */
 
 @keyframes neon-pulse {
-    0%, 100% {
-        opacity: 1;
-        text-shadow:
-            0 0 10px rgba(245, 158, 11, 0.8),
-            0 0 20px rgba(245, 158, 11, 0.6);
-    }
-    50% {
-        opacity: 0.9;
-        text-shadow:
-            0 0 20px rgba(245, 158, 11, 1),
-            0 0 40px rgba(245, 158, 11, 0.8);
-    }
+  0%,
+  100% {
+    opacity: 1;
+    text-shadow:
+      0 0 10px rgba(245, 158, 11, 0.8),
+      0 0 20px rgba(245, 158, 11, 0.6);
+  }
+  50% {
+    opacity: 0.9;
+    text-shadow:
+      0 0 20px rgba(245, 158, 11, 1),
+      0 0 40px rgba(245, 158, 11, 0.8);
+  }
 }
 
 [data-theme="deep-glass-scifi"] .animate-neon-pulse {
-    animation: neon-pulse 2s ease-in-out infinite;
+  animation: neon-pulse 2s ease-in-out infinite;
 }
 
 /* ========================================
@@ -483,35 +483,35 @@
 
 /* 移动端降低特效强度 */
 @media (max-width: 768px) {
-    [data-theme="deep-glass-scifi"] {
-        --blur-glass: blur(16px);
-        --blur-glass-light: blur(12px);
-    }
+  [data-theme="deep-glass-scifi"] {
+    --blur-glass: blur(16px);
+    --blur-glass-light: blur(12px);
+  }
 
-    .enable-scanline::before {
-        opacity: 0.08;
-    }
+  .enable-scanline::before {
+    opacity: 0.08;
+  }
 
-    [data-theme="deep-glass-scifi"] body::before,
-    [data-theme="deep-glass-scifi"] body::after {
-        opacity: 0.5;
-    }
+  [data-theme="deep-glass-scifi"] body::before,
+  [data-theme="deep-glass-scifi"] body::after {
+    opacity: 0.5;
+  }
 }
 
 /* 低性能设备优化 */
 @media (prefers-reduced-motion: reduce) {
-    .enable-scanline::before {
-        animation: none;
-    }
+  .enable-scanline::before {
+    animation: none;
+  }
 
-    [data-theme="deep-glass-scifi"] .animate-neon-pulse,
-    [data-theme="deep-glass-scifi"] .status-indicator,
-    [data-theme="deep-glass-scifi"] .timeline-dot {
-        animation: none;
-    }
+  [data-theme="deep-glass-scifi"] .animate-neon-pulse,
+  [data-theme="deep-glass-scifi"] .status-indicator,
+  [data-theme="deep-glass-scifi"] .timeline-dot {
+    animation: none;
+  }
 
-    [data-theme="deep-glass-scifi"] body::before,
-    [data-theme="deep-glass-scifi"] body::after {
-        animation: none;
-    }
+  [data-theme="deep-glass-scifi"] body::before,
+  [data-theme="deep-glass-scifi"] body::after {
+    animation: none;
+  }
 }
