@@ -84,8 +84,8 @@ const MessageBubbleComponent: React.FC<MessageBubbleProps> = ({
                 bubbleClassName
               )}
               style={{
-                overflowWrap: "anywhere",
-                wordBreak: "break-word",
+                overflowWrap: "break-word",
+                wordBreak: "normal",
               }}
             >
               {children}
@@ -106,8 +106,8 @@ const MessageBubbleComponent: React.FC<MessageBubbleProps> = ({
               bubbleClassName
             )}
             style={{
-              overflowWrap: "anywhere",
-              wordBreak: "break-word",
+              overflowWrap: "break-word",
+              wordBreak: "normal",
             }}
           >
             {children}
