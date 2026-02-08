@@ -402,8 +402,10 @@ const AttachmentChip: React.FC<AttachmentChipProps> = ({ attachment, onRemove })
       {attachment.status === "error" && (
         <TooltipProvider>
           <Tooltip>
-            <TooltipTrigger>
-              <AlertCircle className="h-3 w-3 text-red-500" />
+            <TooltipTrigger asChild>
+              <span className="inline-flex items-center cursor-help">
+                <AlertCircle className="h-3 w-3 text-red-500" />
+              </span>
             </TooltipTrigger>
             <TooltipContent>
               <p>{attachment.error}</p>
