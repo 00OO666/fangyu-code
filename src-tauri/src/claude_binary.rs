@@ -2185,7 +2185,32 @@ fn resolve_cmd_wrapper(cmd_path: &str) -> Option<(String, String)> {
                         // Verify the script exists
                         if PathBuf::from(&script_path).exists() {
                             debug!("Resolved .cmd wrapper to script: {}", script_path);
-                            return Some(("node".to_string(), script_path));
+
+                            // 🔧 FIX: Use full path to node.exe instead of "node"
+                            // This ensures node can be found even if PATH is not properly inherited
+                            let node_path = if let Some(parent) = std::path::Path::new(cmd_path).parent() {
+                                let local_node = parent.join("node.exe");
+                                if local_node.exists() {
+                                    local_node.to_string_lossy().to_string()
+                                } else {
+                                    // Fallback to system node.exe
+                                    if let Ok(programfiles) = std::env::var("ProgramFiles") {
+                                        let system_node = std::path::PathBuf::from(&programfiles).join("nodejs").join("node.exe");
+                                        if system_node.exists() {
+                                            system_node.to_string_lossy().to_string()
+                                        } else {
+                                            "node".to_string()
+                                        }
+                                    } else {
+                                        "node".to_string()
+                                    }
+                                }
+                            } else {
+                                "node".to_string()
+                            };
+
+                            debug!("Using node path: {}", node_path);
+                            return Some((node_path, script_path));
                         }
                     }
                 }

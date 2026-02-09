@@ -139,7 +139,7 @@ pub fn setup_command_environment(cmd: &mut Command, program_path: &str) {
 #[allow(dead_code)]
 /// Async version for use with tokio::process::Command
 pub fn setup_command_environment_async(cmd: &mut tokio::process::Command, _program_path: &str) {
-    log::info!("[PATH Setup] Starting Windows PATH environment setup");
+    log::error!("[PATH Setup] ⚠️ CRITICAL: Starting Windows PATH environment setup");
 
     let mut paths_to_add = Vec::new();
     let current_path = std::env::var("PATH").unwrap_or_default();
@@ -210,8 +210,8 @@ pub fn setup_command_environment_async(cmd: &mut tokio::process::Command, _progr
             new_path = current_path;
         }
 
-        log::info!("[PATH Setup] ✓ Updated PATH (new length: {} chars)", new_path.len());
-        log::info!("[PATH Setup] First 200 chars of new PATH: {}", &new_path.chars().take(200).collect::<String>());
+        log::error!("[PATH Setup] ⚠️ CRITICAL: Updated PATH (new length: {} chars)", new_path.len());
+        log::error!("[PATH Setup] ⚠️ CRITICAL: First 200 chars of new PATH: {}", &new_path.chars().take(200).collect::<String>());
         cmd.env("PATH", new_path);
     } else {
         log::warn!("[PATH Setup] ⚠️ No Node.js paths found to add!");
