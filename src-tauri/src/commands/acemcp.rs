@@ -385,11 +385,27 @@ impl AcemcpClient {
 
         let node_check = node_check_cmd.output().await;
 
-        if node_check.is_err() {
-            return Err(anyhow::anyhow!(
-                "Node.js not found. Please install Node.js to use acemcp.\n\
-                Download from: https://nodejs.org/"
-            ));
+        match node_check {
+            Err(e) => {
+                return Err(anyhow::anyhow!(
+                    "Node.js not found. Please install Node.js to use acemcp.\n\
+                    Error: {}\n\
+                    Download from: https://nodejs.org/",
+                    e
+                ));
+            }
+            Ok(output) if !output.status.success() => {
+                let stderr = String::from_utf8_lossy(&output.stderr);
+                return Err(anyhow::anyhow!(
+                    "Node.js check failed. Please ensure Node.js is installed and in PATH.\n\
+                    Error: {}\n\
+                    Download from: https://nodejs.org/",
+                    stderr
+                ));
+            }
+            Ok(_) => {
+                // Node.js is available, continue
+            }
         }
 
         // 使用 tokio Command 启动 sidecar（保持 stdio 通信）
