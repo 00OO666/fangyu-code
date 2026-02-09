@@ -183,7 +183,7 @@ fn create_command_with_env(program: &str) -> Command {
     }
 
     // 🔧 FIX: Windows - 添加 Node.js 路径到 PATH（用于 Claude Code CLI）
-    #[cfg(target_os = \"windows\")]
+    #[cfg(target_os = "windows")]
     {
         use crate::commands::claude::setup_command_environment_async;
         setup_command_environment_async(&mut tokio_cmd, program);
@@ -203,14 +203,43 @@ fn create_command_with_env(program: &str) -> Command {
                         );
                         for (key, value) in env_obj {
                             if let Some(value_str) = value.as_str() {
-                                log::info!("Setting custom env var: {}={}", key, value_str);
-                                tokio_cmd.env(key, value_str);
+                                // 🔧 FIX: 特殊处理 PATH - 智能合并而不是覆盖
+                                // 这样可以保留 setup_command_environment_async 设置的增强 PATH
+                                if key.to_uppercase() == "PATH" {
+                                    if let Ok(current_path) = std::env::var("PATH") {
+                                        // 获取当前 PATH（包含 setup_command_environment_async 设置的增强 PATH）
+                                        #[cfg(target_os = "windows")]
+                                        let separator = ";";
+                                        #[cfg(not(target_os = "windows"))]
+                                        let separator = ":";
+
+                                        let enhanced_path = format!("{}{}{}", current_path, separator, value_str);
+                                        tokio_cmd.env("PATH", enhanced_path);
+                                        log::info!("🔧 Merged settings.json PATH with enhanced PATH");
+                                    } else {
+                                        tokio_cmd.env(key, value_str);
+                                        log::info!("Setting custom env var: {}={}", key, value_str);
+                                    }
+                                } else {
+                                    log::info!("Setting custom env var: {}={}", key, value_str);
+                                    tokio_cmd.env(key, value_str);
+                                }
                             }
                         }
                     }
                 }
             }
         }
+    }
+
+    // 🔧 验证最终 PATH（用于调试）
+    if let Ok(final_path) = std::env::var("PATH") {
+        log::info!("🔍 Final PATH before command execution: {}", final_path);
+
+        // 验证 Node.js 是否在 PATH 中
+        let nodejs_in_path = final_path.to_lowercase().contains("nodejs")
+            || final_path.to_lowercase().contains("node");
+        log::info!("🔍 Node.js in PATH: {}", nodejs_in_path);
     }
 
     tokio_cmd
