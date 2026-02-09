@@ -182,6 +182,13 @@ fn create_command_with_env(program: &str) -> Command {
         }
     }
 
+    // 🔧 FIX: Windows - 添加 Node.js 路径到 PATH（用于 Claude Code CLI）
+    #[cfg(target_os = \"windows\")]
+    {
+        use crate::commands::claude::setup_command_environment_async;
+        setup_command_environment_async(&mut tokio_cmd, program);
+    }
+
     // 🔥 新增：读取 ~/.claude/settings.json 中的自定义环境变量
     // 这些变量会覆盖系统环境变量，确保用户的自定义配置生效
     if let Ok(claude_dir) = get_claude_dir() {
