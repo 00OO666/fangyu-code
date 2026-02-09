@@ -5,6 +5,107 @@ use std::os::windows::process::CommandExt;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
+fn find_node_executable(cmd_dir: &Path) -> Option<PathBuf> {
+    // 1) Local node.exe next to the .cmd wrapper (npm sometimes bundles it)
+    let local_node = cmd_dir.join("node.exe");
+    if local_node.exists() {
+        return Some(local_node);
+    }
+
+    // 2) Common system installs / managers (best-effort; keep cheap and deterministic)
+    let mut candidates: Vec<PathBuf> = Vec::new();
+
+    if let Ok(programfiles) = std::env::var("ProgramFiles") {
+        candidates.push(PathBuf::from(programfiles).join("nodejs").join("node.exe"));
+    }
+
+    if let Ok(programfiles_x86) = std::env::var("ProgramFiles(x86)") {
+        candidates.push(PathBuf::from(programfiles_x86).join("nodejs").join("node.exe"));
+    }
+
+    if let Ok(nvm_symlink) = std::env::var("NVM_SYMLINK") {
+        candidates.push(PathBuf::from(nvm_symlink).join("node.exe"));
+    }
+
+    if let Ok(volta_home) = std::env::var("VOLTA_HOME") {
+        candidates.push(PathBuf::from(volta_home).join("bin").join("node.exe"));
+    }
+
+    if let Ok(localappdata) = std::env::var("LOCALAPPDATA") {
+        candidates.push(
+            PathBuf::from(localappdata)
+                .join("Programs")
+                .join("nodejs")
+                .join("node.exe"),
+        );
+    }
+
+    for candidate in candidates {
+        if candidate.exists() {
+            return Some(candidate);
+        }
+    }
+
+    None
+}
+
+fn extract_script_path_from_wrapper(content: &str, cmd_dir: &Path) -> Option<PathBuf> {
+    // Supports npm-style wrappers that reference the target script via:
+    // - "%~dp0\...\script.js"
+    // - "%dp0%\...\script.js" (where dp0 is set to %~dp0 earlier)
+    // and also wrappers that execute via an intermediate variable like "%_prog%".
+
+    for line in content.lines() {
+        let line_lc = line.to_ascii_lowercase();
+        if !line_lc.contains(".js") {
+            continue;
+        }
+
+        // Extract quoted segments: "..." "..." ...
+        let mut rest = line;
+        while let Some(start) = rest.find('"') {
+            let after_start = &rest[start + 1..];
+            let Some(end) = after_start.find('"') else {
+                break;
+            };
+            let token = &after_start[..end];
+            rest = &after_start[end + 1..];
+
+            let token_lc = token.to_ascii_lowercase();
+            if !token_lc.contains(".js") {
+                continue;
+            }
+
+            // If the token is already an absolute path, accept it.
+            let token_path = Path::new(token);
+            if token_path.is_absolute() && token_path.exists() {
+                return Some(token_path.to_path_buf());
+            }
+
+            // Resolve %~dp0 / %dp0% prefixes to the wrapper directory.
+            let rel = if token_lc.starts_with("%~dp0") {
+                &token[5..]
+            } else if token_lc.starts_with("%dp0%") {
+                &token[5..]
+            } else {
+                continue;
+            };
+
+            let rel = rel.trim_start_matches(['\\', '/']);
+            if rel.is_empty() {
+                continue;
+            }
+
+            let candidate = cmd_dir.join(rel);
+            if candidate.exists() {
+                return Some(candidate);
+            }
+        }
+    }
+
+    None
+}
+
 /// Resolve a .cmd wrapper file to its actual Node.js script path
 ///
 /// Windows npm installations often create .cmd wrapper files that execute Node.js scripts.
@@ -25,42 +126,24 @@ use std::process::Command;
 pub fn resolve_cmd_wrapper(cmd_path: &str) -> Option<(String, String)> {
     log::debug!("Attempting to resolve .cmd wrapper: {}", cmd_path);
 
+    let cmd_dir = Path::new(cmd_path).parent()?;
+
     // Read the .cmd file content
     let content = fs::read_to_string(cmd_path).ok()?;
 
-    // Parse the .cmd file to find the actual Node.js script
-    // Typical npm .cmd format:
-    // @IF EXIST "%~dp0\node.exe" (
-    //   "%~dp0\node.exe"  "%~dp0\node_modules\@anthropic\claude\bin\claude.js" %*
-    // ) ELSE (
-    //   node  "%~dp0\node_modules\@anthropic\claude\bin\claude.js" %*
-    // )
+    let script_path = extract_script_path_from_wrapper(&content, cmd_dir)?;
+    let node_path = find_node_executable(cmd_dir)
+        .unwrap_or_else(|| PathBuf::from("node"))
+        .to_string_lossy()
+        .to_string();
+    let script_path = script_path.to_string_lossy().to_string();
 
-    for line in content.lines() {
-        if line.contains(".js") && (line.contains("node.exe") || line.contains("\"node\"")) {
-            // Extract the script path - look for pattern like "%~dp0\path\to\script.js"
-            if let Some(start) = line.find("\"%~dp0") {
-                if let Some(end) = line[start..].find(".js\"") {
-                    let script_relative = &line[start + 7..start + end + 3];
-
-                    // Convert %~dp0 to absolute path
-                    if let Some(parent) = Path::new(cmd_path).parent() {
-                        let script_path =
-                            parent.join(script_relative).to_string_lossy().to_string();
-
-                        // Verify the script exists
-                        if PathBuf::from(&script_path).exists() {
-                            log::debug!("Resolved .cmd wrapper to script: {}", script_path);
-                            return Some(("node".to_string(), script_path));
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    log::debug!("Failed to resolve .cmd wrapper");
-    None
+    log::debug!(
+        "Resolved .cmd wrapper to node executable: {}, script: {}",
+        node_path,
+        script_path
+    );
+    Some((node_path, script_path))
 }
 
 /// Kill a process tree on Windows using taskkill
@@ -145,6 +228,29 @@ pub fn setup_command_environment_async(cmd: &mut tokio::process::Command, _progr
     let current_path = std::env::var("PATH").unwrap_or_default();
     log::info!("[PATH Setup] Current PATH length: {} chars", current_path.len());
 
+    // 0. Ensure Windows system directories are on PATH.
+    //
+    // Claude Code CLI (Node) internally invokes `cmd.exe` with `where.exe` on Windows.
+    // `cmd.exe` only searches PATH for external commands; if `%SystemRoot%\\System32`
+    // is missing, it fails with:
+    //   'where.exe' is not recognized as an internal or external command
+    let system_root = std::env::var("SystemRoot")
+        .or_else(|_| std::env::var("WINDIR"))
+        .unwrap_or_else(|_| "C:\\Windows".to_string());
+
+    let win_dir = PathBuf::from(system_root);
+    let system32 = win_dir.join("System32");
+    let wbem = system32.join("Wbem");
+    let powershell = system32.join("WindowsPowerShell").join("v1.0");
+
+    for p in [&system32, &wbem, &powershell, &win_dir] {
+        if p.exists() {
+            let p_str = p.to_string_lossy().to_string();
+            log::info!("[PATH Setup] Ensuring system path: {:?}", p);
+            paths_to_add.push(p_str);
+        }
+    }
+
     // 1. Add NVM paths (check common NVM locations)
     if let Ok(userprofile) = std::env::var("USERPROFILE") {
         let nvm_current = PathBuf::from(&userprofile).join(".nvm").join("current");
@@ -221,10 +327,59 @@ pub fn setup_command_environment_async(cmd: &mut tokio::process::Command, _progr
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::io::Write;
 
     #[test]
     fn test_resolve_cmd_wrapper_invalid_path() {
         let result = resolve_cmd_wrapper("nonexistent.cmd");
         assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_resolve_cmd_wrapper_dp0_and_prog_variable_style() {
+        let temp = tempfile::tempdir().expect("tempdir");
+        let bin_dir = temp.path().join("npm-global");
+        std::fs::create_dir_all(&bin_dir).expect("create bin dir");
+
+        // Make resolution deterministic: provide a local node.exe next to the wrapper.
+        std::fs::write(bin_dir.join("node.exe"), b"").expect("write node.exe");
+
+        let script_path = bin_dir
+            .join("node_modules")
+            .join("@anthropic-ai")
+            .join("claude-code")
+            .join("cli.js");
+        std::fs::create_dir_all(script_path.parent().expect("parent"))
+            .expect("create script dir");
+        std::fs::write(&script_path, b"console.log('ok');").expect("write script");
+
+        let cmd_path = bin_dir.join("claude.cmd");
+        let mut f = std::fs::File::create(&cmd_path).expect("create cmd");
+        writeln!(
+            f,
+            "@ECHO off\r\n\
+GOTO start\r\n\
+:find_dp0\r\n\
+SET dp0=%~dp0\r\n\
+EXIT /b\r\n\
+:start\r\n\
+SETLOCAL\r\n\
+CALL :find_dp0\r\n\
+\r\n\
+IF EXIST \"%dp0%\\node.exe\" (\r\n\
+  SET \"_prog=%dp0%\\node.exe\"\r\n\
+) ELSE (\r\n\
+  SET \"_prog=node\"\r\n\
+)\r\n\
+\r\n\
+endLocal & goto #_undefined_# 2>NUL || title %COMSPEC% & \"%_prog%\"  \"%dp0%\\node_modules\\@anthropic-ai\\claude-code\\cli.js\" %*\r\n"
+        )
+        .expect("write cmd");
+        drop(f);
+
+        let (node, script) =
+            resolve_cmd_wrapper(cmd_path.to_str().expect("cmd path")).expect("resolve");
+        assert_eq!(PathBuf::from(node), bin_dir.join("node.exe"));
+        assert_eq!(PathBuf::from(script), script_path);
     }
 }

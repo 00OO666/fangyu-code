@@ -503,6 +503,7 @@
     "maxUserLengthLimit": "5,000 characters",
     "includeResults": "Include Execution Results",
     "includeResultsDesc": "Whether to include command execution results in context",
+    "smartExtractionDesc": "When enabled, AI filters the most relevant history messages. When disabled, uses the system default (no AI filtering).",
     "maxResultLength": "Max Execution Result Length",
     "maxResultLengthDesc": "Maximum characters per execution result, exceeding will be truncated",
     "minResultLength": "100 characters",

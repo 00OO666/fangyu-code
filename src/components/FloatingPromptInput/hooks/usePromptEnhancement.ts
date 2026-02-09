@@ -1,10 +1,15 @@
 import { logger } from "@/lib/logger";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { callEnhancementAPI, getProvider } from "@/lib/promptEnhancementService";
 import { enhancePromptWithDualAPI } from "@/lib/dualAPIEnhancement";
 import { loadContextConfig } from "@/lib/promptContextConfig";
 import { ClaudeStreamMessage } from "@/types/claude";
+import {
+  getDualApiEnhancementEnabled,
+  setDualApiEnhancementEnabled,
+  subscribeDualApiEnhancementToggle,
+} from "@/lib/contextExtractionToggle";
 
 // acemcp 结果整理的触发阈值（与 dualAPIEnhancement.ts 保持一致）
 const ACEMCP_REFINEMENT_THRESHOLDS = {
@@ -85,9 +90,11 @@ export function usePromptEnhancement({
 
   // 🆕 智能上下文提取开关（默认启用）
   const [enableDualAPI, setEnableDualAPI] = useState(() => {
-    const saved = localStorage.getItem("enable_dual_api_enhancement");
-    return saved !== null ? saved === "true" : true; // 默认启用
+    return getDualApiEnhancementEnabled();
   });
+
+  // Keep in sync with settings page / other UI surfaces.
+  useEffect(() => subscribeDualApiEnhancementToggle(setEnableDualAPI), []);
 
   /**
    * 获取项目上下文（如果启用）
@@ -228,6 +235,9 @@ export function usePromptEnhancement({
     isEnhancing,
     handleEnhancePromptWithAPI,
     enableDualAPI, // 🆕 暴露智能上下文开关状态
-    setEnableDualAPI, // 🆕 暴露开关控制函数
+    setEnableDualAPI: (enabled: boolean) => {
+      setDualApiEnhancementEnabled(enabled);
+      setEnableDualAPI(enabled);
+    }, // 🆕 暴露开关控制函数（全局同步）
   };
 }

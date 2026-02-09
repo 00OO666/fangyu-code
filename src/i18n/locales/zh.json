@@ -504,6 +504,7 @@
     "maxUserLengthLimit": "5,000 字符",
     "includeResults": "包含执行结果",
     "includeResultsDesc": "是否在上下文中包含命令执行结果",
+    "smartExtractionDesc": "开启后 AI 会智能筛选相关历史消息；关闭则使用系统原本的上下文逻辑（不做 AI 筛选）",
     "maxResultLength": "执行结果最大长度",
     "maxResultLengthDesc": "单条执行结果的最大字符数，超过会被截断",
     "minResultLength": "100 字符",

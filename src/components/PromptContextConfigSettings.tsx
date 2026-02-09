@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Settings, RefreshCw, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -17,6 +17,11 @@ import {
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useTranslation } from "@/hooks/useTranslation";
+import {
+  getDualApiEnhancementEnabled,
+  setDualApiEnhancementEnabled,
+  subscribeDualApiEnhancementToggle,
+} from "@/lib/contextExtractionToggle";
 
 interface PromptContextConfigSettingsProps {
   className?: string;
@@ -28,11 +33,16 @@ export const PromptContextConfigSettings: React.FC<PromptContextConfigSettingsPr
   const { t } = useTranslation();
   const [config, setConfig] = useState<PromptContextConfig>(loadContextConfig());
   const [hasChanges, setHasChanges] = useState(false);
+  const [smartExtractionEnabled, setSmartExtractionEnabled] = useState<boolean>(() =>
+    getDualApiEnhancementEnabled()
+  );
 
   useEffect(() => {
     const loaded = loadContextConfig();
     setConfig(loaded);
   }, []);
+
+  useEffect(() => subscribeDualApiEnhancementToggle(setSmartExtractionEnabled), []);
 
   const handleChange = (updates: Partial<PromptContextConfig>) => {
     const newConfig = { ...config, ...updates };
@@ -82,6 +92,37 @@ export const PromptContextConfigSettings: React.FC<PromptContextConfigSettingsPr
           </Button>
         </div>
       </div>
+
+      {/* 全局开关：智能上下文提取 */}
+      <Card className="p-4 bg-muted/30">
+        <div className="flex items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <Label className="text-sm">{t("promptInput.smartContextExtraction")}</Label>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="cursor-help">
+                      <Info className="h-4 w-4 text-muted-foreground" />
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{t("promptContext.smartExtractionDesc")}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            <p className="text-xs text-muted-foreground">{t("promptContext.smartExtractionDesc")}</p>
+          </div>
+          <Switch
+            checked={smartExtractionEnabled}
+            onCheckedChange={(checked) => {
+              setDualApiEnhancementEnabled(checked);
+              setSmartExtractionEnabled(checked);
+            }}
+          />
+        </div>
+      </Card>
 
       {/* 预设模板 */}
       <Card className="p-4 bg-muted/30">

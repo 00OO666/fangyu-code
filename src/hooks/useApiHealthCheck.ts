@@ -87,6 +87,80 @@ interface UseApiHealthCheckReturn {
 const MAX_ERROR_LOG_SIZE = 20;
 const STORAGE_KEY = "api_health_check_state";
 
+function truncate(text: string, maxLen: number): string {
+  if (text.length <= maxLen) return text;
+  return `${text.slice(0, Math.max(0, maxLen - 14))} ...(truncated)`;
+}
+
+function safeJsonStringify(value: unknown, maxLen = 4000): string | undefined {
+  try {
+    const seen = new WeakSet<object>();
+    const json = JSON.stringify(value, (_key, val) => {
+      if (typeof val === "bigint") return val.toString();
+      if (val instanceof Error) {
+        return {
+          name: val.name,
+          message: val.message,
+          stack: val.stack,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          cause: (val as any).cause,
+        };
+      }
+      if (val && typeof val === "object") {
+        if (seen.has(val)) return "[Circular]";
+        seen.add(val);
+      }
+      return val;
+    });
+
+    if (typeof json !== "string") return undefined;
+    return truncate(json, maxLen);
+  } catch {
+    return undefined;
+  }
+}
+
+function normalizeErrorForLog(error: unknown): { message: string; details?: string } {
+  if (error == null) return { message: "Unknown error" };
+
+  if (typeof error === "string") {
+    const msg = error.trim() || "Unknown error";
+    return { message: truncate(msg, 500) };
+  }
+
+  if (error instanceof Error) {
+    const msg = (error.message && error.message.trim()) || error.name || "Error";
+    const details = error.stack || safeJsonStringify(error) || msg;
+    return {
+      message: truncate(msg, 500),
+      details: details ? truncate(details, 4000) : undefined,
+    };
+  }
+
+  if (typeof error === "object") {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const err = error as any;
+
+    const messageFromProp =
+      typeof err.message === "string"
+        ? err.message
+        : err.message != null
+          ? safeJsonStringify(err.message, 2000)
+          : undefined;
+
+    const json = safeJsonStringify(err, 4000);
+    const msg = (messageFromProp && messageFromProp.trim()) || json || String(err);
+
+    return {
+      message: truncate(String(msg), 500),
+      details: json ? truncate(json, 4000) : undefined,
+    };
+  }
+
+  const msg = String(error);
+  return { message: truncate(msg, 500) };
+}
+
 export function useApiHealthCheck(config: UseApiHealthCheckConfig = {}): UseApiHealthCheckReturn {
   const {
     autoReconnect = true,
@@ -161,16 +235,17 @@ export function useApiHealthCheck(config: UseApiHealthCheckConfig = {}): UseApiH
   // 记录失败
   const recordFailure = useCallback(
     (error: any, type: ErrorLogEntry["type"] = "unknown") => {
-      const errorMessage = error?.message || error?.toString() || "Unknown error";
+      const { message: errorMessage, details: errorDetails } = normalizeErrorForLog(error);
+      const errorMessageLower = errorMessage.toLowerCase();
 
       // 自动检测错误类型
       let detectedType = type;
       if (type === "unknown") {
-        if (errorMessage.includes("network") || errorMessage.includes("fetch")) {
+        if (errorMessageLower.includes("network") || errorMessageLower.includes("fetch")) {
           detectedType = "network_error";
-        } else if (errorMessage.includes("timeout") || errorMessage.includes("Timeout")) {
+        } else if (errorMessageLower.includes("timeout")) {
           detectedType = "timeout";
-        } else if (errorMessage.includes("parse") || errorMessage.includes("JSON")) {
+        } else if (errorMessageLower.includes("parse") || errorMessageLower.includes("json")) {
           detectedType = "parse_error";
         } else {
           detectedType = "api_error";
@@ -180,7 +255,7 @@ export function useApiHealthCheck(config: UseApiHealthCheckConfig = {}): UseApiH
       addErrorLog({
         type: detectedType,
         message: errorMessage,
-        details: error?.details || error?.stack,
+        details: errorDetails || safeJsonStringify(error, 4000) || error?.stack,
       });
 
       setConsecutiveFailures((prev) => {

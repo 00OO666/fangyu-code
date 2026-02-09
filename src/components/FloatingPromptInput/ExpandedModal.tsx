@@ -374,7 +374,6 @@ export const ExpandedModal = forwardRef<HTMLTextAreaElement, ExpandedModalProps>
                           checked={enableDualAPI}
                           onCheckedChange={(checked) => {
                             setEnableDualAPI(checked);
-                            localStorage.setItem("enable_dual_api_enhancement", String(checked));
                           }}
                         />
                       </label>

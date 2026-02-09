@@ -93,6 +93,83 @@ pub(super) fn map_model_to_claude_alias(model: &str) -> String {
     }
 }
 
+#[cfg(target_os = "windows")]
+fn build_enhanced_windows_path(current_path: &str) -> String {
+    let mut paths_to_add: Vec<String> = Vec::new();
+
+    // Keep Windows system dirs first. Some tools (e.g. Claude Code) spawn `cmd.exe` and run `where.exe`,
+    // and cmd.exe only searches PATH for external commands.
+    let system_root = std::env::var("SystemRoot")
+        .or_else(|_| std::env::var("WINDIR"))
+        .unwrap_or_else(|_| "C:\\Windows".to_string());
+
+    let win_dir = std::path::PathBuf::from(system_root);
+    let system32 = win_dir.join("System32");
+    let wbem = system32.join("Wbem");
+    let powershell = system32.join("WindowsPowerShell").join("v1.0");
+
+    for p in [&system32, &wbem, &powershell, &win_dir] {
+        if p.exists() {
+            paths_to_add.push(p.to_string_lossy().to_string());
+        }
+    }
+
+    // Mirror the discovery logic in setup_command_environment_async (best-effort).
+    if let Ok(userprofile) = std::env::var("USERPROFILE") {
+        let nvm_current = std::path::PathBuf::from(&userprofile).join(".nvm").join("current");
+        if nvm_current.exists() {
+            paths_to_add.push(nvm_current.to_string_lossy().to_string());
+        }
+
+        let npm_global = std::path::PathBuf::from(&userprofile).join(".npm-global").join("bin");
+        if npm_global.exists() {
+            paths_to_add.push(npm_global.to_string_lossy().to_string());
+        }
+
+        let volta_bin = std::path::PathBuf::from(&userprofile).join(".volta").join("bin");
+        if volta_bin.exists() {
+            paths_to_add.push(volta_bin.to_string_lossy().to_string());
+        }
+    }
+
+    if let Some(appdata) = std::env::var_os("APPDATA") {
+        let npm_path = std::path::Path::new(&appdata).join("npm");
+        if npm_path.exists() {
+            paths_to_add.push(npm_path.to_string_lossy().to_string());
+        }
+    }
+
+    if let Ok(programfiles) = std::env::var("ProgramFiles") {
+        let nodejs_path = std::path::PathBuf::from(&programfiles).join("nodejs");
+        if nodejs_path.exists() {
+            paths_to_add.push(nodejs_path.to_string_lossy().to_string());
+        }
+    }
+
+    // Build a prefix of missing paths, then append the original PATH.
+    let mut prefix = String::new();
+    for p in &paths_to_add {
+        if current_path.contains(p) {
+            continue;
+        }
+        if prefix.contains(p) {
+            continue;
+        }
+        if !prefix.is_empty() {
+            prefix.push(';');
+        }
+        prefix.push_str(p);
+    }
+
+    if prefix.is_empty() {
+        current_path.to_string()
+    } else if current_path.is_empty() {
+        prefix
+    } else {
+        format!("{};{}", prefix, current_path)
+    }
+}
+
 // 🔥 已移除 escape_prompt_for_cli 函数
 // prompt 现在通过 stdin 管道传递，不再需要命令行转义
 // 这样可以避免操作系统命令行长度限制（Windows ~8KB, Linux/macOS ~128KB-2MB）
@@ -132,32 +209,41 @@ fn create_command_with_env(program: &str) -> Command {
         tokio_cmd.arg(arg);
     }
 
-    // Copy over all environment variables
+    // Copy over selected environment variables.
+    //
+    // Windows env keys are case-insensitive; use an uppercase view to avoid missing critical
+    // vars like `Path` (vs `PATH`), which can break child-process tools (e.g. cmd -> where.exe).
     for (key, value) in std::env::vars() {
-        if key == "PATH"
-            || key == "HOME"
-            || key == "USER"
-            || key == "SHELL"
-            || key == "LANG"
-            || key == "LC_ALL"
-            || key.starts_with("LC_")
-            || key == "NODE_PATH"
-            || key == "NVM_DIR"
-            || key == "NVM_BIN"
-            || key == "HOMEBREW_PREFIX"
-            || key == "HOMEBREW_CELLAR"
+        let key_u = key.to_uppercase();
+
+        if key_u == "PATH"
+            || key_u == "HOME"
+            || key_u == "USER"
+            || key_u == "SHELL"
+            || key_u == "LANG"
+            || key_u == "LC_ALL"
+            || key_u.starts_with("LC_")
+            || key_u == "NODE_PATH"
+            || key_u == "NVM_DIR"
+            || key_u == "NVM_BIN"
+            || key_u == "HOMEBREW_PREFIX"
+            || key_u == "HOMEBREW_CELLAR"
             // Windows-specific
-            || key == "USERPROFILE"
-            || key == "USERNAME"
-            || key == "COMPUTERNAME"
-            || key == "APPDATA"
-            || key == "LOCALAPPDATA"
-            || key == "TEMP"
-            || key == "TMP"
+            || key_u == "USERPROFILE"
+            || key_u == "USERNAME"
+            || key_u == "COMPUTERNAME"
+            || key_u == "APPDATA"
+            || key_u == "LOCALAPPDATA"
+            || key_u == "TEMP"
+            || key_u == "TMP"
+            || key_u == "SYSTEMROOT"
+            || key_u == "WINDIR"
+            || key_u == "COMSPEC"
+            || key_u == "PATHEXT"
             // 🔥 修复：添加 ANTHROPIC 和 Claude Code 相关环境变量
-            || key.starts_with("ANTHROPIC_")
-            || key.starts_with("CLAUDE_CODE_")
-            || key == "API_TIMEOUT_MS"
+            || key_u.starts_with("ANTHROPIC_")
+            || key_u.starts_with("CLAUDE_CODE_")
+            || key_u == "API_TIMEOUT_MS"
         {
             log::debug!("Inheriting env var: {}={}", key, value);
             tokio_cmd.env(&key, &value);
@@ -206,20 +292,28 @@ fn create_command_with_env(program: &str) -> Command {
                                 // 🔧 FIX: 特殊处理 PATH - 智能合并而不是覆盖
                                 // 这样可以保留 setup_command_environment_async 设置的增强 PATH
                                 if key.to_uppercase() == "PATH" {
-                                    if let Ok(current_path) = std::env::var("PATH") {
-                                        // 获取当前 PATH（包含 setup_command_environment_async 设置的增强 PATH）
-                                        #[cfg(target_os = "windows")]
-                                        let separator = ";";
-                                        #[cfg(not(target_os = "windows"))]
-                                        let separator = ":";
+                                    #[cfg(target_os = "windows")]
+                                    let base_path =
+                                        build_enhanced_windows_path(&std::env::var("PATH").unwrap_or_default());
 
-                                        let enhanced_path = format!("{}{}{}", current_path, separator, value_str);
-                                        tokio_cmd.env("PATH", enhanced_path);
-                                        log::info!("🔧 Merged settings.json PATH with enhanced PATH");
+                                    #[cfg(not(target_os = "windows"))]
+                                    let base_path = std::env::var("PATH").unwrap_or_default();
+
+                                    #[cfg(target_os = "windows")]
+                                    let separator = ";";
+                                    #[cfg(not(target_os = "windows"))]
+                                    let separator = ":";
+
+                                    let enhanced_path = if base_path.is_empty() {
+                                        value_str.to_string()
+                                    } else if value_str.is_empty() {
+                                        base_path
                                     } else {
-                                        tokio_cmd.env(key, value_str);
-                                        log::info!("Setting custom env var: {}={}", key, value_str);
-                                    }
+                                        format!("{}{}{}", base_path, separator, value_str)
+                                    };
+
+                                    tokio_cmd.env("PATH", enhanced_path);
+                                    log::info!("🔧 Merged settings.json PATH with enhanced PATH");
                                 } else {
                                     log::info!("Setting custom env var: {}={}", key, value_str);
                                     tokio_cmd.env(key, value_str);

@@ -85,6 +85,51 @@ const ERROR_PATTERNS: ErrorPattern[] = [
   },
 ];
 
+function truncate(text: string, maxLen: number): string {
+  if (text.length <= maxLen) return text;
+  return `${text.slice(0, Math.max(0, maxLen - 14))} ...(truncated)`;
+}
+
+function safeJsonStringify(value: unknown, maxLen = 4000): string | undefined {
+  try {
+    const seen = new WeakSet<object>();
+    const json = JSON.stringify(value, (_key, val) => {
+      if (typeof val === "bigint") return val.toString();
+      if (val instanceof Error) {
+        return {
+          name: val.name,
+          message: val.message,
+          stack: val.stack,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          cause: (val as any).cause,
+        };
+      }
+      if (val && typeof val === "object") {
+        if (seen.has(val)) return "[Circular]";
+        seen.add(val);
+      }
+      return val;
+    });
+
+    if (typeof json !== "string") return undefined;
+    return truncate(json, maxLen);
+  } catch {
+    return undefined;
+  }
+}
+
+function formatConsoleArg(arg: unknown): string {
+  if (typeof arg === "string") return arg;
+  if (arg instanceof Error) return arg.stack || `${arg.name}: ${arg.message}`;
+  if (typeof arg === "bigint") return arg.toString();
+
+  if (arg && typeof arg === "object") {
+    return safeJsonStringify(arg, 4000) || String(arg);
+  }
+
+  return String(arg);
+}
+
 /**
  * 分析错误并提供建议
  */
@@ -159,12 +204,15 @@ export function useConsoleMonitor(
    */
   const addError = useCallback(
     (type: "error" | "warn" | "info", args: any[]) => {
-      const message = args
-        .map((arg) => (typeof arg === "string" ? arg : JSON.stringify(arg)))
-        .join(" ");
+      const message = args.map((arg) => formatConsoleArg(arg)).join(" ");
 
       // 🔧 FIX: 过滤掉 ResizeObserver 循环警告（这是浏览器的已知问题，不影响功能）
       if (message.includes("ResizeObserver loop")) {
+        return;
+      }
+
+      // 🔧 FIX: Dev 热重载时 Tauri 可能丢失回调（噪声较大，通常无实际影响）
+      if (message.includes("[TAURI] Couldn't find callback id")) {
         return;
       }
 
@@ -285,7 +333,7 @@ export function useConsoleMonitor(
     };
 
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      addError("error", [`Unhandled Promise Rejection: ${event.reason}`]);
+      addError("error", ["Unhandled Promise Rejection:", event.reason]);
     };
 
     window.addEventListener("error", handleError);
