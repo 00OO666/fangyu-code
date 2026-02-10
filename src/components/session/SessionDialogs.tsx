@@ -43,6 +43,9 @@ interface SessionDialogsProps {
   // Prompt Navigator
   showPromptNavigator: boolean;
   messages: ClaudeStreamMessage[];
+  promptItems?: any[];
+  promptsTotalCost?: number;
+  sessionTotalCost?: number;
   onClosePromptNavigator: () => void;
   onPromptNavigation: (promptIndex: number) => void;
 
@@ -90,6 +93,9 @@ export const SessionDialogs: React.FC<SessionDialogsProps> = React.memo(
     onSubmitAnswers,
     showPromptNavigator,
     messages,
+    promptItems,
+    promptsTotalCost,
+    sessionTotalCost,
     onClosePromptNavigator,
     onPromptNavigation,
     showCanvas,
@@ -143,6 +149,9 @@ export const SessionDialogs: React.FC<SessionDialogsProps> = React.memo(
         {/* Prompt Navigator */}
         <PromptNavigator
           messages={messages}
+          promptItems={promptItems}
+          promptsTotalCost={promptsTotalCost}
+          sessionTotalCost={sessionTotalCost}
           isOpen={showPromptNavigator}
           onClose={onClosePromptNavigator}
           onPromptClick={onPromptNavigation}

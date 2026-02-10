@@ -5,8 +5,6 @@ import React, {
   useRef,
   useMemo,
   useCallback,
-  lazy,
-  Suspense,
   useTransition,
 } from "react";
 import { useTranslation } from "react-i18next";
@@ -22,8 +20,7 @@ import {
   type ModelType,
 } from "./FloatingPromptInput";
 import { ErrorBoundary } from "./ErrorBoundary";
-import { RevertPromptPicker } from "./RevertPromptPicker";
-import { PromptNavigator } from "./PromptNavigator";
+import { SessionDialogs } from "./session/SessionDialogs";
 import { SplitPane } from "@/components/ui/split-pane";
 import { WebviewPreview } from "./WebviewPreview";
 import { type TranslationResult } from "@/lib/translationMiddleware";
@@ -44,35 +41,24 @@ import { useContextWindowUsage } from "@/hooks/useContextWindowUsage";
 import { MessagesProvider, useMessagesContext } from "@/contexts/MessagesContext";
 import { SessionProvider } from "@/contexts/SessionContext";
 import { PlanModeProvider, usePlanMode } from "@/contexts/PlanModeContext";
-import { PlanApprovalDialog } from "@/components/dialogs/PlanApprovalDialog";
 import { PlanModeStatusBar } from "@/components/widgets/system/PlanModeStatusBar";
 import { UserQuestionProvider, useUserQuestion } from "@/contexts/UserQuestionContext";
-import { AskUserQuestionDialog } from "@/components/dialogs/AskUserQuestionDialog";
 import { codexConverter } from "@/lib/codexConverter";
 import { convertGeminiSessionDetailToClaudeMessages } from "@/lib/geminiConverter";
 import { SessionHeader } from "./session/SessionHeader";
 import { SessionMessages, type SessionMessagesRef } from "./session/SessionMessages";
-// 🔧 FIX: 懒加载 Canvas 组件（包含 Monaco Editor ~300KB）
-const CanvasFloatingWindow = lazy(() =>
-  import("@/components/canvas/CanvasFloatingWindow").then((m) => ({
-    default: m.CanvasFloatingWindow,
-  }))
-);
 import { Toast, ToastContainer } from "@/components/ui/toast";
 import { CompactStatusIndicator } from "./CompactStatusIndicator";
 import { UsageDashboard } from "@/components/UsageDashboard";
-import { ProjectMCPQuickConfig } from "@/components/ProjectMCPQuickConfig";
 import { useCanvasExtractor } from "@/hooks/useCanvasExtractor";
 import { useAutoMCPCallTracker } from "@/hooks/useAutoMCPCallTracker";
 import { useAutoResume } from "@/hooks/useAutoResume";
 import { ChatNotification } from "@/components/notifications/ChatNotification";
-import { SmartRecommendationBar } from "./SmartRecommendationBar";
 import { useSmartRecommendation } from "@/hooks/useSmartRecommendation";
 import { useMessageDeduplication } from "@/hooks/useMessageDeduplication";
 import { useTokenOptimization } from "@/hooks/useTokenOptimization";
 import { useMessagePersistence } from "@/hooks/useMessagePersistence";
 import { useSessionThresholdMonitor } from "@/hooks/useSessionThresholdMonitor";
-import { SessionSummaryDialog } from "@/components/SessionSummaryDialog";
 import { DuplicateRateWarning } from "@/components/DuplicateRateWarning";
 import { SessionToolbar } from "@/components/SessionToolbar";
 import { createSessionWindow } from "@/lib/windowManager";
@@ -2309,113 +2295,60 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
             onResume={manualResume}
           /> */}
         </ErrorBoundary>
-
-        {/* Revert Prompt Picker - Shows when double ESC is pressed */}
-        {showRevertPicker && effectiveSession && (
-          <RevertPromptPicker
-            sessionId={effectiveSession.id}
-            projectId={effectiveSession.project_id}
-            projectPath={projectPath}
-            engine={effectiveSession.engine || executionEngineConfig.engine || "claude"}
-            onSelect={handleRevert}
-            onClose={() => setShowRevertPicker(false)}
-          />
-        )}
-
-        {/* Plan Approval Dialog - 方案 B-1: ExitPlanMode 触发审批 */}
-        <PlanApprovalDialog
-          open={showApprovalDialog}
-          plan={pendingApproval?.plan || ""}
-          onClose={closeApprovalDialog}
-          onApprove={approvePlan}
-          onReject={rejectPlan}
-        />
-
-        {/* 🆕 User Question Dialog - AskUserQuestion 自动触发 */}
-        <AskUserQuestionDialog
-          open={showQuestionDialog}
-          questions={pendingQuestion?.questions || []}
-          onClose={closeQuestionDialog}
-          onSubmit={submitAnswers}
-        />
       </div>
 
-      {/* Prompt Navigator - Quick navigation to any user prompt */}
-      {/* 🔧 REVERT: 改回使用 messages，避免 displayableMessages 导致无限渲染 */}
-      <PromptNavigator
-        messages={messages}
-        promptItems={promptCostSummary.items}
-        promptsTotalCost={promptCostSummary.promptsTotalCost}
-        sessionTotalCost={promptCostSummary.sessionTotalCost}
-        isOpen={showPromptNavigator}
-        onClose={() => setShowPromptNavigator(false)}
-        onPromptClick={handlePromptNavigation}
-      />
-
-      {/* Canvas 实时预览悬浮窗 - Gemini 风格 (懒加载) */}
-      {showCanvas && (
-        <Suspense
-          fallback={
-            <div className="fixed inset-0 bg-background/80 flex items-center justify-center z-50">
-              <Loader2 className="h-8 w-8 animate-spin" />
-            </div>
-          }
-        >
-          <CanvasFloatingWindow
-            isOpen={showCanvas}
-            onClose={() => setShowCanvas(false)}
-            extractedCode={extractedCode?.code || ""}
-            language={extractedCode?.language || "tsx"}
-          />
-        </Suspense>
-      )}
-
-      {/* 🆕 智能推荐条 v2 - 更简洁的 UI */}
-      {recommendations.length > 0 && (
-        <div className="fixed bottom-20 right-4 z-50 max-w-md">
-          <SmartRecommendationBar
-            recommendations={recommendations}
-            onDismiss={dismissRecommendation}
-            onSnooze={snoozeRecommendation}
-            onClearAll={clearRecommendations}
-            onRefresh={refreshMCPStatus}
-          />
-        </div>
-      )}
-
-      {/* 🆕 项目级 MCP 快捷配置对话框 */}
-      {projectPath && (
-        <ProjectMCPQuickConfig
-          open={showMCPConfig}
-          onClose={() => setShowMCPConfig(false)}
+      {/* 🆕 所有对话框和悬浮窗组件 - 已提取到 SessionDialogs */}
+      <SessionDialogs
+          showRevertPicker={showRevertPicker}
+          effectiveSession={effectiveSession}
           projectPath={projectPath}
-          engine={executionEngineConfig.engine}
+          executionEngineConfig={executionEngineConfig}
+          onRevert={handleRevert}
+          onCloseRevertPicker={() => setShowRevertPicker(false)}
+          showApprovalDialog={showApprovalDialog}
+          pendingApproval={pendingApproval}
+          onCloseApprovalDialog={closeApprovalDialog}
+          onApprovePlan={approvePlan}
+          onRejectPlan={rejectPlan}
+          showQuestionDialog={showQuestionDialog}
+          pendingQuestion={pendingQuestion}
+          onCloseQuestionDialog={closeQuestionDialog}
+          onSubmitAnswers={submitAnswers}
+          showPromptNavigator={showPromptNavigator}
+          messages={messages}
+          promptItems={promptCostSummary.items}
+          promptsTotalCost={promptCostSummary.promptsTotalCost}
+          sessionTotalCost={promptCostSummary.sessionTotalCost}
+          onClosePromptNavigator={() => setShowPromptNavigator(false)}
+          onPromptNavigation={handlePromptNavigation}
+          showCanvas={showCanvas}
+          extractedCode={extractedCode}
+          onCloseCanvas={() => setShowCanvas(false)}
+          recommendations={recommendations}
+          onDismissRecommendation={dismissRecommendation}
+          onSnoozeRecommendation={snoozeRecommendation}
+          onClearRecommendations={clearRecommendations}
+          onRefreshMCPStatus={refreshMCPStatus}
+          showMCPConfig={showMCPConfig}
+          onCloseMCPConfig={() => setShowMCPConfig(false)}
+          showSummaryDialog={showSummaryDialog}
+          sessionSummary={sessionSummary}
+          thresholdPercentage={thresholdStatus.percentage}
+          onCloseSummaryDialog={() => {
+            setShowSummaryDialog(false);
+            logger.debug("ClaudeCodeSession", "[ClaudeCodeSession] Summary dialog closed");
+          }}
+          onStartNewSession={() => {
+            logger.debug("ClaudeCodeSession", "[ClaudeCodeSession] Start new session");
+            setShowSummaryDialog(false);
+          }}
+          onContinueAnyway={() => {
+            logger.debug("ClaudeCodeSession", "[ClaudeCodeSession] Continue anyway");
+            setShowSummaryDialog(false);
+          }}
         />
-      )}
 
-      {/* 🆕 会话阈值摘要对话框 - 80%/90% 警告 + 一键复制 */}
-      <SessionSummaryDialog
-        isOpen={showSummaryDialog}
-        summary={sessionSummary}
-        tokenPercentage={thresholdStatus.percentage}
-        onClose={() => {
-          // 🔧 FIX: 关闭对话框并重置状态
-          setShowSummaryDialog(false);
-          logger.debug("ClaudeCodeSession", "[ClaudeCodeSession] Summary dialog closed");
-        }}
-        onStartNewSession={() => {
-          // TODO: 创建新会话
-          logger.debug("ClaudeCodeSession", "[ClaudeCodeSession] Start new session");
-          setShowSummaryDialog(false);
-        }}
-        onContinueAnyway={() => {
-          // 继续当前会话
-          logger.debug("ClaudeCodeSession", "[ClaudeCodeSession] Continue anyway");
-          setShowSummaryDialog(false);
-        }}
-      />
-
-      {/* 🆕 Toast 通知 - 用于会话续接等操作反馈 */}
+        {/* 🆕 Toast 通知 - 用于会话续接等操作反馈 */}
       <ToastContainer>
         {toast && (
           <Toast
