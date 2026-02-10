@@ -64,6 +64,8 @@ import { useSessionThresholdMonitor } from "@/hooks/useSessionThresholdMonitor";
 import { DuplicateRateWarning } from "@/components/DuplicateRateWarning";
 import { SessionToolbar } from "@/components/SessionToolbar";
 import { createSessionWindow } from "@/lib/windowManager";
+import { useSessionDialogs } from "@/hooks/useSessionDialogs";
+import { useSessionManagement } from "@/hooks/useSessionManagement";
 
 import * as SessionHelpers from "@/lib/sessionHelpers";
 
@@ -142,8 +144,95 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   isActive = true, // 默认为活跃状态，保持向后兼容
 }) => {
   const { t } = useTranslation();
-  const [projectPath, setProjectPath] = useState(initialProjectPath || session?.project_path || "");
-  const [recentProjects, setRecentProjects] = useState<Project[]>([]);
+
+  // 🔥 使用 useSessionManagement Hook 管理会话状态
+  const sessionManagement = useSessionManagement({
+    initialProjectPath,
+    sessionProjectPath: session?.project_path,
+  });
+
+  // 🔥 使用 useSessionDialogs Hook 管理对话框状态
+  const sessionDialogs = useSessionDialogs();
+
+  // 解构常用的状态和方法
+  const {
+    projectPath,
+    setProjectPath,
+    recentProjects,
+    setRecentProjects,
+    error,
+    setError,
+    isFirstPrompt,
+    setIsFirstPrompt,
+    extractedSessionInfo,
+    setExtractedSessionInfo,
+    sessionNotFound,
+    setSessionNotFound,
+    claudeSessionId,
+    setClaudeSessionId,
+    codexRateLimits,
+    setCodexRateLimits,
+    lastKnownProjectIdRef,
+    executionEngineConfig,
+    setExecutionEngineConfig,
+    queuedPrompts,
+    setQueuedPrompts,
+    handleAddQueuedPrompt,
+    handleRemoveQueuedPrompt,
+    handleClearQueuedPrompts,
+    queuedPromptsCollapsed,
+    setQueuedPromptsCollapsed,
+    handleToggleQueuedPromptsCollapsed,
+    currentPromptIndex,
+    setCurrentPromptIndex,
+    splitPosition,
+    setSplitPosition,
+    isPreviewMaximized,
+    setIsPreviewMaximized,
+    pendingFirstMessageRef,
+  } = sessionManagement;
+
+  const {
+    showCanvas,
+    setShowCanvas,
+    handleOpenCanvas,
+    handleCloseCanvas,
+    showUsageDashboard,
+    setShowUsageDashboard,
+    handleToggleUsageDashboard,
+    showMCPConfig,
+    setShowMCPConfig,
+    handleToggleMCPConfig,
+    handleCloseMCPConfig,
+    showRevertPicker,
+    setShowRevertPicker,
+    handleShowRevertPicker,
+    handleCloseRevertPicker,
+    showPromptNavigator,
+    setShowPromptNavigator,
+    handleShowPromptNavigator,
+    handleClosePromptNavigator,
+    showSummaryDialog,
+    setShowSummaryDialog,
+    sessionSummary,
+    setSessionSummary,
+    showSummaryHint,
+    setShowSummaryHint,
+    isGeneratingSummaryManual,
+    setIsGeneratingSummaryManual,
+    handleCloseSummaryDialog,
+    showPreview,
+    setShowPreview,
+    previewUrl,
+    setPreviewUrl,
+    showPreviewPrompt,
+    setShowPreviewPrompt,
+    handleClosePreview,
+    toast,
+    setToast,
+    handleShowToast,
+    handleCloseToast,
+  } = sessionDialogs;
   const {
     messages: rawMessages = [],
     setMessages,
@@ -178,7 +267,6 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
 
   const isLoading = isStreaming;
   const setIsLoading = setIsStreaming;
-  const [error, setError] = useState<string | null>(null);
 
   // 🔥 Token Optimization: Log deduplication stats
   useEffect(() => {
@@ -191,18 +279,6 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   }, [rawMessages?.length, deduplicatedMessages?.length, duplicateCount, duplicateRate]);
 
   const [_rawJsonlOutput, setRawJsonlOutput] = useState<string[]>([]); // Kept for hooks, not directly used
-  const [isFirstPrompt, setIsFirstPrompt] = useState(!session); // Key state for session continuation
-  const [extractedSessionInfo, setExtractedSessionInfo] = useState<{
-    sessionId: string;
-    projectId: string;
-    engine?: "claude" | "codex" | "gemini";
-  } | null>(null);
-  // 🔧 FIX: 标记会话是否不存在（历史记录文件未找到）
-  // 当为 true 时，effectiveSession 应返回 null，显示路径选择界面
-  const [sessionNotFound, setSessionNotFound] = useState(false);
-  const [claudeSessionId, setClaudeSessionId] = useState<string | null>(null);
-  const [codexRateLimits, setCodexRateLimits] = useState<CodexRateLimits | null>(null);
-  const lastKnownProjectIdRef = useRef<string | null>(null);
 
   // 🔧 v2.3.1: 消息持久化 - 解决消息丢失问题
   // 🔧 v2.8.1: 减少防抖延迟到 300ms，提高保存及时性
@@ -214,22 +290,7 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
     });
 
   // Canvas 实时预览状态
-  const [showCanvas, setShowCanvas] = useState(false);
   const extractedCode = useCanvasExtractor(messages);
-
-  // 🆕 Usage Dashboard 状态
-  const [showUsageDashboard, setShowUsageDashboard] = useState(false);
-
-  // 🆕 项目级 MCP 配置对话框状态
-  const [showMCPConfig, setShowMCPConfig] = useState(false);
-
-  // 🆕 Toast 通知状态（用于会话续接等操作反馈）
-  const [toast, setToast] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null);
-
-  // 🔧 FIX: 稳定的回调函数，避免每次渲染都创建新函数导致子组件重复渲染
-  const handleOpenCanvas = useCallback(() => setShowCanvas(true), []);
-  const handleToggleUsageDashboard = useCallback(() => setShowUsageDashboard((prev) => !prev), []);
-  const handleToggleMCPConfig = useCallback(() => setShowMCPConfig((prev) => !prev), []);
 
   // Plan Mode state - 使用 Context（方案 B-1）
   const {
@@ -281,22 +342,6 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
   // 自动追踪 MCP 调用时间
   useAutoMCPCallTracker(messages, executionEngineConfig.engine);
 
-  // Queued prompts state
-  const [queuedPrompts, setQueuedPrompts] = useState<
-    Array<{ id: string; prompt: string; model: ModelType }>
-  >([]);
-
-  // State for revert prompt picker (defined early for useKeyboardShortcuts)
-  const [showRevertPicker, setShowRevertPicker] = useState(false);
-
-  // 🔧 FIX: 用于存储智能会话升级后待发送的首条消息
-  // 解决问题：setProjectPath 是异步的，首条消息会在 projectPath 更新前被检查并拒绝
-  const pendingFirstMessageRef = useRef<{
-    prompt: string;
-    model: ModelType;
-    maxThinkingTokens?: number;
-  } | null>(null);
-
   // 🔧 FIX v2: 使用 useRef 存储 onTitleUpdate 回调，避免 useSmartTabTitle 重新执行
   const onTitleUpdateRef = useRef(onTitleUpdate);
   const isActiveRef = useRef(isActive);
@@ -319,9 +364,6 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
     }, []), // 🔧 FIX: 移除依赖，使用 ref 获取最新值
     enabled: isActive && messages.length > 0, // 只在活跃且有消息时启用
   });
-
-  // State for prompt navigator
-  const [showPromptNavigator, setShowPromptNavigator] = useState(false);
 
   // Settings state to avoid repeated loading in StreamMessage components
   // 🔧 FIX: 初始化默认值，避免异步加载导致 filterConfig 闪烁

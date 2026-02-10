@@ -701,19 +701,117 @@ export class SandboxManager extends BrowserEventEmitter {
       return null;
     }
 
-    // TODO: 实际截图实现
-    const fakeScreenshot =
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+    sandbox.lastActiveAt = Date.now();
 
-    sandbox.browser.screenshots.push(fakeScreenshot);
+    let screenshot: string;
+
+    if (this.isDockerAvailable && sandbox.containerId) {
+      // 在 Docker 容器中使用 Playwright 截图
+      screenshot = await this.captureScreenshotInContainer(sandbox);
+    } else {
+      // 模拟截图（Docker 不可用时）
+      screenshot = await this.simulateScreenshot();
+    }
+
+    sandbox.browser.screenshots.push(screenshot);
 
     // 限制截图数量
     if (sandbox.browser.screenshots.length > 10) {
       sandbox.browser.screenshots = sandbox.browser.screenshots.slice(-10);
     }
 
-    this.emit("browser:screenshot", { sandboxId, screenshot: fakeScreenshot });
-    return fakeScreenshot;
+    this.emit("browser:screenshot", { sandboxId, screenshot });
+    return screenshot;
+  }
+
+  /**
+   * 在 Docker 容器中使用 Playwright 截图
+   */
+  private async captureScreenshotInContainer(sandbox: Sandbox): Promise<string> {
+    const screenshotPath = `/tmp/screenshot-${Date.now()}.png`;
+    const url = sandbox.browser?.currentUrl || "about:blank";
+
+    // 创建 Playwright 截图脚本
+    const script = `
+const { chromium } = require('playwright');
+
+(async () => {
+  const browser = await chromium.launch({ headless: true });
+  const page = await browser.newPage();
+  await page.setViewportSize({
+    width: ${sandbox.browser?.viewport.width || 1280},
+    height: ${sandbox.browser?.viewport.height || 720}
+  });
+  await page.goto('${url}', { waitUntil: 'networkidle', timeout: 30000 });
+  await page.screenshot({ path: '${screenshotPath}', fullPage: false });
+  await browser.close();
+})();
+`;
+
+    try {
+      // 写入脚本文件
+      const scriptPath = `/tmp/screenshot-script-${Date.now()}.js`;
+      await this.executeInContainer(
+        sandbox.containerId!,
+        `cat > "${scriptPath}" << 'SCRIPTEOF'\n${script}\nSCRIPTEOF`,
+        sandbox.spec.workspaceDir
+      );
+
+      // 执行脚本
+      const execResult = await this.executeInContainer(
+        sandbox.containerId!,
+        `node "${scriptPath}"`,
+        sandbox.spec.workspaceDir,
+        60000 // 60秒超时
+      );
+
+      if (execResult.exitCode !== 0) {
+        logger.warn(
+          "SandboxManager",
+          `[SandboxManager] Screenshot script failed: ${execResult.stderr}`
+        );
+        return this.simulateScreenshot();
+      }
+
+      // 读取截图文件并转换为 base64
+      const readResult = await this.executeInContainer(
+        sandbox.containerId!,
+        `base64 "${screenshotPath}"`,
+        sandbox.spec.workspaceDir
+      );
+
+      if (readResult.exitCode === 0 && readResult.stdout.trim()) {
+        // 清理临时文件
+        await this.executeInContainer(
+          sandbox.containerId!,
+          `rm -f "${scriptPath}" "${screenshotPath}"`,
+          sandbox.spec.workspaceDir
+        );
+
+        return `data:image/png;base64,${readResult.stdout.trim()}`;
+      }
+
+      logger.warn(
+        "SandboxManager",
+        "[SandboxManager] Failed to read screenshot file"
+      );
+      return this.simulateScreenshot();
+    } catch (error) {
+      logger.warn(
+        "SandboxManager",
+        "[SandboxManager] Screenshot capture failed:",
+        error
+      );
+      return this.simulateScreenshot();
+    }
+  }
+
+  /**
+   * 模拟截图（Docker 不可用时）
+   */
+  private async simulateScreenshot(): Promise<string> {
+    // 返回一个 1x1 像素的透明 PNG
+    return "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
   }
 
   /**

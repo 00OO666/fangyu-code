@@ -74,12 +74,21 @@ const WebviewPreviewComponent: React.FC<WebviewPreviewProps> = ({
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
+  // Navigation history management
+  const [history, setHistory] = useState<string[]>([initialUrl]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [canGoBack, setCanGoBack] = useState(false);
+  const [canGoForward, setCanGoForward] = useState(false);
+
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  // TODO: Future enhancement - implement with actual Tauri webview
-  // Will need: webviewRef, canGoBack, canGoForward states for native navigation
+  // Update navigation state based on history
+  useEffect(() => {
+    setCanGoBack(currentIndex > 0);
+    setCanGoForward(currentIndex < history.length - 1);
+  }, [currentIndex, history]);
 
   // Handle ESC key to exit full screen
   useEffect(() => {
@@ -123,7 +132,7 @@ const WebviewPreviewComponent: React.FC<WebviewPreviewProps> = ({
     }
   }, [currentUrl]);
 
-  const navigate = (url: string) => {
+  const navigate = (url: string, addToHistory: boolean = true) => {
     try {
       // Validate URL
       const urlObj = new URL(url.startsWith("http") ? url : `https://${url}`);
@@ -133,9 +142,21 @@ const WebviewPreviewComponent: React.FC<WebviewPreviewProps> = ({
       setInputUrl(finalUrl);
       setHasError(false);
       onUrlChange?.(finalUrl);
+
+      // Update history if this is a new navigation (not back/forward)
+      if (addToHistory) {
+        // Remove any forward history if we're navigating from the middle
+        const newHistory = history.slice(0, currentIndex + 1);
+        newHistory.push(finalUrl);
+        setHistory(newHistory);
+        setCurrentIndex(newHistory.length - 1);
+
+        logger.info("WebviewPreview", `[WebviewPreview] Navigated to: ${finalUrl}, history length: ${newHistory.length}`);
+      }
     } catch (err) {
       setHasError(true);
       setErrorMessage(t("common.invalidUrl"));
+      logger.error("WebviewPreview", "[WebviewPreview] Invalid URL:", err);
     }
   };
 
@@ -152,21 +173,53 @@ const WebviewPreviewComponent: React.FC<WebviewPreviewProps> = ({
   };
 
   const handleGoBack = () => {
-    // In real implementation, this would call webview.goBack()
+    if (canGoBack && currentIndex > 0) {
+      const newIndex = currentIndex - 1;
+      const url = history[newIndex];
+      setCurrentIndex(newIndex);
+      setCurrentUrl(url);
+      setInputUrl(url);
+      setHasError(false);
+      onUrlChange?.(url);
+      logger.info("WebviewPreview", `[WebviewPreview] Go back to: ${url}, index: ${newIndex}`);
+    }
   };
 
   const handleGoForward = () => {
-    // In real implementation, this would call webview.goForward()
+    if (canGoForward && currentIndex < history.length - 1) {
+      const newIndex = currentIndex + 1;
+      const url = history[newIndex];
+      setCurrentIndex(newIndex);
+      setCurrentUrl(url);
+      setInputUrl(url);
+      setHasError(false);
+      onUrlChange?.(url);
+      logger.info("WebviewPreview", `[WebviewPreview] Go forward to: ${url}, index: ${newIndex}`);
+    }
   };
 
   const handleRefresh = () => {
     setIsLoading(true);
-    // In real implementation, this would call webview.reload()
+    setHasError(false);
+
+    // Force iframe reload by updating the src
+    if (iframeRef.current) {
+      const currentSrc = iframeRef.current.src;
+      iframeRef.current.src = "";
+      setTimeout(() => {
+        if (iframeRef.current) {
+          iframeRef.current.src = currentSrc;
+        }
+      }, 10);
+    }
+
+    logger.info("WebviewPreview", `[WebviewPreview] Refreshing: ${currentUrl}`);
     setTimeout(() => setIsLoading(false), 1000);
   };
 
   const handleGoHome = () => {
     navigate(initialUrl);
+    logger.info("WebviewPreview", `[WebviewPreview] Go home to: ${initialUrl}`);
   };
 
   /**
@@ -281,7 +334,7 @@ const WebviewPreviewComponent: React.FC<WebviewPreviewProps> = ({
               variant="ghost"
               size="icon"
               onClick={handleGoBack}
-              disabled={true} // TODO: Enable when implementing actual navigation
+              disabled={!canGoBack}
               className="h-8 w-8"
             >
               <ArrowLeft className="h-4 w-4" />
@@ -290,7 +343,7 @@ const WebviewPreviewComponent: React.FC<WebviewPreviewProps> = ({
               variant="ghost"
               size="icon"
               onClick={handleGoForward}
-              disabled={true} // TODO: Enable when implementing actual navigation
+              disabled={!canGoForward}
               className="h-8 w-8"
             >
               <ArrowRight className="h-4 w-4" />
