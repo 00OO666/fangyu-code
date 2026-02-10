@@ -21,6 +21,8 @@ import {
 } from "./FloatingPromptInput";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { SessionDialogs } from "./session/SessionDialogs";
+import { SessionNavigation } from "./session/SessionNavigation";
+import { SessionFloatingWindows } from "./session/SessionFloatingWindows";
 import { SplitPane } from "@/components/ui/split-pane";
 import { WebviewPreview } from "./WebviewPreview";
 import { type TranslationResult } from "@/lib/translationMiddleware";
@@ -2297,14 +2299,10 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
         </ErrorBoundary>
       </div>
 
-      {/* 🆕 所有对话框和悬浮窗组件 - 已提取到 SessionDialogs */}
+      {/* 🆕 所有对话框和悬浮窗组件 - 已拆分为 3 个独立组件 */}
+
+      {/* 对话框组件 */}
       <SessionDialogs
-          showRevertPicker={showRevertPicker}
-          effectiveSession={effectiveSession}
-          projectPath={projectPath}
-          executionEngineConfig={executionEngineConfig}
-          onRevert={handleRevert}
-          onCloseRevertPicker={() => setShowRevertPicker(false)}
           showApprovalDialog={showApprovalDialog}
           pendingApproval={pendingApproval}
           onCloseApprovalDialog={closeApprovalDialog}
@@ -2314,23 +2312,6 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
           pendingQuestion={pendingQuestion}
           onCloseQuestionDialog={closeQuestionDialog}
           onSubmitAnswers={submitAnswers}
-          showPromptNavigator={showPromptNavigator}
-          messages={messages}
-          promptItems={promptCostSummary.items}
-          promptsTotalCost={promptCostSummary.promptsTotalCost}
-          sessionTotalCost={promptCostSummary.sessionTotalCost}
-          onClosePromptNavigator={() => setShowPromptNavigator(false)}
-          onPromptNavigation={handlePromptNavigation}
-          showCanvas={showCanvas}
-          extractedCode={extractedCode}
-          onCloseCanvas={() => setShowCanvas(false)}
-          recommendations={recommendations}
-          onDismissRecommendation={dismissRecommendation}
-          onSnoozeRecommendation={snoozeRecommendation}
-          onClearRecommendations={clearRecommendations}
-          onRefreshMCPStatus={refreshMCPStatus}
-          showMCPConfig={showMCPConfig}
-          onCloseMCPConfig={() => setShowMCPConfig(false)}
           showSummaryDialog={showSummaryDialog}
           sessionSummary={sessionSummary}
           thresholdPercentage={thresholdStatus.percentage}
@@ -2346,6 +2327,39 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
             logger.debug("ClaudeCodeSession", "[ClaudeCodeSession] Continue anyway");
             setShowSummaryDialog(false);
           }}
+        />
+
+      {/* 导航组件 */}
+      <SessionNavigation
+          showRevertPicker={showRevertPicker}
+          effectiveSession={effectiveSession}
+          projectPath={projectPath}
+          executionEngineConfig={executionEngineConfig}
+          onRevert={handleRevert}
+          onCloseRevertPicker={() => setShowRevertPicker(false)}
+          showPromptNavigator={showPromptNavigator}
+          messages={messages}
+          promptItems={promptCostSummary.items}
+          promptsTotalCost={promptCostSummary.promptsTotalCost}
+          sessionTotalCost={promptCostSummary.sessionTotalCost}
+          onClosePromptNavigator={() => setShowPromptNavigator(false)}
+          onPromptNavigation={handlePromptNavigation}
+        />
+
+      {/* 悬浮窗组件 */}
+      <SessionFloatingWindows
+          showCanvas={showCanvas}
+          extractedCode={extractedCode}
+          onCloseCanvas={() => setShowCanvas(false)}
+          recommendations={recommendations}
+          onDismissRecommendation={dismissRecommendation}
+          onSnoozeRecommendation={snoozeRecommendation}
+          onClearRecommendations={clearRecommendations}
+          onRefreshMCPStatus={refreshMCPStatus}
+          showMCPConfig={showMCPConfig}
+          projectPath={projectPath}
+          executionEngineConfig={executionEngineConfig}
+          onCloseMCPConfig={() => setShowMCPConfig(false)}
         />
 
         {/* 🆕 Toast 通知 - 用于会话续接等操作反馈 */}
