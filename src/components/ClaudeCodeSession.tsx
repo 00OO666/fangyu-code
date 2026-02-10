@@ -58,6 +58,7 @@ const CanvasFloatingWindow = lazy(() =>
     default: m.CanvasFloatingWindow,
   }))
 );
+import { Toast, ToastContainer } from "@/components/ui/toast";
 import { CompactStatusIndicator } from "./CompactStatusIndicator";
 import { UsageDashboard } from "@/components/UsageDashboard";
 import { ProjectMCPQuickConfig } from "@/components/ProjectMCPQuickConfig";
@@ -74,6 +75,7 @@ import { useSessionThresholdMonitor } from "@/hooks/useSessionThresholdMonitor";
 import { SessionSummaryDialog } from "@/components/SessionSummaryDialog";
 import { DuplicateRateWarning } from "@/components/DuplicateRateWarning";
 import { SessionToolbar } from "@/components/SessionToolbar";
+import { createSessionWindow } from "@/lib/windowManager";
 
 import * as SessionHelpers from "@/lib/sessionHelpers";
 
@@ -232,6 +234,9 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
 
   // 🆕 项目级 MCP 配置对话框状态
   const [showMCPConfig, setShowMCPConfig] = useState(false);
+
+  // 🆕 Toast 通知状态（用于会话续接等操作反馈）
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null);
 
   // 🔧 FIX: 稳定的回调函数，避免每次渲染都创建新函数导致子组件重复渲染
   const handleOpenCanvas = useCallback(() => setShowCanvas(true), []);
@@ -842,12 +847,14 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
     inactiveTimeout: 60 * 60 * 1000, // 1 小时超时
   });
 
-  // 🆕 智能会话续接：当达到阈值时，自动创建新会话并切换
+  // 🆕 智能会话续接：当达到阈值时，自动创建新会话并打开新窗口
   useEffect(() => {
-    if (shouldContinue && continuedSessionId) {
+    const handleSessionContinue = async () => {
+      if (!shouldContinue || !continuedSessionId) return;
+
       logger.debug(
         "ClaudeCodeSession",
-        "[ClaudeCodeSession] 🎉 Smart session continue - switching to:",
+        "[ClaudeCodeSession] 🎉 Smart session continue - creating new window for:",
         continuedSessionId
       );
       logger.debug(
@@ -856,21 +863,77 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
         continueSummary?.summaryText.slice(0, 200) + "..."
       );
 
-      // TODO: 打开新窗口并加载新会话
-      // 目前先更新当前会话ID
-      setClaudeSessionId(continuedSessionId);
-      loadSessionHistory();
+      try {
+        // 🔧 FIX: 打开新窗口并加载新会话
+        // 生成唯一的 tab ID
+        const newTabId = `session-continue-${Date.now()}`;
 
-      // 通知父组件会话已切换
-      if (onSessionInfoChange && projectPath) {
-        onSessionInfoChange({
+        // 构建窗口标题
+        const title = projectPath
+          ? `${projectPath.split(/[/\\]/).pop()} - 续接会话`
+          : `续接会话 - ${new Date().toLocaleTimeString()}`;
+
+        logger.info(
+          "ClaudeCodeSession",
+          "[ClaudeCodeSession] 🪟 Creating new session window:",
+          { tabId: newTabId, sessionId: continuedSessionId, projectPath, title }
+        );
+
+        // 调用窗口管理器创建新窗口
+        await createSessionWindow({
+          tabId: newTabId,
           sessionId: continuedSessionId,
-          projectId: effectiveSession?.project_id || "",
-          projectPath,
+          projectPath: projectPath || undefined,
+          title: `${title} - Fangyu Code`,
           engine: executionEngineConfig.engine as "claude" | "codex" | "gemini",
         });
+
+        // 显示成功提示
+        setToast({
+          message: "会话已续接，新窗口已打开",
+          type: "success",
+        });
+
+        logger.info(
+          "ClaudeCodeSession",
+          "[ClaudeCodeSession] ✅ New session window created successfully"
+        );
+
+        // 5秒后自动关闭提示
+        setTimeout(() => setToast(null), 5000);
+      } catch (error) {
+        logger.error(
+          "ClaudeCodeSession",
+          "[ClaudeCodeSession] ❌ Failed to create new session window:",
+          error
+        );
+
+        // 显示错误提示
+        setToast({
+          message: "创建新窗口失败，将在当前窗口切换会话",
+          type: "error",
+        });
+
+        // 降级方案：在当前窗口切换会话
+        setClaudeSessionId(continuedSessionId);
+        loadSessionHistory();
+
+        // 通知父组件会话已切换
+        if (onSessionInfoChange && projectPath) {
+          onSessionInfoChange({
+            sessionId: continuedSessionId,
+            projectId: effectiveSession?.project_id || "",
+            projectPath,
+            engine: executionEngineConfig.engine as "claude" | "codex" | "gemini",
+          });
+        }
+
+        // 5秒后自动关闭提示
+        setTimeout(() => setToast(null), 5000);
       }
-    }
+    };
+
+    handleSessionContinue();
   }, [
     shouldContinue,
     continuedSessionId,
@@ -2351,6 +2414,18 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
           setShowSummaryDialog(false);
         }}
       />
+
+      {/* 🆕 Toast 通知 - 用于会话续接等操作反馈 */}
+      <ToastContainer>
+        {toast && (
+          <Toast
+            message={toast.message}
+            type={toast.type}
+            duration={5000}
+            onDismiss={() => setToast(null)}
+          />
+        )}
+      </ToastContainer>
     </div>
   );
 };

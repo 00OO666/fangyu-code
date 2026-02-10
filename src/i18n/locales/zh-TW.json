@@ -503,6 +503,7 @@
     "maxUserLengthLimit": "5,000 字元",
     "includeResults": "包含執行結果",
     "includeResultsDesc": "是否在上下文中包含命令執行結果",
+    "smartExtractionDesc": "開啟後 AI 會智慧篩選相關歷史訊息；關閉則使用系統原本的上下文邏輯（不做 AI 篩選）",
     "maxResultLength": "執行結果最大長度",
     "maxResultLengthDesc": "單條執行結果的最大字元數，超過會被截斷",
     "minResultLength": "100 字元",
