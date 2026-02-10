@@ -36,18 +36,18 @@ pub struct CurrentConfig {
     pub claude_code_use_bedrock: Option<String>,
 }
 
-// 获取Claude设置文件路径
+// 获取Fangyu Code独立配置文件路径
 fn get_settings_path() -> Result<PathBuf, String> {
     let home_dir = dirs::home_dir().ok_or_else(|| "无法获取用户主目录".to_string())?;
 
-    let config_dir = home_dir.join(".claude");
+    let config_dir = home_dir.join(".fangyu-code");
 
     // 确保配置目录存在
     if !config_dir.exists() {
         fs::create_dir_all(&config_dir).map_err(|e| format!("无法创建配置目录: {}", e))?;
     }
 
-    Ok(config_dir.join("settings.json"))
+    Ok(config_dir.join("config.json"))
 }
 
 // 获取遗留的providers.json路径（用于迁移）
@@ -401,35 +401,10 @@ pub async fn switch_provider_config(
     // 保存设置
     save_settings(&settings)?;
 
-    // 🆕 同步更新进程环境变量（确保 Claude CLI 立即生效）
-    std::env::set_var("ANTHROPIC_BASE_URL", &normalized_base);
-    log::info!("✅ 已设置进程环境变量: ANTHROPIC_BASE_URL={}", normalized_base);
-
-    if let Some(api_key) = &config.api_key {
-        if !api_key.is_empty() {
-            std::env::set_var("ANTHROPIC_API_KEY", api_key);
-            log::info!("✅ 已设置进程环境变量: ANTHROPIC_API_KEY=[MASKED]");
-        }
-    }
-
-    if let Some(auth_token) = &config.auth_token {
-        if !auth_token.is_empty() {
-            std::env::set_var("ANTHROPIC_AUTH_TOKEN", auth_token);
-            log::info!("✅ 已设置进程环境变量: ANTHROPIC_AUTH_TOKEN=[MASKED]");
-        }
-    }
-
-    if let Some(model) = &config.model {
-        if !model.is_empty() {
-            std::env::set_var("ANTHROPIC_MODEL", model);
-            log::info!("✅ 已设置进程环境变量: ANTHROPIC_MODEL={}", model);
-        }
-    }
-
     log::info!("代理商配置切换完成: {}", config.name);
 
     Ok(format!(
-        "✅ 已成功切换到 {} ({})\n\n配置已写入 ~/.claude/settings.json 并同步到环境变量，即时生效！",
+        "✅ 已成功切换到 {} ({})\n\n配置已写入 ~/.fangyu-code/config.json，Fangyu Code 将使用独立配置！",
         config.name, config.description
     ))
 }
@@ -497,19 +472,9 @@ pub async fn clear_provider_config(_app: AppHandle) -> Result<String, String> {
     // 保存设置
     save_settings(&settings)?;
 
-    // 🆕 同步移除进程环境变量（确保 Claude CLI 立即生效）
-    std::env::remove_var("ANTHROPIC_BASE_URL");
-    std::env::remove_var("ANTHROPIC_API_KEY");
-    std::env::remove_var("ANTHROPIC_AUTH_TOKEN");
-    std::env::remove_var("ANTHROPIC_MODEL");
-    std::env::remove_var("ANTHROPIC_SMALL_FAST_MODEL");
-    std::env::remove_var("API_TIMEOUT_MS");
-    std::env::remove_var("CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC");
-    log::info!("✅ 已移除所有ANTHROPIC进程环境变量");
-
     log::info!("代理商配置清理完成");
 
-    Ok("✅ 已清理所有ANTHROPIC环境变量和apiKeyHelper配置\n\n配置已从 ~/.claude/settings.json 中移除，环境变量已同步清理！".to_string())
+    Ok("✅ 已清理所有ANTHROPIC环境变量和apiKeyHelper配置\n\n配置已从 ~/.fangyu-code/config.json 中移除！".to_string())
 }
 
 // 测试代理商连接

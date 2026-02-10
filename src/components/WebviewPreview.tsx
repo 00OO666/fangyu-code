@@ -11,16 +11,17 @@ import {
   AlertCircle,
   Globe,
   Home,
+  ExternalLink,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/hooks/useTranslation";
+import { logger } from "@/lib/logger";
 
-// TODO: These imports will be used when implementing actual Tauri webview
-// import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
-// import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
+// Tauri webview imports
+import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 
 interface WebviewPreviewProps {
   /**
@@ -168,6 +169,39 @@ const WebviewPreviewComponent: React.FC<WebviewPreviewProps> = ({
     navigate(initialUrl);
   };
 
+  /**
+   * 在新的 Tauri 窗口中打开 URL
+   */
+  const handleOpenInNewWindow = async () => {
+    try {
+      const windowLabel = `webview-${Date.now()}`;
+      const webview = new WebviewWindow(windowLabel, {
+        url: currentUrl,
+        title: `预览 - ${currentUrl}`,
+        width: 1200,
+        height: 800,
+      });
+
+      logger.info("WebviewPreview", `[WebviewPreview] Opening URL in new window: ${currentUrl}`);
+
+      // 等待窗口创建完成
+      await webview.once("tauri://created", () => {
+        logger.info("WebviewPreview", "[WebviewPreview] ✅ Webview window created successfully");
+      });
+
+      // 监听窗口错误
+      await webview.once("tauri://error", (e) => {
+        logger.error("WebviewPreview", "[WebviewPreview] ❌ Failed to create webview window:", e);
+        setHasError(true);
+        setErrorMessage("无法创建新窗口");
+      });
+    } catch (error) {
+      logger.error("WebviewPreview", "[WebviewPreview] ❌ Error opening new window:", error);
+      setHasError(true);
+      setErrorMessage("打开新窗口失败");
+    }
+  };
+
   return (
     <div
       ref={containerRef}
@@ -187,6 +221,24 @@ const WebviewPreviewComponent: React.FC<WebviewPreviewProps> = ({
           </div>
 
           <div className="flex items-center gap-1">
+            {/* 在新窗口中打开 */}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleOpenInNewWindow}
+                    className="h-7 w-7"
+                    disabled={!currentUrl}
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>在新窗口中打开</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
             {onToggleMaximize && (
               <TooltipProvider>
                 <Tooltip>

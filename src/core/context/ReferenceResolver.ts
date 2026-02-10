@@ -7,6 +7,7 @@
  */
 
 import { ReferenceType, Reference, Diagnostic } from "../types/unified-agent";
+import { createTauriFileSystem } from "./TauriFileSystem";
 
 // 引用解析结果
 export interface ResolvedReference {
@@ -54,23 +55,24 @@ export interface CodebaseProvider {
   search(query: string): Promise<Array<{ file: string; line: number; content: string }>>;
 }
 
-// 默认文件系统实现（Node.js 风格，实际使用时需要 Tauri 实现）
+// 默认文件系统实现（使用 Tauri IPC）
 export class DefaultFileSystem implements FileSystem {
-  async readFile(_path: string): Promise<string> {
-    // 在浏览器/Tauri 环境中，这需要通过 IPC 调用
-    throw new Error("FileSystem not implemented. Use Tauri IPC.");
+  private tauriFs = createTauriFileSystem();
+
+  async readFile(path: string): Promise<string> {
+    return this.tauriFs.readFile(path);
   }
 
-  async readDir(_path: string): Promise<string[]> {
-    throw new Error("FileSystem not implemented. Use Tauri IPC.");
+  async readDir(path: string): Promise<string[]> {
+    return this.tauriFs.readDir(path);
   }
 
-  async stat(_path: string): Promise<{ isDirectory: boolean; size: number }> {
-    throw new Error("FileSystem not implemented. Use Tauri IPC.");
+  async stat(path: string): Promise<{ isDirectory: boolean; size: number }> {
+    return this.tauriFs.stat(path);
   }
 
-  async exists(_path: string): Promise<boolean> {
-    throw new Error("FileSystem not implemented. Use Tauri IPC.");
+  async exists(path: string): Promise<boolean> {
+    return this.tauriFs.exists(path);
   }
 }
 

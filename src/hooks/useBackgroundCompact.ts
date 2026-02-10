@@ -55,7 +55,7 @@ interface UseBackgroundCompactConfig {
   projectPath?: string;
   /** 触发压缩的阈值（0-1，默认 0.75 = 75%）*/
   compactThreshold?: number;
-  /** ⚠️ 是否启用自动压缩（默认 false - 后端未实现） */
+  /** ✅ 是否启用自动压缩（默认 false - 后端已实现，可以启用） */
   autoCompact?: boolean;
   /** 上下文使用率（0-1） */
   contextUsage?: number;
@@ -102,7 +102,7 @@ export function useBackgroundCompact(
     sessionId,
     projectPath,
     compactThreshold = 0.75, // 🎯 75% 阈值
-    autoCompact = false, // ⚠️ 默认禁用 - 后端未实现 compact-session-request
+    autoCompact = false, // ✅ 后端已实现 execute_compact 命令，可以启用（默认禁用以保持向后兼容）
     contextUsage = 0,
     maxTokens = 200000,
     currentTokens = 0,

@@ -1353,3 +1353,67 @@ pub fn git_commit(project_path: String, message: String) -> Result<GitCommandRes
         })
     }
 }
+
+/// Push commits to remote repository
+#[tauri::command]
+pub fn git_push(
+    project_path: String,
+    remote: Option<String>,
+    branch: Option<String>,
+    force: Option<bool>,
+) -> Result<GitCommandResult, String> {
+    if !is_git_repo(&project_path) {
+        return Err("Not a Git repository".to_string());
+    }
+
+    let mut cmd = Command::new("git");
+    cmd.arg("push");
+
+    // Add remote (default: origin)
+    let remote_name = remote.unwrap_or_else(|| "origin".to_string());
+    cmd.arg(&remote_name);
+
+    // Add branch if specified
+    if let Some(branch_name) = branch {
+        cmd.arg(&branch_name);
+    }
+
+    // Add force flag if specified
+    if force.unwrap_or(false) {
+        cmd.arg("--force");
+    }
+
+    cmd.current_dir(&project_path);
+
+    #[cfg(target_os = "windows")]
+    cmd.creation_flags(0x08000000);
+
+    let output = cmd
+        .output()
+        .map_err(|e| format!("Failed to execute git push: {}", e))?;
+
+    if output.status.success() {
+        Ok(GitCommandResult {
+            success: true,
+            output: Some(String::from_utf8_lossy(&output.stdout).to_string()),
+            error: None,
+        })
+    } else {
+        let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+
+        // Check if everything is up-to-date
+        if stderr.contains("Everything up-to-date") {
+            return Ok(GitCommandResult {
+                success: true,
+                output: Some("Everything up-to-date".to_string()),
+                error: None,
+            });
+        }
+
+        Ok(GitCommandResult {
+            success: false,
+            output: None,
+            error: Some(stderr),
+        })
+    }
+}

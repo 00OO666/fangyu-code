@@ -82,7 +82,7 @@ use commands::simple_git::{
     check_and_init_git, check_reset_safety, precise_revert_code,
     // Git Panel Commands
     git_status, git_log, git_diff, git_reset, git_revert_commit, git_restore,
-    git_create_backup_branch, git_add, git_commit,
+    git_create_backup_branch, git_add, git_commit, git_push,
 };
 use commands::storage::{
     storage_analyze_query, storage_delete_row, storage_execute_sql, storage_get_performance_stats,
@@ -109,6 +109,7 @@ use commands::super_agent::{
     super_agent_write_file, super_agent_delete_file, super_agent_str_replace,
     super_agent_is_long_running, super_agent_validate_command, super_agent_validate_path,
     super_agent_assess_risk, super_agent_redact_sensitive,
+    super_agent_read_dir, super_agent_stat, super_agent_exists,
 };
 
 use memory_index::{detect_memory_keywords, import_memories};
@@ -592,6 +593,7 @@ fn main() {
             git_create_backup_branch,
             git_add,
             git_commit,
+            git_push,
             record_prompt_sent,
             mark_prompt_completed,
             revert_to_prompt,
@@ -847,6 +849,9 @@ fn main() {
             super_agent_validate_path,
             super_agent_assess_risk,
             super_agent_redact_sensitive,
+            super_agent_read_dir,
+            super_agent_stat,
+            super_agent_exists,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

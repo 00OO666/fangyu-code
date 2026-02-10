@@ -212,6 +212,31 @@ export const gitService = {
       };
     }
   },
+
+  /**
+   * 推送到远程仓库
+   */
+  async push(
+    projectPath: string,
+    remote?: string,
+    branch?: string,
+    force?: boolean
+  ): Promise<GitCommandResult> {
+    try {
+      return await invoke<GitCommandResult>("git_push", {
+        projectPath,
+        remote,
+        branch,
+        force,
+      });
+    } catch (error) {
+      logger.error("gitService", "[GitService] push failed:", error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+      };
+    }
+  },
 };
 
 export default gitService;

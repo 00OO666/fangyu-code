@@ -671,3 +671,65 @@ pub fn super_agent_redact_sensitive(text: String) -> String {
     
     result
 }
+
+/// 读取目录内容
+#[command]
+pub async fn super_agent_read_dir(path: String) -> Result<Vec<String>, String> {
+    let path_buf = PathBuf::from(&path);
+    
+    if !path_buf.exists() {
+        return Err(format!("Directory does not exist: {}", path));
+    }
+    
+    if !path_buf.is_dir() {
+        return Err(format!("Path is not a directory: {}", path));
+    }
+    
+    let mut entries = Vec::new();
+    let read_dir = tokio::fs::read_dir(&path_buf)
+        .await
+        .map_err(|e| format!("Failed to read directory: {}", e))?;
+    
+    let mut read_dir = read_dir;
+    while let Some(entry) = read_dir.next_entry().await.map_err(|e| format!("Failed to read entry: {}", e))? {
+        if let Some(name) = entry.file_name().to_str() {
+            entries.push(name.to_string());
+        }
+    }
+    
+    Ok(entries)
+}
+
+/// 获取文件/目录状态
+#[derive(Debug, Serialize, Deserialize)]
+pub struct FileStats {
+    pub is_directory: bool,
+    pub is_file: bool,
+    pub size: u64,
+}
+
+#[command]
+pub async fn super_agent_stat(path: String) -> Result<FileStats, String> {
+    let path_buf = PathBuf::from(&path);
+    
+    if !path_buf.exists() {
+        return Err(format!("Path does not exist: {}", path));
+    }
+    
+    let metadata = tokio::fs::metadata(&path_buf)
+        .await
+        .map_err(|e| format!("Failed to get metadata: {}", e))?;
+    
+    Ok(FileStats {
+        is_directory: metadata.is_dir(),
+        is_file: metadata.is_file(),
+        size: metadata.len(),
+    })
+}
+
+/// 检查文件/目录是否存在
+#[command]
+pub async fn super_agent_exists(path: String) -> Result<bool, String> {
+    let path_buf = PathBuf::from(&path);
+    Ok(path_buf.exists())
+}

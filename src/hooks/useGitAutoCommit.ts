@@ -67,9 +67,9 @@ async function executeGitCommand(
         return { success: false, error: "No commits found" };
       }
       case "push": {
-        // Push 暂不支持，返回成功但不执行
-        logger.warn("useGitAutoCommit", "[Git] Push command not implemented");
-        return { success: true, output: "Push skipped (not implemented)" };
+        // 推送到远程仓库
+        const result = await gitService.push(projectPath);
+        return result;
       }
       default:
         return { success: false, error: `Unknown command: ${command}` };

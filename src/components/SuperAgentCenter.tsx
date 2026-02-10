@@ -2,7 +2,7 @@
  * Super Agent 控制中心
  * 整合 Agent Dashboard、Spec Workflow、Context Monitor、Powers Panel
  */
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Bot, FileText, Activity, Puzzle, Settings2, Play, Pause } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { logger } from "@/lib/logger";
 
 // 导入 Super Agent 组件
 import { AgentDashboard } from "@/components/agents/AgentDashboard";
@@ -19,6 +20,8 @@ import { PowersPanel } from "@/components/agents/PowersPanel";
 
 // 导入核心模块
 import { AutonomyController, AutonomyMode } from "@/core/autonomy/AutonomyController";
+import { AgentSwarmManager } from "@/core/agents/AgentSwarmManager";
+import { DEFAULT_WORKFLOW_CONFIG } from "@/core/types/workflow";
 
 interface SuperAgentCenterProps {
   onBack: () => void;
@@ -28,6 +31,8 @@ export const SuperAgentCenter: React.FC<SuperAgentCenterProps> = ({ onBack }) =>
   const [activeTab, setActiveTab] = useState("dashboard");
   const [autonomyMode, setAutonomyMode] = useState<AutonomyMode>("supervised");
   const [isAgentRunning, setIsAgentRunning] = useState(false);
+  const [agentPoolSize, setAgentPoolSize] = useState(0);
+  const [taskQueueSize, setTaskQueueSize] = useState(0);
 
   // 初始化 AutonomyController
   const [autonomyController] = useState(
@@ -38,20 +43,99 @@ export const SuperAgentCenter: React.FC<SuperAgentCenterProps> = ({ onBack }) =>
       })
   );
 
+  // 初始化 AgentSwarmManager
+  const agentSwarmManagerRef = useRef<AgentSwarmManager | null>(null);
+
+  useEffect(() => {
+    // 创建 AgentSwarmManager 实例
+    if (!agentSwarmManagerRef.current) {
+      agentSwarmManagerRef.current = new AgentSwarmManager(DEFAULT_WORKFLOW_CONFIG);
+
+      // 监听 Agent 事件
+      agentSwarmManagerRef.current.on("agent:created", () => {
+        updateAgentStats();
+      });
+
+      agentSwarmManagerRef.current.on("agent:destroyed", () => {
+        updateAgentStats();
+      });
+
+      agentSwarmManagerRef.current.on("task:queued", () => {
+        updateAgentStats();
+      });
+
+      agentSwarmManagerRef.current.on("task:completed", () => {
+        updateAgentStats();
+      });
+
+      logger.info("SuperAgentCenter", "[SuperAgentCenter] AgentSwarmManager initialized");
+    }
+
+    return () => {
+      // 清理：停止所有 Agent
+      if (agentSwarmManagerRef.current && isAgentRunning) {
+        agentSwarmManagerRef.current.pauseWorkflow();
+      }
+    };
+  }, []);
+
+  const updateAgentStats = () => {
+    if (agentSwarmManagerRef.current) {
+      const poolStatus = agentSwarmManagerRef.current.getPoolStatus();
+      const scheduler = agentSwarmManagerRef.current.getSchedulerStatus();
+      setAgentPoolSize(poolStatus.total);
+      setTaskQueueSize(scheduler.taskQueue.length);
+    }
+  };
+
   const handleModeToggle = (checked: boolean) => {
     const newMode: AutonomyMode = checked ? "autopilot" : "supervised";
     autonomyController.setMode(newMode);
     setAutonomyMode(newMode);
+    logger.info("SuperAgentCenter", `[SuperAgentCenter] Autonomy mode changed to: ${newMode}`);
   };
 
-  const handleStartAgent = () => {
-    setIsAgentRunning(true);
-    // TODO: 实际启动 Agent 逻辑
+  const handleStartAgent = async () => {
+    try {
+      if (!agentSwarmManagerRef.current) {
+        logger.error("SuperAgentCenter", "[SuperAgentCenter] AgentSwarmManager not initialized");
+        return;
+      }
+
+      logger.info("SuperAgentCenter", "[SuperAgentCenter] Starting Agent system...");
+
+      // 恢复工作流（如果有暂停的工作流）
+      await agentSwarmManagerRef.current.resumeWorkflow();
+
+      setIsAgentRunning(true);
+      updateAgentStats();
+
+      logger.info("SuperAgentCenter", "[SuperAgentCenter] ✅ Agent system started successfully");
+    } catch (error) {
+      logger.error("SuperAgentCenter", "[SuperAgentCenter] ❌ Failed to start Agent system:", error);
+      setIsAgentRunning(false);
+    }
   };
 
   const handleStopAgent = () => {
-    setIsAgentRunning(false);
-    // TODO: 实际停止 Agent 逻辑
+    try {
+      if (!agentSwarmManagerRef.current) {
+        logger.error("SuperAgentCenter", "[SuperAgentCenter] AgentSwarmManager not initialized");
+        return;
+      }
+
+      logger.info("SuperAgentCenter", "[SuperAgentCenter] Stopping Agent system...");
+
+      // 暂停工作流
+      agentSwarmManagerRef.current.pauseWorkflow();
+
+      setIsAgentRunning(false);
+      updateAgentStats();
+
+      logger.info("SuperAgentCenter", "[SuperAgentCenter] ✅ Agent system stopped successfully");
+    } catch (error) {
+      logger.error("SuperAgentCenter", "[SuperAgentCenter] ❌ Failed to stop Agent system:", error);
+    }
   };
 
   return (
@@ -157,9 +241,9 @@ export const SuperAgentCenter: React.FC<SuperAgentCenterProps> = ({ onBack }) =>
         <div className="flex items-center gap-4">
           <span>模式: {autonomyMode === "autopilot" ? "🚀 自动驾驶" : "👁️ 监督模式"}</span>
           <span>|</span>
-          <span>Agent 池: 0/10</span>
+          <span>Agent 池: {agentPoolSize}/{DEFAULT_WORKFLOW_CONFIG.maxAgents}</span>
           <span>|</span>
-          <span>任务队列: 0</span>
+          <span>任务队列: {taskQueueSize}</span>
         </div>
         <div className="flex items-center gap-2">
           <Settings2 className="h-3 w-3" />
