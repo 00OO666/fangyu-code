@@ -19,9 +19,9 @@ jobs:
       (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      pull-requests: read
-      issues: read
+      contents: write
+      pull-requests: write
+      issues: write
       id-token: write
     steps:
       - name: Checkout repository
@@ -29,11 +29,28 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Check Claude auth
+        id: claude-auth
+        shell: bash
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+        run: |
+          if [[ -n "$ANTHROPIC_API_KEY" || -n "$CLAUDE_CODE_OAUTH_TOKEN" ]]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Skipping Claude Code because neither ANTHROPIC_API_KEY nor CLAUDE_CODE_OAUTH_TOKEN is configured for this repository."
+          fi
+
       - name: Run Claude Code
         id: claude
-        uses: anthropics/claude-code-action@beta
+        if: steps.claude-auth.outputs.configured == 'true'
+        uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ github.token }}
           
           # Optional: Specify model (defaults to Claude Sonnet 4, uncomment for Claude Opus 4)
           model: "claude-opus-4-20250514"
