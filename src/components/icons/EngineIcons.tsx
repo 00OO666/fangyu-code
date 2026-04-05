@@ -160,6 +160,45 @@ export const SiliconFlowEngineIcon: React.FC<IconProps> = ({
 };
 
 // =============================================================================
+// Kiro Icon - 橙金渐变云朵
+// =============================================================================
+
+export const KiroEngineIcon: React.FC<IconProps> = ({
+    className,
+    size = 24,
+    ...props
+}) => {
+    const gradientId = useId();
+    return (
+        <svg
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+            className={cn("", className)}
+            width={size}
+            height={size}
+            {...props}
+        >
+            <defs>
+                <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#FF6B35" />
+                    <stop offset="100%" stopColor="#F59E0B" />
+                </linearGradient>
+            </defs>
+            <path
+                fill={`url(#${gradientId})`}
+                d="M7.5 19.5a4.5 4.5 0 0 1-.71-8.94A6 6 0 0 1 18.2 9.8 3.75 3.75 0 1 1 18.75 19.5H7.5Z"
+            />
+            <path
+                d="M9 13.5h6M10.5 10.5h3"
+                stroke="white"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+            />
+        </svg>
+    );
+};
+
+// =============================================================================
 // 统一导出
 // =============================================================================
 
@@ -168,6 +207,7 @@ export const EngineIcons = {
     codex: CodexEngineIcon,
     gemini: GeminiEngineIcon,
     siliconflow: SiliconFlowEngineIcon,
+    kiro: KiroEngineIcon,
 };
 
 /** 根据引擎 ID 获取图标组件 */
@@ -181,6 +221,8 @@ export function getEngineIcon(engine: string): React.FC<IconProps> {
             return GeminiEngineIcon;
         case 'siliconflow':
             return SiliconFlowEngineIcon;
+        case 'kiro':
+            return KiroEngineIcon;
         default:
             return ClaudeEngineIcon;
     }

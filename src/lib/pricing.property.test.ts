@@ -143,8 +143,10 @@ describe("Pricing System - Robustness", () => {
                 // Should NOT log debug messages for synthetic models either
                 // (they are silently handled)
                 const syntheticDebugCalls = consoleDebugSpy.mock.calls.filter(
-                    (call) =>
-                        call[0]?.includes?.("synthetic") || call[0]?.includes?.("<synthetic>")
+                    (call) => {
+                        const firstArg = typeof call[0] === 'string' ? call[0] : '';
+                        return firstArg.includes("synthetic") || firstArg.includes("<synthetic>");
+                    }
                 );
                 expect(syntheticDebugCalls.length).toBe(0);
 
@@ -168,7 +170,7 @@ describe("Pricing System - Robustness", () => {
                 expect(isValidPricing(result)).toBe(true);
 
                 // Should match the expected pricing from MODEL_PRICING
-                const expectedPricing = MODEL_PRICING[model];
+                const expectedPricing = MODEL_PRICING[model as keyof typeof MODEL_PRICING];
                 if (expectedPricing) {
                     expect(result.input).toBe(expectedPricing.input);
                     expect(result.output).toBe(expectedPricing.output);

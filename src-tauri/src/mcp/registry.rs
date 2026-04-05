@@ -25,7 +25,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 /// 注册表中的服务器条目
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -189,6 +189,7 @@ pub fn remove_server(id: &str) -> Result<(), String> {
 }
 
 /// 更新服务器的启用状态
+#[allow(dead_code)]
 pub fn set_server_enabled(id: &str, enabled: bool) -> Result<(), String> {
     let mut registry = read_registry()?;
 
@@ -202,6 +203,7 @@ pub fn set_server_enabled(id: &str, enabled: bool) -> Result<(), String> {
 }
 
 /// 获取服务器的注册表条目
+#[allow(dead_code)]
 pub fn get_server(id: &str) -> Result<Option<RegistryEntry>, String> {
     let registry = read_registry()?;
     Ok(registry.servers.get(id).cloned())
@@ -210,6 +212,7 @@ pub fn get_server(id: &str) -> Result<Option<RegistryEntry>, String> {
 /// 同步注册表与引擎配置
 ///
 /// 将注册表中启用的服务器同步到引擎配置文件
+#[allow(dead_code)]
 pub fn sync_registry_to_engine(engine: &str) -> Result<(), String> {
     let registry = read_registry()?;
     let app_type = super::AppType::from_str(engine)?;

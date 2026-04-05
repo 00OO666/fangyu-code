@@ -420,6 +420,7 @@ pub fn convert_raw_to_unified_message(raw: &Value) -> Value {
 // ============================================================================
 
 /// Extract usage information from a Gemini result event
+#[allow(dead_code)]
 pub fn extract_usage(event: &GeminiStreamEvent) -> Option<(u64, u64)> {
     if let GeminiStreamEvent::Result {
         stats: Some(stats),
@@ -475,6 +476,7 @@ fn build_unified_usage(stats: Option<&GeminiStats>, usage_metadata: Option<&Toke
 }
 
 /// Extract session ID from an init event
+#[allow(dead_code)]
 pub fn extract_session_id(event: &GeminiStreamEvent) -> Option<String> {
     if let GeminiStreamEvent::Init {
         session_id: Some(id),

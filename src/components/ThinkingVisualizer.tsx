@@ -218,7 +218,7 @@ export function ThinkingVisualizer({
 
     // 高亮步骤编号
     highlighted = highlighted.replace(
-      /^(\d+[\.\)]|\*|\-)\s+/gm,
+      /^(\d+[.)]|[*-])\s+/gm,
       '<span class="step-number">$1</span> '
     );
 

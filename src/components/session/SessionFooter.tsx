@@ -12,8 +12,11 @@ import { FloatingPromptInput, type FloatingPromptInputRef, type ModelType } from
 import { ErrorBoundary } from '../ErrorBoundary';
 import { ChatNotification } from '../notifications/ChatNotification';
 import { CompactStatusIndicator } from '../CompactStatusIndicator';
-import type { Session, ClaudeStreamMessage } from '@/types';
+import type { Session } from '@/lib/api';
+import type { ClaudeStreamMessage } from '@/types/claude';
 import type { CodexRateLimits } from '@/types/codex';
+import type { CompactStatus } from '@/hooks/useBackgroundCompact';
+import type { SessionContinueStatus } from '@/types/session-continue';
 import type { ExecutionEngineConfig } from '../FloatingPromptInput/types';
 
 interface QueuedPrompt {
@@ -39,13 +42,13 @@ interface SessionFooterProps {
   codexRateLimits: CodexRateLimits | null;
   executionEngineConfig: ExecutionEngineConfig;
   showUsageDashboard: boolean;
-  compactStatus: string;
+  compactStatus: CompactStatus;
   isCompacting: boolean;
   compactProgress: number;
   deltaMessagesCount: number;
-  sessionContinueStatus: string;
+  sessionContinueStatus: SessionContinueStatus;
   isGeneratingSummary: boolean;
-  extractedCode: { code: string; language: string; source?: string } | null;
+  extractedCode: { code: string; language: string; source?: 'markdown' | 'tool_use' } | null;
   costStats: any;
   onSmartSessionUpgrade?: (firstMessage: string) => Promise<{ projectPath: string; title: string } | null>;
 

@@ -43,6 +43,7 @@ import {
   ClaudeEngineIcon,
   CodexEngineIcon,
   GeminiEngineIcon,
+  KiroEngineIcon,
   SiliconFlowEngineIcon,
 } from '@/components/icons/EngineIcons';
 import type { CodexExecutionMode } from '@/types/codex';
@@ -146,6 +147,14 @@ const ENGINE_CONFIG = {
     color: 'text-purple-500',
     bgColor: 'bg-purple-500/10',
     borderColor: 'border-purple-500/30',
+  },
+  kiro: {
+    id: 'kiro' as const,
+    name: 'Kiro',
+    Icon: KiroEngineIcon,
+    color: 'text-amber-500',
+    bgColor: 'bg-amber-500/10',
+    borderColor: 'border-amber-500/30',
   },
 };
 
@@ -537,6 +546,26 @@ export const ExecutionEngineSelector: React.FC<ExecutionEngineSelectorProps> = (
                   >
                     获取 API Key <ExternalLink className="h-3 w-3" />
                   </a>
+                </div>
+              )}
+
+              {value.engine === 'kiro' && (
+                <div className="space-y-3">
+                  <div className={`rounded-md border p-2 ${currentEngine.bgColor} ${currentEngine.borderColor}`}>
+                    <div className="flex items-center gap-2 text-xs">
+                      <div className="h-2 w-2 rounded-full bg-green-500" />
+                      <span className="text-foreground">使用本地 Kiro 登录态</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">当前模型</Label>
+                    <div className="text-sm font-medium">{value.kiroModel || 'Auto (自动选择)'}</div>
+                  </div>
+
+                  <p className="text-xs text-muted-foreground">
+                    Kiro 使用本地 CLI / Token 登录态。需要更细配置时，请在设置页面的 Kiro 面板中处理。
+                  </p>
                 </div>
               )}
             </div>

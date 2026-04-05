@@ -18,7 +18,7 @@ import Plus from 'lucide-react/dist/esm/icons/plus'
 import Edit from 'lucide-react/dist/esm/icons/edit'
 import Trash from 'lucide-react/dist/esm/icons/trash'
 import DollarSign from 'lucide-react/dist/esm/icons/dollar-sign'
-import Infinity from 'lucide-react/dist/esm/icons/infinity'
+import InfinityIcon from 'lucide-react/dist/esm/icons/infinity'
 import Calendar from 'lucide-react/dist/esm/icons/calendar'
 import Search from 'lucide-react/dist/esm/icons/search';
 import { api, type ProviderConfig, type CurrentProviderConfig, type ApiKeyUsage } from '@/lib/api';
@@ -381,7 +381,7 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
                           <div className="text-muted-foreground">
                             {usageCache[config.id].is_unlimited ? (
                               <span className="text-green-600 font-medium flex items-center justify-end gap-1">
-                                {t('provider.remaining')} <Infinity className="h-3 w-3" /> {t('provider.unlimited')}
+                                {t('provider.remaining')} <InfinityIcon className="h-3 w-3" /> {t('provider.unlimited')}
                               </span>
                             ) : (
                               <>
@@ -642,7 +642,7 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
                   <span className={`font-semibold ${usageData.is_unlimited ? 'text-green-600' : ''}`}>
                     {usageData.is_unlimited ? (
                       <span className="flex items-center gap-1">
-                        <Infinity className="h-4 w-4" />
+                        <InfinityIcon className="h-4 w-4" />
                         {t('provider.unlimited')}
                       </span>
                     ) : (
@@ -668,7 +668,7 @@ export default function ProviderManager({ onBack }: ProviderManagerProps) {
                     }`}>
                     {usageData.is_unlimited ? (
                       <span className="flex items-center gap-1">
-                        <Infinity className="h-4 w-4" />
+                        <InfinityIcon className="h-4 w-4" />
                         {t('provider.noLimit')}
                       </span>
                     ) : (

@@ -209,6 +209,7 @@ export const ENGINE_COLORS: Record<EngineType, string> = {
   codex: "#3B82F6", // blue-500
   gemini: "#8B5CF6", // purple-500
   siliconflow: "#10B981", // green-500
+  kiro: "#F97316", // orange-500
 };
 
 /**
@@ -219,4 +220,5 @@ export const ENGINE_LABELS: Record<EngineType, string> = {
   codex: "OpenAI Codex",
   gemini: "Google Gemini",
   siliconflow: "SiliconFlow",
+  kiro: "Kiro",
 };

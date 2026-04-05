@@ -10,6 +10,11 @@ import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right'
 import CheckCircle2 from 'lucide-react/dist/esm/icons/check-circle-2';
 import { detectLinks, makeLinksClickable } from "@/lib/linkDetector";
 
+const ANSI_BOLD = `${String.fromCharCode(27)}[1m`;
+const ANSI_RESET_BOLD = `${String.fromCharCode(27)}[22m`;
+const ANSI_CODE_PATTERN = new RegExp(`${String.fromCharCode(27)}\\[\\d+m`);
+const ANSI_SPLIT_PATTERN = new RegExp(`(${String.fromCharCode(27)}\\[\\d+m)`);
+
 export interface CommandOutputWidgetProps {
   /** 命令输出内容 */
   output: string;
@@ -46,18 +51,18 @@ export const CommandOutputWidget: React.FC<CommandOutputWidgetProps> = ({
   // ANSI 样式解析函数
   const parseAnsiToReact = (text: string) => {
     // 简单的 ANSI 解析 - 处理粗体 (\u001b[1m) 和重置 (\u001b[22m)
-    const parts = text.split(/(\u001b\[\d+m)/);
+    const parts = text.split(ANSI_SPLIT_PATTERN);
     let isBold = false;
     const elements: React.ReactNode[] = [];
 
     parts.forEach((part, idx) => {
-      if (part === '\u001b[1m') {
+      if (part === ANSI_BOLD) {
         isBold = true;
         return;
-      } else if (part === '\u001b[22m') {
+      } else if (part === ANSI_RESET_BOLD) {
         isBold = false;
         return;
-      } else if (part.match(/\u001b\[\d+m/)) {
+      } else if (ANSI_CODE_PATTERN.test(part)) {
         // 忽略其他 ANSI 代码
         return;
       }

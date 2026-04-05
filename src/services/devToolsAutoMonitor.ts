@@ -115,9 +115,15 @@ export class DevToolsAutoMonitor {
 
     if (this.session) {
       this.session.isActive = false;
-      logger.debug('devToolsAutoMonitor', `[DevToolsMonitor] ⏹️ 监控已停止`);
-      logger.debug('devToolsAutoMonitor', `  - 运行时长: ${((Date.now(); - this.session.startTime) / 1000).toFixed(0)}秒`);
-      logger.debug('devToolsAutoMonitor', `  - 检测到异常: ${this.session.anomalies.length} 个`);
+      logger.debug("devToolsAutoMonitor", "[DevToolsMonitor] ⏹️ 监控已停止");
+      logger.debug(
+        "devToolsAutoMonitor",
+        `  - 运行时长: ${((Date.now() - this.session.startTime) / 1000).toFixed(0)}秒`
+      );
+      logger.debug(
+        "devToolsAutoMonitor",
+        `  - 检测到异常: ${this.session.anomalies.length} 个`
+      );
     }
 
     this.session = null;

@@ -353,10 +353,7 @@ export const ViewRouter: React.FC = () => {
       case "workflow-manager":
         return (
           <div className="flex-1 overflow-hidden">
-            <WorkflowManagerPanel
-              workspaceRoot={viewParams.workspaceRoot || ''}
-              apiClient={viewParams.apiClient}
-            />
+            <WorkflowManagerPanel />
           </div>
         );
 

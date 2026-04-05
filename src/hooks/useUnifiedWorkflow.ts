@@ -371,11 +371,11 @@ export function useUnifiedWorkflow(
             return () => { };
         }
 
-        engineRef.current.on(eventType, handler);
+        engineRef.current.on(eventType, handler as (...args: unknown[]) => void);
 
         // 返回取消订阅函数
         return () => {
-            engineRef.current?.off(eventType, handler);
+            engineRef.current?.off(eventType, handler as (...args: unknown[]) => void);
         };
     }, []);
 

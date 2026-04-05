@@ -79,7 +79,7 @@ pub async fn lsp_start(
     language: String,
     command: String,
     args: Vec<String>,
-    workspace_root: String,
+    _workspace_root: String,
     state: State<'_, LSPManager>,
 ) -> Result<serde_json::Value, String> {
     let pid = state.manager.start_server(language.clone(), command, args).await?;
@@ -102,16 +102,19 @@ pub async fn lsp_shutdown(
     language: String,
     state: State<'_, LSPManager>,
 ) -> Result<(), String> {
+    if language == "*" || language.eq_ignore_ascii_case("all") {
+        return state.manager.shutdown_all().await;
+    }
     state.manager.stop_server(&language).await
 }
 
 // 获取 Hover 信息
 #[tauri::command]
 pub async fn lsp_hover(
-    language: String,
+    _language: String,
     file: String,
     position: Position,
-    state: State<'_, LSPManager>,
+    _state: State<'_, LSPManager>,
 ) -> Result<Option<HoverInfo>, String> {
     // 简化实现：返回 mock 数据
     // 实际实现需要通过 JSON-RPC 与 LSP 通信
@@ -130,10 +133,10 @@ pub async fn lsp_hover(
 // 跳转到定义
 #[tauri::command]
 pub async fn lsp_definition(
-    language: String,
+    _language: String,
     file: String,
     position: Position,
-    state: State<'_, LSPManager>,
+    _state: State<'_, LSPManager>,
 ) -> Result<Option<Location>, String> {
     // 简化实现：返回 mock 数据
     Ok(Some(Location {
@@ -151,10 +154,10 @@ pub async fn lsp_definition(
 // 查找引用
 #[tauri::command]
 pub async fn lsp_references(
-    language: String,
+    _language: String,
     file: String,
     position: Position,
-    state: State<'_, LSPManager>,
+    _state: State<'_, LSPManager>,
 ) -> Result<Vec<Location>, String> {
     // 简化实现：返回 mock 数据
     Ok(vec![Location {
@@ -172,10 +175,10 @@ pub async fn lsp_references(
 // 获取补全建议
 #[tauri::command]
 pub async fn lsp_completion(
-    language: String,
-    file: String,
-    position: Position,
-    state: State<'_, LSPManager>,
+    _language: String,
+    _file: String,
+    _position: Position,
+    _state: State<'_, LSPManager>,
 ) -> Result<Vec<CompletionItem>, String> {
     // 简化实现：返回 mock 数据
     Ok(vec![
@@ -191,9 +194,9 @@ pub async fn lsp_completion(
 // 获取诊断信息
 #[tauri::command]
 pub async fn lsp_diagnostics(
-    language: String,
-    file: String,
-    state: State<'_, LSPManager>,
+    _language: String,
+    _file: String,
+    _state: State<'_, LSPManager>,
 ) -> Result<Vec<Diagnostic>, String> {
     // 简化实现：返回 mock 数据
     Ok(vec![])
@@ -202,7 +205,7 @@ pub async fn lsp_diagnostics(
 // 重命名符号
 #[tauri::command]
 pub async fn lsp_rename(
-    language: String,
+    _language: String,
     file: String,
     position: Position,
     new_name: String,

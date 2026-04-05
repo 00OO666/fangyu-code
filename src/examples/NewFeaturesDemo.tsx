@@ -25,12 +25,30 @@ import { CHANGELOGS } from "@/hooks/useFirstLaunchChangelog";
 const versions = Object.keys(CHANGELOGS);
 const latestVersion = versions[0];
 
+type RawChangelog = typeof CHANGELOGS[keyof typeof CHANGELOGS];
+
+function normalizeChangelog(changelog: RawChangelog) {
+  const raw = changelog as {
+    features?: string[];
+    improvements?: string[];
+    bugFixes?: string[];
+    bugfixes?: string[];
+  };
+
+  return {
+    features: raw.features ?? [],
+    improvements: raw.improvements ?? [],
+    bugFixes: raw.bugFixes ?? raw.bugfixes ?? [],
+  };
+}
+
 /**
  * 单个版本的更新内容卡片
  */
 function VersionCard({ version, isLatest }: { version: string; isLatest: boolean }) {
   const changelog = CHANGELOGS[version as keyof typeof CHANGELOGS];
   if (!changelog) return null;
+  const normalized = normalizeChangelog(changelog);
 
   return (
     <motion.div
@@ -74,17 +92,17 @@ function VersionCard({ version, isLatest }: { version: string; isLatest: boolean
 
         <CardContent className="space-y-4">
           {/* 新功能 */}
-          {changelog.features && changelog.features.length > 0 && (
+          {normalized.features.length > 0 && (
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Sparkles className="h-4 w-4 text-purple-500" />
                 <h3 className="font-semibold text-sm">新功能</h3>
                 <Badge variant="secondary" className="text-xs">
-                  {changelog.features.length} 项
+                  {normalized.features.length} 项
                 </Badge>
               </div>
               <ul className="space-y-1.5 ml-6">
-                {changelog.features.map((feature, index) => (
+                {normalized.features.map((feature: string, index: number) => (
                   <motion.li
                     key={index}
                     initial={{ opacity: 0, x: -10 }}
@@ -101,17 +119,17 @@ function VersionCard({ version, isLatest }: { version: string; isLatest: boolean
           )}
 
           {/* 改进优化 */}
-          {changelog.improvements && changelog.improvements.length > 0 && (
+          {normalized.improvements.length > 0 && (
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Zap className="h-4 w-4 text-yellow-500" />
                 <h3 className="font-semibold text-sm">改进优化</h3>
                 <Badge variant="secondary" className="text-xs">
-                  {changelog.improvements.length} 项
+                  {normalized.improvements.length} 项
                 </Badge>
               </div>
               <ul className="space-y-1.5 ml-6">
-                {changelog.improvements.map((improvement, index) => (
+                {normalized.improvements.map((improvement: string, index: number) => (
                   <motion.li
                     key={index}
                     initial={{ opacity: 0, x: -10 }}
@@ -128,17 +146,17 @@ function VersionCard({ version, isLatest }: { version: string; isLatest: boolean
           )}
 
           {/* Bug 修复 */}
-          {changelog.bugFixes && changelog.bugFixes.length > 0 && (
+          {normalized.bugFixes.length > 0 && (
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Bug className="h-4 w-4 text-orange-500" />
                 <h3 className="font-semibold text-sm">Bug 修复</h3>
                 <Badge variant="secondary" className="text-xs">
-                  {changelog.bugFixes.length} 项
+                  {normalized.bugFixes.length} 项
                 </Badge>
               </div>
               <ul className="space-y-1.5 ml-6">
-                {changelog.bugFixes.map((fix, index) => (
+                {normalized.bugFixes.map((fix: string, index: number) => (
                   <motion.li
                     key={index}
                     initial={{ opacity: 0, x: -10 }}

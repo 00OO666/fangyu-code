@@ -6,7 +6,6 @@
  */
 
 import { logger } from '@/lib/logger';
-import { LLMApiService, type LLMProvider, type LLMRequest } from "@/lib/services/llmApiService";
 import { getDefaultKiroEngine } from "@/services/kiro";
 import type { UsePromptExecutionConfig } from "../types";
 
@@ -14,72 +13,71 @@ export interface KiroEngineContext {
   config: UsePromptExecutionConfig;
   prompt: string;
   model: string;
-  maxThinkingTokens?: number }
+  maxThinkingTokens?: number;
+}
 
 /**
  * 执行 Kiro 引擎请求
  */
 export async function executeKiroRequest(context: KiroEngineContext): Promise<void> {
-  const { config, prompt, model, maxThinkingTokens } = context;
-  const { projectPath, setMessages, setIsLoading, setError } = config;
+  const { config, prompt, model } = context;
+  const { projectPath, setMessages, setIsLoading, setError, setExtractedSessionInfo } = config;
 
   try {
     setIsLoading(true);
 
-    // Get Kiro engine configuration
     const kiroEngine = getDefaultKiroEngine();
-    if (!kiroEngine) {
-      throw new Error("Kiro engine not configured") }
+    const validation = await kiroEngine.validateConfig();
+    if (!validation.valid) {
+      throw new Error(validation.error || "Kiro 未配置或登录已失效");
+    }
 
-    // Prepare LLM request
-    const provider: LLMProvider = {
-      name: kiroEngine.name,
-      baseUrl: kiroEngine.baseUrl,
-      apiKey: kiroEngine.apiKey,
-      models: kiroEngine.models,
-    };
+    if (model) {
+      kiroEngine.setModel(model);
+    }
 
-    const request: LLMRequest = {
-      model: model || kiroEngine.models[0],
-      messages: [
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-      max_tokens: maxThinkingTokens || 4096,
-      stream: true,
-    };
-
-    // Execute request
-    const llmService = new LLMApiService();
-    const response = await llmService.sendRequest(provider, request);
-
-    // Add user message
     setMessages((prev) => [
       ...prev,
       {
         type: "user",
-        message: { content: prompt },
-        timestamp: Date.now(),
+        message: { role: "user", content: [{ type: "text", text: prompt }] },
+        timestamp: new Date().toISOString(),
         engine: "kiro",
       },
     ]);
 
-    // Add assistant response
+    const response = await kiroEngine.sendMessage(prompt);
+
     setMessages((prev) => [
       ...prev,
       {
         type: "assistant",
-        message: { content: response.content },
-        timestamp: Date.now(),
+        message: {
+          role: "assistant",
+          content: [{ type: "text", text: response }],
+        },
+        timestamp: new Date().toISOString(),
         engine: "kiro",
+      },
+      {
+        type: "result",
+        subtype: "success",
+        timestamp: new Date().toISOString(),
+        model: model || kiroEngine.getCurrentModel() || "auto",
       },
     ]);
 
-    setIsLoading(false) } catch (error) {
+    const conversationId = kiroEngine.getConversationId();
+    if (conversationId) {
+      const projectId = projectPath.replace(/[^a-zA-Z0-9]/g, "-");
+      setExtractedSessionInfo({ sessionId: conversationId, projectId, engine: "kiro" });
+    }
+
+    setIsLoading(false);
+  } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error('kiro', "[Kiro Engine] Error:", errorMessage);
     setError(errorMessage);
-    setIsLoading(false) }
+    setIsLoading(false);
+  }
 }

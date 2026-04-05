@@ -43,7 +43,6 @@ pub fn apply_no_window(_cmd: &mut Command) {
 /// For use with tokio::process::Command
 #[cfg(target_os = "windows")]
 pub fn apply_no_window_async(cmd: &mut tokio::process::Command) {
-    use std::os::windows::process::CommandExt;
     cmd.creation_flags(CREATE_NO_WINDOW);
 }
 

@@ -221,8 +221,8 @@ describe('testConnection', () => {
                 apiKey: 'test-key',
                 enabled: true,
                 sortOrder: 0,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
+                createdAt: Date.now(),
+                updatedAt: Date.now(),
             });
         });
 
@@ -251,13 +251,13 @@ describe('testConnection', () => {
                 apiKey: 'invalid-key',
                 enabled: true,
                 sortOrder: 0,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
+                createdAt: Date.now(),
+                updatedAt: Date.now(),
             });
         });
 
         expect(testResult.success).toBe(false);
-        expect(testResult.error).toBeDefined();
+        expect(testResult.errorMessage).toBeDefined();
     });
 });
 
@@ -295,7 +295,7 @@ describe('exportConfig / importConfig', () => {
         localStorageMock.clear();
 
         await act(async () => {
-            await result.current.importConfig(exported, { mode: 'replace' });
+            await result.current.importConfig(exported, 'replace');
         });
 
         expect(result.current.providers.length).toBe(1);

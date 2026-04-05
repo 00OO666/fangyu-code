@@ -303,9 +303,6 @@ export const UserMessage: React.FC<UserMessageProps> = ({
     return [...contentImages, ...textImages];
   }, [contentImages, textImages]);
 
-  // 如果没有文本内容且没有图片，不渲染
-  if (!text && images.length === 0) return null;
-
   // ⚡ 检查是否是 Skills 消息
   const isSkills = isSkillsMessage(text);
   // 🆕 检查是否是斜杠命令输出
@@ -364,6 +361,9 @@ export const UserMessage: React.FC<UserMessageProps> = ({
       loadCapabilities();
     }
   }, [showConfirmDialog, promptIndex, sessionId, projectId, engine]);
+
+  // 如果没有文本内容且没有图片，不渲染
+  if (!text && images.length === 0) return null;
 
   const handleRevertClick = (e: React.MouseEvent) => {
     e.stopPropagation();

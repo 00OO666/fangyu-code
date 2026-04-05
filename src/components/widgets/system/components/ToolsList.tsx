@@ -24,7 +24,7 @@ import Globe2 from 'lucide-react/dist/esm/icons/globe-2'
 import Package from 'lucide-react/dist/esm/icons/package'
 import Package2 from 'lucide-react/dist/esm/icons/package-2'
 import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down'
-import type LucideIcon from 'lucide-react/dist/esm/icons/type -lucide-icon';
+import type { LucideIcon } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 

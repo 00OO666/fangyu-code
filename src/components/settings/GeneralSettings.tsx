@@ -1,5 +1,6 @@
 import { logger } from '@/lib/logger';
 import React, { useEffect, useState } from "react";
+import { invoke } from '@tauri-apps/api/core';
 import { motion, AnimatePresence } from "framer-motion";
 import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle'
 import Loader2 from 'lucide-react/dist/esm/icons/loader-2'
@@ -7,6 +8,7 @@ import RotateCcw from 'lucide-react/dist/esm/icons/rotate-ccw'
 import HelpCircle from 'lucide-react/dist/esm/icons/help-circle'
 import Sparkles from 'lucide-react/dist/esm/icons/sparkles'
 import Download from 'lucide-react/dist/esm/icons/download';
+import Save from 'lucide-react/dist/esm/icons/save';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -108,7 +110,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
   useEffect(() => {
     const loadSessionPath = async () => {
       try {
-        const path = await api.invoke<string | null>("get_session_storage_path_setting");
+        const path = await invoke<string | null>("get_session_storage_path_setting");
         if (path) {
           setSessionStoragePath(path);
           setIsSessionPathCustom(true);
@@ -123,7 +125,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
   // Handle session storage path change
   const handleSetSessionPath = async () => {
     try {
-      await api.invoke("set_session_storage_path", { path: sessionStoragePath });
+      await invoke("set_session_storage_path", { path: sessionStoragePath });
       setToast({ message: "会话存储路径已更新", type: "success" });
       setIsSessionPathCustom(true);
     } catch (error) {
@@ -135,7 +137,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
   // Handle reset session storage path to default
   const handleResetSessionPath = async () => {
     try {
-      await api.invoke("set_session_storage_path", { path: "" });
+      await invoke("set_session_storage_path", { path: "" });
       setSessionStoragePath("");
       setIsSessionPathCustom(false);
       setToast({ message: "已恢复默认存储路径", type: "success" });

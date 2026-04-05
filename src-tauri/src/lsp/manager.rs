@@ -49,7 +49,6 @@ pub struct LSPManagerConfig {
     pub max_restart_attempts: u32,
     pub restart_delay_ms: u64,
     pub heartbeat_interval_ms: u64,
-    pub heartbeat_timeout_ms: u64,
 }
 
 impl Default for LSPManagerConfig {
@@ -58,7 +57,6 @@ impl Default for LSPManagerConfig {
             max_restart_attempts: 3,
             restart_delay_ms: 1000,
             heartbeat_interval_ms: 5000,
-            heartbeat_timeout_ms: 10000,
         }
     }
 }
@@ -94,7 +92,7 @@ impl LSPProcessManager {
         }
 
         // 启动进程
-        let mut child = Command::new(&command)
+        let child = Command::new(&command)
             .args(&args)
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
@@ -180,26 +178,6 @@ impl LSPProcessManager {
             .iter()
             .map(|(lang, inst)| (lang.clone(), inst.status.clone()))
             .collect()
-    }
-
-    /// 检查进程是否存活
-    async fn is_process_alive(&self, language: &str) -> bool {
-        let mut instances = self.instances.lock().await;
-
-        if let Some(instance) = instances.get_mut(language) {
-            if let Some(process) = &mut instance.process {
-                // 尝试检查进程状态
-                match process.try_wait() {
-                    Ok(Some(_)) => false, // 进程已退出
-                    Ok(None) => true,     // 进程仍在运行
-                    Err(_) => false,      // 检查失败
-                }
-            } else {
-                false
-            }
-        } else {
-            false
-        }
     }
 
     /// 启动健康检查

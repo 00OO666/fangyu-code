@@ -7,7 +7,9 @@ import { PromptNavigator } from '../PromptNavigator';
 import { SmartRecommendationBar } from '../SmartRecommendationBar';
 import { ProjectMCPQuickConfig } from '../ProjectMCPQuickConfig';
 import { SessionSummaryDialog } from '../SessionSummaryDialog';
-import type { Session, ClaudeStreamMessage } from '@/types';
+import type { Session, RewindMode } from '@/lib/api';
+import type { ClaudeStreamMessage } from '@/types/claude';
+import type { UserAnswers } from '@/contexts/UserQuestionContext';
 import type { ExecutionEngineConfig } from '../FloatingPromptInput/types';
 
 const CanvasFloatingWindow = lazy(() => import("@/components/canvas/CanvasFloatingWindow").then(m => ({ default: m.CanvasFloatingWindow })));
@@ -18,7 +20,7 @@ interface SessionDialogsProps {
   effectiveSession: Session | null;
   projectPath: string;
   executionEngineConfig: ExecutionEngineConfig;
-  onRevert: (promptIndex: number, mode: 'both' | 'conversation_only' | 'git_only') => Promise<void>;
+  onRevert: (promptIndex: number, mode: RewindMode) => Promise<void>;
   onCloseRevertPicker: () => void;
 
   // Plan Approval
@@ -32,7 +34,7 @@ interface SessionDialogsProps {
   showQuestionDialog: boolean;
   pendingQuestion: { questions: any[] } | null;
   onCloseQuestionDialog: () => void;
-  onSubmitAnswers: (answers: Record<string, string>) => void;
+  onSubmitAnswers: (answers: UserAnswers) => void;
 
   // Prompt Navigator
   showPromptNavigator: boolean;

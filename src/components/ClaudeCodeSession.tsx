@@ -92,12 +92,17 @@ interface ClaudeCodeSessionProps {
   /**
    * 🆕 Callback when execution engine changes (for updating tab icon)
    */
-  onEngineChange?: (engine: 'claude' | 'codex' | 'gemini' | 'siliconflow') => void;
+  onEngineChange?: (engine: 'claude' | 'codex' | 'gemini' | 'siliconflow' | 'kiro') => void;
   /**
    * 🔧 FIX: Callback when session info is extracted (for persisting new session to tab)
    * Called when a new session receives its sessionId and projectId from backend
    */
-  onSessionInfoChange?: (info: { sessionId: string; projectId: string; projectPath: string; engine?: 'claude' | 'codex' | 'gemini' | 'siliconflow' }) => void;
+  onSessionInfoChange?: (info: {
+    sessionId: string;
+    projectId: string;
+    projectPath: string;
+    engine?: 'claude' | 'codex' | 'gemini' | 'siliconflow' | 'kiro';
+  }) => void;
   /**
    * Whether this session is currently active (for event listener management)
    */
@@ -176,7 +181,11 @@ const ClaudeCodeSessionInner: React.FC<ClaudeCodeSessionProps> = ({
 
   const [_rawJsonlOutput, setRawJsonlOutput] = useState<string[]>([]); // Kept for hooks, not directly used
   const [isFirstPrompt, setIsFirstPrompt] = useState(!session); // Key state for session continuation
-  const [extractedSessionInfo, setExtractedSessionInfo] = useState<{ sessionId: string; projectId: string; engine?: 'claude' | 'codex' | 'gemini' } | null>(null);
+  const [extractedSessionInfo, setExtractedSessionInfo] = useState<{
+    sessionId: string;
+    projectId: string;
+    engine?: 'claude' | 'codex' | 'gemini' | 'siliconflow' | 'kiro';
+  } | null>(null);
   // 🔧 FIX: 标记会话是否不存在（历史记录文件未找到）
   // 当为 true 时，effectiveSession 应返回 null，显示路径选择界面
   const [sessionNotFound, setSessionNotFound] = useState(false);

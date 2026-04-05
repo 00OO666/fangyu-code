@@ -96,9 +96,11 @@ export function parseFrontMatter(content: string): { frontMatter: SteeringFrontM
         frontMatter.description = value;
         break;
       case 'priority':
-        const num = parseInt(value, 10);
-        if (!isNaN(num)) {
-          frontMatter.priority = num;
+        {
+          const num = parseInt(value, 10);
+          if (!isNaN(num)) {
+            frontMatter.priority = num;
+          }
         }
         break;
     }

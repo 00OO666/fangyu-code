@@ -175,7 +175,7 @@ export const useTabSession = (tabId: string) => {
     );
 
     const updateEngine = useCallback(
-        (engine: 'claude' | 'codex' | 'gemini' | 'siliconflow') => {
+        (engine: 'claude' | 'codex' | 'gemini' | 'siliconflow' | 'kiro') => {
             updateTabEngine(tabId, engine);
         },
         [tabId, updateTabEngine]
@@ -186,7 +186,7 @@ export const useTabSession = (tabId: string) => {
             sessionId: string;
             projectId: string;
             projectPath: string;
-            engine?: 'claude' | 'codex' | 'gemini' | 'siliconflow';
+            engine?: 'claude' | 'codex' | 'gemini' | 'siliconflow' | 'kiro';
         }) => {
             updateTabSession(tabId, sessionInfo);
         },

@@ -24,6 +24,7 @@ pub fn import_from_codex() -> Result<HashMap<String, Value>, String> {
 }
 
 /// 将多个服务器同步到 Codex
+#[allow(dead_code)]
 pub fn sync_servers_to_codex(servers: &HashMap<String, Value>) -> Result<(), String> {
     crate::codex_mcp::set_mcp_servers_map(servers)
 }

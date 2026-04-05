@@ -250,7 +250,7 @@ export function useTabState() {
      * 更新标签页引擎
      */
     const updateTabEngine = useCallback(
-        (tabId: string, engine: 'claude' | 'codex' | 'gemini' | 'siliconflow') => {
+        (tabId: string, engine: 'claude' | 'codex' | 'gemini' | 'siliconflow' | 'kiro') => {
             setTabs((prev) =>
                 prev.map((tab) => {
                     if (tab.id !== tabId) return tab;

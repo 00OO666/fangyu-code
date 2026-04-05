@@ -423,7 +423,6 @@ impl AutoCompactManager {
         
         // Collect output
         let mut stdout_lines = stdout_reader.lines();
-        let mut stderr_output = String::new();
         
         // Read stderr in background
         let stderr_task = tokio::spawn(async move {
@@ -458,7 +457,7 @@ impl AutoCompactManager {
         }
         
         // Wait for stderr task
-        stderr_output = stderr_task.await.unwrap_or_default();
+        let stderr_output = stderr_task.await.unwrap_or_default();
 
         // Wait for process completion
         let status = child

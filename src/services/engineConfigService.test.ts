@@ -167,7 +167,7 @@ describe.sequential('EngineConfigService', () => {
             await service.deleteProvider(provider.id);
 
             const providers = service.getProviders('claude');
-            expect(providers.find(p => p.id === provider.id)).toBeUndefined();
+            expect(providers.find((p: { id: string }) => p.id === provider.id)).toBeUndefined();
         });
 
         it('删除不存在的代理商应静默处理', async () => {

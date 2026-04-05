@@ -69,6 +69,7 @@ impl PathValidator {
     }
     
     /// 添加额外的允许目录
+    #[allow(dead_code)]
     pub fn add_allowed_directory(&mut self, path: PathBuf) {
         if !self.allowed_directories.contains(&path) {
             self.allowed_directories.push(path);
@@ -184,12 +185,13 @@ impl Default for PathValidator {
     }
 }
 
-/// 全局路径验证器实例（线程安全）
+// 全局路径验证器实例（线程安全）
 lazy_static::lazy_static! {
     pub static ref GLOBAL_PATH_VALIDATOR: PathValidator = PathValidator::new();
 }
 
 /// 快捷函数：验证并规范化路径
+#[allow(dead_code)]
 pub fn validate_path(path: &str) -> Result<PathBuf, String> {
     GLOBAL_PATH_VALIDATOR
         .validate_path(path)

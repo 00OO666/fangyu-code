@@ -8,6 +8,7 @@
 import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
 import { PreciseFileOps, MockFileSystem } from './PreciseFileOps';
+import type { FileEncoding } from '../types/unified-agent';
 
 // Generators
 const filePathArb = fc.tuple(
@@ -18,7 +19,7 @@ const filePathArb = fc.tuple(
 const uniqueStringArb = fc.string({ minLength: 5, maxLength: 30 })
   .filter(s => !s.includes('\n') && !s.includes('\r') && s.trim().length > 0);
 
-const lineEndingArb = fc.constantFrom('lf', 'crlf');
+const lineEndingArb = fc.constantFrom<'lf' | 'crlf'>('lf', 'crlf');
 
 describe('PreciseFileOps Property Tests', () => {
   describe('Property 23: strReplace unique match', () => {
@@ -43,8 +44,9 @@ describe('PreciseFileOps Property Tests', () => {
             expect(result.matchCount).toBe(1);
             
             const newContent = testFs.getFile(path);
-            expect(newContent).toContain(newStr);
-            expect(newContent).not.toContain(oldStr);
+            expect(newContent).toBeDefined();
+            expect(newContent ?? '').toContain(newStr);
+            expect(newContent ?? '').not.toContain(oldStr);
           }
         ),
         { numRuns: 100 }
@@ -162,7 +164,8 @@ describe('PreciseFileOps Property Tests', () => {
             const newContent = testFs.getFile(path);
             const expectedLength = originalLength - oldStr.length + newStr.length;
             
-            expect(newContent.length).toBe(expectedLength);
+            expect(newContent).toBeDefined();
+            expect((newContent ?? '').length).toBe(expectedLength);
           }
         ),
         { numRuns: 100 }
@@ -237,7 +240,7 @@ describe('PreciseFileOps Property Tests', () => {
             const testFs = new MockFileSystem();
             const testOps = new PreciseFileOps(testFs);
             
-            const encoding = { encoding: 'utf-8', bom: false, lineEnding };
+            const encoding: FileEncoding = { encoding: 'utf-8', bom: false, lineEnding };
             testFs.setEncoding(path, encoding);
             testFs.setFile(path, 'test content');
             

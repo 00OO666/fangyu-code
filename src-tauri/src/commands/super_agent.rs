@@ -9,7 +9,6 @@ use std::path::PathBuf;
 use std::process::Stdio;
 use tauri::command;
 use tokio::process::Command;
-use tokio::io::{AsyncBufReadExt, BufReader};
 
 // =============================================================================
 // 类型定义
@@ -57,15 +56,6 @@ pub struct CommandResult {
     pub stderr: String,
     pub exit_code: Option<i32>,
     pub duration_ms: u64,
-}
-
-/// 进程信息
-#[derive(Debug, Serialize, Deserialize)]
-pub struct ProcessInfo {
-    pub id: u32,
-    pub command: String,
-    pub status: String,
-    pub started_at: u64,
 }
 
 /// 安全验证结果

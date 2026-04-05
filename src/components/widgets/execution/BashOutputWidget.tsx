@@ -54,7 +54,11 @@ export const BashOutputWidget: React.FC<BashOutputWidgetProps> = ({
 
   // 清除 ANSI 转义序列
   const stripAnsiCodes = (text: string): string => {
-    return text.replace(/\x1b\[[0-9;]*[mGKHJfABCD]/g, '');
+    const ansiEscapePattern = new RegExp(
+      `${String.fromCharCode(27)}\\[[0-9;]*[mGKHJfABCD]`,
+      'g',
+    );
+    return text.replace(ansiEscapePattern, '');
   };
 
   const cleanContent = stripAnsiCodes(resultContent);

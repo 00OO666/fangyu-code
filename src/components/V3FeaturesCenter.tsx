@@ -20,6 +20,17 @@ interface V3FeaturesCenterProps {
 
 type FeatureView = 'home' | 'lsp' | 'diff' | 'terminal' | 'snippets' | 'git' | 'test' | 'template' | 'profiler' | 'plugin';
 
+const LSP_DEMO_CODE = `// 在这里编写代码，体验 LSP 功能
+// Ctrl+F12: 跳转到定义
+// Shift+F12: 查找引用
+// F2: 重命名符号
+
+function hello(name: string) {
+  return \`Hello, \${name}!\`;
+}
+
+const result = hello('World');`;
+
 const features = [
   {
     id: 'lsp' as FeatureView,
@@ -88,6 +99,7 @@ const features = [
 
 export const V3FeaturesCenter: React.FC<V3FeaturesCenterProps> = ({ onBack }) => {
   const [currentView, setCurrentView] = useState<FeatureView>('home');
+  const [demoCode, setDemoCode] = useState(LSP_DEMO_CODE);
 
   const renderFeatureContent = () => {
     switch (currentView) {
@@ -103,9 +115,9 @@ export const V3FeaturesCenter: React.FC<V3FeaturesCenterProps> = ({ onBack }) =>
             </div>
             <div className="flex-1 overflow-hidden">
               <CodeEditor
-                initialValue="// 在这里编写代码，体验 LSP 功能\n// Ctrl+F12: 跳转到定义\n// Shift+F12: 查找引用\n// F2: 重命名符号\n\nfunction hello(name: string) {\n  return `Hello, ${name}!`;\n}\n\nconst result = hello('World');"
+                value={demoCode}
                 language="typescript"
-                onSave={(content) => console.log('Saved:', content)}
+                onChange={setDemoCode}
               />
             </div>
           </div>
@@ -161,7 +173,7 @@ export const V3FeaturesCenter: React.FC<V3FeaturesCenterProps> = ({ onBack }) =>
       case 'test':
       case 'template':
       case 'profiler':
-      case 'plugin':
+      case 'plugin': {
         const featureInfo = features.find(f => f.id === currentView);
         return (
           <div className="h-full flex flex-col">
@@ -189,6 +201,7 @@ export const V3FeaturesCenter: React.FC<V3FeaturesCenterProps> = ({ onBack }) =>
             </div>
           </div>
         );
+      }
 
       case 'home':
       default:

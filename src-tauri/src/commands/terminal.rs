@@ -57,16 +57,19 @@ pub async fn terminal_execute(
 
 #[tauri::command]
 pub async fn terminal_create_session(
-    _state: State<'_, TerminalManager>,
+    state: State<'_, TerminalManager>,
 ) -> Result<String, String> {
     let session_id = Uuid::new_v4().to_string();
+    state.sessions.lock().await.push(session_id.clone());
     Ok(session_id)
 }
 
 #[tauri::command]
 pub async fn terminal_close_session(
-    _session_id: String,
-    _state: State<'_, TerminalManager>,
+    session_id: String,
+    state: State<'_, TerminalManager>,
 ) -> Result<(), String> {
+    let mut sessions = state.sessions.lock().await;
+    sessions.retain(|existing| existing != &session_id);
     Ok(())
 }

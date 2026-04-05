@@ -17,7 +17,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { api, type Session } from "@/lib/api";
 import { codexConverter } from "@/lib/codexConverter";
 import { convertGeminiSessionDetailToClaudeMessages } from "@/lib/geminiConverter";
-import { AsyncQueue, converterRegistry, type EngineType } from "@/lib/stream";
+import { AsyncQueue, converterRegistry } from "@/lib/stream";
 import { normalizeUsageData } from "@/lib/utils";
 import type { ClaudeStreamMessage } from "@/types/claude";
 import type { CodexRateLimits } from "@/types/codex";
@@ -190,9 +190,9 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
   } = config;
 
   // 🆕 条件化调试日志（仅在开发环境启用）
-  const debugLog = useCallback((...args: any[]) => {
+  const debugLog = useCallback((message: string, ...details: unknown[]) => {
     if (import.meta.env.DEV) {
-      logger.debug('useSessionStream', ...args);
+      logger.debug('useSessionStream', message, ...details);
     }
   }, []);
 
@@ -203,10 +203,11 @@ export function useSessionStream(config: UseSessionStreamConfig): UseSessionStre
   /**
    * 获取引擎类型
    */
-  const getEngine = useCallback((): EngineType => {
+  const getEngine = useCallback((): "claude" | "codex" | "gemini" | "siliconflow" => {
     const engine = (session as any)?.engine;
     if (engine === "codex") return "codex";
     if (engine === "gemini") return "gemini";
+    if (engine === "siliconflow") return "siliconflow";
     return "claude";
   }, [session]);
 

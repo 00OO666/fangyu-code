@@ -33,7 +33,6 @@ import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
-import { EnhancedEngineSelector, type ExecutionEngineConfig } from '@/components/EnhancedEngineSelector';
 import { SummaryEngineConfig } from '@/components/dialogs/SummaryEngineConfig';
 import { getSummaryGeneratorService } from '@/services/summaryGeneratorService';
 import { getSummaryConfigStore } from '@/services/summaryConfigStore';
@@ -70,7 +69,7 @@ export const SummaryModal: React.FC<SummaryModalProps> = ({
     onOpenInNewSession,
 }) => {
     // 状态
-    const [engineConfig, setEngineConfig] = useState<ExecutionEngineConfig>({
+    const [engineConfig, setEngineConfig] = useState<{ engine: SummaryAPIConfig['engine'] }>({
         engine: 'claude',
     });
     const [progress, setProgress] = useState<GenerationProgress>({

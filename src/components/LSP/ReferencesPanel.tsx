@@ -27,7 +27,7 @@ export const ReferencesPanel: React.FC<ReferencesPanelProps> = ({
           onClick={() => onNavigate(ref)}
           className="block text-left text-sm hover:bg-accent p-1 rounded w-full"
         >
-          {ref.uri}:{ref.range.start.line + 1}
+          {ref.file}:{ref.range.start.line + 1}
         </button>
       ))}
     </div>

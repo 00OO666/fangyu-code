@@ -25,7 +25,7 @@ export const DefinitionPanel: React.FC<DefinitionPanelProps> = ({
         onClick={() => onNavigate(location)}
         className="text-blue-500 hover:underline"
       >
-        {location.uri}:{location.range.start.line + 1}
+        {location.file}:{location.range.start.line + 1}
       </button>
     </div>
   );

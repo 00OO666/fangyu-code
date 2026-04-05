@@ -4,8 +4,6 @@ import { codexProviderPresets } from "@/config/codexProviderPresets";
 import { HooksManager } from "@/lib/hooksManager";
 import type { HooksConfiguration } from "@/types/hooks";
 import type {
-  HookEventContext,
-  HookExecutionResult,
   BackgroundTaskType,
   TaskPriority,
   TaskProgress,
@@ -1413,9 +1411,15 @@ export const api = {
    * @param context - The hook execution context
    * @returns Promise resolving to hook chain execution result
    */
-  async triggerHookEvent(event: string, context: HookEventContext): Promise<HookExecutionResult> {
+  async triggerHookEvent(
+    event: string,
+    context: import("@/types/enhanced-hooks").HookContext,
+  ): Promise<import("@/types/enhanced-hooks").HookChainResult> {
     try {
-      return await invoke<HookExecutionResult>("trigger_hook_event", { event, context });
+      return await invoke<import("@/types/enhanced-hooks").HookChainResult>(
+        "trigger_hook_event",
+        { event, context },
+      );
     } catch (error) {
       logger.error('api', "Failed to trigger hook event:", error);
       throw error;
@@ -1428,7 +1432,10 @@ export const api = {
    * @param context - The hook context for evaluation
    * @returns Promise resolving to whether condition is true
    */
-  async testHookCondition(condition: string, context: HookEventContext): Promise<boolean> {
+  async testHookCondition(
+    condition: string,
+    context: import("@/types/enhanced-hooks").HookContext,
+  ): Promise<boolean> {
     try {
       return await invoke<boolean>("test_hook_condition", { condition, context });
     } catch (error) {

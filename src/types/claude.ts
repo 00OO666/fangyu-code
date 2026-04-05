@@ -13,7 +13,7 @@ export interface ClaudeStreamMessage {
     | "tool_use";
   subtype?: string;
   message?: {
-    content?: any[];
+    content?: any[] | string;
     role?: string;
     usage?: {
       input_tokens: number;
@@ -49,6 +49,6 @@ export interface ClaudeStreamMessage {
     raw?: unknown;
   };
   // Execution engine identifier
-  engine?: "claude" | "codex" | "gemini";
+  engine?: "claude" | "codex" | "gemini" | "siliconflow" | "kiro";
   [key: string]: any;
 }

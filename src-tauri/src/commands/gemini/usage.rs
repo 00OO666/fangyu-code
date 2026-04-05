@@ -89,6 +89,7 @@ pub struct GeminiUsageStats {
 struct ModelPricing {
     input: f64,
     output: f64,
+    #[allow(dead_code)]
     cache_read: f64,
 }
 

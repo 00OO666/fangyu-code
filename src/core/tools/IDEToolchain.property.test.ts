@@ -14,7 +14,7 @@ import { MockPowerStorage, MockMCPClient } from './PowersManager';
 import { Diagnostic, DiagnosticSeverity } from '../types/unified-agent';
 
 // 生成文件路径
-const filePathArb = fc.stringMatching(/^[a-z][a-z0-9\/]*\.(ts|js|py|rs)$/);
+const filePathArb = fc.stringMatching(/^[a-z][a-z0-9/]*\.(ts|js|py|rs)$/);
 
 // 生成诊断严重性
 const severityArb = fc.constantFrom<DiagnosticSeverity>('error', 'warning', 'info', 'hint');

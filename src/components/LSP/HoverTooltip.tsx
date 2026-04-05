@@ -42,7 +42,7 @@ export const HoverTooltip: React.FC<HoverTooltipProps> = ({
       onClick={(e) => e.stopPropagation()}
     >
       <div className="text-sm">
-        <ReactMarkdown>{hoverInfo.content}</ReactMarkdown>
+        <ReactMarkdown>{hoverInfo.contents}</ReactMarkdown>
       </div>
       <button
         onClick={onClose}

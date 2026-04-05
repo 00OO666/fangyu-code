@@ -9,4 +9,4 @@
 
 pub mod manager;
 
-pub use manager::{LSPProcessManager, LSPManagerConfig, LSPStatus, ServerInfo};
+pub use manager::{LSPProcessManager, LSPManagerConfig, ServerInfo};

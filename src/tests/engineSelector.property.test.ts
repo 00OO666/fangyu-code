@@ -20,7 +20,8 @@ const engineArb: fc.Arbitrary<SummaryEngine> = fc.constantFrom(
     'claude',
     'codex',
     'gemini',
-    'siliconflow'
+    'siliconflow',
+    'kiro'
 );
 
 const engineAvailabilityArb: fc.Arbitrary<Record<SummaryEngine, boolean>> = fc.record({
@@ -28,6 +29,7 @@ const engineAvailabilityArb: fc.Arbitrary<Record<SummaryEngine, boolean>> = fc.r
     codex: fc.boolean(),
     gemini: fc.boolean(),
     siliconflow: fc.constant(true), // API 引擎始终可用
+    kiro: fc.constant(true), // 本地引擎在选择器里始终可选
 });
 
 // =============================================================================
@@ -76,6 +78,8 @@ function getDisabledReason(
             return 'Gemini CLI 未安装';
         case 'siliconflow':
             return null; // API 引擎始终可用
+        case 'kiro':
+            return null; // 本地引擎不通过这里禁用
         default:
             return '未知引擎';
     }

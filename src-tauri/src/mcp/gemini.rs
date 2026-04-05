@@ -3,7 +3,6 @@
 use serde_json::Value;
 use std::collections::HashMap;
 
-use super::validation::validate_server_spec;
 
 /// 将单个 MCP 服务器同步到 Gemini 配置
 pub fn sync_single_server_to_gemini(id: &str, server_spec: &Value) -> Result<(), String> {
@@ -32,6 +31,7 @@ pub fn import_from_gemini() -> Result<HashMap<String, Value>, String> {
 }
 
 /// 将多个服务器同步到 Gemini
+#[allow(dead_code)]
 pub fn sync_servers_to_gemini(servers: &HashMap<String, Value>) -> Result<(), String> {
     crate::gemini_mcp::set_mcp_servers_map(servers)
 }

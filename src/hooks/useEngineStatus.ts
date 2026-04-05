@@ -121,6 +121,7 @@ export const generateEngineErrorMessage = (
     codex: errorStr || 'OpenAI Codex CLI 未安装或不可用。请确保已正确配置 OpenAI API。',
     gemini: errorStr || 'Google Gemini CLI 未安装或不可用。请运行 npm install -g @anthropic-ai/gemini-cli 安装。',
     siliconflow: errorStr || 'SiliconFlow API 配置错误。请检查 API Key 是否正确。',
+    kiro: errorStr || 'Kiro CLI 未安装或登录态不可用。请先在本机完成 Kiro 登录。',
   };
 
   return messages[engine];
@@ -309,6 +310,12 @@ export const useEngineStatus = () => {
         return {
           installed: true,
           version: 'API',
+          status: 'ready',
+        };
+      case 'kiro':
+        return {
+          installed: true,
+          version: 'CLI',
           status: 'ready',
         };
       default:

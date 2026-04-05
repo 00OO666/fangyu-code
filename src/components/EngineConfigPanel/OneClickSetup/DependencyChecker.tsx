@@ -46,6 +46,7 @@ const CLI_COMMANDS: Record<EngineType, { name: string; command: string; versionA
     codex: { name: 'Codex CLI', command: 'codex', versionArg: '--version' },
     gemini: { name: 'Gemini CLI', command: 'gemini', versionArg: '--version' },
     siliconflow: { name: 'SiliconFlow', command: '', versionArg: '' }, // 无需 CLI
+    kiro: { name: 'Kiro CLI', command: 'kiro-cli', versionArg: '--version' },
 };
 
 type CheckStatus = 'idle' | 'checking' | 'done';

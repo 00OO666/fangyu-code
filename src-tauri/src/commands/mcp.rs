@@ -813,6 +813,9 @@ pub async fn mcp_upsert_server(
     apps: McpApps,
 ) -> Result<String, String> {
     info!("Upserting MCP server: {} for apps: {:?}", id, apps);
+    if apps.is_empty() {
+        return Err("至少需要选择一个 MCP 应用".to_string());
+    }
 
     // 验证服务器规范
     crate::mcp::validate_server_spec(&server_spec)?;
@@ -839,6 +842,9 @@ pub async fn mcp_upsert_server(
 #[tauri::command]
 pub async fn mcp_delete_server(id: String, apps: McpApps) -> Result<String, String> {
     info!("Deleting MCP server: {} from apps: {:?}", id, apps);
+    if apps.is_empty() {
+        return Err("至少需要选择一个 MCP 应用".to_string());
+    }
 
     // 创建服务器结构用于删除
     let server = McpServer {
@@ -884,7 +890,7 @@ pub async fn mcp_toggle_app(
     Ok(format!(
         "MCP 服务器 '{}' 在 {} 中已{}",
         id,
-        app,
+        app_type.as_str(),
         if enabled { "启用" } else { "禁用" }
     ))
 }

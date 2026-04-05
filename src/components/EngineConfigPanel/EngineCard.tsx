@@ -3,6 +3,7 @@
  */
 
 import React from 'react';
+import type { LucideIcon } from 'lucide-react';
 import Bot from 'lucide-react/dist/esm/icons/bot'
 import FileCode from 'lucide-react/dist/esm/icons/file-code'
 import Sparkles from 'lucide-react/dist/esm/icons/sparkles'
@@ -23,7 +24,7 @@ interface EngineCardProps {
     onClick: () => void;
 }
 
-const ENGINE_ICON_MAP: Record<EngineType, React.ComponentType<{ className?: string }>> = {
+const ENGINE_ICON_MAP: Record<EngineType, LucideIcon> = {
     claude: Bot,
     codex: FileCode,
     gemini: Sparkles,
@@ -32,7 +33,7 @@ const ENGINE_ICON_MAP: Record<EngineType, React.ComponentType<{ className?: stri
 };
 
 function getStatusInfo(status: EngineStatusInfo): {
-    icon: React.ComponentType<{ className?: string }>;
+    icon: LucideIcon;
     color: string;
     text: string;
 } {

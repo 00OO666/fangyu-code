@@ -11,6 +11,7 @@ use serde_json::Value;
 // ============================================================================
 
 /// Raw Gemini event from JSONL stream
+#[allow(dead_code)]
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct RawGeminiEvent {
     #[serde(rename = "type")]
@@ -300,6 +301,7 @@ impl Default for GeminiExecutionOptions {
 // ============================================================================
 
 /// Gemini session metadata
+#[allow(dead_code)]
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GeminiSession {

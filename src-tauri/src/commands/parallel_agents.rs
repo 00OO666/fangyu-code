@@ -225,6 +225,7 @@ impl ParallelAgent {
         matches!(self.status, AgentStatus::Idle)
     }
 
+    #[allow(dead_code)]
     pub fn can_handle(&self, task: &ParallelTask) -> bool {
         if !self.is_available() {
             return false;

@@ -52,7 +52,7 @@ pub fn ensure_git_repo(project_path: &str) -> Result<(), String> {
 
         let mut cmd = Command::new("git");
         cmd.args(["init"]);
-        cmd.current_dir(project_path);
+        safe_current_dir(&mut cmd, project_path)?;
 
         #[cfg(target_os = "windows")]
         cmd.creation_flags(0x08000000); // CREATE_NO_WINDOW
@@ -74,14 +74,14 @@ pub fn ensure_git_repo(project_path: &str) -> Result<(), String> {
     // Configure Git user if not set (needed for commits)
     let mut config_name = Command::new("git");
     config_name.args(["config", "user.name", "Claude Workbench"]);
-    config_name.current_dir(project_path);
+    safe_current_dir(&mut config_name, project_path)?;
     #[cfg(target_os = "windows")]
     config_name.creation_flags(0x08000000);
     let _ = config_name.output();
 
     let mut config_email = Command::new("git");
     config_email.args(["config", "user.email", "ai@claude.workbench"]);
-    config_email.current_dir(project_path);
+    safe_current_dir(&mut config_email, project_path)?;
     #[cfg(target_os = "windows")]
     config_email.creation_flags(0x08000000);
     let _ = config_email.output();
@@ -90,7 +90,7 @@ pub fn ensure_git_repo(project_path: &str) -> Result<(), String> {
     log::info!("Adding all existing files to git staging area...");
     let mut add_cmd = Command::new("git");
     add_cmd.args(["add", "-A"]);
-    add_cmd.current_dir(project_path);
+    safe_current_dir(&mut add_cmd, project_path)?;
     #[cfg(target_os = "windows")]
     add_cmd.creation_flags(0x08000000);
 
@@ -113,7 +113,7 @@ pub fn ensure_git_repo(project_path: &str) -> Result<(), String> {
         "-m",
         "[Claude Workbench] Initial commit - preserving existing code",
     ]);
-    commit_cmd.current_dir(project_path);
+    safe_current_dir(&mut commit_cmd, project_path)?;
 
     #[cfg(target_os = "windows")]
     commit_cmd.creation_flags(0x08000000); // CREATE_NO_WINDOW

@@ -150,15 +150,6 @@ export const SessionMessages = forwardRef<SessionMessagesRef, SessionMessagesPro
     getItemKey,
     overscan: 5, // 🔧 FIX: 减少 overscan 从 10 到 5，避免流式输出时渲染过多不可见元素
 
-    /**
-     * 🔧 v3.3: 智能滚动位置调整
-     * - 用户主动滚动时：禁用调整，避免干扰用户操作
-     * - 程序滚动时：启用调整，保持视觉连续性
-     */
-    shouldAdjustScrollPositionOnItemSizeChange: () => {
-      // 用户正在滚动时，或者正在加载（流式输出）时，不调整位置
-      return !isUserScrollingRef.current && !isLoading;
-    },
   });
 
   /**
@@ -210,9 +201,15 @@ export const SessionMessages = forwardRef<SessionMessagesRef, SessionMessagesPro
             if (typeof content === 'string') {
               hasText = content.trim().length > 0;
             } else if (Array.isArray(content)) {
-              hasText = content.some((item: any) =>
-                item.type === 'text' && item.text?.trim()
-              );
+              hasText = content.some((item: any) => {
+                const text =
+                  typeof item?.text === 'string'
+                    ? item.text
+                    : typeof item?.text?.text === 'string'
+                      ? item.text.text
+                      : '';
+                return item?.type === 'text' && text.trim().length > 0;
+              });
             }
 
             if (hasText) {

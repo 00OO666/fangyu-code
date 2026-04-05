@@ -43,6 +43,7 @@ pub fn validate_server_spec(spec: &Value) -> Result<(), String> {
 }
 
 /// 提取服务器规范（移除 UI 辅助字段）
+#[allow(dead_code)]
 pub fn extract_server_spec(entry: &Value) -> Result<Value, String> {
     let mut spec = entry.clone();
 

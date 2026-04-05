@@ -24,7 +24,7 @@ mod validation;
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 // 重新导出公共 API
 pub use claude::{
@@ -39,7 +39,7 @@ pub use gemini::{
     import_from_gemini, remove_server_from_gemini, sync_servers_to_gemini,
     sync_single_server_to_gemini,
 };
-pub use validation::{extract_server_spec, validate_server_spec};
+pub use validation::validate_server_spec;
 
 /// 应用类型
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -100,6 +100,7 @@ impl McpApps {
     }
 
     /// 获取所有启用的应用列表
+    #[allow(dead_code)]
     pub fn enabled_apps(&self) -> Vec<AppType> {
         let mut apps = Vec::new();
         if self.claude {
@@ -161,16 +162,22 @@ pub fn remove_server_from_app(id: &str, app: &AppType) -> Result<(), String> {
 
 /// 将 MCP 服务器同步到所有启用的应用
 pub fn sync_server_to_apps(server: &McpServer) -> Result<(), String> {
-    for app in server.apps.enabled_apps() {
-        sync_server_to_app(&server.id, &server.server, &app)?;
+    for app in [AppType::Claude, AppType::Codex, AppType::Gemini] {
+        if server.apps.is_enabled_for(&app) {
+            log::debug!("同步 MCP '{}' 到 {}", server.id, app.as_str());
+            sync_server_to_app(&server.id, &server.server, &app)?;
+        }
     }
     Ok(())
 }
 
 /// 从所有应用移除 MCP 服务器
 pub fn remove_server_from_all_apps(server: &McpServer) -> Result<(), String> {
-    for app in server.apps.enabled_apps() {
-        remove_server_from_app(&server.id, &app)?;
+    for app in [AppType::Claude, AppType::Codex, AppType::Gemini] {
+        if server.apps.is_enabled_for(&app) {
+            log::debug!("从 {} 移除 MCP '{}'", app.as_str(), server.id);
+            remove_server_from_app(&server.id, &app)?;
+        }
     }
     Ok(())
 }
@@ -185,6 +192,7 @@ pub fn import_from_app(app: &AppType) -> Result<HashMap<String, Value>, String> 
 }
 
 /// 将多个服务器同步到指定应用
+#[allow(dead_code)]
 pub fn sync_servers_to_app(
     servers: &HashMap<String, Value>,
     app: &AppType,
@@ -247,17 +255,18 @@ pub fn get_unified_servers() -> Result<HashMap<String, McpServer>, String> {
             .unwrap_or(Value::Object(serde_json::Map::new()));
 
         // 创建统一服务器
+        let mut apps = McpApps::default();
+        apps.set_enabled_for(&AppType::Claude, claude_spec.is_some());
+        apps.set_enabled_for(&AppType::Codex, codex_spec.is_some());
+        apps.set_enabled_for(&AppType::Gemini, gemini_spec.is_some());
+
         unified.insert(
             id.clone(),
             McpServer {
                 id: id.clone(),
                 name: id.clone(),
                 server: server_spec,
-                apps: McpApps {
-                    claude: claude_spec.is_some(),
-                    codex: codex_spec.is_some(),
-                    gemini: gemini_spec.is_some(),
-                },
+                apps,
                 description: None,
                 homepage: None,
                 docs: None,

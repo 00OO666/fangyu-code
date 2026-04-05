@@ -411,10 +411,12 @@ export const ErrorMonitorPanel: React.FC<ErrorMonitorPanelProps> = ({
           "px-4 py-3 flex items-center gap-3 min-w-[180px]"
         )}
         style={{
+          ...dragHandleProps.style,
           left: position.x,
           top: position.y,
         }}
-        {...dragHandleProps}
+        onMouseDown={dragHandleProps.onMouseDown}
+        onDoubleClick={dragHandleProps.onDoubleClick}
       >
         <GripHorizontal className="h-4 w-4 text-white/40" />
         <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />

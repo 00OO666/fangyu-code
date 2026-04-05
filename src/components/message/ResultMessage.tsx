@@ -58,10 +58,6 @@ const COLLAPSE_HEIGHT = 300; // px
 
 export const ResultMessage: React.FC<ResultMessageProps> = ({ message, className }) => {
   const isError = Boolean((message as any).is_error) || Boolean(message.subtype?.toLowerCase().includes("error"));
-  if (!isError) {
-    return null;
-  }
-
   const { theme } = useTheme();
   const syntaxTheme = useMemo(() => getClaudeSyntaxTheme(theme === "dark"), [theme]);
 
@@ -108,6 +104,10 @@ export const ResultMessage: React.FC<ResultMessageProps> = ({ message, className
   const cost = (message as any).costUSD ?? (message as any).totalCostUSD ?? (message as any).cost_usd ?? (message as any).total_cost_usd;
   const durationMs = (message as any).duration_ms;
   const numTurns = (message as any).num_turns;
+
+  if (!isError) {
+    return null;
+  }
 
   return (
     <div className={cn("my-4 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3", className)}>

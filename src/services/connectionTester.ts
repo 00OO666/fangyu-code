@@ -6,6 +6,7 @@
 
 import { fetch as tauriFetch } from '@tauri-apps/plugin-http';
 import type { EngineType } from '../types/provider';
+import { KiroEngine } from './kiro';
 
 export interface TestConfig {
     engine: EngineType;
@@ -274,6 +275,45 @@ async function testSiliconFlowConnection(config: TestConfig): Promise<Connection
 }
 
 /**
+ * 测试 Kiro 连接
+ */
+async function testKiroConnection(config: TestConfig): Promise<ConnectionTestResult> {
+    const startTime = Date.now();
+
+    try {
+        const engine = new KiroEngine({
+            tokenPath: config.baseUrl || undefined,
+            modelId: config.model,
+        });
+        const validation = await engine.validateConfig();
+        const latencyMs = Date.now() - startTime;
+
+        if (validation.valid) {
+            return {
+                success: true,
+                timestamp: Date.now(),
+                latencyMs,
+                modelInfo: config.model
+                    ? {
+                        name: config.model,
+                    }
+                    : undefined,
+            };
+        }
+
+        return {
+            success: false,
+            timestamp: Date.now(),
+            latencyMs,
+            errorCode: 'UNAUTHORIZED',
+            errorMessage: validation.error || 'Kiro 登录态无效',
+        };
+    } catch (error) {
+        return handleFetchError(error, startTime);
+    }
+}
+
+/**
  * 处理 fetch 错误
  */
 function handleFetchError(error: unknown, startTime: number): ConnectionTestResult {
@@ -318,6 +358,7 @@ const ENGINE_TESTERS: Record<EngineType, (config: TestConfig) => Promise<Connect
     codex: testCodexConnection,
     gemini: testGeminiConnection,
     siliconflow: testSiliconFlowConnection,
+    kiro: testKiroConnection,
 };
 
 /**

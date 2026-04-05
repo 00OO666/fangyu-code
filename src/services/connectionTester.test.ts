@@ -36,8 +36,8 @@ describe('ConnectionTester', () => {
         isOfficial: false,
         isPartner: false,
         sortOrder: 0,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
     });
 
     describe('testConnection', () => {

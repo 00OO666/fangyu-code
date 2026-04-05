@@ -80,8 +80,10 @@ export class LSPClient {
   private setCachedData<T>(cache: Map<string, CacheEntry<T>>, key: string, data: T): void {
     // 限制缓存大小
     if (cache.size >= MAX_CACHE_SIZE) {
-      const firstKey = cache.keys().next().value;
-      cache.delete(firstKey);
+      const firstKey = cache.keys().next().value as string | undefined;
+      if (firstKey) {
+        cache.delete(firstKey);
+      }
     }
 
     cache.set(key, {

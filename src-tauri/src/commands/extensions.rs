@@ -102,7 +102,7 @@ fn parse_description_from_content(content: &str) -> Option<String> {
         let mut description_lines: Vec<String> = Vec::new();
         let mut description_indent = 0;
 
-        for (i, line) in lines.iter().skip(1).enumerate() {
+        for (_i, line) in lines.iter().skip(1).enumerate() {
             if *line == "---" {
                 // Found end of frontmatter
                 break;
@@ -593,70 +593,6 @@ pub async fn list_plugins(_project_path: Option<String>) -> Result<Vec<PluginInf
     }
 
     info!("Found {} installed plugins", plugins.len());
-    Ok(plugins)
-}
-
-/// Scan plugins directory
-fn scan_plugins_directory(dir: &Path) -> Result<Vec<PluginInfo>, String> {
-    let mut plugins = Vec::new();
-
-    let entries =
-        fs::read_dir(dir).map_err(|e| format!("Failed to read plugins directory: {}", e))?;
-
-    for entry in entries.flatten() {
-        let path = entry.path();
-
-        if !path.is_dir() {
-            continue;
-        }
-
-        // Look for .claude-plugin/plugin.json
-        let plugin_json_path = path.join(".claude-plugin").join("plugin.json");
-
-        if plugin_json_path.exists() {
-            if let Ok(content) = fs::read_to_string(&plugin_json_path) {
-                if let Ok(manifest) = serde_json::from_str::<serde_json::Value>(&content) {
-                    let name = manifest
-                        .get("name")
-                        .and_then(|v| v.as_str())
-                        .unwrap_or("unknown")
-                        .to_string();
-
-                    let description = manifest
-                        .get("description")
-                        .and_then(|v| v.as_str())
-                        .map(|s| s.to_string());
-
-                    let version = manifest
-                        .get("version")
-                        .and_then(|v| v.as_str())
-                        .unwrap_or("0.0.0")
-                        .to_string();
-
-                    let author = manifest
-                        .get("author")
-                        .and_then(|v| v.get("name"))
-                        .and_then(|v| v.as_str())
-                        .map(|s| s.to_string());
-
-                    // Count components
-                    let components = count_plugin_components(&path);
-
-                    plugins.push(PluginInfo {
-                        name,
-                        description,
-                        version,
-                        author,
-                        marketplace: None,
-                        path: path.to_string_lossy().to_string(),
-                        enabled: true, // TODO: 从配置读取实际状态
-                        components,
-                    });
-                }
-            }
-        }
-    }
-
     Ok(plugins)
 }
 

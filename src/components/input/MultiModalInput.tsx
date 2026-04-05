@@ -14,7 +14,7 @@ import { logger } from '@/lib/logger';
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Upload from 'lucide-react/dist/esm/icons/upload'
-import Image from 'lucide-react/dist/esm/icons/image'
+import ImageIcon from 'lucide-react/dist/esm/icons/image'
 import FileText from 'lucide-react/dist/esm/icons/file-text'
 import X from 'lucide-react/dist/esm/icons/x'
 import Eye from 'lucide-react/dist/esm/icons/eye'
@@ -116,7 +116,7 @@ const generateThumbnail = async (file: File): Promise<string> => {
 
     const reader = new FileReader();
     reader.onload = (e) => {
-      const img = new Image();
+      const img = new window.Image();
       img.onload = () => {
         const canvas = document.createElement('canvas');
         const maxSize = 200;
@@ -218,7 +218,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({ file, onClose, onDelete, enab
           <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center gap-2">
               {file.type === 'image' ? (
-                <Image className="w-5 h-5" />
+                <ImageIcon className="w-5 h-5" />
               ) : (
                 <FileText className="w-5 h-5" />
               )}
@@ -433,7 +433,7 @@ const FileCard: React.FC<FileCardProps> = ({ file, onPreview, onDelete }) => {
         <div className="p-3 space-y-2">
           <div className="flex items-center gap-2">
             {file.type === 'image' ? (
-              <Image className="w-4 h-4 text-blue-500" />
+              <ImageIcon className="w-4 h-4 text-blue-500" />
             ) : file.type === 'pdf' ? (
               <FileText className="w-4 h-4 text-red-500" />
             ) : (
@@ -546,7 +546,7 @@ export const MultiModalInput: React.FC<MultiModalInputProps> = ({
           mediaFile.thumbnail = await generateThumbnail(file);
 
           // 获取图片尺寸
-          const img = new Image();
+          const img = new window.Image();
           img.src = url;
           await new Promise((resolve) => {
             img.onload = () => {
@@ -693,7 +693,7 @@ export const MultiModalInput: React.FC<MultiModalInputProps> = ({
                   size="sm"
                   onClick={() => fileInputRef.current?.click()}
                 >
-                  <Image className="w-4 h-4 mr-2" />
+                  <ImageIcon className="w-4 h-4 mr-2" />
                   选择文件
                 </Button>
 

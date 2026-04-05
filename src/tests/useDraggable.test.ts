@@ -7,7 +7,7 @@
  * - 默认位置计算
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import type { Position } from '@/hooks/useDraggable';
 
 // 测试工具函数（从 useDraggable 中提取的逻辑）

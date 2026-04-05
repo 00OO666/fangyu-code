@@ -48,6 +48,7 @@ import {
     ClaudeEngineIcon,
     CodexEngineIcon,
     GeminiEngineIcon,
+    KiroEngineIcon,
     SiliconFlowEngineIcon,
 } from '@/components/icons/EngineIcons';
 import { getSummaryConfigStore } from '@/services/summaryConfigStore';
@@ -127,6 +128,18 @@ const ENGINE_CONFIG = {
         needsApiKey: true,
         configUrl: 'https://siliconflow.cn/account/ak',
         defaultEndpoint: 'https://api.siliconflow.cn/v1/chat/completions',
+    },
+    kiro: {
+        id: 'kiro' as const,
+        name: 'Kiro',
+        Icon: KiroEngineIcon,
+        color: '#FF6B35',
+        bgClass: 'bg-amber-500/10 hover:bg-amber-500/20',
+        borderClass: 'border-amber-500/30',
+        textClass: 'text-amber-500',
+        description: '使用本地 Kiro / Amazon Q 登录态',
+        needsApiKey: false,
+        configUrl: 'https://kiro.dev/cli/',
     },
 };
 
@@ -422,7 +435,7 @@ export const SummaryEngineConfig: React.FC<SummaryEngineConfigProps> = ({
                     {/* 引擎选择 */}
                     <div className="space-y-2">
                         <Label className="text-sm font-medium">选择引擎</Label>
-                        <div className="grid grid-cols-4 gap-2">
+                        <div className="grid grid-cols-5 gap-2">
                             {(Object.keys(ENGINE_CONFIG) as SummaryEngine[]).map(renderEngineCard)}
                         </div>
                         <p className="text-xs text-muted-foreground">

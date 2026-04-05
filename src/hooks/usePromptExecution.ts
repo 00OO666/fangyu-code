@@ -109,7 +109,7 @@ interface UsePromptExecutionConfig {
     React.SetStateAction<{
       sessionId: string;
       projectId: string;
-      engine?: "claude" | "codex" | "gemini";
+      engine?: "claude" | "codex" | "gemini" | "siliconflow" | "kiro";
     } | null>
   >;
   setIsFirstPrompt: (isFirst: boolean) => void;
@@ -1142,13 +1142,6 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
                         }
 
                         if (merged) {
-                          // 🐛 DEBUG: Log final merged content structure
-                          const toolUseCount = updatedContent.filter(
-                            (c: any) => c.type === "tool_use",
-                          ).length;
-                          if (toolUseCount > 0) {
-                          }
-
                           const updatedMsg = {
                             ...lastMsg,
                             message: {
@@ -1903,9 +1896,6 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
               if (isEnabled) {
                 userInputTranslation = await translationMiddleware.translateUserInput(prompt);
                 processedPrompt = userInputTranslation.translatedText;
-
-                if (userInputTranslation.wasTranslated) {
-                }
               }
             } catch (translationError) {
               logger.error('usePromptExecution', 'Translation failed, using original prompt:', translationError);
@@ -1923,8 +1913,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
           // ========================================================================
 
           // maxThinkingTokens is now passed as API parameter, not added to prompt
-          if (maxThinkingTokens) {
-          }
+          const effectiveThinkingTokens = maxThinkingTokens;
 
           // ========================================================================
           // 5️⃣ Add User Message to UI
@@ -2066,8 +2055,7 @@ export function usePromptExecution(config: UsePromptExecutionConfig): UsePromptE
           const resumingSession = effectiveSession && !isFirstPrompt;
           const sessionId = resumingSession ? effectiveSession.id : undefined;
 
-          if (resumingSession) {
-          } else {
+          if (!resumingSession) {
             setIsFirstPrompt(false);
           }
 

@@ -800,18 +800,18 @@ export class UnifiedWorkflowEngine extends BrowserEventEmitter {
         if (!this.agentSwarmManager) return;
 
         // 任务事件
-        this.agentSwarmManager.on('task:started', (event) => {
+        this.agentSwarmManager.on('task:started', (event: any) => {
             const task = event.task as Task;
             this.inProgressTaskIds.add(task.id);
             this.addLog('info', `任务开始: ${task.description}`, task.id, event.agent?.id);
             this.emitEvent('task:started', event);
         });
 
-        this.agentSwarmManager.on('task:progress', (event) => {
+        this.agentSwarmManager.on('task:progress', (event: any) => {
             this.emitEvent('task:progress', event);
         });
 
-        this.agentSwarmManager.on('task:completed', (event) => {
+        this.agentSwarmManager.on('task:completed', (event: any) => {
             const task = event.task as Task;
             this.inProgressTaskIds.delete(task.id);
             this.completedTaskIds.add(task.id);
@@ -819,7 +819,7 @@ export class UnifiedWorkflowEngine extends BrowserEventEmitter {
             this.emitEvent('task:completed', event);
         });
 
-        this.agentSwarmManager.on('task:failed', (event) => {
+        this.agentSwarmManager.on('task:failed', (event: any) => {
             const task = event.task as Task;
             this.inProgressTaskIds.delete(task.id);
             this.failedTaskIds.add(task.id);
@@ -827,45 +827,45 @@ export class UnifiedWorkflowEngine extends BrowserEventEmitter {
             this.emitEvent('task:failed', event);
         });
 
-        this.agentSwarmManager.on('task:cancelled', (event) => {
+        this.agentSwarmManager.on('task:cancelled', (event: any) => {
             this.inProgressTaskIds.delete(event.taskId);
             this.addLog('info', `任务取消: ${event.taskId}`);
             this.emitEvent('task:cancelled', event);
         });
 
         // 代理事件
-        this.agentSwarmManager.on('agent:created', (event) => {
+        this.agentSwarmManager.on('agent:created', (event: any) => {
             this.addLog('info', `代理创建: ${event.agent.name} (${event.agent.type})`);
             this.emitEvent('agent:created', event);
         });
 
-        this.agentSwarmManager.on('agent:assigned', (event) => {
+        this.agentSwarmManager.on('agent:assigned', (event: any) => {
             this.addLog('info', `代理分配: ${event.agent.name} → ${event.task.description}`);
             this.emitEvent('agent:assigned', event);
         });
 
-        this.agentSwarmManager.on('agent:idle', (event) => {
+        this.agentSwarmManager.on('agent:idle', (event: any) => {
             this.emitEvent('agent:idle', event);
         });
 
-        this.agentSwarmManager.on('agent:destroyed', (event) => {
+        this.agentSwarmManager.on('agent:destroyed', (event: any) => {
             this.addLog('info', `代理销毁: ${event.agent.name}`);
             this.emitEvent('agent:destroyed', event);
         });
 
         // 工作流事件
-        this.agentSwarmManager.on('workflow:started', (event) => {
+        this.agentSwarmManager.on('workflow:started', (event: any) => {
             this.addLog('info', '工作流执行开始');
             this.emitEvent('workflow:started', event);
         });
 
-        this.agentSwarmManager.on('workflow:completed', (event) => {
+        this.agentSwarmManager.on('workflow:completed', (event: any) => {
             this.setState('completed');
             this.addLog('info', '工作流执行完成！');
             this.emitEvent('workflow:completed', event);
         });
 
-        this.agentSwarmManager.on('workflow:failed', (event) => {
+        this.agentSwarmManager.on('workflow:failed', (event: any) => {
             this.setState('failed');
             this.error = '工作流执行失败';
             this.addLog('error', '工作流执行失败');

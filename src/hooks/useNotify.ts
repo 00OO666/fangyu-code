@@ -206,7 +206,7 @@ export const notify = {
     position: NotificationPosition,
     ...args: Parameters<(typeof NotificationTemplates)[K]>
   ): string => {
-    // @ts-expect-error
+    // @ts-expect-error Template overloads are heterogeneous across notification factories.
     const template = NotificationTemplates[templateName](...args);
     return notificationService.notify(template.message, {
       ...template,

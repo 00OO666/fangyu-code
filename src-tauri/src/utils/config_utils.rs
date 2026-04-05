@@ -122,10 +122,12 @@ where
 /// let builder = ConfigPathBuilder::new(my_dir);
 /// let config_path = builder.build("config.json");
 /// ```
+#[allow(dead_code)]
 pub struct ConfigPathBuilder {
     base_dir: PathBuf,
 }
 
+#[allow(dead_code)]
 impl ConfigPathBuilder {
     /// 创建新的路径构建器
     ///

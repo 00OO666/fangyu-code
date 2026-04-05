@@ -210,6 +210,12 @@ export const ENGINE_MODELS: Record<SummaryEngine, ModelInfo[]> = {
         { id: 'Qwen/Qwen2.5-32B-Instruct', name: 'Qwen 2.5 32B', costPer1k: 0.0004, maxContext: 32000 },
         { id: 'THUDM/glm-4-9b-chat', name: 'GLM-4 9B', costPer1k: 0.0002, maxContext: 128000 },
     ],
+    kiro: [
+        { id: 'claude-opus-4.5', name: 'Claude Opus 4.5', costPer1k: 0.015, maxContext: 200000 },
+        { id: 'CLAUDE_SONNET_4_5_20250929_V1_0', name: 'Claude Sonnet 4.5', costPer1k: 0.003, maxContext: 200000, recommended: true },
+        { id: 'CLAUDE_SONNET_4_20250514_V1_0', name: 'Claude Sonnet 4', costPer1k: 0.003, maxContext: 200000 },
+        { id: 'claude-haiku-4.5', name: 'Claude Haiku 4.5', costPer1k: 0.0008, maxContext: 200000 },
+    ],
 };
 
 /** 默认摘要配置 */
@@ -248,6 +254,12 @@ export const ENGINE_DISPLAY_INFO: Record<SummaryEngine, Omit<EngineInfo, 'availa
         name: 'SiliconFlow',
         color: '#7C3AED',
         gradient: 'linear-gradient(135deg, #7C3AED 0%, #A855F7 100%)',
+    },
+    kiro: {
+        id: 'kiro',
+        name: 'Kiro',
+        color: '#FF6B35',
+        gradient: 'linear-gradient(135deg, #FF6B35 0%, #F59E0B 100%)',
     },
 };
 

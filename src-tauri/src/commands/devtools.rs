@@ -1,4 +1,3 @@
-use tauri::Manager;
 
 /// 打开开发者工具 (F12)
 #[tauri::command]

@@ -76,6 +76,15 @@ const ENGINE_INSTALL_CONFIG: Record<EngineType, EngineInstallInfo> = {
         registrationUrl: 'https://cloud.siliconflow.cn/account/ak',
         description: '国产 AI 模型聚合平台，提供 OpenAI 兼容 API，无需安装 CLI',
     },
+    kiro: {
+        name: 'Kiro CLI',
+        command: null,
+        requiresNodejs: false,
+        postInstall: '完成 Kiro CLI 登录后即可使用',
+        docsUrl: 'https://kiro.dev/cli/',
+        registrationUrl: 'https://kiro.dev/cli/',
+        description: 'Amazon Q / Kiro 本地 CLI 集成，依赖本机登录态，无需额外 API Key',
+    },
 };
 
 // 解析 Node.js 版本
@@ -179,7 +188,14 @@ export function EngineInstaller({ engine, onInstallComplete, onClose }: EngineIn
 
             // 验证安装
             addLog('验证安装...');
-            const verifyCmd = engine === 'claude' ? 'claude' : engine === 'codex' ? 'codex' : 'gemini';
+            const verifyCmd =
+                engine === 'claude'
+                    ? 'claude'
+                    : engine === 'codex'
+                      ? 'codex'
+                      : engine === 'gemini'
+                        ? 'gemini'
+                        : 'kiro-cli';
             try {
                 await invoke<string>('execute_command', {
                     command: verifyCmd,

@@ -236,7 +236,6 @@ pub async fn execute_kiro_chat(
     // 隐藏 Windows 控制台窗口
     #[cfg(target_os = "windows")]
     {
-        use std::os::windows::process::CommandExt;
         const CREATE_NO_WINDOW: u32 = 0x08000000;
         cmd.creation_flags(CREATE_NO_WINDOW);
     }
@@ -376,7 +375,7 @@ pub async fn open_kiro_login() -> Result<String, String> {
     #[cfg(target_os = "windows")]
     {
         // 在 Windows 上打开 WSL 终端执行登录
-        let output = Command::new("cmd")
+        let _output = Command::new("cmd")
             .args(["/c", "start", "wsl", "-d", "Ubuntu", "-e", "bash", "-lc", "kiro-cli login"])
             .spawn()
             .map_err(|e| format!("Failed to open Kiro login: {}", e))?;

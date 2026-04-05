@@ -7,7 +7,17 @@
 
 import fc from 'fast-check';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import type { WorkflowProgress, Task, WorkflowDAG, WorkflowMetadata } from '../core/types/workflow';
+import type { Task, WorkflowDAG, WorkflowMetadata } from '../core/types/workflow';
+
+interface WorkflowProgress {
+    totalTasks: number;
+    completedTasks: number;
+    failedTasks: number;
+    inProgressTasks: number;
+    pendingTasks: number;
+    currentTask: Task | null;
+    percentage: number;
+}
 
 // ============================================
 // Test Utilities
@@ -34,6 +44,7 @@ const taskArbitrary = fc.record({
         endTime: fc.option(fc.integer({ min: 0 }), { nil: undefined }),
         duration: fc.option(fc.integer({ min: 0 }), { nil: undefined }),
     }),
+    metadata: fc.constant({}),
 });
 
 /**
@@ -107,6 +118,7 @@ function createTask(id: string, status: Task['status']): Task {
         requiredSkills: [],
         requiredTools: [],
         metrics: { retryCount: 0 },
+        metadata: {},
     };
 }
 

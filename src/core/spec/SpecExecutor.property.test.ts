@@ -292,7 +292,7 @@ describe('SpecExecutor Property Tests', () => {
     it('should validate tasks with valid dependencies', () => {
       fc.assert(
         fc.property(
-          fc.nat({ min: 1, max: 10 }).chain(size => arbValidTaskList(size)),
+          fc.integer({ min: 1, max: 10 }).chain(size => arbValidTaskList(size)),
           (tasks) => {
             const result = executor.validateTaskDependencies(tasks);
             expect(result.valid).toBe(true);
@@ -342,7 +342,7 @@ describe('SpecExecutor Property Tests', () => {
     it('should return next executable task respecting dependencies', () => {
       fc.assert(
         fc.property(
-          fc.nat({ min: 2, max: 5 }).chain(size => arbValidTaskList(size)),
+          fc.integer({ min: 2, max: 5 }).chain(size => arbValidTaskList(size)),
           (tasks) => {
             // 将所有任务设为 pending
             const pendingTasks = tasks.map(t => ({ ...t, status: 'pending' as TaskStatus }));
@@ -374,7 +374,7 @@ describe('SpecExecutor Property Tests', () => {
     it('should find task with no dependencies as first executable', () => {
       fc.assert(
         fc.property(
-          fc.nat({ min: 1, max: 5 }).chain(size => arbValidTaskList(size)),
+          fc.integer({ min: 1, max: 5 }).chain(size => arbValidTaskList(size)),
           (tasks) => {
             // 所有任务都是 pending
             const pendingTasks = tasks.map(t => ({ ...t, status: 'pending' as TaskStatus }));

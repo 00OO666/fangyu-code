@@ -1673,9 +1673,10 @@ pub fn get_claude_wsl_runtime() -> &'static ClaudeWslRuntime {
     CLAUDE_WSL_RUNTIME.get_or_init(|| {
         let config = ClaudeWslRuntime::detect();
         log::info!(
-            "[Claude WSL] Runtime initialized: enabled={}, distro={:?}, claude_path={:?}",
+            "[Claude WSL] Runtime initialized: enabled={}, distro={:?}, claude_dir_unc={:?}, claude_path={:?}",
             config.enabled,
             config.distro,
+            config.claude_dir_unc,
             config.claude_path_in_wsl
         );
         config
@@ -1683,6 +1684,7 @@ pub fn get_claude_wsl_runtime() -> &'static ClaudeWslRuntime {
 }
 
 /// 获取 WSL 中 .claude 目录的 Windows 访问路径
+#[allow(dead_code)]
 pub fn get_wsl_claude_dir() -> Option<PathBuf> {
     let config = get_claude_wsl_runtime();
     config.claude_dir_unc.clone()

@@ -620,6 +620,7 @@ pub fn create_background_task(
     priority: Option<TaskPriority>,
     session_id: Option<String>,
     tags: Option<Vec<String>>,
+    max_retries: Option<u32>,
 ) -> Result<BackgroundTask, String> {
     let mut guard = state.0.lock().map_err(|e| e.to_string())?;
     let manager = guard.as_mut()
@@ -638,6 +639,9 @@ pub fn create_background_task(
     }
     if let Some(t) = tags {
         task = task.with_tags(t);
+    }
+    if let Some(max) = max_retries {
+        task = task.with_max_retries(max);
     }
 
     let task_clone = task.clone();

@@ -9,6 +9,7 @@ import { logger } from '@/lib/logger';
 import type { SummaryEngine, ModelInfo } from '@/types/summary';
 import { ENGINE_MODELS } from '@/types/summary';
 import { getCurrentProvider } from '@/services/engineConfigService';
+import { KiroEngine } from '@/services/kiro';
 
 // =============================================================================
 // 类型定义
@@ -241,12 +242,51 @@ async function testSiliconFlowModel(
     }
 }
 
+async function testKiroModel(
+    modelId: string,
+    _apiKey: string,
+    baseUrl: string
+): Promise<ModelTestResult> {
+    const startTime = Date.now();
+    try {
+        const engine = new KiroEngine({
+            tokenPath: baseUrl || undefined,
+            modelId,
+        });
+        const validation = await engine.validateConfig();
+
+        if (validation.valid) {
+            return {
+                modelId,
+                status: 'success',
+                actualModel: modelId,
+                latency: Date.now() - startTime,
+            };
+        }
+
+        return {
+            modelId,
+            status: 'error',
+            error: validation.error || 'Kiro 配置无效',
+            latency: Date.now() - startTime,
+        };
+    } catch (error) {
+        return {
+            modelId,
+            status: 'error',
+            error: error instanceof Error ? error.message.slice(0, 50) : 'Kiro 测试失败',
+            latency: Date.now() - startTime,
+        };
+    }
+}
+
 // 测试函数映射
 const TEST_FUNCTIONS: Record<SummaryEngine, typeof testClaudeModel> = {
     claude: testClaudeModel,
     codex: testOpenAIModel,
     gemini: testGeminiModel,
     siliconflow: testSiliconFlowModel,
+    kiro: testKiroModel,
 };
 
 // =============================================================================

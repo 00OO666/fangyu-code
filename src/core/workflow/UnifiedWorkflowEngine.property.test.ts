@@ -133,6 +133,7 @@ const taskArbitrary = (id: string, deps: string[] = []): fc.Arbitrary<Task> =>
         requiredSkills: fc.array(fc.string(), { maxLength: 3 }),
         requiredTools: fc.array(fc.string(), { maxLength: 3 }),
         metrics: fc.constant({ retryCount: 0 }),
+        metadata: fc.constant({}),
     });
 
 /**
@@ -162,6 +163,7 @@ function generateValidDAG(taskCount: number): WorkflowDAG {
             requiredSkills: [],
             requiredTools: [],
             metrics: { retryCount: 0 },
+            metadata: {},
         };
         tasks.push(task);
     }
@@ -324,6 +326,7 @@ describe('UnifiedWorkflowEngine Property Tests', () => {
                                 requiredSkills: [],
                                 requiredTools: [],
                                 metrics: { retryCount: 0 },
+                                metadata: {},
                             });
                         }
 

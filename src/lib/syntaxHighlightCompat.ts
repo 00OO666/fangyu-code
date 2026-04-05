@@ -27,13 +27,13 @@ export const checkSyntaxHighlightSupport = (() => {
 
     try {
       // 测试 lookbehind assertions 支持
-      /(?<=test)/;
+      new RegExp("(?<=test)");
 
       // 测试 named capture groups 支持 (这是 "invalid group specifier name" 错误的根源)
-      /(?<name>test)/;
+      new RegExp("(?<name>test)");
 
       // 测试 lookahead assertions 支持 (通常都支持，但以防万一)
-      /(?=test)/;
+      new RegExp("(?=test)");
 
       cachedResult = true;
     } catch {

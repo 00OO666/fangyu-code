@@ -39,7 +39,7 @@ export interface TaskInfo {
   /** 项目路径 */
   projectPath: string;
   /** 执行引擎 */
-  engine: "claude" | "codex" | "gemini" | "siliconflow";
+  engine: "claude" | "codex" | "gemini" | "siliconflow" | "kiro";
   /** 任务状态 */
   status: TaskStatus;
   /** 进度百分比 (0-100) */
@@ -582,7 +582,9 @@ export const useActiveTaskCount = (): number => {
  * @param engine 执行引擎类型
  * @returns 该引擎的所有任务
  */
-export const useTasksByEngine = (engine: "claude" | "codex" | "gemini" | "siliconflow"): TaskInfo[] => {
+export const useTasksByEngine = (
+  engine: "claude" | "codex" | "gemini" | "siliconflow" | "kiro",
+): TaskInfo[] => {
   const { state } = useGlobalTaskState();
   const tasks: TaskInfo[] = [];
   state.tasks.forEach((task) => {

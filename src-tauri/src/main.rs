@@ -232,6 +232,19 @@ use commands::git_stats::{
 use commands::smart_project::{
     create_project_claude_md, create_smart_project, generate_session_title, rename_smart_project,
 };
+use commands::secure_storage::{
+    secure_store_clear, secure_store_get, secure_store_has, secure_store_list_keys,
+    secure_store_remove, secure_store_set,
+};
+use commands::super_agent::{
+    super_agent_assess_risk, super_agent_delete_file, super_agent_execute_command,
+    super_agent_is_long_running, super_agent_read_file, super_agent_redact_sensitive,
+    super_agent_str_replace, super_agent_validate_command, super_agent_validate_path,
+    super_agent_write_file,
+};
+use commands::terminal::{
+    terminal_close_session, terminal_create_session, terminal_execute, TerminalManager,
+};
 use process::ProcessRegistryState;
 use tauri::{Manager, WindowEvent};
 use tauri_plugin_window_state::Builder as WindowStatePlugin;
@@ -324,6 +337,9 @@ fn main() {
             tauri::async_runtime::spawn(async move {
                 commands::translator::init_translation_service_with_saved_config().await;
             });
+
+            // Initialize terminal command state
+            app.manage(TerminalManager::new());
 
             // 🔄 启动时同步 MCP 配置：从 .claude.json 同步到 settings.json
             // 确保 Fangyu Code UI 显示的配置与 Claude Code 实际使用的配置一致
@@ -523,6 +539,13 @@ fn main() {
             save_clipboard_image,
             write_to_clipboard,
             read_from_clipboard,
+            // Secure Storage
+            secure_store_set,
+            secure_store_get,
+            secure_store_remove,
+            secure_store_clear,
+            secure_store_list_keys,
+            secure_store_has,
             // Provider Management
             get_provider_presets,
             get_current_provider_config,
@@ -637,6 +660,21 @@ fn main() {
             // File Operations
             open_directory_in_explorer,
             open_file_with_default_app,
+            // Terminal Bridge
+            terminal_execute,
+            terminal_create_session,
+            terminal_close_session,
+            // Super Agent Bridge
+            super_agent_read_file,
+            super_agent_write_file,
+            super_agent_delete_file,
+            super_agent_str_replace,
+            super_agent_execute_command,
+            super_agent_is_long_running,
+            super_agent_validate_command,
+            super_agent_validate_path,
+            super_agent_assess_risk,
+            super_agent_redact_sensitive,
             // Git Statistics
             get_git_diff_stats,
             get_session_code_changes,

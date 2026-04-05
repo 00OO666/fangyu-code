@@ -14,7 +14,8 @@ export interface SiliconFlowEngineContext {
   config: UsePromptExecutionConfig;
   prompt: string;
   model: string;
-  maxThinkingTokens?: number }
+  maxThinkingTokens?: number;
+}
 
 /**
  * 执行 SiliconFlow 引擎请求
@@ -28,60 +29,65 @@ export async function executeSiliconFlowRequest(
   try {
     setIsLoading(true);
 
-    // Load SiliconFlow configuration
     const sfConfig = loadSiliconFlowConfig();
     if (!sfConfig.apiKey) {
-      throw new Error("SiliconFlow API key not configured") }
+      throw new Error("SiliconFlow API key not configured");
+    }
 
-    // Prepare LLM request
     const provider: LLMProvider = {
+      id: "siliconflow",
       name: "SiliconFlow",
-      baseUrl: SILICONFLOW_API.BASE_URL,
+      apiUrl: SILICONFLOW_API.BASE_URL + SILICONFLOW_API.CHAT_ENDPOINT,
       apiKey: sfConfig.apiKey,
-      models: [model || sfConfig.defaultModel],
+      model: model || sfConfig.selectedModel,
+      temperature: sfConfig.temperature,
+      maxTokens: sfConfig.maxTokens,
+      apiFormat: "openai",
     };
 
     const request: LLMRequest = {
-      model: model || sfConfig.defaultModel,
-      messages: [
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-      max_tokens: maxThinkingTokens || 4096,
-      stream: true,
+      systemPrompt: "You are a helpful AI assistant powered by SiliconFlow.",
+      userPrompt: prompt,
+      maxTokens: maxThinkingTokens || sfConfig.maxTokens,
+      temperature: sfConfig.temperature,
     };
 
-    // Execute request
-    const llmService = new LLMApiService();
-    const response = await llmService.sendRequest(provider, request);
-
-    // Add user message
     setMessages((prev) => [
       ...prev,
       {
         type: "user",
-        message: { content: prompt },
-        timestamp: Date.now(),
+        message: { role: "user", content: [{ type: "text", text: prompt }] },
+        timestamp: new Date().toISOString(),
         engine: "siliconflow",
       },
     ]);
 
-    // Add assistant response
+    const response = await LLMApiService.call(provider, request);
+
     setMessages((prev) => [
       ...prev,
       {
         type: "assistant",
-        message: { content: response.content },
-        timestamp: Date.now(),
+        message: {
+          role: "assistant",
+          content: [{ type: "text", text: response.content }],
+        },
+        timestamp: new Date().toISOString(),
         engine: "siliconflow",
+      },
+      {
+        type: "result",
+        subtype: "success",
+        timestamp: new Date().toISOString(),
+        model: provider.model,
       },
     ]);
 
-    setIsLoading(false) } catch (error) {
+    setIsLoading(false);
+  } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error('siliconflow', "[SiliconFlow Engine] Error:", errorMessage);
     setError(errorMessage);
-    setIsLoading(false) }
+    setIsLoading(false);
+  }
 }

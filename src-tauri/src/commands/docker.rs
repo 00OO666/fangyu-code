@@ -169,7 +169,7 @@ pub async fn docker_exec_command(
     container_id: String,
     command: String,
     cwd: String,
-    timeout: u64,
+    _timeout: u64,
 ) -> Result<CommandExecResult, String> {
     let output = Command::new("docker")
         .args([

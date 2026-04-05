@@ -214,6 +214,7 @@ export class TranslationMiddleware {
     expired.forEach((key) => this.translationCache.delete(key));
 
     if (expired.length > 0) {
+      logger.debug('translationMiddleware', `[TranslationMiddleware] Cleaned ${expired.length} expired cache entries`);
     }
   }
 
@@ -625,7 +626,7 @@ export class TranslationMiddleware {
       const isChineseByContent = this.detectChineseContent(userInput);
 
       // 优先信任内容检测，因为它更准确
-      const isAsciiOnly = /^[\u0000-\u007F]*$/.test(userInput);
+      const isAsciiOnly = Array.from(userInput).every((char) => char.charCodeAt(0) <= 0x7f);
       const shouldTranslate = isChineseByContent || (isChineseByCode && !isAsciiOnly);
 
       // 如果检测到中文，使用队列化翻译为英文

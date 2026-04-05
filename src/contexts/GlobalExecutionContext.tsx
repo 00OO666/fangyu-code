@@ -35,7 +35,7 @@ export interface TabExecutionState {
   /** 项目路径 */
   projectPath: string;
   /** 执行引擎 */
-  engine: 'claude' | 'codex' | 'gemini' | 'siliconflow';
+  engine: 'claude' | 'codex' | 'gemini' | 'siliconflow' | 'kiro';
   /** 开始时间 */
   startedAt: number;
   /** 最后更新时间 */
@@ -60,7 +60,13 @@ interface GlobalExecutionContextValue {
   updateTabState: (tabId: string, state: Partial<TabExecutionState>) => void;
 
   /** 标记Tab开始执行 */
-  startExecution: (tabId: string, sessionId: string | null, projectPath: string, engine: 'claude' | 'codex' | 'gemini', prompt?: string) => void;
+  startExecution: (
+    tabId: string,
+    sessionId: string | null,
+    projectPath: string,
+    engine: 'claude' | 'codex' | 'gemini' | 'siliconflow' | 'kiro',
+    prompt?: string,
+  ) => void;
 
   /** 标记Tab执行完成 */
   endExecution: (tabId: string) => void;
@@ -150,7 +156,7 @@ export const GlobalExecutionProvider: React.FC<GlobalExecutionProviderProps> = (
     tabId: string,
     sessionId: string | null,
     projectPath: string,
-    engine: 'claude' | 'codex' | 'gemini',
+    engine: 'claude' | 'codex' | 'gemini' | 'siliconflow' | 'kiro',
     prompt?: string
   ) => {
     const existing = statesRef.current.get(tabId);
